@@ -17,7 +17,6 @@
 # 1.0 - 9/24/9 - Initial release
 #----------------------------------------------------------------
 
-require 'rex/proto/rfb/cipher'
 
 session = client
 

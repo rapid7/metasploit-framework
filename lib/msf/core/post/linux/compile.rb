@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/unix'
-
 module Msf
 class Post
 module Linux
@@ -19,14 +15,14 @@ module Compile
   end
 
   def live_compile?
-    return false unless datastore['COMPILE'].eql?('Auto') || datastore['COMPILE'].eql?('True')
+    return false unless %w{ Auto True }.include?(datastore['COMPILE'])
 
     if has_gcc?
       vprint_good 'gcc is installed'
       return true
     end
 
-    unless datastore['COMPILE'].eql? 'Auto'
+    unless datastore['COMPILE'] == 'Auto'
       fail_with Module::Failure::BadConfig, 'gcc is not installed. Set COMPILE False to upload a pre-compiled executable.'
     end
   end
@@ -34,7 +30,7 @@ module Compile
   def upload_and_compile(path, data, gcc_args='')
     write_file "#{path}.c", strip_comments(data)
 
-    gcc_cmd = "gcc -o #{path} #{path}.c"
+    gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
     if session.type.eql? 'shell'
       gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
     end
@@ -48,7 +44,10 @@ module Compile
 
     unless output.blank?
       print_error output
-      fail_with Module::Failure::BadConfig, "#{path}.c failed to compile. Set COMPILE False to upload a pre-compiled executable."
+      message = "#{path}.c failed to compile."
+      # don't mention the COMPILE option if it was deregistered
+      message << ' Set COMPILE to False to upload a pre-compiled executable.' if options.include?('COMPILE')
+      fail_with Module::Failure::BadConfig, message
     end
 
     chmod path

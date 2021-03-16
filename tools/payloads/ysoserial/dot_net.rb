@@ -11,8 +11,6 @@ while File.symlink?(msfbase)
 end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', '..', 'lib')))
 require 'msfenv'
-require 'msf/core'
-require 'msf/base'
 require 'rex'
 require 'optparse'
 

@@ -3,7 +3,6 @@
 require 'socket'
 require 'openssl'
 
-require 'rex/script'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client_core'
 require 'rex/post/meterpreter/channel'
@@ -126,7 +125,7 @@ class Client
     self.target_id    = opts[:target_id]
     self.capabilities = opts[:capabilities] || {}
     self.commands     = []
-    self.last_checkin = Time.now
+    self.last_checkin = ::Time.now
 
     self.conn_id      = opts[:conn_id]
     self.url          = opts[:url]
@@ -317,7 +316,6 @@ class Client
   # registered extension that can be reached through client.ext.[extension].
   #
   def add_extension(name, commands=[])
-    self.commands |= []
     self.commands.concat(commands)
 
     # Check to see if this extension has already been loaded.

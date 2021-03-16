@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'erb'
 
 module Rex

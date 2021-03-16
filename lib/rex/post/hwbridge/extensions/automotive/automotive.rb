@@ -120,7 +120,7 @@ class Automotive < Extension
     data = [ data ] if data.is_a? Integer
     if data.size < 8
       # Padding is handled differently after 0.0.3
-      if Gem::Version.new(client.api_version) < Gem::Version.new('0.0.4')
+      if Rex::Version.new(client.api_version) < Rex::Version.new('0.0.4')
         data = padd_packet(data, opt['PADDING']) if opt.key? 'PADDING'
       end
       data = array2hex(data).join

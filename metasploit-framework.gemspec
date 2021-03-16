@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.23'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.37'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.2'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.6'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -101,6 +101,7 @@ Gem::Specification.new do |spec|
   # Needed for Microsoft patch finding tool (msu_finder)
   spec.add_runtime_dependency 'patch_finder'
   # Required for Metasploit Web Services
+  spec.add_runtime_dependency 'puma'
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
   spec.add_runtime_dependency 'warden'
@@ -110,8 +111,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys
   spec.add_runtime_dependency 'sshkey'
-  # BitStruct Library used for handling certain Protocol Header/Packet construction
-  spec.add_runtime_dependency 'bit-struct'
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap
@@ -218,4 +217,5 @@ Gem::Specification.new do |spec|
   # Earlier than latest Faraday gem is used to prevent upstream Octokit errors
   spec.add_runtime_dependency 'faraday'
 
+  spec.add_runtime_dependency 'zeitwerk'
 end

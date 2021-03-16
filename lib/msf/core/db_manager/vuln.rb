@@ -31,7 +31,7 @@ module Msf::DBManager::Vuln
     vuln = nil
 
     if service
-      other_vulns = service.vulns.includes(:vuln_details).where(crit)
+      other_vulns = service.vulns.includes(:vuln_details).where(crit).to_a
       vuln = other_vulns.empty? ? nil : other_vulns.first
     end
 
@@ -40,7 +40,7 @@ module Msf::DBManager::Vuln
 
     # Prevent matches against other services
     crit["vulns.service_id"] = nil if service
-    other_vulns = host.vulns.includes(:vuln_details).where(crit)
+    other_vulns = host.vulns.includes(:vuln_details).where(crit).to_a
     other_vulns.empty? ? nil : other_vulns.first
   end
 

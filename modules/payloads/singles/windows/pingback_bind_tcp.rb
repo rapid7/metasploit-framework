@@ -3,11 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/pingback'
-require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/windows/block_api'
-require 'msf/base/sessions/pingback'
-require 'msf/core/payload/windows/exitfunk'
 
 module MetasploitModule
 

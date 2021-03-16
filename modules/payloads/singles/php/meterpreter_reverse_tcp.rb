@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/php/reverse_tcp'
-require 'msf/base/sessions/meterpreter_php'
-require 'msf/base/sessions/meterpreter_options'
 
 
 module MetasploitModule

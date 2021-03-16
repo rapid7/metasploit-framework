@@ -1,4 +1,3 @@
-require 'msf/core/module'
 
 module Msf
   class Evasion < Msf::Module
@@ -219,13 +218,14 @@ module Msf
       reqs = self.payload_info.dup
 
       # Pass save register requirements to the NOP generator
-      reqs['Space']           = payload_info['Space'].to_i
+      reqs['Space']           = payload_info['Space'] ? payload_info['Space'].to_i : nil
       reqs['SaveRegisters']   = module_info['SaveRegisters']
       reqs['Prepend']         = payload_info['Prepend']
       reqs['PrependEncoder']  = payload_info['PrependEncoder']
       reqs['BadChars']        = payload_info['BadChars']
       reqs['Append']          = payload_info['Append']
       reqs['AppendEncoder']   = payload_info['AppendEncoder']
+      reqs['DisableNops']     = payload_info['DisableNops']
       reqs['MaxNops']         = payload_info['MaxNops']
       reqs['MinNops']         = payload_info['MinNops']
       reqs['Encoder']         = datastore['ENCODER'] || payload_info['Encoder']
@@ -233,6 +233,7 @@ module Msf
       reqs['EncoderType']     = payload_info['EncoderType']
       reqs['EncoderOptions']  = payload_info['EncoderOptions']
       reqs['ExtendedOptions'] = payload_info['ExtendedOptions']
+      reqs['ForceEncode']     = payload_info['ForceEncode']
       reqs['Evasion']         = self
 
       # Pass along the encoder don't fall through flag

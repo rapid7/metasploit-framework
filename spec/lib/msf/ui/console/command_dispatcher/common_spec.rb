@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/ui/console/command_dispatcher/common'
 
 RSpec.describe ::Msf::Ui::Console::CommandDispatcher::Common do
   let(:subject) do

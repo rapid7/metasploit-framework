@@ -2,7 +2,6 @@
 
 require 'spec_helper'
 
-require 'msf/core/auxiliary/arista'
 
 RSpec.describe Msf::Auxiliary::Arista do
   class DummyAristaClass

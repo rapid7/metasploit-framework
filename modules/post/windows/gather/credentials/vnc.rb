@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
-require 'rex/proto/rfb'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -75,7 +73,7 @@ class MetasploitModule < Msf::Post
 
   def run
 
-  '''
+  '
   Hash format
     :name,
     :check_file,
@@ -88,7 +86,7 @@ class MetasploitModule < Msf::Post
     :viewonly_variable,
     :viewonly_hash,
     :viewonly_pass
-  '''
+  '
 
     locations = []
 

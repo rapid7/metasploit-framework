@@ -10,6 +10,7 @@ require 'fileutils'
 
 require 'metasploit/model/engine'
 require 'metasploit/concern/engine'
+require 'metasploit/framework/require'
 Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines
 
 # `Rails::Engine` behavior common to both {Metasploit::Framework::Application} and {Metasploit::Framework::Engine}.
@@ -27,8 +28,8 @@ module Metasploit::Framework::CommonEngine
     # @see http://rubydoc.info/stdlib/core/IO:read
     config.before_initialize do
       encoding = 'binary'
-      Encoding.default_external = encoding
-      Encoding.default_internal = encoding
+      ::Encoding.default_external = encoding
+      ::Encoding.default_internal = encoding
     end
 
     config.root = Msf::Config::install_root

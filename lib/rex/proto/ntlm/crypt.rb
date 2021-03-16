@@ -44,8 +44,6 @@
 # The third key has to begin from the 14th character of the
 # input string instead of 13th:)
 
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/base'
 
 module Rex
 module Proto
@@ -186,7 +184,7 @@ BASE = Rex::Proto::NTLM::Base
       cc = opt[:client_challenge] || rand(CONST::MAX64)
       cc = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
 
-      ts = opt[:timestamp] || Time.now.to_i
+      ts = opt[:timestamp] || ::Time.now.to_i
 
       # Convert the unix timestamp to windows format
       #   epoch -> milsec from Jan 1, 1601

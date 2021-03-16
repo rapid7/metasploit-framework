@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'spec_helper'
 
-require 'msf/core/post/windows/priv'
 
 RSpec.describe Msf::Post::Windows::Priv do
 

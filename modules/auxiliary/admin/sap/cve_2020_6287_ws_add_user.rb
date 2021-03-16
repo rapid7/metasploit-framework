@@ -103,11 +103,9 @@ class MetasploitModule < Msf::Auxiliary
 
       event = job.get_event
 
-      unless (action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank?
-        if action_id.to_s == 'genErrorNotification'
-          report_error_details(job)
-          fail_with(Failure::Unknown, 'General error')
-        end
+      if !(action_id = event.xpath('//ctc:StartAction/ctc:Action/ctc:ActionId/text()')).blank? && (action_id.to_s == 'genErrorNotification')
+        report_error_details(job)
+        fail_with(Failure::Unknown, 'General error')
       end
 
       unless (description = event.xpath('//ctc:StartAction/ctc:Action/ctc:Description/text()')).blank?
@@ -276,7 +274,7 @@ class WebServiceJob
     res.get_xml_document.xpath('//return/text()').to_s != 'false'
   end
 
-  def get_event # rubocop:disable Naming/AccessorMethodName
+  def get_event
     envelope = Nokogiri::XML(<<-ENVELOPE, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS).root.to_xml(indent: 0, save_with: 0)
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:CTCWebServiceSi">
          <soapenv:Header/>

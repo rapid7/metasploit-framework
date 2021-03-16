@@ -1,17 +1,17 @@
-module SessionEventServlet
+module Msf::WebServices::SessionEventServlet
 
   def self.api_path
     '/api/v1/session-events'
   end
 
   def self.api_path_with_id
-    "#{SessionEventServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get SessionEventServlet.api_path, &get_session_event
-    app.get SessionEventServlet.api_path_with_id, &get_session_event
-    app.post SessionEventServlet.api_path, &report_session_event
+    app.get self.api_path, &get_session_event
+    app.get self.api_path_with_id, &get_session_event
+    app.post self.api_path, &report_session_event
   end
 
   #######

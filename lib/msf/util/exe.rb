@@ -16,13 +16,9 @@ require 'rex/pescan'
 require 'rex/random_identifier'
 require 'rex/zip'
 require 'rex/powershell'
-require 'rex/payloads/shuffle'
 require 'metasm'
 require 'digest/sha1'
-require 'msf/core/exe/segment_injector'
-require 'msf/core/exe/segment_appender'
-
-  # Generates a default template
+# Generates a default template
   #
   # @param  opts [Hash] The options hash
   # @option opts [String] :template, the template type for the executable
@@ -545,7 +541,7 @@ require 'msf/core/exe/segment_appender'
       end
       pe[136, 4] = [rand(0x100000000)].pack('V') unless opts[:sub_method]
     when :dll
-      max_length = 2048
+      max_length = 4096
     when :exe_sub
       max_length = 4096
     end
@@ -562,6 +558,10 @@ require 'msf/core/exe/segment_appender'
     if opts[:exe_type] == :dll
       mt = pe.index('MUTEX!!!')
       pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+      %w{ Local\Semaphore:Default Local\Event:Default }.each do |name|
+        offset = pe.index(name)
+        pe[offset,26] = "Local\\#{Rex::Text.rand_text_alphanumeric(20)}" if offset
+      end
 
       if opts[:dll_exitprocess]
         exit_thread = "\x45\x78\x69\x74\x54\x68\x72\x65\x61\x64\x00"
@@ -648,7 +648,6 @@ require 'msf/core/exe/segment_appender'
 
       # XXX This should not be required, it appears there is a dependency inversion
       # See https://github.com/rapid7/metasploit-framework/pull/9851
-      require 'msf/core/payload_generator'
       venom_generator = Msf::PayloadGenerator.new(opts)
       code_service = venom_generator.multiple_encode_payload(code)
       return to_winpe_only(framework, code_service, opts)
@@ -2171,28 +2170,6 @@ require 'msf/core/exe/segment_appender'
       "vbs",
       "war"
     ]
-  end
-
-  #
-  # EICAR Canary
-  # @return [Boolean] Should return true
-  def self.is_eicar_corrupted?
-    path = ::File.expand_path(::File.join(
-      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
-    )
-    return true unless ::File.exist?(path)
-    ret = false
-    if ::File.exist?(path)
-      begin
-        data = ::File.read(path)
-        unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
-          ret = true
-        end
-      rescue ::Exception
-        ret = true
-      end
-    end
-    ret
   end
 
   # self.get_file_contents

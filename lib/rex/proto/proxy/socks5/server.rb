@@ -1,9 +1,7 @@
 # -*- coding: binary -*-
 
 require 'thread'
-require 'rex/logging'
 require 'rex/socket'
-require 'rex/proto/proxy/socks5/server_client'
 
 module Rex
 module Proto

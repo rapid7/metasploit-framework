@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary

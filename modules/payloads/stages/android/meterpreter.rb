@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/android'
-require 'msf/core/payload/android/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_android'
-require 'msf/base/sessions/meterpreter_options'
 
 
 module MetasploitModule

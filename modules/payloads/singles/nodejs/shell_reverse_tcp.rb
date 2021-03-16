@@ -7,9 +7,6 @@
 # differ so greatly when it comes to require() paths for net modules, we will
 # settle for just getting shells on nodejs.
 
-require 'msf/core/payload/nodejs'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
 
 module MetasploitModule
 

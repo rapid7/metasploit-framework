@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/pingback'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/pingback'
 
 
 module MetasploitModule

@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 
 module Msf
 
@@ -468,6 +467,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the platform(s) that this payload was made to run on
+  #
+  def platform
+    if pinst
+      pinst.platform
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw
@@ -537,7 +545,7 @@ protected
     return false if self.raw.empty?
 
     chars.each_byte do |bad|
-      return true if self.raw.index(bad.chr(Encoding::ASCII_8BIT))
+      return true if self.raw.index(bad.chr(::Encoding::ASCII_8BIT))
     end
 
     false

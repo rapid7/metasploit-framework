@@ -11,10 +11,8 @@ require 'monitor'
 #
 
 require 'metasploit/framework/version'
-require 'msf/base/config'
-require 'msf/core'
-require 'msf/util'
-
+require 'rex/socket/ssl'
+require 'metasploit/framework/thread_factory_provider'
 module Msf
 
 ###
@@ -38,9 +36,6 @@ class Framework
 
   Revision = "$Revision$"
 
-  # EICAR canary
-  EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
-
   #
   # Mixin meant to be included into all classes that can have instances that
   # should be tied to the framework, such as modules.
@@ -54,14 +49,7 @@ class Framework
     attr_accessor :framework
   end
 
-  require 'msf/core/thread_manager'
-  require 'msf/core/module_manager'
-  require 'msf/core/session_manager'
-  require 'msf/core/plugin_manager'
   require 'metasploit/framework/data_service/proxy/core'
-  require 'msf/core/event_dispatcher'
-  require 'rex/json_hash_file'
-  require 'msf/core/cert_provider'
 
   #
   # Creates an instance of the framework context.
@@ -87,6 +75,7 @@ class Framework
     Rex::ThreadFactory.provider = Metasploit::Framework::ThreadFactoryProvider.new(framework: self)
 
     # Configure the SSL certificate generator
+    require 'msf/core/cert_provider'
     Rex::Socket::Ssl.cert_provider = Msf::Ssl::CertProvider
 
     subscriber = FrameworkEventSubscriber.new(self)
@@ -253,6 +242,25 @@ class Framework
     Msf::Modules::Metadata::Cache.instance.find(search_params)
   end
 
+  #
+  # EICAR Canary
+  # @return [Boolean] Should return true if the EICAR file has been corrupted
+  def eicar_corrupted?
+    path = ::File.expand_path(::File.join(
+      ::File.dirname(__FILE__),"..", "..", "..", "data", "eicar.com")
+    )
+    return true unless ::File.exist?(path)
+
+    data = ::File.read(path)
+    return true unless Digest::SHA1.hexdigest(data) == "3395856ce81f2b7382dee72602f798b642f14140"
+
+    false
+
+  # If anything goes wrong assume AV got us
+  rescue ::Exception
+    true
+  end
+
 protected
 
   # @!attribute options
@@ -300,7 +308,7 @@ class FrameworkEventSubscriber
     end
   end
 
-  include GeneralEventSubscriber
+  include Msf::GeneralEventSubscriber
 
   #
   # Generic handler for module events
@@ -369,7 +377,6 @@ class FrameworkEventSubscriber
     report_event(:name => "ui_start", :info => info)
   end
 
-  require 'msf/core/session'
 
   include ::Msf::SessionEvent
 
@@ -497,13 +504,13 @@ class FrameworkEventSubscriber
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route(session, route)
-    framework.db.report_session_route(session, route)
+    framework.db.report_session_route({session: session, route: route})
   end
 
   ##
   # :category: ::Msf::SessionEvent implementors
   def on_session_route_remove(session, route)
-    framework.db.report_session_route_remove(session, route)
+    framework.db.report_session_route_remove({session: session, route: route})
   end
 
   ##
@@ -529,7 +536,6 @@ class FrameworkEventSubscriber
   #
   # This is covered by on_module_run and on_session_open, so don't bother
   #
-  #require 'msf/core/exploit'
   #include ExploitEvent
   #def on_exploit_success(exploit, session)
   #end

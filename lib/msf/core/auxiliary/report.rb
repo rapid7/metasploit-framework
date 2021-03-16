@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'metasploit/framework/require'
+
 module Msf
 
 ###

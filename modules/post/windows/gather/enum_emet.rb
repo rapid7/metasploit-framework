@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/common'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -29,7 +28,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    reg_view = sysinfo['Architecture'] =~ /x64/ ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
+    reg_view = sysinfo['Architecture'] == ARCH_X64 ? REGISTRY_VIEW_64_BIT : REGISTRY_VIEW_32_BIT
     reg_vals = registry_enumvals('HKLM\\SOFTWARE\\Microsoft\\EMET\\AppSettings', reg_view)
     if reg_vals.nil?
       print_error('Failed to enumerate EMET Protected.')

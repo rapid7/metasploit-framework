@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_http'
-require 'msf/base/sessions/meterpreter_options'
-require 'msf/base/sessions/mettle_config'
-require 'msf/base/sessions/meterpreter_ppce500v2_linux'
 
 module MetasploitModule
 

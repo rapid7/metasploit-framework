@@ -3,7 +3,6 @@
 # sf - Sept 2010
 #
 require 'thread'
-require 'rex/logging'
 require 'rex/socket'
 
 module Rex

@@ -5,20 +5,6 @@
 #
 class Msf::Post < Msf::Module
 
-  require 'msf/core/post/common'
-  require 'msf/core/post_mixin'
-
-  require 'msf/core/post/file'
-  require 'msf/core/post/webrtc'
-
-  require 'msf/core/post/linux'
-  require 'msf/core/post/osx'
-  require 'msf/core/post/solaris'
-  require 'msf/core/post/unix'
-  require 'msf/core/post/windows'
-  require 'msf/core/post/android'
-  require 'msf/core/post/hardware'
-
   class Complete < RuntimeError
   end
 

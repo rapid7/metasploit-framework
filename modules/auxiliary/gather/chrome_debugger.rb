@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
             'id' => id,
             'method' => 'Page.navigate',
             'params' => {
-              'url':  fetch_uri
+              url:  fetch_uri
             }
           }.to_json)
         end

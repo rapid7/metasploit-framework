@@ -311,7 +311,7 @@ module Msf::DBManager::Import
     end
 
     # This is a text string, lets make sure its treated as binary
-    data.force_encoding(Encoding::ASCII_8BIT)
+    data.force_encoding(::Encoding::ASCII_8BIT)
     if data and data.to_s.strip.length == 0
       raise Msf::DBImportError.new("The data provided to the import function was empty")
     end

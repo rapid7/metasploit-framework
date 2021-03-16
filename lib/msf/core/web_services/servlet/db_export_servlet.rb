@@ -1,11 +1,11 @@
-module DbExportServlet
+module Msf::WebServices::DbExportServlet
 
   def self.api_path
     '/api/v1/db-export'
   end
 
   def self.registered(app)
-    app.get DbExportServlet.api_path, &get_db_export
+    app.get self.api_path, &get_db_export
   end
 
   #######

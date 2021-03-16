@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 module Rex
 
-autoload :Job, 'rex/job'
-
 ###
 #
 # This class contains zero or more abstract jobs that can be enumerated and

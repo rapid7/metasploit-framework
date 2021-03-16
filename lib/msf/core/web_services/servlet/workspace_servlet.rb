@@ -1,19 +1,19 @@
-module WorkspaceServlet
+module Msf::WebServices::WorkspaceServlet
 
     def self.api_path
       '/api/v1/workspaces'
     end
 
     def self.api_path_with_id
-      "#{WorkspaceServlet.api_path}/?:id?"
+      "#{self.api_path}/?:id?"
     end
 
     def self.registered(app)
-      app.get WorkspaceServlet.api_path, &get_workspace
-      app.get WorkspaceServlet.api_path_with_id, &get_workspace
-      app.post WorkspaceServlet.api_path, &add_workspace
-      app.put WorkspaceServlet.api_path_with_id, &update_workspace
-      app.delete WorkspaceServlet.api_path, &delete_workspace
+      app.get self.api_path, &get_workspace
+      app.get self.api_path_with_id, &get_workspace
+      app.post self.api_path, &add_workspace
+      app.put self.api_path_with_id, &update_workspace
+      app.delete self.api_path, &delete_workspace
     end
 
     #######

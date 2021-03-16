@@ -1,5 +1,4 @@
 
-require 'msf/core'
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'rex'
 
@@ -48,6 +47,19 @@ class MetasploitModule < Msf::Post
     super
   end
 
+  def test_core_command_id_enumeration
+    commands = []
+
+    it "should enumerate supported core commands" do
+      commands.concat(session.core.get_loaded_extension_commands('core'))
+      !commands.empty?
+    end
+
+    # 3 is arbitrary, but it's probably a good bare minimum to include enumextcmd, machine_id, and loadlib
+    it "should support 3 or more core commands" do
+      commands.length >= 3
+    end
+  end
 
   def test_sys_process
     vprint_status("Starting process tests")

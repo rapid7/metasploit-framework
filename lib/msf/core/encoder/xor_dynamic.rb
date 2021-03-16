@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 class Msf::Encoder::XorDynamic < Msf::Encoder
 

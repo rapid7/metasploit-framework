@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'rex/post/hwbridge'
-require 'rex/logging'
 
 module Rex
 module Post

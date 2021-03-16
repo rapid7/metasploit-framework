@@ -26,7 +26,6 @@
 require "open-uri"
 require "uri"
 require "timeout"
-require 'rex/logging/log_dispatcher'
 
 # https://github.com/fizx/robots
 class Robots

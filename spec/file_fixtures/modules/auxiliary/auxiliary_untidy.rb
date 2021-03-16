@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 
 # XXX: invalid super class for an auxiliary module
 class MetasploitModule < Msf::Exploit

@@ -2,7 +2,6 @@
 require 'spec_helper'
 
 require 'stringio'
-require 'rex/proto/rmi'
 require 'rex/java'
 
 RSpec.describe Rex::Proto::Rmi::Model::Call do

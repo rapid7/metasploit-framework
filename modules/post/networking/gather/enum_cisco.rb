@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/cisco'
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Cisco
   include Msf::Exploit::Deprecated

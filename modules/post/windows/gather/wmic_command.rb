@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Post
           store_wmic_loot(result, cmd)
         end
       else
-        raise "Resource File does not exists!"
+        raise "Resource File does not exist!"
       end
 
     elsif datastore['COMMAND']

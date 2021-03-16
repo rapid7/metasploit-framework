@@ -2,8 +2,6 @@
 
 require 'spec_helper'
 
-require 'msf/core/auxiliary/vyos'
-
 RSpec.describe Msf::Auxiliary::VYOS do
   class DummyVYOSClass
     include Msf::Auxiliary::VYOS

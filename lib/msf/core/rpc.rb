@@ -1,21 +1,7 @@
 # -*- coding: binary -*-
+require 'msf/core/rpc/v10/constants'
 
 module Msf::RPC
-  require 'msf/core/rpc/v10/constants'
-
-  require 'msf/core/rpc/v10/service'
-  require 'msf/core/rpc/v10/client'
-
-  require 'msf/core/rpc/v10/rpc_auth'
-  require 'msf/core/rpc/v10/rpc_base'
-  require 'msf/core/rpc/v10/rpc_console'
-  require 'msf/core/rpc/v10/rpc_core'
-  require 'msf/core/rpc/v10/rpc_db'
-  require 'msf/core/rpc/v10/rpc_job'
-  require 'msf/core/rpc/v10/rpc_module'
-  require 'msf/core/rpc/v10/rpc_plugin'
-  require 'msf/core/rpc/v10/rpc_session'
-
 
   module JSON
     autoload :Client, 'msf/core/rpc/json/client'

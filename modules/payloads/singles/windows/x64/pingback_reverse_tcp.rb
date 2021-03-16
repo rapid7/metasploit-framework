@@ -3,12 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/pingback'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/pingback'
-require 'msf/core/payload/windows/x64/block_api'
-require 'msf/core/payload/windows/x64/exitfunk'
-
 module MetasploitModule
 
   CachedSize = 425

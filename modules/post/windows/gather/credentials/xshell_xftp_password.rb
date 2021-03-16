@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/netsarang'
-require 'msf/core/auxiliary/report'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::File
@@ -55,7 +52,7 @@ class MetasploitModule < Msf::Post
   end
 
   def enable_master_passwd?(version_6_path)
-    file_name = expand_path(version_6_path + '\\Common\\MasterPassword.mpw')
+    file_name = expand_path("#{version_6_path}\\Common\\MasterPassword.mpw")
     file_contents = read_file(file_name) if session.fs.file.exist?(file_name)
     if file_contents.nil? || file_contents.empty?
       return false

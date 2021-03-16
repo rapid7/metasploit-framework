@@ -280,6 +280,7 @@ class Dir < Rex::Post::Dir
     end
 
     dir_files.each { |src_sub|
+      src_sub.force_encoding('UTF-8')
       dst_sub = src_sub.dup
       dst_sub.gsub!(::File::SEPARATOR, '_')                                   # '/' on all systems
       dst_sub.gsub!(::File::ALT_SEPARATOR, '_') if ::File::ALT_SEPARATOR      # nil on Linux, '\' on Windows

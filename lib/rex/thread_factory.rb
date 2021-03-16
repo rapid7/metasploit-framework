@@ -32,7 +32,7 @@ class ThreadFactory
       end
       t[:tm_name] = name
       t[:tm_crit] = crit
-      t[:tm_time] = Time.now
+      t[:tm_time] = ::Time.now
       t[:tm_call] = caller
       return t
     end

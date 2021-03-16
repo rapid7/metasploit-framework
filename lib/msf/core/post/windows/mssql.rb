@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/windows/services'
-require 'msf/core/post/windows/priv'
-require 'msf/core/exploit/mssql_commands'
-
 module Msf
   class Post
     module Windows

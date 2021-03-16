@@ -20,8 +20,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 require 'uri'
 
 
@@ -37,7 +35,7 @@ def types
     'EDB'         => 'http://www.exploit-db.com/exploits/#{in_ctx_val}',
     'US-CERT-VU'  => 'http://www.kb.cert.org/vuls/id/#{in_ctx_val}',
     'ZDI'         => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
-    'WPVDB'       => 'https://wpvulndb.com/vulnerabilities/#{in_ctx_val}',
+    'WPVDB'       => 'https://wpscan.com/vulnerability/#{in_ctx_val}',
     'PACKETSTORM' => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
     'URL'         => '#{in_ctx_val}'
   }

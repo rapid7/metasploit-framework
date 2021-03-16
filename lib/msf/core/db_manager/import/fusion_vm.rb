@@ -1,4 +1,3 @@
-require 'rex/parser/fusionvm_nokogiri'
 
 module Msf::DBManager::Import::FusionVM
   def import_fusionvm_xml(args={})

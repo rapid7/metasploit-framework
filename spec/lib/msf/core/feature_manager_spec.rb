@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 
 require 'spec_helper'
-require 'msf/core/feature_manager'
 
 RSpec.describe Msf::FeatureManager do
   let(:mock_features) do

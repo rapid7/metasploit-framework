@@ -1,19 +1,19 @@
-module LoginServlet
+module Msf::WebServices::LoginServlet
 
   def self.api_path
     '/api/v1/logins'
   end
 
   def self.api_path_with_id
-    "#{LoginServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get LoginServlet.api_path, &get_logins
-    app.get LoginServlet.api_path_with_id, &get_logins
-    app.post LoginServlet.api_path, &create_login
-    app.put LoginServlet.api_path_with_id, &update_login
-    app.delete LoginServlet.api_path, &delete_logins
+    app.get self.api_path, &get_logins
+    app.get self.api_path_with_id, &get_logins
+    app.post self.api_path, &create_login
+    app.put self.api_path_with_id, &update_login
+    app.delete self.api_path, &delete_logins
   end
 
   #######

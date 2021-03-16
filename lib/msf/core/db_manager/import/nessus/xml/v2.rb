@@ -1,4 +1,3 @@
-require 'rex/parser/nessus_xml'
 
 module Msf::DBManager::Import::Nessus::XML::V2
   def import_nessus_xml_v2(args={}, &block)

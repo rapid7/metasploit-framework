@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'rex/proto/acpp'
 
 RSpec.describe Rex::Proto::ACPP::Message do
 

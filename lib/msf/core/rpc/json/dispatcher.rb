@@ -1,5 +1,4 @@
 require 'json'
-require 'msf/core/rpc'
 
 module Msf::RPC::JSON
   class Dispatcher

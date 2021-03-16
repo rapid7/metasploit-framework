@@ -1,5 +1,4 @@
 require 'json'
-require 'msf/core/modules/metadata'
 
 #
 # Handles storage of module metadata on disk. A base metadata file is always included - this was added to ensure a much

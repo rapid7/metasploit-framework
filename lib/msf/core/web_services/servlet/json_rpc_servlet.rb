@@ -1,4 +1,3 @@
-require 'msf/core/rpc'
 
 module Msf::WebServices
   module JsonRpcServlet

@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/f5'
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::F5
 
@@ -49,10 +47,10 @@ class MetasploitModule < Msf::Post
       if /^\s+Product\s+(?<product>[\w-]+)$/ =~ content
         ver << product
       end
-      if /^\s+Version\s+(?<version>[\d\.]+)$/ =~ content
+      if /^\s+Version\s+(?<version>[\d.]+)$/ =~ content
         ver << version
       end
-      if /^\s+Build\s+(?<build>[\d\.]+)$/ =~ content
+      if /^\s+Build\s+(?<build>[\d.]+)$/ =~ content
         ver << build
       end
       print_good("Version: #{ver.join(' ')}") unless ver.empty?
@@ -116,10 +114,13 @@ class MetasploitModule < Msf::Post
       end
 
       # loop to ensure we get all content within the 5 sec window
+      # rubocop:disable Lint/AssignmentInCondition
       loop do
         break unless out_tmp = session.shell_read
+
         cmd_out << out_tmp
       end
+      # rubocop:enable Lint/AssignmentInCondition
 
       print_status("Gathering info from #{command}")
       cmd_loc = store_loot("F5.#{ec['fn']}",
@@ -129,7 +130,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip, store=false)
+      f5_config_eater(host, port, cmd_out.strip, false)
     end
   end
 
@@ -193,7 +194,7 @@ class MetasploitModule < Msf::Post
                            "#{ec['fn']}.txt",
                            ec['desc'])
       vprint_good("Saving to #{cmd_loc}")
-      f5_config_eater(host, port, cmd_out.strip, store=false)
+      f5_config_eater(host, port, cmd_out.strip, false)
     end
   end
 end

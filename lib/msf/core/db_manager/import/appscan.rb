@@ -1,4 +1,3 @@
-require 'rex/parser/appscan_nokogiri'
 
 module Msf::DBManager::Import::Appscan
   def import_appscan_noko_stream(args={},&block)

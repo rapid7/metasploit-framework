@@ -1,15 +1,15 @@
-module MsfServlet
+module Msf::WebServices::MsfServlet
 
   def self.api_path
     '/api/v1/msf'
   end
 
   def self.api_version_path
-    "#{MsfServlet.api_path}/version"
+    "#{self.api_path}/version"
   end
 
   def self.registered(app)
-    app.get MsfServlet.api_version_path, &get_msf_version
+    app.get self.api_version_path, &get_msf_version
   end
 
   #######

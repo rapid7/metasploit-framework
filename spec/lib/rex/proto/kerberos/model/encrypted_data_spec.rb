@@ -3,7 +3,6 @@ require 'spec_helper'
 
 require 'openssl'
 require 'rex/text'
-require 'rex/proto/kerberos'
 
 RSpec.describe Rex::Proto::Kerberos::Model::EncryptedData do
 

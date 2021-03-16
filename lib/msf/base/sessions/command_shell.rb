@@ -1,10 +1,7 @@
 # -*- coding: binary -*-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
-
 module Msf
 module Sessions
 
@@ -27,7 +24,7 @@ class CommandShell
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   include Rex::Ui::Text::Resource
 
@@ -369,7 +366,7 @@ class CommandShell
 
     # Check if src exists
     if !file_exists(src)
-      print_error("The target file does not exists")
+      print_error("The target file does not exist")
       return
     end
 
@@ -758,26 +755,6 @@ protected
       end
       Thread.pass
     end
-  end
-end
-
-class CommandShellWindows < CommandShell
-  def initialize(*args)
-    self.platform = "windows"
-    super
-  end
-  def shell_command_token(cmd,timeout = 10)
-    shell_command_token_win32(cmd,timeout)
-  end
-end
-
-class CommandShellUnix < CommandShell
-  def initialize(*args)
-    self.platform = "unix"
-    super
-  end
-  def shell_command_token(cmd,timeout = 10)
-    shell_command_token_unix(cmd,timeout)
   end
 end
 

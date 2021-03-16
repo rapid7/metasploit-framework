@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
     destination = res.headers['Location'].split('?', 2)[0]
     return true if destination.end_with?(normalize_uri(target_uri.path, 'login'))
 
-    fail_with(Failure::UnexpectedReply, "The server responded with a redirect that did not match a known fingerprint")
+    fail_with(Failure::UnexpectedReply, 'The server responded with a redirect that did not match a known fingerprint')
   end
 
   def run_host(ip)

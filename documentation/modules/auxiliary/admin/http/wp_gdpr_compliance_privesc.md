@@ -1,6 +1,6 @@
 ## Description
 
-This module exploits the [Wordpress GDPR compliance plugin](https://wordpress.org/plugins/wp-gdpr-compliance/) lack of validation ([WPVDB 9144](https://wpvulndb.com/vulnerabilities/9144)), which affects versions 1.4.2 and lower.
+This module exploits the [Wordpress GDPR compliance plugin](https://wordpress.org/plugins/wp-gdpr-compliance/) lack of validation ([WPVDB 9144](https://wpscan.com/vulnerability/9144)), which affects versions 1.4.2 and lower.
 
 When a user triggers GDPR-related actions, Wordpress's `admin-ajax.php` is called but fails to do validation and capacity checks regarding the asked actions. This leads to any unauthenticated user being able to modify any arbitrary settings on the targeted server.
 

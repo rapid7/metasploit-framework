@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-
 module Msf
   #
   # Builtin framework options with shortcut methods

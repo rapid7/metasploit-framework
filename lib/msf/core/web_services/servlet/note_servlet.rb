@@ -1,19 +1,19 @@
-module NoteServlet
+module Msf::WebServices::NoteServlet
 
   def self.api_path
     '/api/v1/notes'
   end
 
   def self.api_path_with_id
-    "#{NoteServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get NoteServlet.api_path, &get_note
-    app.get NoteServlet.api_path_with_id, &get_note
-    app.post NoteServlet.api_path, &report_note
-    app.put NoteServlet.api_path_with_id, &update_note
-    app.delete NoteServlet.api_path, &delete_note
+    app.get self.api_path, &get_note
+    app.get self.api_path_with_id, &get_note
+    app.post self.api_path, &report_note
+    app.put self.api_path_with_id, &update_note
+    app.delete self.api_path, &delete_note
   end
 
   #######

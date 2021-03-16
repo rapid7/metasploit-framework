@@ -1,19 +1,19 @@
-module PayloadServlet
+module Msf::WebServices::PayloadServlet
 
   def self.api_path
     '/api/v1/payloads'
   end
 
   def self.api_path_with_id
-    "#{PayloadServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get PayloadServlet.api_path, &get_payload
-    app.get PayloadServlet.api_path_with_id, &get_payload
-    app.post PayloadServlet.api_path, &create_payload
-    app.put PayloadServlet.api_path_with_id, &update_payload
-    app.delete PayloadServlet.api_path, &delete_payload
+    app.get self.api_path, &get_payload
+    app.get self.api_path_with_id, &get_payload
+    app.post self.api_path, &create_payload
+    app.put self.api_path_with_id, &update_payload
+    app.delete self.api_path, &delete_payload
   end
 
   #######

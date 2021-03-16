@@ -1,4 +1,4 @@
-require 'msf/core'
+require 'net/dns'
 
 RSpec.describe Net::DNS::Names do
   subject do

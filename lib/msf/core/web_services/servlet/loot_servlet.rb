@@ -1,19 +1,19 @@
-module LootServlet
+module Msf::WebServices::LootServlet
 
   def self.api_path
     '/api/v1/loots'
   end
 
   def self.api_path_with_id
-    "#{LootServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get LootServlet.api_path, &get_loot
-    app.get LootServlet.api_path_with_id, &get_loot
-    app.post LootServlet.api_path, &report_loot
-    app.put LootServlet.api_path_with_id, &update_loot
-    app.delete LootServlet.api_path, &delete_loot
+    app.get self.api_path, &get_loot
+    app.get self.api_path_with_id, &get_loot
+    app.post self.api_path, &report_loot
+    app.put self.api_path_with_id, &update_loot
+    app.delete self.api_path, &delete_loot
   end
 
   #######

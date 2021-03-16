@@ -18,13 +18,13 @@ module Proto
 module RFB
 
 class Client
-
+  include Rex::Proto::RFB::Constants
   def initialize(sock, opts = {})
     @sock = sock
     @opts = opts
 
     @banner = nil
-    @majver = MajorVersions
+    @majver = Constants::MajorVersions
     @minver = -1
     @auth_types = []
   end
@@ -50,7 +50,7 @@ class Client
 
     if @banner =~ /RFB ([0-9]{3})\.([0-9]{3})/
       maj = $1.to_i
-      unless MajorVersions.include?(maj)
+      unless Constants::MajorVersions.include?(maj)
         @error = "Invalid major version number: #{maj}"
         return false
       end

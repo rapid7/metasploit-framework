@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-# require 'rex/io/socket_abstraction'
 require 'rex/post/meterpreter/channel'
 
 module Rex

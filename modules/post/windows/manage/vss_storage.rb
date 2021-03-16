@@ -7,6 +7,9 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::ShadowCopy
 
+  include Msf::Module::Deprecated
+  deprecated(Date.new(2021, 4, 11), reason="Use post/windows/manage/vss and the VSS_GET_INFO action")
+
   def initialize(info={})
     super(update_info(info,
       'Name'                 => "Windows Manage Get Shadow Copy Storage Info",

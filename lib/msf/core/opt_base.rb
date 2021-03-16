@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'resolv'
-require 'msf/core'
 require 'rex/socket'
 
 module Msf
@@ -120,7 +119,7 @@ module Msf
         # required variable not set
         return false if (value.nil? || value.to_s.empty?)
       end
-      if regex
+      if regex && !value.nil?
         return !!value.match(regex)
       end
       true

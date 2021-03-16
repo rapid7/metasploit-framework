@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/ini'
-require 'rex/parser/winscp'
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry

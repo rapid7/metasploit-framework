@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'msf/core/rpc'
 require 'rack/test'
 require 'rack/protection'
 
@@ -20,7 +19,6 @@ RSpec.describe "Metasploit's json-rpc" do
   let(:a_valid_result_uuid) { { 'result' => hash_including({ 'uuid' => match(/\w+/) }) } }
   let(:app) do
     # Lazy load to ensure that the json rpc app doesn't create an instance of framework out of band
-    require 'msf/core/web_services/json_rpc_app'
     ::Msf::WebServices::JsonRpcApp.new
   end
 

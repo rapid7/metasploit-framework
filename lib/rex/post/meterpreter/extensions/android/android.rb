@@ -102,7 +102,7 @@ class Android < Extension
 
       response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
         timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
-        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = ::Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
         g.each(TLV_TYPE_COLLECT_RESULT_WIFI) do |w|
           bssid = w.get_tlv_value(TLV_TYPE_COLLECT_RESULT_WIFI_BSSID)
@@ -129,7 +129,7 @@ class Android < Extension
 
       response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
         timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
-        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = ::Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
         g.each(TLV_TYPE_COLLECT_RESULT_GEO) do |w|
           lat = w.get_tlv_value(TLV_TYPE_GEO_LAT)
@@ -145,7 +145,7 @@ class Android < Extension
 
       response.each(TLV_TYPE_COLLECT_RESULT_GROUP) do |g|
         timestamp = g.get_tlv_value(TLV_TYPE_COLLECT_RESULT_TIMESTAMP)
-        timestamp = Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = ::Time.at(timestamp).to_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
         g.each(TLV_TYPE_COLLECT_RESULT_CELL) do |cell|
 

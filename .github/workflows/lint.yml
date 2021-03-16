@@ -1,0 +1,61 @@
+name: Lint
+
+on:
+  push:
+    branches-ignore:
+      - gh-pages
+      - metakitty
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  msftidy:
+    runs-on: ubuntu-16.04
+    timeout-minutes: 40
+
+    strategy:
+      fail-fast: true
+      matrix:
+        ruby:
+          - 2.5
+
+    name: Lint msftidy
+    steps:
+      - name: Install system dependencies
+        run: sudo apt-get install libpcap-dev graphviz
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        # Required to checkout HEAD^ and 3a046f01dae340c124dd3895e670983aef5fe0c5 for the msftidy script
+        # https://github.com/actions/checkout/tree/5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f#checkout-head
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Setup bundler
+        run: |
+          gem install bundler
+
+      - uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
+      - name: Bundle install
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+        env:
+          BUNDLER_WITHOUT: coverage development pcap
+
+      - name: Run msftidy
+        run: |
+          ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
+          ls -la ./.git/hooks
+          ./.git/hooks/post-merge

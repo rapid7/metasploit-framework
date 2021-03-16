@@ -14,11 +14,10 @@ module Msf
         # @param words [Array<String>] the previously completed words on the command
         #   line. `words` is always at least 1 when tab completion has reached this
         #   stage since the command itself has been completed.
-        def tab_complete_datastore_names(_str, _words)
-          datastore = active_module ? active_module.datastore : framework.datastore
+        def tab_complete_datastore_names(mod, _str, _words)
+          datastore = mod ? mod.datastore : framework.datastore
           keys = datastore.keys
 
-          mod = active_module
           if mod
             keys = keys.delete_if do |name|
               !(mod_opt = mod.options[name]).nil? && !Msf::OptCondition.show_option(mod, mod_opt)
@@ -30,31 +29,31 @@ module Msf
         #
         # Tab completion options values
         #
-        def tab_complete_option(str, words)
+        def tab_complete_option(mod, str, words)
           if str.end_with?('=')
             option_name = str.chop
             option_value = ''
 
             ::Readline.completion_append_character = ' '
-            return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{str}#{value}" }
+            return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{str}#{value}" }
           elsif str.include?('=')
             str_split = str.split('=')
             option_name = str_split[0].strip
             option_value = str_split[1].strip
 
             ::Readline.completion_append_character = ' '
-            return tab_complete_option_values(option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}" }
+            return tab_complete_option_values(mod, option_value, words, opt: option_name).map { |value| "#{option_name}=#{value}" }
           end
 
           ::Readline.completion_append_character = ''
-          tab_complete_option_names(str, words).map { |name| "#{name}=" }
+          tab_complete_option_names(mod, str, words).map { |name| "#{name}=" }
         end
 
         #
         # Provide tab completion for name values
         #
-        def tab_complete_option_names(str, words)
-          res = tab_complete_datastore_names(str, words) || [ ]
+        def tab_complete_option_names(mod, str, words)
+          res = tab_complete_datastore_names(mod, str, words) || [ ]
           # There needs to be a better way to register global options, but for
           # now all we have is an ad-hoc list of opts that the shell treats
           # specially.
@@ -69,7 +68,6 @@ module Msf
             PromptTimeFormat
             MeterpreterPrompt
           ]
-          mod = active_module
           if !mod
             return res
           end
@@ -123,27 +121,26 @@ module Msf
         #
         # Provide tab completion for option values
         #
-        def tab_complete_option_values(str, words, opt:)
+        def tab_complete_option_values(mod, str, words, opt:)
           res = []
-          mod = active_module
-          # With no active module, we have nothing to compare
+          # With no module, we have nothing to complete
           if !mod
             return res
           end
 
           # Well-known option names specific to exploits
           if mod.exploit?
-            return option_values_payloads if opt.upcase == 'PAYLOAD'
-            return option_values_targets if opt.upcase == 'TARGET'
+            return option_values_payloads(mod) if opt.upcase == 'PAYLOAD'
+            return option_values_targets(mod) if opt.upcase == 'TARGET'
             return option_values_nops if opt.upcase == 'NOPS'
             return option_values_encoders if opt.upcase == 'STAGEENCODER'
           elsif mod.evasion?
-            return option_values_payloads if opt.upcase == 'PAYLOAD'
-            return option_values_targets if opt.upcase == 'TARGET'
+            return option_values_payloads(mod) if opt.upcase == 'PAYLOAD'
+            return option_values_targets(mod) if opt.upcase == 'TARGET'
           end
           # Well-known option names specific to modules with actions
           if mod.is_a?(Msf::Module::HasActions)
-            return option_values_actions if opt.upcase == 'ACTION'
+            return option_values_actions(mod) if opt.upcase == 'ACTION'
           end
           # The ENCODER option works for evasions, payloads and exploits
           if ((mod.evasion? || mod.exploit? || mod.payload?) && (opt.upcase == 'ENCODER'))
@@ -152,19 +149,19 @@ module Msf
 
           # Well-known option names specific to post-exploitation
           if (mod.post? || mod.exploit?)
-            return option_values_sessions if opt.upcase == 'SESSION'
+            return option_values_sessions(mod) if opt.upcase == 'SESSION'
           end
           # Is this option used by the active module?
           mod.options.each_key do |key|
             if key.downcase == opt.downcase
-              res.concat(option_values_dispatch(mod.options[key], str, words))
+              res.concat(option_values_dispatch(mod, mod.options[key], str, words))
             end
           end
           # How about the selected payload?
           if ((mod.evasion? || mod.exploit?) && mod.datastore['PAYLOAD'])
             if p = framework.payloads.create(mod.datastore['PAYLOAD'])
               p.options.each_key do |key|
-                res.concat(option_values_dispatch(p.options[key], str, words)) if key.downcase == opt.downcase
+                res.concat(option_values_dispatch(mod, p.options[key], str, words)) if key.downcase == opt.downcase
               end
             end
           end
@@ -174,18 +171,18 @@ module Msf
         #
         # Provide possible option values based on type
         #
-        def option_values_dispatch(o, str, words)
+        def option_values_dispatch(mod, o, str, words)
           res = []
           res << o.default.to_s if o.default
           case o
           when Msf::OptAddress
             case o.name.upcase
             when 'RHOST'
-              option_values_target_addrs.each do |addr|
+              option_values_target_addrs(mod).each do |addr|
                 res << addr
               end
             when 'LHOST', 'SRVHOST', 'REVERSELISTENERBINDADDRESS'
-              rh = active_module.datastore['RHOST'] || framework.datastore['RHOST']
+              rh = mod.datastore['RHOST'] || framework.datastore['RHOST']
               if rh && !rh.empty?
                 res << Rex::Socket.source_address(rh)
               else
@@ -205,14 +202,14 @@ module Msf
             when /\-$/
               res << str + str[0, str.length - 1]
             else
-              option_values_target_addrs.each do |addr|
+              option_values_target_addrs(mod).each do |addr|
                 res << addr
               end
             end
           when Msf::OptPort
             case o.name.upcase
             when 'RPORT'
-              option_values_target_ports.each do |port|
+              option_values_target_ports(mod).each do |port|
                 res << port
               end
             end
@@ -248,14 +245,14 @@ module Msf
         #
         # Provide valid payload options for the current exploit
         #
-        def option_values_payloads
-          if @cache_payloads && active_module == @previous_module && active_module.target == @previous_target
+        def option_values_payloads(mod)
+          if @cache_payloads && mod == @previous_module && mod.target == @previous_target
             return @cache_payloads
           end
 
-          @previous_module = active_module
-          @previous_target = active_module.target
-          @cache_payloads = active_module.compatible_payloads.map do |refname, _payload|
+          @previous_module = mod
+          @previous_target = mod.target
+          @cache_payloads = mod.compatible_payloads.map do |refname, _payload|
             refname
           end
           @cache_payloads
@@ -264,20 +261,20 @@ module Msf
         #
         # Provide valid session options for the current post-exploit module
         #
-        def option_values_sessions
-          if active_module.respond_to?(:compatible_sessions)
-            active_module.compatible_sessions.map { |sid| sid.to_s }
+        def option_values_sessions(mod)
+          if mod.respond_to?(:compatible_sessions)
+            mod.compatible_sessions.map { |sid| sid.to_s }
           end
         end
 
         #
         # Provide valid target options for the current exploit
         #
-        def option_values_targets
+        def option_values_targets(mod)
           res = []
-          if active_module.targets
-            1.upto(active_module.targets.length) { |i| res << (i - 1).to_s }
-            res += active_module.targets.map(&:name)
+          if mod.targets
+            1.upto(mod.targets.length) { |i| res << (i - 1).to_s }
+            res += mod.targets.map(&:name)
           end
           return res
         end
@@ -285,10 +282,10 @@ module Msf
         #
         # Provide valid action options for the current module
         #
-        def option_values_actions
+        def option_values_actions(mod)
           res = []
-          if active_module.actions
-            active_module.actions.each { |i| res << i.name }
+          if mod.actions
+            mod.actions.each { |i| res << i.name }
           end
           return res
         end
@@ -310,13 +307,13 @@ module Msf
         #
         # Provide the target addresses
         #
-        def option_values_target_addrs
+        def option_values_target_addrs(mod)
           res = [ ]
           res << Rex::Socket.source_address
           return res if !framework.db.active
 
           # List only those hosts with matching open ports?
-          mport = active_module.datastore['RPORT']
+          mport = mod.datastore['RPORT']
           if mport
             mport = mport.to_i
             hosts = {}
@@ -340,12 +337,12 @@ module Msf
         #
         # Provide the target ports
         #
-        def option_values_target_ports
+        def option_values_target_ports(mod)
           res = [ ]
           return res if !framework.db.active
-          return res if !active_module.datastore['RHOST']
+          return res if !mod.datastore['RHOST']
 
-          host = framework.db.has_host?(framework.db.workspace, active_module.datastore['RHOST'])
+          host = framework.db.has_host?(framework.db.workspace, mod.datastore['RHOST'])
           return res if !host
 
           framework.db.services.each do |service|

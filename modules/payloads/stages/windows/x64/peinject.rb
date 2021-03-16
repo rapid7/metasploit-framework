@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/windows/peinject'
-require 'msf/core/payload/windows/x64/reflective_pe_loader'
-
 ###
 #
 # Injects an arbitrary PE file in the exploited process via reflective PE loader.
