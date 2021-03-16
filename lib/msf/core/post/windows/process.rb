@@ -35,6 +35,15 @@ module Process
     return cmd
   end
 
+  #
+  # Injects a reflective DLL in to a process, and executes it.
+  #
+  # @param rdll_path [String] The path to the DLL to inject
+  # @param param     [String, Integer, nil] The parameter to pass to the DLL's entry point. If this value is a String
+  #   then it will first be written into the process memory and then passed by reference. If the value is an Integer,
+  #   then the value will be passed as is. If the value is nil, it'll be passed as a NULL pointer.
+  # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of notepad.exe will be
+  #   launched to host the injected DLL.
   def execute_dll(rdll_path, param=nil, pid=nil)
     if pid.nil?
       print_status('Launching notepad to host the DLL...')
@@ -67,6 +76,7 @@ module Process
     end
 
     process.thread.create(exploit_mem + offset, param_ptr)
+    nil
   end
 
   #
