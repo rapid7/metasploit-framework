@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def getCert(rhost,rport,sni)
+  def get_cert(rhost,rport,sni)
       ctx = OpenSSL::SSL::SSLContext.new
       sock = TCPSocket.new(rhost, rport)
       ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     begin
-      cert = getCert(rhost, rport, sni)
+      cert = get_cert(rhost, rport, sni)
       disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
     rescue ::Timeout::Error, ::Errno::EPIPE => e
