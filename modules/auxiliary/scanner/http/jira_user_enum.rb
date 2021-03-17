@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'Jira Path', '/']),
       ]
     )
-    deregister_options('PASS_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'STOP_ON_SUCCESS', 'BLANK_PASSWORDS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_ALL_USERS', 'PASSWORD')
+    deregister_options('PASS_FILE', 'USERPASS_FILE', 'USER_AS_PASS', 'STOP_ON_SUCCESS', 'BLANK_PASSWORDS', 'DB_ALL_CREDS', 'DB_ALL_PASS', 'PASSWORD')
   end
 
   def base_uri
