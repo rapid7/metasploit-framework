@@ -28,6 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(443),
+        OptString.new('SNI',              [false, "Server Name Indicator", nil]),
         OptEnum.new('OUT_FORMAT',         [true,  "Output format", 'PEM', ['DER','PEM']]),
         OptString.new('EXPIRATION',       [false, "Date the new cert should expire (e.g. 06 May 2012, YESTERDAY or NOW)", nil]),
         OptPath.new('PRIVKEY',            [false, "Sign the cert with your own CA private key", nil]),
@@ -42,8 +43,26 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
+  def getCert(rhost,rport,sni)
+      ctx = OpenSSL::SSL::SSLContext.new
+      sock = TCPSocket.new(rhost, rport)
+      ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
+      if sni
+        ssl.hostname = sni
+      end
+      ssl.connect
+      cert = ssl.peer_cert
+      return cert
+  end
+
   def run
-    print_status("Connecting to #{rhost}:#{rport}")
+    if not datastore['SNI'].nil?
+      sni = datastore['SNI']
+      print_status("Connecting to #{rhost}:#{rport} SNI:#{sni}")
+    else
+      sni = false
+      print_status("Connecting to #{rhost}:#{rport}")
+    end
 
     if not datastore['PRIVKEY'].nil? and not datastore['CA_CERT'].nil?
       print_status("Signing generated certificate with provided PRIVATE KEY and CA Certificate")
@@ -60,8 +79,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     begin
-      connect(true, {"SSL" => true}) # Force SSL even for RPORT != 443
-      cert = OpenSSL::X509::Certificate.new(sock.peer_cert) # Get certificate from remote rhost
+      cert = getCert(rhost, rport, sni)
       disconnect
     rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
     rescue ::Timeout::Error, ::Errno::EPIPE => e
