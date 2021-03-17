@@ -94,13 +94,11 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Failed to obtain device version: Unexpected response code')
     end
 
-    version = res.body.to_s
-    version = version.scan(/V\d\.\d\.\d\.\d{1,2}/) # Try find a version number in the format V1.2.3.48 or similar.
+    version = res.body.to_s.scan(/V(\d\.\d\.\d\.\d{1,2})/).flatten.first # Try find a version number in the format V1.2.3.48 or similar.
     if version.nil? # Check we actually got a result.
       fail_with(Failure::UnexpectedReply, 'Failed to obtain device version: no version number found in response') # Taken from https://stackoverflow.com/questions/4115115/extract-a-substring-from-a-string-in-ruby-using-a-regular-expression
     end
-    raw_version_number = version[0].gsub('V', '') # If we got a result, then take the first result from the returned array, and remove the leading 'V'.
-    Rex::Version.new(raw_version_number) # Finally lets turn it into a Rex::Version object for later use in other parts of the code.
+    Rex::Version.new(version) # Finally lets turn it into a Rex::Version object for later use in other parts of the code.
   end
 
   def check
@@ -109,7 +107,7 @@ class MetasploitModule < Msf::Auxiliary
     if (target_version < Rex::Version.new('1.0.4.94')) && (target_version >= Rex::Version.new('1.0.2.62'))
       return Exploit::CheckCode::Appears
     else
-      return Exploit::Checkcode::Safe
+      return Exploit::CheckCode::Safe
     end
   end
 
