@@ -6,13 +6,14 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::Tcp
   include Msf::Auxiliary::Report
+  include Rex::Socket::SslTcp
 
   def initialize(info = {})
     super(
       update_info(
         info,
         'Name' => 'HTTP SSL Certificate Impersonation',
-        'Author' => ' Chris John Riley',
+        'Author' => 'Chris John Riley',
         'References' =>
             [
               ['URL', 'http://www.slideshare.net/ChrisJohnRiley/ssl-certificate-impersonation-for-shits-andgiggles']
@@ -49,15 +50,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_cert(rhost, rport, sni)
-    ctx = OpenSSL::SSL::SSLContext.new
-    sock = TCPSocket.new(rhost, rport)
-    ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
-    if sni
-      ssl.hostname = sni
-    end
-    ssl.connect
-    cert = ssl.peer_cert
-    return cert
+    info_hash = {'PeerHost' => sni, 'PeerAddr' => rhost, 'PeerPort' => rport.to_s}
+    sslSocket = Rex::Socket::SslTcp.create(info_hash)
+    cert = sslSocket.peer_cert
+    sslSocket.close
+    cert
   end
 
   def run
