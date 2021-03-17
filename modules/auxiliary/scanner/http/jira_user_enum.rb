@@ -22,10 +22,10 @@ class MetasploitModule < Msf::Auxiliary
           Discovered by Mikhail Klyuchnikov @__mn1__
           This module was only tested on 8.4.1
         },
-        'Author' => 
-        [ 
-        'Brian Halbach', #msf module author
-         'Mikhail Klyuchnikov' #initial discovery and PoC
+        'Author' =>
+        [
+          'Brian Halbach', # msf module author
+          'Mikhail Klyuchnikov' # initial discovery and PoC
         ],
         'License' => MSF_LICENSE,
         'References' =>
