@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     begin
-      gem_version = Gem::Version.new(clean_version)
+      gem_version = Rex::Version.new(clean_version)
     rescue ArgumentError
       print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
       return
