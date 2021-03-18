@@ -84,30 +84,26 @@ class MetasploitModule < Msf::Auxiliary
     version_type, clean_version = parse_version(version)
     if version_type == 'unsupported'
       print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
-      return Msf::Exploit::CheckCode::Unknown
+      return
     end
 
     if version_type == 'legacy'
       print_error("This module does not support the legacy Nagios XI version #{version}")
-      return Msf::Exploit::CheckCode::Safe
+      return
     end
 
     begin
       gem_version = Gem::Version.new(clean_version)
     rescue ArgumentError
       print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
-      return Msf::Exploit::CheckCode::Unknown
+      return
     end
 
     cve_rce_hash = nagios_xi_rce_check(gem_version)
 
-    if cve_rce_hash.instance_of? Msf::Exploit::CheckCode
-      if real_target
-        print_error(cve_rce_hash.message)
-      else
-        print_error("Nagios XI version #{version} doesn't match any exploit modules.")
-      end
-      return cve_rce_hash
+    if cve_rce_hash.empty?
+      print_error("Nagios XI version #{version} doesn't match any exploit modules.")
+      return
     end
 
     # adjust the output based on whether a version was provided, or we obtained a version from a target
@@ -122,7 +118,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("\t#{cve}\texploit/linux/http/#{exploit_module}")
     end
     print_status('')
-    return Msf::Exploit::CheckCode::Appears
+    return
   end
 
   # the first undercore in _target_Host was appended to stop RobuCop from flagging this line
@@ -131,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
     if version
       if version.empty?
         print_error('VERSION cannot be empty. Please provide an existing Nagios XI VERSION or use `unset VERSION` to cancel')
-        return Msf::Exploit::CheckCode::Unknown
+        return
       end
 
       return rce_check(version)
@@ -140,12 +136,12 @@ class MetasploitModule < Msf::Auxiliary
     # check if we have credentials, if not, try to obtain the Nagios XI version from login.php
     if username.blank? || password.blank?
       print_warning('No credentials provided. Attempting to obtain the Nagios XI version from the login page. This will not work for newer versions.')
-      nagios_version_result = nagios_xi_version_no_auth
+      nagios_version_result, error_message = nagios_xi_version_no_auth
 
-      if nagios_version_result.instance_of? Msf::Exploit::CheckCode
-        print_error(nagios_version_result.message)
-        print_error('Please provide a valid Nagios XI USERNAME and PASSWORD, or a specific VERSION to check')
-        return nagios_version_result
+      if error_message
+        print_error("#{rhost}:#{rport} - #{error_message}")
+        print_warning('Please provide a valid Nagios XI USERNAME and PASSWORD, or a specific VERSION to check')
+        return
       end
 
       print_status("Target is Nagios XI with version #{nagios_version_result}")
@@ -157,65 +153,62 @@ class MetasploitModule < Msf::Auxiliary
 
     # use nagios_xi_login to try and authenticate
     # if authentication succeeds, nagios_xi_login returns an array containing the http response body of a get request to index.php and the session cookies
-    login_result = nagios_xi_login(username, password, finish_install)
-    if login_result.instance_of? Msf::Exploit::CheckCode
-      print_error(login_result.message)
-      return login_result
-    end
-
-    # check if we need to complete the installation
-    if login_result == 'install_required'
+    login_result, error_message = nagios_xi_login(username, password, finish_install)
+    case login_result
+    when 1..3 # an error occurred
+      print_error("#{rhost}:#{rport} - #{error_message}")
+      return
+    when 4 # Nagios XI is not fully installed
       install_result = install_nagios_xi(password)
-      if install_result.instance_of? Msf::Exploit::CheckCode
-        return install_result
+      if install_result
+        print_error("#{rhost}:#{rport} - #{install_result[1]}")
+        return
       end
 
-      login_result = login_after_install_or_license(username, password, finish_install)
-      if login_result.instance_of? Msf::Exploit::CheckCode
-        print_error(login_result.message)
-        return login_result
-      end
-
-      # make sure Nagios XI is fully installed now
-      if login_result == 'install_required'
-        print_error('Failed to install Nagios XI on the target.')
-        return Msf::Exploit::CheckCode::Detected
+      login_result, error_message = login_after_install_or_license(username, password, finish_install)
+      case login_result
+      when 1..3 # an error occurred
+        print_error("#{rhost}:#{rport} - #{error_message}")
+        return
+      when 4 # Nagios XI is still not fully installed
+        print_error("#{rhost}:#{rport} - Failed to install Nagios XI on the target.")
+        return
       end
     end
 
-    # check if we need to sign the license
-    if login_result.include?('sign_license')
-      auth_cookies, nsp = login_result[1..2]
+    # when 5 is excluded from the case statement above to prevent having to use this code block twice
+    # including when 5 would require using this code block once at the end of the `when 4` code block above, and once here
+    if login_result == 5 # the Nagios XI license agreement has not been signed
+      auth_cookies, nsp = error_message
       sign_license_result = sign_license_agreement(auth_cookies, nsp)
-      if sign_license_result.instance_of? Msf::Exploit::CheckCode
-        return sign_license_result
+      if sign_license_result
+        print_error("#{rhost}:#{rport} - #{sign_license_result[1]}")
+        return
       end
 
-      login_result = login_after_install_or_license(username, password, finish_install)
-      if login_result.instance_of? Msf::Exploit::CheckCode
-        print_error(login_result.message)
-        return login_result
-      end
-
-      # make sure we signed the license agreement
-      if login_result.include?('sign_license')
-        print_error('Failed to sign the license agreement.')
-        return Msf::Exploit::CheckCode::Detected
+      login_result, error_message = login_after_install_or_license(username, password, finish_install)
+      case login_result
+      when 1..3
+        print_error("#{rhost}:#{rport} - #{error_message}")
+        return
+      when 5 # the Nagios XI license agreement still has not been signed
+        print_error("#{rhost}:#{rport} - Failed to sign the license agreement.")
+        return
       end
     end
 
     print_good('Successfully authenticated to Nagios XI')
 
     # obtain the Nagios XI version
-    nagios_version_result = nagios_xi_version(login_result[0])
-    if nagios_version_result.instance_of? Msf::Exploit::CheckCode
-      print_error(nagios_version_result.message)
-      return nagios_version_result
+    nagios_version = nagios_xi_version(login_result)
+    if nagios_version.nil?
+      print_error("#{rhost}:#{rport} - Unable to obtain the Nagios XI version from the dashboard")
+      return
     end
 
-    print_status("Target is Nagios XI with version #{nagios_version_result}")
+    print_status("Target is Nagios XI with version #{nagios_version}")
 
     # check if the Nagios XI version matches any exploit modules
-    return rce_check(nagios_version_result, true)
+    return rce_check(nagios_version, true)
   end
 end

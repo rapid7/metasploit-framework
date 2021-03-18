@@ -1,16 +1,17 @@
 ## Vulnerable Application
 
-The module detects the version of Nagios XI applications and suggests matching exploit modules based on the version number.
+The module detects the version of Nagios XI running on a target and suggests matching exploit modules based on the version number.
 
 The module takes advantage of the `Msf::Exploit::Remote::HTTP::NagiosXi` mixin in order to
 authenticate to the target and obtain the version number, which is only revealed to authenticated users.
 
 When used to target a specific host, the module requires valid credentials for a Nagios XI account.
 These can be provided via `USERNAME` and `PASSWORD` options.
+
 Alternatively, it is possible to provide a specific Nagios XI version number via the `VERSION` option.
 In that case, the module simply suggests matching exploit modules and does not probe the target(s).
 
-The module currently supports the following exploit modules:
+The module is able to recommend the following modules based on the target's Nagios XI version:
 - exploit/linux/http/nagios_xi_plugins_check_plugin_authenticated_rce (CVE-2019-15949)
 - exploit/linux/http/nagios_xi_plugins_filename_authenticated_rce (CVE-2020-35578)
 - exploit/linux/http/nagios_xi_mibs_authenticated_rce (CVE-2020-5791)
@@ -48,6 +49,11 @@ the module will not probe the target, so it is not necessary to provide credenti
 ## Scenarios
 ### Nagios XI 5.6.5 running on CentOS 7
 ```
+msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
+rhosts => 192.168.1.14
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
+password => nagiosadmin
 msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
@@ -85,6 +91,11 @@ msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
 ```
 ### Nagios XI 5.7.9 version provided via VERSION
 ```
+msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.14
+rhosts => 192.168.1.14
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set version 5.7.9
+version => 5.7.9
 msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
@@ -95,7 +106,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
                                               . This includes signing the license agreement.
    PASSWORD        nagiosadmin      no        Password to authenticate with
    Proxies                          no        A proxy chain of format type:host:port[,type:host:port][...]
-   RHOSTS          192.168.1.140    yes       The target host(s), range CIDR identifier, or hosts file with synt
+   RHOSTS          192.168.1.14     yes       The target host(s), range CIDR identifier, or hosts file with synt
                                               ax 'file:<path>'
    RPORT           80               yes       The target port (TCP)
    SSL             false            no        Negotiate SSL/TLS for outgoing connections
@@ -116,6 +127,13 @@ msf6 auxiliary(scanner/http/nagios_xi_scanner) > run
 ```
 ### Nagios XI 5.7.5 - incomplete installation, FINISH_INSTALL set to true
 ```
+msf6 > use auxiliary/scanner/http/nagios_xi_scanner 
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set rhosts 192.168.1.16
+rhosts => 192.168.1.16
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set password nagiosadmin
+password => nagiosadmin
+msf6 auxiliary(scanner/http/nagios_xi_scanner) > set finish_install true
+finish_install => true
 msf6 auxiliary(scanner/http/nagios_xi_scanner) > show options 
 
 Module options (auxiliary/scanner/http/nagios_xi_scanner):
