@@ -81,12 +81,34 @@ module Msf::Modules::Metadata::Search
         search_results << module_metadata
       end
     }
+    if params['sort']
+      cat = params['sort'][0][0].to_s
+      search_results=sorting(search_results, cat)
+    end
     return search_results
   end
 
   #######
   private
   #######
+
+  def sorting(search_results, cat)
+    case cat
+      when "date"
+        search_results.sort_by! {|meta| meta.disclosure_date}
+      when "name"
+        search_results.sort_by! {|meta| meta.name}
+      when "author"
+        search_results.sort_by! {|meta| meta.author}
+      when "rank"
+        search_results.sort_by! {|meta| meta.rank}
+      when "type"
+        search_results.sort_by! {|meta| meta.type}
+      else
+        search_results
+    end
+    search_results
+  end
 
   def is_match(params, module_metadata)
     return true if params.empty?
