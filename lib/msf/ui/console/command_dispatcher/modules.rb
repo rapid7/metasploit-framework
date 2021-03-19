@@ -442,11 +442,13 @@ module Msf
                     sort='disclosure_date'
                   end
                   eval("@module_search_results.sort_by! {|meta| meta.#{sort}}")
+                end
 
                   if desc
                     @module_search_results.reverse!
                   end
-              end
+                
+                end
 
               if @module_search_results.empty?
                 print_error('No results from search')
