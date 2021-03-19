@@ -39,6 +39,10 @@ A known email address for this organization.
 
 HTTP Method to use for the check (only). Default: POST
 
+### UseAlternatePath
+
+Use the IIS root dir as alternate path. Default: false
+
 ## Advanced Options
 
 ### ExchangeBasePath
@@ -51,17 +55,17 @@ The path where you want to write the backdoor. Default: owa\auth
 
 You can for example, define to: ecp\auth
 
+### IISBasePath
+
+The base path where IIS wwwroot directory is. Default: C:\inetpub\wwwroot
+
 ### MapiClientApp
 
 This is MAPI client version sent in the request.
 
-### MaxEntries
+### MaxWaitLoop
 
 Max counter loop to wait for OAB Virtual Dir reset. Default: 30
-
-### TIMEOUT
-
-The number of seconds to wait for a reply from a HTTP request. Default: 15
 
 ## Scenarios
 
