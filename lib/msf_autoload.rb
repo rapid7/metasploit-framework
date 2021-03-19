@@ -295,7 +295,6 @@ class MsfAutoload
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
       { path: "#{__dir__}/rex/", namespace: Rex },
-      { path: "#{__dir__}/../app/validators/" },
     ]
   end
 

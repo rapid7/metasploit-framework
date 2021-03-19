@@ -209,7 +209,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Loading' do
     end
 
     before(:example) do
-      allow(klass).to receive(:parent).and_return(namespace_module)
+      allow(klass).to receive(:module_parent).and_return(namespace_module)
     end
 
     it "should add module to type's module_set" do
