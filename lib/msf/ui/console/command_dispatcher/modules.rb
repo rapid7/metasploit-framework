@@ -396,7 +396,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-
+            sort         = 'name'
+            sort_options = ['rank','disclosure_date','name','date','type']
+            desc         = false
             ignore_use_exact_match = false
 
             @@search_opts.parse(args) do |opt, idx, val|
