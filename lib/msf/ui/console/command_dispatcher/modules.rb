@@ -22,8 +22,8 @@ module Msf
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Regex pattern used to filter search results'],
             '-u' => [false, 'Use module if there is one result'],
-            '-s' => [true, 'Sort search results'],
-            '-r' => [true, 'Work with sort to reverse the order of search resulsts']
+            '-s' => [true, 'Sort search results by the specified column in ascending order'],
+            '-r' => [true, 'Reverse the order of search results to descending order']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -344,12 +344,12 @@ module Msf
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
-            print_line "  -h                Show this help information"
-            print_line "  -o <file>         Send output to a file in csv format"
-            print_line "  -S <string>       Regex pattern used to filter search results"
-            print_line "  -u                Use module if there is one result"
-            print_line "  -s <column>       Sort the research results based on <column>"
-            print_line "  -r                Reverse the search_results order"
+            print_line "  -h                   Show this help information"
+            print_line "  -o <file>            Send output to a file in csv format"
+            print_line "  -S <string>          Regex pattern used to filter search results"
+            print_line "  -u                   Use module if there is one result"
+            print_line "  -s <search_column>   Sort the research results based on <search_column> in ascending order"
+            print_line "  -r                   Reverse the search results order to descending order"
             print_line
             print_line "Keywords:"
             {
@@ -374,7 +374,19 @@ module Msf
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
-              print_line "  #{keyword.ljust 12}:  #{description}"
+              print_line "  #{keyword.ljust 17}:  #{description}"
+            end
+            print_line
+            print_line "Supported search columns:"
+            {
+              'rank'                 => 'Sort modules by their exploitabilty rank',
+              'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
+              'disclosure_date'      => 'Sort modules by their disclosure date',
+              'name'                 => 'Sort modules by their name',
+              'type'                 => 'Sort modules by their type',
+              'check'                => 'Sort modules by whether or not they have a check method',
+            }.each_pair do |keyword, description|
+              print_line "  #{keyword.ljust 17}:  #{description}"
             end
             print_line
             print_line "Examples:"
@@ -397,7 +409,7 @@ module Msf
             count        = -1
             search_terms = []
             sort         = 'name'
-            sort_options = ['rank','disclosure_date','name','date','type']
+            sort_options = ['rank','disclosure_date','name','date','type','check']
             desc         = false
             ignore_use_exact_match = false
 
@@ -417,7 +429,7 @@ module Msf
               when '-s'
                 sort = val
               when '-r'
-                desc = true  
+                desc = true
               else
                 match += val + ' '
               end
@@ -441,16 +453,22 @@ module Msf
 
                 if sort and sort_options.include?(sort)
                   if sort == 'date'
-                    sort='disclosure_date'
+                    sort = 'disclosure_date'
                   end
-                  eval("@module_search_results.sort_by! {|meta| meta.#{sort}}")
+                  if sort != 'check'
+                    @module_search_results.sort_by! { |meta| meta.send(sort) }
+                  else
+                    @module_search_results.sort_by! { |meta| meta.send(sort) ? 0 : 1} # Taken from https://stackoverflow.com/questions/14814966/is-it-possible-to-sort-a-list-of-objects-depending-on-the-individual-objects-re
+                  end
+                elsif sort
+                  print_error("Supported options for the -s flag are: #{sort_options}")
+                  return false
                 end
 
-                  if desc
-                    @module_search_results.reverse!
-                  end
-                
+                if desc
+                  @module_search_results.reverse!
                 end
+              end
 
               if @module_search_results.empty?
                 print_error('No results from search')
@@ -1009,7 +1027,7 @@ module Msf
               driver.destack_dispatcher
             end
           end
-        
+
           def cmd_favorite_help
             print_line 'Usage: favorite [mod1 mod2 ...]'
             print_line
@@ -1139,7 +1157,7 @@ module Msf
             writable = false
             readable = false
             contents = ''
-            
+
             if File.exists?(favs_file)
               exists = true
             end
