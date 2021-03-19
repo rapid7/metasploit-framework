@@ -21,7 +21,9 @@ module Msf
             '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Regex pattern used to filter search results'],
-            '-u' => [false, 'Use module if there is one result']
+            '-u' => [false, 'Use module if there is one result'],
+            '-s' => [true, 'Sort search results'],
+            '-r' => [true, 'Work with sort to reverse the order of search resulsts']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -346,6 +348,8 @@ module Msf
             print_line "  -o <file>         Send output to a file in csv format"
             print_line "  -S <string>       Regex pattern used to filter search results"
             print_line "  -u                Use module if there is one result"
+            print_line "  -s <column>       Sort the research results based on <column>"
+            print_line "  -r                Reverse the search_results order"
             print_line
             print_line "Keywords:"
             {
@@ -376,6 +380,8 @@ module Msf
             print_line "Examples:"
             print_line "  search cve:2009 type:exploit"
             print_line "  search cve:2009 type:exploit platform:-linux"
+            print_line "  search cve:2009 -s name"
+            print_line "  search type:exploit -s type -r"
             print_line
           end
 
@@ -406,6 +412,10 @@ module Msf
                 use = true
               when '-I'
                 ignore_use_exact_match = true
+              when '-s'
+                sort = val
+              when '-r'
+                desc = true  
               else
                 match += val + ' '
               end
@@ -426,6 +436,16 @@ module Msf
               else
                 search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+                if sort and sort_options.include?(sort)
+                  if sort == 'date'
+                    sort='disclosure_date'
+                  end
+                  eval("@module_search_results.sort_by! {|meta| meta.#{sort}}")
+
+                  if desc
+                    @module_search_results.reverse!
+                  end
               end
 
               if @module_search_results.empty?
