@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'readline'
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Powershell
@@ -54,7 +52,9 @@ class MetasploitModule < Msf::Post
 
     register_advanced_options(
       [
-        OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 600])
+        OptInt.new('TIMEOUT', [true, 'The maximum time (in seconds) to wait for any Powershell scripts to complete', 600]),
+        OptFloat.new('DownloadSizeThreshold', [true, 'The file size of export results after which a prompt will appear to confirm the download, in MB (0 for no threshold)', 50.0]),
+        OptBool.new('SkipLargeDownloads', [true, 'Automatically skip downloading export results that are larger than DownloadSizeThreshold (don\'t show prompt)', false])
       ]
     )
   end
@@ -73,6 +73,18 @@ class MetasploitModule < Msf::Post
         end
       end
     end
+  end
+
+  def user_confirms_download?
+    # Prompt the user to confirm the download. Return true if confirmed, false otherwise
+    return false unless user_input.respond_to?(:pgets)
+
+    old_prompt = user_input.prompt
+    user_input.prompt = 'Are you sure you want to continue? [y/N] '
+    cont = user_input.pgets
+    user_input.prompt = old_prompt
+
+    return cont.match?(/^y/i)
   end
 
   def export_mailboxes(mailbox, filter)
@@ -96,18 +108,14 @@ class MetasploitModule < Msf::Post
     stat = session.fs.file.stat(temp_save_path)
     mb_size = (stat.stathash['st_size'] / 1024.0 / 1024.0).round(2)
     print_status("Resulting export file size: #{mb_size} MB")
-    if mb_size > 50
-      print_warning('The resulting export file is large. You can reduce it by using the FILTER option to refine the amount of exported mail items.')
+    if datastore['DownloadSizeThreshold'] > 0 && mb_size > datastore['DownloadSizeThreshold']
+      print_warning("The resulting export file is larger than current threshold (#{datastore['DownloadSizeThreshold']} MB)")
+      print_warning('You can reduce the size of the export file by using the FILTER option to refine the amount of exported mail items.')
 
-      loop do
-        input = Readline.readline('Are you sure you want to download it? [Y/N]: ', true)
-        if input.casecmp('Y') == 0
-          break
-        elsif input.casecmp('N') == 0
-          print_error('Aborting download')
-          rm_f(temp_save_path)
-          return
-        end
+      if datastore['SkipLargeDownloads'] || !user_confirms_download?
+        print_error('Not downloading oversized export file.')
+        rm_f(temp_save_path)
+        return
       end
     end
 
@@ -125,7 +133,7 @@ class MetasploitModule < Msf::Post
 
   def run
     # Check if Exchange Server is installed on the target by checking the registry
-    if registry_key_exist?('HKLM\\Software\\Microsoft\\ExchangeServer')
+    if registry_key_exist?('HKLM\Software\Microsoft\ExchangeServer')
       print_good('Exchange Server is present on target machine')
     else
       fail_with(Failure::Unknown, 'Exchange Server is not present on target machine')
