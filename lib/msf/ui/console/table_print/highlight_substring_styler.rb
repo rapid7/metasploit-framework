@@ -17,7 +17,7 @@ module Msf
             @substrings.each do |s|
               # Regex used to pull out matches and preserve case sensitivity
               matches = value_cp.scan(%r{#{Regexp.escape(s)}}i)
-
+              matches.uniq!
               matches.each do |m|
                 value_cp.gsub!(m, COLOR + m + '%clr')
               end
