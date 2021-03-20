@@ -25,7 +25,7 @@
   Filter to use when exporting a mailbox.
 
   See [Microsoft documentation](https://docs.microsoft.com/en-us/exchange/filterable-properties-for-the-contentfilter-parameter)
-  for valid syntax.
+  for valid values.
 
   Unused for LIST action, optional for EXPORT action.
 
@@ -34,6 +34,18 @@
   Mailbox to export. Can be a mailbox's email address or display name.
 
   Unused for LIST action, required for EXPORT action.
+
+### DownloadSizeThreshold
+
+  The file size of export results after which a prompt will appear to confirm the download, in MB.
+
+  Option takes a float number. Default value is 50.0.
+
+### SkipLargeDownloads
+
+  If set to `true`, automatically skip downloading export results that are larger than `DownloadSizeThreshold` (don't show prompt).
+
+  Set to `false` by default.
 
 ## Extracted data
 
