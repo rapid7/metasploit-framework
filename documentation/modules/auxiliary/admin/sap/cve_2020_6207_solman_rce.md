@@ -9,8 +9,6 @@ to SolMan as a user from which the SMDAgent service starts, usually the daaadm.
 
 Paper: [An Unauthenticated Journey to Root][1]
 
-Solution: [sap note 2890213][2]
-
 ### Application Background
 In SAP landscapes, SolMan could be compared to a domain controller system in the Microsoft world.
 It is a technical system that is tightly connected to all other SAP systems with high privileges.
@@ -19,7 +17,7 @@ As an administration solution, SolMan is intended to centralize the management o
 performing actions such as implementing, supporting, monitoring and maintaining the enterprise solutions.
 
 ### Installation Steps
-Steps to install, configure and manage SolMan can be found online at [this page][3].
+Steps to install, configure and manage SolMan can be found online at [this page][2].
 
 Once set up and configured, the instances will be vulnerable on the default HTTP port 50000.
 
@@ -152,5 +150,4 @@ Timestamp                Host          Name                                     
 ```
 
 [1]: https://i.blackhat.com/USA-20/Wednesday/us-20-Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-Enterprise-Software-Servers-wp.pdf
-[2]: https://launchpad.support.sap.com/#/notes/2890213
-[3]: https://blogs.sap.com/2016/02/16/solution-manager-72-installation-and-configuration-i-installations/
+[2]: https://blogs.sap.com/2016/02/16/solution-manager-72-installation-and-configuration-i-installations/
