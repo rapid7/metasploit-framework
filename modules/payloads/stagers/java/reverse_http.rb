@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 5386
+  CachedSize = 5345
 
   include Msf::Payload::Stager
   include Msf::Payload::Java
