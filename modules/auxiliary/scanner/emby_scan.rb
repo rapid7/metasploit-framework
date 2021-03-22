@@ -12,10 +12,7 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name' => 'Emby SSRF HTTP Scanner',
-      'Description' => '
-      Utilizes the SSRF vulnerability in Emby Server prior to 4.5.0 to attempt to pull the
-      title tag from internal websites. Based on the vulnerability CVE-2020-26948.
-      ',
+      'Description' => 'Generates a `GET` request to the provided web servers and executes an SSRF against the targeted EMBY server. Returns the server header, HTML title attribute and location header (if set). This is useful for rapidly identifying web applications on the internal network using the Emby SSRF vulnerability (CVE-2020-26948).',
       'Author' => 'Btnz',
       'Version' => '1.0.2021.03.01.01',
       'License' => MSF_LICENSE
