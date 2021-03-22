@@ -71,6 +71,13 @@ This is MAPI client version sent in the request.
 
 Max counter loop to wait for OAB Virtual Dir reset. Default: 30
 
+## Known issues
+
+1. With `cmd/windows/adduser` payload, you may need to change the password because the default password does may
+not meet Microsoft Windows complexity requirements.
+2. Depending on the payload used, two `cmd.exe` processes remain alive on the server. If this is the case, you cannot
+make another attempt if they are not killed.
+
 ## Scenarios
 
 ```
