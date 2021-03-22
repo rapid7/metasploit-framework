@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_PATH', [true, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped.']),
+        OptPath.new('KEY_PATH', [true, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
         OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
       ], self.class
     )
@@ -122,6 +122,13 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['USERNAME'],
     )
 
+    unless keys.valid?
+      print_error("Files that failed to be read:")
+      keys.error_list.each do |err|
+        print_line("\t- #{err}")
+      end
+    end
+
     keys = prepend_db_keys(keys)
 
     print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
@@ -186,11 +193,7 @@ class MetasploitModule < Msf::Auxiliary
   class KeyCollection < Metasploit::Framework::CredentialCollection
     attr_accessor :key_data
     attr_accessor :key_path
-
-    def initialize(opts={})
-      super
-      valid!
-    end
+    attr_accessor :error_list
 
     # Override CredentialCollection#has_privates?
     def has_privates?
@@ -201,20 +204,30 @@ class MetasploitModule < Msf::Auxiliary
       nil
     end
 
-    def valid!
+    def valid?
+      @error_list = []
       @key_data = Set.new
       if File.directory?(@key_path)
         @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
         @key_files.each do |f|
-          data = read_key(File.join(@key_path, f))
-          @key_data << data if valid_key?(data)
+          begin
+            data = read_key(File.join(@key_path, f))
+            @key_data << data if valid_key?(data)
+          rescue StandardError => e
+            @error_list << "#{File.join(@key_path, f)}: #{e}"
+          end
         end
       elsif File.file?(@key_path)
-        data = read_key(@key_path)
-        @key_data << data if valid_key?(data)
+        begin
+          data = read_key(@key_path)
+          @key_data << data if valid_key?(data)
+        rescue StandardError => e
+          @error_list << "#{@key_path} could not be read, #{e}"
+        end
       else
         raise RuntimeError, "No key path"
       end
+      !@key_data.empty?
     end
 
     def valid_key?(key_data)
@@ -248,10 +261,10 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    def read_key(filename)
+    def read_key(file_path)
       @cache ||= {}
-      @cache[filename] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(key_path), password, false, key_path).to_s
-      @cache[filename]
+      @cache[file_path] ||= Net::SSH::KeyFactory.load_data_private_key(File.read(file_path), password, false, key_path).to_s
+      @cache[file_path]
     end
   end
 end
