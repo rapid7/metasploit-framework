@@ -175,8 +175,6 @@ module Metasploit
                 os_name = system_properties.at_xpath('value').content
               when 'java.version'
                 java_version = system_properties.at_xpath('value').content
-              else
-                # nothing
               end
             end
             agents.push({
@@ -212,9 +210,9 @@ module Metasploit
             osName: 'OS Name',
             javaVersion: 'Java Version'
           }
-          @columns = @agent_labels.each_with_object({}) { |(col, label), h|
+          @columns = @agent_labels.each_with_object({}) do |(col, label), h|
             h[col] = { label: label, width: [agents.map { |g| g[col].size }.max, label.size].max }
-          }
+          end
           make_pretty_table(agents)
         end
 
