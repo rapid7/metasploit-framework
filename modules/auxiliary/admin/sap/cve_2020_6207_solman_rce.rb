@@ -178,9 +178,9 @@ class MetasploitModule < Msf::Auxiliary
     end
     report_service_and_vuln
     if self.class.agents.empty?
-      print_good("Solution Manager server: #{@host}:#{@port} is vulnerable but no agents connected!")
+      print_good("Solution Manager server: #{@host}:#{@port} is vulnerable but no agents are connected!")
     else
-      print_good("Connected agents list: \n#{pretty_agents_table(self.class.agents)}")
+      print_good("Successfully retrieved agent list:\n#{pretty_agents_table(self.class.agents)}")
     end
   end
 
