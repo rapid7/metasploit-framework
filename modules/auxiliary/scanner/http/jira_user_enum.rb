@@ -68,7 +68,6 @@ class MetasploitModule < Msf::Auxiliary
       create_credential_and_login(connection_details)
       print_good("'User exists: #{user}'")
       @users_found[user] = :reported
-      # create
     else
       print_error('No Response From Server')
       return :abort
