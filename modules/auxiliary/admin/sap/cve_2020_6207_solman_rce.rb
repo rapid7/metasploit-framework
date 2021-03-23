@@ -51,10 +51,10 @@ class MetasploitModule < Msf::Auxiliary
       [
         Opt::RPORT(50000),
         OptString.new('TARGETURI', [true, 'Path to the SAP Solution Manager EemAdmin page from the web root', '/EemAdminService/EemAdmin']),
-        OptString.new('SSRF_METHOD', [false, 'HTTP method for SSRF', 'GET']),
-        OptString.new('SSRF_URI', [false, 'URI for SSRF', 'http://127.0.0.1:80/']),
-        OptString.new('COMMAND', [false, 'Command for execute in agent', 'id']),
-        OptString.new('AGENT', [false, 'Agent server name for exec command or SSRF', 'agent_server_name']),
+        OptString.new('SSRF_METHOD', [false, 'HTTP method for SSRF', 'GET'], conditions: %w[ACTION == SSRF]),
+        OptString.new('SSRF_URI', [false, 'URI for SSRF', 'http://127.0.0.1:80/'], conditions: %w[ACTION == SSRF]),
+        OptString.new('COMMAND', [false, 'Command for execute in agent', 'id'], conditions: %w[ACTION == EXEC]),
+        OptString.new('AGENT', [false, 'Agent server name for exec command or SSRF', 'agent_server_name'], conditions: ['ACTION', 'in', %w[SSRF EXEC]]),
       ]
     )
     self.class.agents = Array.new
