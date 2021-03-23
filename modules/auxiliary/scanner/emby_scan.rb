@@ -16,6 +16,11 @@ class MetasploitModule < Msf::Auxiliary
       'Author' => 'Btnz',
       'License' => MSF_LICENSE,
       'Disclosure Date' => 'September 1 2020'
+      'References' =>
+              [
+                ['CVE', '2020-26948'],
+                ['URL', 'https://github.com/btnz-k/emby_ssrf']
+              ]
     )
 
     deregister_options('VHOST', 'RPORT', 'FILTER', 'INTERFACE', 'PCAPFILE', 'SNAPLEN', 'SSL')
