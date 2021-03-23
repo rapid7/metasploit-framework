@@ -122,7 +122,6 @@ class Msf::DBManager
   #
 
   def initialize(framework, opts = {})
-
     self.framework = framework
     self.migrated  = false
     self.modules_cached  = false
@@ -176,7 +175,6 @@ class Msf::DBManager
   end
 
   def init_db(opts)
-
     init_success = false
 
     # Append any migration paths necessary to bring the database online
@@ -186,28 +184,24 @@ class Msf::DBManager
       end
     end
 
-    if connection_established?
-      after_establish_connection
+    configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
+
+    if configuration_pathname.nil?
+      self.error = "No database YAML file"
     else
-      configuration_pathname = Metasploit::Framework::Database.configurations_pathname(path: opts['DatabaseYAML'])
-
-      if configuration_pathname.nil?
-        self.error = "No database YAML file"
+      if configuration_pathname.readable?
+        # parse specified database YAML file
+        dbinfo = YAML.load_file(configuration_pathname) || {}
+        dbenv  = opts['DatabaseEnv'] || Rails.env
+        db_opts = dbinfo[dbenv]
       else
-        if configuration_pathname.readable?
-          # parse specified database YAML file
-          dbinfo = YAML.load_file(configuration_pathname) || {}
-          dbenv  = opts['DatabaseEnv'] || Rails.env
-          db     = dbinfo[dbenv]
-        else
-          elog("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
-        end
+        elog("Warning, #{configuration_pathname} is not readable. Try running as root or chmod.")
+      end
 
-        if not db
-          elog("No database definition for environment #{dbenv}")
-        else
-          init_success = connect(db)
-        end
+      if db_opts
+        init_success = connect(db_opts)
+      else
+        elog("No database definition for environment #{dbenv}")
       end
     end
 
