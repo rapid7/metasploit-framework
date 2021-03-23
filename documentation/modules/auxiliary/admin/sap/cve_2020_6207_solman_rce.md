@@ -44,7 +44,7 @@ Once set up and configured, the instances will be vulnerable on the default HTTP
 
 ## Options
 
-### URIPATH
+### TARGETURI
 
 This is the path to the EEM admin page of the SolMan that is vulnerable to CVE-2020-6207.
 By default, it is set to `/EemAdminService/EemAdmin`. However, it can be changed if SolMan

