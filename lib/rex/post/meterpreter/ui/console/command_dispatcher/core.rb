@@ -1304,7 +1304,7 @@ class Console::CommandDispatcher::Core
       end
 
       if (extensions.include?(md))
-        print_error("The \"#{md}\" extension has already been loaded.")
+        print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
 

@@ -247,7 +247,11 @@ protected
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
       if (s)
-        register_session(s)
+        # Defer the session registration to the Session Manager scheduler
+        registration = Proc.new do
+          register_session(s)
+        end
+        framework.sessions.schedule registration
       end
 
       return s
@@ -272,6 +276,15 @@ protected
         session.process_autoruns(datastore)
       end
       on_session(session)
+    end
+
+    # Notify the framework that we have a new session opening up...
+    # Don't let errant event handlers kill our session
+    begin
+      framework.events.on_session_open(session)
+    rescue ::Exception => e
+      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
     end
 
     # If there is an exploit associated with this payload, then let's notify
