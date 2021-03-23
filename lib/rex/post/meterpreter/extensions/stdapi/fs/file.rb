@@ -325,6 +325,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.download(dest, src_files, opts = {}, &stat)
     timestamp = opts["timestamp"]
     [*src_files].each { |src|
+      src.force_encoding('UTF-8')
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator
