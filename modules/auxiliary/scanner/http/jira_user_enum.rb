@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def base_uri
-    @base_uri ||= normalize_uri("#{target_uri.path}/secure/ViewUserHover.jspa?username=")
+    @base_uri ||= normalize_uri("#{target_uri.path}/secure/ViewUserHover.jspa")
   end
 
   def do_user_enum(user)
