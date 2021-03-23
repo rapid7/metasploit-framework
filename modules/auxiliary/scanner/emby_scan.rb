@@ -14,8 +14,8 @@ class MetasploitModule < Msf::Auxiliary
       'Name' => 'Emby SSRF HTTP Scanner',
       'Description' => 'Generates a `GET` request to the provided web servers and executes an SSRF against the targeted EMBY server. Returns the server header, HTML title attribute and location header (if set). This is useful for rapidly identifying web applications on the internal network using the Emby SSRF vulnerability (CVE-2020-26948).',
       'Author' => 'Btnz',
-      'Version' => '1.0.2021.03.01.01',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Disclosure Date' => 'September 1 2020'
     )
 
     deregister_options('VHOST', 'RPORT', 'FILTER', 'INTERFACE', 'PCAPFILE', 'SNAPLEN', 'SSL')
