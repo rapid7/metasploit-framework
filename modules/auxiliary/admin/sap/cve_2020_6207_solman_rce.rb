@@ -8,8 +8,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HTTP::SapSolManEemMissAuth
 
-  @agents = Array.new # Array of connected agents
-
   def initialize(info = {})
     super(
       update_info(
@@ -57,15 +55,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('AGENT', [false, 'Agent server name for exec command or SSRF', 'agent_server_name'], conditions: ['ACTION', 'in', %w[SSRF EXEC]]),
       ]
     )
-    self.class.agents = Array.new
-  end
-
-  class << self
-    attr_reader :agents
-  end
-
-  class << self
-    attr_writer :agents
   end
 
   def setup_xml_and_variables
@@ -114,18 +103,19 @@ class MetasploitModule < Msf::Auxiliary
 
   # Check current agent in agents list
   def check_agent(agent_name)
-    if self.class.agents.empty?
-      fail_with(Failure::NoTarget, 'Available agents not found, please make agents list: `set action LIST; run`')
+    vprint_status('Getting a list of connected agents ...')
+    agents = make_agents_array
+    if agents.empty?
+      fail_with(Failure::NoTarget, "Solution Manager server: #{@host}:#{@port} is vulnerable but no agents are connected!")
     elsif agent_name.nil?
-      fail_with(Failure::NoTarget, "Please set agent: `set AGENT #{self.class.agents[0]['serverName']}`")
-    else
-      self.class.agents.each do |agent|
-        if agent_name == agent[:serverName]
-          return true
-        end
+      fail_with(Failure::NoTarget, "Please set agent: `set AGENT #{agents[0]['serverName']}`")
+    end
+    agents.each do |agent|
+      if agent_name == agent[:serverName]
+        return true
       end
     end
-    false
+    fail_with(Failure::NotFound, "Not found agent: #{agent_name} in connected agents: \n#{pretty_agents_table(agents)}")
   end
 
   def run
@@ -142,28 +132,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_list
-    # Clear agents array if that array is not empty
-    unless self.class.agents.empty?
-      self.class.agents.clear
-    end
     setup_xml_and_variables
 
     print_status("Getting a list of agents connected to the Solution Manager: #{@host}")
-    self.class.agents = make_agents_array
+    agents = make_agents_array
 
     report_service_and_vuln
-    if self.class.agents.empty?
+    if agents.empty?
       print_good("Solution Manager server: #{@host}:#{@port} is vulnerable but no agents are connected!")
     else
-      print_good("Successfully retrieved agent list:\n#{pretty_agents_table(self.class.agents)}")
+      print_good("Successfully retrieved agent list:\n#{pretty_agents_table(agents)}")
     end
   end
 
   def action_ssrf
     setup_xml_and_variables
-    unless check_agent(@agent_name)
-      fail_with(Failure::NotFound, "Not found agent: #{@agent_name} in connected agents: \n#{pretty_agents_table(self.class.agents)}")
-    end
+    check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
@@ -183,9 +167,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_exec
     setup_xml_and_variables
-    unless check_agent(@agent_name)
-      fail_with(Failure::NotFound, "Not found agent: #{@agent_name} in connected agents: \n#{pretty_agents_table(self.class.agents)}")
-    end
+    check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
