@@ -17,3 +17,5 @@ unless defined?(Rails) && !Rails.application.nil?
   require config.join('environment')
 end
 require 'msf_autoload'
+
+MsfAutoload.instance
