@@ -324,18 +324,19 @@ protected
       request_summary = "#{conn_id} with UA '#{req.headers['User-Agent']}'"
 
       # Validate known UUIDs for all requests if IgnoreUnknownPayloads is set
-      if datastore['IgnoreUnknownPayloads'] && ! framework.db.get_payload({uuid: uuid.puid_hex})
+      if framework.db.active
+        db_uuid = framework.db.payloads({ uuid: uuid.puid_hex }).first
+      else
+        print_warning('Without a database connected that payload UUID tracking will not work!')
+      end
+      if datastore['IgnoreUnknownPayloads'] && !db_uuid
         print_status("Ignoring unknown UUID: #{request_summary}")
         info[:mode] = :unknown_uuid
       end
 
       # Validate known URLs for all session init requests if IgnoreUnknownPayloads is set
       if datastore['IgnoreUnknownPayloads'] && info[:mode].to_s =~ /^init_/
-        payload_info = {
-            uuid: uuid.puid_hex,
-        }
-        payload = framework.db.get_payload(payload_info)
-        allowed_urls = payload ? payload.urls : []
+        allowed_urls = db_uuid ? db_uuid['urls'] : []
         unless allowed_urls.include?(req.relative_resource)
           print_status("Ignoring unknown UUID URL: #{request_summary}")
           info[:mode] = :unknown_uuid_url

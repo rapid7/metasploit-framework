@@ -228,19 +228,18 @@ protected
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
         s.payload_uuid.registered = false
-
         if framework.db.active
-          payload_info = {
-              uuid: s.payload_uuid.puid_hex,
-              workspace: framework.db.workspace
-          }
-          if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.payloads(payload_info).first)
-            s.payload_uuid.registered = true
-            s.payload_uuid.name = uuid_info['name']
-            s.payload_uuid.timestamp = uuid_info['timestamp']
-          else
-            s.payload_uuid.registered = false
-          end
+          payload_info = { uuid: s.payload_uuid.puid_hex, workspace: framework.db.workspace }
+          uuid_info = framework.db.payloads(payload_info).first
+        else
+          print_warning('Without a database connected that payload UUID tracking will not work!')
+        end
+        if s.payload_uuid.respond_to?(:puid_hex) && uuid_info
+          s.payload_uuid.registered = true
+          s.payload_uuid.name = uuid_info['name']
+          s.payload_uuid.timestamp = uuid_info['timestamp']
+        else
+          s.payload_uuid.registered = false
         end
       end
 
