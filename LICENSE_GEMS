@@ -13,10 +13,10 @@ ast, 2.4.2, MIT
 aws-eventstream, 1.1.1, "Apache 2.0"
 aws-partitions, 1.434.0, "Apache 2.0"
 aws-sdk-core, 3.113.0, "Apache 2.0"
-aws-sdk-ec2, 1.227.0, "Apache 2.0"
-aws-sdk-iam, 1.50.0, "Apache 2.0"
+aws-sdk-ec2, 1.230.0, "Apache 2.0"
+aws-sdk-iam, 1.51.0, "Apache 2.0"
 aws-sdk-kms, 1.43.0, "Apache 2.0"
-aws-sdk-s3, 1.91.0, "Apache 2.0"
+aws-sdk-s3, 1.93.0, "Apache 2.0"
 aws-sigv4, 1.2.3, "Apache 2.0"
 bcrypt, 3.1.16, MIT
 bcrypt_pbkdf, 1.1.0, MIT
@@ -60,7 +60,7 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.4, LGPL-2.1
 metasploit-concern, 3.0.1, "New BSD"
 metasploit-credential, 4.0.3, "New BSD"
-metasploit-framework, 6.0.37, "New BSD"
+metasploit-framework, 6.0.38, "New BSD"
 metasploit-model, 3.1.3, "New BSD"
 metasploit-payloads, 2.0.39, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 4.1.2, "New BSD"
@@ -121,7 +121,7 @@ rex-powershell, 0.1.89, "New BSD"
 rex-random_identifier, 0.1.5, "New BSD"
 rex-registry, 0.1.4, "New BSD"
 rex-rop_builder, 0.1.4, "New BSD"
-rex-socket, 0.1.26, "New BSD"
+rex-socket, 0.1.28, "New BSD"
 rex-sslscan, 0.1.6, "New BSD"
 rex-struct2, 0.1.3, "New BSD"
 rex-text, 0.2.33, "New BSD"
@@ -135,7 +135,7 @@ rspec-mocks, 3.10.2, MIT
 rspec-rails, 5.0.1, MIT
 rspec-rerun, 1.1.0, MIT
 rspec-support, 3.10.2, MIT
-rubocop, 1.11.0, MIT
+rubocop, 1.12.0, MIT
 rubocop-ast, 1.4.1, MIT
 ruby-macho, 2.5.0, MIT
 ruby-prof, 1.4.2, "Simplified BSD"
