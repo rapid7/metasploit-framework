@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/meterpreter_armle_linux'
-require 'msf/base/sessions/meterpreter_options'
-require 'msf/base/sessions/mettle_config'
 require 'rex/elfparsey'
 
 module MetasploitModule

@@ -6,7 +6,6 @@
 ##
 
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'rex/parser/winscp'
 
 exit unless ARGV.count == 1
 

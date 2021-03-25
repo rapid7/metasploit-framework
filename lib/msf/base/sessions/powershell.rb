@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base/sessions/command_shell'
 
 class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #

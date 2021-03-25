@@ -1,6 +1,4 @@
 require 'rex'
-require 'msf/util/document_generator'
-require 'msf/util/document_generator/pull_request_finder'
 
 RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
 

@@ -11,7 +11,6 @@ require 'fileutils'
 require 'metasploit/model/engine'
 require 'metasploit/concern/engine'
 require 'metasploit/framework/require'
-require 'msf/base/config'
 Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines
 
 # `Rails::Engine` behavior common to both {Metasploit::Framework::Application} and {Metasploit::Framework::Engine}.

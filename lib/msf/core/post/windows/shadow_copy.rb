@@ -129,6 +129,11 @@ module ShadowCopy
     result = wmic_query("shadowcopy call create \"ClientAccessible\", \"#{volume}\"")
 
     retval = result.match(/ReturnValue = (\d)/)
+    if retval.nil?
+      print_error('Shadow copy creation failed')
+      return
+    end
+
     case retval[1].to_i
     when 0
       print_status("ShadowCopy created successfully")
@@ -161,7 +166,7 @@ module ShadowCopy
     else
       print_error("Unknown error")
     end
-    return nil
+    return
   end
 
   #
@@ -176,7 +181,7 @@ module ShadowCopy
       if service_restart("VSS", START_TYPE_MANUAL)
         print_good("Volume Shadow Copy started successfully.")
       else
-        print_error("Insufficient Privs to start service!")
+        print_error("Insufficient privileges to start the service!")
         return false
       end
     end
@@ -195,7 +200,7 @@ module ShadowCopy
       if service_restart("swprv", START_TYPE_MANUAL)
         print_good("Software Shadow Copy started successfully.")
       else
-        print_error("Insufficient Privs to start service!")
+        print_error("Insufficient privileges to start the service!")
         return false
       end
     end

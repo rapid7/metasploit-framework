@@ -200,8 +200,7 @@ module Rex
                                          'hash_count']
           (1..0x100000).each do |c|
             updated_hash = sha256.digest(btl_struct_raw)
-            btl_struct_raw = updated_hash + btl_struct_raw \
-                             [btl_struct.updated_hash.sizeof..(
+            btl_struct_raw = updated_hash + btl_struct_raw[btl_struct.updated_hash.sizeof..(
                              btl_struct_hash_count_offset - 1)] + [c].pack('Q')
             sha256.reset
           end

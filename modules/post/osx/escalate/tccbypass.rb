@@ -50,10 +50,10 @@ class MetasploitModule < Msf::Post
       return Exploit::CheckCode::Unknown
     end
 
-    version = Gem::Version.new(system_version)
-    if version >= Gem::Version.new('10.15.6')
+    version = Rex::Version.new(system_version)
+    if version >= Rex::Version.new('10.15.6')
       return Exploit::CheckCode::Safe
-    elsif version < Gem::Version.new('10.15.0')
+    elsif version < Rex::Version.new('10.15.0')
       return Exploit::CheckCode::Unknown
     else
       return Exploit::CheckCode::Appears

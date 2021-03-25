@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/meterpreter_php'
-require 'msf/base/sessions/meterpreter_options'
 
 
 module MetasploitModule

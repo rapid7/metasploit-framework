@@ -155,7 +155,7 @@ class UI < Rex::Post::UI
     request = Packet.create_request( COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT )
     request.add_tlv( TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY, quality )
 
-    if client.platform == 'windows'
+    if client.base_platform == 'windows'
       # Check if the target is running Windows 8/Windows Server 2012 or later and there are session 0 desktops visible.
       # Session 0 desktops should only be visible to services. Windows 8/Server 2012 and later introduce the restricted
       # desktop for services, which means that services cannot view the normal user's desktop or otherwise interact with

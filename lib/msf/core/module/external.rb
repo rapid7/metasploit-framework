@@ -104,6 +104,12 @@ module Msf::Module::External
 
       cred[:private_type] = :password
 
+      # Optional
+      if data.has_key?('domain')
+        cred[:service_data][:realm_value] = data['domain']
+        cred[:service_data][:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      end
+
       store_valid_credential(**cred)
     when 'wrong_password'
       # Required
@@ -140,7 +146,6 @@ def handle_credential_login(data, mod)
       module_fullname: self.fullname,
       workspace_id: myworkspace_id
   }
-
   # Optional
   credential_data = {
       origin_type: :service,
@@ -150,6 +155,11 @@ def handle_credential_login(data, mod)
   if data.has_key?(:password)
     credential_data[:private_data] = data['password']
     credential_data[:private_type] = :password
+  end
+
+  if data.has_key?('domain')
+    credential_data[:realm_value] = data['domain']
+    credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
   end
 
   login_data = {

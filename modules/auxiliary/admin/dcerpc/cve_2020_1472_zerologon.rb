@@ -11,7 +11,7 @@ class MetasploitModule < Msf::Auxiliary
 
   CheckCode = Exploit::CheckCode
   Netlogon = RubySMB::Dcerpc::Netlogon
-  EMPTY_SHARED_SECRET = OpenSSL::Digest::MD4.digest('')
+  EMPTY_SHARED_SECRET = OpenSSL::Digest.digest('MD4', '')
 
   def initialize(info = {})
     super(

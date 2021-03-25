@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Juniper
   include Msf::Exploit::Deprecated
@@ -21,8 +20,8 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => ['h00die'],
         'Actions' =>
           [
-            ['JUNOS', 'Description' => 'Import JunOS Config File'],
-            ['SCREENOS', 'Description' => 'Import ScreenOS Config File'],
+            ['JUNOS', { 'Description' => 'Import JunOS Config File' }],
+            ['SCREENOS', { 'Description' => 'Import ScreenOS Config File' }],
           ],
         'DefaultAction' => 'JUNOS'
       )

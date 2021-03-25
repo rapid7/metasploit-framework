@@ -58,8 +58,8 @@ module Msf::WebServices::AuthServlet
     lambda {
       warden.authenticate!(scope: :user)
 
-      if session[:return_to].nil? || session[:return_to] == self.api_login_path
-        redirect self.api_account_path
+      if session[:return_to].nil? || session[:return_to] == Msf::WebServices::AuthServlet.api_login_path
+        redirect Msf::WebServices::AuthServlet.api_account_path
       else
         redirect session[:return_to]
       end
@@ -70,7 +70,7 @@ module Msf::WebServices::AuthServlet
   def self.get_logout
     lambda {
       warden.logout
-      redirect self.api_account_path
+      redirect Msf::WebServices::AuthServlet.api_account_path
     }
   end
 
@@ -79,7 +79,7 @@ module Msf::WebServices::AuthServlet
     lambda {
       # change action to drop the scope param since this is used
       # by XMLHttpRequest (XHR) and we don't want a redirect
-      warden.authenticate!(scope: :user, action: self.api_unauthenticated_path)
+      warden.authenticate!(scope: :user, action: Msf::WebServices::AuthServlet.api_unauthenticated_path)
       token = get_db.create_new_user_token(id: warden.user(:user).id, token_length: 40)
       set_json_data_response(response: {message: "Generated new API token.", token: token})
     }
@@ -90,7 +90,7 @@ module Msf::WebServices::AuthServlet
     lambda {
       if !params['scope'].nil? && params['scope'] == 'user'
         session[:return_to] = warden_options[:attempted_path] if session[:return_to].nil?
-        redirect self.api_login_path
+        redirect Msf::WebServices::AuthServlet.api_login_path
       end
 
       msg = warden_options[:message]

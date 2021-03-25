@@ -10,7 +10,6 @@ require 'rex/socket'
 # Project
 #
 require 'metasploit/framework/require'
-require 'msf/base/config'
 require 'metasploit/framework/data_service'
 
 

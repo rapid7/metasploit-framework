@@ -78,7 +78,7 @@ def passbf(session,passlist,target,user,opt,logfile)
   i = 0
   if opt == 1
     if not ::File.exist?(user)
-      raise "Usernames List File does not exists!"
+      raise "Usernames List File does not exist!"
     else
       user = ::File.open(user, "r")
     end
@@ -171,7 +171,7 @@ unsupported if client.platform != 'windows'
 
     passlist = val
     if not ::File.exist?(passlist)
-      raise "Password File does not exists!"
+      raise "Password File does not exist!"
     end
   when "-t"
     target = val

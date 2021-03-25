@@ -1,9 +1,4 @@
 require 'bindata'
-require 'msf/util/dot_net_deserialization/assemblies'
-require 'msf/util/dot_net_deserialization/enums'
-require 'msf/util/dot_net_deserialization/types'
-require 'msf/util/dot_net_deserialization/gadget_chains'
-require 'msf/util/dot_net_deserialization/formatters'
 
 module Msf
 module Util

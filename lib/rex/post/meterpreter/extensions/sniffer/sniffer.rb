@@ -2,7 +2,6 @@
 
 require 'rex/post/meterpreter/extensions/sniffer/tlv'
 require 'rex/post/meterpreter/extensions/sniffer/command_ids'
-require 'rex/proto/smb/utils'
 
 module Rex
 module Post

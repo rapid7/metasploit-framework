@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     fp = http_fingerprint(response: res)
     if /RomPager\/(?<version>[\d\.]+)/ =~ fp
       vprint_status("#{peer} is RomPager #{version}")
-      if Gem::Version.new(version) < Gem::Version.new('4.34')
+      if Rex::Version.new(version) < Rex::Version.new('4.34')
         return Exploit::CheckCode::Appears
       end
     end

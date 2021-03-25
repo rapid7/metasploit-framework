@@ -3,12 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 7544
+  CachedSize = 7503
 
   include Msf::Payload::Single
   include Msf::Payload::Java

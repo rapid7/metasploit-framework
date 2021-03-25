@@ -1,6 +1,5 @@
 # $Id$ $Revision$
 require 'nessus_rest'
-require 'rex/parser/nessus_xml'
 
 module Msf
 

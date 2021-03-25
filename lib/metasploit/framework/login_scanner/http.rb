@@ -1,4 +1,4 @@
-require 'rex/proto/http'
+
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 

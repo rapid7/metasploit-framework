@@ -1,6 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui/console/table_print/highlight_substring_styler'
 
 RSpec.describe Msf::Ui::Console::TablePrint::HighlightSubstringStyler do
   describe 'style' do
@@ -23,6 +22,13 @@ RSpec.describe Msf::Ui::Console::TablePrint::HighlightSubstringStyler do
       styler = described_class.new(%w(BbB ccC))
 
       expect(styler.style(str)).to eql "AAAAA%bgmagBBB%clrAAAAA%bgmagCCC%clr"
+    end
+
+    it 'should highlight single characters' do
+      str = 'ABCABC'
+      styler = described_class.new(%w(a b c))
+
+      expect(styler.style(str)).to eql "%bgmagA%clr%bgmagB%clr%bgmagC%clr%bgmagA%clr%bgmagB%clr%bgmagC%clr"
     end
   end
 end

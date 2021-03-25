@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/payloads/meterpreter/uri_checksum'
 
 module Msf
 

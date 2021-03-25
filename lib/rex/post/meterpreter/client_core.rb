@@ -6,10 +6,6 @@ require 'rex/post/meterpreter/extension'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client'
 
-# Used to generate a reflective DLL when migrating. This is yet another
-# argument for moving the meterpreter client into the Msf namespace.
-# URI uuid and checksum stuff
-require 'rex/payloads/meterpreter/uri_checksum'
 
 # certificate hash checking
 require 'rex/socket/x509_certificate'
@@ -73,6 +69,8 @@ class ClientCore < Extension
     c.include(::Msf::Payload::TransportConfig)
 
     # Include the appropriate reflective dll injection module for the target process architecture...
+    # Used to generate a reflective DLL when migrating. This is yet another
+    # argument for moving the meterpreter client into the Msf namespace.
     if opts[:arch] == ARCH_X86
       c.include(::Msf::Payload::Windows::MeterpreterLoader)
     elsif opts[:arch] == ARCH_X64
@@ -100,11 +98,16 @@ class ClientCore < Extension
   #
   # Get a list of loaded commands for the given extension.
   #
-  def get_loaded_extension_commands(extension_name)
+  # @param [String, Integer] extension Either the extension name or the extension ID to load the commands for.
+  #
+  # @return [Array<Integer>] An array of command IDs that are supported by the specified extension.
+  def get_loaded_extension_commands(extension)
     request = Packet.create_request(COMMAND_ID_CORE_ENUMEXTCMD)
 
-    start = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension_name)
-    request.add_tlv(TLV_TYPE_UINT, start)
+    # handle 'core' as a special case since it's not a typical extension
+    extension = EXTENSION_ID_CORE if extension == 'core'
+    extension = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(extension) unless extension.is_a? Integer
+    request.add_tlv(TLV_TYPE_UINT,   extension)
     request.add_tlv(TLV_TYPE_LENGTH, COMMAND_ID_RANGE)
 
     begin
@@ -361,16 +364,20 @@ class ClientCore < Extension
       end
 
       if path.nil? and image.nil?
-        raise RuntimeError, "No module of the name #{modnameprovided} found", caller
+        if Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.include?(mod.downcase)
+          raise RuntimeError, "The \"#{mod.downcase}\" extension is not supported by this Meterpreter type (#{client.session_type})", caller
+        else
+          raise RuntimeError, "No module of the name #{modnameprovided} found", caller
+        end
       end
 
       # Load the extension DLL
       commands = load_library(
-          'LibraryFilePath' => path,
+          'LibraryFilePath'  => path,
           'LibraryFileImage' => image,
-          'UploadLibrary'   => true,
-          'Extension'       => true,
-          'SaveToDisk'      => opts['LoadFromDisk'])
+          'UploadLibrary'    => true,
+          'Extension'        => true,
+          'SaveToDisk'       => opts['LoadFromDisk'])
     end
 
     # wire the commands into the client
@@ -735,7 +742,7 @@ class ClientCore < Extension
   #
   # Negotiates the use of encryption at the TLV level
   #
-  def negotiate_tlv_encryption
+  def negotiate_tlv_encryption(timeout: client.comm_timeout)
     sym_key = nil
     rsa_key = OpenSSL::PKey::RSA.new(2048)
     rsa_pub_key = rsa_key.public_key
@@ -744,7 +751,7 @@ class ClientCore < Extension
     request.add_tlv(TLV_TYPE_RSA_PUB_KEY, rsa_pub_key.to_der)
 
     begin
-      response = client.send_request(request)
+      response = client.send_request(request, timeout)
       key_enc = response.get_tlv_value(TLV_TYPE_ENC_SYM_KEY)
       key_type = response.get_tlv_value(TLV_TYPE_SYM_KEY_TYPE)
 
@@ -918,6 +925,8 @@ private
     c.include( ::Msf::Payload::Stager )
 
     # Include the appropriate reflective dll injection module for the target process architecture...
+    # Used to generate a reflective DLL when migrating. This is yet another
+    # argument for moving the meterpreter client into the Msf namespace.
     if target_process['arch'] == ARCH_X86
       c.include( ::Msf::Payload::Windows::MeterpreterLoader )
     elsif target_process['arch'] == ARCH_X64

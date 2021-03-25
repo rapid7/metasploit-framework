@@ -2,8 +2,6 @@
 
 require 'json'
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
-require 'msf/ui/console/command_dispatcher/db/analyze'
 require 'metasploit/framework/data_service'
 require 'metasploit/framework/data_service/remote/http/core'
 
@@ -1610,27 +1608,7 @@ class Db
         arguments.push('-oX', fd.path)
       end
 
-      begin
-        nmap_pipe = ::Open3::popen3([nmap, 'nmap'], *arguments)
-        temp_nmap_threads = []
-        temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
-          np_1.each_line do |nmap_out|
-            next if nmap_out.strip.empty?
-            print_status("Nmap: #{nmap_out.strip}")
-          end
-        end
-
-        temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-          np_2.each_line do |nmap_err|
-            next if nmap_err.strip.empty?
-            print_status("Nmap: '#{nmap_err.strip}'")
-          end
-        end
-
-        temp_nmap_threads.map {|t| t.join rescue nil}
-        nmap_pipe.each {|p| p.close rescue nil}
-      rescue ::IOError
-      end
+      run_nmap(nmap, arguments)
 
       framework.db.import_nmap_xml_file(:filename => fd.path)
 
@@ -2132,6 +2110,38 @@ class Db
 
   #######
   private
+
+  def run_nmap(nmap, arguments, use_sudo: false)
+    print_warning('Running Nmap with sudo') if use_sudo
+    begin
+      nmap_pipe = use_sudo ? ::Open3::popen3('sudo', nmap, *arguments) : ::Open3::popen3(nmap, *arguments)
+      temp_nmap_threads = []
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+        np_1.each_line do |nmap_out|
+          next if nmap_out.strip.empty?
+          print_status("Nmap: #{nmap_out.strip}")
+        end
+      end
+
+      temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+
+        np_2.each_line do |nmap_err|
+          next if nmap_err.strip.empty?
+          print_status("Nmap: '#{nmap_err.strip}'")
+          # Check if the stderr text includes 'root', this only happens if the scan requires root privileges
+          if nmap_err =~ /requires? root privileges/ or
+            nmap_err.include? 'only works if you are root' or nmap_err =~ /requires? raw socket access/
+            return run_nmap(nmap, arguments, use_sudo: true) unless use_sudo
+          end
+        end
+      end
+
+      temp_nmap_threads.map { |t| t.join rescue nil }
+      nmap_pipe.each { |p| p.close rescue nil }
+    rescue ::IOError
+    end
+  end
+
   #######
 
   def print_connection_info

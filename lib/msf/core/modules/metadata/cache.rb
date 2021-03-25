@@ -1,6 +1,4 @@
 require 'singleton'
-require 'msf/events'
-require 'rex/ui/text/output/stdio'
 #
 # Core service class that provides storage of module metadata as well as operations on the metadata.
 # Note that operations on this metadata are included as separate modules.

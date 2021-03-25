@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/payloads/meterpreter/config'
 
 module Msf::Payload::Android
 

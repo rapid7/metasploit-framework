@@ -1,4 +1,6 @@
 # -*- coding: binary -*-
+
+
 module Rex
 module Logging
 module Sinks

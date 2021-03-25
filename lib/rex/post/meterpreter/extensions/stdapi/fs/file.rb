@@ -82,7 +82,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request = Packet.create_request( COMMAND_ID_STDAPI_FS_SEARCH )
 
     root = client.unicode_filter_decode(root) if root
-    root = root.chomp( self.separator ) if root
+    root = root.chomp( self.separator ) if root && !root.eql?('/')
 
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
@@ -325,6 +325,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   def File.download(dest, src_files, opts = {}, &stat)
     timestamp = opts["timestamp"]
     [*src_files].each { |src|
+      src.force_encoding('UTF-8')
       if (::File.basename(dest) != File.basename(src))
         # The destination when downloading is a local file so use this
         # system's separator

@@ -11,6 +11,11 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
     File.directory?(path)
   end
 
+  def loadable_module?(parent_path, type, module_reference_name)
+    full_path = module_path(parent_path, type, module_reference_name)
+    script_path?(full_path)
+  end
+
   protected
 
   # Yields the module_reference_name for each module file found under the directory path.
@@ -42,7 +47,7 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
           relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
-
+          next if File::basename(relative_entry_descendant_path).start_with?('example')
           # The module_reference_name doesn't have a file extension
           module_reference_name = File.join(File.dirname(relative_entry_descendant_path), File.basename(relative_entry_descendant_path, '.*'))
 
@@ -88,6 +93,9 @@ class Msf::Modules::Loader::Executable < Msf::Modules::Loader::Base
         elog "Unable to load module #{full_path}, unknown module type"
         return ''
       end
+    rescue LoadError => e
+      load_error(full_path, e)
+      return ''
     rescue ::Exception => e
       elog("Unable to load module #{full_path}", error: e)
       # XXX migrate this to a full load_error when we can tell the user why the

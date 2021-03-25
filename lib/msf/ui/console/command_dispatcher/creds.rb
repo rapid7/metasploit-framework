@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
 require 'metasploit/framework/password_crackers/hashcat/formatter'
 require 'metasploit/framework/password_crackers/jtr/formatter'
 
@@ -433,6 +432,9 @@ class Creds
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
+      # For now, don't perform any word wrapping on the cred table as it breaks the workflow of
+      # copying credentials and pasting them into applications
+      'WordWrap' => false,
       'Columns' => cred_table_columns,
       'SearchTerm' => search_term
     }
@@ -484,7 +486,7 @@ class Creds
           "", # host
           origin, # origin
           "", # service
-          public_val, 
+          public_val,
           private_val,
           realm_val,
           human_val, #private type

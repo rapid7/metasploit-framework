@@ -6,7 +6,6 @@ require 'rex/post/meterpreter/extensions/stdapi/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel'
 require 'rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel'
-require 'rex/logging'
 
 module Rex
 module Post

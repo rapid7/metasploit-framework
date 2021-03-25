@@ -51,7 +51,7 @@ class MetasploitModule < Msf::Post
   end
 
   # Count the number of currently running containers
-  def count_containers(container_type, count_inactive = true)
+  def count_containers(container_type, count_inactive: true)
     case container_type
     when 'docker'
       command = if count_inactive
@@ -153,12 +153,12 @@ class MetasploitModule < Msf::Post
 
     platforms.each do |platform|
       print_good("#{platform} was found on the system!")
-      num_containers = count_containers(platform, false)
+      num_containers = count_containers(platform, count_inactive: false)
 
       if num_containers == 0
         print_error("No active or inactive containers were found for #{platform}\n")
       else
-        num_running_containers = count_containers(platform, true)
+        num_running_containers = count_containers(platform, count_inactive: true)
         print_good("#{platform}: #{num_running_containers} Running Containers / #{num_containers} Total")
       end
 

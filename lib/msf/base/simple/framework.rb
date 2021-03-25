@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base/simple'
-require 'msf/base/simple/framework/module_paths'
-require 'msf/base/simple/noop_job_listener'
 require 'msf/core/constants'
 module Msf
 module Simple
@@ -69,7 +66,7 @@ module Framework
   #
   # @param opts [Hash{String => Object}]
   # @option opts (see simplify)
-  # @return [Msf::Simple::Frameworkt s]
+  # @return [Msf::Simple::Framework]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)

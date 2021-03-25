@@ -46,6 +46,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
   def on_request_uri(cli, request)
     if request.uri =~ %r{/screenshot$}
       data = ''
@@ -387,4 +388,5 @@ input {
       send_response(cli, html, { 'Content-Type' => 'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
     end
   end
+  # rubocop:enable Metrics/MethodLength
 end

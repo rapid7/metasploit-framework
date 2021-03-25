@@ -5,7 +5,7 @@ world -- a better place!  Before you get started, please review our [Code of Con
 ## Code Free Contributions 
 Before we get into the details of contributing code, you should know there are multiple ways you can add to Metasploit without any coding experience:
 
- - You can [submit bugs and feature requests](https://github.com/rapid7/metasploit-framework/issues/new) with detailed information about your issue or idea: 
+ - You can [submit bugs and feature requests](https://github.com/rapid7/metasploit-framework/issues/new/choose) with detailed information about your issue or idea: 
  	- If you'd like to propose a feature, describe what you'd like to see. Mock ups of console views would be great.
  	- If you're reporting a bug, please be sure to include the expected behaviour, the observed behaviour, and steps to reproduce the problem. Resource scripts, console copy-pastes, and any background on the environment you encountered the bug in would be appreciated. More information can be found [below](#bug-reports).
  - [Help fellow users with open issues]. This can require technical knowledge, but you can also get involved in conversations about bug reports and feature requests. This is a great way to get involved without getting too overwhelmed! 

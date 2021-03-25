@@ -51,7 +51,7 @@ module Msf
       return unless datastore['RHOSTS']
       begin
         uri_type = datastore['SSL'] ? URI::HTTPS : URI::HTTP
-        uri = uri_type.build(host: datastore['RHOSTS'])
+        uri = uri_type.build(host: datastore['VHOST'] || datastore['RHOSTS'])
         uri.port = datastore['RPORT']
         # The datastore uses both `TARGETURI` and `URI` to denote the path of a URL, we try both here and fall back to `/`
         uri.path = (datastore['TARGETURI'] || datastore['URI'] || '/')

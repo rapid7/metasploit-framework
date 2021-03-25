@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'open3'
 require 'fileutils'
-require 'rex/proto/ntlm/crypt'
 require 'metasploit/framework/password_crackers/cracker'
 require 'metasploit/framework/password_crackers/wordlist'
 require 'metasploit/framework/password_crackers/jtr/formatter'
@@ -75,9 +74,9 @@ module Auxiliary::PasswordCracker
   #
   # @return [nilClass] if there is no active framework db connection
   # @return [Metasploit::Framework::PasswordCracker::Cracker] if it successfully creates a Password Cracker object
-  def new_password_cracker
-    return nil unless framework.db.active
-    Metasploit::Framework::PasswordCracker::Cracker.new(
+  def new_password_cracker(cracking_application)
+    fail_with(Msf::Module::Failure::BadConfig, "Password cracking is not available without an active database connection.") unless framework.db.active
+    cracker = Metasploit::Framework::PasswordCracker::Cracker.new(
         config: datastore['CONFIG'],
         cracker_path: datastore['CRACKER_PATH'],
         max_runtime: datastore['ITERATION_TIMEOUT'],
@@ -85,6 +84,18 @@ module Auxiliary::PasswordCracker
         optimize: datastore['OptimizeKernel'],
         wordlist: datastore['CUSTOM_WORDLIST']
     )
+    cracker.cracker = cracking_application
+    begin
+      cracker.binary_path
+    rescue Metasploit::Framework::PasswordCracker::PasswordCrackerNotFoundError => e
+      fail_with(Msf::Module::Failure::BadConfig, e.message)
+    end
+    cracker_version = cracker.cracker_version
+    if cracking_application == 'john' && cracker_version.nil? || !cracker_version.include?('jumbo')
+      fail_with(Msf::Module::Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
+    end
+    print_good("#{cracking_application} Version Detected: #{cracker_version}")
+    cracker
   end
 
   # This method instantiates a {Metasploit::Framework::JtR::Wordlist}, writes the data

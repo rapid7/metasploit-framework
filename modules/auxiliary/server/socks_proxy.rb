@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/proxy/socks4a'
-require 'rex/proto/proxy/socks5'
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
@@ -19,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'Actions' =>
         [
-          [ 'Proxy', 'Description' => 'Run a SOCKS proxy server' ]
+          [ 'Proxy', { 'Description' => 'Run a SOCKS proxy server' } ]
         ],
       'PassiveActions' =>
         [

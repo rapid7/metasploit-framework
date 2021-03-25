@@ -467,6 +467,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the platform(s) that this payload was made to run on
+  #
+  def platform
+    if pinst
+      pinst.platform
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw

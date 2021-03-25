@@ -90,12 +90,6 @@ jobs:
         env:
           BUNDLER_WITHOUT: coverage development pcap
 
-      - name: Setup mstidy
-        run: |
-          ln -sf ../../tools/dev/pre-commit-hook.rb ./.git/hooks/post-merge
-          ls -la ./.git/hooks
-          ./.git/hooks/post-merge
-
       - name: Create database
         run: |
           cp config/database.yml.github_actions config/database.yml

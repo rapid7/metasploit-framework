@@ -1,6 +1,3 @@
-# -*- coding: binary -*-
-require 'rex/proto/drda/constants'
-require 'rex/proto/drda/packet'
-require 'rex/proto/drda/utils'
-
-
+module Rex::Proto::DRDA
+  include Rex::Proto::DRDA::Packet
+end

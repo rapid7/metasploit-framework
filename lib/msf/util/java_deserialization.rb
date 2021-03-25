@@ -9,7 +9,7 @@ class JavaDeserialization
 
   PAYLOAD_FILENAME = "ysoserial_payloads.json"
 
-  def self.ysoserial_payload(payload_name, command=nil, modified_type: 'original')
+  def self.ysoserial_payload(payload_name, command=nil, modified_type: 'none')
     # Open the JSON file and parse it
     begin
       path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)

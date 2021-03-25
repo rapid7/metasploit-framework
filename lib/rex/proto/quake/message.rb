@@ -7,7 +7,7 @@ module Proto
 # Quake 3 protocol, taken from ftp://ftp.idsoftware.com/idstuff/quake3/docs/server.txt
 #
 ##
-module Quake
+module Quake::Message
   HEADER = 0xFFFFFFFF
 
   def decode_message(message)

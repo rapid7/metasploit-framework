@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
 
 module Msf
 module Ui

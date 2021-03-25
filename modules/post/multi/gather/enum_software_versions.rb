@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Post
       file = store_loot('host.bsd.solaris.software.versions', 'text/plain', session, listing, 'installed_software.txt', 'Installed Software and Versions')
       print_good("Stored information about the installed products to the loot file at #{file}")
     when 'osx'
-      listing = ""
+      listing = ''
       if command_exists?('system_profiler') == false
         print_error("The command 'system_profiler' does not exist on the host! Something is seriously wrong!")
         return

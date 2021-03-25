@@ -4,8 +4,6 @@
 #
 ###
 
-require 'msf/util/document_generator/pull_request_finder'
-require 'msf/util/document_generator/normalizer'
 
 module Msf
   module Util

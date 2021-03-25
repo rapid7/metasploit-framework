@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/ui/console'
 
 module Msf
 module Sessions
@@ -29,7 +27,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   # Override for server implementations that can't do SSL
   def supports_ssl?
@@ -124,81 +122,82 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def bootstrap(datastore = {}, handler = nil)
     session = self
 
-    init_session = Proc.new do
-      # Configure unicode encoding before loading stdapi
-      session.encode_unicode = datastore['EnableUnicodeEncoding']
+    # Configure unicode encoding before loading stdapi
+    session.encode_unicode = datastore['EnableUnicodeEncoding']
 
-      session.init_ui(self.user_input, self.user_output)
+    session.init_ui(self.user_input, self.user_output)
 
-      session.tlv_enc_key = session.core.negotiate_tlv_encryption
-
-      unless datastore['AutoVerifySession'] == false
-        unless session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
-          print_error("Meterpreter session #{session.sid} is not valid and will be closed")
-          # Terminate the session without cleanup if it did not validate
-          session.skip_cleanup = true
-          session.kill
-          return nil
-        end
-      end
-
-      # always make sure that the new session has a new guid if it's not already known
-      guid = session.session_guid
-      if guid == "\x00" * 16
-        guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
-        session.core.set_session_guid(guid)
-        session.session_guid = guid
-        # TODO: New stageless session, do some account in the DB so we can track it later.
-      else
-        # TODO: This session was either staged or previously known, and so we should do some accounting here!
-      end
-
-      # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
-      if datastore['AutoUnhookProcess'] == true
-        console.run_single('load unhook')
-        console.run_single('unhook_pe')
-      end
-
-      unless datastore['AutoLoadStdapi'] == false
-
-        session.load_stdapi
-
-        unless datastore['AutoSystemInfo'] == false
-          session.load_session_info
-        end
-
-        # only load priv on native windows
-        # TODO: abstract this too, to remove windows stuff
-        if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
-          session.load_priv rescue nil
-        end
-      end
-
-      # TODO: abstract this a little, perhaps a "post load" function that removes
-      # platform-specific stuff?
-      if session.platform == 'android'
-        session.load_android
-      end
-
-      ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
-        unless datastore[key].nil? || datastore[key].empty?
-          args = Shellwords.shellwords(datastore[key])
-          print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-          session.execute_script(args.shift, *args)
-        end
-      end
-
-      # Process the auto-run scripts for this session
-      if self.respond_to?(:process_autoruns)
-        self.process_autoruns(datastore)
-      end
-
-      # Tell the handler that we have a session
-      handler.on_session(self) if handler
+    verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
+    begin
+      session.tlv_enc_key = session.core.negotiate_tlv_encryption(timeout: verification_timeout)
+    rescue Rex::TimeoutError
     end
 
-    # Defer the session initialization to the Session Manager scheduler
-    framework.sessions.schedule init_session
+    if session.tlv_enc_key.nil?
+      # Fail-closed if TLV encryption can't be negotiated (close the session as invalid)
+      dlog("Session #{session.sid} failed to negotiate TLV encryption")
+      print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+      # Terminate the session without cleanup if it did not validate
+      session.skip_cleanup = true
+      session.kill
+      return nil
+    end
+
+    # always make sure that the new session has a new guid if it's not already known
+    guid = session.session_guid
+    if guid == "\x00" * 16
+      guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+      session.core.set_session_guid(guid)
+      session.session_guid = guid
+      # TODO: New stageless session, do some account in the DB so we can track it later.
+    else
+      # TODO: This session was either staged or previously known, and so we should do some accounting here!
+    end
+
+    session.commands.concat(session.core.get_loaded_extension_commands('core'))
+
+    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+    if datastore['AutoUnhookProcess'] == true
+      console.run_single('load unhook')
+      console.run_single('unhook_pe')
+    end
+
+    unless datastore['AutoLoadStdapi'] == false
+
+      session.load_stdapi
+
+      unless datastore['AutoSystemInfo'] == false
+        session.load_session_info
+      end
+
+      # only load priv on native windows
+      # TODO: abstract this too, to remove windows stuff
+      if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
+        session.load_priv rescue nil
+      end
+    end
+
+    # TODO: abstract this a little, perhaps a "post load" function that removes
+    # platform-specific stuff?
+    if session.platform == 'android'
+      session.load_android
+    end
+
+    ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
+      unless datastore[key].nil? || datastore[key].empty?
+        args = Shellwords.shellwords(datastore[key])
+        print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+        session.execute_script(args.shift, *args)
+      end
+    end
+
+    # Process the auto-run scripts for this session
+    if self.respond_to?(:process_autoruns)
+      self.process_autoruns(datastore)
+    end
+
+    # Tell the handler that we have a session
+    handler.on_session(self) if handler
   end
 
   ##
@@ -407,25 +406,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.disable_output = true
     console.run_single('load priv')
     console.disable_output = original
-  end
-
-  #
-  # Validate session information by checking for a machine_id response
-  #
-  def is_valid_session?(timeout=10)
-    return true if self.machine_id
-
-    begin
-      self.machine_id = self.core.machine_id(timeout)
-
-      return true
-    rescue ::Rex::Post::Meterpreter::RequestError
-      # This meterpreter doesn't support core_machine_id
-      return true
-    rescue ::Exception => e
-      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
-    end
-    false
   end
 
   def update_session_info

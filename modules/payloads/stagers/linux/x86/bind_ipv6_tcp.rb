@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 120
+  CachedSize = 121
 
   include Msf::Payload::Stager
   include Msf::Payload::Linux::BindTcp

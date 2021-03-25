@@ -1,4 +1,3 @@
-require 'msf/util/helper'
 require 'open3'
 
 module Metasploit

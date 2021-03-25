@@ -148,7 +148,6 @@ module Msf
         FSCTL_SET_REPARSE_POINT    = 0x000900a4
         FSCTL_DELETE_REPARSE_POINT = 0x000900ac
 
-
         def set_reparse_point(handle, reparse_buffer)
           result = session.railgun.kernel32.DeviceIoControl(
             handle,
@@ -183,8 +182,8 @@ module Msf
             print_error("Error deleting the reparse point. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
             return -1
           end
-           
-          session.railgun.kernel32.CloseHandle(handle)          
+
+          session.railgun.kernel32.CloseHandle(handle)
           result['return']
         end
 
@@ -204,64 +203,39 @@ module Msf
             print_error("Error opening #{path}. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
             return nil
           end
-          vprint_good("Successfuly opened #{path}")
+          vprint_good("Successfully opened #{path}")
           handle
         end
 
+        # Delete a previously created mount point. The directory at *path* will be deleted and the *handle* will be
+        # closed.
+        #
+        # @param [String] path The path that was mounted.
+        # @param [Integer] handle The handle returned from {#create_mount_point}.
+        #
+        # @return [nil] This function does not return anything.
         def delete_mount_point(path, handle)
           return nil unless handle
           session.fs.dir.rmdir(path) # Might need some more logic here.
           session.railgun.kernel32.CloseHandle(handle)
+          nil
         end
 
-        def write_to_memory(process, str)
-          p_buffer = process.memory.allocate(str.size)
-          unless p_buffer
-            print_error("Error allocating memory for \"#{str}\": Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-            return nil
-          end
-          unless process.memory.write(p_buffer, str) == str.size
-            print_error("Error writing \"#{str}\" to memory buffer: Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
-            return nil
-          end
-          p_buffer
-        end
+        alias delete_junction delete_mount_point
 
-        def build_unicode_string(str_byte_size, p_buffer)
-          unicode_str = UnicodeString.new(
-            arch: client.native_arch
-          )
-          unicode_str.str_length = str_byte_size - 2
-          unicode_str.maximum_length = str_byte_size
-          unicode_str.p_buffer = p_buffer
-          unicode_str
-        end
-
-        def str_to_unicode(str)
-          str.encode('UTF-16LE').force_encoding('binary') + "\x00\x00"
-        end
-
-        def setup_unicode_str_in_memory(process, str)
-          enc_str = str_to_unicode(str)
-          p_buffer = write_to_memory(process, enc_str)
-          return nil unless p_buffer
-
-          build_unicode_string(enc_str.size, p_buffer)
-        end
-
-        def build_object_attributes(p_unicode_buf)
-          object_attributes = ObjectAttributes.new(
-            arch: client.native_arch
-          )
-          object_attributes.p_root_directory = 0 # root argument is nil, otherwise, we need to get a valid handle to root (TODO later)
-          object_attributes.attributes = ObjectAttributes::OBJ_CASE_INSENSITIVE
-          object_attributes.p_security_descriptor = 0
-          object_attributes.p_security_quality_of_service = 0
-          object_attributes.p_object_name = p_unicode_buf
-          object_attributes
-        end
-
-        def create_symlink(_root, link_name, target_name)
+        # Create a symbolic link within Object Manager to a resource in a specific Object Manager namespace,
+        # which typically tends to be `\RPC Control`. The `\Driver` and `\Global??` namespaces can also be
+        # utilized if the current user has the appropriate privileges. The namespace is determined by the
+        # prefix of the name parameters.
+        #
+        # @see https://nixhacker.com/understanding-and-exploiting-symbolic-link-in-windows/
+        #
+        # @param [nil] _root A parameter reserved for future use.
+        # @param [String] link_name The path at which to create the symbolic link.
+        # @param [String] target_name The path that the new symbolic link targets.
+        #
+        # @return [Integer, nil] The handle to the new symbolic link or nil on failure.
+        def create_object_symlink(_root, link_name, target_name)
           process = session.sys.process.open
 
           unicode_str = setup_unicode_str_in_memory(process, link_name)
@@ -292,26 +266,45 @@ module Msf
             print_error("Something went wrong while creating the symlink. Return value: NTSTATUS #{error} ()")
             return nil
           end
-          result
+
+          result['LinkHandle']
         ensure
           process.close
         end
 
-        def build_reparse_data_buffer(target, print_name)
-          buffer = ReparseDataBuffer.new(type: ReparseDataBuffer::MOUNT_POINT)
-          target_byte_size = target.size * 2
-          print_name_byte_size = print_name.size * 2
-          path_buffer_size = target_byte_size + print_name_byte_size + 8 + 4
+        # Create a symbolic link on the file system. This function is a suitable replacement for the `mklink /D` shell
+        # command when the *directory* parameter is set to true.
+        #
+        # @param [String] link_name The path at which to create the symbolic link.
+        # @param [String] target_name The path that the new symbolic link targets.
+        # @param [Boolean] directory Whether or not the link target is a directory.
+        #
+        # @return [Boolean] Returns true on success or false   on failure.
+        def create_symlink(link_name, target_name, directory: true)
+          flags = directory ? 'SYMBOLIC_LINK_FLAG_DIRECTORY' : ''
+          result = session.railgun.kernel32.CreateSymbolicLinkW(link_name, target_name, flags)
+          unless result['GetLastError'] == SUCCESS
+            print_error("Error creating the symlink. Windows Error Code: #{result['GetLastError']} - #{result['ErrorMessage']}")
+            return false
+          end
 
-          buffer.reparse_tag = IO_REPARSE_TAG_MOUNT_POINT
-          buffer.reparse_data_length = path_buffer_size
-          buffer.reparse_data.substitute_name_offset = 0
-          buffer.reparse_data.substitute_name_length = target_byte_size
-          buffer.reparse_data.print_name_offset = target_byte_size + 2
-          buffer.reparse_data.path_buffer = target + "\0" + print_name + "\0"
-          buffer
+          true
         end
 
+        # Create a "Volume Mount Point" or a "Directory Junction". The difference between the two is that a Directory
+        # Junction targets a subdirectory of another volume where as a Volume Mount Point targets the root of a volume.
+        # This function is a suitable replacement for the `mklink /J` shell command.
+        #
+        # @see https://en.wikipedia.org/wiki/NTFS_reparse_point#Volume_mount_points
+        # @see https://nixhacker.com/understanding-and-exploiting-symbolic-link-in-windows/
+        #
+        # @param [String] path The path of where to place the mount point. This path must be an existing, empty directory.
+        # @param [String] target The target of what to mount at the specified path.
+        # @param [String] print_name The optional print name string. This string provides a way to display a more user
+        #   friendly path name identifying the target.
+        #
+        # @return [Integer, nil] The handle to the reparse point which should be kept for use with {#delete_mount_point}
+        #   or nil on failure.
         def create_mount_point(path, target, print_name = '')
           return nil if target.empty? || path.empty?
 
@@ -323,6 +316,73 @@ module Msf
 
           set_reparse_point(handle, reparse_data.to_binary_s)
           handle
+        end
+
+        alias create_junction create_mount_point
+
+        private
+
+        def write_to_memory(process, str)
+          p_buffer = process.memory.allocate(str.size)
+          unless p_buffer
+            print_error("Error allocating memory for \"#{str}\"")
+            return nil
+          end
+          unless process.memory.write(p_buffer, str) == str.size
+            print_error("Error writing \"#{str}\" to memory buffer")
+            return nil
+          end
+          p_buffer
+        end
+
+        def build_object_attributes(p_unicode_buf)
+          object_attributes = ObjectAttributes.new(
+            arch: client.native_arch
+          )
+          object_attributes.p_root_directory = 0 # root argument is nil, otherwise, we need to get a valid handle to root (TODO later)
+          object_attributes.attributes = ObjectAttributes::OBJ_CASE_INSENSITIVE
+          object_attributes.p_security_descriptor = 0
+          object_attributes.p_security_quality_of_service = 0
+          object_attributes.p_object_name = p_unicode_buf
+          object_attributes
+        end
+
+        def build_reparse_data_buffer(target, print_name)
+          buffer = ReparseDataBuffer.new(type: ReparseDataBuffer::MOUNT_POINT)
+          target_byte_size = target.size * 2
+          print_name_byte_size = print_name.size * 2
+          path_buffer_size = target_byte_size + print_name_byte_size + 8 + 4
+
+          # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/b41f1cbf-10df-4a47-98d4-1c52a833d913
+          buffer.reparse_tag = IO_REPARSE_TAG_MOUNT_POINT
+          buffer.reparse_data_length = path_buffer_size
+          buffer.reparse_data.substitute_name_offset = 0
+          buffer.reparse_data.substitute_name_length = target_byte_size
+          buffer.reparse_data.print_name_offset = target_byte_size + 2
+          buffer.reparse_data.path_buffer = target + "\0" + print_name + "\0"
+          buffer
+        end
+
+        def build_unicode_string(str_byte_size, p_buffer)
+          unicode_str = UnicodeString.new(
+            arch: client.native_arch
+          )
+          unicode_str.str_length = str_byte_size - 2
+          unicode_str.maximum_length = str_byte_size
+          unicode_str.p_buffer = p_buffer
+          unicode_str
+        end
+
+        def str_to_unicode(str)
+          str.encode('UTF-16LE').force_encoding('binary') + "\x00\x00"
+        end
+
+        def setup_unicode_str_in_memory(process, str)
+          enc_str = str_to_unicode(str)
+          p_buffer = write_to_memory(process, enc_str)
+          return nil unless p_buffer
+
+          build_unicode_string(enc_str.size, p_buffer)
         end
       end # FileSystem
     end # Windows

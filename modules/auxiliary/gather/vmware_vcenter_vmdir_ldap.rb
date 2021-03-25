@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-04-09', # Vendor advisory
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Dump', 'Description' => 'Dump all LDAP data']
+          ['Dump', { 'Description' => 'Dump all LDAP data' }]
         ],
         'DefaultAction' => 'Dump',
         'DefaultOptions' => {

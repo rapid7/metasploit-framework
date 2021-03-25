@@ -1,4 +1,3 @@
-require 'rex/ui/subscriber'
 
 module Msf::Module::UI
   autoload :Line, 'msf/core/module/ui/line'

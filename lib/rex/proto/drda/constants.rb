@@ -1,5 +1,5 @@
 # -*- coding: binary -*-
-require 'rex/proto/drda'
+
 
 module Rex
 module Proto

@@ -7,7 +7,7 @@ module Proto
 # Steam protocol support, taken from https://developer.valvesoftware.com/wiki/Server_queries
 #
 ##
-module Steam
+module Steam::Message
   # The Steam header ussed when the message is fragmented.
   FRAGMENTED_HEADER = 0xFFFFFFFE
   # The Steam header ussed when the message is not fragmented.

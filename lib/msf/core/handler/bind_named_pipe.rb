@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'thread'
-require 'rex/proto/smb/simpleclient'
 
 #
 # KNOWN ISSUES

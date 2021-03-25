@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
             [ 'URL', 'https://www.wordfence.com/blog/2019/11/multiple-vulnerabilities-patched-in-email-subscribers-newsletters-plugin/' ]
           ],
         'Actions' => [
-          ['List Users', 'Description' => 'Queries username, password hash for COUNT users'],
+          ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2019-11-13'

@@ -1,6 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/proto/ssh'
-require 'msf/base/sessions/ssh_command_shell'
 
 module Msf
 module Handler

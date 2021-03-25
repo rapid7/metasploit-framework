@@ -16,9 +16,9 @@ module Msf
     WRAPPED_TABLES = 'wrapped_tables'
     DEFAULTS = [
       {
-        name: 'wrapped_tables',
+        name: WRAPPED_TABLES,
         description: 'When enabled Metasploit will wordwrap all tables to fit into the available terminal width',
-        default_value: false
+        default_value: true
       }.freeze,
       {
         name: 'RHOST_HTTP_URL',
@@ -32,6 +32,14 @@ module Msf
     #
     def initialize
       @flag_lookup = DEFAULTS.each_with_object({}) do |feature, acc|
+        if feature[:name] == WRAPPED_TABLES
+          if feature[:default_value] == true
+            Rex::Text::Table.wrap_tables!
+          else
+            Rex::Text::Table.unwrap_tables!
+          end
+        end
+
         key = feature[:name]
         acc[key] = feature.dup
       end

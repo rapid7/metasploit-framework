@@ -7,7 +7,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Exploit::Remote::HttpClient
 
-  HttpFingerprint = { method: 'GET', uri: '/', pattern: [/vBulletin.version = '5.+'/] }
+  HttpFingerprint = { method: 'GET', uri: '/', pattern: [/vBulletin.version = '5.+'/] }.freeze
 
   def initialize(info = {})
     super(
@@ -28,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2020-12720']
         ],
         'Actions' => [
-          ['DumpUser', 'Description' => 'Dump only user table used by vbulletin.'],
-          ['DumpAll', 'Description' => 'Dump all tables used by vbulletin.']
+          ['DumpUser', { 'Description' => 'Dump only user table used by vbulletin.' }],
+          ['DumpAll', { 'Description' => 'Dump all tables used by vbulletin.' }]
         ],
         'DefaultAction' => 'DumpUser',
         'DisclosureDate' => '2020-03-12'
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Auxiliary
   # Stores table data to file on disk
   def store_data(data, name)
     path = store_loot(name, 'text/plain', datastore['RHOST'], data.to_json, name)
-    print_good('Saved file to: ' + path)
+    print_good("Saved file to: #{path}")
   end
 
   # Performs all sql injection functionality

@@ -72,6 +72,12 @@ module Msf::Modules
         else
           raise "Error running module #{self.path}"
         end
+      rescue => e
+        raise handle_exception(e)
+      end
+
+      def handle_exception(e)
+        e
       end
 
       def write_message(fd, json)
@@ -176,6 +182,15 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
     pythonpath = ENV['PYTHONPATH'] || ''
     self.env = self.env.merge({ 'PYTHONPATH' => File.expand_path('../python', __FILE__) + File::PATH_SEPARATOR + pythonpath})
   end
+
+  def handle_exception(error)
+    case error
+    when Errno::ENOENT
+      LoadError.new('Failed to execute external Python module. Please ensure you have Python installed on your environment.')
+    else
+      super
+    end
+  end
 end
 
 class Msf::Modules::External::RbBridge < Msf::Modules::External::Bridge
@@ -211,6 +226,15 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
 
     self.env = self.env.merge({'GOPATH' => go_path})
     self.cmd = ['go', 'run', self.path]
+  end
+
+  def handle_exception(error)
+    case error
+    when Errno::ENOENT
+      LoadError.new('Failed to execute external Go module. Please ensure you have Go installed on your environment.')
+    else
+      super
+    end
   end
 end
 

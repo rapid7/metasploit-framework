@@ -258,6 +258,8 @@ class Dir < Rex::Post::Dir
   # local directory, optionally in a recursive fashion.
   #
   def Dir.download(dst, src, opts = {}, force = true, glob = nil, &stat)
+    src.force_encoding('UTF-8')
+    dst.force_encoding('UTF-8')
     tries_cnt = 0
 
     continue =  opts["continue"]
@@ -280,6 +282,7 @@ class Dir < Rex::Post::Dir
     end
 
     dir_files.each { |src_sub|
+      src_sub.force_encoding('UTF-8')
       dst_sub = src_sub.dup
       dst_sub.gsub!(::File::SEPARATOR, '_')                                   # '/' on all systems
       dst_sub.gsub!(::File::ALT_SEPARATOR, '_') if ::File::ALT_SEPARATOR      # nil on Linux, '\' on Windows

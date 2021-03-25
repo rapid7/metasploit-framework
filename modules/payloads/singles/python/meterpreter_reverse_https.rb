@@ -3,11 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 112765
+  CachedSize = 112845
 
   include Msf::Payload::Single
   include Msf::Payload::Python

@@ -82,7 +82,7 @@ class Msf::Modules::External::Shim
           [#{o['required']}, #{o['description'].dump}, #{o['default'].inspect}])"
       end
     end
-    options.reject! { |o| o.nil? }
+    options.compact!
     options.join(",\n          ")
   end
 

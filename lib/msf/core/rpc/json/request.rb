@@ -55,9 +55,9 @@ module Msf::RPC::JSON
       @symbolize_names = symbolize_names
       @is_notification = is_notification
       @headers = {
-          'Accept': JSON_MEDIA_TYPE,
+          Accept: JSON_MEDIA_TYPE,
           'Content-Type': JSON_MEDIA_TYPE,
-          'Authorization': "Bearer #{@api_token}"
+          Authorization: "Bearer #{@api_token}"
       }
 
       absolute_method_name = @namespace.nil? ? method : "#{@namespace}.#{method}"

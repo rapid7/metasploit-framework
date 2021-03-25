@@ -68,7 +68,7 @@ class Evasion
         '-z' => [ nil                                               ]
     }
     flags = tab_complete_generic(fmt, str, words)
-    options = tab_complete_option(str, words)
+    options = tab_complete_option(active_module, str, words)
     flags + options
   end
 

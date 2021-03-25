@@ -1,9 +1,8 @@
 # -*- coding: binary -*-
-require 'rex/proto/dhcp'
 
 module Rex
 module Proto
-module DHCP
+module DHCP::Constants
 
 Request = 1
 Response = 2

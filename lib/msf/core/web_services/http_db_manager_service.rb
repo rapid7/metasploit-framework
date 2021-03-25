@@ -1,6 +1,5 @@
 require 'rack'
 require 'metasploit/framework/parsed_options/remote_db'
-require 'rex/ui/text/output/stdio'
 
 class Msf::WebServices::HttpDBManagerService
 

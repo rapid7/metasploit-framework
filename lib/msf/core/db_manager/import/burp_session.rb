@@ -1,4 +1,3 @@
-require 'rex/parser/burp_session_nokogiri'
 
 module Msf::DBManager::Import::BurpSession
   def import_burp_session_noko_stream(args={},&block)
@@ -15,7 +14,6 @@ module Msf::DBManager::Import::BurpSession
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
     wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     if Rex::Parser.nokogiri_loaded
-      # Rex::Parser.reload("burp_session_nokogiri.rb")
       parser = "Nokogiri v#{::Nokogiri::VERSION}"
       noko_args = args.dup
       noko_args[:blacklist] = bl

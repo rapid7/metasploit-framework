@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Auxiliary
       connect
       if (version = determine_version)
         vprint_good("Connected to memcached version #{version}")
-        if (Gem::Version.new(version) >= Gem::Version.new('1.5.4'))
+        if (Rex::Version.new(version) >= Rex::Version.new('1.5.4'))
           command_string = "lru_crawler"
         else
           command_string = 'cachedump'
