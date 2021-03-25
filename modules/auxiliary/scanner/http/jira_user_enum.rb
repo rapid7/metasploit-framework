@@ -52,7 +52,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Begin enumerating user at #{vhost}#{base_uri}")
     print_status("checking user #{user}")
     res = send_request_cgi!(
-      'uri' => "#{base_uri}#{user}",
+      'uri' => "#{base_uri}",
+      'vars_get' => { 'username' => user },
       'method' => 'GET',
       'headers' => { 'Connection' => 'Close' }
     )
