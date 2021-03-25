@@ -152,10 +152,10 @@ class MetasploitModule < Msf::Auxiliary
 
     # use nagios_xi_login to try and authenticate
     # if authentication succeeds, nagios_xi_login returns an array containing the http response body of a get request to index.php and the session cookies
-    login_result, error_message = nagios_xi_login(username, password, finish_install)
+    login_result, res_array = nagios_xi_login(username, password, finish_install)
     case login_result
     when 1..3 # an error occurred
-      print_error("#{rhost}:#{rport} - #{error_message}")
+      print_error("#{rhost}:#{rport} - #{res_array[0]}")
       return
     when 4 # Nagios XI is not fully installed
       install_result = install_nagios_xi(password)
@@ -164,10 +164,10 @@ class MetasploitModule < Msf::Auxiliary
         return
       end
 
-      login_result, error_message = login_after_install_or_license(username, password, finish_install)
+      login_result, res_array = login_after_install_or_license(username, password, finish_install)
       case login_result
       when 1..3 # an error occurred
-        print_error("#{rhost}:#{rport} - #{error_message}")
+        print_error("#{rhost}:#{rport} - #{res_array[0]}")
         return
       when 4 # Nagios XI is still not fully installed
         print_error("#{rhost}:#{rport} - Failed to install Nagios XI on the target.")
@@ -178,17 +178,17 @@ class MetasploitModule < Msf::Auxiliary
     # when 5 is excluded from the case statement above to prevent having to use this code block twice
     # including when 5 would require using this code block once at the end of the `when 4` code block above, and once here
     if login_result == 5 # the Nagios XI license agreement has not been signed
-      auth_cookies, nsp = error_message
+      auth_cookies, nsp = res_array
       sign_license_result = sign_license_agreement(auth_cookies, nsp)
       if sign_license_result
         print_error("#{rhost}:#{rport} - #{sign_license_result[1]}")
         return
       end
 
-      login_result, error_message = login_after_install_or_license(username, password, finish_install)
+      login_result, res_array = login_after_install_or_license(username, password, finish_install)
       case login_result
       when 1..3
-        print_error("#{rhost}:#{rport} - #{error_message}")
+        print_error("#{rhost}:#{rport} - #{res_array[0]}")
         return
       when 5 # the Nagios XI license agreement still has not been signed
         print_error("#{rhost}:#{rport} - Failed to sign the license agreement.")
@@ -199,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Successfully authenticated to Nagios XI')
 
     # obtain the Nagios XI version
-    nagios_version = nagios_xi_version(login_result)
+    nagios_version = nagios_xi_version(res_array[0])
     if nagios_version.nil?
       print_error("#{rhost}:#{rport} - Unable to obtain the Nagios XI version from the dashboard")
       return
