@@ -68,7 +68,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
                                               ax 'file:<path>'
    RPORT           80               yes       The target port (TCP)
    SSL             false            no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI       /nagiosxi/       yes       The base path to the NagiosXi application
+   TARGETURI       /nagiosxi/       yes       The base path to the Nagios XI application
    THREADS         1                yes       The number of concurrent threads (max one per host)
    USERNAME        nagiosadmin      no        Username to authenticate with
    VERSION                          no        Nagios XI version to check against existing exploit modules
@@ -104,13 +104,13 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
    ----            ---------------  --------  -----------
    FINISH_INSTALL  false            no        If the Nagios XI installation has not been completed, try to do so
                                               . This includes signing the license agreement.
-   PASSWORD        nagiosadmin      no        Password to authenticate with
+   PASSWORD                         no        Password to authenticate with
    Proxies                          no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS          192.168.1.14     yes       The target host(s), range CIDR identifier, or hosts file with synt
                                               ax 'file:<path>'
    RPORT           80               yes       The target port (TCP)
    SSL             false            no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI       /nagiosxi/       yes       The base path to the NagiosXi application
+   TARGETURI       /nagiosxi/       yes       The base path to the Nagios XI application
    THREADS         1                yes       The number of concurrent threads (max one per host)
    USERNAME        nagiosadmin      no        Username to authenticate with
    VERSION         5.7.9            no        Nagios XI version to check against existing exploit modules
@@ -148,7 +148,7 @@ Module options (auxiliary/scanner/http/nagios_xi_scanner):
                                               ax 'file:<path>'
    RPORT           80               yes       The target port (TCP)
    SSL             false            no        Negotiate SSL/TLS for outgoing connections
-   TARGETURI       /nagiosxi/       yes       The base path to the NagiosXi application
+   TARGETURI       /nagiosxi/       yes       The base path to the Nagios XI application
    THREADS         1                yes       The number of concurrent threads (max one per host)
    USERNAME        nagiosadmin      no        Username to authenticate with
    VERSION                          no        Nagios XI version to check against existing exploit modules

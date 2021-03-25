@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Auxiliary
 
   end
 
-  def rce_check(version, real_target = nil)
+  def rce_check(version, real_target: false)
     version_type, clean_version = parse_version(version)
     if version_type == 'unsupported'
       print_error("Invalid version format: `#{version}`. Please provide an existing Nagios XI version or use `unset VERSION` to cancel")
@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
     return
   end
 
-  # the first undercore in _target_Host was appended to stop RobuCop from flagging this line
+  # the first undercore in _target_host is used since this parameter is passed in by default but our code never uses it
   def run_host(_target_host)
     # check if we have a valid version to test
     if version
@@ -148,7 +148,6 @@ class MetasploitModule < Msf::Auxiliary
 
       # check if the Nagios XI version matches any exploit modules
       return rce_check(nagios_version_result, true)
-
     end
 
     # use nagios_xi_login to try and authenticate
@@ -209,6 +208,6 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Target is Nagios XI with version #{nagios_version}")
 
     # check if the Nagios XI version matches any exploit modules
-    return rce_check(nagios_version, true)
+    rce_check(nagios_version, real_target: true)
   end
 end
