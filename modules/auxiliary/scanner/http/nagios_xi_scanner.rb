@@ -147,7 +147,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("Target is Nagios XI with version #{nagios_version_result}")
 
       # check if the Nagios XI version matches any exploit modules
-      return rce_check(nagios_version_result, true)
+      return rce_check(nagios_version_result, real_target: true)
     end
 
     # use nagios_xi_login to try and authenticate
