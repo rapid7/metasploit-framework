@@ -114,8 +114,13 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status('')
+    # get the length of the longest key, this is used to align the output when printing
+    max_key_length = 0
+    cve_rce_hash.each_key { |k| max_key_length = k.length if k.length > max_key_length }
+    # iterate over the hash, and print out the keys and values while using max_key_length to calculate the padding
     cve_rce_hash.each do |cve, exploit_module|
-      print_status("\t#{cve}\texploit/linux/http/#{exploit_module}")
+      padding = (max_key_length + 4) - cve.length
+      print_status("\t#{cve}#{' ' * padding}exploit/linux/http/#{exploit_module}")
     end
     print_status('')
     return
