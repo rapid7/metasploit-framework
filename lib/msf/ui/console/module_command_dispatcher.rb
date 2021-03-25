@@ -81,7 +81,7 @@ module ModuleCommandDispatcher
         host = hosts.next_host
         break unless host
 
-        @tl << framework.threads.spawn("CheckHost-#{ip}", false, host.dup) { |thr_host|
+        @tl << framework.threads.spawn("CheckHost-#{host[:address]}", false, host.dup) { |thr_host|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
           nmod = mod.replicant

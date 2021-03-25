@@ -111,7 +111,7 @@ def run
         host = ar.next_host
         break if not host
 
-        @tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{host}", false, host.dup) do |thr_host|
+        @tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{host[:address]}", false, host.dup) do |thr_host|
           targ = thr_host[:address]
           nmod = self.replicant
           nmod.datastore['RHOST'] = thr_host[:address]
