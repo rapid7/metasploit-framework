@@ -1,6 +1,7 @@
-# Wrapper around Write-Host, places the string in an <output> tag so that we can disregard spam output originating from RemoteExchange scripts
+# Wrapper around Write-Host, but surrounds the string with delimiters so that we can disregard spam output originating from RemoteExchange scripts
 function Write-Output ( [string] $string ) {
     $string = [string]::join("<br>",($string.Split("`r`n")))
+    # <output> is a placeholder delimiter, it is later replaced by the Ruby script
     Write-Host "<output>$string</output>"
 }
 
