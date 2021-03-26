@@ -60,14 +60,21 @@ class MetasploitModule < Msf::Post
   end
 
   def execute_exchange_script(command)
+    # Generate random delimiters for output coming from the powershell script
+    output_start_delim = "<#{Rex::Text.rand_text_alphanumeric(16)}>"
+    output_end_delim = "</#{Rex::Text.rand_text_alphanumeric(16)}>"
+
     base_script = File.read(File.join(Msf::Config.data_directory, 'post', 'powershell', 'exchange.ps1'))
     # A hash is used as the replacement argument to avoid issues with backslashes in command
     psh_script = base_script.sub('_COMMAND_', '_COMMAND_' => command)
+    # Insert the random delimiters in place of the placeholders
+    psh_script.gsub!('<output>', output_start_delim)
+    psh_script.gsub!('</output>', output_end_delim)
     compressed_script = compress_script(psh_script)
     cmd_out, _runnings_pids, _open_channels = execute_script(compressed_script, datastore['TIMEOUT'])
     while (d = cmd_out.channel.read)
-      # Only print the output coming from PowerShell that is inside <output> tags
-      d.scan(%r{<output>(.*?)</output>}) do |b|
+      # Only print the output coming from PowerShell that is inside the delimiters
+      d.scan(/#{output_start_delim}(.*?)#{output_end_delim}/) do |b|
         b[0].split('<br>') do |l|
           print_line(l.to_s)
         end
