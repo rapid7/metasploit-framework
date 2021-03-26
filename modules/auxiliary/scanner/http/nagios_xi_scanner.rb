@@ -53,16 +53,18 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def parse_version(nagios_version)
-    # strip the xi- prefix used for Nagios XI versions in the official documentation
+    # Strip the xi- prefix used for Nagios XI versions in the official documentation
     clean_version = nagios_version.downcase.delete_prefix('xi-')
 
-    # check for special case of 5r1.0, which is actually 5.1.0 but for some reason they still added the `r` used in legacy versions (this is the only version with this format)
+    # Check for special case of 5r1.0, which is actually 5.1.0 but for some reason they still added
+    # the `r` used in legacy versions (this is the only version with this format)
     if clean_version == '5r1.0'
       clean_version = '5.1.0'
     end
 
     # Since we are dealing with a user provided version here, a strict regex check seems appropriate
-    # So far all modern Nagios XI versions start with 5. This regex can be updated if Nagios XI 6 ever comes out and modules for this new version are added
+    # So far all modern Nagios XI versions start with 5. This regex can be updated if Nagios XI 6 ever
+    # comes out and modules for this new version are added
     modern_check = clean_version.scan(/5\.\d{1,2}\.\d{1,2}/).flatten.first
 
     unless modern_check.blank?
@@ -106,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    # adjust the output based on whether a version was provided, or we obtained a version from a target
+    # Adjust the output based on whether a version was provided, or we obtained a version from a target
     if real_target
       print_good("The target appears to be vulnerable to the following #{cve_rce_hash.length} exploit(s):")
     else
@@ -114,10 +116,10 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_status('')
-    # get the length of the longest key, this is used to align the output when printing
+    # Get the length of the longest key, this is used to align the output when printing
     max_key_length = 0
     cve_rce_hash.each_key { |k| max_key_length = k.length if k.length > max_key_length }
-    # iterate over the hash, and print out the keys and values while using max_key_length to calculate the padding
+    # Iterate over the hash, and print out the keys and values while using max_key_length to calculate the padding
     cve_rce_hash.each do |cve, exploit_module|
       padding = (max_key_length + 4) - cve.length
       print_status("\t#{cve}#{' ' * padding}exploit/linux/http/#{exploit_module}")
@@ -126,9 +128,9 @@ class MetasploitModule < Msf::Auxiliary
     return
   end
 
-  # the first undercore in _target_host is used since this parameter is passed in by default but our code never uses it
+  # The first undercore in _target_host is used since this parameter is passed in by default but our code never uses it
   def run_host(_target_host)
-    # check if we have a valid version to test
+    # Check if we have a valid version to test
     if version
       if version.empty?
         print_error('VERSION cannot be empty. Please provide an existing Nagios XI VERSION or use `unset VERSION` to cancel')
@@ -138,7 +140,7 @@ class MetasploitModule < Msf::Auxiliary
       return rce_check(version)
     end
 
-    # check if we have credentials, if not, try to obtain the Nagios XI version from login.php
+    # Check if we have credentials, if not, try to obtain the Nagios XI version from login.php
     if username.blank? || password.blank?
       print_warning('No credentials provided. Attempting to obtain the Nagios XI version from the login page. This will not work for newer versions.')
       nagios_version_result, error_message = nagios_xi_version_no_auth
@@ -151,15 +153,15 @@ class MetasploitModule < Msf::Auxiliary
 
       print_status("Target is Nagios XI with version #{nagios_version_result}")
 
-      # check if the Nagios XI version matches any exploit modules
+      # Check if the Nagios XI version matches any exploit modules
       return rce_check(nagios_version_result, real_target: true)
     end
 
-    # use nagios_xi_login to try and authenticate
-    # if authentication succeeds, nagios_xi_login returns an array containing the http response body of a get request to index.php and the session cookies
+    # Use nagios_xi_login to try and authenticate. If authentication succeeds, nagios_xi_login returns
+    # an array containing the http response body of a get request to index.php and the session cookies
     login_result, res_array = nagios_xi_login(username, password, finish_install)
     case login_result
-    when 1..3 # an error occurred
+    when 1..3 # An error occurred
       print_error("#{rhost}:#{rport} - #{res_array[0]}")
       return
     when 4 # Nagios XI is not fully installed
@@ -171,7 +173,7 @@ class MetasploitModule < Msf::Auxiliary
 
       login_result, res_array = login_after_install_or_license(username, password, finish_install)
       case login_result
-      when 1..3 # an error occurred
+      when 1..3 # An error occurred
         print_error("#{rhost}:#{rport} - #{res_array[0]}")
         return
       when 4 # Nagios XI is still not fully installed
@@ -180,8 +182,8 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    # when 5 is excluded from the case statement above to prevent having to use this code block twice
-    # including when 5 would require using this code block once at the end of the `when 4` code block above, and once here
+    # when 5 is excluded from the case statement above to prevent having to use this code block twice.
+    # Including when 5 would require using this code block once at the end of the `when 4` code block above, and once here.
     if login_result == 5 # the Nagios XI license agreement has not been signed
       auth_cookies, nsp = res_array
       sign_license_result = sign_license_agreement(auth_cookies, nsp)
@@ -203,7 +205,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good('Successfully authenticated to Nagios XI')
 
-    # obtain the Nagios XI version
+    # Obtain the Nagios XI version
     nagios_version = nagios_xi_version(res_array[0])
     if nagios_version.nil?
       print_error("#{rhost}:#{rport} - Unable to obtain the Nagios XI version from the dashboard")
@@ -212,7 +214,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Target is Nagios XI with version #{nagios_version}")
 
-    # check if the Nagios XI version matches any exploit modules
+    # Check if the Nagios XI version matches any exploit modules
     rce_check(nagios_version, real_target: true)
   end
 end
