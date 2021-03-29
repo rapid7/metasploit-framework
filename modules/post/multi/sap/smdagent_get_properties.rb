@@ -35,8 +35,8 @@ class MetasploitModule < Msf::Post
         'Platform' => %w[bsd linux osx unix win],
         'SessionTypes' => %w[meterpreter shell],
         'References' => [
-          %w[CVE 2019-0307],
-          %w[URL https://conference.hitb.org/hitblockdown002/materials/D2T1%20-%20SAP%20RCE%20-%20The%20Agent%20Who%20Spoke%20Too%20Much%20-%20Yvan%20Genuer.pdf]
+          [ 'CVE', '2019-0307' ],
+          [ 'URL', 'https://conference.hitb.org/hitblockdown002/materials/D2T1%20-%20SAP%20RCE%20-%20The%20Agent%20Who%20Spoke%20Too%20Much%20-%20Yvan%20Genuer.pdf' ]
         ]
       )
     )
@@ -216,17 +216,6 @@ class MetasploitModule < Msf::Post
           refs: references
         )
       end
-    end
-  end
-
-  def check_addr addr
-    case addr
-    when String
-      IPAddr.new addr
-    when IPAddr
-      addr
-    else
-      raise ArgumentError, "Wrong address format: #{addr}"
     end
   end
 
