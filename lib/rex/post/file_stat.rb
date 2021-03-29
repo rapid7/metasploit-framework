@@ -132,7 +132,7 @@ class FileStat
   end
 
   def ftype
-    return @@ftypes[(mode & 0170000) >> 13].dup
+    return @@ftypes[(mode & 0170000) >> 13].dup || ''
   end
 
   #
