@@ -637,7 +637,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       row = [
           ffstat ? ffstat.prettymode : '',
           ffstat ? ffstat.size       : '',
-          ffstat ? ffstat.ftype[0,3] : '',
+          ffstat && ffstat.ftype ? ffstat.ftype[0,3] : '',
           ffstat ? ffstat.mtime      : '',
           fname.force_encoding('UTF-8')
         ]
