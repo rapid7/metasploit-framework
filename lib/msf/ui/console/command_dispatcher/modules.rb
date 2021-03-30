@@ -1536,7 +1536,7 @@ module Msf
           #
           # Handles the filtering of modules that will be generated into a table
           def show_module_metadata(table_name, module_filter)
-            count = 0
+            count = -1
             tbl = generate_module_table(table_name)
 
             if module_filter.is_a?(Array) || module_filter.is_a?(Hash)
