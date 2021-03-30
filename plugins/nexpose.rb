@@ -117,7 +117,7 @@ class Plugin::Nexpose < Msf::Plugin
 
       case args.length
       when 1,2
-        cred,targ = args[0].split('@', 2)
+        cred,_split,targ = args[0].rpartition('@')
         @user,@pass = cred.split(':', 2)
         targ ||= '127.0.0.1:3780'
         @host,@port = targ.split(':', 2)
