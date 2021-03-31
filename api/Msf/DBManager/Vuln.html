@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::DBManager::Vuln
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::DBManager::Vuln";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (V)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">DBManager</a></span></span>
+     &raquo; 
+    <span class="title">Vuln</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::DBManager::Vuln
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">Msf::DBManager</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/db_manager/vuln.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_vuln-instance_method" title="#delete_vuln (instance method)">#<strong>delete_vuln</strong>(opts)  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes Vuln entries based on the IDs passed in.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_vuln-instance_method" title="#each_vuln (instance method)">#<strong>each_vuln</strong>(wspace = framework.db.workspace, &amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method iterates the vulns table calling the supplied block with the vuln instance of each entry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_or_create_vuln-instance_method" title="#find_or_create_vuln (instance method)">#<strong>find_or_create_vuln</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find or create a vuln matching this service/name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_vuln_by_details-instance_method" title="#find_vuln_by_details (instance method)">#<strong>find_vuln_by_details</strong>(details_map, host, service = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_vuln_by_refs-instance_method" title="#find_vuln_by_refs (instance method)">#<strong>find_vuln_by_refs</strong>(refs, host, service = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_vuln-instance_method" title="#get_vuln (instance method)">#<strong>get_vuln</strong>(wspace, host, service, name, data = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#has_vuln%3F-instance_method" title="#has_vuln? (instance method)">#<strong>has_vuln?</strong>(name)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find a vulnerability matching this name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_vuln-instance_method" title="#report_vuln (instance method)">#<strong>report_vuln</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><dl class="rdoc-list note-list"><dt>opts MUST contain <code>:host</code>
+<dd><dl class="rdoc-list note-list"><dt>the host where this vulnerability resides <code>:name</code>
+<dd>
+<p>the friendly name for this vulnerability (title).</p>
+</dd></dl>
+</dd></dl>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_vuln-instance_method" title="#update_vuln (instance method)">#<strong>update_vuln</strong>(opts)  &#x21d2; Mdm::Vuln </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Update the attributes of a Vuln entry with the values in opts.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vulns-instance_method" title="#vulns (instance method)">#<strong>vulns</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This methods returns a list of all vulnerabilities in the database.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="delete_vuln-instance_method">
+  
+    #<strong>delete_vuln</strong>(opts)  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes Vuln entries based on the IDs passed in.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>:ids</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><dl class="rdoc-list label-list"><dt>Array
+<dd>
+<p>Array containing Integers corresponding to the IDs of the Vuln entries to delete.</p>
+</dd></dl>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Array containing the Mdm::Vuln objects that were successfully deleted.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 285</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_vuln'>delete_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The following options are required: :ids</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ids</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ids</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vuln_id'>vuln_id</span><span class='op'>|</span>
+    <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln_id'>vuln_id</span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_destroy'>destroy</span>
+    <span class='kw'>rescue</span> <span class='comment'># refs suck
+</span>      <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Forcibly deleting </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vuln'>vuln</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_deleted'>deleted</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_vuln-instance_method">
+  
+    #<strong>each_vuln</strong>(wspace = framework.db.workspace, &amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method iterates the vulns table calling the supplied block with the vuln instance of each entry.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8
+9
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_vuln'>each_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='op'>=</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_workspace'>workspace</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vulns'>vulns</span><span class='op'>|</span>
+    <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_vulns'>vulns</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_or_create_vuln-instance_method">
+  
+    #<strong>find_or_create_vuln</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find or create a vuln matching this service/name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_or_create_vuln'>find_or_create_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report_vuln'>report_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_vuln_by_details-instance_method">
+  
+    #<strong>find_vuln_by_details</strong>(details_map, host, service = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_vuln_by_details'>find_vuln_by_details</span><span class='lparen'>(</span><span class='id identifier rubyid_details_map'>details_map</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+
+  <span class='comment'># Create a modified version of the criteria in order to match against
+</span>  <span class='comment'># the joined version of the fields
+</span>
+  <span class='id identifier rubyid_crit'>crit</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_details_map'>details_map</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+    <span class='id identifier rubyid_crit'>crit</span><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vuln_details.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+    <span class='id identifier rubyid_other_vulns'>other_vulns</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:vuln_details</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_crit'>crit</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+    <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_other_vulns'>other_vulns</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='kw'>nil</span> <span class='op'>:</span> <span class='id identifier rubyid_other_vulns'>other_vulns</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Return if we matched based on service
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_vuln'>vuln</span> <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span>
+
+  <span class='comment'># Prevent matches against other services
+</span>  <span class='id identifier rubyid_crit'>crit</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vulns.service_id</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+  <span class='id identifier rubyid_other_vulns'>other_vulns</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:vuln_details</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_crit'>crit</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+  <span class='id identifier rubyid_other_vulns'>other_vulns</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>?</span> <span class='kw'>nil</span> <span class='op'>:</span> <span class='id identifier rubyid_other_vulns'>other_vulns</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_vuln_by_refs-instance_method">
+  
+    #<strong>find_vuln_by_refs</strong>(refs, host, service = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_vuln_by_refs'>find_vuln_by_refs</span><span class='lparen'>(</span><span class='id identifier rubyid_refs'>refs</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ref_ids'>ref_ids</span> <span class='op'>=</span> <span class='id identifier rubyid_refs'>refs</span><span class='period'>.</span><span class='id identifier rubyid_find_all'>find_all</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_ref'>ref</span><span class='op'>|</span> <span class='id identifier rubyid_ref'>ref</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CVE-</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_relation'>relation</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_joins'>joins</span><span class='lparen'>(</span><span class='symbol'>:refs</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_relation'>relation</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>service_id:</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_try'>try</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>refs:</span> <span class='lbrace'>{</span> <span class='label'>id:</span> <span class='id identifier rubyid_ref_ids'>ref_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_relation'>relation</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>refs:</span> <span class='lbrace'>{</span> <span class='label'>id:</span> <span class='id identifier rubyid_ref_ids'>ref_ids</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_vuln-instance_method">
+  
+    #<strong>get_vuln</strong>(wspace, host, service, name, data = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RuntimeError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_vuln'>get_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not workspace safe: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_caller'>caller</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name = ? and service_id = ? and host_id = ?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_order'>order</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vulns.id DESC</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name = ? and host_id = ?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_vuln'>vuln</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="has_vuln?-instance_method">
+  
+    #<strong>has_vuln?</strong>(name)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find a vulnerability matching this name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_vuln?'>has_vuln?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find_by_name'>find_by_name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_vuln-instance_method">
+  
+    #<strong>report_vuln</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>opts MUST contain</p>
+<dl class="rdoc-list note-list"><dt><code>:host</code>
+<dd>
+<p>the host where this vulnerability resides</p>
+</dd><dt><code>:name</code>
+<dd>
+<p>the friendly name for this vulnerability (title)</p>
+</dd></dl>
+
+<p>opts can contain</p>
+<dl class="rdoc-list note-list"><dt><code>:info</code>
+<dd>
+<p>a human readable description of the vuln, free-form text</p>
+</dd><dt><code>:refs</code>
+<dd>
+<p>an array of Ref objects or string names of references</p>
+</dd><dt>+:details
+<dd>
+<p>a hash with :key pointed to a find criteria hash and the rest containing VulnDetail fields</p>
+</dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_vuln'>report_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_active'>active</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing required option :host</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Deprecated data column for vuln, use .info instead</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>return</span>
+  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:info</span><span class='rbracket'>]</span>
+
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_clone'>clone</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_exploited_at'>exploited_at</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exploited_at</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exploited_at</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_details'>details</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:details</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rids'>rids</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:ref_ids</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:refs</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_rids'>rids</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:refs</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_instance_of?'>instance_of?</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Module</span><span class='op'>::</span><span class='const'>Ref</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+      <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:ctx_id</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:ctx_val</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_ctx_val'>ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:ctx_id</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:ctx_val</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:ctx_id</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:ctx_val</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>String</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_r'>r</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_rids'>rids</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_find_or_create_ref'>find_or_create_ref</span><span class='lparen'>(</span><span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Host</span>
+    <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/Host.html" title="Msf::Util::Host (module)">Host</a></span></span><span class='period'>.</span><span class='id identifier rubyid_normalize_host'><span class='object_link'><a href="../Util/Host.html#normalize_host-class_method" title="Msf::Util::Host.normalize_host (method)">normalize_host</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Truncate the info field at the maximum field length
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_info'>info</span>
+    <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>65535</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Truncate the name field at the maximum field length
+</span>  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>255</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Placeholder for the vuln object
+</span>  <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Identify the associated service
+</span>  <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:service</span><span class='rparen'>)</span>
+
+  <span class='comment'># Treat port zero as no service
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span> <span class='kw'>or</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_service'>service</span>
+      <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='comment'># Catch incorrect usages, as in report_note
+</span>      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dns</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dhcp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_services'>services</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>port:</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span> <span class='label'>proto:</span> <span class='id identifier rubyid_proto'>proto</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_create'>first_or_create</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Try to find an existing vulnerability with the same service &amp; references
+</span>    <span class='comment'># If there are multiple matches, choose the one with the most matches
+</span>    <span class='comment'># If a match is found on a vulnerability with no associated service,
+</span>    <span class='comment'># update that vulnerability with our service information. This helps
+</span>    <span class='comment'># prevent dupes of the same vuln found by both local patch and
+</span>    <span class='comment'># service detection.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_rids'>rids</span> <span class='kw'>and</span> <span class='id identifier rubyid_rids'>rids</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_find_vuln_by_refs'>find_vuln_by_refs</span><span class='lparen'>(</span><span class='id identifier rubyid_rids'>rids</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span> <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Try to find an existing vulnerability with the same host &amp; references
+</span>    <span class='comment'># If there are multiple matches, choose the one with the most matches
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_rids'>rids</span> <span class='kw'>and</span> <span class='id identifier rubyid_rids'>rids</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_find_vuln_by_refs'>find_vuln_by_refs</span><span class='lparen'>(</span><span class='id identifier rubyid_rids'>rids</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Try to match based on vuln_details records
+</span>  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_vuln'>vuln</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:details_match</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_find_vuln_by_details'>find_vuln_by_details</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:details_match</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_service'>service</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># No matches, so create a new vuln record
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_vuln'>vuln</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+      <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_find_by_name'>find_by_name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_find_by_name'>find_by_name</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_vuln'>vuln</span>
+
+      <span class='id identifier rubyid_vinf'>vinf</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='symbol'>:host_id</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span>
+        <span class='symbol'>:name</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span>
+        <span class='symbol'>:info</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_info'>info</span>
+      <span class='rbrace'>}</span>
+
+      <span class='id identifier rubyid_vinf'>vinf</span><span class='lbracket'>[</span><span class='symbol'>:service_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+      <span class='id identifier rubyid_vuln'>vuln</span> <span class='op'>=</span> <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_vinf'>vinf</span><span class='rparen'>)</span>
+
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_db_vuln'>on_db_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Exception in on_db_vuln event handler: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Call Stack\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set the exploited_at value if provided
+</span>  <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_exploited_at'>exploited_at</span> <span class='op'>=</span> <span class='id identifier rubyid_exploited_at'>exploited_at</span> <span class='kw'>if</span> <span class='id identifier rubyid_exploited_at'>exploited_at</span>
+
+  <span class='comment'># Merge the references
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_rids'>rids</span>
+    <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_rids'>rids</span> <span class='op'>-</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Finalize
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_changed?'>changed?</span>
+    <span class='id identifier rubyid_msf_import_timestamps'>msf_import_timestamps</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span><span class='id identifier rubyid_vuln'>vuln</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Handle vuln_details parameters
+</span>  <span class='id identifier rubyid_report_vuln_details'>report_vuln_details</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='comma'>,</span> <span class='id identifier rubyid_details'>details</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_details'>details</span>
+
+  <span class='id identifier rubyid_vuln'>vuln</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_vuln-instance_method">
+  
+    #<strong>update_vuln</strong>(opts)  &#x21d2; <tt>Mdm::Vuln</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Update the attributes of a Vuln entry with the values in opts. The values in opts should match the attributes to update.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Mdm::Vuln</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The updated Mdm::Vuln object.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 269</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_vuln'>update_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_clone'>clone</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span> <span class='kw'>if</span> <span class='id identifier rubyid_wspace'>wspace</span>
+  <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_update!'>update!</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_v'>v</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vulns-instance_method">
+  
+    #<strong>vulns</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This methods returns a list of all vulnerabilities in the database</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/vuln.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vulns'>vulns</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+    <span class='comment'># If we have the ID, there is no point in creating a complex query.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_wrap'>wrap</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_clone'>clone</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:search_term</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_search_term'>search_term</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_column_search_conditions'>column_search_conditions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_all_column_search_conditions'><span class='object_link'><a href="../Util/DBManager.html#create_all_column_search_conditions-class_method" title="Msf::Util::DBManager.create_all_column_search_conditions (method)">create_all_column_search_conditions</a></span></span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Vuln</span><span class='comma'>,</span> <span class='id identifier rubyid_search_term'>search_term</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:host</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_column_search_conditions'>column_search_conditions</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_vulns'>vulns</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:host</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:22 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

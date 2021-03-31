@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::DBManager::Cred
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::DBManager::Cred";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">DBManager</a></span></span>
+     &raquo; 
+    <span class="title">Cred</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::DBManager::Cred
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">Msf::DBManager</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/db_manager/cred.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#creds-instance_method" title="#creds (instance method)">#<strong>creds</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This methods returns a list of all credentials in the database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_credentials-instance_method" title="#delete_credentials (instance method)">#<strong>delete_credentials</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_cred-instance_method" title="#each_cred (instance method)">#<strong>each_cred</strong>(wspace = framework.db.workspace, &amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method iterates the creds table calling the supplied block with the cred instance of each entry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_or_create_cred-instance_method" title="#find_or_create_cred (instance method)">#<strong>find_or_create_cred</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find or create a credential matching this type/data.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_auth_info-instance_method" title="#report_auth_info (instance method)">#<strong>report_auth_info</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+      (also: #report_auth, #report_cred)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Store a set of credentials in the database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_credential-instance_method" title="#update_credential (instance method)">#<strong>update_credential</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="creds-instance_method">
+  
+    #<strong>creds</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This methods returns a list of all credentials in the database</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 3</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_creds'>creds</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+    <span class='comment'># If :id exists we&#39;re looking for a specific record, skip the other stuff
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_wrap'>wrap</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Core</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:search_term</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Core</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span> <span class='label'>workspace_id:</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='symbol'>:private</span><span class='comma'>,</span> <span class='symbol'>:public</span><span class='comma'>,</span> <span class='symbol'>:logins</span><span class='comma'>,</span> <span class='symbol'>:realm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_references'>references</span><span class='lparen'>(</span><span class='symbol'>:private</span><span class='comma'>,</span> <span class='symbol'>:public</span><span class='comma'>,</span> <span class='symbol'>:logins</span><span class='comma'>,</span> <span class='symbol'>:realm</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_includes'>includes</span><span class='lparen'>(</span><span class='label'>logins:</span> <span class='lbracket'>[</span> <span class='symbol'>:service</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='label'>service:</span> <span class='symbol'>:host</span> <span class='rbrace'>}</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;metasploit_credential_privates&quot;.&quot;type&quot; = ?</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:svcs</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Service</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_in'>in</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:svcs</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ports</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Service</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_in'>in</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ports</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;metasploit_credential_publics&quot;.&quot;username&quot; = ?</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pass</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;metasploit_credential_privates&quot;.&quot;data&quot; = ?</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pass</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host_ranges</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ports</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:svcs</span><span class='rbracket'>]</span>
+      <span class='comment'># Only find Cores that have non-zero Logins if the user specified a
+</span>      <span class='comment'># filter based on host, port, or service name
+</span>      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Login</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_not_eq'>not_eq</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_search_term'>search_term</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_core_search_conditions'>core_search_conditions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_all_column_search_conditions'><span class='object_link'><a href="../Util/DBManager.html#create_all_column_search_conditions-class_method" title="Msf::Util::DBManager.create_all_column_search_conditions (method)">create_all_column_search_conditions</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Core</span><span class='comma'>,</span> <span class='id identifier rubyid_search_term'>search_term</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>created_at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>updated_at</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_public_search_conditions'>public_search_conditions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_all_column_search_conditions'><span class='object_link'><a href="../Util/DBManager.html#create_all_column_search_conditions-class_method" title="Msf::Util::DBManager.create_all_column_search_conditions (method)">create_all_column_search_conditions</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Public</span><span class='comma'>,</span> <span class='id identifier rubyid_search_term'>search_term</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>created_at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>updated_at</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_private_search_conditions'>private_search_conditions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_all_column_search_conditions'><span class='object_link'><a href="../Util/DBManager.html#create_all_column_search_conditions-class_method" title="Msf::Util::DBManager.create_all_column_search_conditions (method)">create_all_column_search_conditions</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Private</span><span class='comma'>,</span> <span class='id identifier rubyid_search_term'>search_term</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>created_at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>updated_at</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_realm_search_conditions'>realm_search_conditions</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_all_column_search_conditions'><span class='object_link'><a href="../Util/DBManager.html#create_all_column_search_conditions-class_method" title="Msf::Util::DBManager.create_all_column_search_conditions (method)">create_all_column_search_conditions</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Realm</span><span class='comma'>,</span> <span class='id identifier rubyid_search_term'>search_term</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>created_at</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>updated_at</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_column_search_conditions'>column_search_conditions</span> <span class='op'>=</span> <span class='id identifier rubyid_core_search_conditions'>core_search_conditions</span><span class='period'>.</span><span class='id identifier rubyid_or'>or</span><span class='lparen'>(</span><span class='id identifier rubyid_public_search_conditions'>public_search_conditions</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_or'>or</span><span class='lparen'>(</span><span class='id identifier rubyid_private_search_conditions'>private_search_conditions</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_or'>or</span><span class='lparen'>(</span><span class='id identifier rubyid_realm_search_conditions'>realm_search_conditions</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_column_search_conditions'>column_search_conditions</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_query'>query</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_credentials-instance_method">
+  
+    #<strong>delete_credentials</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 271</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_credentials'>delete_credentials</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The following options are required: :ids</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ids</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+    <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ids</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cred_id'>cred_id</span><span class='op'>|</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Core</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_cred_id'>cred_id</span><span class='rparen'>)</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_destroy'>destroy</span>
+      <span class='kw'>rescue</span> <span class='comment'># refs suck
+</span>        <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Forcibly deleting </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cred'>cred</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_deleted'>deleted</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_cred-instance_method">
+  
+    #<strong>each_cred</strong>(wspace = framework.db.workspace, &amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method iterates the creds table calling the supplied block with the cred instance of each entry.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_cred'>each_cred</span><span class='lparen'>(</span><span class='id identifier rubyid_wspace'>wspace</span><span class='op'>=</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_workspace'>workspace</span><span class='comma'>,</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_wspace'>wspace</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cred'>cred</span><span class='op'>|</span>
+    <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_or_create_cred-instance_method">
+  
+    #<strong>find_or_create_cred</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find or create a credential matching this type/data</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_or_create_cred'>find_or_create_cred</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report_auth_info'>report_auth_info</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_auth_info-instance_method">
+  
+    #<strong>report_auth_info</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='report_auth-instance_method'>report_auth</span>, <span id='report_cred-instance_method'>report_cred</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Store a set of credentials in the database.</p>
+
+<p>report_auth_info used to create a note, now it creates an entry in the creds table. It&#39;s much more akin to report_vuln() now.</p>
+
+<p>opts MUST contain</p>
+<dl class="rdoc-list note-list"><dt><code>:host</code>
+<dd>
+<p>an IP address or Host object reference</p>
+</dd><dt><code>:port</code>
+<dd>
+<p>a port number</p>
+</dd></dl>
+
+<p>opts can contain</p>
+<dl class="rdoc-list note-list"><dt><code>:user</code>
+<dd>
+<p>the username</p>
+</dd><dt><code>:pass</code>
+<dd>
+<p>the password, or path to ssh_key</p>
+</dd><dt><code>:ptype</code>
+<dd>
+<p>the type of password (password(ish), hash, or ssh_key)</p>
+</dd><dt><code>:proto</code>
+<dd>
+<p>a transport name for the port</p>
+</dd><dt><code>:sname</code>
+<dd>
+<p>service name</p>
+</dd><dt><code>:active</code>
+<dd>
+<p>by default, a cred is active, unless explicitly false</p>
+</dd><dt><code>:proof</code>
+<dd>
+<p>data used to prove the account is actually active.</p>
+</dd></dl>
+
+<p>Sources: Credentials can be sourced from another credential, or from a vulnerability. For example, if an exploit was used to dump the smb_hashes, and this credential comes from there, the source_id would be the Vuln id (as reported by report_vuln) and the type would be “Vuln”.</p>
+<dl class="rdoc-list note-list"><dt><code>:source_id</code>
+<dd>
+<p>The Vuln or Cred id of the source of this cred.</p>
+</dd><dt><code>:source_type</code>
+<dd>
+<p>Either Vuln or Cred</p>
+</dd></dl>
+
+<p>TODO: This is written somewhat host-centric, when really the Service is the thing. Need to revisit someday.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_auth_info'>report_auth_info</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_active'>active</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing required option :host</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing required option :port</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Host</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_validate_ips'>validate_ips</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid address or object for :host (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ptype'>ptype</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_token'>token</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pass</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_sname'>sname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:sname</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proto</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_proof'>proof</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_source_id'>source_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:source_id</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_source_type'>source_type</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:source_type</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_duplicate_ok'>duplicate_ok</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:duplicate_ok</span><span class='rbracket'>]</span>
+  <span class='comment'># Nil is true for active.
+</span>  <span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:active</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:active</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='kw'>true</span> <span class='op'>:</span> <span class='kw'>false</span>
+
+  <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+
+  <span class='comment'># Service management; assume the user knows what
+</span>  <span class='comment'># he&#39;s talking about.
+</span>  <span class='id identifier rubyid_service'>service</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span><span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='symbol'>:port</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='symbol'>:proto</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_proto'>proto</span><span class='comma'>,</span> <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sname'>sname</span><span class='comma'>,</span> <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='rparen'>)</span>
+
+  <span class='comment'># Non-US-ASCII usernames are tripping up the database at the moment, this is a temporary fix until we update the tables
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='comment'># convert the token to US-ASCII from UTF-8 to prevent an error
+</span>    <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\x00-\x1f\x7f-\xff]</span><span class='regexp_end'>/n</span></span><span class='rparen'>)</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\x%.2x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\x00-\x1f\x7f-\xff]</span><span class='regexp_end'>/n</span></span><span class='rparen'>)</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\x%.2x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Check to see if the creds already exist. We look also for a downcased username with the
+</span>  <span class='comment'># same password because we can fairly safely assume they are not in fact two separate creds.
+</span>  <span class='comment'># this allows us to hedge against duplication of creds in the DB.
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_duplicate_ok'>duplicate_ok</span>
+  <span class='comment'># If duplicate usernames are okay, find by both user and password (allows
+</span>  <span class='comment'># for actual duplicates to get modified updated_at, sources, etc)
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>user:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>ptype:</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='comma'>,</span> <span class='label'>pass:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_find_by_user_and_ptype_and_pass'>find_by_user_and_ptype_and_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='comma'>,</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_cred'>cred</span>
+        <span class='id identifier rubyid_dcu'>dcu</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_find_by_user_and_ptype_and_pass'>find_by_user_and_ptype_and_pass</span><span class='lparen'>(</span> <span class='id identifier rubyid_dcu'>dcu</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='comma'>,</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_cred'>cred</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>user:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>ptype:</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='comma'>,</span> <span class='label'>pass:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Create the cred by username only (so we can change passwords)
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>user:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>ptype:</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_find_by_user_and_ptype'>find_by_user_and_ptype</span><span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='rparen'>)</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_cred'>cred</span>
+        <span class='id identifier rubyid_dcu'>dcu</span> <span class='op'>=</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_find_by_user_and_ptype_and_pass'>find_by_user_and_ptype_and_pass</span><span class='lparen'>(</span> <span class='id identifier rubyid_dcu'>dcu</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='comma'>,</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_cred'>cred</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_creds'>creds</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='label'>user:</span> <span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>ptype:</span> <span class='id identifier rubyid_ptype'>ptype</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Update with the password
+</span>  <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_pass'>pass</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_token'>token</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Annotate the credential
+</span>  <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_ptype'>ptype</span> <span class='op'>=</span> <span class='id identifier rubyid_ptype'>ptype</span>
+  <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='id identifier rubyid_active'>active</span>
+
+  <span class='comment'># Update the source ID only if there wasn&#39;t already one.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_source_id'>source_id</span> <span class='kw'>and</span> <span class='op'>!</span><span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_source_id'>source_id</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_source_id'>source_id</span> <span class='op'>=</span> <span class='id identifier rubyid_source_id'>source_id</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_source_type'>source_type</span> <span class='op'>=</span> <span class='id identifier rubyid_source_type'>source_type</span> <span class='kw'>if</span> <span class='id identifier rubyid_source_type'>source_type</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Safe proof (lazy way) -- doesn&#39;t chop expanded
+</span>  <span class='comment'># characters correctly, but shouldn&#39;t ever be a problem.
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_proof'>proof</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_proof'>proof</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_to_hex_ascii'>to_hex_ascii</span><span class='lparen'>(</span><span class='id identifier rubyid_proof'>proof</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_proof'>proof</span> <span class='op'>=</span> <span class='id identifier rubyid_proof'>proof</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4096</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_proof'>proof</span> <span class='op'>=</span> <span class='id identifier rubyid_proof'>proof</span>
+
+  <span class='comment'># Update the timestamp
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_changed?'>changed?</span>
+    <span class='id identifier rubyid_msf_import_timestamps'>msf_import_timestamps</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Ensure the updated_at is touched any time report_auth_info is called
+</span>  <span class='comment'># except when it&#39;s set explicitly (as it is for imports)
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:updated_at</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>updated_at</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_updated_at'>updated_at</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_utc'>utc</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+  <span class='kw'>end</span>
+
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span>
+    <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>TaskCred</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+        <span class='symbol'>:task</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:task</span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='symbol'>:cred</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_cred'>cred</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ret'>ret</span><span class='lbracket'>[</span><span class='symbol'>:cred</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_cred'>cred</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_credential-instance_method">
+  
+    #<strong>update_credential</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/cred.rb', line 225</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_credential'>update_credential</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+    <span class='comment'># process workspace string for update if included in opts
+</span>    <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/DBManager.html" title="Msf::Util::DBManager (module)">DBManager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_process_opts_workspace'><span class='object_link'><a href="../Util/DBManager.html#process_opts_workspace-class_method" title="Msf::Util::DBManager.process_opts_workspace (method)">process_opts_workspace</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_clone'>clone</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span> <span class='kw'>if</span> <span class='id identifier rubyid_wspace'>wspace</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_public_id'>public_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_public'>public</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Public</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_public_id'>public_id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_public'>public</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_public'>public</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Public</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:public</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_public'>public</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_private_id'>private_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_private'>private</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Private</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_private_id'>private_id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_private'>private</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_private'>private</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Private</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_private'>private</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_origin_id'>origin_id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_origin'>origin</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Origin</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_origin_id'>origin_id</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_origin'>origin</span><span class='period'>.</span><span class='id identifier rubyid_update_attributes'>update_attributes</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_origin'>origin</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Origin</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first_or_initialize'>first_or_initialize</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:origin</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_origin'>origin</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_id'>id</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Credential</span><span class='op'>::</span><span class='const'>Core</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='period'>.</span><span class='id identifier rubyid_update!'>update!</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_cred'>cred</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:21 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

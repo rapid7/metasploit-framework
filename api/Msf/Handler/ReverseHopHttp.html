@@ -1,0 +1,2301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Handler::ReverseHopHttp
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Handler::ReverseHopHttp";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Handler</a></span></span>
+     &raquo; 
+    <span class="title">ReverseHopHttp</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Handler::ReverseHopHttp
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/handler/reverse_hop_http.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This handler implements the HTTP hop tunneling interface. It acts like an HTTP server to the meterpreter packet dispatcher but as an HTTP client to actually send and receive the data from the hop.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MAGIC-constant" class="">MAGIC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Magic bytes to know we are talking to a valid hop</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TzGq</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Msf::Handler</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Handler.html#Claimed-constant" title="Msf::Handler::Claimed (constant)">Claimed</a></span>, <span class='object_link'><a href="../Handler.html#Unused-constant" title="Msf::Handler::Unused (constant)">Unused</a></span></p>
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hop_handlers-class_method" title="hop_handlers (class method)">.<strong>hop_handlers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute hop_handlers.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#closed_handlers-instance_method" title="#closed_handlers (instance method)">#<strong>closed_handlers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#control-instance_method" title="#control (instance method)">#<strong>control</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#current_url-instance_method" title="#current_url (instance method)">#<strong>current_url</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handlers-instance_method" title="#handlers (instance method)">#<strong>handlers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lock-instance_method" title="#lock (instance method)">#<strong>lock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mclient-instance_method" title="#mclient (instance method)">#<strong>mclient</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_thread-instance_method" title="#monitor_thread (instance method)">#<strong>monitor_thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#refs-instance_method" title="#refs (instance method)">#<strong>refs</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ReverseHttp.html#service-instance_method" title="Msf::Handler::ReverseHttp#service (method)">#service</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Msf::Handler</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Handler.html#exploit_config-instance_method" title="Msf::Handler#exploit_config (method)">#exploit_config</a></span>, <span class='object_link'><a href="../Handler.html#parent_payload-instance_method" title="Msf::Handler#parent_payload (method)">#parent_payload</a></span>, <span class='object_link'><a href="../Handler.html#pending_connections-instance_method" title="Msf::Handler#pending_connections (method)">#pending_connections</a></span>, <span class='object_link'><a href="../Handler.html#session_waiter_event-instance_method" title="Msf::Handler#session_waiter_event (method)">#session_waiter_event</a></span>, <span class='object_link'><a href="../Handler.html#sessions-instance_method" title="Msf::Handler#sessions (method)">#sessions</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#general_handler_type-class_method" title="general_handler_type (class method)">.<strong>general_handler_type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the connection-described general handler type, in this case &#39;tunnel&#39;.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handler_type-class_method" title="handler_type (class method)">.<strong>handler_type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the string representation of the handler type.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_resource-instance_method" title="#add_resource (instance method)">#<strong>add_resource</strong>(res, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a resource.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close_client-instance_method" title="#close_client (instance method)">#<strong>close_client</strong>(cli)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Implemented for compatibility reasons, does nothing.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deref-instance_method" title="#deref (instance method)">#<strong>deref</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Implemented for compatibility reasons, does nothing.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#full_uri-instance_method" title="#full_uri (instance method)">#<strong>full_uri</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the URI of the hop point.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the Hop HTTP tunneling handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#localinfo-instance_method" title="#localinfo (instance method)">#<strong>localinfo</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a string representation of the local hop.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peerinfo-instance_method" title="#peerinfo (instance method)">#<strong>peerinfo</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the URL of the remote hop end.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_resource-instance_method" title="#remove_resource (instance method)">#<strong>remove_resource</strong>(res)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes a resource.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resources-instance_method" title="#resources (instance method)">#<strong>resources</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Implemented for compatibility reasons.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_new_stage-instance_method" title="#send_new_stage (instance method)">#<strong>send_new_stage</strong>(uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates and sends a stage up to the hop point to be ready for the next client.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_response-instance_method" title="#send_response (instance method)">#<strong>send_response</strong>(resp)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends data to hop.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_handler-instance_method" title="#setup_handler (instance method)">#<strong>setup_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets up a handler.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_handler-instance_method" title="#start_handler (instance method)">#<strong>start_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts the handler along with a monitoring thread to handle data transfer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop_handler-instance_method" title="#stop_handler (instance method)">#<strong>stop_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stops the handler and monitoring thread.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type%3F-instance_method" title="#type? (instance method)">#<strong>type?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the socket type.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ReverseHttp.html#listener_uri-instance_method" title="Msf::Handler::ReverseHttp#listener_uri (method)">#listener_uri</a></span>, <span class='object_link'><a href="ReverseHttp.html#lookup_proxy_settings-instance_method" title="Msf::Handler::ReverseHttp#lookup_proxy_settings (method)">#lookup_proxy_settings</a></span>, <span class='object_link'><a href="ReverseHttp.html#luri-instance_method" title="Msf::Handler::ReverseHttp#luri (method)">#luri</a></span>, <span class='object_link'><a href="ReverseHttp.html#on_request-instance_method" title="Msf::Handler::ReverseHttp#on_request (method)">#on_request</a></span>, <span class='object_link'><a href="ReverseHttp.html#payload_uri-instance_method" title="Msf::Handler::ReverseHttp#payload_uri (method)">#payload_uri</a></span>, <span class='object_link'><a href="ReverseHttp.html#print_prefix-instance_method" title="Msf::Handler::ReverseHttp#print_prefix (method)">#print_prefix</a></span>, <span class='object_link'><a href="ReverseHttp.html#scheme-instance_method" title="Msf::Handler::ReverseHttp#scheme (method)">#scheme</a></span>, <span class='object_link'><a href="ReverseHttp.html#ssl%3F-instance_method" title="Msf::Handler::ReverseHttp#ssl? (method)">#ssl?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Payload/Windows/VerifySsl.html" title="Msf::Payload::Windows::VerifySsl (module)">Payload::Windows::VerifySsl</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Payload/Windows/VerifySsl.html#get_ssl_cert_hash-instance_method" title="Msf::Payload::Windows::VerifySsl#get_ssl_cert_hash (method)">#get_ssl_cert_hash</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Reverse.html" title="Msf::Handler::Reverse (module)">Reverse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Reverse.html#bind_addresses-instance_method" title="Msf::Handler::Reverse#bind_addresses (method)">#bind_addresses</a></span>, <span class='object_link'><a href="Reverse.html#bind_port-instance_method" title="Msf::Handler::Reverse#bind_port (method)">#bind_port</a></span>, <span class='object_link'><a href="Reverse.html#is_loopback_address%3F-instance_method" title="Msf::Handler::Reverse#is_loopback_address? (method)">#is_loopback_address?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Msf::Handler</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Handler.html#add_handler-instance_method" title="Msf::Handler#add_handler (method)">#add_handler</a></span>, <span class='object_link'><a href="../Handler.html#cleanup_handler-instance_method" title="Msf::Handler#cleanup_handler (method)">#cleanup_handler</a></span>, <span class='object_link'><a href="../Handler.html#create_session-instance_method" title="Msf::Handler#create_session (method)">#create_session</a></span>, <span class='object_link'><a href="../Handler.html#handle_connection-instance_method" title="Msf::Handler#handle_connection (method)">#handle_connection</a></span>, <span class='object_link'><a href="../Handler.html#handler-instance_method" title="Msf::Handler#handler (method)">#handler</a></span>, <span class='object_link'><a href="../Handler.html#handler_name-instance_method" title="Msf::Handler#handler_name (method)">#handler_name</a></span>, <span class='object_link'><a href="../Handler.html#interrupt_wait_for_session-instance_method" title="Msf::Handler#interrupt_wait_for_session (method)">#interrupt_wait_for_session</a></span>, <span class='object_link'><a href="../Handler.html#register_session-instance_method" title="Msf::Handler#register_session (method)">#register_session</a></span>, <span class='object_link'><a href="../Handler.html#wait_for_session-instance_method" title="Msf::Handler#wait_for_session (method)">#wait_for_session</a></span>, <span class='object_link'><a href="../Handler.html#wfs_delay-instance_method" title="Msf::Handler#wfs_delay (method)">#wfs_delay</a></span></p>
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="hop_handlers=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="hop_handlers-class_method">
+  
+    .<strong>hop_handlers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute hop_handlers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hop_handlers'>hop_handlers</span>
+  <span class='ivar'>@hop_handlers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="closed_handlers=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="closed_handlers-instance_method">
+  
+    #<strong>closed_handlers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_closed_handlers'>closed_handlers</span>
+  <span class='ivar'>@closed_handlers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="control=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="control-instance_method">
+  
+    #<strong>control</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_control'>control</span>
+  <span class='ivar'>@control</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="current_url=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="current_url-instance_method">
+  
+    #<strong>current_url</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_current_url'>current_url</span>
+  <span class='ivar'>@current_url</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="handlers=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="handlers-instance_method">
+  
+    #<strong>handlers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handlers'>handlers</span>
+  <span class='ivar'>@handlers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="lock=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="lock-instance_method">
+  
+    #<strong>lock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lock'>lock</span>
+  <span class='ivar'>@lock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mclient=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mclient-instance_method">
+  
+    #<strong>mclient</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mclient'>mclient</span>
+  <span class='ivar'>@mclient</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="monitor_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_thread-instance_method">
+  
+    #<strong>monitor_thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_thread'>monitor_thread</span>
+  <span class='ivar'>@monitor_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="refs=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="refs-instance_method">
+  
+    #<strong>refs</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_refs'>refs</span>
+  <span class='ivar'>@refs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="general_handler_type-class_method">
+  
+    .<strong>general_handler_type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the connection-described general handler type, in this case &#39;tunnel&#39;.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_general_handler_type'>general_handler_type</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tunnel</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handler_type-class_method">
+  
+    .<strong>handler_type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the string representation of the handler type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_handler_type'>handler_type</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>reverse_hop_http</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_resource-instance_method">
+  
+    #<strong>add_resource</strong>(res, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a resource. (handler for a session)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_resource'>add_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_handlers'>handlers</span><span class='lbracket'>[</span><span class='id identifier rubyid_res'>res</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_start_handler'>start_handler</span> <span class='kw'>if</span> <span class='id identifier rubyid_monitor_thread'>monitor_thread</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close_client-instance_method">
+  
+    #<strong>close_client</strong>(cli)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Implemented for compatibility reasons, does nothing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 204</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close_client'>close_client</span><span class='lparen'>(</span><span class='id identifier rubyid_cli'>cli</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deref-instance_method">
+  
+    #<strong>deref</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Implemented for compatibility reasons, does nothing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+198
+199</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 198</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deref'>deref</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="full_uri-instance_method">
+  
+    #<strong>full_uri</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the URI of the hop point.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+226
+227
+228
+229
+230
+231</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 226</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_full_uri'>full_uri</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HOPURL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_end_with?'>end_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>?</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>?/</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the Hop HTTP tunneling handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+251
+252
+253
+254
+255
+256
+257
+258
+259</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 251</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HOPURL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The full URL of the hop script, e.g. http://a.b/hop.php</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Handler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='rparen'>)</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="localinfo-instance_method">
+  
+    #<strong>localinfo</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a string representation of the local hop</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+236
+237
+238</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 236</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_localinfo'>localinfo</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hop client</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="peerinfo-instance_method">
+  
+    #<strong>peerinfo</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the URL of the remote hop end</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peerinfo'>peerinfo</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='const'>URI</span><span class='lparen'>(</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_resource-instance_method">
+  
+    #<strong>remove_resource</strong>(res)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes a resource.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+181
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 181</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_resource'>remove_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span>
+  <span class='id identifier rubyid_handlers'>handlers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_closed_handlers'>closed_handlers</span><span class='lbracket'>[</span><span class='id identifier rubyid_res'>res</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_unlock'>unlock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resources-instance_method">
+  
+    #<strong>resources</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Implemented for compatibility reasons</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+191
+192
+193</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 191</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resources'>resources</span>
+  <span class='id identifier rubyid_handlers'>handlers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_new_stage-instance_method">
+  
+    #<strong>send_new_stage</strong>(uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates and sends a stage up to the hop point to be ready for the next client</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 264</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_new_stage'>send_new_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='comment'># try to get the UUID out of the existing URI
+</span>  <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_process_uri_resource'>process_uri_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_uuid'>uuid</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Payload/UUID.html" title="Msf::Payload::UUID (class)">UUID</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Payload/UUID.html#initialize-instance_method" title="Msf::Payload::UUID#initialize (method)">new</a></span></span>
+
+  <span class='comment'># generate a new connect
+</span>  <span class='id identifier rubyid_sum'>sum</span> <span class='op'>=</span> <span class='id identifier rubyid_uri_checksum_lookup'>uri_checksum_lookup</span><span class='lparen'>(</span><span class='symbol'>:connect</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_uri_uuid'>generate_uri_uuid</span><span class='lparen'>(</span><span class='id identifier rubyid_sum'>sum</span><span class='comma'>,</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>=</span> <span class='id identifier rubyid_conn_id'>conn_id</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_conn_id'>conn_id</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_url'>url</span> <span class='op'>=</span> <span class='id identifier rubyid_full_uri'>full_uri</span> <span class='op'>+</span> <span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_fulluri'>fulluri</span> <span class='op'>=</span> <span class='const'>URI</span><span class='lparen'>(</span><span class='id identifier rubyid_full_uri'>full_uri</span> <span class='op'>+</span> <span class='id identifier rubyid_conn_id'>conn_id</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Preparing stage for next session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_conn_id'>conn_id</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_blob'>blob</span> <span class='op'>=</span> <span class='id identifier rubyid_stage_payload'>stage_payload</span><span class='lparen'>(</span>
+    <span class='label'>uuid:</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='comma'>,</span>
+    <span class='label'>uri:</span>  <span class='id identifier rubyid_fulluri'>fulluri</span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='comma'>,</span>
+    <span class='label'>lhost:</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='label'>lport:</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span>
+  <span class='rparen'>)</span>
+
+  <span class='comment'>#send up
+</span>  <span class='id identifier rubyid_crequest'>crequest</span> <span class='op'>=</span> <span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_request_raw'>request_raw</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_control'>control</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_encode_stage'>encode_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_blob'>blob</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>headers</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X-init</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_crequest'>crequest</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploaded stage to hop </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span>
+
+  <span class='comment'>#return conn info
+</span>  <span class='lbracket'>[</span><span class='id identifier rubyid_conn_id'>conn_id</span><span class='comma'>,</span> <span class='id identifier rubyid_url'>url</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_response-instance_method">
+  
+    #<strong>send_response</strong>(resp)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends data to hop</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_response'>send_response</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_crequest'>crequest</span> <span class='op'>=</span> <span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_request_raw'>request_raw</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_control'>control</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>headers</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X-urlfrag</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_current_url'>current_url</span><span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+    <span class='comment'># if receiving POST data, hop does not send back data, so we can stop here
+</span>    <span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_crequest'>crequest</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_handler-instance_method">
+  
+    #<strong>setup_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets up a handler. Doesn&#39;t do much since it&#39;s all in start_handler.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_handler'>setup_handler</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_handlers'>handlers</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_closed_handlers'>closed_handlers</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_handler-instance_method">
+  
+    #<strong>start_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts the handler along with a monitoring thread to handle data transfer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_handler'>start_handler</span>
+  <span class='comment'># Our HTTP client and URL for talking to the hop
+</span>  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='const'>URI</span><span class='lparen'>(</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_control'>control</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='embexpr_end'>}</span><span class='tstring_content'>control</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mclient'>mclient</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto/Http/Client.html" title="Rex::Proto::Http::Client (class)">Client</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Proto/Http/Client.html#initialize-instance_method" title="Rex::Proto::Http::Client#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span>
+    <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_full_uri'>full_uri</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+  <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='comment'># So we know we can stop it
+</span>  <span class='comment'># If someone is already monitoring this hop, bump the refcount instead of starting a new thread
+</span>  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hop_handlers'><span class='object_link'><a href="#hop_handlers-class_method" title="Msf::Handler::ReverseHopHttp.hop_handlers (method)">hop_handlers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hop_handlers'><span class='object_link'><a href="#hop_handlers-class_method" title="Msf::Handler::ReverseHopHttp.hop_handlers (method)">hop_handlers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Sometimes you just have to do everything yourself.
+</span>  <span class='comment'># Declare ownership of this hop and spawn a thread to monitor it.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hop_handlers'><span class='object_link'><a href="#hop_handlers-class_method" title="Msf::Handler::ReverseHopHttp.hop_handlers (method)">hop_handlers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>self</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_monitor_thread'>monitor_thread</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/ThreadFactory.html" title="Rex::ThreadFactory (class)">ThreadFactory</a></span></span><span class='period'>.</span><span class='id identifier rubyid_spawn'><span class='object_link'><a href="../../Rex/ThreadFactory.html#spawn-class_method" title="Rex::ThreadFactory.spawn (method)">spawn</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseHopHTTP</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='comma'>,</span>
+      <span class='kw'>self</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='op'>|</span>
+    <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_send_new_stage'>send_new_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span> <span class='comment'># send stage to hop
+</span>    <span class='id identifier rubyid_delay'>delay</span> <span class='op'>=</span> <span class='int'>1</span> <span class='comment'># poll delay
+</span>    <span class='comment'># Continue to loop as long as at least one handler or one session is depending on us
+</span>    <span class='kw'>until</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span> <span class='op'>&lt;</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_handlers'>handlers</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_sleep'>sleep</span> <span class='id identifier rubyid_delay'>delay</span>
+      <span class='id identifier rubyid_delay'>delay</span> <span class='op'>=</span> <span class='id identifier rubyid_delay'>delay</span> <span class='op'>+</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='id identifier rubyid_delay'>delay</span> <span class='op'>&lt;</span> <span class='int'>10</span> <span class='comment'># slow down if we&#39;re not getting anything
+</span>      <span class='id identifier rubyid_crequest'>crequest</span> <span class='op'>=</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_request_raw'>request_raw</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_control'>control</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_mclient'>mclient</span><span class='period'>.</span><span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_crequest'>crequest</span><span class='rparen'>)</span> <span class='comment'># send poll to the hop
+</span>      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># validate responses, handle each message down
+</span>      <span class='id identifier rubyid_received'>received</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span>
+      <span class='kw'>until</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>12</span> <span class='op'>||</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#MAGIC-constant" title="Msf::Handler::ReverseHopHttp::MAGIC (constant)">MAGIC</a></span></span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='const'><span class='object_link'><a href="#MAGIC-constant" title="Msf::Handler::ReverseHopHttp::MAGIC (constant)">MAGIC</a></span></span>
+
+        <span class='comment'># good response
+</span>        <span class='id identifier rubyid_delay'>delay</span> <span class='op'>=</span> <span class='int'>0</span> <span class='comment'># we&#39;re talking, speed up
+</span>        <span class='id identifier rubyid_urlen'>urlen</span> <span class='op'>=</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_urlpath'>urlpath</span> <span class='op'>=</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_urlen'>urlen</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_datalen'>datalen</span> <span class='op'>=</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+        <span class='comment'># do not want handlers to change while we dispatch this
+</span>        <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span>
+        <span class='comment'>#received now starts with the binary contents of the message
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_handlers'>handlers</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_urlpath'>urlpath</span>
+          <span class='id identifier rubyid_pack'>pack</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Proto/Http/Packet.html" title="Rex::Proto::Http::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Proto/Http/Packet.html#initialize-instance_method" title="Rex::Proto::Http::Packet#initialize (method)">new</a></span></span>
+          <span class='id identifier rubyid_pack'>pack</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='id identifier rubyid_received'>received</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='id identifier rubyid_datalen'>datalen</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_current_url'>current_url</span> <span class='op'>=</span> <span class='id identifier rubyid_urlpath'>urlpath</span>
+          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_handlers'>handlers</span><span class='lbracket'>[</span><span class='id identifier rubyid_urlpath'>urlpath</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_hop_http'>hop_http</span><span class='comma'>,</span> <span class='id identifier rubyid_pack'>pack</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_unlock'>unlock</span>
+        <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_closed_handlers'>closed_handlers</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_urlpath'>urlpath</span>
+          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_unlock'>unlock</span>
+          <span class='comment'>#New session!
+</span>          <span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>=</span> <span class='id identifier rubyid_urlpath'>urlpath</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+          <span class='comment'># Short-circuit the payload&#39;s handle_connection processing for create_session
+</span>          <span class='comment'># We are the dispatcher since we need to handle the comms to the hop
+</span>          <span class='id identifier rubyid_create_session'>create_session</span><span class='lparen'>(</span><span class='id identifier rubyid_hop_http'>hop_http</span><span class='comma'>,</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:passive_dispatcher</span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='comma'>,</span>
+            <span class='symbol'>:conn_id</span>            <span class='op'>=&gt;</span> <span class='id identifier rubyid_conn_id'>conn_id</span><span class='comma'>,</span>
+            <span class='symbol'>:url</span>                <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/\x00</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='symbol'>:expiration</span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SessionExpirationTimeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span>
+            <span class='symbol'>:comm_timeout</span>       <span class='op'>=&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SessionCommunicationTimeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span>
+            <span class='symbol'>:ssl</span>                <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='rbrace'>}</span><span class='rparen'>)</span>
+          <span class='comment'># send new stage to hop so next inbound session will get a unique ID.
+</span>          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_send_new_stage'>send_new_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_lock'>lock</span><span class='period'>.</span><span class='id identifier rubyid_unlock'>unlock</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_hop_http'>hop_http</span><span class='period'>.</span><span class='id identifier rubyid_monitor_thread'>monitor_thread</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='comment'>#make sure we&#39;re out
+</span>    <span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hop_handlers'><span class='object_link'><a href="#hop_handlers-class_method" title="Msf::Handler::ReverseHopHttp.hop_handlers (method)">hop_handlers</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop_handler-instance_method">
+  
+    #<strong>stop_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stops the handler and monitoring thread</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop_handler'>stop_handler</span>
+  <span class='comment'># stop_handler is called like 3 times, don&#39;t decrement refcount unless we&#39;re still running
+</span>  <span class='kw'>if</span> <span class='ivar'>@running</span>
+    <span class='const'><span class='object_link'><a href="" title="Msf::Handler::ReverseHopHttp (module)">ReverseHopHttp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_hop_handlers'><span class='object_link'><a href="#hop_handlers-class_method" title="Msf::Handler::ReverseHopHttp.hop_handlers (method)">hop_handlers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_full_uri'>full_uri</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_refs'>refs</span> <span class='op'>-=</span> <span class='int'>1</span>
+    <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type?-instance_method">
+  
+    #<strong>type?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the socket type. (hop)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse_hop_http.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type?'>type?</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hop</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:09 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

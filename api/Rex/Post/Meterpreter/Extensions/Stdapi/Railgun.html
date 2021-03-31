@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Railgun";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span>
+     &raquo; 
+    <span class="title">Railgun</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/railgun/tlv.rb<span class="defines">,<br />
+  lib/rex/post/meterpreter/extensions/stdapi/railgun/util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/buffer_item.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/const_manager.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/platform_util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_helper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_wrapper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_function.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/def_libc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libobjc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ntdll.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_psapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_user32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ws2_32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_crypt32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_shell32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_version.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wlanapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wldap32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_advapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_iphlpapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_kernel32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_netapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/api_constants.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Railgun/Def.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Def (module)">Def</a></span>, <span class='object_link'><a href="Railgun/LibraryHelper.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::LibraryHelper (module)">LibraryHelper</a></span>, <span class='object_link'><a href="Railgun/PlatformUtil.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::PlatformUtil (module)">PlatformUtil</a></span>, <span class='object_link'><a href="Railgun/Type.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Type (module)">Type</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Railgun/ApiConstants.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::ApiConstants (class)">ApiConstants</a></span>, <span class='object_link'><a href="Railgun/BufferItem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::BufferItem (class)">BufferItem</a></span>, <span class='object_link'><a href="Railgun/ConstManager.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::ConstManager (class)">ConstManager</a></span>, <span class='object_link'><a href="Railgun/Library.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Library (class)">Library</a></span>, <span class='object_link'><a href="Railgun/LibraryFunction.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::LibraryFunction (class)">LibraryFunction</a></span>, <span class='object_link'><a href="Railgun/LibraryWrapper.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::LibraryWrapper (class)">LibraryWrapper</a></span>, <span class='object_link'><a href="Railgun/MultiCaller.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller (class)">MultiCaller</a></span>, <span class='object_link'><a href="Railgun/Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun (class)">Railgun</a></span>, <span class='object_link'><a href="Railgun/Util.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Util (class)">Util</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="TLV_TYPE_EXTENSION_RAILGUN-constant" class="">TLV_TYPE_EXTENSION_RAILGUN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_SIZE_OUT-constant" class="">TLV_TYPE_RAILGUN_SIZE_OUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_STACKBLOB-constant" class="">TLV_TYPE_RAILGUN_STACKBLOB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BUFFERBLOB_IN-constant" class="">TLV_TYPE_RAILGUN_BUFFERBLOB_IN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>3</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT-constant" class="">TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT-constant" class="">TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT-constant" class="">TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>6</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BACK_RET-constant" class="">TLV_TYPE_RAILGUN_BACK_RET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>7</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BACK_ERR-constant" class="">TLV_TYPE_RAILGUN_BACK_ERR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>8</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_LIBNAME-constant" class="">TLV_TYPE_RAILGUN_LIBNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>9</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_FUNCNAME-constant" class="">TLV_TYPE_RAILGUN_FUNCNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>10</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_MULTI_GROUP-constant" class="">TLV_TYPE_RAILGUN_MULTI_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>11</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_MEM_ADDRESS-constant" class="">TLV_TYPE_RAILGUN_MEM_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>12</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_MEM_DATA-constant" class="">TLV_TYPE_RAILGUN_MEM_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>13</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_MEM_LENGTH-constant" class="">TLV_TYPE_RAILGUN_MEM_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>14</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_CALLCONV-constant" class="">TLV_TYPE_RAILGUN_CALLCONV =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>15</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_RAILGUN_BACK_MSG-constant" class="">TLV_TYPE_RAILGUN_BACK_MSG =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#TLV_TYPE_EXTENSION_RAILGUN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_EXTENSION_RAILGUN (constant)">TLV_TYPE_EXTENSION_RAILGUN</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>16</span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:39 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

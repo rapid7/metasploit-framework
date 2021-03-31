@@ -1,0 +1,3514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Client
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Client";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+     &raquo; 
+    <span class="title">Client</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Client
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Client</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">ChannelContainer</a></span>, <span class='object_link'><a href="PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span>, <span class='object_link'><a href="PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">PivotContainer</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/client.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class represents a logical meterpreter client class.  This class provides an interface that is compatible with the Rex post-exploitation interface in terms of the feature set that it attempts to expose.  This class is meant to drive a single meterpreter client session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="../../../Msf/Sessions/Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Msf::Sessions::Meterpreter</a></span></p>
+</div>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="ext_hash-classvariable" class="">@@ext_hash =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Extension name to class hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="ssl_cached_cert-classvariable" class="">@@ssl_cached_cert =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Cached auto-generated SSL certificate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="ssl_mutex-classvariable" class="">@@ssl_mutex =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Mutex to synchronize class-wide operations</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='op'>::</span><span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PacketDispatcher.html#PACKET_TIMEOUT-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PACKET_TIMEOUT (constant)">PacketDispatcher::PACKET_TIMEOUT</a></span>, <span class='object_link'><a href="PacketDispatcher.html#PING_TIME-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PING_TIME (constant)">PacketDispatcher::PING_TIME</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#alive-instance_method" title="#alive (instance method)">#<strong>alive</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether this session is alive.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#capabilities-instance_method" title="#capabilities (instance method)">#<strong>capabilities</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The libraries available to this meterpreter server.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#comm_timeout-instance_method" title="#comm_timeout (instance method)">#<strong>comm_timeout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Communication Timeout.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A list of the commands.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#conn_id-instance_method" title="#conn_id (instance method)">#<strong>conn_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Connection ID.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_unicode-instance_method" title="#encode_unicode (instance method)">#<strong>encode_unicode</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Flag indicating whether to hex-encode UTF-8 file names and other strings.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#expiration-instance_method" title="#expiration (instance method)">#<strong>expiration</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Session Expiration Timeout.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ext-instance_method" title="#ext (instance method)">#<strong>ext</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The extension alias under which all extensions can be accessed by name.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#ext_aliases-instance_method" title="#ext_aliases (instance method)">#<strong>ext_aliases</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_checkin-instance_method" title="#last_checkin (instance method)">#<strong>last_checkin</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The timestamp of the last received response.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#parser-instance_method" title="#parser (instance method)">#<strong>parser</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#passive_dispatcher-instance_method" title="#passive_dispatcher (instance method)">#<strong>passive_dispatcher</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Passive Dispatcher.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pivot_session-instance_method" title="#pivot_session (instance method)">#<strong>pivot_session</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reference to a session to pivot through.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#response_timeout-instance_method" title="#response_timeout (instance method)">#<strong>response_timeout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The timeout value to use when waiting for responses.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#retry_total-instance_method" title="#retry_total (instance method)">#<strong>retry_total</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The total time for retrying connections.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#retry_wait-instance_method" title="#retry_wait (instance method)">#<strong>retry_wait</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The time to wait between retry attempts.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_keepalives-instance_method" title="#send_keepalives (instance method)">#<strong>send_keepalives</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether to send pings every so often to determine liveness.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sock-instance_method" title="#sock (instance method)">#<strong>sock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The socket the client is communicating over.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl-instance_method" title="#ssl (instance method)">#<strong>ssl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use SSL (HTTPS).</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl_cert-instance_method" title="#ssl_cert (instance method)">#<strong>ssl_cert</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use this SSL Certificate (unified PEM).</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#target_id-instance_method" title="#target_id (instance method)">#<strong>target_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The unique target identifier for this payload.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#url-instance_method" title="#url (instance method)">#<strong>url</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The Connect URL.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PivotContainer.html#pivot_listeners-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_listeners (method)">#pivot_listeners</a></span>, <span class='object_link'><a href="PivotContainer.html#pivot_sessions-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_sessions (method)">#pivot_sessions</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ChannelContainer.html#channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#channels (method)">#channels</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PacketDispatcher.html#comm_mutex-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#comm_mutex (method)">#comm_mutex</a></span>, <span class='object_link'><a href="PacketDispatcher.html#dispatcher_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatcher_thread (method)">#dispatcher_thread</a></span>, <span class='object_link'><a href="PacketDispatcher.html#passive_service-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#passive_service (method)">#passive_service</a></span>, <span class='object_link'><a href="PacketDispatcher.html#receiver_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receiver_thread (method)">#receiver_thread</a></span>, <span class='object_link'><a href="PacketDispatcher.html#recv_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#recv_queue (method)">#recv_queue</a></span>, <span class='object_link'><a href="PacketDispatcher.html#send_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_queue (method)">#send_queue</a></span>, <span class='object_link'><a href="PacketDispatcher.html#session_guid-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#session_guid (method)">#session_guid</a></span>, <span class='object_link'><a href="PacketDispatcher.html#tlv_enc_key-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#tlv_enc_key (method)">#tlv_enc_key</a></span>, <span class='object_link'><a href="PacketDispatcher.html#waiters-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#waiters (method)">#waiters</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_ext_hash-class_method" title="check_ext_hash (class method)">.<strong>check_ext_hash</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks the extension hash to see if a class has already been associated with the supplied extension name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#default_timeout-class_method" title="default_timeout (class method)">.<strong>default_timeout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the default timeout that request packets will use when waiting for a response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lookup_error-class_method" title="lookup_error (class method)">.<strong>lookup_error</strong>(code)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Lookup the error that occurred.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_ext_hash-class_method" title="set_ext_hash (class method)">.<strong>set_ext_hash</strong>(name, klass)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stores the name to class association for the supplied extension name.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_extension-instance_method" title="#add_extension (instance method)">#<strong>add_extension</strong>(name, commands = [])  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads the client half of the supplied extension and initializes it as a registered extension that can be reached through <a href="extension">client.ext.</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup_meterpreter-instance_method" title="#cleanup_meterpreter (instance method)">#<strong>cleanup_meterpreter</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Cleans up the meterpreter instance, terminating the dispatcher thread.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deregister_extension-instance_method" title="#deregister_extension (instance method)">#<strong>deregister_extension</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deregisters an extension alias of the supplied name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deregister_extension_alias-instance_method" title="#deregister_extension_alias (instance method)">#<strong>deregister_extension_alias</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deregisters a previously registered extension alias.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dump_extension_tree-instance_method" title="#dump_extension_tree (instance method)">#<strong>dump_extension_tree</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Dumps the extension tree.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_extension-instance_method" title="#each_extension (instance method)">#<strong>each_extension</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates all of the loaded extensions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_ssl_context-instance_method" title="#generate_ssl_context (instance method)">#<strong>generate_ssl_context</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_meterpreter-instance_method" title="#init_meterpreter (instance method)">#<strong>init_meterpreter</strong>(sock, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the meterpreter client instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(sock, opts = {})  &#x21d2; Client </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the client context with the supplied socket through which communication with the server will be performed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method_missing-instance_method" title="#method_missing (instance method)">#<strong>method_missing</strong>(symbol, *args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Translates unhandled methods into registered extension aliases if a matching extension alias exists for the supplied symbol.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_extension_alias-instance_method" title="#register_extension_alias (instance method)">#<strong>register_extension_alias</strong>(name, ext)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers an aliased extension that can be referenced through client.name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_extension_aliases-instance_method" title="#register_extension_aliases (instance method)">#<strong>register_extension_aliases</strong>(aliases)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers zero or more aliases that are provided in an array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#swap_sock_plain_to_ssl-instance_method" title="#swap_sock_plain_to_ssl (instance method)">#<strong>swap_sock_plain_to_ssl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#swap_sock_ssl_to_plain-instance_method" title="#swap_sock_ssl_to_plain (instance method)">#<strong>swap_sock_ssl_to_plain</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unicode_filter_decode-instance_method" title="#unicode_filter_decode (instance method)">#<strong>unicode_filter_decode</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decodes (or not) a UTF-8 string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unicode_filter_encode-instance_method" title="#unicode_filter_encode (instance method)">#<strong>unicode_filter_encode</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Encodes (or not) a UTF-8 string.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PivotContainer.html#add_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_listener (method)">#add_pivot_listener</a></span>, <span class='object_link'><a href="PivotContainer.html#add_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_session (method)">#add_pivot_session</a></span>, <span class='object_link'><a href="PivotContainer.html#find_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_listener (method)">#find_pivot_listener</a></span>, <span class='object_link'><a href="PivotContainer.html#find_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_session (method)">#find_pivot_session</a></span>, <span class='object_link'><a href="PivotContainer.html#initialize_pivots-instance_method" title="Rex::Post::Meterpreter::PivotContainer#initialize_pivots (method)">#initialize_pivots</a></span>, <span class='object_link'><a href="PivotContainer.html#remove_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_listener (method)">#remove_pivot_listener</a></span>, <span class='object_link'><a href="PivotContainer.html#remove_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_session (method)">#remove_pivot_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ChannelContainer.html#add_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#add_channel (method)">#add_channel</a></span>, <span class='object_link'><a href="ChannelContainer.html#find_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#find_channel (method)">#find_channel</a></span>, <span class='object_link'><a href="ChannelContainer.html#initialize_channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#initialize_channels (method)">#initialize_channels</a></span>, <span class='object_link'><a href="ChannelContainer.html#remove_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#remove_channel (method)">#remove_channel</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PacketDispatcher.html#add_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#add_response_waiter (method)">#add_response_waiter</a></span>, <span class='object_link'><a href="PacketDispatcher.html#decrypt_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#decrypt_inbound_packet (method)">#decrypt_inbound_packet</a></span>, <span class='object_link'><a href="PacketDispatcher.html#deregister_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#deregister_inbound_handler (method)">#deregister_inbound_handler</a></span>, <span class='object_link'><a href="PacketDispatcher.html#dispatch_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatch_inbound_packet (method)">#dispatch_inbound_packet</a></span>, <span class='object_link'><a href="PacketDispatcher.html#initialize_inbound_handlers-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_inbound_handlers (method)">#initialize_inbound_handlers</a></span>, <span class='object_link'><a href="PacketDispatcher.html#initialize_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_passive_dispatcher (method)">#initialize_passive_dispatcher</a></span>, <span class='object_link'><a href="PacketDispatcher.html#keepalive-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#keepalive (method)">#keepalive</a></span>, <span class='object_link'><a href="PacketDispatcher.html#monitor_socket-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_socket (method)">#monitor_socket</a></span>, <span class='object_link'><a href="PacketDispatcher.html#monitor_stop-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_stop (method)">#monitor_stop</a></span>, <span class='object_link'><a href="PacketDispatcher.html#notify_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#notify_response_waiter (method)">#notify_response_waiter</a></span>, <span class='object_link'><a href="PacketDispatcher.html#on_passive_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#on_passive_request (method)">#on_passive_request</a></span>, <span class='object_link'><a href="PacketDispatcher.html#pivot_keepalive_start-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#pivot_keepalive_start (method)">#pivot_keepalive_start</a></span>, <span class='object_link'><a href="PacketDispatcher.html#receive_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receive_packet (method)">#receive_packet</a></span>, <span class='object_link'><a href="PacketDispatcher.html#register_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#register_inbound_handler (method)">#register_inbound_handler</a></span>, <span class='object_link'><a href="PacketDispatcher.html#remove_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#remove_response_waiter (method)">#remove_response_waiter</a></span>, <span class='object_link'><a href="PacketDispatcher.html#send_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet (method)">#send_packet</a></span>, <span class='object_link'><a href="PacketDispatcher.html#send_packet_wait_response-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet_wait_response (method)">#send_packet_wait_response</a></span>, <span class='object_link'><a href="PacketDispatcher.html#send_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_request (method)">#send_request</a></span>, <span class='object_link'><a href="PacketDispatcher.html#shutdown_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#shutdown_passive_dispatcher (method)">#shutdown_passive_dispatcher</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(sock, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Client (class)">Client</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the client context with the supplied socket through which communication with the server will be performed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_init_meterpreter'>init_meterpreter</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice this">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+  </p>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="method_missing-instance_method">
+  
+    #<strong>method_missing</strong>(symbol, *args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Translates unhandled methods into registered extension aliases if a matching extension alias exists for the supplied symbol.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+303
+304
+305
+306</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 303</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_symbol'>symbol</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'>#$stdout.puts(&quot;method_missing: #{symbol}&quot;)
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext_aliases'>ext_aliases</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='lbracket'>[</span><span class='id identifier rubyid_symbol'>symbol</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="alive=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="alive-instance_method">
+  
+    #<strong>alive</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether this session is alive.  If the socket is disconnected or broken, this will be false</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+436
+437
+438</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 436</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_alive'>alive</span>
+  <span class='ivar'>@alive</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="capabilities=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="capabilities-instance_method">
+  
+    #<strong>capabilities</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The libraries available to this meterpreter server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444
+445
+446</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 444</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_capabilities'>capabilities</span>
+  <span class='ivar'>@capabilities</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="comm_timeout=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="comm_timeout-instance_method">
+  
+    #<strong>comm_timeout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The Communication Timeout</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+468
+469
+470</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 468</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_comm_timeout'>comm_timeout</span>
+  <span class='ivar'>@comm_timeout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="commands=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A list of the commands</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+492
+493
+494</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 492</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='ivar'>@commands</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="conn_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="conn_id-instance_method">
+  
+    #<strong>conn_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The Connection ID</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+448
+449
+450</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 448</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_conn_id'>conn_id</span>
+  <span class='ivar'>@conn_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="encode_unicode=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="encode_unicode-instance_method">
+  
+    #<strong>encode_unicode</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Flag indicating whether to hex-encode UTF-8 file names and other strings</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+488
+489
+490</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 488</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_unicode'>encode_unicode</span>
+  <span class='ivar'>@encode_unicode</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="expiration=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="expiration-instance_method">
+  
+    #<strong>expiration</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The Session Expiration Timeout</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+464
+465
+466</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 464</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_expiration'>expiration</span>
+  <span class='ivar'>@expiration</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ext=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ext-instance_method">
+  
+    #<strong>ext</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The extension alias under which all extensions can be accessed by name. For example:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_stdapi'>stdapi</span>
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+419
+420
+421</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 419</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ext'>ext</span>
+  <span class='ivar'>@ext</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ext_aliases=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ext_aliases-instance_method">
+  
+    #<strong>ext_aliases</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+499
+500
+501</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 499</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ext_aliases'>ext_aliases</span>
+  <span class='ivar'>@ext_aliases</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="last_checkin=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="last_checkin-instance_method">
+  
+    #<strong>last_checkin</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The timestamp of the last received response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+496
+497
+498</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 496</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_last_checkin'>last_checkin</span>
+  <span class='ivar'>@last_checkin</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="parser=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="parser-instance_method">
+  
+    #<strong>parser</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+499
+500
+501</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 499</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parser'>parser</span>
+  <span class='ivar'>@parser</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="passive_dispatcher=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="passive_dispatcher-instance_method">
+  
+    #<strong>passive_dispatcher</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The Passive Dispatcher</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+480
+481
+482</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 480</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_passive_dispatcher'>passive_dispatcher</span>
+  <span class='ivar'>@passive_dispatcher</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pivot_session=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pivot_session-instance_method">
+  
+    #<strong>pivot_session</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reference to a session to pivot through</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+484
+485
+486</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 484</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pivot_session'>pivot_session</span>
+  <span class='ivar'>@pivot_session</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="response_timeout=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="response_timeout-instance_method">
+  
+    #<strong>response_timeout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The timeout value to use when waiting for responses.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+427
+428
+429</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 427</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_response_timeout'>response_timeout</span>
+  <span class='ivar'>@response_timeout</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="retry_total=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="retry_total-instance_method">
+  
+    #<strong>retry_total</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The total time for retrying connections</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+472
+473
+474</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 472</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_retry_total'>retry_total</span>
+  <span class='ivar'>@retry_total</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="retry_wait=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="retry_wait-instance_method">
+  
+    #<strong>retry_wait</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The time to wait between retry attempts</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+476
+477
+478</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 476</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_retry_wait'>retry_wait</span>
+  <span class='ivar'>@retry_wait</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="send_keepalives=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="send_keepalives-instance_method">
+  
+    #<strong>send_keepalives</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether to send pings every so often to determine liveness.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+431
+432
+433</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 431</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_keepalives'>send_keepalives</span>
+  <span class='ivar'>@send_keepalives</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sock=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sock-instance_method">
+  
+    #<strong>sock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The socket the client is communicating over.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+423
+424
+425</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 423</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='ivar'>@sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ssl=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ssl-instance_method">
+  
+    #<strong>ssl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use SSL (HTTPS)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+456
+457
+458</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 456</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl'>ssl</span>
+  <span class='ivar'>@ssl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ssl_cert=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ssl_cert-instance_method">
+  
+    #<strong>ssl_cert</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use this SSL Certificate (unified PEM)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+460
+461
+462</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 460</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl_cert'>ssl_cert</span>
+  <span class='ivar'>@ssl_cert</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="target_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="target_id-instance_method">
+  
+    #<strong>target_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The unique target identifier for this payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440
+441
+442</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 440</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_target_id'>target_id</span>
+  <span class='ivar'>@target_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="url=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="url-instance_method">
+  
+    #<strong>url</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The Connect URL</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+452
+453
+454</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 452</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_url'>url</span>
+  <span class='ivar'>@url</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_ext_hash-class_method">
+  
+    .<strong>check_ext_hash</strong>(name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks the extension hash to see if a class has already been associated with the supplied extension name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_check_ext_hash'>check_ext_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='cvar'>@@ext_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="default_timeout-class_method">
+  
+    .<strong>default_timeout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the default timeout that request packets will use when waiting for a response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+289
+290
+291</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 289</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Client (class)">Client</a></span></span><span class='period'>.</span><span class='id identifier rubyid_default_timeout'>default_timeout</span>
+  <span class='kw'>return</span> <span class='int'>300</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lookup_error-class_method">
+  
+    .<strong>lookup_error</strong>(code)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Lookup the error that occurred</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lookup_error'>lookup_error</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_code'>code</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_ext_hash-class_method">
+  
+    .<strong>set_ext_hash</strong>(name, klass)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stores the name to class association for the supplied extension name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_set_ext_hash'>set_ext_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+  <span class='cvar'>@@ext_hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_extension-instance_method">
+  
+    #<strong>add_extension</strong>(name, commands = [])  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads the client half of the supplied extension and initializes it as a registered extension that can be reached through <a href="extension">client.ext.</a>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 318</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_extension'>add_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_commands'>commands</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_commands'>commands</span><span class='rparen'>)</span>
+
+  <span class='comment'># Check to see if this extension has already been loaded.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_check_ext_hash'>check_ext_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_klass'><span class='object_link'><a href="ExtensionMapper.html#get_extension_klass-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_klass (method)">get_extension_klass</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='comment'># Save the module name to class association now that the code is
+</span>    <span class='comment'># loaded.
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_set_ext_hash'>set_ext_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span> <span class='id identifier rubyid_klass'>klass</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Create a new instance of the extension
+</span>  <span class='id identifier rubyid_inst'>inst</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='lbracket'>[</span><span class='id identifier rubyid_inst'>inst</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_inst'>inst</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup_meterpreter-instance_method">
+  
+    #<strong>cleanup_meterpreter</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Cleans up the meterpreter instance, terminating the dispatcher thread.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup_meterpreter'>cleanup_meterpreter</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_remove_pivot_session'>remove_pivot_session</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_guid'>session_guid</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_sessions'>pivot_sessions</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='id identifier rubyid_pivot'>pivot</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_sessions'>pivot_sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_pivot'>pivot</span><span class='period'>.</span><span class='id identifier rubyid_pivoted_session'>pivoted_session</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Pivot closed</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pivot'>pivot</span><span class='period'>.</span><span class='id identifier rubyid_pivoted_session'>pivoted_session</span><span class='period'>.</span><span class='id identifier rubyid_shutdown_passive_dispatcher'>shutdown_passive_dispatcher</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_skip_cleanup'>skip_cleanup</span>
+    <span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_extension'>extension</span> <span class='op'>|</span>
+      <span class='id identifier rubyid_extension'>extension</span><span class='period'>.</span><span class='id identifier rubyid_cleanup'>cleanup</span> <span class='kw'>if</span> <span class='id identifier rubyid_extension'>extension</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cleanup</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>if</span> <span class='id identifier rubyid_dispatcher_thread'>dispatcher_thread</span>
+
+  <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_skip_cleanup'>skip_cleanup</span>
+    <span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_shutdown_passive_dispatcher'>shutdown_passive_dispatcher</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deregister_extension-instance_method">
+  
+    #<strong>deregister_extension</strong>(name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deregisters an extension alias of the supplied name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+340
+341
+342</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 340</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deregister_extension'>deregister_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deregister_extension_alias-instance_method">
+  
+    #<strong>deregister_extension_alias</strong>(name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deregisters a previously registered extension alias.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+383
+384
+385</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 383</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deregister_extension_alias'>deregister_extension_alias</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext_aliases'>ext_aliases</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dump_extension_tree-instance_method">
+  
+    #<strong>dump_extension_tree</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Dumps the extension tree.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+390
+391
+392
+393
+394
+395
+396</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 390</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dump_extension_tree'>dump_extension_tree</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_items'>items</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_items'>items</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_dump_alias_tree'>dump_alias_tree</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>client.ext</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_items'>items</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext_aliases'>ext_aliases</span><span class='period'>.</span><span class='id identifier rubyid_dump_alias_tree'>dump_alias_tree</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>client</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_items'>items</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_extension-instance_method">
+  
+    #<strong>each_extension</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates all of the loaded extensions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+347
+348
+349</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 347</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_extension'>each_extension</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_ssl_context-instance_method">
+  
+    #<strong>generate_ssl_context</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_ssl_context'>generate_ssl_context</span>
+
+  <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+
+    <span class='comment'># Load a custom SSL certificate if one has been specified
+</span>    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssl_cert'>ssl_cert</span>
+      <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loading custom SSL certificate for Meterpreter session</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>SslTcpServer</span><span class='period'>.</span><span class='id identifier rubyid_ssl_parse_pem'>ssl_parse_pem</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssl_cert'>ssl_cert</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loaded custom SSL certificate for Meterpreter session</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Generate a certificate if necessary and cache it
+</span>    <span class='kw'>if</span> <span class='op'>!</span> <span class='cvar'>@@ssl_cached_cert</span>
+      <span class='cvar'>@@ssl_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Generating SSL certificate for Meterpreter sessions</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='cvar'>@@ssl_cached_cert</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>SslTcpServer</span><span class='period'>.</span><span class='id identifier rubyid_ssl_generate_certificate'>ssl_generate_certificate</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Generated SSL certificate for Meterpreter sessions</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Use the cached certificate
+</span>    <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span> <span class='op'>=</span> <span class='cvar'>@@ssl_cached_cert</span>
+    <span class='kw'>break</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Create a new context for each session
+</span>  <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLContext</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_extra_chain_cert'>extra_chain_cert</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl_cert_info'>ssl_cert_info</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_session_id_context'>session_id_context</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text'>rand_text</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ctx'>ctx</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_meterpreter-instance_method">
+  
+    #<strong>init_meterpreter</strong>(sock, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the meterpreter client instance</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_meterpreter'>init_meterpreter</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>         <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_parser'>parser</span>       <span class='op'>=</span> <span class='const'><span class='object_link'><a href="PacketParser.html" title="Rex::Post::Meterpreter::PacketParser (class)">PacketParser</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="PacketParser.html#initialize-instance_method" title="Rex::Post::Meterpreter::PacketParser#initialize (method)">new</a></span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span>          <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ObjectAliases.html" title="Rex::Post::Meterpreter::ObjectAliases (class)">ObjectAliases</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ObjectAliases.html#initialize-instance_method" title="Rex::Post::Meterpreter::ObjectAliases#initialize (method)">new</a></span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext_aliases'>ext_aliases</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="ObjectAliases.html" title="Rex::Post::Meterpreter::ObjectAliases (class)">ObjectAliases</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ObjectAliases.html#initialize-instance_method" title="Rex::Post::Meterpreter::ObjectAliases#initialize (method)">new</a></span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span>        <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_target_id'>target_id</span>    <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:target_id</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_capabilities'>capabilities</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:capabilities</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span>     <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_checkin'>last_checkin</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span>      <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:conn_id</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_url'>url</span>          <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:url</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssl'>ssl</span>          <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pivot_session</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_expiration'>expiration</span>   <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_expiration'>expiration</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_comm_timeout'>comm_timeout</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_comm_timeout'>comm_timeout</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_retry_total'>retry_total</span>  <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_retry_total'>retry_total</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_retry_wait'>retry_wait</span>   <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_retry_wait'>retry_wait</span>
+  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_expiration'>expiration</span>   <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:expiration</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_comm_timeout'>comm_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:comm_timeout</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_retry_total'>retry_total</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_total</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_retry_wait'>retry_wait</span>   <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_wait</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_passive_dispatcher'>passive_dispatcher</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:passive_dispatcher</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_default_timeout'>default_timeout</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send_keepalives'>send_keepalives</span>  <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># TODO: Clarify why we don&#39;t allow unicode to be set in initial options
+</span>  <span class='comment'># self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_unicode'>encode_unicode</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_aes_key'>aes_key</span>      <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_guid'>session_guid</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session_guid</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>16</span>
+
+  <span class='comment'># The SSL certificate is being passed down as a file path
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_cert</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='op'>!</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_cert</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSL certificate at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_cert</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist and will be ignored</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># Load the certificate the same way that SslTcpServer does it
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssl_cert'>ssl_cert</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_cert</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Protocol specific dispatch mixins go here, this may be neader with explicit Client classes
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:dispatch_ext</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_dx'>dx</span><span class='op'>|</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='id identifier rubyid_dx'>dx</span><span class='rparen'>)</span><span class='rbrace'>}</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:dispatch_ext</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_initialize_passive_dispatcher'>initialize_passive_dispatcher</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:passive_dispatcher</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_register_extension_alias'>register_extension_alias</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="ClientCore.html" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ClientCore.html#initialize-instance_method" title="Rex::Post::Meterpreter::ClientCore#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_initialize_inbound_handlers'>initialize_inbound_handlers</span>
+  <span class='id identifier rubyid_initialize_channels'>initialize_channels</span>
+  <span class='id identifier rubyid_initialize_pivots'>initialize_pivots</span>
+
+  <span class='comment'># Register the channel and pivot inbound packet handlers
+</span>  <span class='id identifier rubyid_register_inbound_handler'>register_inbound_handler</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Channel</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_inbound_handler'>register_inbound_handler</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Pivot.html" title="Rex::Post::Meterpreter::Pivot (class)">Pivot</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_monitor_socket'>monitor_socket</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_extension_alias-instance_method">
+  
+    #<strong>register_extension_alias</strong>(name, ext)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers an aliased extension that can be referenced through client.name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 355</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_extension_alias'>register_extension_alias</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_ext'>ext</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ext_aliases'>ext_aliases</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ext'>ext</span>
+  <span class='comment'># Whee!  Syntactic sugar, where art thou?
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Create an instance method on this object called +name+ that returns
+</span>  <span class='comment'># +ext+.  We have to do it this way instead of simply
+</span>  <span class='comment'># self.class.class_eval so that other meterpreter sessions don&#39;t get
+</span>  <span class='comment'># extension methods when this one does
+</span>  <span class='lparen'>(</span><span class='kw'>class</span> <span class='op'>&lt;&lt;</span> <span class='kw'>self</span><span class='semicolon'>;</span> <span class='kw'>self</span><span class='semicolon'>;</span> <span class='kw'>end</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_class_eval'>class_eval</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_define_method'>define_method</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_ext'>ext</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_ext'>ext</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_extension_aliases-instance_method">
+  
+    #<strong>register_extension_aliases</strong>(aliases)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers zero or more aliases that are provided in an array.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+374
+375
+376
+377
+378</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 374</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_extension_aliases'>register_extension_aliases</span><span class='lparen'>(</span><span class='id identifier rubyid_aliases'>aliases</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span>
+    <span class='id identifier rubyid_register_extension_alias'>register_extension_alias</span><span class='lparen'>(</span><span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ext</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="swap_sock_plain_to_ssl-instance_method">
+  
+    #<strong>swap_sock_plain_to_ssl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 185</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_swap_sock_plain_to_ssl'>swap_sock_plain_to_ssl</span>
+  <span class='comment'># Create a new SSL session on the existing socket
+</span>  <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_ssl_context'>generate_ssl_context</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ssl'>ssl</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLSocket</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='rparen'>)</span>
+
+  <span class='comment'># Use non-blocking OpenSSL operations on Windows
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span> <span class='id identifier rubyid_ssl'>ssl</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:accept_nonblock</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Compat</span><span class='period'>.</span><span class='id identifier rubyid_is_windows'>is_windows</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_ssl'>ssl</span><span class='period'>.</span><span class='id identifier rubyid_accept'>accept</span>
+  <span class='kw'>else</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_ssl'>ssl</span><span class='period'>.</span><span class='id identifier rubyid_accept_nonblock'>accept_nonblock</span>
+
+    <span class='comment'># Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
+</span>    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EAGAIN</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EWOULDBLOCK</span>
+        <span class='const'><span class='object_link'><a href="../IO.html" title="Rex::Post::IO (class)">IO</a></span></span><span class='op'>::</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.10</span><span class='rparen'>)</span>
+        <span class='kw'>retry</span>
+
+    <span class='comment'># Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
+</span>    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='kw'>if</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WaitReadable</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>WaitReadable</span><span class='rparen'>)</span>
+        <span class='const'><span class='object_link'><a href="../IO.html" title="Rex::Post::IO (class)">IO</a></span></span><span class='op'>::</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_ssl'>ssl</span> <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.10</span> <span class='rparen'>)</span>
+        <span class='kw'>retry</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>if</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WaitWritable</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>WaitWritable</span><span class='rparen'>)</span>
+        <span class='const'><span class='object_link'><a href="../IO.html" title="Rex::Post::IO (class)">IO</a></span></span><span class='op'>::</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_ssl'>ssl</span> <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.10</span> <span class='rparen'>)</span>
+        <span class='kw'>retry</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>SslTcp</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslsock'>sslsock</span> <span class='op'>=</span> <span class='id identifier rubyid_ssl'>ssl</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslctx'>sslctx</span>  <span class='op'>=</span> <span class='id identifier rubyid_ctx'>ctx</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslhash'>sslhash</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_sha1_raw'>sha1_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_tag'>tag</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>30</span><span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_tag'>tag</span> <span class='kw'>or</span> <span class='id identifier rubyid_tag'>tag</span> <span class='op'>!~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^GET \/</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not read the HTTP hello token</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="swap_sock_ssl_to_plain-instance_method">
+  
+    #<strong>swap_sock_ssl_to_plain</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 229</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_swap_sock_ssl_to_plain'>swap_sock_ssl_to_plain</span>
+  <span class='comment'># Remove references to the SSLSocket and Context
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslsock'>sslsock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslsock'>sslsock</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslctx'>sslctx</span>  <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslhash'>sslhash</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Tcp</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unicode_filter_decode-instance_method">
+  
+    #<strong>unicode_filter_decode</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decodes (or not) a UTF-8 string</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+408
+409
+410</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 408</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_unicode'>encode_unicode</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_str'>str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unicode_filter_encode-instance_method">
+  
+    #<strong>unicode_filter_encode</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Encodes (or not) a UTF-8 string</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+401
+402
+403</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client.rb', line 401</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_unicode'>encode_unicode</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='id identifier rubyid_str'>str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:51 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

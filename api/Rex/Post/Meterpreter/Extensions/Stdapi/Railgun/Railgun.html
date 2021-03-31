@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun (module)">Railgun</a></span></span>
+     &raquo; 
+    <span class="title">Railgun</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The Railgun class to dynamically expose the Windows API.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="BUILTIN_LIBRARIES-constant" class="">BUILTIN_LIBRARIES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Railgun::Library&#39;s that have builtin definitions.</p>
+
+<p>If you want to add additional library definitions to be preloaded create a definition class &#39;rex/post/meterpreter/extensions/stdapi/railgun/def/$platform/&#39;. Naming is important and should follow convention.  For example, if your library&#39;s name was “my_library” file name:    def_my_library.rb class name:   Def_my_library entry below: &#39;my_library&#39;</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>libc</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>libc</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>libobjc</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntdll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>iphlpapi</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>advapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>netapi32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>crypt32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wlanapi</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wldap32</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>version</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>psapi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+<span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span></pre></dd>
+      
+        <dt id="cached_libraries-classvariable" class="">@@cached_libraries =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>These libraries are loaded lazily and then shared amongst all railgun instances. For safety reasons this variable should only be read/written within #get_library.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span><span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="cache_semaphore-classvariable" class="">@@cache_semaphore =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>if you are going to touch @@cached_libraries, wear protection</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Contains a reference to the client that corresponds to this instance of railgun.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#libraries-instance_method" title="#libraries (instance method)">#<strong>libraries</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a Hash containing libraries added to this instance with #add_library as well as references to any frozen cached libraries added directly in #get_library and copies of any frozen libraries (added directly with #add_function) that the user attempted to modify with #add_function.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#builtin_libraries-class_method" title="builtin_libraries (class method)">.<strong>builtin_libraries</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_function-instance_method" title="#add_function (instance method)">#<strong>add_function</strong>(lib_name, function_name, return_type, params, remote_name = nil, calling_conv = &#39;stdcall&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a function to an existing library definition.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_library-instance_method" title="#add_library (instance method)">#<strong>add_library</strong>(lib_name, remote_name = lib_name)  &#x21d2; Object </a>
+    
+
+    
+      (also: #add_dll)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a library to this Railgun.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#api_constants-instance_method" title="#api_constants (instance method)">#<strong>api_constants</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return this Railgun&#39;s platform specific ApiConstants class.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#const-instance_method" title="#const (instance method)">#<strong>const</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a constant matching <code>str</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#constant_manager-instance_method" title="#constant_manager (instance method)">#<strong>constant_manager</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return this Railgun&#39;s ConstManager instance, initially populated with constants defined in ApiConstants.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_library-instance_method" title="#get_library (instance method)">#<strong>get_library</strong>(lib_name)  &#x21d2; Object </a>
+    
+
+    
+      (also: #get_dll)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempts to provide a library instance of the given name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Railgun </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Railgun.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#known_library_names-instance_method" title="#known_library_names (instance method)">#<strong>known_library_names</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#memread-instance_method" title="#memread (instance method)">#<strong>memread</strong>(address, length)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Read data from a memory address on the host (useful for working with LPVOID parameters).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#memwrite-instance_method" title="#memwrite (instance method)">#<strong>memwrite</strong>(address, data, length = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Write data to a memory address on the host (useful for working with LPVOID parameters).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method_missing-instance_method" title="#method_missing (instance method)">#<strong>method_missing</strong>(lib_symbol, *args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Fake having members like user32 and kernel32.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#multi-instance_method" title="#multi (instance method)">#<strong>multi</strong>(functions)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The multi-call shorthand ([“kernel32”, “ExitProcess”, [0]]).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#util-instance_method" title="#util (instance method)">#<strong>util</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return this Railgun&#39;s Util instance.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun (class)">Railgun</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Railgun.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_libraries'>libraries</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice this">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+  </p>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="method_missing-instance_method">
+  
+    #<strong>method_missing</strong>(lib_symbol, *args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Fake having members like user32 and kernel32. reason is that</p>
+
+<pre class="code ruby"><code class="ruby"><span class='op'>...</span><span class='id identifier rubyid_user32'>user32</span><span class='period'>.</span><span class='const'>MessageBoxW</span><span class='lparen'>(</span><span class='rparen'>)</span>
+</code></pre>
+
+<p>is prettier than</p>
+
+<pre class="code ruby"><code class="ruby">...libraries[&quot;user32&quot;].functions[&quot;MessageBoxW&quot;]()
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 293</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_symbol'>lib_symbol</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lib_name'>lib_name</span> <span class='op'>=</span> <span class='id identifier rubyid_lib_symbol'>lib_symbol</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_known_library_names'>known_library_names</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_lib_name'>lib_name</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Library </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> not found. Known libraries: </span><span class='embexpr_beg'>#{</span><span class='const'>PP</span><span class='period'>.</span><span class='id identifier rubyid_pp'>pp</span><span class='lparen'>(</span><span class='id identifier rubyid_known_library_names'>known_library_names</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lib'>lib</span> <span class='op'>=</span> <span class='id identifier rubyid_get_library'>get_library</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="LibraryWrapper.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::LibraryWrapper (class)">LibraryWrapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="LibraryWrapper.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::LibraryWrapper#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_lib'>lib</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Contains a reference to the client that corresponds to this instance of railgun</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="libraries=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="libraries-instance_method">
+  
+    #<strong>libraries</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a Hash containing libraries added to this instance with #add_library as well as references to any frozen cached libraries added directly in #get_library and copies of any frozen libraries (added directly with #add_function) that the user attempted to modify with #add_function.</p>
+
+<p>Keys are friendly library names and values are the corresponding library instance</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_libraries'>libraries</span>
+  <span class='ivar'>@libraries</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="builtin_libraries-class_method">
+  
+    .<strong>builtin_libraries</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_builtin_libraries'>builtin_libraries</span>
+  <span class='const'><span class='object_link'><a href="#BUILTIN_LIBRARIES-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_LIBRARIES (constant)">BUILTIN_LIBRARIES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_function-instance_method">
+  
+    #<strong>add_function</strong>(lib_name, function_name, return_type, params, remote_name = nil, calling_conv = &#39;stdcall&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a function to an existing library definition.</p>
+
+<p>If the library definition is frozen (ideally this should be the case for all cached libraries) an unfrozen copy is created and used henceforth for this instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 206</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_function'>add_function</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='comma'>,</span> <span class='id identifier rubyid_function_name'>function_name</span><span class='comma'>,</span> <span class='id identifier rubyid_return_type'>return_type</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_remote_name'>remote_name</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_calling_conv'>calling_conv</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdcall</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_known_library_names'>known_library_names</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Library </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> not found. Known libraries: </span><span class='embexpr_beg'>#{</span><span class='const'>PP</span><span class='period'>.</span><span class='id identifier rubyid_pp'>pp</span><span class='lparen'>(</span><span class='id identifier rubyid_known_library_names'>known_library_names</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lib'>lib</span> <span class='op'>=</span> <span class='id identifier rubyid_get_library'>get_library</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rparen'>)</span>
+
+  <span class='comment'># For backwards compatibility, we ensure the library is thawed
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_lib'>lib</span><span class='period'>.</span><span class='id identifier rubyid_frozen?'>frozen?</span>
+    <span class='comment'># Duplicate not only the library, but its functions as well, frozen status will be lost
+</span>    <span class='id identifier rubyid_lib'>lib</span> <span class='op'>=</span> <span class='const'>Marshal</span><span class='period'>.</span><span class='id identifier rubyid_load'>load</span><span class='lparen'>(</span><span class='const'>Marshal</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_lib'>lib</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Update local libraries with the modifiable duplicate
+</span>    <span class='id identifier rubyid_libraries'>libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_lib'>lib</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lib'>lib</span><span class='period'>.</span><span class='id identifier rubyid_add_function'>add_function</span><span class='lparen'>(</span><span class='id identifier rubyid_function_name'>function_name</span><span class='comma'>,</span> <span class='id identifier rubyid_return_type'>return_type</span><span class='comma'>,</span> <span class='id identifier rubyid_params'>params</span><span class='comma'>,</span> <span class='id identifier rubyid_remote_name'>remote_name</span><span class='comma'>,</span> <span class='id identifier rubyid_calling_conv'>calling_conv</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_library-instance_method">
+  
+    #<strong>add_library</strong>(lib_name, remote_name = lib_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='add_dll-instance_method'>add_dll</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a library to this Railgun.</p>
+
+<p>The <code>remote_name</code> is the name used on the remote system and should be set appropriately if you want to include a path or the library name contains non-ruby-approved characters.</p>
+
+<p>Raises an exception if a library with the given name has already been defined.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_library'>add_library</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='comma'>,</span> <span class='id identifier rubyid_remote_name'>remote_name</span><span class='op'>=</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_libraries'>libraries</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='id identifier rubyid_lib_name'>lib_name</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A library of name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> has already been loaded.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_libraries'>libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Library.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Library (class)">Library</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Library.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Library#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_remote_name'>remote_name</span><span class='comma'>,</span> <span class='id identifier rubyid_constant_manager'>constant_manager</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="api_constants-instance_method">
+  
+    #<strong>api_constants</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return this Railgun&#39;s platform specific ApiConstants class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144
+145
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_api_constants'>api_constants</span>
+  <span class='kw'>if</span> <span class='ivar'>@api_constants</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rex/post/meterpreter/extensions/stdapi/railgun/def/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>/api_constants</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@api_constants</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Def.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Def (module)">Def</a></span></span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DefApiConstants_</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='ivar'>@api_constants</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="const-instance_method">
+  
+    #<strong>const</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a constant matching <code>str</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+308
+309
+310</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 308</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_const'>const</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_constant_manager'>constant_manager</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="constant_manager-instance_method">
+  
+    #<strong>constant_manager</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return this Railgun&#39;s ConstManager instance, initially populated with constants defined in ApiConstants.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_constant_manager'>constant_manager</span>
+  <span class='comment'># Loads lazily
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_api_constants'>api_constants</span><span class='period'>.</span><span class='id identifier rubyid_manager'>manager</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_library-instance_method">
+  
+    #<strong>get_library</strong>(lib_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='get_dll-instance_method'>get_dll</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Attempts to provide a library instance of the given name. Handles lazy loading and caching. Note that if a library of the given name does not exist then nil is returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 253</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_library'>get_library</span><span class='lparen'>(</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rparen'>)</span>
+  <span class='comment'># If the library is not local, we now either load it from cache or load it
+</span>  <span class='comment'># lazily. In either case, a reference to the library is stored in the
+</span>  <span class='comment'># collection &quot;libraries&quot;. If the library can not be found/created, no
+</span>  <span class='comment'># actions are taken.
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_libraries'>libraries</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='id identifier rubyid_lib_name'>lib_name</span>
+    <span class='comment'># use a platform-specific name for caching to avoid conflicts with
+</span>    <span class='comment'># libraries that exist on multiple platforms, e.g. libc.
+</span>    <span class='id identifier rubyid_cached_lib_name'>cached_lib_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># We read and write to @@cached_libraries and rely on state consistency
+</span>    <span class='cvar'>@@cache_semaphore</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='kw'>if</span> <span class='cvar'>@@cached_libraries</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='id identifier rubyid_cached_lib_name'>cached_lib_name</span>
+        <span class='id identifier rubyid_libraries'>libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='cvar'>@@cached_libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_cached_lib_name'>cached_lib_name</span><span class='rbracket'>]</span>
+      <span class='kw'>elsif</span> <span class='const'><span class='object_link'><a href="#BUILTIN_LIBRARIES-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_LIBRARIES (constant)">BUILTIN_LIBRARIES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_lib_name'>lib_name</span>
+        <span class='comment'># I highly doubt this case will ever occur, but I am paranoid
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_lib_name'>lib_name</span> <span class='op'>!~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\w+$</span><span class='regexp_end'>/</span></span>
+          <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Library name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> is bad. Correct Railgun::BUILTIN_LIBRARIES[&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;]</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rex/post/meterpreter/extensions/stdapi/railgun/def/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>/def_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_lib'>lib</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Def.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Def (module)">Def</a></span></span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Def_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_create_library'>create_library</span><span class='lparen'>(</span><span class='id identifier rubyid_constant_manager'>constant_manager</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+
+        <span class='cvar'>@@cached_libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_cached_lib_name'>cached_lib_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_lib'>lib</span>
+        <span class='id identifier rubyid_libraries'>libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_lib'>lib</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_libraries'>libraries</span><span class='lbracket'>[</span><span class='id identifier rubyid_lib_name'>lib_name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="known_library_names-instance_method">
+  
+    #<strong>known_library_names</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+244
+245
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 244</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_known_library_names'>known_library_names</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="#BUILTIN_LIBRARIES-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_LIBRARIES (constant)">BUILTIN_LIBRARIES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rbracket'>]</span> <span class='op'>|</span> <span class='id identifier rubyid_libraries'>libraries</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="memread-instance_method">
+  
+    #<strong>memread</strong>(address, length)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Read data from a memory address on the host (useful for working with LPVOID parameters)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 164</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_memread'>memread</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='comma'>,</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid parameters.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_address'>address</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_RAILGUN_MEMREAD-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_MEMREAD (constant)">COMMAND_ID_STDAPI_RAILGUN_MEMREAD</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_ADDRESS (constant)">TLV_TYPE_RAILGUN_MEM_ADDRESS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_address'>address</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_LENGTH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_LENGTH (constant)">TLV_TYPE_RAILGUN_MEM_LENGTH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_DATA (constant)">TLV_TYPE_RAILGUN_MEM_DATA</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="memwrite-instance_method">
+  
+    #<strong>memwrite</strong>(address, data, length = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Write data to a memory address on the host (useful for working with LPVOID parameters)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 185</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_memwrite'>memwrite</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_length'>length</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='kw'>if</span> <span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid parameters.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_address'>address</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_data'>data</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_RAILGUN_MEMWRITE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_RAILGUN_MEMWRITE (constant)">COMMAND_ID_STDAPI_RAILGUN_MEMWRITE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_ADDRESS (constant)">TLV_TYPE_RAILGUN_MEM_ADDRESS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_address'>address</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_DATA (constant)">TLV_TYPE_RAILGUN_MEM_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Railgun.html#TLV_TYPE_RAILGUN_MEM_LENGTH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::TLV_TYPE_RAILGUN_MEM_LENGTH (constant)">TLV_TYPE_RAILGUN_MEM_LENGTH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="multi-instance_method">
+  
+    #<strong>multi</strong>(functions)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The multi-call shorthand ([“kernel32”, “ExitProcess”, [0]])</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+315
+316
+317
+318
+319
+320
+321</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 315</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_multi'>multi</span><span class='lparen'>(</span><span class='id identifier rubyid_functions'>functions</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@multicaller</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@multicaller</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="MultiCaller.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller (class)">MultiCaller</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="MultiCaller.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::MultiCaller#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_constant_manager'>constant_manager</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='ivar'>@multicaller</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_functions'>functions</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="util-instance_method">
+  
+    #<strong>util</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return this Railgun&#39;s Util instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_util'>util</span>
+  <span class='kw'>if</span> <span class='ivar'>@util</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@util</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Util.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Util (class)">Util</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Util.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Util#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='ivar'>@util</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Payloads::Win32::Kernel
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Payloads::Win32::Kernel";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (K)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payloads.html" title="Rex::Payloads (module)">Payloads</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Win32.html" title="Rex::Payloads::Win32 (module)">Win32</a></span></span>
+     &raquo; 
+    <span class="title">Kernel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Payloads::Win32::Kernel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/payloads/win32/kernel.rb<span class="defines">,<br />
+  lib/rex/payloads/win32/kernel/common.rb,<br /> lib/rex/payloads/win32/kernel/stager.rb,<br /> lib/rex/payloads/win32/kernel/recovery.rb,<br /> lib/rex/payloads/win32/kernel/migration.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Kernel/Common.html" title="Rex::Payloads::Win32::Kernel::Common (module)">Common</a></span>, <span class='object_link'><a href="Kernel/Migration.html" title="Rex::Payloads::Win32::Kernel::Migration (module)">Migration</a></span>, <span class='object_link'><a href="Kernel/Recovery.html" title="Rex::Payloads::Win32::Kernel::Recovery (module)">Recovery</a></span>, <span class='object_link'><a href="Kernel/Stager.html" title="Rex::Payloads::Win32::Kernel::Stager (module)">Stager</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#construct-class_method" title="construct (class method)">.<strong>construct</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Constructs a kernel-mode payload using the supplied options.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="construct-class_method">
+  
+    .<strong>construct</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Constructs a kernel-mode payload using the supplied options.  The options can be:</p>
+
+<p>Recovery      : The recovery method to use, such as &#39;spin&#39;. Stager        : The stager method to use, such as &#39;sud_syscall_hook&#39;. RecoveryStub  : The recovery stub that should be used, if any. UserModeStub  : The user-mode payload to execute, if any. KernelModeStub: The kernel-mode payload to execute, if any.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/payloads/win32/kernel.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_construct'>construct</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Generate the recovery stub
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Recovery</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Recovery.html" title="Rex::Payloads::Win32::Kernel::Recovery (module)">Recovery</a></span></span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Recovery</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RecoveryStub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Recovery.html" title="Rex::Payloads::Win32::Kernel::Recovery (module)">Recovery</a></span></span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Recovery</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Append supplied recovery stub information in case there is some
+</span>  <span class='comment'># context specific recovery that must be done.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendRecoveryStub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RecoveryStub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RecoveryStub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendRecoveryStub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Generate the stager
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stager</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Stager.html" title="Rex::Payloads::Win32::Kernel::Stager (module)">Stager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stager</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Stager.html" title="Rex::Payloads::Win32::Kernel::Stager (module)">Stager</a></span></span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stager</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='comment'># Or, generate the migrator
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Migrator</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Migration.html" title="Rex::Payloads::Win32::Kernel::Migration (module)">Migration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Migrator</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Rex::Payloads::Win32::Kernel (module)">Kernel</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Kernel/Migration.html" title="Rex::Payloads::Win32::Kernel::Migration (module)">Migration</a></span></span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Migrator</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A stager or a migrator must be specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_payload'>payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:37 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::IPMI
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::IPMI";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Proto.html" title="Rex::Proto (module)">Proto</a></span></span>
+     &raquo; 
+    <span class="title">IPMI</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::IPMI
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/ipmi.rb<span class="defines">,<br />
+  lib/rex/proto/ipmi/rakp2.rb,<br /> lib/rex/proto/ipmi/utils.rb,<br /> lib/rex/proto/ipmi/channel_auth_reply.rb,<br /> lib/rex/proto/ipmi/open_session_reply.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="IPMI/Channel_Auth_Reply.html" title="Rex::Proto::IPMI::Channel_Auth_Reply (class)">Channel_Auth_Reply</a></span>, <span class='object_link'><a href="IPMI/Open_Session_Reply.html" title="Rex::Proto::IPMI::Open_Session_Reply (class)">Open_Session_Reply</a></span>, <span class='object_link'><a href="IPMI/RAKP2.html" title="Rex::Proto::IPMI::RAKP2 (class)">RAKP2</a></span>, <span class='object_link'><a href="IPMI/RAKP2_Data.html" title="Rex::Proto::IPMI::RAKP2_Data (class)">RAKP2_Data</a></span>, <span class='object_link'><a href="IPMI/Session_Data.html" title="Rex::Proto::IPMI::Session_Data (class)">Session_Data</a></span>, <span class='object_link'><a href="IPMI/Utils.html" title="Rex::Proto::IPMI::Utils (class)">Utils</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="PAYLOAD_IPMI-constant" class="">PAYLOAD_IPMI =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Payload types were identified from xCAT-server source code (IPMI.pm)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="PAYLOAD_SOL-constant" class="">PAYLOAD_SOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="PAYLOAD_RMCPPLUSOPEN_REQ-constant" class="">PAYLOAD_RMCPPLUSOPEN_REQ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x10</span></pre></dd>
+      
+        <dt id="PAYLOAD_RMCPPLUSOPEN_REP-constant" class="">PAYLOAD_RMCPPLUSOPEN_REP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x11</span></pre></dd>
+      
+        <dt id="PAYLOAD_RAKP1-constant" class="">PAYLOAD_RAKP1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x12</span></pre></dd>
+      
+        <dt id="PAYLOAD_RAKP2-constant" class="">PAYLOAD_RAKP2 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x13</span></pre></dd>
+      
+        <dt id="PAYLOAD_RAKP3-constant" class="">PAYLOAD_RAKP3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x14</span></pre></dd>
+      
+        <dt id="PAYLOAD_RAKP4-constant" class="">PAYLOAD_RAKP4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x15</span></pre></dd>
+      
+        <dt id="RMCP_ERRORS-constant" class="">RMCP_ERRORS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Payload types were copied from xCAT-server source code (IPMI.pm)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='int'>1</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Insufficient resources to create new session (wait for existing sessions to timeout)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>2</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Session ID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'>#this shouldn&#39;t occur...
+</span>  <span class='int'>3</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid payload type</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='comment'>#shouldn&#39;t occur..
+</span>  <span class='int'>4</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid authentication algorithm</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'>#if this happens, we need to enhance our mechanism for detecting supported auth algorithms
+</span>  <span class='int'>5</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid integrity algorithm</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'>#same as above
+</span>  <span class='int'>6</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No matching authentication payload</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>7</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No matching integrity payload</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>8</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Inactive Session ID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'>#this suggests the session was timed out while trying to negotiate, shouldn&#39;t happen
+</span>  <span class='int'>9</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid role</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xa</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unauthorised role or privilege level requested</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xb</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Insufficient resources to create a session at the requested role</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xc</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid username length</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xd</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unauthorized name</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xe</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unauthorized GUID</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0xf</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid integrity check value</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0x10</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid confidentiality algorithm</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0x11</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No cipher suite match with proposed security algorithms</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='int'>0x12</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Illegal or unrecognized parameter</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='comment'>#have never observed this, would most likely mean a bug in xCAT or IPMI device
+</span><span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:36 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

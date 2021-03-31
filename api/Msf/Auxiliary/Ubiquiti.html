@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::Ubiquiti
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::Ubiquiti";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">Ubiquiti</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::Ubiquiti
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/ubiquiti.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods for working with Ubiquiti equipment</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bson_to_json-instance_method" title="#bson_to_json (instance method)">#<strong>bson_to_json</strong>(byte_buffer)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decrypt_unf-instance_method" title="#decrypt_unf (instance method)">#<strong>decrypt_unf</strong>(contents)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extract_and_process_db-instance_method" title="#extract_and_process_db (instance method)">#<strong>extract_and_process_db</strong>(db_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_admin-instance_method" title="#process_admin (instance method)">#<strong>process_admin</strong>(lines, credential_data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example BSON lines “collection”=&gt;“admin” “name”=&gt;“adminuser”, “email”=&gt;“admin@admin.com”, “x_shadow”=&gt;“$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.”, “time_created”=&gt;1551825823, “last_site_name”=&gt;“default”, “ubic_name”=&gt;“admin@admin.com”, “ubic_uuid”=&gt;“c23da064-3f4d-282f-1dc9-7e25f9c6812c”, “ui_settings”=&gt;{“dashboardConfig”=&gt;{“lastActiveDashboardId”=&gt;“2c7f2d213813ce2487d1ac38”, “dashboards”=&gt;{“3c7f678a3815ce2021d1d9c7”=&gt;{“order”=&gt;1, “5b4f2d269115ce2087d1abb9”=&gt;{}}}}}.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_device-instance_method" title="#process_device (instance method)">#<strong>process_device</strong>(lines, _)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example lines “collection”=&gt;“device” “ip” =&gt; “5.5.5.5”, “mac” =&gt; “cc:cc:cc:cc:cc:cc”, “model” =&gt; “UGW3”, “type” =&gt; “ugw”, “version” =&gt; “4.4.44.5213844”, “adopted” =&gt; true, “site_id” =&gt; “5aaaaaabaaaaae1117d1d1b6”, “x_authkey” =&gt; “eaaaaaaa63e59ab89c111e11d6e11aa1”, “cfgversion” =&gt; “aaa4b11b1df1a111”, “config_network” =&gt; {“type” =&gt; “dhcp”, “ip” =&gt; “1.1.1.1”, “license_state” =&gt; “registered”, “two_phase_adopt” =&gt; false, “unsupported” =&gt; false, “unsupported_reason” =&gt; 0, “x_fingerprint” =&gt; “aa:aa:11:aa:11:11:11:11:11:11:11:11:11:11:11:11”, “x_ssh_hostkey” =&gt; “MIIBIjANBgkAhkiG9w0AAQEFAAOCAQ8AMIIBCgKCAQEAAU4S/7r548xvtGuHlgAAAKzkrL+t97ZWAZru8wQFbltEB4111HiIAkzt041td8V+P7c1bQtn3YQdViAuH2h2sgt8feAvMWo56OskAoDvHwAEv5AWqmPKy/xmKbdfgA5wTzvSztPGFA4QuOuA1YxQICf1MgpoOtplAAA31JxAYF/t7n8qgvJlm1JRv2AAAZHHtSiz1IaxzOO9LAAAqCfHvHugPcZYk2yAAAP7JrnnR1fAVj9F4aaYaA0eSjvDTAglykXHCbh1EWAAAecqHZ/SWn9cjmuAAArZxxG6m6Eu/aj9we82/PmtKzQGN0RWUsgrxajQowtNpVsNTnaOglUsfQIDAAAA”, “x_ssh_hostkey_fingerprint” =&gt; “11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11”, “inform_url” =&gt; “<a href="http://1.1.2.2:8080/inform">1.1.2.2:8080/inform</a>”, “inform_ip” =&gt; “1.1.1.1”, “serial” =&gt; “AAAAAAAAAAAA”, “required_version” =&gt; “4.0.0”, “ethernet_table” =&gt; [{ “mac” =&gt; “b4:fb:e4:cc:cc:cc”, “num_port” =&gt; 1, “name” =&gt; “eth0”}, =&gt; “b4:fb:e4:bb:bb:bb”, “num_port” =&gt; 1, “name” =&gt; “eth1”, =&gt; “b4:fb:e4:aa:aa:aa”, “num_port” =&gt; 1, “name” =&gt; “eth2”], “fw_caps” =&gt; 184323, “hw_caps” =&gt; 0, “usg_caps” =&gt; 786431, “board_rev” =&gt; 16, “x_aes_gcm” =&gt; true, “ethernet_overrides” =&gt; [=&gt; “eth1”, “networkgroup” =&gt; “LAN”, =&gt; “eth0”, “networkgroup” =&gt; “WAN”], “led_override” =&gt; “default”, “led_override_color” =&gt; “#0000ff”, “led_override_color_brightness” =&gt; 100, “outdoor_mode_override” =&gt; “default”, “name” =&gt; “USG”, “map_id” =&gt; “1a111c2e1111ce2087d1e199”, “x” =&gt; -22.11111198630405, “y” =&gt; -41.1111113859866, “heightInMeters” =&gt; 2.4}.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_firewallgroup-instance_method" title="#process_firewallgroup (instance method)">#<strong>process_firewallgroup</strong>(lines, _)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example lines “collection”=&gt;“firewallgroup” “name” =&gt; “Cameras”, “group_type” =&gt; “address-group”, “group_members” =&gt; [“1.1.1.1”], “site_id” =&gt; “5c7f111b3815ce208aaa111a”.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_firewallrule-instance_method" title="#process_firewallrule (instance method)">#<strong>process_firewallrule</strong>(lines, _)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example BSON lines “collection”=&gt;“firewallrule” “ruleset” =&gt; “WAN_OUT”, “rule_index” =&gt; “2000”, “name” =&gt; “Block Example”, “enabled” =&gt; true, “action” =&gt; “reject”, “protocol_match_excepted” =&gt; false, “logging” =&gt; false, “state_new” =&gt; false, “state_established” =&gt; false, “state_invalid” =&gt; false, “state_related” =&gt; false, “ipsec” =&gt; “”, “src_firewallgroup_ids” =&gt; [“1a1c15a11111ce14b1f1111a”], “src_mac_address” =&gt; “”, “dst_firewallgroup_ids” =&gt; [], “dst_address” =&gt; “”, “src_address” =&gt; “”, “protocol” =&gt; “all”, “icmp_typename” =&gt; “”, “src_networkconf_id” =&gt; “”, “src_networkconf_type” =&gt; “NETv4”, “dst_networkconf_id” =&gt; “”, “dst_networkconf_type” =&gt; “NETv4”, “site_id” =&gt; “1c1f208b3815ce1111a1a1a1”.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_radiusprofile-instance_method" title="#process_radiusprofile (instance method)">#<strong>process_radiusprofile</strong>(lines, credential_data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example BSON lines “collection”=&gt;“radiusprofile” “attr_no_delete”=&gt;true, “attr_hidden_id”=&gt;“Default”, “name”=&gt;“Default”, “site_id”=&gt;“3c7f226b2315be2087a1d5b2”, “use_usg_auth_server”=&gt;true, “auth_servers”=&gt;[{“ip”=&gt;“192.168.0.1”, “port”=&gt;1812, “x_secret”=&gt;“”], “acct_servers”=&gt;[]}.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_setting-instance_method" title="#process_setting (instance method)">#<strong>process_setting</strong>(lines, credential_data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example lines “collection”=&gt;“setting” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“ntp”, “ntp_server_1”=&gt;“0.ubnt.pool.ntp.org”, “ntp_server_2”=&gt;“1.ubnt.pool.ntp.org”, “ntp_server_3”=&gt;“2.ubnt.pool.ntp.org”, “ntp_server_4”=&gt;“3.ubnt.pool.ntp.org” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“mgmt”, “advanced_feature_enabled”=&gt;false, “x_ssh_enabled”=&gt;true, “x_ssh_bind_wildcard”=&gt;false, “x_ssh_auth_password_enabled”=&gt;true, “unifi_idp_enabled”=&gt;true, “x_mgmt_key”=&gt;“ba6cbe170f8276cd86b24ac79ab29afc”, “x_ssh_username”=&gt;“admin”, “x_ssh_password”=&gt;“16xoB6F2UyAcU6fP”, “x_ssh_keys”=&gt;[], “x_ssh_sha512passwd”=&gt;“$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“connectivity”, “enabled”=&gt;true, “uplink_type”=&gt;“gateway”, “x_mesh_essid”=&gt;“vwire-851237d214c8c6ba”, “x_mesh_psk”=&gt;“523a9b872b4624c7894f96c3ae22cdfa” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“snmp”, “community”: “public”, “enabled”: true, “enabledV3”: true, “username”: “usernamesnmpv3”, “x_password”: “passwordsnmpv3”.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_user-instance_method" title="#process_user (instance method)">#<strong>process_user</strong>(lines, _)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example lines “collection”=&gt;“user” “mac” =&gt; “00:0c:29:11:aa:11”, “site_id” =&gt; “5c7f111b1111aa2087d11111”, “oui” =&gt; “Vmware”, “is_guest” =&gt; false, “first_seen” =&gt; 1551111161, “last_seen” =&gt; 1561621747, “is_wired” =&gt; true, “hostname” =&gt; “android”, “usergroup_id” =&gt; “”, “name” =&gt; “example device”, “noted” =&gt; true, “use_fixedip” =&gt;  true, “network_id” =&gt; “1c7f111a1115aa2087aaa9aa”, “fixed_ip” =&gt; “7.7.7.7”.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_wlanconf-instance_method" title="#process_wlanconf (instance method)">#<strong>process_wlanconf</strong>(lines, credential_data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Example lines “collection”=&gt;“wlanconf” “enabled” =&gt; true, “security” =&gt; “wpapsk”, “wep_idx” =&gt; 1, “wpa_mode” =&gt; “wpa2”, “wpa_enc” =&gt; “ccmp”, “usergroup_id” =&gt; “5a7f111a3815ce1111a1d1c3”, “dtim_mode” =&gt; “default”, “dtim_ng” =&gt; 1, “dtim_na” =&gt; 1, “minrate_ng_enabled” =&gt; false, “minrate_ng_advertising_rates” =&gt; false, “minrate_ng_data_rate_kbps” =&gt; 1000, “minrate_ng_cck_rates_enabled” =&gt; true, “minrate_na_enabled” =&gt; false, “minrate_na_advertising_rates” =&gt; false, “minrate_na_data_rate_kbps” =&gt; 6000, “mac_filter_enabled” =&gt; false, “mac_filter_policy” =&gt; “allow”, “mac_filter_list” =&gt; [], “bc_filter_enabled” =&gt; false, “bc_filter_list” =&gt; [], “group_rekey” =&gt; 3600, “name” =&gt; “ssid_name”, “x_passphrase” =&gt; “supersecret”, “wlangroup_id” =&gt; “5c7f208c3815ce2087d1d9c4”, “schedule” =&gt; [], “minrate_ng_mgmt_rate_kbps” =&gt; 1000, “minrate_na_mgmt_rate_kbps” =&gt; 6000, “minrate_ng_beacon_rate_kbps” =&gt; 1000, “minrate_na_beacon_rate_kbps” =&gt; 6000, “site_id” =&gt; “5c7f208b3815ce2087d1d9b6”, “x_iapp_key” =&gt; “d11a1c86df1111be86aaa69e8aa1c57f”, “no2ghz_oui” =&gt; true.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#repair_zip-instance_method" title="#repair_zip (instance method)">#<strong>repair_zip</strong>(fname)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unifi_config_eater-instance_method" title="#unifi_config_eater (instance method)">#<strong>unifi_config_eater</strong>(thost, tport, config)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Report.html#active_db%3F-instance_method" title="Msf::Auxiliary::Report#active_db? (method)">#active_db?</a></span>, <span class='object_link'><a href="Report.html#create_cracked_credential-instance_method" title="Msf::Auxiliary::Report#create_cracked_credential (method)">#create_cracked_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential-instance_method" title="Msf::Auxiliary::Report#create_credential (method)">#create_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential_and_login-instance_method" title="Msf::Auxiliary::Report#create_credential_and_login (method)">#create_credential_and_login</a></span>, <span class='object_link'><a href="Report.html#create_credential_login-instance_method" title="Msf::Auxiliary::Report#create_credential_login (method)">#create_credential_login</a></span>, <span class='object_link'><a href="Report.html#db-instance_method" title="Msf::Auxiliary::Report#db (method)">#db</a></span>, <span class='object_link'><a href="Report.html#db_warning_given%3F-instance_method" title="Msf::Auxiliary::Report#db_warning_given? (method)">#db_warning_given?</a></span>, <span class='object_link'><a href="Report.html#get_client-instance_method" title="Msf::Auxiliary::Report#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="Report.html#get_host-instance_method" title="Msf::Auxiliary::Report#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="Report.html#inside_workspace_boundary%3F-instance_method" title="Msf::Auxiliary::Report#inside_workspace_boundary? (method)">#inside_workspace_boundary?</a></span>, <span class='object_link'><a href="Report.html#invalidate_login-instance_method" title="Msf::Auxiliary::Report#invalidate_login (method)">#invalidate_login</a></span>, <span class='object_link'><a href="Report.html#mytask-instance_method" title="Msf::Auxiliary::Report#mytask (method)">#mytask</a></span>, <span class='object_link'><a href="Report.html#myworkspace-instance_method" title="Msf::Auxiliary::Report#myworkspace (method)">#myworkspace</a></span>, <span class='object_link'><a href="Report.html#myworkspace_id-instance_method" title="Msf::Auxiliary::Report#myworkspace_id (method)">#myworkspace_id</a></span>, <span class='object_link'><a href="Report.html#report_auth_info-instance_method" title="Msf::Auxiliary::Report#report_auth_info (method)">#report_auth_info</a></span>, <span class='object_link'><a href="Report.html#report_client-instance_method" title="Msf::Auxiliary::Report#report_client (method)">#report_client</a></span>, <span class='object_link'><a href="Report.html#report_exploit-instance_method" title="Msf::Auxiliary::Report#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="Report.html#report_host-instance_method" title="Msf::Auxiliary::Report#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="Report.html#report_loot-instance_method" title="Msf::Auxiliary::Report#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="Report.html#report_note-instance_method" title="Msf::Auxiliary::Report#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="Report.html#report_service-instance_method" title="Msf::Auxiliary::Report#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="Report.html#report_vuln-instance_method" title="Msf::Auxiliary::Report#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="Report.html#report_web_form-instance_method" title="Msf::Auxiliary::Report#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="Report.html#report_web_page-instance_method" title="Msf::Auxiliary::Report#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="Report.html#report_web_site-instance_method" title="Msf::Auxiliary::Report#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="Report.html#report_web_vuln-instance_method" title="Msf::Auxiliary::Report#report_web_vuln (method)">#report_web_vuln</a></span>, <span class='object_link'><a href="Report.html#store_cred-instance_method" title="Msf::Auxiliary::Report#store_cred (method)">#store_cred</a></span>, <span class='object_link'><a href="Report.html#store_local-instance_method" title="Msf::Auxiliary::Report#store_local (method)">#store_local</a></span>, <span class='object_link'><a href="Report.html#store_loot-instance_method" title="Msf::Auxiliary::Report#store_loot (method)">#store_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">#optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_require_metasploit_db_gem_engines-class_method" title="Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines (method)">optionally_require_metasploit_db_gem_engines</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="bson_to_json-instance_method">
+  
+    #<strong>bson_to_json</strong>(byte_buffer)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bson_to_json'>bson_to_json</span><span class='lparen'>(</span><span class='id identifier rubyid_byte_buffer'>byte_buffer</span><span class='rparen'>)</span>
+  <span class='comment'># This function takes a byte buffer (db file from Unifi read in), which is a bson string
+</span>  <span class='comment'># it then converts it to JSON, where it uses the &#39;select collection&#39; documents
+</span>  <span class='comment'># as keys.  For instance a bson that contained the follow (displayed in json
+</span>  <span class='comment'># for ease):
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;heatmap&quot;}
+</span>  <span class='comment'># {&#39;example&#39;=&gt;&#39;example&#39;}
+</span>  <span class='comment'># {&#39;example2&#39;=&gt;&#39;example2&#39;}
+</span>  <span class='comment'># would become:
+</span>  <span class='comment'># {&#39;heatmap&#39;=&gt;[{&#39;example&#39;=&gt;&#39;example&#39;}, {&#39;example2&#39;=&gt;&#39;example2&#39;}]}
+</span>  <span class='comment'># this is mainly done to ease the grouping of items for easy navigation later.
+</span>
+  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='const'>BSON</span><span class='op'>::</span><span class='const'>ByteBuffer</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_byte_buffer'>byte_buffer</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>while</span> <span class='id identifier rubyid_buf'>buf</span>
+    <span class='kw'>begin</span>
+      <span class='comment'># read the document from the buffer
+</span>      <span class='id identifier rubyid_bson'>bson</span> <span class='op'>=</span> <span class='const'>BSON</span><span class='op'>::</span><span class='const'>Document</span><span class='period'>.</span><span class='id identifier rubyid_from_bson'>from_bson</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_bson'>bson</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__cmd</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_bson'>bson</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>collection</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_bson'>bson</span>
+    <span class='kw'>rescue</span> <span class='const'>RangeError</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decrypt_unf-instance_method">
+  
+    #<strong>decrypt_unf</strong>(contents)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decrypt_unf'>decrypt_unf</span><span class='lparen'>(</span><span class='id identifier rubyid_contents'>contents</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_aes'>aes</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aes-128-cbc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bcyangkmluohmars</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># https://github.com/zhangyoufu/unifi-backup-decrypt/blob/master/E&gt;
+</span>  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_padding'>padding</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_decrypt'>decrypt</span>
+  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_iv'>iv</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ubntenterpriseap</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_aes'>aes</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_contents'>contents</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="extract_and_process_db-instance_method">
+  
+    #<strong>extract_and_process_db</strong>(db_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extract_and_process_db'>extract_and_process_db</span><span class='lparen'>(</span><span class='id identifier rubyid_db_path'>db_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='const'>Zip</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_db_path'>db_path</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_zip_file'>zip_file</span><span class='op'>|</span>
+    <span class='comment'># Handle entries one by one
+</span>    <span class='id identifier rubyid_zip_file'>zip_file</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_entry'>entry</span><span class='op'>|</span>
+      <span class='comment'># Extract to file
+</span>      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_entry'>entry</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>db.gz</span><span class='tstring_end'>&#39;</span></span>
+
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>extracting db.gz</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_gz'>gz</span> <span class='op'>=</span> <span class='const'>Zlib</span><span class='op'>::</span><span class='const'>GzipReader</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_entry'>entry</span><span class='period'>.</span><span class='id identifier rubyid_get_input_stream'>get_input_stream</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='id identifier rubyid_gz'>gz</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+      <span class='id identifier rubyid_gz'>gz</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_f'>f</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_admin-instance_method">
+  
+    #<strong>process_admin</strong>(lines, credential_data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example BSON lines “collection”=&gt;“admin” “name”=&gt;“adminuser”, “email”=&gt;“admin@admin.com”, “x_shadow”=&gt;“$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.”, “time_created”=&gt;1551825823, “last_site_name”=&gt;“default”, “ubic_name”=&gt;“admin@admin.com”, “ubic_uuid”=&gt;“c23da064-3f4d-282f-1dc9-7e25f9c6812c”, “ui_settings”=&gt;{“dashboardConfig”=&gt;{“lastActiveDashboardId”=&gt;“2c7f2d213813ce2487d1ac38”, “dashboards”=&gt;{“3c7f678a3815ce2021d1d9c7”=&gt;{“order”=&gt;1, “5b4f2d269115ce2087d1abb9”=&gt;{}}}}}</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_admin'>process_admin</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_admin_name'>admin_name</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_admin_email'>admin_email</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>email</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_shadow</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Admin user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> with email </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_email'>admin_email</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with password hash </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+    <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_name'>admin_name</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:nonreplayable_hash</span>
+    <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_device-instance_method">
+  
+    #<strong>process_device</strong>(lines, _)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example lines “collection”=&gt;“device” “ip” =&gt; “5.5.5.5”, “mac” =&gt; “cc:cc:cc:cc:cc:cc”, “model” =&gt; “UGW3”, “type” =&gt; “ugw”, “version” =&gt; “4.4.44.5213844”, “adopted” =&gt; true, “site_id” =&gt; “5aaaaaabaaaaae1117d1d1b6”, “x_authkey” =&gt; “eaaaaaaa63e59ab89c111e11d6e11aa1”, “cfgversion” =&gt; “aaa4b11b1df1a111”, “config_network” =&gt; {“type” =&gt; “dhcp”, “ip” =&gt; “1.1.1.1”, “license_state” =&gt; “registered”, “two_phase_adopt” =&gt; false, “unsupported” =&gt; false, “unsupported_reason” =&gt; 0, “x_fingerprint” =&gt; “aa:aa:11:aa:11:11:11:11:11:11:11:11:11:11:11:11”, “x_ssh_hostkey” =&gt; “MIIBIjANBgkAhkiG9w0AAQEFAAOCAQ8AMIIBCgKCAQEAAU4S/7r548xvtGuHlgAAAKzkrL+t97ZWAZru8wQFbltEB4111HiIAkzt041td8V+P7c1bQtn3YQdViAuH2h2sgt8feAvMWo56OskAoDvHwAEv5AWqmPKy/xmKbdfgA5wTzvSztPGFA4QuOuA1YxQICf1MgpoOtplAAA31JxAYF/t7n8qgvJlm1JRv2AAAZHHtSiz1IaxzOO9LAAAqCfHvHugPcZYk2yAAAP7JrnnR1fAVj9F4aaYaA0eSjvDTAglykXHCbh1EWAAAecqHZ/SWn9cjmuAAArZxxG6m6Eu/aj9we82/PmtKzQGN0RWUsgrxajQowtNpVsNTnaOglUsfQIDAAAA”, “x_ssh_hostkey_fingerprint” =&gt; “11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11”, “inform_url” =&gt; “<a href="http://1.1.2.2:8080/inform">1.1.2.2:8080/inform</a>”, “inform_ip” =&gt; “1.1.1.1”, “serial” =&gt; “AAAAAAAAAAAA”, “required_version” =&gt; “4.0.0”, “ethernet_table” =&gt; [{ “mac” =&gt; “b4:fb:e4:cc:cc:cc”, “num_port” =&gt; 1, “name” =&gt; “eth0”}, =&gt; “b4:fb:e4:bb:bb:bb”, “num_port” =&gt; 1, “name” =&gt; “eth1”, =&gt; “b4:fb:e4:aa:aa:aa”, “num_port” =&gt; 1, “name” =&gt; “eth2”], “fw_caps” =&gt; 184323, “hw_caps” =&gt; 0, “usg_caps” =&gt; 786431, “board_rev” =&gt; 16, “x_aes_gcm” =&gt; true, “ethernet_overrides” =&gt; [=&gt; “eth1”, “networkgroup” =&gt; “LAN”, =&gt; “eth0”, “networkgroup” =&gt; “WAN”], “led_override” =&gt; “default”, “led_override_color” =&gt; “#0000ff”, “led_override_color_brightness” =&gt; 100, “outdoor_mode_override” =&gt; “default”, “name” =&gt; “USG”, “map_id” =&gt; “1a111c2e1111ce2087d1e199”, “x” =&gt; -22.11111198630405, “y” =&gt; -41.1111113859866, “heightInMeters” =&gt; 2.4}</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 297</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_device'>process_device</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+      <span class='label'>host:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>name:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>mac:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>os_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ubiquiti Unifi</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unifi Device </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> of model </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>model</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_firewallgroup-instance_method">
+  
+    #<strong>process_firewallgroup</strong>(lines, _)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example lines “collection”=&gt;“firewallgroup” “name” =&gt; “Cameras”, “group_type” =&gt; “address-group”, “group_members” =&gt; [“1.1.1.1”], “site_id” =&gt; “5c7f111b3815ce208aaa111a”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+288
+289
+290
+291
+292</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 288</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_firewallgroup'>process_firewallgroup</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Firewall Group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, group type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>group_type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, members: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>group_members</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_firewallrule-instance_method">
+  
+    #<strong>process_firewallrule</strong>(lines, _)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example BSON lines “collection”=&gt;“firewallrule” “ruleset” =&gt; “WAN_OUT”, “rule_index” =&gt; “2000”, “name” =&gt; “Block Example”, “enabled” =&gt; true, “action” =&gt; “reject”, “protocol_match_excepted” =&gt; false, “logging” =&gt; false, “state_new” =&gt; false, “state_established” =&gt; false, “state_invalid” =&gt; false, “state_related” =&gt; false, “ipsec” =&gt; “”, “src_firewallgroup_ids” =&gt; [“1a1c15a11111ce14b1f1111a”], “src_mac_address” =&gt; “”, “dst_firewallgroup_ids” =&gt; [], “dst_address” =&gt; “”, “src_address” =&gt; “”, “protocol” =&gt; “all”, “icmp_typename” =&gt; “”, “src_networkconf_id” =&gt; “”, “src_networkconf_type” =&gt; “NETv4”, “dst_networkconf_id” =&gt; “”, “dst_networkconf_type” =&gt; “NETv4”, “site_id” =&gt; “1c1f208b3815ce1111a1a1a1”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 143</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_firewallrule'>process_firewallrule</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_rule'>rule</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>action</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> dst addresses: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> dst group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> src addresses: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> src group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> protocol: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>protocol</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> Firewall Rule &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rule'>rule</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_radiusprofile-instance_method">
+  
+    #<strong>process_radiusprofile</strong>(lines, credential_data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example BSON lines “collection”=&gt;“radiusprofile” “attr_no_delete”=&gt;true, “attr_hidden_id”=&gt;“Default”, “name”=&gt;“Default”, “site_id”=&gt;“3c7f226b2315be2087a1d5b2”, “use_usg_auth_server”=&gt;true, “auth_servers”=&gt;[{“ip”=&gt;“192.168.0.1”, “port”=&gt;1812, “x_secret”=&gt;“”], “acct_servers”=&gt;[]}</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_radiusprofile'>process_radiusprofile</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>auth_servers</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_server'>server</span><span class='op'>|</span>
+      <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span>
+        <span class='label'>host:</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>port:</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>radius</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='label'>proto:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='comment'># no need to output if the secret is blank, therefore its not configured
+</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Radius server: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with secret &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:address</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_setting-instance_method">
+  
+    #<strong>process_setting</strong>(lines, credential_data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example lines “collection”=&gt;“setting” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“ntp”, “ntp_server_1”=&gt;“0.ubnt.pool.ntp.org”, “ntp_server_2”=&gt;“1.ubnt.pool.ntp.org”, “ntp_server_3”=&gt;“2.ubnt.pool.ntp.org”, “ntp_server_4”=&gt;“3.ubnt.pool.ntp.org” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“mgmt”, “advanced_feature_enabled”=&gt;false, “x_ssh_enabled”=&gt;true, “x_ssh_bind_wildcard”=&gt;false, “x_ssh_auth_password_enabled”=&gt;true, “unifi_idp_enabled”=&gt;true, “x_mgmt_key”=&gt;“ba6cbe170f8276cd86b24ac79ab29afc”, “x_ssh_username”=&gt;“admin”, “x_ssh_password”=&gt;“16xoB6F2UyAcU6fP”, “x_ssh_keys”=&gt;[], “x_ssh_sha512passwd”=&gt;“$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“connectivity”, “enabled”=&gt;true, “uplink_type”=&gt;“gateway”, “x_mesh_essid”=&gt;“vwire-851237d214c8c6ba”, “x_mesh_psk”=&gt;“523a9b872b4624c7894f96c3ae22cdfa” “site_id”=&gt;“3c2f215b3825ca2087c1dfb6”, “key”=&gt;“snmp”, “community”: “public”, “enabled”: true, “enabledV3”: true, “username”: “usernamesnmpv3”, “x_password”: “passwordsnmpv3”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_setting'>process_setting</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>161</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='comment'># throw away
+</span>      <span class='kw'>end</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SNMP v2 </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='kw'>end</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SNMP v3 </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabledV3</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connectivity</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Mesh Wifi Network </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_essid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_psk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_essid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_psk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_4</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ntp'>ntp</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ends_with?'>ends_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ubnt.pool.ntp.org</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span>
+          <span class='label'>host:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='label'>port:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>123</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+          <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+          <span class='label'>proto:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTP Server: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mgmt</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_admin_name'>admin_name</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_sha512passwd</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_admin_password'>admin_password</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSH user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password'>admin_password</span><span class='embexpr_end'>}</span><span class='tstring_content'> and hash </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_keys</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSH user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with SSH key: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_name'>admin_name</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:nonreplayable_hash</span>
+      <span class='id identifier rubyid_login'>login</span> <span class='op'>=</span> <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_login'>login</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_admin_password'>admin_password</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+        <span class='id identifier rubyid_create_cracked_credential'>create_cracked_credential</span><span class='lparen'>(</span><span class='label'>username:</span> <span class='id identifier rubyid_admin_name'>admin_name</span><span class='comma'>,</span> <span class='label'>password:</span> <span class='id identifier rubyid_admin_password'>admin_password</span><span class='comma'>,</span> <span class='label'>core_id:</span> <span class='id identifier rubyid_login'>login</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_user-instance_method">
+  
+    #<strong>process_user</strong>(lines, _)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example lines “collection”=&gt;“user” “mac” =&gt; “00:0c:29:11:aa:11”, “site_id” =&gt; “5c7f111b1111aa2087d11111”, “oui” =&gt; “Vmware”, “is_guest” =&gt; false, “first_seen” =&gt; 1551111161, “last_seen” =&gt; 1561621747, “is_wired” =&gt; true, “hostname” =&gt; “android”, “usergroup_id” =&gt; “”, “name” =&gt; “example device”, “noted” =&gt; true, “use_fixedip” =&gt;  true, “network_id” =&gt; “1c7f111a1115aa2087aaa9aa”, “fixed_ip” =&gt; “7.7.7.7”</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_user'>process_user</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_host_hash'>host_hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>name:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hostname</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>mac:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_desc'>desc</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hostname</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_host_hash'>host_hash</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_desc'>desc</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> on IP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_host_hash'>host_hash</span><span class='lbracket'>[</span><span class='symbol'>:info</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_desc'>desc</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_hash'>host_hash</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Network Device </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_desc'>desc</span><span class='embexpr_end'>}</span><span class='tstring_content'> found</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_wlanconf-instance_method">
+  
+    #<strong>process_wlanconf</strong>(lines, credential_data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Example lines “collection”=&gt;“wlanconf” “enabled” =&gt; true, “security” =&gt; “wpapsk”, “wep_idx” =&gt; 1, “wpa_mode” =&gt; “wpa2”, “wpa_enc” =&gt; “ccmp”, “usergroup_id” =&gt; “5a7f111a3815ce1111a1d1c3”, “dtim_mode” =&gt; “default”, “dtim_ng” =&gt; 1, “dtim_na” =&gt; 1, “minrate_ng_enabled” =&gt; false, “minrate_ng_advertising_rates” =&gt; false, “minrate_ng_data_rate_kbps” =&gt; 1000, “minrate_ng_cck_rates_enabled” =&gt; true, “minrate_na_enabled” =&gt; false, “minrate_na_advertising_rates” =&gt; false, “minrate_na_data_rate_kbps” =&gt; 6000, “mac_filter_enabled” =&gt; false, “mac_filter_policy” =&gt; “allow”, “mac_filter_list” =&gt; [], “bc_filter_enabled” =&gt; false, “bc_filter_list” =&gt; [], “group_rekey” =&gt; 3600, “name” =&gt; “ssid_name”, “x_passphrase” =&gt; “supersecret”, “wlangroup_id” =&gt; “5c7f208c3815ce2087d1d9c4”, “schedule” =&gt; [], “minrate_ng_mgmt_rate_kbps” =&gt; 1000, “minrate_na_mgmt_rate_kbps” =&gt; 6000, “minrate_ng_beacon_rate_kbps” =&gt; 1000, “minrate_na_beacon_rate_kbps” =&gt; 6000, “site_id” =&gt; “5c7f208b3815ce2087d1d9b6”, “x_iapp_key” =&gt; “d11a1c86df1111be86aaa69e8aa1c57f”, “no2ghz_oui” =&gt; true</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 270</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_wlanconf'>process_wlanconf</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_ssid'>ssid</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>security</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_password'>password</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_passphrase</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> wifi </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ssid'>ssid</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mode'>mode</span><span class='embexpr_end'>}</span><span class='tstring_content'>(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa_mode</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa_enc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>) has password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_password'>password</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+    <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ssid'>ssid</span>
+    <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_password'>password</span>
+    <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="repair_zip-instance_method">
+  
+    #<strong>repair_zip</strong>(fname)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_repair_zip'>repair_zip</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_zip_exe'>zip_exe</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/Helper.html" title="Msf::Util::Helper (class)">Helper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_which'><span class='object_link'><a href="../Util/Helper.html#which-class_method" title="Msf::Util::Helper.which (method)">which</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>zip</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_zip_exe'>zip_exe</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Zip utility not found.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Attempting to repair zip file (this is normal and takes some time)</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_temp_file'>temp_file</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Quickfile</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_zip</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>yes | </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_zip_exe'>zip_exe</span><span class='embexpr_end'>}</span><span class='tstring_content'> -FF </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_fname'>fname</span><span class='embexpr_end'>}</span><span class='tstring_content'> --out </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_temp_file'>temp_file</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>.zip &gt; /dev/null</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_temp_file'>temp_file</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>.zip</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unifi_config_eater-instance_method">
+  
+    #<strong>unifi_config_eater</strong>(thost, tport, config)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/ubiquiti.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unifi_config_eater'>unifi_config_eater</span><span class='lparen'>(</span><span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='comment'># This is for the Ubiquiti Unifi files.  These are typically in the backup download zip file
+</span>  <span class='comment'># then in the db.gz file as db.  It is a MongoDB BSON file, which can be difficult to read.
+</span>  <span class='comment'># https://stackoverflow.com/questions/51242412/undefined-method-read-bson-document-for-bsonmodule
+</span>  <span class='comment'># The BSON file is a bunch of BSON Documents chained together.  There doesn&#39;t seem to be a good
+</span>  <span class='comment'># way to read these files directly, so looping through loading the content seems to work with
+</span>  <span class='comment'># minimal repercussions.
+</span>
+  <span class='comment'># The file format is broken into sections by __cmd select documents as such:
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;heatmap&quot;}
+</span>  <span class='comment'># we can pull the relevant section name via the collection value.
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+    <span class='id identifier rubyid_creds_template'>creds_template</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>address:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+      <span class='label'>port:</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span>
+      <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>workspace_id:</span> <span class='id identifier rubyid_myworkspace_id'>myworkspace_id</span><span class='comma'>,</span>
+      <span class='label'>origin_type:</span> <span class='symbol'>:service</span><span class='comma'>,</span>
+      <span class='label'>private_type:</span> <span class='symbol'>:password</span><span class='comma'>,</span>
+      <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>module_fullname:</span> <span class='id identifier rubyid_fullname'>fullname</span><span class='comma'>,</span>
+      <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNTRIED</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+    <span class='label'>info:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ubiquiti Unifi Controller</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_store_loot'>store_loot</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unifi.json</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>application/json</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unifi.json</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ubiquiti Unifi Configuration</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Example BSON lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;admin&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;5c7f23af3825ce2067a1d9ce&#39;), &quot;name&quot;=&gt;&quot;adminuser&quot;, &quot;email&quot;=&gt;&quot;admin@admin.com&quot;, &quot;x_shadow&quot;=&gt;&quot;$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.&quot;, &quot;time_created&quot;=&gt;1551825823, &quot;last_site_name&quot;=&gt;&quot;default&quot;, &quot;ubic_name&quot;=&gt;&quot;admin@admin.com&quot;, &quot;ubic_uuid&quot;=&gt;&quot;c23da064-3f4d-282f-1dc9-7e25f9c6812c&quot;, &quot;ui_settings&quot;=&gt;{&quot;dashboardConfig&quot;=&gt;{&quot;lastActiveDashboardId&quot;=&gt;&quot;2c7f2d213813ce2487d1ac38&quot;, &quot;dashboards&quot;=&gt;{&quot;3c7f678a3815ce2021d1d9c7&quot;=&gt;{&quot;order&quot;=&gt;1}, &quot;5b4f2d269115ce2087d1abb9&quot;=&gt;{}}}}}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_admin'>process_admin</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_admin_name'>admin_name</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_admin_email'>admin_email</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>email</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_shadow</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Admin user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> with email </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_email'>admin_email</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with password hash </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_name'>admin_name</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:nonreplayable_hash</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example BSON lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;firewallrule&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;5c7f23af3825ce2067a1d9ce&#39;), &quot;ruleset&quot; =&gt; &quot;WAN_OUT&quot;, &quot;rule_index&quot; =&gt; &quot;2000&quot;, &quot;name&quot; =&gt; &quot;Block Example&quot;, &quot;enabled&quot; =&gt; true, &quot;action&quot; =&gt; &quot;reject&quot;, &quot;protocol_match_excepted&quot; =&gt; false, &quot;logging&quot; =&gt; false, &quot;state_new&quot; =&gt; false, &quot;state_established&quot; =&gt; false, &quot;state_invalid&quot; =&gt; false, &quot;state_related&quot; =&gt; false, &quot;ipsec&quot; =&gt; &quot;&quot;, &quot;src_firewallgroup_ids&quot; =&gt; [&quot;1a1c15a11111ce14b1f1111a&quot;], &quot;src_mac_address&quot; =&gt; &quot;&quot;, &quot;dst_firewallgroup_ids&quot; =&gt; [], &quot;dst_address&quot; =&gt; &quot;&quot;, &quot;src_address&quot; =&gt; &quot;&quot;, &quot;protocol&quot; =&gt; &quot;all&quot;, &quot;icmp_typename&quot; =&gt; &quot;&quot;, &quot;src_networkconf_id&quot; =&gt; &quot;&quot;, &quot;src_networkconf_type&quot; =&gt; &quot;NETv4&quot;, &quot;dst_networkconf_id&quot; =&gt; &quot;&quot;, &quot;dst_networkconf_type&quot; =&gt; &quot;NETv4&quot;, &quot;site_id&quot; =&gt; &quot;1c1f208b3815ce1111a1a1a1&quot;}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_firewallrule'>process_firewallrule</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>action</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> dst addresses: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> dst group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dst_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> src addresses: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> src group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>src_firewallgroup_ids</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_rule'>rule</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> protocol: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>protocol</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> Firewall Rule &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rule'>rule</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example BSON lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;radiusprofile&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;2c7a318c38c5ce2f86d179cb&#39;), &quot;attr_no_delete&quot;=&gt;true, &quot;attr_hidden_id&quot;=&gt;&quot;Default&quot;, &quot;name&quot;=&gt;&quot;Default&quot;, &quot;site_id&quot;=&gt;&quot;3c7f226b2315be2087a1d5b2&quot;, &quot;use_usg_auth_server&quot;=&gt;true, &quot;auth_servers&quot;=&gt;[{&quot;ip&quot;=&gt;&quot;192.168.0.1&quot;, &quot;port&quot;=&gt;1812, &quot;x_secret&quot;=&gt;&quot;&quot;}], &quot;acct_servers&quot;=&gt;[]}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_radiusprofile'>process_radiusprofile</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>auth_servers</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_server'>server</span><span class='op'>|</span>
+        <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span>
+          <span class='label'>host:</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='label'>port:</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>radius</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+          <span class='label'>proto:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='comment'># no need to output if the secret is blank, therefore its not configured
+</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Radius server: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with secret &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_secret</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:address</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_server'>server</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># settings has multiple items we care about:
+</span>  <span class='comment'>#   x_mesh_essid/x_mesh_psk -&gt; should contain the mesh network wifi name and password
+</span>  <span class='comment'>#   ntp -&gt; ntp servers
+</span>  <span class='comment'>#   x_ssh_username/x_ssh_password/x_ssh_keys/x_ssh_sha512passwd
+</span>
+  <span class='comment'># Example lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;setting&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9ba&#39;), &quot;site_id&quot;=&gt;&quot;3c2f215b3825ca2087c1dfb6&quot;, &quot;key&quot;=&gt;&quot;ntp&quot;, &quot;ntp_server_1&quot;=&gt;&quot;0.ubnt.pool.ntp.org&quot;, &quot;ntp_server_2&quot;=&gt;&quot;1.ubnt.pool.ntp.org&quot;, &quot;ntp_server_3&quot;=&gt;&quot;2.ubnt.pool.ntp.org&quot;, &quot;ntp_server_4&quot;=&gt;&quot;3.ubnt.pool.ntp.org&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9bb&#39;), &quot;site_id&quot;=&gt;&quot;3c2f215b3825ca2087c1dfb6&quot;, &quot;key&quot;=&gt;&quot;mgmt&quot;, &quot;advanced_feature_enabled&quot;=&gt;false, &quot;x_ssh_enabled&quot;=&gt;true, &quot;x_ssh_bind_wildcard&quot;=&gt;false, &quot;x_ssh_auth_password_enabled&quot;=&gt;true, &quot;unifi_idp_enabled&quot;=&gt;true, &quot;x_mgmt_key&quot;=&gt;&quot;ba6cbe170f8276cd86b24ac79ab29afc&quot;, &quot;x_ssh_username&quot;=&gt;&quot;admin&quot;, &quot;x_ssh_password&quot;=&gt;&quot;16xoB6F2UyAcU6fP&quot;, &quot;x_ssh_keys&quot;=&gt;[], &quot;x_ssh_sha512passwd&quot;=&gt;&quot;$6$R4qnAaaF$AAAlL2t.fXu0aaa9z3uvcIm3ujbtJLhIO.lN1xZqHZPQoUAXs2BUTmI5UbuBo2/8t3epzbVLib17Ls7GCVx7V.&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9bc&#39;), &quot;site_id&quot;=&gt;&quot;3c2f215b3825ca2087c1dfb6&quot;, &quot;key&quot;=&gt;&quot;connectivity&quot;, &quot;enabled&quot;=&gt;true, &quot;uplink_type&quot;=&gt;&quot;gateway&quot;, &quot;x_mesh_essid&quot;=&gt;&quot;vwire-851237d214c8c6ba&quot;, &quot;x_mesh_psk&quot;=&gt;&quot;523a9b872b4624c7894f96c3ae22cdfa&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9bd&#39;), &quot;site_id&quot;=&gt;&quot;3c2f215b3825ca2087c1dfb6&quot;, &quot;key&quot;=&gt;&quot;snmp&quot;, &quot;community&quot;: &quot;public&quot;, &quot;enabled&quot;: true, &quot;enabledV3&quot;: true, &quot;username&quot;: &quot;usernamesnmpv3&quot;, &quot;x_password&quot;: &quot;passwordsnmpv3&quot;}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_setting'>process_setting</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>161</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='comment'># throw away
+</span>        <span class='kw'>end</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SNMP v2 </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>community</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+        <span class='kw'>end</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SNMP v3 </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabledV3</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+        <span class='kw'>end</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connectivity</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Mesh Wifi Network </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_essid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_psk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_essid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_mesh_psk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_2</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp_server_4</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ntp'>ntp</span><span class='op'>|</span>
+          <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ends_with?'>ends_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ubnt.pool.ntp.org</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+          <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span>
+            <span class='label'>host:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='label'>port:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>123</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+            <span class='label'>name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ntp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+            <span class='label'>proto:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+          <span class='rparen'>)</span>
+          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>NTP Server: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='id identifier rubyid_ntp'>ntp</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mgmt</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_admin_name'>admin_name</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_sha512passwd</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_admin_password'>admin_password</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSH user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password'>admin_password</span><span class='embexpr_end'>}</span><span class='tstring_content'> and hash </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_ssh_keys</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSH user </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_admin_name'>admin_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> found with SSH key: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_name'>admin_name</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_admin_password_hash'>admin_password_hash</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='symbol'>:nonreplayable_hash</span>
+        <span class='id identifier rubyid_login'>login</span> <span class='op'>=</span> <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_login'>login</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_admin_password'>admin_password</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+          <span class='id identifier rubyid_create_cracked_credential'>create_cracked_credential</span><span class='lparen'>(</span><span class='label'>username:</span> <span class='id identifier rubyid_admin_name'>admin_name</span><span class='comma'>,</span> <span class='label'>password:</span> <span class='id identifier rubyid_admin_password'>admin_password</span><span class='comma'>,</span> <span class='label'>core_id:</span> <span class='id identifier rubyid_login'>login</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;wlanconf&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9ba&#39;), &quot;enabled&quot; =&gt; true, &quot;security&quot; =&gt; &quot;wpapsk&quot;, &quot;wep_idx&quot; =&gt; 1, &quot;wpa_mode&quot; =&gt; &quot;wpa2&quot;, &quot;wpa_enc&quot; =&gt; &quot;ccmp&quot;, &quot;usergroup_id&quot; =&gt; &quot;5a7f111a3815ce1111a1d1c3&quot;, &quot;dtim_mode&quot; =&gt; &quot;default&quot;, &quot;dtim_ng&quot; =&gt; 1, &quot;dtim_na&quot; =&gt; 1, &quot;minrate_ng_enabled&quot; =&gt; false, &quot;minrate_ng_advertising_rates&quot; =&gt; false, &quot;minrate_ng_data_rate_kbps&quot; =&gt; 1000, &quot;minrate_ng_cck_rates_enabled&quot; =&gt; true, &quot;minrate_na_enabled&quot; =&gt; false, &quot;minrate_na_advertising_rates&quot; =&gt; false, &quot;minrate_na_data_rate_kbps&quot; =&gt; 6000, &quot;mac_filter_enabled&quot; =&gt; false, &quot;mac_filter_policy&quot; =&gt; &quot;allow&quot;, &quot;mac_filter_list&quot; =&gt; [], &quot;bc_filter_enabled&quot; =&gt; false, &quot;bc_filter_list&quot; =&gt; [], &quot;group_rekey&quot; =&gt; 3600, &quot;name&quot; =&gt; &quot;ssid_name&quot;, &quot;x_passphrase&quot; =&gt; &quot;supersecret&quot;, &quot;wlangroup_id&quot; =&gt; &quot;5c7f208c3815ce2087d1d9c4&quot;, &quot;schedule&quot; =&gt; [], &quot;minrate_ng_mgmt_rate_kbps&quot; =&gt; 1000, &quot;minrate_na_mgmt_rate_kbps&quot; =&gt; 6000, &quot;minrate_ng_beacon_rate_kbps&quot; =&gt; 1000, &quot;minrate_na_beacon_rate_kbps&quot; =&gt; 6000, &quot;site_id&quot; =&gt; &quot;5c7f208b3815ce2087d1d9b6&quot;, &quot;x_iapp_key&quot; =&gt; &quot;d11a1c86df1111be86aaa69e8aa1c57f&quot;, &quot;no2ghz_oui&quot; =&gt; true}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_wlanconf'>process_wlanconf</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_ssid'>ssid</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>security</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_password'>password</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x_passphrase</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>enabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> wifi </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ssid'>ssid</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mode'>mode</span><span class='embexpr_end'>}</span><span class='tstring_content'>(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa_mode</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa_enc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>) has password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_password'>password</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ssid'>ssid</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_password'>password</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;firewallgroup&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9ba&#39;), &quot;name&quot; =&gt; &quot;Cameras&quot;, &quot;group_type&quot; =&gt; &quot;address-group&quot;, &quot;group_members&quot; =&gt; [&quot;1.1.1.1&quot;], &quot;site_id&quot; =&gt; &quot;5c7f111b3815ce208aaa111a&quot;}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_firewallgroup'>process_firewallgroup</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Firewall Group: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, group type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>group_type</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, members: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>group_members</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;device&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9ba&#39;), &quot;ip&quot; =&gt; &quot;5.5.5.5&quot;, &quot;mac&quot; =&gt; &quot;cc:cc:cc:cc:cc:cc&quot;, &quot;model&quot; =&gt; &quot;UGW3&quot;, &quot;type&quot; =&gt; &quot;ugw&quot;, &quot;version&quot; =&gt; &quot;4.4.44.5213844&quot;, &quot;adopted&quot; =&gt; true, &quot;site_id&quot; =&gt; &quot;5aaaaaabaaaaae1117d1d1b6&quot;, &quot;x_authkey&quot; =&gt; &quot;eaaaaaaa63e59ab89c111e11d6e11aa1&quot;, &quot;cfgversion&quot; =&gt; &quot;aaa4b11b1df1a111&quot;, &quot;config_network&quot; =&gt; {&quot;type&quot; =&gt; &quot;dhcp&quot;, &quot;ip&quot; =&gt; &quot;1.1.1.1&quot;}, &quot;license_state&quot; =&gt; &quot;registered&quot;, &quot;two_phase_adopt&quot; =&gt; false, &quot;unsupported&quot; =&gt; false, &quot;unsupported_reason&quot; =&gt; 0, &quot;x_fingerprint&quot; =&gt; &quot;aa:aa:11:aa:11:11:11:11:11:11:11:11:11:11:11:11&quot;, &quot;x_ssh_hostkey&quot; =&gt; &quot;MIIBIjANBgkAhkiG9w0AAQEFAAOCAQ8AMIIBCgKCAQEAAU4S/7r548xvtGuHlgAAAKzkrL+t97ZWAZru8wQFbltEB4111HiIAkzt041td8V+P7c1bQtn3YQdViAuH2h2sgt8feAvMWo56OskAoDvHwAEv5AWqmPKy/xmKbdfgA5wTzvSztPGFA4QuOuA1YxQICf1MgpoOtplAAA31JxAYF/t7n8qgvJlm1JRv2AAAZHHtSiz1IaxzOO9LAAAqCfHvHugPcZYk2yAAAP7JrnnR1fAVj9F4aaYaA0eSjvDTAglykXHCbh1EWAAAecqHZ/SWn9cjmuAAArZxxG6m6Eu/aj9we82/PmtKzQGN0RWUsgrxajQowtNpVsNTnaOglUsfQIDAAAA&quot;, &quot;x_ssh_hostkey_fingerprint&quot; =&gt; &quot;11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11&quot;, &quot;inform_url&quot; =&gt; &quot;http://1.1.2.2:8080/inform&quot;, &quot;inform_ip&quot; =&gt; &quot;1.1.1.1&quot;, &quot;serial&quot; =&gt; &quot;AAAAAAAAAAAA&quot;, &quot;required_version&quot; =&gt; &quot;4.0.0&quot;, &quot;ethernet_table&quot; =&gt; [{ &quot;mac&quot; =&gt; &quot;b4:fb:e4:cc:cc:cc&quot;, &quot;num_port&quot; =&gt; 1, &quot;name&quot; =&gt; &quot;eth0&quot;}, {&quot;mac&quot; =&gt; &quot;b4:fb:e4:bb:bb:bb&quot;, &quot;num_port&quot; =&gt; 1, &quot;name&quot; =&gt; &quot;eth1&quot;}, {&quot;mac&quot; =&gt; &quot;b4:fb:e4:aa:aa:aa&quot;, &quot;num_port&quot; =&gt; 1, &quot;name&quot; =&gt; &quot;eth2&quot;}], &quot;fw_caps&quot; =&gt; 184323, &quot;hw_caps&quot; =&gt; 0, &quot;usg_caps&quot; =&gt; 786431, &quot;board_rev&quot; =&gt; 16, &quot;x_aes_gcm&quot; =&gt; true, &quot;ethernet_overrides&quot; =&gt; [{&quot;ifname&quot; =&gt; &quot;eth1&quot;, &quot;networkgroup&quot; =&gt; &quot;LAN&quot;}, {&quot;ifname&quot; =&gt; &quot;eth0&quot;, &quot;networkgroup&quot; =&gt; &quot;WAN&quot;}], &quot;led_override&quot; =&gt; &quot;default&quot;, &quot;led_override_color&quot; =&gt; &quot;#0000ff&quot;, &quot;led_override_color_brightness&quot; =&gt; 100, &quot;outdoor_mode_override&quot; =&gt; &quot;default&quot;, &quot;name&quot; =&gt; &quot;USG&quot;, &quot;map_id&quot; =&gt; &quot;1a111c2e1111ce2087d1e199&quot;, &quot;x&quot; =&gt; -22.11111198630405, &quot;y&quot; =&gt; -41.1111113859866, &quot;heightInMeters&quot; =&gt; 2.4}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_device'>process_device</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+        <span class='label'>host:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>name:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>mac:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>os_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Ubiquiti Unifi</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rbrace'>}</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unifi Device </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> of model </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>model</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Example lines
+</span>  <span class='comment'># {&quot;__cmd&quot;=&gt;&quot;select&quot;, &quot;collection&quot;=&gt;&quot;user&quot;}
+</span>  <span class='comment'># {&quot;_id&quot;=&gt;BSON::ObjectId(&#39;3c3e21ac3715ce20a721d9ba&#39;), &quot;mac&quot; =&gt; &quot;00:0c:29:11:aa:11&quot;, &quot;site_id&quot; =&gt; &quot;5c7f111b1111aa2087d11111&quot;, &quot;oui&quot; =&gt; &quot;Vmware&quot;, &quot;is_guest&quot; =&gt; false, &quot;first_seen&quot; =&gt; 1551111161, &quot;last_seen&quot; =&gt; 1561621747, &quot;is_wired&quot; =&gt; true, &quot;hostname&quot; =&gt; &quot;android&quot;, &quot;usergroup_id&quot; =&gt; &quot;&quot;, &quot;name&quot; =&gt; &quot;example device&quot;, &quot;noted&quot; =&gt; true, &quot;use_fixedip&quot; =&gt;  true, &quot;network_id&quot; =&gt; &quot;1c7f111a1115aa2087aaa9aa&quot;, &quot;fixed_ip&quot; =&gt; &quot;7.7.7.7&quot;}
+</span>  <span class='kw'>def</span> <span class='id identifier rubyid_process_user'>process_user</span><span class='lparen'>(</span><span class='id identifier rubyid_lines'>lines</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='id identifier rubyid_host_hash'>host_hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='label'>name:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hostname</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+        <span class='label'>mac:</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_desc'>desc</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hostname</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_host_hash'>host_hash</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_desc'>desc</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> on IP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fixed_ip</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_host_hash'>host_hash</span><span class='lbracket'>[</span><span class='symbol'>:info</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_desc'>desc</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_hash'>host_hash</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Network Device </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_desc'>desc</span><span class='embexpr_end'>}</span><span class='tstring_content'> found</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># here is where we actually process the file
+</span>  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>process_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_credential_data'>credential_data</span> <span class='op'>=</span> <span class='id identifier rubyid_creds_template'>creds_template</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+    <span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>process_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:34 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

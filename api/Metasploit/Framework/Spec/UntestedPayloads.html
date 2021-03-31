@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::Spec::UntestedPayloads
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Spec::UntestedPayloads";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span>
+     &raquo; 
+    <span class="title">UntestedPayloads</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::Spec::UntestedPayloads
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/spec/untested_payloads.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#define_task-class_method" title="define_task (class method)">.<strong>define_task</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds action to `spec` tasks so that `rake spec` fails if  `log/untested-payloads.log` exists and prints out untested payloads from that log to stderr.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="define_task-class_method">
+  
+    .<strong>define_task</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>`Metasploit::Framework::Spec::UntestedPayloads.define_task` should be run after the normal spec task is defined.</p>
+</div>
+  </div>
+
+<p class="note returns_void">This method returns an undefined value.</p>
+<p>Adds action to `spec` tasks so that `rake spec` fails if  `log/untested-payloads.log` exists and prints out untested payloads from that log to stderr.</p>
+
+<p># @example Using `Metasploit::Framework::Spec::UntestedPayloads.define_task` with &#39;payload can be instantiated&#39; shared examples  and &#39;untested payloads&#39; shared context</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># Rakefile
+</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metasploit/framework/spec/untested_payloads</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># defined spec task with rspec-rails
+</span><span class='const'>My</span><span class='op'>::</span><span class='const'>Application</span><span class='period'>.</span><span class='id identifier rubyid_load_tasks'>load_tasks</span>
+<span class='comment'># extends spec task to fail when there are untested payloads
+</span><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::UntestedPayloads (module)">UntestedPayloads</a></span></span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span>
+
+<span class='comment'># spec/modules/payloads_spec.rb
+</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>spec_helper</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='id identifier rubyid_describe'>describe</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>modules/payloads</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>do</span>
+   <span class='id identifier rubyid_modules_pathname'>modules_pathname</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>modules</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+   <span class='id identifier rubyid_include_context'>include_context</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>untested payloads</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>modules_pathname:</span> <span class='id identifier rubyid_modules_pathname'>modules_pathname</span>
+
+   <span class='id identifier rubyid_context'>context</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>my/staged/payload/handler</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>do</span>
+     <span class='id identifier rubyid_it_should_behave_like'>it_should_behave_like</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>payload can be instantiated</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+                           <span class='label'>ancestor_reference_names:</span> <span class='lbracket'>[</span>
+                             <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stages/my/payload</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+                             <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stagers/my/payload/handler</span><span class='tstring_end'>&#39;</span></span>
+                           <span class='rbracket'>]</span><span class='comma'>,</span>
+                           <span class='label'>modules_pathname:</span> <span class='id identifier rubyid_modules_pathname'>modules_pathname</span><span class='comma'>,</span>
+                           <span class='label'>reference_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>my/staged/payload/handler</span><span class='tstring_end'>&#39;</span></span>
+   <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/untested_payloads.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span>
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span> <span class='symbol'>:spec</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_untested_payloads_pathname'>untested_payloads_pathname</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>log/untested-payloads.log</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_untested_payloads_pathname'>untested_payloads_pathname</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+      <span class='id identifier rubyid_tool_path'>tool_path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tools/modules/missing_payload_tests.rb</span><span class='tstring_end'>&#39;</span></span>
+
+      <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Untested payload detected.  Running `</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tool_path'>tool_path</span><span class='embexpr_end'>}</span><span class='tstring_content'>` to see contexts to add to </span><span class='tstring_end'>&quot;</span></span> \
+                   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>`spec/modules/payloads_spec.rb` to test those payload ancestor reference names.</span><span class='tstring_end'>&quot;</span></span>
+
+      <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='id identifier rubyid_tool_path'>tool_path</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_exit'>exit</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:16 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

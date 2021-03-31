@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Kerberos::Model::PreAuthPacRequest
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Kerberos::Model::PreAuthPacRequest";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Model</a></span></span>
+     &raquo; 
+    <span class="title">PreAuthPacRequest</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Kerberos::Model::PreAuthPacRequest
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Element.html" title="Rex::Proto::Kerberos::Model::Element (class)">Element</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Element.html" title="Rex::Proto::Kerberos::Model::Element (class)">Element</a></span></li>
+          
+            <li class="next">Rex::Proto::Kerberos::Model::PreAuthPacRequest</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/kerberos/model/pre_auth_pac_request.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class is a representation of a KERB-PA-PAC-REQUEST, pre authenticated data to explicitly request to include or exclude a PAC in the ticket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Model.html" title="Rex::Proto::Kerberos::Model (module)">Rex::Proto::Kerberos::Model</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Model.html#AD_IF_RELEVANT-constant" title="Rex::Proto::Kerberos::Model::AD_IF_RELEVANT (constant)">AD_IF_RELEVANT</a></span>, <span class='object_link'><a href="../Model.html#AP_REQ-constant" title="Rex::Proto::Kerberos::Model::AP_REQ (constant)">AP_REQ</a></span>, <span class='object_link'><a href="../Model.html#AS_REP-constant" title="Rex::Proto::Kerberos::Model::AS_REP (constant)">AS_REP</a></span>, <span class='object_link'><a href="../Model.html#AS_REQ-constant" title="Rex::Proto::Kerberos::Model::AS_REQ (constant)">AS_REQ</a></span>, <span class='object_link'><a href="../Model.html#AUTHENTICATOR-constant" title="Rex::Proto::Kerberos::Model::AUTHENTICATOR (constant)">AUTHENTICATOR</a></span>, <span class='object_link'><a href="../Model.html#ERROR_CODES-constant" title="Rex::Proto::Kerberos::Model::ERROR_CODES (constant)">ERROR_CODES</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_ALLOW_POST_DATE-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_ALLOW_POST_DATE (constant)">KDC_OPTION_ALLOW_POST_DATE</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_ENC_TKT_IN_SKEY-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_ENC_TKT_IN_SKEY (constant)">KDC_OPTION_ENC_TKT_IN_SKEY</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_FORWARDABLE-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_FORWARDABLE (constant)">KDC_OPTION_FORWARDABLE</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_FORWARDED-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_FORWARDED (constant)">KDC_OPTION_FORWARDED</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_POST_DATED-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_POST_DATED (constant)">KDC_OPTION_POST_DATED</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_PROXIABLE-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_PROXIABLE (constant)">KDC_OPTION_PROXIABLE</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_PROXY-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_PROXY (constant)">KDC_OPTION_PROXY</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_RENEW-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_RENEW (constant)">KDC_OPTION_RENEW</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_RENEWABLE-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_RENEWABLE (constant)">KDC_OPTION_RENEWABLE</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_RENEWABLE_OK-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_RENEWABLE_OK (constant)">KDC_OPTION_RENEWABLE_OK</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_RESERVED-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_RESERVED (constant)">KDC_OPTION_RESERVED</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_UNUSED_10-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_UNUSED_10 (constant)">KDC_OPTION_UNUSED_10</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_UNUSED_11-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_UNUSED_11 (constant)">KDC_OPTION_UNUSED_11</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_UNUSED_7-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_UNUSED_7 (constant)">KDC_OPTION_UNUSED_7</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_UNUSED_9-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_UNUSED_9 (constant)">KDC_OPTION_UNUSED_9</a></span>, <span class='object_link'><a href="../Model.html#KDC_OPTION_VALIDATE-constant" title="Rex::Proto::Kerberos::Model::KDC_OPTION_VALIDATE (constant)">KDC_OPTION_VALIDATE</a></span>, <span class='object_link'><a href="../Model.html#KRB_ERROR-constant" title="Rex::Proto::Kerberos::Model::KRB_ERROR (constant)">KRB_ERROR</a></span>, <span class='object_link'><a href="../Model.html#NT_PRINCIPAL-constant" title="Rex::Proto::Kerberos::Model::NT_PRINCIPAL (constant)">NT_PRINCIPAL</a></span>, <span class='object_link'><a href="../Model.html#NT_SRV_HST-constant" title="Rex::Proto::Kerberos::Model::NT_SRV_HST (constant)">NT_SRV_HST</a></span>, <span class='object_link'><a href="../Model.html#NT_SRV_INST-constant" title="Rex::Proto::Kerberos::Model::NT_SRV_INST (constant)">NT_SRV_INST</a></span>, <span class='object_link'><a href="../Model.html#NT_SRV_XHST-constant" title="Rex::Proto::Kerberos::Model::NT_SRV_XHST (constant)">NT_SRV_XHST</a></span>, <span class='object_link'><a href="../Model.html#NT_UID-constant" title="Rex::Proto::Kerberos::Model::NT_UID (constant)">NT_UID</a></span>, <span class='object_link'><a href="../Model.html#NT_UNKNOWN-constant" title="Rex::Proto::Kerberos::Model::NT_UNKNOWN (constant)">NT_UNKNOWN</a></span>, <span class='object_link'><a href="../Model.html#PA_ENC_TIMESTAMP-constant" title="Rex::Proto::Kerberos::Model::PA_ENC_TIMESTAMP (constant)">PA_ENC_TIMESTAMP</a></span>, <span class='object_link'><a href="../Model.html#PA_PAC_REQUEST-constant" title="Rex::Proto::Kerberos::Model::PA_PAC_REQUEST (constant)">PA_PAC_REQUEST</a></span>, <span class='object_link'><a href="../Model.html#PA_PW_SALT-constant" title="Rex::Proto::Kerberos::Model::PA_PW_SALT (constant)">PA_PW_SALT</a></span>, <span class='object_link'><a href="../Model.html#PA_TGS_REQ-constant" title="Rex::Proto::Kerberos::Model::PA_TGS_REQ (constant)">PA_TGS_REQ</a></span>, <span class='object_link'><a href="../Model.html#TGS_REP-constant" title="Rex::Proto::Kerberos::Model::TGS_REP (constant)">TGS_REP</a></span>, <span class='object_link'><a href="../Model.html#TGS_REQ-constant" title="Rex::Proto::Kerberos::Model::TGS_REQ (constant)">TGS_REQ</a></span>, <span class='object_link'><a href="../Model.html#TICKET-constant" title="Rex::Proto::Kerberos::Model::TICKET (constant)">TICKET</a></span>, <span class='object_link'><a href="../Model.html#VERSION-constant" title="Rex::Proto::Kerberos::Model::VERSION (constant)">VERSION</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Crypto.html" title="Rex::Proto::Kerberos::Crypto (module)">Crypto</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Crypto.html#ENC_AS_RESPONSE-constant" title="Rex::Proto::Kerberos::Crypto::ENC_AS_RESPONSE (constant)">Crypto::ENC_AS_RESPONSE</a></span>, <span class='object_link'><a href="../Crypto.html#ENC_KDC_REQUEST_BODY-constant" title="Rex::Proto::Kerberos::Crypto::ENC_KDC_REQUEST_BODY (constant)">Crypto::ENC_KDC_REQUEST_BODY</a></span>, <span class='object_link'><a href="../Crypto.html#ENC_TGS_RESPONSE-constant" title="Rex::Proto::Kerberos::Crypto::ENC_TGS_RESPONSE (constant)">Crypto::ENC_TGS_RESPONSE</a></span>, <span class='object_link'><a href="../Crypto.html#RC4_HMAC-constant" title="Rex::Proto::Kerberos::Crypto::RC4_HMAC (constant)">Crypto::RC4_HMAC</a></span>, <span class='object_link'><a href="../Crypto.html#RSA_MD5-constant" title="Rex::Proto::Kerberos::Crypto::RSA_MD5 (constant)">Crypto::RSA_MD5</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#value-instance_method" title="#value (instance method)">#<strong>value</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decode-instance_method" title="#decode (instance method)">#<strong>decode</strong>(input)  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Decodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode-instance_method" title="#encode (instance method)">#<strong>encode</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Encodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest into an ASN.1 String.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Element.html" title="Rex::Proto::Kerberos::Model::Element (class)">Element</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Element.html#attr_accessor-class_method" title="Rex::Proto::Kerberos::Model::Element.attr_accessor (method)">attr_accessor</a></span>, <span class='object_link'><a href="Element.html#attributes-class_method" title="Rex::Proto::Kerberos::Model::Element.attributes (method)">attributes</a></span>, <span class='object_link'><a href="Element.html#attributes-instance_method" title="Rex::Proto::Kerberos::Model::Element#attributes (method)">#attributes</a></span>, <span class='object_link'><a href="Element.html#decode-class_method" title="Rex::Proto::Kerberos::Model::Element.decode (method)">decode</a></span>, <span class='object_link'><a href="Element.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Element#initialize (method)">#initialize</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Crypto/RsaMd5.html" title="Rex::Proto::Kerberos::Crypto::RsaMd5 (module)">Crypto::RsaMd5</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Crypto/RsaMd5.html#checksum_rsa_md5-instance_method" title="Rex::Proto::Kerberos::Crypto::RsaMd5#checksum_rsa_md5 (method)">#checksum_rsa_md5</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Crypto/Rc4Hmac.html" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac (module)">Crypto::Rc4Hmac</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Crypto/Rc4Hmac.html#decrypt_rc4_hmac-instance_method" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac#decrypt_rc4_hmac (method)">#decrypt_rc4_hmac</a></span>, <span class='object_link'><a href="../Crypto/Rc4Hmac.html#encrypt_rc4_hmac-instance_method" title="Rex::Proto::Kerberos::Crypto::Rc4Hmac#encrypt_rc4_hmac (method)">#encrypt_rc4_hmac</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="Element.html#initialize-instance_method" title="Rex::Proto::Kerberos::Model::Element#initialize (method)">Rex::Proto::Kerberos::Model::Element</a></span></p>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="value=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="value-instance_method">
+  
+    #<strong>value</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/model/pre_auth_pac_request.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='ivar'>@value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="decode-instance_method">
+  
+    #<strong>decode</strong>(input)  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Decodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>input</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>OpenSSL::ASN1::Sequence</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the input to decode from</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if decoding succeeds</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RuntimeError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if decoding doesn&#39;t succeed</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/model/pre_auth_pac_request.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_input'>input</span>
+  <span class='kw'>when</span> <span class='const'>String</span>
+    <span class='id identifier rubyid_decode_string'>decode_string</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span>
+    <span class='id identifier rubyid_decode_asn1'>decode_asn1</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to decode PreAuthPacRequest, invalid input</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode-instance_method">
+  
+    #<strong>encode</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Encodes a Rex::Proto::Kerberos::Model::PreAuthPacRequest into an ASN.1 String</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/kerberos/model/pre_auth_pac_request.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode'>encode</span>
+  <span class='id identifier rubyid_value_asn1'>value_asn1</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>ASN1Data</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_encode_value'>encode_value</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='symbol'>:CONTEXT_SPECIFIC</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_seq'>seq</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_value_asn1'>value_asn1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_seq'>seq</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:58 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

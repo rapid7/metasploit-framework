@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::LoginScanner::SNMP
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner::SNMP";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">SNMP</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::SNMP
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::SNMP</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">Base</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner/snmp.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This is the LoginScanner class for dealing with SNMP. It is responsible for taking a single target, and a list of credentials and attempting them. It then saves the results.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_TIMEOUT-constant" class="">DEFAULT_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>161</span></pre></dd>
+      
+        <dt id="DEFAULT_VERSION-constant" class="">DEFAULT_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="DEFAULT_QUEUE_SIZE-constant" class="">DEFAULT_QUEUE_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>100</span></pre></dd>
+      
+        <dt id="LIKELY_PORTS-constant" class="">LIKELY_PORTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='int'>161</span><span class='comma'>,</span> <span class='int'>162</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="LIKELY_SERVICE_NAMES-constant" class="">LIKELY_SERVICE_NAMES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="PRIVATE_TYPES-constant" class="">PRIVATE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='symbol'>:password</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REALM_KEY-constant" class="">REALM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#queue_size-instance_method" title="#queue_size (instance method)">#<strong>queue_size</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The number of logins to try in each batch.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#queued_credentials-instance_method" title="#queued_credentials (instance method)">#<strong>queued_credentials</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#queued_results-instance_method" title="#queued_results (instance method)">#<strong>queued_results</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sock-instance_method" title="#sock (instance method)">#<strong>sock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#version-instance_method" title="#version (instance method)">#<strong>version</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The SNMP version to scan.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configure_socket-instance_method" title="#configure_socket (instance method)">#<strong>configure_socket</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new socket for this scanner.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_snmp_read_sys_descr_request-instance_method" title="#create_snmp_read_sys_descr_request (instance method)">#<strong>create_snmp_read_sys_descr_request</strong>(version_str, community)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a SNMP request that tries to read from sys.sysDescr.0.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_snmp_write_sys_descr_request-instance_method" title="#create_snmp_write_sys_descr_request (instance method)">#<strong>create_snmp_write_sys_descr_request</strong>(version_str, community, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a SNMP request that tries to write to sys.sysDescr.0.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_snmp_response-instance_method" title="#parse_snmp_response (instance method)">#<strong>parse_snmp_response</strong>(pkt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse a SNMP reply from a packet and return a response hash or nil.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_logins-instance_method" title="#process_logins (instance method)">#<strong>process_logins</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Queue up and possibly send any requests, based on the queue limit and final flag.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_responses-instance_method" title="#process_responses (instance method)">#<strong>process_responses</strong>(timeout = 1.0)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Process any responses on the UDP socket and queue the results.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scan!-instance_method" title="#scan! (instance method)">#<strong>scan!</strong> {|result| ... } &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempt to login with every <span class='object_link'><a href="../Credential.html" title="Metasploit::Framework::Credential (class)">credential</a></span> in # #cred_details.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_snmp_read_request-instance_method" title="#send_snmp_read_request (instance method)">#<strong>send_snmp_read_request</strong>(version, community)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create and send a SNMP read request for sys.sysDescr.0.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_snmp_request-instance_method" title="#send_snmp_request (instance method)">#<strong>send_snmp_request</strong>(pkt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a SNMP request on the existing socket.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_snmp_write_request-instance_method" title="#send_snmp_write_request (instance method)">#<strong>send_snmp_write_request</strong>(version, community, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create and send a SNMP write request for sys.sysDescr.0.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_sane_defaults-instance_method" title="#set_sane_defaults (instance method)">#<strong>set_sane_defaults</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the SNMP parameters if not specified.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shutdown_socket-instance_method" title="#shutdown_socket (instance method)">#<strong>shutdown_socket</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Close any open socket if it exists.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#versions-instance_method" title="#versions (instance method)">#<strong>versions</strong>  &#x21d2; Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns an array of versions to scan.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="queue_size=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="queue_size-instance_method">
+  
+    #<strong>queue_size</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The number of logins to try in each batch</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_queue_size'>queue_size</span>
+  <span class='ivar'>@queue_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="queued_credentials=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="queued_credentials-instance_method">
+  
+    #<strong>queued_credentials</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_queued_credentials'>queued_credentials</span>
+  <span class='ivar'>@queued_credentials</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="queued_results=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="queued_results-instance_method">
+  
+    #<strong>queued_results</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_queued_results'>queued_results</span>
+  <span class='ivar'>@queued_results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sock=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sock-instance_method">
+  
+    #<strong>sock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='ivar'>@sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="version=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="version-instance_method">
+  
+    #<strong>version</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The SNMP version to scan</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='ivar'>@version</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="configure_socket-instance_method">
+  
+    #<strong>configure_socket</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new socket for this scanner</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324
+325
+326</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_configure_socket'>configure_socket</span>
+  <span class='id identifier rubyid_shutdown_socket'>shutdown_socket</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Udp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Context</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span>
+      <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfExploit</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework_module'>framework_module</span> <span class='rbrace'>}</span>
+    <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_snmp_read_sys_descr_request-instance_method">
+  
+    #<strong>create_snmp_read_sys_descr_request</strong>(version_str, community)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a SNMP request that tries to read from sys.sysDescr.0</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 262</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_snmp_read_sys_descr_request'>create_snmp_read_sys_descr_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version_str'>version_str</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_version_str'>version_str</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span> <span class='int'>1</span> <span class='op'>:</span> <span class='int'>2</span>
+  <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>OctetString</span><span class='lparen'>(</span><span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0x80000000</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+        <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+          <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='period'>.</span><span class='const'>ObjectId</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1.3.6.1.2.1.1.1.0</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='period'>.</span><span class='const'>Null</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='rparen'>)</span>
+        <span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='symbol'>:IMPLICIT</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_snmp_write_sys_descr_request-instance_method">
+  
+    #<strong>create_snmp_write_sys_descr_request</strong>(version_str, community, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a SNMP request that tries to write to sys.sysDescr.0</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 282</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_snmp_write_sys_descr_request'>create_snmp_write_sys_descr_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version_str'>version_str</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='id identifier rubyid_version_str'>version_str</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span> <span class='int'>1</span> <span class='op'>:</span> <span class='int'>2</span>
+  <span class='id identifier rubyid_snmp_write'>snmp_write</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>OctetString</span><span class='lparen'>(</span><span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0x80000000</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Integer</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+        <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>Sequence</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+          <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='period'>.</span><span class='const'>ObjectId</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1.3.6.1.2.1.1.1.0</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+          <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='op'>::</span><span class='const'>OctetString</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+        <span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='int'>3</span><span class='comma'>,</span> <span class='symbol'>:IMPLICIT</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_snmp_response-instance_method">
+  
+    #<strong>parse_snmp_response</strong>(pkt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse a SNMP reply from a packet and return a response hash or nil</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 302</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_snmp_response'>parse_snmp_response</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_asn'>asn</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>ASN1</span><span class='period'>.</span><span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_asn'>asn</span>
+
+  <span class='id identifier rubyid_snmp_vers'>snmp_vers</span>  <span class='op'>=</span> <span class='id identifier rubyid_asn'>asn</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_snmp_comm'>snmp_comm</span>  <span class='op'>=</span> <span class='id identifier rubyid_asn'>asn</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_snmp_error'>snmp_error</span> <span class='op'>=</span> <span class='id identifier rubyid_asn'>asn</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_snmp_data'>snmp_data</span>  <span class='op'>=</span> <span class='id identifier rubyid_asn'>asn</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_snmp_oid'>snmp_oid</span>   <span class='op'>=</span> <span class='id identifier rubyid_snmp_data'>snmp_data</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_snmp_info'>snmp_info</span>  <span class='op'>=</span> <span class='id identifier rubyid_snmp_data'>snmp_data</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='lparen'>(</span><span class='id identifier rubyid_snmp_error'>snmp_error</span> <span class='kw'>and</span> <span class='id identifier rubyid_snmp_comm'>snmp_comm</span> <span class='kw'>and</span> <span class='id identifier rubyid_snmp_data'>snmp_data</span> <span class='kw'>and</span> <span class='id identifier rubyid_snmp_oid'>snmp_oid</span> <span class='kw'>and</span> <span class='id identifier rubyid_snmp_info'>snmp_info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_snmp_vers'>snmp_vers</span> <span class='op'>=</span> <span class='id identifier rubyid_snmp_vers'>snmp_vers</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2c</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='lbrace'>{</span> <span class='label'>error:</span> <span class='id identifier rubyid_snmp_error'>snmp_error</span><span class='comma'>,</span> <span class='label'>community:</span> <span class='id identifier rubyid_snmp_comm'>snmp_comm</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_snmp_info'>snmp_info</span><span class='comma'>,</span> <span class='label'>version:</span> <span class='id identifier rubyid_snmp_vers'>snmp_vers</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_logins-instance_method">
+  
+    #<strong>process_logins</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Queue up and possibly send any requests, based on the queue limit and final flag</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_logins'>process_logins</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span>     <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:final</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queue_size'>queue_size</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:community</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span> <span class='rbracket'>]</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_process_responses'>process_responses</span><span class='lparen'>(</span><span class='float'>0.01</span><span class='rparen'>)</span>
+
+  <span class='kw'>while</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_action'>action</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='comma'>,</span> <span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_credentials'>queued_credentials</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_action'>action</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_send_snmp_read_request'>send_snmp_read_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_send_snmp_write_request'>send_snmp_write_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_sleep_between_attempts'>sleep_between_attempts</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_process_responses'>process_responses</span><span class='lparen'>(</span><span class='float'>1.0</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_responses-instance_method">
+  
+    #<strong>process_responses</strong>(timeout = 1.0)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Process any responses on the UDP socket and queue the results</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_responses'>process_responses</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='float'>1.0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_queue'>queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_recvfrom'>recvfrom</span><span class='lparen'>(</span><span class='int'>65535</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Ignore invalid responses
+</span>    <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Ignore empty responses
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+    <span class='comment'># Trim the IPv6-compat prefix off if needed
+</span>    <span class='id identifier rubyid_shost'>shost</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^::ffff:</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_snmp_response'>parse_snmp_response</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='label'>community:</span> <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:community</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>host:</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+      <span class='label'>port:</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+      <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>proof:</span> <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>SUCCESSFUL</span><span class='comma'>,</span>
+      <span class='label'>access_level:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>snmp_version:</span> <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>snmp_error:</span> <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:error</span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scan!-instance_method">
+  
+    #<strong>scan!</strong> {|result| ... } &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Attempt to login with every <span class='object_link'><a href="../Credential.html" title="Metasploit::Framework::Credential (class)">credential</a></span> in # #cred_details.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>result</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The <span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span> object for each attempt</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scan!'>scan!</span>
+  <span class='id identifier rubyid_valid!'>valid!</span>
+
+  <span class='comment'># Keep track of connection errors.
+</span>  <span class='comment'># If we encounter too many, we will stop.
+</span>  <span class='id identifier rubyid_consecutive_error_count'>consecutive_error_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_total_error_count'>total_error_count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_successful_users'>successful_users</span> <span class='op'>=</span> <span class='const'>Set</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_first_attempt'>first_attempt</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Create a socket for the initial login tests (read-only)
+</span>  <span class='id identifier rubyid_configure_socket'>configure_socket</span>
+
+  <span class='comment'># Create a map of community name to credential object
+</span>  <span class='id identifier rubyid_credential_map'>credential_map</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_each_credential'>each_credential</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_credential'>credential</span><span class='op'>|</span>
+      <span class='comment'># Track the credentials by community string
+</span>      <span class='id identifier rubyid_credential_map'>credential_map</span><span class='lbracket'>[</span><span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_credential'>credential</span>
+
+      <span class='comment'># Skip users for whom we&#39;ve have already found a password
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_successful_users'>successful_users</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='rparen'>)</span>
+        <span class='comment'># For Pro bruteforce Reuse and Guess we need to note that we
+</span>        <span class='comment'># skipped an attempt.
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:skipped</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_skipped'>skipped</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_save!'>save!</span>
+        <span class='kw'>end</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+      <span class='comment'># Queue and trigger authentication if queue size is reached
+</span>      <span class='id identifier rubyid_versions'>versions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_version'>version</span><span class='op'>|</span>
+        <span class='id identifier rubyid_process_logins'>process_logins</span><span class='lparen'>(</span><span class='label'>community:</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='comma'>,</span> <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>version:</span> <span class='id identifier rubyid_version'>version</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Exit early if we already have a positive result
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_stop_on_success'>stop_on_success</span> <span class='op'>&amp;&amp;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ECONNREFUSED</span>
+    <span class='comment'># Exit early if we get an ICMP port unreachable
+</span>    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Handle any unprocessed responses
+</span>  <span class='id identifier rubyid_process_logins'>process_logins</span><span class='lparen'>(</span><span class='label'>final:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+  <span class='comment'># Create a non-duplicated set of credentials
+</span>  <span class='id identifier rubyid_found_credentials'>found_credentials</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span>
+
+  <span class='comment'># Reset the queued results for our write test
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Grab a new socket to avoid stale replies
+</span>  <span class='id identifier rubyid_configure_socket'>configure_socket</span>
+
+  <span class='comment'># Try to write back the originally received values
+</span>  <span class='id identifier rubyid_found_credentials'>found_credentials</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_result'>result</span><span class='op'>|</span>
+     <span class='id identifier rubyid_process_logins'>process_logins</span><span class='lparen'>(</span>
+      <span class='label'>version:</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:snmp_version</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>community:</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:community</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>data:</span> <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:proof</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Catch any stragglers
+</span>  <span class='id identifier rubyid_process_logins'>process_logins</span><span class='lparen'>(</span><span class='label'>final:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+
+  <span class='comment'># Mark any results from our write scan as read-write in our found credentials
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queued_results'>queued_results</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>17</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:snmp_error</span><span class='rbracket'>]</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:community</span><span class='rbracket'>]</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_found_credentials'>found_credentials</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='symbol'>:community</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_c'>c</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_result'>result</span><span class='op'>|</span>
+      <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-write</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Iterate the results
+</span>  <span class='id identifier rubyid_found_credentials'>found_credentials</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_result_options'>result_options</span><span class='op'>|</span>
+    <span class='comment'># Scrub the SNMP version &amp; error code from the tracked result
+</span>    <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:snmp_version</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:snmp_error</span><span class='rparen'>)</span>
+
+    <span class='comment'># Associate the community with the original credential
+</span>    <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:credential</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_map'>credential_map</span><span class='lbracket'>[</span><span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:community</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+
+    <span class='comment'># In the rare chance that we got a result for a community we didn&#39;t scan...
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='lbracket'>[</span><span class='symbol'>:credential</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Create, freeze, and yield the result
+</span>    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Result.html#initialize-instance_method" title="Metasploit::Framework::LoginScanner::Result#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_result_options'>result_options</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+    <span class='kw'>yield</span> <span class='id identifier rubyid_result'>result</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_shutdown_socket'>shutdown_socket</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_snmp_read_request-instance_method">
+  
+    #<strong>send_snmp_read_request</strong>(version, community)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create and send a SNMP read request for sys.sysDescr.0</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+229
+230
+231
+232
+233</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 229</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_snmp_read_request'>send_snmp_read_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_snmp_request'>send_snmp_request</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_create_snmp_read_sys_descr_request'>create_snmp_read_sys_descr_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_snmp_request-instance_method">
+  
+    #<strong>send_snmp_request</strong>(pkt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a SNMP request on the existing socket</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 243</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_snmp_request'>send_snmp_request</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sendto'>sendto</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOBUFS</span>
+    <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>&gt;</span> <span class='const'>MAX_RESEND_COUNT</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+    <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.25</span><span class='rparen'>)</span>
+    <span class='kw'>retry</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span>
+    <span class='comment'># This fires for host unreachable, net unreachable, and broadcast sends
+</span>    <span class='comment'># We can safely ignore all of these for UDP sends
+</span>  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_snmp_write_request-instance_method">
+  
+    #<strong>send_snmp_write_request</strong>(version, community, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create and send a SNMP write request for sys.sysDescr.0</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+236
+237
+238
+239
+240</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 236</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_snmp_write_request'>send_snmp_write_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_send_snmp_request'>send_snmp_request</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_create_snmp_write_sys_descr_request'>create_snmp_write_sys_descr_request</span><span class='lparen'>(</span><span class='id identifier rubyid_version'>version</span><span class='comma'>,</span> <span class='id identifier rubyid_community'>community</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_sane_defaults-instance_method">
+  
+    #<strong>set_sane_defaults</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the SNMP parameters if not specified</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+335
+336
+337
+338
+339
+340</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 335</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_sane_defaults'>set_sane_defaults</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_connection_timeout'>connection_timeout</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULT_TIMEOUT-constant" title="Metasploit::Framework::LoginScanner::SNMP::DEFAULT_TIMEOUT (constant)">DEFAULT_TIMEOUT</a></span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_connection_timeout'>connection_timeout</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULT_PORT-constant" title="Metasploit::Framework::LoginScanner::SNMP::DEFAULT_PORT (constant)">DEFAULT_PORT</a></span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULT_VERSION-constant" title="Metasploit::Framework::LoginScanner::SNMP::DEFAULT_VERSION (constant)">DEFAULT_VERSION</a></span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_version'>version</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queue_size'>queue_size</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEFAULT_QUEUE_SIZE-constant" title="Metasploit::Framework::LoginScanner::SNMP::DEFAULT_QUEUE_SIZE (constant)">DEFAULT_QUEUE_SIZE</a></span></span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queue_size'>queue_size</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shutdown_socket-instance_method">
+  
+    #<strong>shutdown_socket</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Close any open socket if it exists</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+329
+330
+331
+332</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 329</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shutdown_socket'>shutdown_socket</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="versions-instance_method">
+  
+    #<strong>versions</strong>  &#x21d2; <tt>Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns an array of versions to scan</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of versions</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/snmp.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_versions'>versions</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_version'>version</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='symbol'>:SNMPv1</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2c</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='symbol'>:SNMPv2c</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>all</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='symbol'>:SNMPv1</span><span class='comma'>,</span> <span class='symbol'>:SNMPv2c</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:27 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

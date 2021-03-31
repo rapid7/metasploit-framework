@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Windows::Dotnet
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Windows::Dotnet";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">Dotnet</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Windows::Dotnet
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span>, <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/windows/dotnet.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Registry.html#HKEY_CLASSES_ROOT-constant" title="Msf::Post::Windows::Registry::HKEY_CLASSES_ROOT (constant)">Registry::HKEY_CLASSES_ROOT</a></span>, <span class='object_link'><a href="Registry.html#HKEY_CURRENT_CONFIG-constant" title="Msf::Post::Windows::Registry::HKEY_CURRENT_CONFIG (constant)">Registry::HKEY_CURRENT_CONFIG</a></span>, <span class='object_link'><a href="Registry.html#HKEY_CURRENT_USER-constant" title="Msf::Post::Windows::Registry::HKEY_CURRENT_USER (constant)">Registry::HKEY_CURRENT_USER</a></span>, <span class='object_link'><a href="Registry.html#HKEY_DYN_DATA-constant" title="Msf::Post::Windows::Registry::HKEY_DYN_DATA (constant)">Registry::HKEY_DYN_DATA</a></span>, <span class='object_link'><a href="Registry.html#HKEY_LOCAL_MACHINE-constant" title="Msf::Post::Windows::Registry::HKEY_LOCAL_MACHINE (constant)">Registry::HKEY_LOCAL_MACHINE</a></span>, <span class='object_link'><a href="Registry.html#HKEY_PERFORMANCE_DATA-constant" title="Msf::Post::Windows::Registry::HKEY_PERFORMANCE_DATA (constant)">Registry::HKEY_PERFORMANCE_DATA</a></span>, <span class='object_link'><a href="Registry.html#HKEY_USERS-constant" title="Msf::Post::Windows::Registry::HKEY_USERS (constant)">Registry::HKEY_USERS</a></span>, <span class='object_link'><a href="Registry.html#REGISTRY_VIEW_32_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_32_BIT (constant)">Registry::REGISTRY_VIEW_32_BIT</a></span>, <span class='object_link'><a href="Registry.html#REGISTRY_VIEW_64_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_64_BIT (constant)">Registry::REGISTRY_VIEW_64_BIT</a></span>, <span class='object_link'><a href="Registry.html#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">Registry::REGISTRY_VIEW_NATIVE</a></span>, <span class='object_link'><a href="Registry.html#REG_BIG_ENDIAN-constant" title="Msf::Post::Windows::Registry::REG_BIG_ENDIAN (constant)">Registry::REG_BIG_ENDIAN</a></span>, <span class='object_link'><a href="Registry.html#REG_BINARY-constant" title="Msf::Post::Windows::Registry::REG_BINARY (constant)">Registry::REG_BINARY</a></span>, <span class='object_link'><a href="Registry.html#REG_DWORD-constant" title="Msf::Post::Windows::Registry::REG_DWORD (constant)">Registry::REG_DWORD</a></span>, <span class='object_link'><a href="Registry.html#REG_EXPAND_SZ-constant" title="Msf::Post::Windows::Registry::REG_EXPAND_SZ (constant)">Registry::REG_EXPAND_SZ</a></span>, <span class='object_link'><a href="Registry.html#REG_LINK-constant" title="Msf::Post::Windows::Registry::REG_LINK (constant)">Registry::REG_LINK</a></span>, <span class='object_link'><a href="Registry.html#REG_LITTLE_ENDIAN-constant" title="Msf::Post::Windows::Registry::REG_LITTLE_ENDIAN (constant)">Registry::REG_LITTLE_ENDIAN</a></span>, <span class='object_link'><a href="Registry.html#REG_MULTI_SZ-constant" title="Msf::Post::Windows::Registry::REG_MULTI_SZ (constant)">Registry::REG_MULTI_SZ</a></span>, <span class='object_link'><a href="Registry.html#REG_NONE-constant" title="Msf::Post::Windows::Registry::REG_NONE (constant)">Registry::REG_NONE</a></span>, <span class='object_link'><a href="Registry.html#REG_SZ-constant" title="Msf::Post::Windows::Registry::REG_SZ (constant)">Registry::REG_SZ</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_dotnet_versions-instance_method" title="#get_dotnet_versions (instance method)">#<strong>get_dotnet_versions</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>&#39;Public&#39; function that returns a list of all .NET versions on a windows host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_versionception-instance_method" title="#get_versionception (instance method)">#<strong>get_versionception</strong>(dotnet_vkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Bruteforce search all subkeys in an over-arching release to locate the actual release version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search_for_version-instance_method" title="#search_for_version (instance method)">#<strong>search_for_version</strong>(dotnet_subkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Searches the subkey for the value &#39;Version&#39; which contains the actual version, rather than the over-arching release An alternative would be to query for it, and catch the exception.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Registry.html#meterpreter_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_createkey (method)">#meterpreter_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deletekey (method)">#meterpreter_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_deleteval (method)">#meterpreter_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumkeys (method)">#meterpreter_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_enumvals (method)">#meterpreter_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvaldata (method)">#meterpreter_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_getvalinfo (method)">#meterpreter_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_key_exist%3F-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_key_exist? (method)">#meterpreter_registry_key_exist?</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_loadkey (method)">#meterpreter_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_perms-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_perms (method)">#meterpreter_registry_perms</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_setvaldata (method)">#meterpreter_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#meterpreter_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#meterpreter_registry_unloadkey (method)">#meterpreter_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#normalize_key-instance_method" title="Msf::Post::Windows::Registry#normalize_key (method)">#normalize_key</a></span>, <span class='object_link'><a href="Registry.html#registry_createkey-instance_method" title="Msf::Post::Windows::Registry#registry_createkey (method)">#registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#registry_deletekey (method)">#registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#registry_deleteval (method)">#registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#registry_enumkeys (method)">#registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#registry_enumvals (method)">#registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_getvaldata (method)">#registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#registry_getvalinfo (method)">#registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#registry_hive_lookup-instance_method" title="Msf::Post::Windows::Registry#registry_hive_lookup (method)">#registry_hive_lookup</a></span>, <span class='object_link'><a href="Registry.html#registry_key_exist%3F-instance_method" title="Msf::Post::Windows::Registry#registry_key_exist? (method)">#registry_key_exist?</a></span>, <span class='object_link'><a href="Registry.html#registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#registry_loadkey (method)">#registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#registry_setvaldata (method)">#registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#registry_unloadkey (method)">#registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#session_has_registry_ext-instance_method" title="Msf::Post::Windows::Registry#session_has_registry_ext (method)">#session_has_registry_ext</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_cmd-instance_method" title="Msf::Post::Windows::Registry#shell_registry_cmd (method)">#shell_registry_cmd</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_cmd_result-instance_method" title="Msf::Post::Windows::Registry#shell_registry_cmd_result (method)">#shell_registry_cmd_result</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_createkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_createkey (method)">#shell_registry_createkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deletekey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deletekey (method)">#shell_registry_deletekey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_deleteval-instance_method" title="Msf::Post::Windows::Registry#shell_registry_deleteval (method)">#shell_registry_deleteval</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumkeys-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumkeys (method)">#shell_registry_enumkeys</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_enumvals-instance_method" title="Msf::Post::Windows::Registry#shell_registry_enumvals (method)">#shell_registry_enumvals</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvaldata (method)">#shell_registry_getvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_getvalinfo-instance_method" title="Msf::Post::Windows::Registry#shell_registry_getvalinfo (method)">#shell_registry_getvalinfo</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_key_exist%3F-instance_method" title="Msf::Post::Windows::Registry#shell_registry_key_exist? (method)">#shell_registry_key_exist?</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_loadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_loadkey (method)">#shell_registry_loadkey</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_setvaldata-instance_method" title="Msf::Post::Windows::Registry#shell_registry_setvaldata (method)">#shell_registry_setvaldata</a></span>, <span class='object_link'><a href="Registry.html#shell_registry_unloadkey-instance_method" title="Msf::Post::Windows::Registry#shell_registry_unloadkey (method)">#shell_registry_unloadkey</a></span>, <span class='object_link'><a href="Registry.html#split_key-instance_method" title="Msf::Post::Windows::Registry#split_key (method)">#split_key</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CliParse.html#win_parse_error-instance_method" title="Msf::Post::Windows::CliParse#win_parse_error (method)">#win_parse_error</a></span>, <span class='object_link'><a href="CliParse.html#win_parse_results-instance_method" title="Msf::Post::Windows::CliParse#win_parse_results (method)">#win_parse_results</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Common.html#clear_screen-instance_method" title="Msf::Post::Common#clear_screen (method)">#clear_screen</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../Common.html#command_exists%3F-instance_method" title="Msf::Post::Common#command_exists? (method)">#command_exists?</a></span>, <span class='object_link'><a href="../Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="../Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Common.html#report_virtualization-instance_method" title="Msf::Post::Common#report_virtualization (method)">#report_virtualization</a></span>, <span class='object_link'><a href="../Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_dotnet_versions-instance_method">
+  
+    #<strong>get_dotnet_versions</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>&#39;Public&#39; function that returns a list of all .NET versions on a windows host</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/dotnet.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_dotnet_versions'>get_dotnet_versions</span>
+  <span class='id identifier rubyid_ret_val'>ret_val</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM\\SOFTWARE\\Microsoft\NET Framework Setup\\NDP</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dotnet_keys'>dotnet_keys</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Encountered exception in get_dotnet_version: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_dotnet_keys'>dotnet_keys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_dotnet_keys'>dotnet_keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_temp_key'>temp_key</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_temp_key'>temp_key</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM\\SOFTWARE\\Microsoft\NET Framework Setup\\NDP\\</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_temp_key'>temp_key</span>
+        <span class='id identifier rubyid_dotnet_version'>dotnet_version</span> <span class='op'>=</span> <span class='id identifier rubyid_get_versionception'>get_versionception</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+        <span class='kw'>unless</span> <span class='id identifier rubyid_dotnet_version'>dotnet_version</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+          <span class='id identifier rubyid_ret_val'>ret_val</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_dotnet_version'>dotnet_version</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_ret_val'>ret_val</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_versionception-instance_method">
+  
+    #<strong>get_versionception</strong>(dotnet_vkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Bruteforce search all subkeys in an over-arching release to locate the actual release version.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/dotnet.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_versionception'>get_versionception</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_vkey'>dotnet_vkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_exact_version'>exact_version</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_vkey'>dotnet_vkey</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Encountered exception in get_versionception: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_subkeys'>subkeys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_subkeys'>subkeys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_subkey'>subkey</span><span class='op'>|</span>
+      <span class='id identifier rubyid_exact_version'>exact_version</span> <span class='op'>=</span> <span class='id identifier rubyid_search_for_version'>search_for_version</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_vkey'>dotnet_vkey</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_subkey'>subkey</span><span class='rparen'>)</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_exact_version'>exact_version</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='comment'># if we find a version, stop looking
+</span>        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_exact_version'>exact_version</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/dotnet.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search_for_version-instance_method">
+  
+    #<strong>search_for_version</strong>(dotnet_subkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Searches the subkey for the value &#39;Version&#39; which contains the actual version, rather than the over-arching release An alternative would be to query for it, and catch the exception.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/dotnet.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_search_for_version'>search_for_version</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_subkey'>dotnet_subkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dotnet_version'>dotnet_version</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_enumvals'>registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_subkey'>dotnet_subkey</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Encountered exception in search_for_version: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_subkeys'>subkeys</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_subkeys'>subkeys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_subkey'>subkey</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_subkey'>subkey</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Version</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_dotnet_version'>dotnet_version</span> <span class='op'>=</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_dotnet_subkey'>dotnet_subkey</span><span class='comma'>,</span> <span class='id identifier rubyid_subkey'>subkey</span><span class='rparen'>)</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_dotnet_version'>dotnet_version</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:49 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

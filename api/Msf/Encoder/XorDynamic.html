@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Encoder::XorDynamic
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Encoder::XorDynamic";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (X)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Encoder.html" title="Msf::Encoder (class)">Encoder</a></span></span>
+     &raquo; 
+    <span class="title">XorDynamic</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Encoder::XorDynamic
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="../Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></li>
+          
+            <li class="next">Msf::Encoder::XorDynamic</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/encoder/xor_dynamic.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module.html#REPLICANT_EXTENSION_DS_KEY-constant" title="Msf::Module::REPLICANT_EXTENSION_DS_KEY (constant)">Module::REPLICANT_EXTENSION_DS_KEY</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/ModuleInfo.html#UpdateableOptions-constant" title="Msf::Module::ModuleInfo::UpdateableOptions (constant)">Module::ModuleInfo::UpdateableOptions</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Encoder.html#available_space-instance_method" title="Msf::Encoder#available_space (method)">#available_space</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module.html#error-instance_method" title="Msf::Module#error (method)">#error</a></span>, <span class='object_link'><a href="../Module.html#job_id-instance_method" title="Msf::Module#job_id (method)">#job_id</a></span>, <span class='object_link'><a href="../Module.html#license-instance_method" title="Msf::Module#license (method)">#license</a></span>, <span class='object_link'><a href="../Module.html#platform-instance_method" title="Msf::Module#platform (method)">#platform</a></span>, <span class='object_link'><a href="../Module.html#privileged=-instance_method" title="Msf::Module#privileged= (method)">#privileged</a></span>, <span class='object_link'><a href="../Module.html#references-instance_method" title="Msf::Module#references (method)">#references</a></span>, <span class='object_link'><a href="../Module.html#user_data-instance_method" title="Msf::Module#user_data (method)">#user_data</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UUID.html#uuid-instance_method" title="Msf::Module::UUID#uuid (method)">#uuid</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Privileged.html#priveli=-instance_method" title="Msf::Module::Privileged#priveli= (method)">#priveli</a></span>, <span class='object_link'><a href="../Module/Privileged.html#privileged-instance_method" title="Msf::Module::Privileged#privileged (method)">#privileged</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Options.html#options-instance_method" title="Msf::Module::Options#options (method)">#options</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/ModuleStore.html#module_store-instance_method" title="Msf::Module::ModuleStore#module_store (method)">#module_store</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/ModuleInfo.html#module_info-instance_method" title="Msf::Module::ModuleInfo#module_info (method)">#module_info</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/FullName.html#aliased_as-instance_method" title="Msf::Module::FullName#aliased_as (method)">#aliased_as</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/DataStore.html#datastore-instance_method" title="Msf::Module::DataStore#datastore (method)">#datastore</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Author.html#author-instance_method" title="Msf::Module::Author#author (method)">#author</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Arch.html#arch-instance_method" title="Msf::Module::Arch#arch (method)">#arch</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Alert.html#alerts-instance_method" title="Msf::Module::Alert#alerts (method)">#alerts</a></span>, <span class='object_link'><a href="../Module/Alert.html#you_have_been_warned-instance_method" title="Msf::Module::Alert#you_have_been_warned (method)">#you_have_been_warned</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode-instance_method" title="#encode (instance method)">#<strong>encode</strong>(buf, badchars = nil, state = nil, platform = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_key-instance_method" title="#find_key (instance method)">#<strong>find_key</strong>(buf, badchars, keyChars)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info)  &#x21d2; XorDynamic </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of XorDynamic.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key_inc-instance_method" title="#key_inc (instance method)">#<strong>key_inc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_key_len-instance_method" title="#max_key_len (instance method)">#<strong>max_key_len</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#min_key_len-instance_method" title="#min_key_len (instance method)">#<strong>min_key_len</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stub-instance_method" title="#stub (instance method)">#<strong>stub</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stub_key_term-instance_method" title="#stub_key_term (instance method)">#<strong>stub_key_term</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stub_payload_term-instance_method" title="#stub_payload_term (instance method)">#<strong>stub_payload_term</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Encoder.html" title="Msf::Encoder (class)">Msf::Encoder</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Encoder.html#can_preserve_registers%3F-instance_method" title="Msf::Encoder#can_preserve_registers? (method)">#can_preserve_registers?</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_block_size-instance_method" title="Msf::Encoder#decoder_block_size (method)">#decoder_block_size</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_hash-instance_method" title="Msf::Encoder#decoder_hash (method)">#decoder_hash</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_key_offset-instance_method" title="Msf::Encoder#decoder_key_offset (method)">#decoder_key_offset</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_key_pack-instance_method" title="Msf::Encoder#decoder_key_pack (method)">#decoder_key_pack</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_key_size-instance_method" title="Msf::Encoder#decoder_key_size (method)">#decoder_key_size</a></span>, <span class='object_link'><a href="../Encoder.html#decoder_stub-instance_method" title="Msf::Encoder#decoder_stub (method)">#decoder_stub</a></span>, <span class='object_link'><a href="../Encoder.html#do_encode-instance_method" title="Msf::Encoder#do_encode (method)">#do_encode</a></span>, <span class='object_link'><a href="../Encoder.html#encode_begin-instance_method" title="Msf::Encoder#encode_begin (method)">#encode_begin</a></span>, <span class='object_link'><a href="../Encoder.html#encode_block-instance_method" title="Msf::Encoder#encode_block (method)">#encode_block</a></span>, <span class='object_link'><a href="../Encoder.html#encode_end-instance_method" title="Msf::Encoder#encode_end (method)">#encode_end</a></span>, <span class='object_link'><a href="../Encoder.html#encode_finalize_stub-instance_method" title="Msf::Encoder#encode_finalize_stub (method)">#encode_finalize_stub</a></span>, <span class='object_link'><a href="../Encoder.html#encoder_type-instance_method" title="Msf::Encoder#encoder_type (method)">#encoder_type</a></span>, <span class='object_link'><a href="../Encoder.html#find_bad_keys-instance_method" title="Msf::Encoder#find_bad_keys (method)">#find_bad_keys</a></span>, <span class='object_link'><a href="../Encoder.html#find_context_key-instance_method" title="Msf::Encoder#find_context_key (method)">#find_context_key</a></span>, <span class='object_link'><a href="../Encoder.html#find_key_verify-instance_method" title="Msf::Encoder#find_key_verify (method)">#find_key_verify</a></span>, <span class='object_link'><a href="../Encoder.html#has_badchars%3F-instance_method" title="Msf::Encoder#has_badchars? (method)">#has_badchars?</a></span>, <span class='object_link'><a href="../Encoder.html#init_platform-instance_method" title="Msf::Encoder#init_platform (method)">#init_platform</a></span>, <span class='object_link'><a href="../Encoder.html#init_state-instance_method" title="Msf::Encoder#init_state (method)">#init_state</a></span>, <span class='object_link'><a href="../Encoder.html#integer_to_key_bytes-instance_method" title="Msf::Encoder#integer_to_key_bytes (method)">#integer_to_key_bytes</a></span>, <span class='object_link'><a href="../Encoder.html#key_bytes_to_buffer-instance_method" title="Msf::Encoder#key_bytes_to_buffer (method)">#key_bytes_to_buffer</a></span>, <span class='object_link'><a href="../Encoder.html#key_bytes_to_integer-instance_method" title="Msf::Encoder#key_bytes_to_integer (method)">#key_bytes_to_integer</a></span>, <span class='object_link'><a href="../Encoder.html#modified_registers-instance_method" title="Msf::Encoder#modified_registers (method)">#modified_registers</a></span>, <span class='object_link'><a href="../Encoder.html#obtain_key-instance_method" title="Msf::Encoder#obtain_key (method)">#obtain_key</a></span>, <span class='object_link'><a href="../Encoder.html#prepend_buf-instance_method" title="Msf::Encoder#prepend_buf (method)">#prepend_buf</a></span>, <span class='object_link'><a href="../Encoder.html#preserves_stack%3F-instance_method" title="Msf::Encoder#preserves_stack? (method)">#preserves_stack?</a></span>, <span class='object_link'><a href="../Encoder.html#to_native-instance_method" title="Msf::Encoder#to_native (method)">#to_native</a></span>, <span class='object_link'><a href="../Encoder.html#type-class_method" title="Msf::Encoder.type (method)">type</a></span>, <span class='object_link'><a href="../Encoder.html#type-instance_method" title="Msf::Encoder#type (method)">#type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module.html#black_listed_auth_filenames-instance_method" title="Msf::Module#black_listed_auth_filenames (method)">#black_listed_auth_filenames</a></span>, <span class='object_link'><a href="../Module.html#cached%3F-class_method" title="Msf::Module.cached? (method)">cached?</a></span>, <span class='object_link'><a href="../Module.html#debugging%3F-instance_method" title="Msf::Module#debugging? (method)">#debugging?</a></span>, <span class='object_link'><a href="../Module.html#default_cred%3F-instance_method" title="Msf::Module#default_cred? (method)">#default_cred?</a></span>, <span class='object_link'><a href="../Module.html#fail_with-instance_method" title="Msf::Module#fail_with (method)">#fail_with</a></span>, <span class='object_link'><a href="../Module.html#file_path-instance_method" title="Msf::Module#file_path (method)">#file_path</a></span>, <span class='object_link'><a href="../Module.html#framework-instance_method" title="Msf::Module#framework (method)">#framework</a></span>, <span class='object_link'><a href="../Module.html#has_check%3F-instance_method" title="Msf::Module#has_check? (method)">#has_check?</a></span>, <span class='object_link'><a href="../Module.html#orig_cls-instance_method" title="Msf::Module#orig_cls (method)">#orig_cls</a></span>, <span class='object_link'><a href="../Module.html#owner-instance_method" title="Msf::Module#owner (method)">#owner</a></span>, <span class='object_link'><a href="../Module.html#perform_extensions-instance_method" title="Msf::Module#perform_extensions (method)">#perform_extensions</a></span>, <span class='object_link'><a href="../Module.html#platform%3F-instance_method" title="Msf::Module#platform? (method)">#platform?</a></span>, <span class='object_link'><a href="../Module.html#platform_to_s-instance_method" title="Msf::Module#platform_to_s (method)">#platform_to_s</a></span>, <span class='object_link'><a href="../Module.html#post_auth%3F-instance_method" title="Msf::Module#post_auth? (method)">#post_auth?</a></span>, <span class='object_link'><a href="../Module.html#register_extensions-instance_method" title="Msf::Module#register_extensions (method)">#register_extensions</a></span>, <span class='object_link'><a href="../Module.html#register_parent-instance_method" title="Msf::Module#register_parent (method)">#register_parent</a></span>, <span class='object_link'><a href="../Module.html#replicant-instance_method" title="Msf::Module#replicant (method)">#replicant</a></span>, <span class='object_link'><a href="../Module.html#required_cred_options-instance_method" title="Msf::Module#required_cred_options (method)">#required_cred_options</a></span>, <span class='object_link'><a href="../Module.html#set_defaults-instance_method" title="Msf::Module#set_defaults (method)">#set_defaults</a></span>, <span class='object_link'><a href="../Module.html#workspace-instance_method" title="Msf::Module#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Reliability.html" title="Msf::Module::Reliability (module)">Module::Reliability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Reliability.html#reliability-instance_method" title="Msf::Module::Reliability#reliability (method)">#reliability</a></span>, <span class='object_link'><a href="../Module/Reliability.html#reliability_to_s-instance_method" title="Msf::Module::Reliability#reliability_to_s (method)">#reliability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Stability.html" title="Msf::Module::Stability (module)">Module::Stability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Stability.html#stability-instance_method" title="Msf::Module::Stability#stability (method)">#stability</a></span>, <span class='object_link'><a href="../Module/Stability.html#stability_to_s-instance_method" title="Msf::Module::Stability#stability_to_s (method)">#stability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/SideEffects.html" title="Msf::Module::SideEffects (module)">Module::SideEffects</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/SideEffects.html#side_effects-instance_method" title="Msf::Module::SideEffects#side_effects (method)">#side_effects</a></span>, <span class='object_link'><a href="../Module/SideEffects.html#side_effects_to_s-instance_method" title="Msf::Module::SideEffects#side_effects_to_s (method)">#side_effects_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UUID.html#generate_uuid-instance_method" title="Msf::Module::UUID#generate_uuid (method)">#generate_uuid</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UI.html" title="Msf::Module::UI (module)">Module::UI</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UI.html#init_ui-instance_method" title="Msf::Module::UI#init_ui (method)">#init_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UI/Message.html" title="Msf::Module::UI::Message (module)">Module::UI::Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UI/Message.html#print_error-instance_method" title="Msf::Module::UI::Message#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Module/UI/Message.html#print_good-instance_method" title="Msf::Module::UI::Message#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Module/UI/Message.html#print_prefix-instance_method" title="Msf::Module::UI::Message#print_prefix (method)">#print_prefix</a></span>, <span class='object_link'><a href="../Module/UI/Message.html#print_status-instance_method" title="Msf::Module::UI::Message#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Module/UI/Message.html#print_warning-instance_method" title="Msf::Module::UI::Message#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UI/Message/Verbose.html" title="Msf::Module::UI::Message::Verbose (module)">Module::UI::Message::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UI/Message/Verbose.html#vprint_error-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_error (method)">#vprint_error</a></span>, <span class='object_link'><a href="../Module/UI/Message/Verbose.html#vprint_good-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_good (method)">#vprint_good</a></span>, <span class='object_link'><a href="../Module/UI/Message/Verbose.html#vprint_status-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_status (method)">#vprint_status</a></span>, <span class='object_link'><a href="../Module/UI/Message/Verbose.html#vprint_warning-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_warning (method)">#vprint_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UI/Line.html" title="Msf::Module::UI::Line (module)">Module::UI::Line</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UI/Line.html#print_line-instance_method" title="Msf::Module::UI::Line#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Module/UI/Line.html#print_line_prefix-instance_method" title="Msf::Module::UI::Line#print_line_prefix (method)">#print_line_prefix</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/UI/Line/Verbose.html" title="Msf::Module::UI::Line::Verbose (module)">Module::UI::Line::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/UI/Line/Verbose.html#vprint_line-instance_method" title="Msf::Module::UI::Line::Verbose#vprint_line (method)">#vprint_line</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Type.html" title="Msf::Module::Type (module)">Module::Type</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Type.html#auxiliary%3F-instance_method" title="Msf::Module::Type#auxiliary? (method)">#auxiliary?</a></span>, <span class='object_link'><a href="../Module/Type.html#encoder%3F-instance_method" title="Msf::Module::Type#encoder? (method)">#encoder?</a></span>, <span class='object_link'><a href="../Module/Type.html#evasion%3F-instance_method" title="Msf::Module::Type#evasion? (method)">#evasion?</a></span>, <span class='object_link'><a href="../Module/Type.html#exploit%3F-instance_method" title="Msf::Module::Type#exploit? (method)">#exploit?</a></span>, <span class='object_link'><a href="../Module/Type.html#nop%3F-instance_method" title="Msf::Module::Type#nop? (method)">#nop?</a></span>, <span class='object_link'><a href="../Module/Type.html#payload%3F-instance_method" title="Msf::Module::Type#payload? (method)">#payload?</a></span>, <span class='object_link'><a href="../Module/Type.html#post%3F-instance_method" title="Msf::Module::Type#post? (method)">#post?</a></span>, <span class='object_link'><a href="../Module/Type.html#type-instance_method" title="Msf::Module::Type#type (method)">#type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Ranking.html" title="Msf::Module::Ranking (module)">Module::Ranking</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Ranking.html#rank-instance_method" title="Msf::Module::Ranking#rank (method)">#rank</a></span>, <span class='object_link'><a href="../Module/Ranking.html#rank_to_h-instance_method" title="Msf::Module::Ranking#rank_to_h (method)">#rank_to_h</a></span>, <span class='object_link'><a href="../Module/Ranking.html#rank_to_s-instance_method" title="Msf::Module::Ranking#rank_to_s (method)">#rank_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Privileged.html#privileged%3F-instance_method" title="Msf::Module::Privileged#privileged? (method)">#privileged?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Options.html#deregister_options-instance_method" title="Msf::Module::Options#deregister_options (method)">#deregister_options</a></span>, <span class='object_link'><a href="../Module/Options.html#register_advanced_options-instance_method" title="Msf::Module::Options#register_advanced_options (method)">#register_advanced_options</a></span>, <span class='object_link'><a href="../Module/Options.html#register_evasion_options-instance_method" title="Msf::Module::Options#register_evasion_options (method)">#register_evasion_options</a></span>, <span class='object_link'><a href="../Module/Options.html#register_options-instance_method" title="Msf::Module::Options#register_options (method)">#register_options</a></span>, <span class='object_link'><a href="../Module/Options.html#validate-instance_method" title="Msf::Module::Options#validate (method)">#validate</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Network.html" title="Msf::Module::Network (module)">Module::Network</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Network.html#comm-instance_method" title="Msf::Module::Network#comm (method)">#comm</a></span>, <span class='object_link'><a href="../Module/Network.html#support_ipv6%3F-instance_method" title="Msf::Module::Network#support_ipv6? (method)">#support_ipv6?</a></span>, <span class='object_link'><a href="../Module/Network.html#target_host-instance_method" title="Msf::Module::Network#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../Module/Network.html#target_port-instance_method" title="Msf::Module::Network#target_port (method)">#target_port</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/ModuleStore.html#[]-instance_method" title="Msf::Module::ModuleStore#[] (method)">#[]</a></span>, <span class='object_link'><a href="../Module/ModuleStore.html#[]=-instance_method" title="Msf::Module::ModuleStore#[]= (method)">#[]=</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/ModuleInfo.html#alias-instance_method" title="Msf::Module::ModuleInfo#alias (method)">#alias</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#description-instance_method" title="Msf::Module::ModuleInfo#description (method)">#description</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#disclosure_date-instance_method" title="Msf::Module::ModuleInfo#disclosure_date (method)">#disclosure_date</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#info_fixups-instance_method" title="Msf::Module::ModuleInfo#info_fixups (method)">#info_fixups</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_check_key-instance_method" title="Msf::Module::ModuleInfo#merge_check_key (method)">#merge_check_key</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info-instance_method" title="Msf::Module::ModuleInfo#merge_info (method)">#merge_info</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_advanced_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_advanced_options (method)">#merge_info_advanced_options</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_alias-instance_method" title="Msf::Module::ModuleInfo#merge_info_alias (method)">#merge_info_alias</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_description-instance_method" title="Msf::Module::ModuleInfo#merge_info_description (method)">#merge_info_description</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_evasion_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_evasion_options (method)">#merge_info_evasion_options</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_name-instance_method" title="Msf::Module::ModuleInfo#merge_info_name (method)">#merge_info_name</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_options (method)">#merge_info_options</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_string-instance_method" title="Msf::Module::ModuleInfo#merge_info_string (method)">#merge_info_string</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#merge_info_version-instance_method" title="Msf::Module::ModuleInfo#merge_info_version (method)">#merge_info_version</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#name-instance_method" title="Msf::Module::ModuleInfo#name (method)">#name</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#notes-instance_method" title="Msf::Module::ModuleInfo#notes (method)">#notes</a></span>, <span class='object_link'><a href="../Module/ModuleInfo.html#update_info-instance_method" title="Msf::Module::ModuleInfo#update_info (method)">#update_info</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/FullName.html#aliases-instance_method" title="Msf::Module::FullName#aliases (method)">#aliases</a></span>, <span class='object_link'><a href="../Module/FullName.html#fullname-instance_method" title="Msf::Module::FullName#fullname (method)">#fullname</a></span>, <span class='object_link'><a href="../Module/FullName.html#promptname-instance_method" title="Msf::Module::FullName#promptname (method)">#promptname</a></span>, <span class='object_link'><a href="../Module/FullName.html#realname-instance_method" title="Msf::Module::FullName#realname (method)">#realname</a></span>, <span class='object_link'><a href="../Module/FullName.html#refname-instance_method" title="Msf::Module::FullName#refname (method)">#refname</a></span>, <span class='object_link'><a href="../Module/FullName.html#shortname-instance_method" title="Msf::Module::FullName#shortname (method)">#shortname</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/DataStore.html#import_defaults-instance_method" title="Msf::Module::DataStore#import_defaults (method)">#import_defaults</a></span>, <span class='object_link'><a href="../Module/DataStore.html#import_target_defaults-instance_method" title="Msf::Module::DataStore#import_target_defaults (method)">#import_target_defaults</a></span>, <span class='object_link'><a href="../Module/DataStore.html#share_datastore-instance_method" title="Msf::Module::DataStore#share_datastore (method)">#share_datastore</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Compatibility.html" title="Msf::Module::Compatibility (module)">Module::Compatibility</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Compatibility.html#compat-instance_method" title="Msf::Module::Compatibility#compat (method)">#compat</a></span>, <span class='object_link'><a href="../Module/Compatibility.html#compatible%3F-instance_method" title="Msf::Module::Compatibility#compatible? (method)">#compatible?</a></span>, <span class='object_link'><a href="../Module/Compatibility.html#init_compat-instance_method" title="Msf::Module::Compatibility#init_compat (method)">#init_compat</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Author.html#author_to_s-instance_method" title="Msf::Module::Author#author_to_s (method)">#author_to_s</a></span>, <span class='object_link'><a href="../Module/Author.html#each_author-instance_method" title="Msf::Module::Author#each_author (method)">#each_author</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Auth.html" title="Msf::Module::Auth (module)">Module::Auth</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Auth.html#store_valid_credential-instance_method" title="Msf::Module::Auth#store_valid_credential (method)">#store_valid_credential</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Arch.html#arch%3F-instance_method" title="Msf::Module::Arch#arch? (method)">#arch?</a></span>, <span class='object_link'><a href="../Module/Arch.html#arch_to_s-instance_method" title="Msf::Module::Arch#arch_to_s (method)">#arch_to_s</a></span>, <span class='object_link'><a href="../Module/Arch.html#each_arch-instance_method" title="Msf::Module::Arch#each_arch (method)">#each_arch</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Module/Alert.html#add_alert-instance_method" title="Msf::Module::Alert#add_alert (method)">#add_alert</a></span>, <span class='object_link'><a href="../Module/Alert.html#add_error-instance_method" title="Msf::Module::Alert#add_error (method)">#add_error</a></span>, <span class='object_link'><a href="../Module/Alert.html#add_warning-instance_method" title="Msf::Module::Alert#add_warning (method)">#add_warning</a></span>, <span class='object_link'><a href="../Module/Alert.html#alert_user-instance_method" title="Msf::Module::Alert#alert_user (method)">#alert_user</a></span>, <span class='object_link'><a href="../Module/Alert.html#errors-instance_method" title="Msf::Module::Alert#errors (method)">#errors</a></span>, <span class='object_link'><a href="../Module/Alert.html#get_alerts-instance_method" title="Msf::Module::Alert#get_alerts (method)">#get_alerts</a></span>, <span class='object_link'><a href="../Module/Alert.html#included-class_method" title="Msf::Module::Alert.included (method)">included</a></span>, <span class='object_link'><a href="../Module/Alert.html#is_usable%3F-instance_method" title="Msf::Module::Alert#is_usable? (method)">#is_usable?</a></span>, <span class='object_link'><a href="../Module/Alert.html#warnings-instance_method" title="Msf::Module::Alert#warnings (method)">#warnings</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Encoder::XorDynamic (class)">XorDynamic</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of XorDynamic.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+5
+6
+7</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 5</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+    <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="encode-instance_method">
+  
+    #<strong>encode</strong>(buf, badchars = nil, state = nil, platform = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+
+  <span class='comment'># Set default badchars if empty
+</span>  <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x0a\x0d</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='kw'>or</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Check badchars in stub
+</span>  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span><span class='id identifier rubyid_stub'>stub</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_stub_key_term'>stub_key_term</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_stub_payload_term'>stub_payload_term</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bad character found in stub for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set allowed chars
+</span>  <span class='id identifier rubyid_keyChars'>keyChars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>in</span> <span class='int'>1</span><span class='op'>..</span><span class='int'>255</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_badchars'>badchars</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_keyChars'>keyChars</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Find key
+</span>  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_find_key'>find_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_keyChars'>keyChars</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A key could not be found for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Search for key terminator
+</span>  <span class='id identifier rubyid_keyTerm'>keyTerm</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_keyChars'>keyChars</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_shuffle'>shuffle</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_keyTerm'>keyTerm</span> <span class='op'>=</span> <span class='id identifier rubyid_i'>i</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_keyTerm'>keyTerm</span> <span class='op'>==</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Key terminator could not be found for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Encode paylod
+</span>  <span class='id identifier rubyid_pos'>pos</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>while</span> <span class='id identifier rubyid_pos'>pos</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_pos'>pos</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span> <span class='op'>^</span> <span class='id identifier rubyid_key'>key</span><span class='lbracket'>[</span><span class='id identifier rubyid_pos'>pos</span> <span class='op'>%</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+    <span class='id identifier rubyid_pos'>pos</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Search for payload terminator
+</span>  <span class='id identifier rubyid_payloadTerm'>payloadTerm</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_keyChars'>keyChars</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_shuffle'>shuffle</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_keyChars'>keyChars</span><span class='period'>.</span><span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_shuffle'>shuffle</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_j'>j</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='id identifier rubyid_j'>j</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_payloadTerm'>payloadTerm</span> <span class='op'>=</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='id identifier rubyid_j'>j</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_payloadTerm'>payloadTerm</span> <span class='op'>==</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Payload terminator could not be found for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_finalPayload'>finalPayload</span> <span class='op'>=</span> <span class='id identifier rubyid_stub'>stub</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_stub_key_term'>stub_key_term</span><span class='comma'>,</span> <span class='id identifier rubyid_keyTerm'>keyTerm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_stub_payload_term'>stub_payload_term</span><span class='comma'>,</span> <span class='id identifier rubyid_payloadTerm'>payloadTerm</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>+</span> <span class='id identifier rubyid_keyTerm'>keyTerm</span> <span class='op'>+</span> <span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>+</span> <span class='id identifier rubyid_payloadTerm'>payloadTerm</span>
+
+  <span class='comment'># Check badchars in finalPayload
+</span>  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_badchar_index'>badchar_index</span><span class='lparen'>(</span><span class='id identifier rubyid_finalPayload'>finalPayload</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bad character found for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_finalPayload'>finalPayload</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_key-instance_method">
+  
+    #<strong>find_key</strong>(buf, badchars, keyChars)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_key'>find_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_keyChars'>keyChars</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_keyFound'>keyFound</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_bufLen'>bufLen</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+
+  <span class='comment'># Search for a valid key
+</span>  <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>=</span> <span class='id identifier rubyid_min_key_len'>min_key_len</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>=</span> <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>100</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='float'>0.2</span> <span class='op'>+</span> <span class='float'>0.05</span> <span class='op'>*</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+      <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid__max_key_len'>_max_key_len</span> <span class='op'>=</span> <span class='id identifier rubyid_max_key_len'>max_key_len</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid__max_key_len'>_max_key_len</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>&gt;</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span> <span class='kw'>or</span> <span class='id identifier rubyid_min_key_len'>min_key_len</span> <span class='op'>==</span> <span class='op'>-</span><span class='int'>1</span>
+    <span class='id identifier rubyid__min_key_len'>_min_key_len</span> <span class='op'>=</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='op'>=</span> <span class='id identifier rubyid_key_inc'>key_inc</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='op'>=</span> <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>/</span> <span class='int'>100</span> <span class='op'>*</span> <span class='lparen'>(</span><span class='float'>0.01</span> <span class='op'>+</span> <span class='float'>0.001</span> <span class='op'>*</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+      <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='op'>=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>=</span> <span class='id identifier rubyid__min_key_len'>_min_key_len</span>
+  <span class='kw'>while</span> <span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>&lt;</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span> <span class='op'>+</span> <span class='id identifier rubyid__key_inc'>_key_inc</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>&gt;</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span>
+      <span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>=</span> <span class='id identifier rubyid__max_key_len'>_max_key_len</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'>#$stderr.print &quot;\rKey size: #{keyLen}&quot;
+</span>    <span class='comment'>#$stderr.flush
+</span>
+    <span class='id identifier rubyid_myKey'>myKey</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>for</span> <span class='id identifier rubyid_x'>x</span> <span class='kw'>in</span> <span class='int'>0</span><span class='op'>..</span><span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>-</span> <span class='int'>1</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_keyChars'>keyChars</span><span class='period'>.</span><span class='id identifier rubyid_each_char'>each_char</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_j'>j</span><span class='op'>|</span>
+        <span class='id identifier rubyid_ok'>ok</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='id identifier rubyid_i'>i</span> <span class='op'>=</span> <span class='int'>0</span>
+        <span class='kw'>while</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_bufLen'>bufLen</span> <span class='kw'>do</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='id identifier rubyid_x'>x</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span> <span class='op'>^</span> <span class='id identifier rubyid_j'>j</span><span class='period'>.</span><span class='id identifier rubyid_ord'>ord</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_ok'>ok</span> <span class='op'>=</span> <span class='kw'>false</span>
+            <span class='kw'>break</span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_i'>i</span> <span class='op'>+=</span> <span class='id identifier rubyid_keyLen'>keyLen</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_ok'>ok</span>
+          <span class='id identifier rubyid_myKey'>myKey</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_j'>j</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_myKey'>myKey</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_keyLen'>keyLen</span>
+      <span class='id identifier rubyid_keyFound'>keyFound</span> <span class='op'>=</span> <span class='id identifier rubyid_myKey'>myKey</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_keyLen'>keyLen</span> <span class='op'>+=</span> <span class='id identifier rubyid__key_inc'>_key_inc</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>#$stderr.print &quot;\n&quot;
+</span>  <span class='comment'>#$stderr.flush
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_keyFound'>keyFound</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key_inc-instance_method">
+  
+    #<strong>key_inc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key_inc'>key_inc</span>
+  <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KEYINC</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="max_key_len-instance_method">
+  
+    #<strong>max_key_len</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_key_len'>max_key_len</span>
+  <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KEYMAX</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="min_key_len-instance_method">
+  
+    #<strong>min_key_len</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_min_key_len'>min_key_len</span>
+  <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KEYMIN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stub-instance_method">
+  
+    #<strong>stub</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stub'>stub</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stub_key_term-instance_method">
+  
+    #<strong>stub_key_term</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stub_key_term'>stub_key_term</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stub_payload_term-instance_method">
+  
+    #<strong>stub_payload_term</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder/xor_dynamic.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stub_payload_term'>stub_payload_term</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:02 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

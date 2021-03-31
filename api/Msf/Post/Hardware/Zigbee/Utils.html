@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Hardware::Zigbee::Utils
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Hardware::Zigbee::Utils";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Hardware.html" title="Msf::Post::Hardware (module)">Hardware</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Zigbee.html" title="Msf::Post::Hardware::Zigbee (module)">Zigbee</a></span></span>
+     &raquo; 
+    <span class="title">Utils</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Hardware::Zigbee::Utils
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/hardware/zigbee/utils.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DOT154_FCF_TYPE_MASK-constant" class="">DOT154_FCF_TYPE_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Constants for packet decoding fields Frame Control Field</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0007</span></pre></dd>
+      
+        <dt id="DOT154_FCF_SEC_EN-constant" class="">DOT154_FCF_SEC_EN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Frame type mask</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0008</span></pre></dd>
+      
+        <dt id="DOT154_FCF_FRAME_PND-constant" class="">DOT154_FCF_FRAME_PND =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Set for encrypted payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0010</span></pre></dd>
+      
+        <dt id="DOT154_FCF_ACK_REQ-constant" class="">DOT154_FCF_ACK_REQ =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Frame pending</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0020</span></pre></dd>
+      
+        <dt id="DOT154_FCF_INTRA_PAN-constant" class="">DOT154_FCF_INTRA_PAN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: ACK request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0040</span></pre></dd>
+      
+        <dt id="DOT154_FCF_DADDR_MASK-constant" class="">DOT154_FCF_DADDR_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Intra-PAN activity</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0C00</span></pre></dd>
+      
+        <dt id="DOT154_FCF_VERSION_MASK-constant" class="">DOT154_FCF_VERSION_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Destination addressing mode mask</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x3000</span></pre></dd>
+      
+        <dt id="DOT154_FCF_SADDR_MASK-constant" class="">DOT154_FCF_SADDR_MASK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Frame version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0xC000</span></pre></dd>
+      
+        <dt id="DOT154_FCF_TYPE_MASK_SHIFT-constant" class="">DOT154_FCF_TYPE_MASK_SHIFT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Frame Control Field Bit Shifts</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="DOT154_FCF_DADDR_MASK_SHIFT-constant" class="">DOT154_FCF_DADDR_MASK_SHIFT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Frame type mask mode shift</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="DOT154_FCF_VERSION_MASK_SHIFT-constant" class="">DOT154_FCF_VERSION_MASK_SHIFT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Destination addressing mode mask</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="DOT154_FCF_SADDR_MASK_SHIFT-constant" class="">DOT154_FCF_SADDR_MASK_SHIFT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Frame versions mask mode shift</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="DOT154_FCF_ADDR_NONE-constant" class="">DOT154_FCF_ADDR_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Address Mode Definitions</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0000</span></pre></dd>
+      
+        <dt id="DOT154_FCF_ADDR_SHORT-constant" class="">DOT154_FCF_ADDR_SHORT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Not sure when this is used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0002</span></pre></dd>
+      
+        <dt id="DOT154_FCF_ADDR_EXT-constant" class="">DOT154_FCF_ADDR_EXT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: 4-byte addressing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x0003</span></pre></dd>
+      
+        <dt id="DOT154_FCF_TYPE_BEACON-constant" class="">DOT154_FCF_TYPE_BEACON =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: 8-byte addressing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="DOT154_FCF_TYPE_DATA-constant" class="">DOT154_FCF_TYPE_DATA =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Beacon frame</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="DOT154_FCF_TYPE_ACK-constant" class="">DOT154_FCF_TYPE_ACK =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Data frame</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="DOT154_FCF_TYPE_MACCMD-constant" class="">DOT154_FCF_TYPE_MACCMD =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Acknowledgement frame</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_NONE-constant" class="">DOT154_CRYPT_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: MAC Command frame</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x00</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_MIC32-constant" class="">DOT154_CRYPT_MIC32 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: No encryption, no MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_MIC64-constant" class="">DOT154_CRYPT_MIC64 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: No encryption, 32-bit MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x02</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_MIC128-constant" class="">DOT154_CRYPT_MIC128 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: No encryption, 64-bit MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x03</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_ENC-constant" class="">DOT154_CRYPT_ENC =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: No encryption, 128-bit MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x04</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_ENC_MIC32-constant" class="">DOT154_CRYPT_ENC_MIC32 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Encryption, no MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x05</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_ENC_MIC64-constant" class="">DOT154_CRYPT_ENC_MIC64 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Encryption, 32-bit MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x06</span></pre></dd>
+      
+        <dt id="DOT154_CRYPT_ENC_MIC128-constant" class="">DOT154_CRYPT_ENC_MIC128 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>: Encryption, 64-bit MIC</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0x07</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dot154_packet_decode-instance_method" title="#dot154_packet_decode (instance method)">#<strong>dot154_packet_decode</strong>(packet)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Breaks up the packet into different sections.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_target_device-instance_method" title="#get_target_device (instance method)">#<strong>get_target_device</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves the target Zigbee device.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inject-instance_method" title="#inject (instance method)">#<strong>inject</strong>(device, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Inject raw packets.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_zigbee_hwbridge_session%3F-instance_method" title="#is_zigbee_hwbridge_session? (instance method)">#<strong>is_zigbee_hwbridge_session?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Infer if the current session is for a ZigBee device.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv-instance_method" title="#recv (instance method)">#<strong>recv</strong>(device)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Recieves data from the Zigbee device.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_channel-instance_method" title="#set_channel (instance method)">#<strong>set_channel</strong>(device, channel)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the Zigbee Channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_target_device-instance_method" title="#set_target_device (instance method)">#<strong>set_target_device</strong>(device)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the target default Zigbee Device.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sniffer_off-instance_method" title="#sniffer_off (instance method)">#<strong>sniffer_off</strong>(device)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Turn off Zigbee receiving.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sniffer_on-instance_method" title="#sniffer_on (instance method)">#<strong>sniffer_on</strong>(device)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Turn on Zigbee receiving.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#verify_device-instance_method" title="#verify_device (instance method)">#<strong>verify_device</strong>(device)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Verify if a device has been specified.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="dot154_packet_decode-instance_method">
+  
+    #<strong>dot154_packet_decode</strong>(packet)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Breaks up the packet into different sections.  Also provides Some decoding information.  This method relates to Killerbee&#39;s Pktchop method and Returns a similar array structure PktChop.  If it&#39;s a beacon data you will also have A BEACONDATA array of raw beacon related packets.  You can pull other decoded portions from the returned hash such as</p>
+
+<pre class="code ruby"><code class="ruby"><span class='const'>FSF</span>
+<span class='const'>SEQ</span>
+<span class='const'>SPAN_ID</span>
+<span class='const'>SOURCE</span>
+<span class='const'>SUPERFRAME</span>
+<span class='const'>GTS</span>
+<span class='const'>PENDING_ADDRESS_COUNT</span>
+<span class='const'>PROTOCOL_ID</span>
+<span class='const'>STACK_PROFILE</span>
+<span class='const'>CAPABILITY</span>
+<span class='const'>EXT_PAN_ID</span>
+<span class='const'>TX_OFFSET</span>
+<span class='const'>UPDATE_ID</span>
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>packet</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Raw data from recv</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>{ PktChop =&gt; [Array of data], ..</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 145</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dot154_packet_decode'>dot154_packet_decode</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_pktchop'>pktchop</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='comment'># Sequence number
+</span>  <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='comment'># Byte swap
+</span>  <span class='id identifier rubyid_fcf'>fcf</span> <span class='op'>=</span> <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_hex'>hex</span>
+  <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>FSF</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_fcf'>fcf</span>
+  <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SEQ</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='comment'># Check if we are dealing with a beacon frame
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fcf'>fcf</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_TYPE_MASK-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_TYPE_MASK (constant)">DOT154_FCF_TYPE_MASK</a></span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_TYPE_BEACON-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_TYPE_BEACON (constant)">DOT154_FCF_TYPE_BEACON</a></span></span>
+    <span class='id identifier rubyid_beacondata'>beacondata</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='comment'># 802.15.4 fields, SPAN and SA
+</span>    <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='int'>3</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='int'>5</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SPAN_ID</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SOURCE</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>7</span>
+
+    <span class='comment'># Superframe specification
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SUPERFRAME</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>2</span>
+
+    <span class='comment'># GTS data
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GTS</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+
+    <span class='comment'># Pending address count
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PENDING_ADDRESS_COUNT</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+
+    <span class='comment'># Protocol ID
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PROTOCOL_ID</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+
+    <span class='comment'># Stack Profile version
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>STACK_PROFILE</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+
+    <span class='comment'># Capability information
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CAPABILITY</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+
+    <span class='comment'># Extended PAN ID
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EXT_PAN_ID</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>8</span>
+
+    <span class='comment'># TX Offset
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>7</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>3</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TX_OFFSET</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>7</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>3</span>
+
+    <span class='comment'># Update ID
+</span>    <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>8</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>UPDATE_ID</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span><span class='lbracket'>[</span><span class='int'>8</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span><span class='op'>+=</span><span class='int'>1</span>
+    <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>6</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>BEACONDATA</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_beacondata'>beacondata</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Not a beacon frame
+</span>
+    <span class='comment'># DPAN
+</span>    <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='int'>3</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>5</span>
+
+    <span class='comment'># Examine the destination addressing mode
+</span>    <span class='id identifier rubyid_daddr_mask'>daddr_mask</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_fcf'>fcf</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_DADDR_MASK-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_DADDR_MASK (constant)">DOT154_FCF_DADDR_MASK</a></span></span><span class='rparen'>)</span> <span class='op'>&gt;&gt;</span> <span class='int'>10</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_daddr_mask'>daddr_mask</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_ADDR_EXT-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_ADDR_EXT (constant)">DOT154_FCF_ADDR_EXT</a></span></span>
+      <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>8</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_daddr_mask'>daddr_mask</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_ADDR_SHORT-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_ADDR_SHORT (constant)">DOT154_FCF_ADDR_SHORT</a></span></span>
+      <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>2</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Examine the Intra-PAN flag
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fcf'>fcf</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_INTRA_PAN-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_INTRA_PAN (constant)">DOT154_FCF_INTRA_PAN</a></span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>4</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>2</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Examine the source addressing mode
+</span>    <span class='id identifier rubyid_saddr_mask'>saddr_mask</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_fcf'>fcf</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_SADDR_MASK-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_SADDR_MASK (constant)">DOT154_FCF_SADDR_MASK</a></span></span><span class='rparen'>)</span> <span class='op'>&gt;&gt;</span> <span class='int'>14</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_daddr_mask'>daddr_mask</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_ADDR_EXT-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_ADDR_EXT (constant)">DOT154_FCF_ADDR_EXT</a></span></span>
+      <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>8</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>8</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_daddr_mask'>daddr_mask</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#DOT154_FCF_ADDR_SHORT-constant" title="Msf::Post::Hardware::Zigbee::Utils::DOT154_FCF_ADDR_SHORT (constant)">DOT154_FCF_ADDR_SHORT</a></span></span>
+      <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>2</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Append remaining payload
+</span>  <span class='id identifier rubyid_pktchop'>pktchop</span><span class='lbracket'>[</span><span class='int'>7</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_packet'>packet</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span><span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_offset'>offset</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>PktChop</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_pktchop'>pktchop</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_target_device-instance_method">
+  
+    #<strong>get_target_device</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves the target Zigbee device.  This is typically set by the user via the interactive HWBridge command line</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_target_device'>get_target_device</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_get_target_device'>get_target_device</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inject-instance_method">
+  
+    #<strong>inject</strong>(device, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Inject raw packets.  Need firmware on the zigbee device that supports transmission.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Raw binary data sent as a string</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_device'>device</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_target_device'>target_device</span> <span class='kw'>unless</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_zigbee_hwbridge_session?-instance_method">
+  
+    #<strong>is_zigbee_hwbridge_session?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Infer if the current session is for a ZigBee device.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if session is for a ZigBee device, false otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not a ZigBee hwbridge session</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv-instance_method">
+  
+    #<strong>recv</strong>(device)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Recieves data from the Zigbee device</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Binary blob of returned data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_device'>device</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_target_device'>target_device</span> <span class='kw'>unless</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_channel-instance_method">
+  
+    #<strong>set_channel</strong>(device, channel)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the Zigbee Channel</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>channel</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Channel number, typically 11-25</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_channel'>set_channel</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_device'>device</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_target_device'>target_device</span> <span class='kw'>unless</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_set_channel'>set_channel</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='comma'>,</span> <span class='id identifier rubyid_channel'>channel</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_target_device-instance_method">
+  
+    #<strong>set_target_device</strong>(device)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the target default Zigbee Device.  This command typically isn&#39;t called via a script Instead the user is expected to set this via the interactive HWBridge commandline</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_target_device'>set_target_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_set_target_device'>set_target_device</span> <span class='id identifier rubyid_device'>device</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sniffer_off-instance_method">
+  
+    #<strong>sniffer_off</strong>(device)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Turn off Zigbee receiving</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sniffer_off'>sniffer_off</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_device'>device</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_target_device'>target_device</span> <span class='kw'>unless</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_sniffer_off'>sniffer_off</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sniffer_on-instance_method">
+  
+    #<strong>sniffer_on</strong>(device)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Turn on Zigbee receiving</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>device</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Zigbee device ID</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120
+121
+122
+123</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sniffer_on'>sniffer_on</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_is_zigbee_hwbridge_session?'>is_zigbee_hwbridge_session?</span>
+  <span class='id identifier rubyid_device'>device</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_target_device'>target_device</span> <span class='kw'>unless</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_zigbee'>zigbee</span><span class='period'>.</span><span class='id identifier rubyid_sniffer_on'>sniffer_on</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="verify_device-instance_method">
+  
+    #<strong>verify_device</strong>(device)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Verify if a device has been specified.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if device is specified, false otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/hardware/zigbee/utils.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_verify_device'>verify_device</span><span class='lparen'>(</span><span class='id identifier rubyid_device'>device</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_device'>device</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No target device set, use &#39;target&#39; or specify bus via the options.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:25 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2712 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::DataService::RemoteHTTPDataService
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::DataService::RemoteHTTPDataService";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DataService.html" title="Metasploit::Framework::DataService (module)">DataService</a></span></span>
+     &raquo; 
+    <span class="title">RemoteHTTPDataService</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::DataService::RemoteHTTPDataService
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::DataService::RemoteHTTPDataService</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../DataServiceAutoLoader.html" title="DataServiceAutoLoader (module)">DataServiceAutoLoader</a></span>, <span class='object_link'><a href="../DataService.html" title="Metasploit::Framework::DataService (module)">Metasploit::Framework::DataService</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/data_service/remote/http/core.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="RemoteHTTPDataService/ErrorResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse (class)">ErrorResponse</a></span>, <span class='object_link'><a href="RemoteHTTPDataService/FailedResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse (class)">FailedResponse</a></span>, <span class='object_link'><a href="RemoteHTTPDataService/ResponseWrapper.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::ResponseWrapper (class)">ResponseWrapper</a></span>, <span class='object_link'><a href="RemoteHTTPDataService/SuccessResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::SuccessResponse (class)">SuccessResponse</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_USER_AGENT-constant" class="">DEFAULT_USER_AGENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>metasploit v</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html#VERSION-constant" title="Metasploit::Framework::VERSION (constant)">VERSION</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="EXEC_ASYNC-constant" class="">EXEC_ASYNC =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span> <span class='symbol'>:exec_async</span> <span class='op'>=&gt;</span> <span class='kw'>true</span> <span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="GET_REQUEST-constant" class="">GET_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="POST_REQUEST-constant" class="">POST_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="DELETE_REQUEST-constant" class="">DELETE_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DELETE</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="PUT_REQUEST-constant" class="">PUT_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PUT</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteRouteDataService.html" title="RemoteRouteDataService (module)">RemoteRouteDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteRouteDataService.html#ROUTE_API_PATH-constant" title="RemoteRouteDataService::ROUTE_API_PATH (constant)">RemoteRouteDataService::ROUTE_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteRouteDataService.html#ROUTE_MDM_CLASS-constant" title="RemoteRouteDataService::ROUTE_MDM_CLASS (constant)">RemoteRouteDataService::ROUTE_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemotePayloadDataService.html" title="RemotePayloadDataService (module)">RemotePayloadDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemotePayloadDataService.html#PAYLOAD_API_PATH-constant" title="RemotePayloadDataService::PAYLOAD_API_PATH (constant)">RemotePayloadDataService::PAYLOAD_API_PATH</a></span>, <span class='object_link'><a href="../../../RemotePayloadDataService.html#PAYLOAD_MDM_CLASS-constant" title="RemotePayloadDataService::PAYLOAD_MDM_CLASS (constant)">RemotePayloadDataService::PAYLOAD_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteDbImportDataService.html" title="RemoteDbImportDataService (module)">RemoteDbImportDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteDbImportDataService.html#DB_IMPORT_API_PATH-constant" title="RemoteDbImportDataService::DB_IMPORT_API_PATH (constant)">RemoteDbImportDataService::DB_IMPORT_API_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteMsfDataService.html" title="RemoteMsfDataService (module)">RemoteMsfDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteMsfDataService.html#MSF_API_PATH-constant" title="RemoteMsfDataService::MSF_API_PATH (constant)">RemoteMsfDataService::MSF_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteMsfDataService.html#MSF_VERSION_API_PATH-constant" title="RemoteMsfDataService::MSF_VERSION_API_PATH (constant)">RemoteMsfDataService::MSF_VERSION_API_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html" title="RemoteVulnAttemptDataService (module)">RemoteVulnAttemptDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html#VULN_ATTEMPT_API_PATH-constant" title="RemoteVulnAttemptDataService::VULN_ATTEMPT_API_PATH (constant)">RemoteVulnAttemptDataService::VULN_ATTEMPT_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html#VULN_ATTEMPT_MDM_CLASS-constant" title="RemoteVulnAttemptDataService::VULN_ATTEMPT_MDM_CLASS (constant)">RemoteVulnAttemptDataService::VULN_ATTEMPT_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteDbExportDataService.html" title="RemoteDbExportDataService (module)">RemoteDbExportDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteDbExportDataService.html#DB_EXPORT_API_PATH-constant" title="RemoteDbExportDataService::DB_EXPORT_API_PATH (constant)">RemoteDbExportDataService::DB_EXPORT_API_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteNmapDataService.html" title="RemoteNmapDataService (module)">RemoteNmapDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteNmapDataService.html#NMAP_PATH-constant" title="RemoteNmapDataService::NMAP_PATH (constant)">RemoteNmapDataService::NMAP_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteLoginDataService.html" title="RemoteLoginDataService (module)">RemoteLoginDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteLoginDataService.html#LOGIN_API_PATH-constant" title="RemoteLoginDataService::LOGIN_API_PATH (constant)">RemoteLoginDataService::LOGIN_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteLoginDataService.html#LOGIN_MDM_CLASS-constant" title="RemoteLoginDataService::LOGIN_MDM_CLASS (constant)">RemoteLoginDataService::LOGIN_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteCredentialDataService.html" title="RemoteCredentialDataService (module)">RemoteCredentialDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteCredentialDataService.html#CREDENTIAL_API_PATH-constant" title="RemoteCredentialDataService::CREDENTIAL_API_PATH (constant)">RemoteCredentialDataService::CREDENTIAL_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteCredentialDataService.html#CREDENTIAL_MDM_CLASS-constant" title="RemoteCredentialDataService::CREDENTIAL_MDM_CLASS (constant)">RemoteCredentialDataService::CREDENTIAL_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteSessionEventDataService.html" title="RemoteSessionEventDataService (module)">RemoteSessionEventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteSessionEventDataService.html#SESSION_EVENT_API_PATH-constant" title="RemoteSessionEventDataService::SESSION_EVENT_API_PATH (constant)">RemoteSessionEventDataService::SESSION_EVENT_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteSessionEventDataService.html#SESSION_EVENT_MDM_CLASS-constant" title="RemoteSessionEventDataService::SESSION_EVENT_MDM_CLASS (constant)">RemoteSessionEventDataService::SESSION_EVENT_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteLootDataService.html" title="RemoteLootDataService (module)">RemoteLootDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteLootDataService.html#LOOT_API_PATH-constant" title="RemoteLootDataService::LOOT_API_PATH (constant)">RemoteLootDataService::LOOT_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteLootDataService.html#LOOT_MDM_CLASS-constant" title="RemoteLootDataService::LOOT_MDM_CLASS (constant)">RemoteLootDataService::LOOT_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteExploitDataService.html" title="RemoteExploitDataService (module)">RemoteExploitDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteExploitDataService.html#EXPLOIT_API_PATH-constant" title="RemoteExploitDataService::EXPLOIT_API_PATH (constant)">RemoteExploitDataService::EXPLOIT_API_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteSessionDataService.html" title="RemoteSessionDataService (module)">RemoteSessionDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteSessionDataService.html#SESSION_API_PATH-constant" title="RemoteSessionDataService::SESSION_API_PATH (constant)">RemoteSessionDataService::SESSION_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteSessionDataService.html#SESSION_MDM_CLASS-constant" title="RemoteSessionDataService::SESSION_MDM_CLASS (constant)">RemoteSessionDataService::SESSION_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteServiceDataService.html" title="RemoteServiceDataService (module)">RemoteServiceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteServiceDataService.html#SERVICE_API_PATH-constant" title="RemoteServiceDataService::SERVICE_API_PATH (constant)">RemoteServiceDataService::SERVICE_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteServiceDataService.html#SERVICE_MDM_CLASS-constant" title="RemoteServiceDataService::SERVICE_MDM_CLASS (constant)">RemoteServiceDataService::SERVICE_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteWebDataService.html" title="RemoteWebDataService (module)">RemoteWebDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteWebDataService.html#WEB_API_PATH-constant" title="RemoteWebDataService::WEB_API_PATH (constant)">RemoteWebDataService::WEB_API_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteVulnDataService.html" title="RemoteVulnDataService (module)">RemoteVulnDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteVulnDataService.html#VULN_API_PATH-constant" title="RemoteVulnDataService::VULN_API_PATH (constant)">RemoteVulnDataService::VULN_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteVulnDataService.html#VULN_MDM_CLASS-constant" title="RemoteVulnDataService::VULN_MDM_CLASS (constant)">RemoteVulnDataService::VULN_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html" title="RemoteWorkspaceDataService (module)">RemoteWorkspaceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#WORKSPACE_API_PATH-constant" title="RemoteWorkspaceDataService::WORKSPACE_API_PATH (constant)">RemoteWorkspaceDataService::WORKSPACE_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#WORKSPACE_MDM_CLASS-constant" title="RemoteWorkspaceDataService::WORKSPACE_MDM_CLASS (constant)">RemoteWorkspaceDataService::WORKSPACE_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteNoteDataService.html" title="RemoteNoteDataService (module)">RemoteNoteDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteNoteDataService.html#NOTE_API_PATH-constant" title="RemoteNoteDataService::NOTE_API_PATH (constant)">RemoteNoteDataService::NOTE_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteNoteDataService.html#NOTE_MDM_CLASS-constant" title="RemoteNoteDataService::NOTE_MDM_CLASS (constant)">RemoteNoteDataService::NOTE_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteEventDataService.html" title="RemoteEventDataService (module)">RemoteEventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteEventDataService.html#EVENT_API_PATH-constant" title="RemoteEventDataService::EVENT_API_PATH (constant)">RemoteEventDataService::EVENT_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteEventDataService.html#EVENT_MDM_CLASS-constant" title="RemoteEventDataService::EVENT_MDM_CLASS (constant)">RemoteEventDataService::EVENT_MDM_CLASS</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../RemoteHostDataService.html" title="RemoteHostDataService (module)">RemoteHostDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteHostDataService.html#HOST_API_PATH-constant" title="RemoteHostDataService::HOST_API_PATH (constant)">RemoteHostDataService::HOST_API_PATH</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#HOST_MDM_CLASS-constant" title="RemoteHostDataService::HOST_MDM_CLASS (constant)">RemoteHostDataService::HOST_MDM_CLASS</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#HOST_SEARCH_PATH-constant" title="RemoteHostDataService::HOST_SEARCH_PATH (constant)">RemoteHostDataService::HOST_SEARCH_PATH</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#TAG_MDM_CLASS-constant" title="RemoteHostDataService::TAG_MDM_CLASS (constant)">RemoteHostDataService::TAG_MDM_CLASS</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#api_token-instance_method" title="#api_token (instance method)">#<strong>api_token</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute api_token.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#endpoint-instance_method" title="#endpoint (instance method)">#<strong>endpoint</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute endpoint.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#https_opts-instance_method" title="#https_opts (instance method)">#<strong>https_opts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute https_opts.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active-instance_method" title="#active (instance method)">#<strong>active</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active=-instance_method" title="#active= (instance method)">#<strong>active=</strong>(value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#after_establish_connection-instance_method" title="#after_establish_connection (instance method)">#<strong>after_establish_connection</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connection_established%3F-instance_method" title="#connection_established? (instance method)">#<strong>connection_established?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_data-instance_method" title="#delete_data (instance method)">#<strong>delete_data</strong>(path, data_hash, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send DELETE request to delete the specified resource from the HTTP endpoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#driver-instance_method" title="#driver (instance method)">#<strong>driver</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#error-instance_method" title="#error (instance method)">#<strong>error</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_data-instance_method" title="#get_data (instance method)">#<strong>get_data</strong>(path, data_hash = nil, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>GET data from the HTTP endpoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_path_select-instance_method" title="#get_path_select (instance method)">#<strong>get_path_select</strong>(opts, path)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Select the correct path for GET request based on the options parameters provided.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(endpoint, opts = {})  &#x21d2; RemoteHTTPDataService </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of RemoteHTTPDataService.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_local%3F-instance_method" title="#is_local? (instance method)">#<strong>is_local?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_online%3F-instance_method" title="#is_online? (instance method)">#<strong>is_online?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if the data service is online by making a request for the Metasploit version number from the remote endpoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#make_request-instance_method" title="#make_request (instance method)">#<strong>make_request</strong>(request_type, path, data_hash = nil, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Make the specified request_type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#post_data-instance_method" title="#post_data (instance method)">#<strong>post_data</strong>(path, data_hash, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>POST data to the HTTP endpoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#post_data_async-instance_method" title="#post_data_async (instance method)">#<strong>post_data_async</strong>(path, data_hash, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>POST data to the HTTP endpoint and don&#39;t wait for the endpoint to process the data before getting a response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#put_data-instance_method" title="#put_data (instance method)">#<strong>put_data</strong>(path, data_hash, query = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send PUT request to store data for the specified resource at the HTTP endpoint.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_header-instance_method" title="#set_header (instance method)">#<strong>set_header</strong>(key, value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteRouteDataService.html" title="RemoteRouteDataService (module)">RemoteRouteDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteRouteDataService.html#report_session_route-instance_method" title="RemoteRouteDataService#report_session_route (method)">#report_session_route</a></span>, <span class='object_link'><a href="../../../RemoteRouteDataService.html#report_session_route_remove-instance_method" title="RemoteRouteDataService#report_session_route_remove (method)">#report_session_route_remove</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../ResponseDataHelper.html" title="ResponseDataHelper (module)">ResponseDataHelper</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../ResponseDataHelper.html#json_to_hash-instance_method" title="ResponseDataHelper#json_to_hash (method)">#json_to_hash</a></span>, <span class='object_link'><a href="../../../ResponseDataHelper.html#json_to_mdm_object-instance_method" title="ResponseDataHelper#json_to_mdm_object (method)">#json_to_mdm_object</a></span>, <span class='object_link'><a href="../../../ResponseDataHelper.html#process_file-instance_method" title="ResponseDataHelper#process_file (method)">#process_file</a></span>, <span class='object_link'><a href="../../../ResponseDataHelper.html#to_ar-instance_method" title="ResponseDataHelper#to_ar (method)">#to_ar</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemotePayloadDataService.html" title="RemotePayloadDataService (module)">RemotePayloadDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemotePayloadDataService.html#create_payload-instance_method" title="RemotePayloadDataService#create_payload (method)">#create_payload</a></span>, <span class='object_link'><a href="../../../RemotePayloadDataService.html#delete_payload-instance_method" title="RemotePayloadDataService#delete_payload (method)">#delete_payload</a></span>, <span class='object_link'><a href="../../../RemotePayloadDataService.html#payloads-instance_method" title="RemotePayloadDataService#payloads (method)">#payloads</a></span>, <span class='object_link'><a href="../../../RemotePayloadDataService.html#update_payload-instance_method" title="RemotePayloadDataService#update_payload (method)">#update_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteDbImportDataService.html" title="RemoteDbImportDataService (module)">RemoteDbImportDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteDbImportDataService.html#import_file-instance_method" title="RemoteDbImportDataService#import_file (method)">#import_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteMsfDataService.html" title="RemoteMsfDataService (module)">RemoteMsfDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteMsfDataService.html#get_msf_version-instance_method" title="RemoteMsfDataService#get_msf_version (method)">#get_msf_version</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html" title="RemoteVulnAttemptDataService (module)">RemoteVulnAttemptDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html#report_vuln_attempt-instance_method" title="RemoteVulnAttemptDataService#report_vuln_attempt (method)">#report_vuln_attempt</a></span>, <span class='object_link'><a href="../../../RemoteVulnAttemptDataService.html#vuln_attempts-instance_method" title="RemoteVulnAttemptDataService#vuln_attempts (method)">#vuln_attempts</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteDbExportDataService.html" title="RemoteDbExportDataService (module)">RemoteDbExportDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteDbExportDataService.html#run_db_export-instance_method" title="RemoteDbExportDataService#run_db_export (method)">#run_db_export</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteNmapDataService.html" title="RemoteNmapDataService (module)">RemoteNmapDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteNmapDataService.html#import_nmap_xml_file-instance_method" title="RemoteNmapDataService#import_nmap_xml_file (method)">#import_nmap_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteLoginDataService.html" title="RemoteLoginDataService (module)">RemoteLoginDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteLoginDataService.html#create_credential_login-instance_method" title="RemoteLoginDataService#create_credential_login (method)">#create_credential_login</a></span>, <span class='object_link'><a href="../../../RemoteLoginDataService.html#logins-instance_method" title="RemoteLoginDataService#logins (method)">#logins</a></span>, <span class='object_link'><a href="../../../RemoteLoginDataService.html#update_login-instance_method" title="RemoteLoginDataService#update_login (method)">#update_login</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteCredentialDataService.html" title="RemoteCredentialDataService (module)">RemoteCredentialDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteCredentialDataService.html#create_credential-instance_method" title="RemoteCredentialDataService#create_credential (method)">#create_credential</a></span>, <span class='object_link'><a href="../../../RemoteCredentialDataService.html#creds-instance_method" title="RemoteCredentialDataService#creds (method)">#creds</a></span>, <span class='object_link'><a href="../../../RemoteCredentialDataService.html#delete_credentials-instance_method" title="RemoteCredentialDataService#delete_credentials (method)">#delete_credentials</a></span>, <span class='object_link'><a href="../../../RemoteCredentialDataService.html#update_credential-instance_method" title="RemoteCredentialDataService#update_credential (method)">#update_credential</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteSessionEventDataService.html" title="RemoteSessionEventDataService (module)">RemoteSessionEventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteSessionEventDataService.html#report_session_event-instance_method" title="RemoteSessionEventDataService#report_session_event (method)">#report_session_event</a></span>, <span class='object_link'><a href="../../../RemoteSessionEventDataService.html#session_events-instance_method" title="RemoteSessionEventDataService#session_events (method)">#session_events</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteLootDataService.html" title="RemoteLootDataService (module)">RemoteLootDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteLootDataService.html#delete_loot-instance_method" title="RemoteLootDataService#delete_loot (method)">#delete_loot</a></span>, <span class='object_link'><a href="../../../RemoteLootDataService.html#loot-instance_method" title="RemoteLootDataService#loot (method)">#loot</a></span>, <span class='object_link'><a href="../../../RemoteLootDataService.html#report_loot-instance_method" title="RemoteLootDataService#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="../../../RemoteLootDataService.html#update_loot-instance_method" title="RemoteLootDataService#update_loot (method)">#update_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteExploitDataService.html" title="RemoteExploitDataService (module)">RemoteExploitDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteExploitDataService.html#report_exploit_attempt-instance_method" title="RemoteExploitDataService#report_exploit_attempt (method)">#report_exploit_attempt</a></span>, <span class='object_link'><a href="../../../RemoteExploitDataService.html#report_exploit_failure-instance_method" title="RemoteExploitDataService#report_exploit_failure (method)">#report_exploit_failure</a></span>, <span class='object_link'><a href="../../../RemoteExploitDataService.html#report_exploit_success-instance_method" title="RemoteExploitDataService#report_exploit_success (method)">#report_exploit_success</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteSessionDataService.html" title="RemoteSessionDataService (module)">RemoteSessionDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteSessionDataService.html#report_session-instance_method" title="RemoteSessionDataService#report_session (method)">#report_session</a></span>, <span class='object_link'><a href="../../../RemoteSessionDataService.html#sessions-instance_method" title="RemoteSessionDataService#sessions (method)">#sessions</a></span>, <span class='object_link'><a href="../../../RemoteSessionDataService.html#update_session-instance_method" title="RemoteSessionDataService#update_session (method)">#update_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteServiceDataService.html" title="RemoteServiceDataService (module)">RemoteServiceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteServiceDataService.html#delete_service-instance_method" title="RemoteServiceDataService#delete_service (method)">#delete_service</a></span>, <span class='object_link'><a href="../../../RemoteServiceDataService.html#report_service-instance_method" title="RemoteServiceDataService#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="../../../RemoteServiceDataService.html#services-instance_method" title="RemoteServiceDataService#services (method)">#services</a></span>, <span class='object_link'><a href="../../../RemoteServiceDataService.html#update_service-instance_method" title="RemoteServiceDataService#update_service (method)">#update_service</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteWebDataService.html" title="RemoteWebDataService (module)">RemoteWebDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteWebDataService.html#report_web_form-instance_method" title="RemoteWebDataService#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="../../../RemoteWebDataService.html#report_web_page-instance_method" title="RemoteWebDataService#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="../../../RemoteWebDataService.html#report_web_site-instance_method" title="RemoteWebDataService#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="../../../RemoteWebDataService.html#report_web_vuln-instance_method" title="RemoteWebDataService#report_web_vuln (method)">#report_web_vuln</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteVulnDataService.html" title="RemoteVulnDataService (module)">RemoteVulnDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteVulnDataService.html#delete_vuln-instance_method" title="RemoteVulnDataService#delete_vuln (method)">#delete_vuln</a></span>, <span class='object_link'><a href="../../../RemoteVulnDataService.html#report_vuln-instance_method" title="RemoteVulnDataService#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="../../../RemoteVulnDataService.html#update_vuln-instance_method" title="RemoteVulnDataService#update_vuln (method)">#update_vuln</a></span>, <span class='object_link'><a href="../../../RemoteVulnDataService.html#vulns-instance_method" title="RemoteVulnDataService#vulns (method)">#vulns</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html" title="RemoteWorkspaceDataService (module)">RemoteWorkspaceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#add_workspace-instance_method" title="RemoteWorkspaceDataService#add_workspace (method)">#add_workspace</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#default_workspace-instance_method" title="RemoteWorkspaceDataService#default_workspace (method)">#default_workspace</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#delete_workspaces-instance_method" title="RemoteWorkspaceDataService#delete_workspaces (method)">#delete_workspaces</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#update_workspace-instance_method" title="RemoteWorkspaceDataService#update_workspace (method)">#update_workspace</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#workspace-instance_method" title="RemoteWorkspaceDataService#workspace (method)">#workspace</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#workspace=-instance_method" title="RemoteWorkspaceDataService#workspace= (method)">#workspace=</a></span>, <span class='object_link'><a href="../../../RemoteWorkspaceDataService.html#workspaces-instance_method" title="RemoteWorkspaceDataService#workspaces (method)">#workspaces</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteNoteDataService.html" title="RemoteNoteDataService (module)">RemoteNoteDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteNoteDataService.html#delete_note-instance_method" title="RemoteNoteDataService#delete_note (method)">#delete_note</a></span>, <span class='object_link'><a href="../../../RemoteNoteDataService.html#notes-instance_method" title="RemoteNoteDataService#notes (method)">#notes</a></span>, <span class='object_link'><a href="../../../RemoteNoteDataService.html#report_note-instance_method" title="RemoteNoteDataService#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="../../../RemoteNoteDataService.html#update_note-instance_method" title="RemoteNoteDataService#update_note (method)">#update_note</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteEventDataService.html" title="RemoteEventDataService (module)">RemoteEventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteEventDataService.html#events-instance_method" title="RemoteEventDataService#events (method)">#events</a></span>, <span class='object_link'><a href="../../../RemoteEventDataService.html#report_event-instance_method" title="RemoteEventDataService#report_event (method)">#report_event</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../RemoteHostDataService.html" title="RemoteHostDataService (module)">RemoteHostDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../RemoteHostDataService.html#add_host_tag-instance_method" title="RemoteHostDataService#add_host_tag (method)">#add_host_tag</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#delete_host-instance_method" title="RemoteHostDataService#delete_host (method)">#delete_host</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#delete_host_tag-instance_method" title="RemoteHostDataService#delete_host_tag (method)">#delete_host_tag</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#get_host-instance_method" title="RemoteHostDataService#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#get_host_tags-instance_method" title="RemoteHostDataService#get_host_tags (method)">#get_host_tags</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#hosts-instance_method" title="RemoteHostDataService#hosts (method)">#hosts</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#report_host-instance_method" title="RemoteHostDataService#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="../../../RemoteHostDataService.html#update_host-instance_method" title="RemoteHostDataService#update_host (method)">#update_host</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../MsfDataService.html" title="MsfDataService (module)">MsfDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../MsfDataService.html#get_msf_version-instance_method" title="MsfDataService#get_msf_version (method)">#get_msf_version</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../LootDataService.html" title="LootDataService (module)">LootDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../LootDataService.html#find_or_create_loot-instance_method" title="LootDataService#find_or_create_loot (method)">#find_or_create_loot</a></span>, <span class='object_link'><a href="../../../LootDataService.html#loot-instance_method" title="LootDataService#loot (method)">#loot</a></span>, <span class='object_link'><a href="../../../LootDataService.html#report_loot-instance_method" title="LootDataService#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="../../../LootDataService.html#update_loot-instance_method" title="LootDataService#update_loot (method)">#update_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../ExploitDataService.html" title="ExploitDataService (module)">ExploitDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../ExploitDataService.html#report_exploit_attempt-instance_method" title="ExploitDataService#report_exploit_attempt (method)">#report_exploit_attempt</a></span>, <span class='object_link'><a href="../../../ExploitDataService.html#report_exploit_failure-instance_method" title="ExploitDataService#report_exploit_failure (method)">#report_exploit_failure</a></span>, <span class='object_link'><a href="../../../ExploitDataService.html#report_exploit_success-instance_method" title="ExploitDataService#report_exploit_success (method)">#report_exploit_success</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../SessionEventDataService.html" title="SessionEventDataService (module)">SessionEventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../SessionEventDataService.html#report_session_event-instance_method" title="SessionEventDataService#report_session_event (method)">#report_session_event</a></span>, <span class='object_link'><a href="../../../SessionEventDataService.html#session_events-instance_method" title="SessionEventDataService#session_events (method)">#session_events</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../SessionDataService.html" title="SessionDataService (module)">SessionDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../SessionDataService.html#report_session-instance_method" title="SessionDataService#report_session (method)">#report_session</a></span>, <span class='object_link'><a href="../../../SessionDataService.html#sessions-instance_method" title="SessionDataService#sessions (method)">#sessions</a></span>, <span class='object_link'><a href="../../../SessionDataService.html#update_session-instance_method" title="SessionDataService#update_session (method)">#update_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../ServiceDataService.html" title="ServiceDataService (module)">ServiceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../ServiceDataService.html#delete_service-instance_method" title="ServiceDataService#delete_service (method)">#delete_service</a></span>, <span class='object_link'><a href="../../../ServiceDataService.html#find_or_create_service-instance_method" title="ServiceDataService#find_or_create_service (method)">#find_or_create_service</a></span>, <span class='object_link'><a href="../../../ServiceDataService.html#report_service-instance_method" title="ServiceDataService#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="../../../ServiceDataService.html#services-instance_method" title="ServiceDataService#services (method)">#services</a></span>, <span class='object_link'><a href="../../../ServiceDataService.html#update_service-instance_method" title="ServiceDataService#update_service (method)">#update_service</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../NoteDataService.html" title="NoteDataService (module)">NoteDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../NoteDataService.html#delete_note-instance_method" title="NoteDataService#delete_note (method)">#delete_note</a></span>, <span class='object_link'><a href="../../../NoteDataService.html#find_or_create_note-instance_method" title="NoteDataService#find_or_create_note (method)">#find_or_create_note</a></span>, <span class='object_link'><a href="../../../NoteDataService.html#notes-instance_method" title="NoteDataService#notes (method)">#notes</a></span>, <span class='object_link'><a href="../../../NoteDataService.html#report_note-instance_method" title="NoteDataService#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="../../../NoteDataService.html#update_note-instance_method" title="NoteDataService#update_note (method)">#update_note</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../WebDataService.html" title="WebDataService (module)">WebDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../WebDataService.html#report_web_form-instance_method" title="WebDataService#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="../../../WebDataService.html#report_web_page-instance_method" title="WebDataService#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="../../../WebDataService.html#report_web_site-instance_method" title="WebDataService#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="../../../WebDataService.html#report_web_vuln-instance_method" title="WebDataService#report_web_vuln (method)">#report_web_vuln</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../WorkspaceDataService.html" title="WorkspaceDataService (module)">WorkspaceDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../WorkspaceDataService.html#add_workspace-instance_method" title="WorkspaceDataService#add_workspace (method)">#add_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#default_workspace-instance_method" title="WorkspaceDataService#default_workspace (method)">#default_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#delete_workspaces-instance_method" title="WorkspaceDataService#delete_workspaces (method)">#delete_workspaces</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#find_workspace-instance_method" title="WorkspaceDataService#find_workspace (method)">#find_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#update_workspace-instance_method" title="WorkspaceDataService#update_workspace (method)">#update_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#workspace-instance_method" title="WorkspaceDataService#workspace (method)">#workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#workspace=-instance_method" title="WorkspaceDataService#workspace= (method)">#workspace=</a></span>, <span class='object_link'><a href="../../../WorkspaceDataService.html#workspaces-instance_method" title="WorkspaceDataService#workspaces (method)">#workspaces</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../VulnDataService.html" title="VulnDataService (module)">VulnDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../VulnDataService.html#delete_vuln-instance_method" title="VulnDataService#delete_vuln (method)">#delete_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataService.html#find_or_create_vuln-instance_method" title="VulnDataService#find_or_create_vuln (method)">#find_or_create_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataService.html#report_vuln-instance_method" title="VulnDataService#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataService.html#update_vuln-instance_method" title="VulnDataService#update_vuln (method)">#update_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataService.html#vulns-instance_method" title="VulnDataService#vulns (method)">#vulns</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../EventDataService.html" title="EventDataService (module)">EventDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../EventDataService.html#events-instance_method" title="EventDataService#events (method)">#events</a></span>, <span class='object_link'><a href="../../../EventDataService.html#report_event-instance_method" title="EventDataService#report_event (method)">#report_event</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../HostDataService.html" title="HostDataService (module)">HostDataService</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../HostDataService.html#add_host_tag-instance_method" title="HostDataService#add_host_tag (method)">#add_host_tag</a></span>, <span class='object_link'><a href="../../../HostDataService.html#delete_host-instance_method" title="HostDataService#delete_host (method)">#delete_host</a></span>, <span class='object_link'><a href="../../../HostDataService.html#delete_host_tag-instance_method" title="HostDataService#delete_host_tag (method)">#delete_host_tag</a></span>, <span class='object_link'><a href="../../../HostDataService.html#find_or_create_host-instance_method" title="HostDataService#find_or_create_host (method)">#find_or_create_host</a></span>, <span class='object_link'><a href="../../../HostDataService.html#get_host-instance_method" title="HostDataService#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="../../../HostDataService.html#get_host_tags-instance_method" title="HostDataService#get_host_tags (method)">#get_host_tags</a></span>, <span class='object_link'><a href="../../../HostDataService.html#hosts-instance_method" title="HostDataService#hosts (method)">#hosts</a></span>, <span class='object_link'><a href="../../../HostDataService.html#report_host-instance_method" title="HostDataService#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="../../../HostDataService.html#report_hosts-instance_method" title="HostDataService#report_hosts (method)">#report_hosts</a></span>, <span class='object_link'><a href="../../../HostDataService.html#update_host-instance_method" title="HostDataService#update_host (method)">#update_host</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(endpoint, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Metasploit::Framework::DataService::RemoteHTTPDataService (class)">RemoteHTTPDataService</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of RemoteHTTPDataService.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>endpoint</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A valid http or https URL. Cannot be nil</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_validate_endpoint'>validate_endpoint</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='rparen'>)</span>
+  <span class='ivar'>@endpoint</span> <span class='op'>=</span> <span class='const'>URI</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_endpoint'>endpoint</span><span class='rparen'>)</span>
+  <span class='ivar'>@https_opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:https_opts</span><span class='rbracket'>]</span>
+  <span class='ivar'>@api_token</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:api_token</span><span class='rbracket'>]</span>
+
+  <span class='ivar'>@headers</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_user_agent'>user_agent</span> <span class='op'>=</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='const'><span class='object_link'><a href="#DEFAULT_USER_AGENT-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::DEFAULT_USER_AGENT (constant)">DEFAULT_USER_AGENT</a></span></span>
+  <span class='id identifier rubyid_set_header'>set_header</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>User-Agent</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_user_agent'>user_agent</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_set_header'>set_header</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Authorization</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Bearer </span><span class='embexpr_beg'>#{</span><span class='ivar'>@api_token</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='ivar'>@api_token</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_build_client_pool'>build_client_pool</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="api_token-instance_method">
+  
+    #<strong>api_token</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute api_token.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_api_token'>api_token</span>
+  <span class='ivar'>@api_token</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="endpoint-instance_method">
+  
+    #<strong>endpoint</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute endpoint.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_endpoint'>endpoint</span>
+  <span class='ivar'>@endpoint</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="https_opts-instance_method">
+  
+    #<strong>https_opts</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute https_opts.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_https_opts'>https_opts</span>
+  <span class='ivar'>@https_opts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="active-instance_method">
+  
+    #<strong>active</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active'>active</span>
+  <span class='comment'># checks if data service is online when @active is falsey and makes the assignment
+</span>  <span class='comment'># this is to prevent repetitive calls to check if data service is online
+</span>  <span class='comment'># logic should be enhanced to considering data service connectivity
+</span>  <span class='comment'># and future data service implementations
+</span>  <span class='ivar'>@active</span> <span class='op'>||=</span> <span class='id identifier rubyid_is_online?'>is_online?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="active=-instance_method">
+  
+    #<strong>active=</strong>(value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active='>active=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='ivar'>@active</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="after_establish_connection-instance_method">
+  
+    #<strong>after_establish_connection</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_after_establish_connection'>after_establish_connection</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connection_established?-instance_method">
+  
+    #<strong>connection_established?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connection_established?'>connection_established?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_data-instance_method">
+  
+    #<strong>delete_data</strong>(path, data_hash, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send DELETE request to delete the specified resource from the HTTP endpoint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be deleted. Cannot be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper), see below.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 128</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_data'>delete_data</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#DELETE_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::DELETE_REQUEST (constant)">DELETE_REQUEST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="driver-instance_method">
+  
+    #<strong>driver</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_driver'>driver</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="error-instance_method">
+  
+    #<strong>error</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_error'>error</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>none</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_data-instance_method">
+  
+    #<strong>get_data</strong>(path, data_hash = nil, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>GET data from the HTTP endpoint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be included. Can be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper), see below.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_data'>get_data</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#GET_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::GET_REQUEST (constant)">GET_REQUEST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_path_select-instance_method">
+  
+    #<strong>get_path_select</strong>(opts, path)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Select the correct path for GET request based on the options parameters provided. If &#39;id&#39; is present, the user is requesting a single record and should use api/&lt;version&gt;/&lt;resource&gt;/ID path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The parameters for the request</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The base resource path for the endpoint</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The correct path for the request.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+229
+230
+231
+232
+233
+234
+235</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 229</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_path_select'>get_path_select</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_path'>path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_local?-instance_method">
+  
+    #<strong>is_local?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_local?'>is_local?</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_online?-instance_method">
+  
+    #<strong>is_online?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if the data service is online by making a request for the Metasploit version number from the remote endpoint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_online?'>is_online?</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_msf_version'>get_msf_version</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:metasploit_version</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span>
+    <span class='comment'># Ignore exceptions that are raised when checking the version,
+</span>    <span class='comment'># and assume the server is not online.
+</span>  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="make_request-instance_method">
+  
+    #<strong>make_request</strong>(request_type, path, data_hash = nil, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Make the specified request_type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>request_type</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A string representation of the HTTP method</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be included in the request. Cannot be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request_type'>request_type</span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='comment'># simplify query by removing nil values
+</span>    <span class='id identifier rubyid_query_str'>query_str</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_query'>query</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span><span class='period'>.</span><span class='id identifier rubyid_to_query'>to_query</span> <span class='op'>:</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='const'>URI</span><span class='op'>::</span><span class='const'>HTTP</span><span class='op'>::</span><span class='id identifier rubyid_build'>build</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='label'>path:</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='label'>query:</span> <span class='id identifier rubyid_query_str'>query_str</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='comment'># TODO: Re-enable this logging when framework handles true log levels.
+</span>    <span class='comment'>#dlog(&quot;HTTP #{request_type} request to #{uri.request_uri} with #{data_hash ? data_hash : &quot;nil&quot;}&quot;)
+</span>
+    <span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='ivar'>@client_pool</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_request_type'>request_type</span>
+      <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#GET_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::GET_REQUEST (constant)">GET_REQUEST</a></span></span>
+        <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='op'>::</span><span class='const'>Get</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='comma'>,</span> <span class='id identifier rubyid_initheader'>initheader</span><span class='op'>=</span><span class='ivar'>@headers</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#POST_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::POST_REQUEST (constant)">POST_REQUEST</a></span></span>
+        <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='op'>::</span><span class='const'>Post</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='comma'>,</span> <span class='id identifier rubyid_initheader'>initheader</span><span class='op'>=</span><span class='ivar'>@headers</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DELETE_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::DELETE_REQUEST (constant)">DELETE_REQUEST</a></span></span>
+        <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='op'>::</span><span class='const'>Delete</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='comma'>,</span> <span class='id identifier rubyid_initheader'>initheader</span><span class='op'>=</span><span class='ivar'>@headers</span><span class='rparen'>)</span>
+      <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PUT_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::PUT_REQUEST (constant)">PUT_REQUEST</a></span></span>
+        <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTP</span><span class='op'>::</span><span class='const'>Put</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='comma'>,</span> <span class='id identifier rubyid_initheader'>initheader</span><span class='op'>=</span><span class='ivar'>@headers</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>Exception</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A request_type must be specified</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_built_request'>built_request</span> <span class='op'>=</span> <span class='id identifier rubyid_build_request'>build_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_request'>request</span><span class='lparen'>(</span><span class='id identifier rubyid_built_request'>built_request</span><span class='rparen'>)</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_response'>response</span>
+      <span class='kw'>when</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>HTTPOK</span>
+        <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="RemoteHTTPDataService/SuccessResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::SuccessResponse (class)">SuccessResponse</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RemoteHTTPDataService/SuccessResponse.html#initialize-instance_method" title="Metasploit::Framework::DataService::RemoteHTTPDataService::SuccessResponse#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HTTP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request_type'>request_type</span><span class='embexpr_end'>}</span><span class='tstring_content'> request: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_request_uri'>request_uri</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed with code: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span><span class='embexpr_end'>}</span><span class='tstring_content'> message: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="RemoteHTTPDataService/ErrorResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse (class)">ErrorResponse</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RemoteHTTPDataService/ErrorResponse.html#initialize-instance_method" title="Metasploit::Framework::DataService::RemoteHTTPDataService::ErrorResponse#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>EOFError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No data was returned from the data service for request type/path : </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request_type'>request_type</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'>, message: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span> <span class='id identifier rubyid_error_msg'>error_msg</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="RemoteHTTPDataService/FailedResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse (class)">FailedResponse</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RemoteHTTPDataService/FailedResponse.html#initialize-instance_method" title="Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_error_msg'>error_msg</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Problem with HTTP request for type/path: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request_type'>request_type</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_content'> message: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span> <span class='id identifier rubyid_error_msg'>error_msg</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="RemoteHTTPDataService/FailedResponse.html" title="Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse (class)">FailedResponse</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RemoteHTTPDataService/FailedResponse.html#initialize-instance_method" title="Metasploit::Framework::DataService::RemoteHTTPDataService::FailedResponse#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_error_msg'>error_msg</span><span class='rparen'>)</span>
+  <span class='kw'>ensure</span>
+    <span class='ivar'>@client_pool</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>remote_data_service: (</span><span class='embexpr_beg'>#{</span><span class='ivar'>@endpoint</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="post_data-instance_method">
+  
+    #<strong>post_data</strong>(path, data_hash, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>POST data to the HTTP endpoint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be posted. Cannot be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper), see below.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_post_data'>post_data</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#POST_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::POST_REQUEST (constant)">POST_REQUEST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="post_data_async-instance_method">
+  
+    #<strong>post_data_async</strong>(path, data_hash, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>POST data to the HTTP endpoint and don&#39;t wait for the endpoint to process the data before getting a response</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be posted. Cannot be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper), see below.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_post_data_async'>post_data_async</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#POST_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::POST_REQUEST (constant)">POST_REQUEST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#EXEC_ASYNC-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::EXEC_ASYNC (constant)">EXEC_ASYNC</a></span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="put_data-instance_method">
+  
+    #<strong>put_data</strong>(path, data_hash, query = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send PUT request to store data for the specified resource at the HTTP endpoint</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>The URI path to send the request</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_hash</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the object to be stored. Cannot be nil or empty.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>query</span>
+      
+      
+        <span class='type'></span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>A hash representation of the URI query data. Key-value pairs will be URL-encoded.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>A wrapped response (ResponseWrapper), see below.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_put_data'>put_data</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_make_request'>make_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#PUT_REQUEST-constant" title="Metasploit::Framework::DataService::RemoteHTTPDataService::PUT_REQUEST (constant)">PUT_REQUEST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_data_hash'>data_hash</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_header-instance_method">
+  
+    #<strong>set_header</strong>(key, value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/remote/http/core.rb', line 199</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_header'>set_header</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='ivar'>@headers</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:33 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

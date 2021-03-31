@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::LoginScanner::AdvantechWebAccess
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner::AdvantechWebAccess";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">AdvantechWebAccess</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::AdvantechWebAccess
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::AdvantechWebAccess</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner/advantech_webaccess.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>80</span></pre></dd>
+      
+        <dt id="PRIVATE_TYPES-constant" class="">PRIVATE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='symbol'>:password</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="LOGIN_STATUS-constant" class="">LOGIN_STATUS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Shorter name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#DEFAULT_REALM-constant" title="Metasploit::Framework::LoginScanner::HTTP::DEFAULT_REALM (constant)">HTTP::DEFAULT_REALM</a></span>, <span class='object_link'><a href="HTTP.html#DEFAULT_SSL_PORT-constant" title="Metasploit::Framework::LoginScanner::HTTP::DEFAULT_SSL_PORT (constant)">HTTP::DEFAULT_SSL_PORT</a></span>, <span class='object_link'><a href="HTTP.html#LIKELY_PORTS-constant" title="Metasploit::Framework::LoginScanner::HTTP::LIKELY_PORTS (constant)">HTTP::LIKELY_PORTS</a></span>, <span class='object_link'><a href="HTTP.html#LIKELY_SERVICE_NAMES-constant" title="Metasploit::Framework::LoginScanner::HTTP::LIKELY_SERVICE_NAMES (constant)">HTTP::LIKELY_SERVICE_NAMES</a></span>, <span class='object_link'><a href="HTTP.html#REALM_KEY-constant" title="Metasploit::Framework::LoginScanner::HTTP::REALM_KEY (constant)">HTTP::REALM_KEY</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#digest_auth_iis-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#digest_auth_iis (method)">#digest_auth_iis</a></span>, <span class='object_link'><a href="HTTP.html#evade_header_folding-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_header_folding (method)">#evade_header_folding</a></span>, <span class='object_link'><a href="HTTP.html#evade_method_random_case-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_method_random_case (method)">#evade_method_random_case</a></span>, <span class='object_link'><a href="HTTP.html#evade_method_random_invalid-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_method_random_invalid (method)">#evade_method_random_invalid</a></span>, <span class='object_link'><a href="HTTP.html#evade_method_random_valid-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_method_random_valid (method)">#evade_method_random_valid</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_fake_headers-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_fake_headers (method)">#evade_pad_fake_headers</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_fake_headers_count-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_fake_headers_count (method)">#evade_pad_fake_headers_count</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_get_params-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_get_params (method)">#evade_pad_get_params</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_get_params_count-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_get_params_count (method)">#evade_pad_get_params_count</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_method_uri_count-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_method_uri_count (method)">#evade_pad_method_uri_count</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_method_uri_type-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_method_uri_type (method)">#evade_pad_method_uri_type</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_post_params-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_post_params (method)">#evade_pad_post_params</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_post_params_count-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_post_params_count (method)">#evade_pad_post_params_count</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_uri_version_count-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_uri_version_count (method)">#evade_pad_uri_version_count</a></span>, <span class='object_link'><a href="HTTP.html#evade_pad_uri_version_type-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_pad_uri_version_type (method)">#evade_pad_uri_version_type</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_dir_fake_relative-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_dir_fake_relative (method)">#evade_uri_dir_fake_relative</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_dir_self_reference-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_dir_self_reference (method)">#evade_uri_dir_self_reference</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_encode_mode-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_encode_mode (method)">#evade_uri_encode_mode</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_fake_end-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_fake_end (method)">#evade_uri_fake_end</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_fake_params_start-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_fake_params_start (method)">#evade_uri_fake_params_start</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_full_url-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_full_url (method)">#evade_uri_full_url</a></span>, <span class='object_link'><a href="HTTP.html#evade_uri_use_backslashes-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_uri_use_backslashes (method)">#evade_uri_use_backslashes</a></span>, <span class='object_link'><a href="HTTP.html#evade_version_random_invalid-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_version_random_invalid (method)">#evade_version_random_invalid</a></span>, <span class='object_link'><a href="HTTP.html#evade_version_random_valid-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#evade_version_random_valid (method)">#evade_version_random_valid</a></span>, <span class='object_link'><a href="HTTP.html#http_password-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#http_password (method)">#http_password</a></span>, <span class='object_link'><a href="HTTP.html#http_username-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#http_username (method)">#http_username</a></span>, <span class='object_link'><a href="HTTP.html#method-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#method (method)">#method</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_domain-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_domain (method)">#ntlm_domain</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_send_lm-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_send_lm (method)">#ntlm_send_lm</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_send_ntlm-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_send_ntlm (method)">#ntlm_send_ntlm</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_send_spn-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_send_spn (method)">#ntlm_send_spn</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_use_lm_key-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_use_lm_key (method)">#ntlm_use_lm_key</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_use_ntlmv2-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_use_ntlmv2 (method)">#ntlm_use_ntlmv2</a></span>, <span class='object_link'><a href="HTTP.html#ntlm_use_ntlmv2_session-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#ntlm_use_ntlmv2_session (method)">#ntlm_use_ntlmv2_session</a></span>, <span class='object_link'><a href="HTTP.html#uri-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#uri (method)">#uri</a></span>, <span class='object_link'><a href="HTTP.html#user_agent-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#user_agent (method)">#user_agent</a></span>, <span class='object_link'><a href="HTTP.html#vhost-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#vhost (method)">#vhost</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#attempt_login-instance_method" title="#attempt_login (instance method)">#<strong>attempt_login</strong>(credential)  &#x21d2; Result </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempts to login to Advantech WebAccess.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_setup-instance_method" title="#check_setup (instance method)">#<strong>check_setup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#do_login-instance_method" title="#do_login (instance method)">#<strong>do_login</strong>(user, pass)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="HTTP.html#send_request-instance_method" title="Metasploit::Framework::LoginScanner::HTTP#send_request (method)">#send_request</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="attempt_login-instance_method">
+  
+    #<strong>attempt_login</strong>(credential)  &#x21d2; <tt><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Attempts to login to Advantech WebAccess.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>credential</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Credential.html" title="Metasploit::Framework::Credential (class)">Metasploit::Framework::Credential</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The credential object</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A Result object indicating success or failure</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/advantech_webaccess.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_attempt_login'>attempt_login</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result_opts'>result_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>credential:</span> <span class='id identifier rubyid_credential'>credential</span><span class='comma'>,</span>
+    <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>INCORRECT</span><span class='comma'>,</span>
+    <span class='label'>proof:</span> <span class='kw'>nil</span><span class='comma'>,</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='label'>port:</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+    <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_result_opts'>result_opts</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_do_login'>do_login</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='comma'>,</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># Something went wrong during login. &#39;e&#39; knows what&#39;s up.
+</span>    <span class='id identifier rubyid_result_opts'>result_opts</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="#LOGIN_STATUS-constant" title="Metasploit::Framework::LoginScanner::AdvantechWebAccess::LOGIN_STATUS (constant)">LOGIN_STATUS</a></span></span><span class='op'>::</span><span class='const'>UNABLE_TO_CONNECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='const'><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Result.html#initialize-instance_method" title="Metasploit::Framework::LoginScanner::Result#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_result_opts'>result_opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_setup-instance_method">
+  
+    #<strong>check_setup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/advantech_webaccess.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_setup'>check_setup</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_uri'>normalize_uri</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>broadWeb/bwRoot.asp</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Welcome to Advantech WebAccess</span><span class='regexp_end'>/i</span></span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="do_login-instance_method">
+  
+    #<strong>do_login</strong>(user, pass)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/advantech_webaccess.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_do_login'>do_login</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_pass'>pass</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span>  <span class='op'>=</span> <span class='id identifier rubyid_normalize_uri'>normalize_uri</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>broadweb/user/signin.asp</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>vars_post</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>page</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pos</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>remMe</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>submit1</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Login</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_user'>user</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_pass'>pass</span>
+      <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="#LOGIN_STATUS-constant" title="Metasploit::Framework::LoginScanner::AdvantechWebAccess::LOGIN_STATUS (constant)">LOGIN_STATUS</a></span></span><span class='op'>::</span><span class='const'>UNABLE_TO_CONNECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Connection timed out for signin.asp</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Location</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Location</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/broadweb/bwproj.asp</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="#LOGIN_STATUS-constant" title="Metasploit::Framework::LoginScanner::AdvantechWebAccess::LOGIN_STATUS (constant)">LOGIN_STATUS</a></span></span><span class='op'>::</span><span class='const'>SUCCESSFUL</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='lbrace'>{</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="#LOGIN_STATUS-constant" title="Metasploit::Framework::LoginScanner::AdvantechWebAccess::LOGIN_STATUS (constant)">LOGIN_STATUS</a></span></span><span class='op'>::</span><span class='const'>INCORRECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:33 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

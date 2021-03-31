@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::ReverseWinHttps
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::ReverseWinHttps";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">ReverseWinHttps</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::ReverseWinHttps
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span>, <span class='object_link'><a href="ReverseWinHttp.html" title="Msf::Payload::Windows::ReverseWinHttp (module)">ReverseWinHttp</a></span>, <span class='object_link'><a href="VerifySsl.html" title="Msf::Payload::Windows::VerifySsl (module)">VerifySsl</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/reverse_win_https.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Complex payload generation for Windows ARCH_X86 that speak HTTPS using WinHTTP</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the first stage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register reverse_winhttps specific options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#required_space-instance_method" title="#required_space (instance method)">#<strong>required_space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine the maximum amount of space required for the features requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_config-instance_method" title="#transport_config (instance method)">#<strong>transport_config</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="VerifySsl.html" title="Msf::Payload::Windows::VerifySsl (module)">VerifySsl</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="VerifySsl.html#get_ssl_cert_hash-instance_method" title="Msf::Payload::Windows::VerifySsl#get_ssl_cert_hash (method)">#get_ssl_cert_hash</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ReverseWinHttp.html" title="Msf::Payload::Windows::ReverseWinHttp (module)">ReverseWinHttp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ReverseWinHttp.html#asm_generate_wchar_array-instance_method" title="Msf::Payload::Windows::ReverseWinHttp#asm_generate_wchar_array (method)">#asm_generate_wchar_array</a></span>, <span class='object_link'><a href="ReverseWinHttp.html#asm_reverse_winhttp-instance_method" title="Msf::Payload::Windows::ReverseWinHttp#asm_reverse_winhttp (method)">#asm_reverse_winhttp</a></span>, <span class='object_link'><a href="ReverseWinHttp.html#generate_reverse_winhttp-instance_method" title="Msf::Payload::Windows::ReverseWinHttp#generate_reverse_winhttp (method)">#generate_reverse_winhttp</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ReverseHttp.html" title="Msf::Payload::Windows::ReverseHttp (module)">ReverseHttp</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ReverseHttp.html#asm_generate_ascii_array-instance_method" title="Msf::Payload::Windows::ReverseHttp#asm_generate_ascii_array (method)">#asm_generate_ascii_array</a></span>, <span class='object_link'><a href="ReverseHttp.html#asm_reverse_http-instance_method" title="Msf::Payload::Windows::ReverseHttp#asm_reverse_http (method)">#asm_reverse_http</a></span>, <span class='object_link'><a href="ReverseHttp.html#generate_reverse_http-instance_method" title="Msf::Payload::Windows::ReverseHttp#generate_reverse_http (method)">#generate_reverse_http</a></span>, <span class='object_link'><a href="ReverseHttp.html#generate_small_uri-instance_method" title="Msf::Payload::Windows::ReverseHttp#generate_small_uri (method)">#generate_small_uri</a></span>, <span class='object_link'><a href="ReverseHttp.html#generate_uri-instance_method" title="Msf::Payload::Windows::ReverseHttp#generate_uri (method)">#generate_uri</a></span>, <span class='object_link'><a href="ReverseHttp.html#get_custom_headers-instance_method" title="Msf::Payload::Windows::ReverseHttp#get_custom_headers (method)">#get_custom_headers</a></span>, <span class='object_link'><a href="ReverseHttp.html#stage_over_connection%3F-instance_method" title="Msf::Payload::Windows::ReverseHttp#stage_over_connection? (method)">#stage_over_connection?</a></span>, <span class='object_link'><a href="ReverseHttp.html#wfs_delay-instance_method" title="Msf::Payload::Windows::ReverseHttp#wfs_delay (method)">#wfs_delay</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Exitfunk.html" title="Msf::Payload::Windows::Exitfunk (module)">Exitfunk</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Exitfunk.html#asm_exitfunk-instance_method" title="Msf::Payload::Windows::Exitfunk#asm_exitfunk (method)">#asm_exitfunk</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="BlockApi.html" title="Msf::Payload::Windows::BlockApi (module)">BlockApi</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BlockApi.html#asm_block_api-instance_method" title="Msf::Payload::Windows::BlockApi#asm_block_api (method)">#asm_block_api</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Windows.html#apply_prepends-instance_method" title="Msf::Payload::Windows#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span>, <span class='object_link'><a href="../Windows.html#handle_intermediate_stage-instance_method" title="Msf::Payload::Windows#handle_intermediate_stage (method)">#handle_intermediate_stage</a></span>, <span class='object_link'><a href="../Windows.html#include_send_uuid-instance_method" title="Msf::Payload::Windows#include_send_uuid (method)">#include_send_uuid</a></span>, <span class='object_link'><a href="../Windows.html#replace_var-instance_method" title="Msf::Payload::Windows#replace_var (method)">#replace_var</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PrependMigrate.html" title="Msf::Payload::Windows::PrependMigrate (module)">PrependMigrate</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrependMigrate.html#apply_prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#apply_prepend_migrate (method)">#apply_prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate (method)">#prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate%3F-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate? (method)">#prepend_migrate?</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate_64-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate_64 (method)">#prepend_migrate_64</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../TransportConfig.html#transport_config_bind_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_named_pipe (method)">#transport_config_bind_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_bind_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_tcp (method)">#transport_config_bind_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_http-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_http (method)">#transport_config_reverse_http</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_https-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_https (method)">#transport_config_reverse_https</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_ipv6_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_ipv6_tcp (method)">#transport_config_reverse_ipv6_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_named_pipe (method)">#transport_config_reverse_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_tcp (method)">#transport_config_reverse_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_udp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_udp (method)">#transport_config_reverse_udp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_uri_components-instance_method" title="Msf::Payload::TransportConfig#transport_uri_components (method)">#transport_uri_components</a></span></p>
+
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate-instance_method">
+  
+    #<strong>generate</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the first stage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_win_https.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
+
+  <span class='id identifier rubyid_verify_cert_hash'>verify_cert_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_get_ssl_cert_hash'>get_ssl_cert_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>StagerVerifySSLCert</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+                                       <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HandlerSSLCert</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>super</span><span class='lparen'>(</span>
+    <span class='label'>ssl:</span>              <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>verify_cert_hash:</span> <span class='id identifier rubyid_verify_cert_hash'>verify_cert_hash</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register reverse_winhttps specific options</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_win_https.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>StagerVerifySSLCert</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Whether to verify the SSL certificate hash in the handler</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="required_space-instance_method">
+  
+    #<strong>required_space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine the maximum amount of space required for the features requested</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_win_https.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_required_space'>required_space</span>
+  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='kw'>super</span>
+
+  <span class='comment'># SSL support adds 20 bytes
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>20</span>
+
+  <span class='comment'># SSL verification adds 120 bytes
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>StagerVerifySSLCert</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>120</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_space'>space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_config-instance_method">
+  
+    #<strong>transport_config</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/reverse_win_https.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_config'>transport_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_transport_config_reverse_https'>transport_config_reverse_https</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:45 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

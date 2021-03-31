@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::HttpCrawler
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::HttpCrawler";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (H)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">HttpCrawler</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::HttpCrawler
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/http_crawler.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods for implementing a web crawler</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="HttpCrawler/MaximumPageCount.html" title="Msf::Auxiliary::HttpCrawler::MaximumPageCount (class)">MaximumPageCount</a></span>, <span class='object_link'><a href="HttpCrawler/WebTarget.html" title="Msf::Auxiliary::HttpCrawler::WebTarget (class)">WebTarget</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#form_count-instance_method" title="#form_count (instance method)">#<strong>form_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute form_count.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#request_count-instance_method" title="#request_count (instance method)">#<strong>request_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute request_count.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#targets-instance_method" title="#targets (instance method)">#<strong>targets</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Some accessors for stat tracking.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#url_count-instance_method" title="#url_count (instance method)">#<strong>url_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute url_count.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#url_total-instance_method" title="#url_total (instance method)">#<strong>url_total</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute url_total.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#crawl_target-instance_method" title="#crawl_target (instance method)">#<strong>crawl_target</strong>(t)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#crawler_options-instance_method" title="#crawler_options (instance method)">#<strong>crawler_options</strong>(t)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#crawler_process_page-instance_method" title="#crawler_process_page (instance method)">#<strong>crawler_process_page</strong>(t, page, cnt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Specific module implementations should redefine this method with whatever is meaningful to them.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dirbust%3F-instance_method" title="#dirbust? (instance method)">#<strong>dirbust?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#focus_crawl-instance_method" title="#focus_crawl (instance method)">#<strong>focus_crawl</strong>(page)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_connection_timeout-instance_method" title="#get_connection_timeout (instance method)">#<strong>get_connection_timeout</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_link_filter-instance_method" title="#get_link_filter (instance method)">#<strong>get_link_filter</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Scrub links that end in these extensions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_crawl_threads-instance_method" title="#max_crawl_threads (instance method)">#<strong>max_crawl_threads</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_crawl_time-instance_method" title="#max_crawl_time (instance method)">#<strong>max_crawl_time</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_page_count-instance_method" title="#max_page_count (instance method)">#<strong>max_page_count</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#proxies-instance_method" title="#proxies (instance method)">#<strong>proxies</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the configured proxy list.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rhost-instance_method" title="#rhost (instance method)">#<strong>rhost</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the target host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rport-instance_method" title="#rport (instance method)">#<strong>rport</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the remote port.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-instance_method" title="#run (instance method)">#<strong>run</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Entry point for the crawler code.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-instance_method" title="#setup (instance method)">#<strong>setup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl-instance_method" title="#ssl (instance method)">#<strong>ssl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the boolean indicating SSL.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl_version-instance_method" title="#ssl_version (instance method)">#<strong>ssl_version</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the string indicating SSL version.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vhost-instance_method" title="#vhost (instance method)">#<strong>vhost</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the VHOST of the HTTP server.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Report.html#active_db%3F-instance_method" title="Msf::Auxiliary::Report#active_db? (method)">#active_db?</a></span>, <span class='object_link'><a href="Report.html#create_cracked_credential-instance_method" title="Msf::Auxiliary::Report#create_cracked_credential (method)">#create_cracked_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential-instance_method" title="Msf::Auxiliary::Report#create_credential (method)">#create_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential_and_login-instance_method" title="Msf::Auxiliary::Report#create_credential_and_login (method)">#create_credential_and_login</a></span>, <span class='object_link'><a href="Report.html#create_credential_login-instance_method" title="Msf::Auxiliary::Report#create_credential_login (method)">#create_credential_login</a></span>, <span class='object_link'><a href="Report.html#db-instance_method" title="Msf::Auxiliary::Report#db (method)">#db</a></span>, <span class='object_link'><a href="Report.html#db_warning_given%3F-instance_method" title="Msf::Auxiliary::Report#db_warning_given? (method)">#db_warning_given?</a></span>, <span class='object_link'><a href="Report.html#get_client-instance_method" title="Msf::Auxiliary::Report#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="Report.html#get_host-instance_method" title="Msf::Auxiliary::Report#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="Report.html#inside_workspace_boundary%3F-instance_method" title="Msf::Auxiliary::Report#inside_workspace_boundary? (method)">#inside_workspace_boundary?</a></span>, <span class='object_link'><a href="Report.html#invalidate_login-instance_method" title="Msf::Auxiliary::Report#invalidate_login (method)">#invalidate_login</a></span>, <span class='object_link'><a href="Report.html#mytask-instance_method" title="Msf::Auxiliary::Report#mytask (method)">#mytask</a></span>, <span class='object_link'><a href="Report.html#myworkspace-instance_method" title="Msf::Auxiliary::Report#myworkspace (method)">#myworkspace</a></span>, <span class='object_link'><a href="Report.html#myworkspace_id-instance_method" title="Msf::Auxiliary::Report#myworkspace_id (method)">#myworkspace_id</a></span>, <span class='object_link'><a href="Report.html#report_auth_info-instance_method" title="Msf::Auxiliary::Report#report_auth_info (method)">#report_auth_info</a></span>, <span class='object_link'><a href="Report.html#report_client-instance_method" title="Msf::Auxiliary::Report#report_client (method)">#report_client</a></span>, <span class='object_link'><a href="Report.html#report_exploit-instance_method" title="Msf::Auxiliary::Report#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="Report.html#report_host-instance_method" title="Msf::Auxiliary::Report#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="Report.html#report_loot-instance_method" title="Msf::Auxiliary::Report#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="Report.html#report_note-instance_method" title="Msf::Auxiliary::Report#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="Report.html#report_service-instance_method" title="Msf::Auxiliary::Report#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="Report.html#report_vuln-instance_method" title="Msf::Auxiliary::Report#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="Report.html#report_web_form-instance_method" title="Msf::Auxiliary::Report#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="Report.html#report_web_page-instance_method" title="Msf::Auxiliary::Report#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="Report.html#report_web_site-instance_method" title="Msf::Auxiliary::Report#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="Report.html#report_web_vuln-instance_method" title="Msf::Auxiliary::Report#report_web_vuln (method)">#report_web_vuln</a></span>, <span class='object_link'><a href="Report.html#store_cred-instance_method" title="Msf::Auxiliary::Report#store_cred (method)">#store_cred</a></span>, <span class='object_link'><a href="Report.html#store_local-instance_method" title="Msf::Auxiliary::Report#store_local (method)">#store_local</a></span>, <span class='object_link'><a href="Report.html#store_loot-instance_method" title="Msf::Auxiliary::Report#store_loot (method)">#store_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">#optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_require_metasploit_db_gem_engines-class_method" title="Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines (method)">optionally_require_metasploit_db_gem_engines</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="form_count=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="form_count-instance_method">
+  
+    #<strong>form_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute form_count.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_form_count'>form_count</span>
+  <span class='ivar'>@form_count</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="request_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="request_count-instance_method">
+  
+    #<strong>request_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute request_count.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_request_count'>request_count</span>
+  <span class='ivar'>@request_count</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="targets=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="targets-instance_method">
+  
+    #<strong>targets</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Some accessors for stat tracking</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_targets'>targets</span>
+  <span class='ivar'>@targets</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="url_count=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="url_count-instance_method">
+  
+    #<strong>url_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute url_count.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_url_count'>url_count</span>
+  <span class='ivar'>@url_count</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="url_total=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="url_total-instance_method">
+  
+    #<strong>url_total</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute url_total.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_url_total'>url_total</span>
+  <span class='ivar'>@url_total</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='kw'>if</span> <span class='ivar'>@crawler</span>
+    <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+    <span class='ivar'>@crawler</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="crawl_target-instance_method">
+  
+    #<strong>crawl_target</strong>(t)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 191</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_crawl_target'>crawl_target</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cnt'>cnt</span>  <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_crawler_options'>crawler_options</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_url'>url</span>  <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_to_url'>to_url</span>
+
+  <span class='ivar'>@crawler</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Anemone</span><span class='op'>::</span><span class='const'>Core</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_url'>url</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_on_every_page'>on_every_page</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_page'>page</span><span class='op'>|</span>
+    <span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>+=</span> <span class='int'>1</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_request_count'>request_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+
+    <span class='comment'># Extract any interesting data from the page
+</span>    <span class='id identifier rubyid_crawler_process_page'>crawler_process_page</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='comma'>,</span> <span class='id identifier rubyid_page'>page</span><span class='comma'>,</span> <span class='id identifier rubyid_cnt'>cnt</span><span class='rparen'>)</span>
+
+    <span class='comment'># Blow up if we hit our maximum page count
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_cnt'>cnt</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_max_page_count'>max_page_count</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Maximum page count reached for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="HttpCrawler/MaximumPageCount.html" title="Msf::Auxiliary::HttpCrawler::MaximumPageCount (class)">MaximumPageCount</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Maximum page count reached</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Skip link processing based on a regular expression
+</span>  <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_skip_links_like'>skip_links_like</span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_get_link_filter'>get_link_filter</span>
+  <span class='rparen'>)</span>
+
+  <span class='comment'># Focus our crawling on interesting, but not over-crawled links
+</span>  <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_focus_crawl'>focus_crawl</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_page'>page</span><span class='op'>|</span>
+    <span class='id identifier rubyid_focus_crawl'>focus_crawl</span><span class='lparen'>(</span><span class='id identifier rubyid_page'>page</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_run'>run</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="HttpCrawler/MaximumPageCount.html" title="Msf::Auxiliary::HttpCrawler::MaximumPageCount (class)">MaximumPageCount</a></span></span>
+    <span class='comment'># No need to print anything else
+</span>  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+    <span class='comment'># Bubble this up to the top-level handler
+</span>    <span class='id identifier rubyid_raise'>raise</span> <span class='gvar'>$!</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># Ridiculous f&#39;ing anonymous timeout exception which I&#39;ve no idea
+</span>    <span class='comment'># how it comes into existence.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>execution expired</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Crawler Exception: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>ensure</span>
+    <span class='ivar'>@crawler</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+    <span class='ivar'>@crawler</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="crawler_options-instance_method">
+  
+    #<strong>crawler_options</strong>(t)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 268</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_crawler_options'>crawler_options</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span>      <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UserAgent</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:verbose</span><span class='rbracket'>]</span>         <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:threads</span><span class='rbracket'>]</span>         <span class='op'>=</span> <span class='id identifier rubyid_max_crawl_threads'>max_crawl_threads</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:obey_robots_txt</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:redirect_limit</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RedirectLimit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_limit</span><span class='rbracket'>]</span>     <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RetryLimit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:accept_cookies</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:depth_limit</span><span class='rbracket'>]</span>     <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:skip_query_strings</span><span class='rbracket'>]</span>  <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:discard_page_bodies</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:framework</span><span class='rbracket'>]</span>           <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:module</span><span class='rbracket'>]</span>              <span class='op'>=</span> <span class='kw'>self</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span>             <span class='op'>=</span> <span class='id identifier rubyid_get_connection_timeout'>get_connection_timeout</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:dirbust</span><span class='rbracket'>]</span>             <span class='op'>=</span> <span class='id identifier rubyid_dirbust?'>dirbust?</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:inject_headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:cookies</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:cookies</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:cookies</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:domain</span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:domain</span><span class='rbracket'>]</span>   <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKSTATION</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_opts'>opts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="crawler_process_page-instance_method">
+  
+    #<strong>crawler_process_page</strong>(t, page, cnt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Specific module implementations should redefine this method with whatever is meaningful to them.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 245</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_crawler_process_page'>crawler_process_page</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='comma'>,</span> <span class='id identifier rubyid_page'>page</span><span class='comma'>,</span> <span class='id identifier rubyid_cnt'>cnt</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%.5d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_cnt'>cnt</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%.5d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_max_page_count'>max_page_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>]    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ERR</span><span class='tstring_end'>&quot;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='ivar'>@current_site</span><span class='period'>.</span><span class='id identifier rubyid_vhost'>vhost</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span>
+    <span class='kw'>when</span> <span class='int'>301</span><span class='comma'>,</span><span class='int'>302</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span> <span class='kw'>and</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>location</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> -&gt; </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>location</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='int'>500</span><span class='op'>...</span><span class='int'>599</span>
+      <span class='comment'># XXX: Log the fact that we hit an error page
+</span>      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>401</span><span class='comma'>,</span><span class='int'>403</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>200</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>404</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dirbust?-instance_method">
+  
+    #<strong>dirbust?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 177</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dirbust?'>dirbust?</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DirBust</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="focus_crawl-instance_method">
+  
+    #<strong>focus_crawl</strong>(page)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_focus_crawl'>focus_crawl</span><span class='lparen'>(</span><span class='id identifier rubyid_page'>page</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_page'>page</span><span class='period'>.</span><span class='id identifier rubyid_links'>links</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_connection_timeout-instance_method">
+  
+    #<strong>get_connection_timeout</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_connection_timeout'>get_connection_timeout</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RequestTimeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_link_filter-instance_method">
+  
+    #<strong>get_link_filter</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Scrub links that end in these extensions. If more or less is desired by a particular module, this should get redefined.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 183</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_link_filter'>get_link_filter</span>
+  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\.(js|png|jpe?g|bmp|gif|swf|jar|zip|gz|bz2|rar|pdf|docx?|pptx?)$</span><span class='regexp_end'>/i</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#RHOST-constant" title="Msf::Opt::RHOST (constant)">RHOST</a></span></span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#RPORT-constant" title="Msf::Opt::RPORT (constant)">RPORT</a></span></span><span class='lparen'>(</span><span class='int'>80</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VHOST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HTTP server virtual host</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>URI</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The starting page to crawl</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#Proxies-constant" title="Msf::Opt::Proxies (constant)">Proxies</a></span></span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_PAGES</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of pages to crawl per URL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>500</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_MINUTES</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of minutes to spend on each URL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_THREADS</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of concurrent requests</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>4</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpUsername</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The HTTP username to specify for authentication</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpPassword</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The HTTP password to specify for authentication</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DOMAIN</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The domain to use for windows authentication</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WORKSTATION</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Negotiate SSL/TLS for outgoing connections</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DirBust</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Bruteforce common URL paths</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RequestTimeout</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of seconds to wait for a reply</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>15</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RedirectLimit</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of redirects for a single request</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RetryLimit</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum number of attempts for a single request</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>5</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UserAgent</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The User-Agent header to use for all requests</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BasicAuthUser</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The HTTP username to specify for basic authentication</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BasicAuthPass</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The HTTP password to specify for basic authentication</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPAdditionalHeaders</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A list of additional headers to send (separated by \\x01)</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPCookie</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A HTTP cookie header to send with each request</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#SSLVersion-constant" title="Msf::Opt::SSLVersion (constant)">SSLVersion</a></span></span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_autofilter_ports'>register_autofilter_ports</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='int'>80</span><span class='comma'>,</span> <span class='int'>8080</span><span class='comma'>,</span> <span class='int'>443</span><span class='comma'>,</span> <span class='int'>8000</span><span class='comma'>,</span> <span class='int'>8888</span><span class='comma'>,</span> <span class='int'>8880</span><span class='comma'>,</span> <span class='int'>8008</span><span class='comma'>,</span> <span class='int'>3000</span><span class='comma'>,</span> <span class='int'>8443</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_autofilter_services'>register_autofilter_services</span><span class='lparen'>(</span><span class='words_beg'>%W{</span><span class='words_sep'> </span><span class='tstring_content'>http</span><span class='words_sep'> </span><span class='tstring_content'>https</span><span class='words_sep'> </span><span class='tstring_end'>}</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>anemone</span><span class='tstring_end'>&#39;</span></span>
+    <span class='ivar'>@anemone_loaded</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='ivar'>@anemone_loaded</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='ivar'>@anemone_error</span>  <span class='op'>=</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="max_crawl_threads-instance_method">
+  
+    #<strong>max_crawl_threads</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_crawl_threads'>max_crawl_threads</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_THREADS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="max_crawl_time-instance_method">
+  
+    #<strong>max_crawl_time</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_crawl_time'>max_crawl_time</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_MINUTES</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>*</span> <span class='float'>60.0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="max_page_count-instance_method">
+  
+    #<strong>max_page_count</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_page_count'>max_page_count</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MAX_PAGES</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="proxies-instance_method">
+  
+    #<strong>proxies</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the configured proxy list</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+345
+346
+347</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 345</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_proxies'>proxies</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proxies</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rhost-instance_method">
+  
+    #<strong>rhost</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the target host</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 310</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rhost'>rhost</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rport-instance_method">
+  
+    #<strong>rport</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the remote port</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+317
+318
+319</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 317</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rport'>rport</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run-instance_method">
+  
+    #<strong>run</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Entry point for the crawler code</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run'>run</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_request_count'>request_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_form_count'>form_count</span>  <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_url_count'>url_count</span>   <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_url_total'>url_total</span>   <span class='op'>=</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span><span class='id identifier rubyid_query'>query</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>URI</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>?</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_query'>query</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="HttpCrawler/WebTarget.html" title="Msf::Auxiliary::HttpCrawler::WebTarget (class)">WebTarget</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Msf::Auxiliary::HttpCrawler#initialize (method)">new</a></span></span>
+
+  <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='symbol'>:vhost</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_vhost'>vhost</span><span class='comma'>,</span>
+    <span class='symbol'>:host</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_rhost'>rhost</span><span class='comma'>,</span>
+    <span class='symbol'>:port</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_rport'>rport</span><span class='comma'>,</span>
+    <span class='symbol'>:ssl</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_ssl'>ssl</span><span class='comma'>,</span>
+    <span class='symbol'>:path</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
+    <span class='symbol'>:query</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_query'>query</span><span class='comma'>,</span>
+    <span class='symbol'>:info</span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpUsername</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpUsername</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpUsername</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:password</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpPassword</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:domain</span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DOMAIN</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPCookie</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:cookies</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPCookie</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_pair'>pair</span><span class='op'>|</span>
+      <span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_pair'>pair</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_v'>v</span>
+      <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:cookies</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPAdditionalHeaders</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTPAdditionalHeaders</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:site</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_report_web_site'>report_web_site</span><span class='lparen'>(</span><span class='symbol'>:wait</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='symbol'>:port</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='symbol'>:vhost</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:vhost</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='symbol'>:ssl</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Crawling </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_to_url'>to_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='ivar'>@current_vhost</span> <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:vhost</span><span class='rbracket'>]</span>
+    <span class='ivar'>@current_site</span>  <span class='op'>=</span> <span class='id identifier rubyid_t'>t</span><span class='lbracket'>[</span><span class='symbol'>:site</span><span class='rbracket'>]</span>
+    <span class='op'>::</span><span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_max_crawl_time'>max_crawl_time</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_crawl_target'>crawl_target</span><span class='lparen'>(</span><span class='id identifier rubyid_t'>t</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Crawl of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_to_url'>to_url</span><span class='embexpr_end'>}</span><span class='tstring_content'> has reached the configured timeout</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>ensure</span>
+    <span class='ivar'>@current_vhost</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Crawl of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_to_url'>to_url</span><span class='embexpr_end'>}</span><span class='tstring_content'> complete</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-instance_method">
+  
+    #<strong>setup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>RuntimeError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup'>setup</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not load Anemone/Nokogiri: </span><span class='embexpr_beg'>#{</span><span class='ivar'>@anemone_error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@anemone_loaded</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ssl-instance_method">
+  
+    #<strong>ssl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the boolean indicating SSL</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+331
+332
+333</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 331</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl'>ssl</span>
+  <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_default?'>default?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_rport'>rport</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>443</span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ssl_version-instance_method">
+  
+    #<strong>ssl_version</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the string indicating SSL version</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+338
+339
+340</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 338</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl_version'>ssl_version</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSLVersion</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="vhost-instance_method">
+  
+    #<strong>vhost</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the VHOST of the HTTP server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+324
+325
+326</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/http_crawler.rb', line 324</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vhost'>vhost</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Ui::Web::Driver
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Ui::Web::Driver";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Web.html" title="Msf::Ui::Web (module)">Web</a></span></span>
+     &raquo; 
+    <span class="title">Driver</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Ui::Web::Driver
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></li>
+          
+            <li class="next">Msf::Ui::Web::Driver</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/ui/web/driver.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class implements a user interface driver on a web interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="ConfigCore-constant" class="">ConfigCore =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>framework/core</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="ConfigGroup-constant" class="">ConfigGroup =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>framework/ui/web</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#consoles-instance_method" title="#consoles (instance method)">#<strong>consoles</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#framework-instance_method" title="#framework (instance method)">#<strong>framework</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_console-instance_method" title="#last_console (instance method)">#<strong>last_console</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#opts-instance_method" title="#opts (instance method)">#<strong>opts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sessions-instance_method" title="#sessions (instance method)">#<strong>sessions</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean_consoles-instance_method" title="#clean_consoles (instance method)">#<strong>clean_consoles</strong>(timeout = 300)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#connect_session-instance_method" title="#connect_session (instance method)">#<strong>connect_session</strong>(id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Detach the session from an existing input/output pair.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_console-instance_method" title="#create_console (instance method)">#<strong>create_console</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#destroy_console-instance_method" title="#destroy_console (instance method)">#<strong>destroy_console</strong>(cid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(opts = {})  &#x21d2; Driver </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a web driver instance and prepares it for listening to HTTP requests.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#initialize_logging-instance_method" title="#initialize_logging (instance method)">#<strong>initialize_logging</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes logging for the web interface.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_console-instance_method" title="#read_console (instance method)">#<strong>read_console</strong>(id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_session-instance_method" title="#read_session (instance method)">#<strong>read_session</strong>(id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-instance_method" title="#run (instance method)">#<strong>run</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stub.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_console-instance_method" title="#write_console (instance method)">#<strong>write_console</strong>(id, buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_session-instance_method" title="#write_session (instance method)">#<strong>write_session</strong>(id, buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Driver.html" title="Msf::Ui::Driver (class)">Driver</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Driver.html#cleanup-instance_method" title="Msf::Ui::Driver#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Driver.html#stop-instance_method" title="Msf::Ui::Driver#stop (method)">#stop</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Ui::Web::Driver (class)">Driver</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a web driver instance and prepares it for listening to HTTP requests.  The constructor takes a hash of options that can control how the web server will operate.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Call the parent
+</span>  <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='comment'># Set the passed options hash for referencing later on.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:framework</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:framework</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Initialize configuration
+</span>    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_init'><span class='object_link'><a href="../../Config.html#init-class_method" title="Msf::Config.init (method)">init</a></span></span>
+
+    <span class='comment'># Initialize logging
+</span>    <span class='id identifier rubyid_initialize_logging'>initialize_logging</span>
+
+    <span class='comment'># Initialize attributes
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Simple/Framework.html" title="Msf::Simple::Framework (module)">Framework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create'><span class='object_link'><a href="../../Simple/Framework.html#create-class_method" title="Msf::Simple::Framework.create (method)">create</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Initialize the console count
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_console'>last_console</span> <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="consoles=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="consoles-instance_method">
+  
+    #<strong>consoles</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_consoles'>consoles</span>
+  <span class='ivar'>@consoles</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="framework=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="framework-instance_method">
+  
+    #<strong>framework</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@framework</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="last_console=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="last_console-instance_method">
+  
+    #<strong>last_console</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_last_console'>last_console</span>
+  <span class='ivar'>@last_console</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="opts=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="opts-instance_method">
+  
+    #<strong>opts</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 145</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_opts'>opts</span>
+  <span class='ivar'>@opts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sessions=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sessions-instance_method">
+  
+    #<strong>sessions</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sessions'>sessions</span>
+  <span class='ivar'>@sessions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="clean_consoles-instance_method">
+  
+    #<strong>clean_consoles</strong>(timeout = 300)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88
+89
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_clean_consoles'>clean_consoles</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>300</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_con'>con</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_con'>con</span><span class='period'>.</span><span class='id identifier rubyid_last_access'>last_access</span> <span class='op'>+</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>&lt;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_con'>con</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="connect_session-instance_method">
+  
+    #<strong>connect_session</strong>(id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Detach the session from an existing input/output pair</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_connect_session'>connect_session</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+
+  <span class='comment'># Ignore invalid sessions
+</span>  <span class='id identifier rubyid_ses'>ses</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ses'>ses</span>
+
+  <span class='comment'># Has this session already been detached?
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_has_subscriber?'>has_subscriber?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session_reader</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Create a new pipe
+</span>  <span class='id identifier rubyid_spipe'>spipe</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="WebConsole.html" title="Msf::Ui::Web::WebConsole (class)">WebConsole</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="WebConsole/WebConsolePipe.html" title="Msf::Ui::Web::WebConsole::WebConsolePipe (class)">WebConsolePipe</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Rex/Ui/Text/BidirectionalPipe.html#initialize-instance_method" title="Rex::Ui::Text::BidirectionalPipe#initialize (method)">new</a></span></span>
+  <span class='id identifier rubyid_spipe'>spipe</span><span class='period'>.</span><span class='id identifier rubyid_input'>input</span> <span class='op'>=</span> <span class='id identifier rubyid_spipe'>spipe</span><span class='period'>.</span><span class='id identifier rubyid_pipe_input'>pipe_input</span>
+
+  <span class='comment'># Create a read subscriber
+</span>  <span class='id identifier rubyid_spipe'>spipe</span><span class='period'>.</span><span class='id identifier rubyid_create_subscriber'>create_subscriber</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session_reader</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ConnectSessionInteraction</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_interact'>interact</span><span class='lparen'>(</span><span class='id identifier rubyid_spipe'>spipe</span><span class='period'>.</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span> <span class='id identifier rubyid_spipe'>spipe</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_console-instance_method">
+  
+    #<strong>create_console</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_console'>create_console</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Destroy any unused consoles
+</span>  <span class='id identifier rubyid_clean_consoles'>clean_consoles</span>
+
+  <span class='id identifier rubyid_console'>console</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="WebConsole.html" title="Msf::Ui::Web::WebConsole (class)">WebConsole</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="WebConsole.html#initialize-instance_method" title="Msf::Ui::Web::WebConsole#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_console'>last_console</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_console'>last_console</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_console_id'>console_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_console_id'>console_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="destroy_console-instance_method">
+  
+    #<strong>destroy_console</strong>(cid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_destroy_console'>destroy_console</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_con'>con</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_cid'>cid</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_con'>con</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_con'>con</span><span class='period'>.</span><span class='id identifier rubyid_shutdown'>shutdown</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize_logging-instance_method">
+  
+    #<strong>initialize_logging</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes logging for the web interface</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize_logging'>initialize_logging</span>
+  <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LogLevel</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Logging.html" title="Msf::Logging (class)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_enable_log_source'><span class='object_link'><a href="../../Logging.html#enable_log_source-class_method" title="Msf::Logging.enable_log_source (method)">enable_log_source</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Web.html#LogSource-constant" title="Msf::Ui::Web::LogSource (constant)">LogSource</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_console-instance_method">
+  
+    #<strong>read_console</strong>(id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_console'>read_console</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_session-instance_method">
+  
+    #<strong>read_session</strong>(id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_session'>read_session</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ses'>ses</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ses'>ses</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span>
+  <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_read_subscriber'>read_subscriber</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session_reader</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run-instance_method">
+  
+    #<strong>run</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stub</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+139
+140
+141</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 139</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run'>run</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_console-instance_method">
+  
+    #<strong>write_console</strong>(id, buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_console'>write_console</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_consoles'>consoles</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span> <span class='op'>:</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write_session-instance_method">
+  
+    #<strong>write_session</strong>(id, buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/web/driver.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_session'>write_session</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ses'>ses</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_id'>id</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ses'>ses</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span>
+  <span class='id identifier rubyid_ses'>ses</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:47 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

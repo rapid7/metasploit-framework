@@ -1,0 +1,3787 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Modules::Loader::Base
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Modules::Loader::Base";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Modules.html" title="Msf::Modules (module)">Modules</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Loader.html" title="Msf::Modules::Loader (module)">Loader</a></span></span>
+     &raquo; 
+    <span class="title">Base</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Modules::Loader::Base
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Modules::Loader::Base</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/modules/loader/base.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p><span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">#read_module_content</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Directory.html" title="Msf::Modules::Loader::Directory (class)">Directory</a></span>, <span class='object_link'><a href="Executable.html" title="Msf::Modules::Loader::Executable (class)">Executable</a></span></p>
+</div>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DIRECTORY_BY_TYPE-constant" class="">DIRECTORY_BY_TYPE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Not all types are pluralized when a directory name, so here&#39;s the mapping that currently exists</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_AUX-constant" title="Msf::MODULE_AUX (constant)">MODULE_AUX</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>auxiliary</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_ENCODER-constant" title="Msf::MODULE_ENCODER (constant)">MODULE_ENCODER</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encoders</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_EXPLOIT-constant" title="Msf::MODULE_EXPLOIT (constant)">MODULE_EXPLOIT</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exploits</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_NOP-constant" title="Msf::MODULE_NOP (constant)">MODULE_NOP</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nops</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_PAYLOAD-constant" title="Msf::MODULE_PAYLOAD (constant)">MODULE_PAYLOAD</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>payloads</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_POST-constant" title="Msf::MODULE_POST (constant)">MODULE_POST</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>post</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_EVASION-constant" title="Msf::MODULE_EVASION (constant)">MODULE_EVASION</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>evasion</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="TYPE_BY_DIRECTORY-constant" class="">TYPE_BY_DIRECTORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#DIRECTORY_BY_TYPE-constant" title="Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE (constant)">DIRECTORY_BY_TYPE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_invert'>invert</span></pre></dd>
+      
+        <dt id="NAMESPACE_MODULE_LINE-constant" class="">NAMESPACE_MODULE_LINE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>This must calculate the first line of the NAMESPACE_MODULE_CONTENT string so that errors are reported correctly</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='kw'>__LINE__</span> <span class='op'>+</span> <span class='int'>4</span></pre></dd>
+      
+        <dt id="NAMESPACE_MODULE_CONTENT-constant" class="">NAMESPACE_MODULE_CONTENT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>By calling module_eval from inside the module definition, the lexical scope is captured and available to the code in module_content.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>  class &lt;&lt; self
+    # The loader that originally loaded this module
+    #
+    # @return [Msf::Modules::Loader::Base] the loader that loaded this namespace module and can reload it.
+    attr_accessor :loader
+
+    # @return [String] The path under which the module of the given type was found.
+    attr_accessor :parent_path
+  end
+
+  # Calls module_eval on the module_content, but the lexical scope of the namespace_module is passed through
+  # module_eval, so that module_content can act like it was written inline in the namespace_module.
+  #
+  # @param [String] module_content The content of the {Msf::Module}.
+  # @param [String] module_path The path to the module, so that error messages in evaluating the module_content can
+  #   be reported correctly.
+  def self.module_eval_with_lexical_scope(module_content, module_path)
+    # By calling module_eval from inside the module definition, the lexical scope is captured and available to the
+    # code in module_content.
+    module_eval(module_content, module_path)
+  end
+</span><span class='heredoc_end'>EOS</span></pre></dd>
+      
+        <dt id="MODULE_EXTENSION-constant" class="">MODULE_EXTENSION =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The extension for metasploit modules.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.rb</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MODULE_SEPARATOR-constant" class="">MODULE_SEPARATOR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>String used to separate module names in a qualified module name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>::</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="NAMESPACE_MODULE_NAMES-constant" class="">NAMESPACE_MODULE_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The base namespace name under which <span class='object_link'><a href="#create_namespace_module-instance_method" title="Msf::Modules::Loader::Base#create_namespace_module (method)">namespace modules are created</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Modules</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="UNIT_TEST_REGEX-constant" class="">UNIT_TEST_REGEX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Regex that can distinguish regular ruby source from unit test source.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>rb\.(ut|ts)\.rb$</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#module_manager-instance_method" title="#module_manager (instance method)">#<strong>module_manager</strong>  &#x21d2; Msf::ModuleManager </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The module manager for which this loader is loading modules.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#reverse_relative_name-class_method" title="reverse_relative_name (class method)">.<strong>reverse_relative_name</strong>(relative_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This reverses a namespace module&#39;s relative name to a module full name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#typed_path-class_method" title="typed_path (class method)">.<strong>typed_path</strong>(type, module_reference_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The path to the module qualified by the type directory.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#create_namespace_module-instance_method" title="#create_namespace_module (instance method)">#<strong>create_namespace_module</strong>(namespace_module_names)  &#x21d2; Module </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a nested module to wrap the MetasploitModule class so that it doesn&#39;t overwrite other (metasploit) module&#39;s classes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#current_module-instance_method" title="#current_module (instance method)">#<strong>current_module</strong>(module_names)  &#x21d2; Module<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the module with `module_names` if it exists.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#each_module_reference_name-instance_method" title="#each_module_reference_name (instance method)">#<strong>each_module_reference_name</strong>(path) {|parent_path, type, module_reference_name| ... } &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Yields module reference names under path.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(module_manager)  &#x21d2; Base </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Base.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#load_error-instance_method" title="#load_error (instance method)">#<strong>load_error</strong>(module_path, error)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Records the load error to <span class='object_link'><a href="../../ModuleManager/Loading.html#module_load_error_by_path-instance_method" title="Msf::ModuleManager::Loading#module_load_error_by_path (method)">Msf::ModuleManager::Loading#module_load_error_by_path</a></span> and the log.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_module-instance_method" title="#load_module (instance method)">#<strong>load_module</strong>(parent_path, type, module_reference_name, options = {})  &#x21d2; false, true </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads a module from the supplied path and module_reference_name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_modules-instance_method" title="#load_modules (instance method)">#<strong>load_modules</strong>(path, options = {})  &#x21d2; Hash{String =&gt; Integer} </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads all of the modules from the supplied path.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#load_warning-instance_method" title="#load_warning (instance method)">#<strong>load_warning</strong>(module_path, error)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Records the load warning to <span class='object_link'><a href="../../ModuleManager/Loading.html#module_load_warnings-instance_method" title="Msf::ModuleManager::Loading#module_load_warnings (method)">Msf::ModuleManager::Loading#module_load_warnings</a></span> and the log.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#loadable%3F-instance_method" title="#loadable? (instance method)">#<strong>loadable?</strong>(path)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns whether the path can be loaded this module loader.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#module_path-instance_method" title="#module_path (instance method)">#<strong>module_path</strong>(parent_path, type, module_reference_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns path to module that can be used for reporting errors in evaluating the <span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">module_content</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#module_path%3F-instance_method" title="#module_path? (instance method)">#<strong>module_path?</strong>(path)  &#x21d2; true, false </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns whether the path could refer to a module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#module_reference_name_from_path-instance_method" title="#module_reference_name_from_path (instance method)">#<strong>module_reference_name_from_path</strong>(path)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Changes a file name path to a canonical module reference name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#namespace_module_name-instance_method" title="#namespace_module_name (instance method)">#<strong>namespace_module_name</strong>(module_full_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the fully-qualified name to the <span class='object_link'><a href="#create_namespace_module-instance_method" title="Msf::Modules::Loader::Base#create_namespace_module (method)">#create_namespace_module</a></span> that wraps the module with the given module reference name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#namespace_module_names-instance_method" title="#namespace_module_names (instance method)">#<strong>namespace_module_names</strong>(module_full_name)  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an Array of names to make a fully qualified module name to wrap the MetasploitModule class so that it doesn&#39;t overwrite other (metasploit) module&#39;s classes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#namespace_module_transaction-instance_method" title="#namespace_module_transaction (instance method)">#<strong>namespace_module_transaction</strong>(module_full_name, options = {}, &amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#read_module_content-instance_method" title="#read_module_content (instance method)">#<strong>read_module_content</strong>(parent_path, type, module_reference_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  <span class="abstract note title">abstract</span>
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Read the content of the module from under path.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reload_module-instance_method" title="#reload_module (instance method)">#<strong>reload_module</strong>(original_metasploit_class_or_instance)  &#x21d2; Class, Msf::Module </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reloads the specified module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#restore_namespace_module-instance_method" title="#restore_namespace_module (instance method)">#<strong>restore_namespace_module</strong>(parent_module, relative_name, namespace_module)  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Restores the namespace module to its original name under its original parent Module if there was a previous namespace module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#script_path%3F-instance_method" title="#script_path? (instance method)">#<strong>script_path?</strong>(path)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tries to determine if a file might be executable,.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#typed_path-instance_method" title="#typed_path (instance method)">#<strong>typed_path</strong>(type, module_reference_name)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The path to the module qualified by the type directory.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(module_manager)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Modules::Loader::Base (class)">Base</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Base.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_manager</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../ModuleManager.html" title="Msf::ModuleManager (class)">Msf::ModuleManager</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The module manager that caches the loaded modules.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_module_manager'>module_manager</span><span class='rparen'>)</span>
+  <span class='ivar'>@module_manager</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="module_manager-instance_method">
+  
+    #<strong>module_manager</strong>  &#x21d2; <tt><span class='object_link'><a href="../../ModuleManager.html" title="Msf::ModuleManager (class)">Msf::ModuleManager</a></span></tt>  <span class="extras">(readonly, protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The module manager for which this loader is loading modules.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../ModuleManager.html" title="Msf::ModuleManager (class)">Msf::ModuleManager</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The module manager for which this loader is loading modules.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+437
+438
+439</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 437</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_module_manager'>module_manager</span>
+  <span class='ivar'>@module_manager</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="reverse_relative_name-class_method">
+  
+    .<strong>reverse_relative_name</strong>(relative_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This reverses a namespace module&#39;s relative name to a module full name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>relative_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The namespace module&#39;s relative name</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The module full name</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#namespace_module_names-instance_method" title="Msf::Modules::Loader::Base#namespace_module_names (method)">#namespace_module_names</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+519
+520
+521</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 519</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reverse_relative_name'>reverse_relative_name</span><span class='lparen'>(</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_relative_name'>relative_name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:downcase</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="typed_path-class_method">
+  
+    .<strong>typed_path</strong>(type, module_reference_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The path to the module qualified by the type directory.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The type of the module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>path to the module starting with the type directory.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#DIRECTORY_BY_TYPE-constant" title="Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE (constant)">DIRECTORY_BY_TYPE</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+615
+616
+617
+618
+619
+620
+621</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 615</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_typed_path'>typed_path</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_file_name'>file_name</span> <span class='op'>=</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#MODULE_EXTENSION-constant" title="Msf::Modules::Loader::Base::MODULE_EXTENSION (constant)">MODULE_EXTENSION</a></span></span>
+  <span class='id identifier rubyid_type_directory'>type_directory</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DIRECTORY_BY_TYPE-constant" title="Msf::Modules::Loader::Base::DIRECTORY_BY_TYPE (constant)">DIRECTORY_BY_TYPE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_typed_path'>typed_path</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_type_directory'>type_directory</span><span class='comma'>,</span> <span class='id identifier rubyid_file_name'>file_name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_typed_path'>typed_path</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_namespace_module-instance_method">
+  
+    #<strong>create_namespace_module</strong>(namespace_module_names)  &#x21d2; <tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a nested module to wrap the MetasploitModule class so that it doesn&#39;t overwrite other (metasploit) module&#39;s classes. The wrapper module must be named so that active_support&#39;s autoloading code doesn&#39;t break when searching constants from inside the Metasploit class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>namespace_module_names</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p><span class='object_link'><a href="#NAMESPACE_MODULE_NAMES-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_NAMES (constant)">NAMESPACE_MODULE_NAMES</a></span> + &lt;derived-constant-safe names&gt;</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>module that can wrap the module content from <span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">#read_module_content</a></span> using module_eval_with_lexical_scope.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#NAMESPACE_MODULE_CONTENT-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_CONTENT (constant)">NAMESPACE_MODULE_CONTENT</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 340</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_namespace_module'>create_namespace_module</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='rparen'>)</span>
+  <span class='comment'># In order to have constants defined in Msf resolve without the Msf qualifier in the module_content, the
+</span>  <span class='comment'># Module.nesting must resolve for the entire nesting. Module.nesting is strictly lexical, and can&#39;t be faked with
+</span>  <span class='comment'># module_eval(&amp;block). (There&#39;s actually code in ruby&#39;s implementation to stop module_eval from being added to
+</span>  <span class='comment'># Module.nesting when using the block syntax.) All this means is the modules have to be declared as a string that
+</span>  <span class='comment'># gets module_eval&#39;d.
+</span>
+  <span class='id identifier rubyid_nested_module_names'>nested_module_names</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span>
+
+  <span class='id identifier rubyid_namespace_module_content'>namespace_module_content</span> <span class='op'>=</span> <span class='id identifier rubyid_nested_module_names'>nested_module_names</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#NAMESPACE_MODULE_CONTENT-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_CONTENT (constant)">NAMESPACE_MODULE_CONTENT</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_wrapped_content'>wrapped_content</span><span class='comma'>,</span> <span class='id identifier rubyid_module_name'>module_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_name'>module_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_wrapped_content'>wrapped_content</span>
+    <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>end</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># - because the added wrap lines have to act like they were written before NAMESPACE_MODULE_CONTENT
+</span>  <span class='id identifier rubyid_line_with_wrapping'>line_with_wrapping</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#NAMESPACE_MODULE_LINE-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_LINE (constant)">NAMESPACE_MODULE_LINE</a></span></span> <span class='op'>-</span> <span class='id identifier rubyid_nested_module_names'>nested_module_names</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='const'>Object</span><span class='period'>.</span><span class='id identifier rubyid_module_eval'>module_eval</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module_content'>namespace_module_content</span><span class='comma'>,</span> <span class='kw'>__FILE__</span><span class='comma'>,</span> <span class='id identifier rubyid_line_with_wrapping'>line_with_wrapping</span><span class='rparen'>)</span>
+
+  <span class='comment'># The namespace_module exists now, so no need to use constantize to do const_missing
+</span>  <span class='id identifier rubyid_namespace_module'>namespace_module</span> <span class='op'>=</span> <span class='id identifier rubyid_current_module'>current_module</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='rparen'>)</span>
+  <span class='comment'># record the loader, so that the namespace module and its metasploit_class can be reloaded
+</span>  <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_loader'>loader</span> <span class='op'>=</span> <span class='kw'>self</span>
+
+  <span class='id identifier rubyid_namespace_module'>namespace_module</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="current_module-instance_method">
+  
+    #<strong>current_module</strong>(module_names)  &#x21d2; <tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt><sup>?</sup>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the module with `module_names` if it exists.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_names</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a list of module names to resolve from Object downward.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>module that wraps the previously loaded content from <span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">#read_module_content</a></span>.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if any module name along the chain does not exist.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 375</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_current_module'>current_module</span><span class='lparen'>(</span><span class='id identifier rubyid_module_names'>module_names</span><span class='rparen'>)</span>
+  <span class='comment'># Don&#39;t want to trigger ActiveSupport&#39;s const_missing, so can&#39;t use constantize.
+</span>  <span class='id identifier rubyid_named_module'>named_module</span> <span class='op'>=</span> <span class='id identifier rubyid_module_names'>module_names</span><span class='period'>.</span><span class='id identifier rubyid_reduce'>reduce</span><span class='lparen'>(</span><span class='const'>Object</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_parent'>parent</span><span class='comma'>,</span> <span class='id identifier rubyid_module_name'>module_name</span><span class='op'>|</span>
+    <span class='comment'># Since we&#39;re searching parent namespaces first anyway, this is
+</span>    <span class='comment'># semantically equivalent to providing false for the 1.9-only
+</span>    <span class='comment'># &quot;inherit&quot; parameter to const_defined?. If we ever drop 1.8
+</span>    <span class='comment'># support, we can save a few cycles here by adding it back.
+</span>    <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_module_name'>module_name</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_module_name'>module_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_named_module'>named_module</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_module_reference_name-instance_method">
+  
+    #<strong>each_module_reference_name</strong>(path) {|parent_path, type, module_reference_name| ... } &#x21d2; <tt>void</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'>
+<p>Override and search the path for modules.</p>
+</div>
+</div>
+<p class="note returns_void">This method returns an undefined value.</p>
+<p>Yields module reference names under path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path under which there are modules</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>parent_path</tt>, <tt>type</tt>, <tt>module_reference_name</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Gives the path and the module_reference_name of the module found under the path.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>parent_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the path under which the module of the given type was found.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the type of the module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for referencing the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>::NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+400
+401
+402</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 400</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_module_reference_name'>each_module_reference_name</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_error-instance_method">
+  
+    #<strong>load_error</strong>(module_path, error)  &#x21d2; <tt>void</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Records the load error to <span class='object_link'><a href="../../ModuleManager/Loading.html#module_load_error_by_path-instance_method" title="Msf::ModuleManager::Loading#module_load_error_by_path (method)">Msf::ModuleManager::Loading#module_load_error_by_path</a></span> and the log.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to the module as returned by <span class='object_link'><a href="#module_path-instance_method" title="Msf::Modules::Loader::Base#module_path (method)">#module_path</a></span>.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>error</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Exception.html" title="Msf::Exception (module)">Exception</a></span></tt>, <tt>#class</tt>, <tt>#to_s</tt>, <tt>#backtrace</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the error that cause the module not to load.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#module_path-instance_method" title="Msf::Modules::Loader::Base#module_path (method)">#module_path</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+411
+412
+413
+414
+415
+416
+417</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 411</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_error'>load_error</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+  <span class='comment'># module_load_error_by_path does not get the backtrace because the value is echoed to the msfconsole where
+</span>  <span class='comment'># backtraces should not appear.
+</span>  <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_module_load_error_by_path'>module_load_error_by_path</span><span class='lbracket'>[</span><span class='id identifier rubyid_module_path'>module_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error'>error</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_path'>module_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed to load</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>error:</span> <span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_module-instance_method">
+  
+    #<strong>load_module</strong>(parent_path, type, module_reference_name, options = {})  &#x21d2; <tt>false</tt>, <tt>true</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads a module from the supplied path and module_reference_name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>parent_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path under which the module exists. This is not necessarily the same path as passed to <span class='object_link'><a href="#load_modules-instance_method" title="Msf::Modules::Loader::Base#load_modules (method)">#load_modules</a></span>: it may just be derived from that path.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The type of module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for referring to the module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Options used to force loading and track statistics</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:count_by_type</span>
+          <span class="type">(<tt>Hash{String =&gt; Integer}</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Maps the module type to the number of module loaded</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:force</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>whether to force loading of the module even if the module has not changed.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:recalculate_by_type</span>
+          <span class="type">(<tt>Hash{String =&gt; Boolean}</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Maps type to whether its <span class='object_link'><a href="../../ModuleManager/ModuleSets.html#module_set-instance_method" title="Msf::ModuleManager::ModuleSets#module_set (method)">Msf::ModuleManager::ModuleSets#module_set</a></span> needs to be recalculated.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:reload</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>whether this is a reload.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if :force is false and parent_path has not changed.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if exception encountered while parsing module content</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the module is incompatible with the Core or API version.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the module does not implement a Metasploit class.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the module&#39;s is_usable method returns false.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if all those condition pass and the module is successfully loaded.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">#read_module_content</a></span></li>
+    
+      <li><span class='object_link'><a href="../../ModuleManager/Loading.html#file_changed%3F-instance_method" title="Msf::ModuleManager::Loading#file_changed? (method)">Msf::ModuleManager::Loading#file_changed?</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_module'>load_module</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:count_by_type</span><span class='comma'>,</span> <span class='symbol'>:force</span><span class='comma'>,</span> <span class='symbol'>:recalculate_by_type</span><span class='comma'>,</span> <span class='symbol'>:reload</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_force'>force</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:force</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_reload'>reload</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:reload</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span>
+
+  <span class='id identifier rubyid_module_path'>module_path</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_module_path'>module_path</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_file_changed'>file_changed</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_file_changed?'>file_changed?</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_force'>force</span> <span class='kw'>or</span> <span class='id identifier rubyid_file_changed'>file_changed</span>
+    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cached module from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_path'>module_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> has not changed.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_reload'>reload</span> <span class='op'>||=</span> <span class='id identifier rubyid_force'>force</span> <span class='op'>||</span> <span class='id identifier rubyid_file_changed'>file_changed</span>
+
+  <span class='id identifier rubyid_module_content'>module_content</span> <span class='op'>=</span> <span class='id identifier rubyid_read_module_content'>read_module_content</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_module_content'>module_content</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='comment'># read_module_content is responsible for calling {#load_error}, so just return here.
+</span>    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_try_eval_module'>try_eval_module</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='op'>|</span>
+    <span class='comment'># set the parent_path so that the module can be reloaded with #load_module
+</span>    <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_parent_path'>parent_path</span> <span class='op'>=</span> <span class='id identifier rubyid_parent_path'>parent_path</span>
+
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_module_eval_with_lexical_scope'>module_eval_with_lexical_scope</span><span class='lparen'>(</span><span class='id identifier rubyid_module_content'>module_content</span><span class='comma'>,</span> <span class='id identifier rubyid_module_path'>module_path</span><span class='rparen'>)</span>
+    <span class='comment'># handle interrupts as pass-throughs unlike other Exceptions so users can bail with Ctrl+C
+</span>    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Interrupt</span>
+      <span class='id identifier rubyid_raise'>raise</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_error'>error</span>
+      <span class='id identifier rubyid_load_error'>load_error</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Metasploit3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Metasploit3</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_load_warning'>load_warning</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please change the module&#39;s class name from Metasploit3 to MetasploitModule</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Metasploit4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Metasploit4</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_load_warning'>load_warning</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please change the module&#39;s class name from Metasploit4 to MetasploitModule</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MetasploitModule</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MetasploitModule</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_load_error'>load_error</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Modules.html" title="Msf::Modules (module)">Modules</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error.html" title="Msf::Modules::Error (class)">Error</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error.html#initialize-instance_method" title="Msf::Modules::Error#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='label'>module_path:</span>           <span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span>
+        <span class='label'>module_reference_name:</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span>
+        <span class='label'>causal_message:</span>        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>invalid module class name (must be MetasploitModule)</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_reload'>reload</span>
+      <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reloading </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'> module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Ambiguous module warnings are safe to ignore</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../../../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Loaded </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'> module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> under </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_2</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_module_load_error_by_path'>module_load_error_by_path</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='rparen'>)</span>
+
+    <span class='kw'>true</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_loaded'>loaded</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module_transaction'>namespace_module_transaction</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>reload:</span> <span class='id identifier rubyid_reload'>reload</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_try_eval_module'>try_eval_module</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_loaded'>loaded</span>
+  <span class='kw'>rescue</span> <span class='const'>NameError</span>
+    <span class='id identifier rubyid_load_error'>load_error</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Modules.html" title="Msf::Modules (module)">Modules</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Error.html" title="Msf::Modules::Error (class)">Error</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Error.html#initialize-instance_method" title="Msf::Modules::Error#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='label'>module_path:</span>           <span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span>
+      <span class='label'>module_reference_name:</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span>
+      <span class='label'>causal_message:</span>        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>invalid module filename (must be lowercase alphanumeric snake case)</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+
+  <span class='comment'># Do some processing on the loaded module to get it into the right associations
+</span>  <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_on_module_load'>on_module_load</span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_klass'>klass</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span>
+      <span class='lbrace'>{</span>
+          <span class='comment'># files[0] is stored in the {Msf::Module#file_path} and is used to reload the module, so it needs to be a
+</span>          <span class='comment'># full path
+</span>          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>files</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+              <span class='id identifier rubyid_module_path'>module_path</span>
+          <span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>paths</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span>
+              <span class='id identifier rubyid_module_reference_name'>module_reference_name</span>
+          <span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_type'>type</span>
+      <span class='rbrace'>}</span>
+  <span class='rparen'>)</span>
+
+  <span class='comment'># Set this module type as needing recalculation
+</span>  <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:recalculate_by_type</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span>
+    <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># The number of loaded modules this round
+</span>  <span class='id identifier rubyid_count_by_type'>count_by_type</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:count_by_type</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_count_by_type'>count_by_type</span>
+    <span class='id identifier rubyid_count_by_type'>count_by_type</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_count_by_type'>count_by_type</span><span class='lbracket'>[</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_modules-instance_method">
+  
+    #<strong>load_modules</strong>(path, options = {})  &#x21d2; <tt>Hash{String =&gt; Integer}</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Only paths where <span class='object_link'><a href="#loadable%3F-instance_method" title="Msf::Modules::Loader::Base#loadable? (method)">#loadable?</a></span> returns true should be passed to this method.</p>
+</div>
+  </div>
+
+
+<p>Loads all of the modules from the supplied path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path under which there are modules</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>options</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>options</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">force</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether to force loading of the module even if the module has not changed.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">whitelist</span>
+          <span class="type">(<tt>Array</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An array of regex patterns to search for specific modules</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Integer}</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Maps module type to number of modules loaded</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 237</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_modules'>load_modules</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:force</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_force'>force</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:force</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_count_by_type'>count_by_type</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_each_module_reference_name'>each_module_reference_name</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_load_module'>load_module</span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span>
+        <span class='symbol'>:recalculate_by_type</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span><span class='comma'>,</span>
+        <span class='symbol'>:count_by_type</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_count_by_type'>count_by_type</span><span class='comma'>,</span>
+        <span class='symbol'>:force</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_force'>force</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_recalculate_by_type'>recalculate_by_type</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_recalculate'>recalculate</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_recalculate'>recalculate</span>
+      <span class='id identifier rubyid_module_set'>module_set</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_module_set'>module_set</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_module_set'>module_set</span><span class='period'>.</span><span class='id identifier rubyid_recalculate'>recalculate</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_count_by_type'>count_by_type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_warning-instance_method">
+  
+    #<strong>load_warning</strong>(module_path, error)  &#x21d2; <tt>void</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Records the load warning to <span class='object_link'><a href="../../ModuleManager/Loading.html#module_load_warnings-instance_method" title="Msf::ModuleManager::Loading#module_load_warnings (method)">Msf::ModuleManager::Loading#module_load_warnings</a></span> and the log.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to the module as returned by <span class='object_link'><a href="#module_path-instance_method" title="Msf::Modules::Loader::Base#module_path (method)">#module_path</a></span>.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>error</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Error message that caused the warning.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#module_path-instance_method" title="Msf::Modules::Loader::Base#module_path (method)">#module_path</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+426
+427
+428
+429
+430
+431
+432
+433
+434</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 426</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_warning'>load_warning</span><span class='lparen'>(</span><span class='id identifier rubyid_module_path'>module_path</span><span class='comma'>,</span> <span class='id identifier rubyid_error'>error</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_module_load_warnings'>module_load_warnings</span><span class='lbracket'>[</span><span class='id identifier rubyid_module_path'>module_path</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='id identifier rubyid_log_lines'>log_lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_log_lines'>log_lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_path'>module_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> generated a warning during load:</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_log_lines'>log_lines</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_log_message'>log_message</span> <span class='op'>=</span> <span class='id identifier rubyid_log_lines'>log_lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_log_message'>log_message</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="loadable?-instance_method">
+  
+    #<strong>loadable?</strong>(path)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'>
+<p>Override and determine from properties of the path or the file to which the path points whether it is loadable using <span class='object_link'><a href="#load_modules-instance_method" title="Msf::Modules::Loader::Base#load_modules (method)">#load_modules</a></span> for the subclass.</p>
+</div>
+</div>
+
+<p>Returns whether the path can be loaded this module loader.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path under which there are modules</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>::NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_loadable?'>loadable?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="module_path-instance_method">
+  
+    #<strong>module_path</strong>(parent_path, type, module_reference_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'>
+<p>Override to return the path to the module on the file system so that errors can be reported correctly.</p>
+</div>
+</div>
+
+<p>Returns path to module that can be used for reporting errors in evaluating the <span class='object_link'><a href="#read_module_content-instance_method" title="Msf::Modules::Loader::Base#read_module_content (method)">module_content</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The type of module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for referring to the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path to module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>::NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+448
+449
+450</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 448</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_module_path'>module_path</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="module_path?-instance_method">
+  
+    #<strong>module_path?</strong>(path)  &#x21d2; <tt>true</tt>, <tt>false</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns whether the path could refer to a module. The path would still need to be loaded in order to check if it actually is a valid module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>to module without the type directory.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the extname is <span class='object_link'><a href="#MODULE_EXTENSION-constant" title="Msf::Modules::Loader::Base::MODULE_EXTENSION (constant)">MODULE_EXTENSION</a></span> AND the path does not match <span class='object_link'><a href="#UNIT_TEST_REGEX-constant" title="Msf::Modules::Loader::Base::UNIT_TEST_REGEX (constant)">UNIT_TEST_REGEX</a></span> AND the path is not hidden (starts with &#39;.&#39;)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+460
+461
+462
+463
+464
+465
+466</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 460</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_module_path?'>module_path?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_ends_with?'>ends_with?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#MODULE_EXTENSION-constant" title="Msf::Modules::Loader::Base::MODULE_EXTENSION (constant)">MODULE_EXTENSION</a></span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='op'>!</span><span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='op'>!</span><span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_match?'>match?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#UNIT_TEST_REGEX-constant" title="Msf::Modules::Loader::Base::UNIT_TEST_REGEX (constant)">UNIT_TEST_REGEX</a></span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='op'>!</span><span class='id identifier rubyid_script_path?'>script_path?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="module_reference_name_from_path-instance_method">
+  
+    #<strong>module_reference_name_from_path</strong>(path)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Changes a file name path to a canonical module reference name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Relative path to module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p><span class='object_link'><a href="#MODULE_EXTENSION-constant" title="Msf::Modules::Loader::Base::MODULE_EXTENSION (constant)">MODULE_EXTENSION</a></span> removed from path.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+479
+480
+481</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 479</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_module_reference_name_from_path'>module_reference_name_from_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#MODULE_EXTENSION-constant" title="Msf::Modules::Loader::Base::MODULE_EXTENSION (constant)">MODULE_EXTENSION</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>$</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="namespace_module_name-instance_method">
+  
+    #<strong>namespace_module_name</strong>(module_full_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the fully-qualified name to the <span class='object_link'><a href="#create_namespace_module-instance_method" title="Msf::Modules::Loader::Base#create_namespace_module (method)">#create_namespace_module</a></span> that wraps the module with the given module reference name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_full_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for referring to the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>name of module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#MODULE_SEPARATOR-constant" title="Msf::Modules::Loader::Base::MODULE_SEPARATOR (constant)">MODULE_SEPARATOR</a></span></li>
+    
+      <li><span class='object_link'><a href="#namespace_module_names-instance_method" title="Msf::Modules::Loader::Base#namespace_module_names (method)">#namespace_module_names</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+492
+493
+494
+495
+496
+497</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 492</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_namespace_module_name'>namespace_module_name</span><span class='lparen'>(</span><span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='lparen'>(</span><span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_namespace_module_name'>namespace_module_name</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#MODULE_SEPARATOR-constant" title="Msf::Modules::Loader::Base::MODULE_SEPARATOR (constant)">MODULE_SEPARATOR</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_namespace_module_name'>namespace_module_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="namespace_module_names-instance_method">
+  
+    #<strong>namespace_module_names</strong>(module_full_name)  &#x21d2; <tt>Array&lt;String&gt;</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an Array of names to make a fully qualified module name to wrap the MetasploitModule class so that it doesn&#39;t overwrite other (metasploit) module&#39;s classes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>module_full_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The unique canonical name for the module including type.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p><span class='object_link'><a href="#NAMESPACE_MODULE_NAMES-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_NAMES (constant)">NAMESPACE_MODULE_NAMES</a></span> + &lt;derived-constant-safe names&gt;</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li>namespace_module</li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+508
+509
+510
+511</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 508</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='lparen'>(</span><span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_relative_name'>relative_name</span> <span class='op'>=</span> <span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:capitalize</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>__</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#NAMESPACE_MODULE_NAMES-constant" title="Msf::Modules::Loader::Base::NAMESPACE_MODULE_NAMES (constant)">NAMESPACE_MODULE_NAMES</a></span></span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="namespace_module_transaction-instance_method">
+  
+    #<strong>namespace_module_transaction</strong>(module_full_name, options = {}, &amp;block)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 523</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_namespace_module_transaction'>namespace_module_transaction</span><span class='lparen'>(</span><span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_assert_valid_keys'>assert_valid_keys</span><span class='lparen'>(</span><span class='symbol'>:reload</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_reload'>reload</span> <span class='op'>=</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:reload</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='lparen'>(</span><span class='id identifier rubyid_module_full_name'>module_full_name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span> <span class='op'>=</span> <span class='id identifier rubyid_current_module'>current_module</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_reload'>reload</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reloading namespace_module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span><span class='embexpr_end'>}</span><span class='tstring_content'> when :reload =&gt; false</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_relative_name'>relative_name</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span>
+    <span class='id identifier rubyid_parent_module'>parent_module</span> <span class='op'>=</span> <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+    <span class='comment'># remove_const is private, so use send to bypass
+</span>    <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:remove_const</span><span class='comma'>,</span> <span class='id identifier rubyid_relative_name'>relative_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_namespace_module'>namespace_module</span> <span class='op'>=</span> <span class='id identifier rubyid_create_namespace_module'>create_namespace_module</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module_names'>namespace_module_names</span><span class='rparen'>)</span>
+  <span class='comment'># Get the parent module from the created module so that
+</span>  <span class='comment'># restore_namespace_module can remove namespace_module&#39;s constant if
+</span>  <span class='comment'># needed.
+</span>  <span class='id identifier rubyid_parent_module'>parent_module</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_loaded'>loaded</span> <span class='op'>=</span> <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Exception.html" title="Msf::Exception (module)">Exception</a></span></span>
+    <span class='id identifier rubyid_restore_namespace_module'>restore_namespace_module</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_module'>parent_module</span><span class='comma'>,</span> <span class='id identifier rubyid_relative_name'>relative_name</span><span class='comma'>,</span> <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span><span class='rparen'>)</span>
+
+    <span class='comment'># re-raise the original exception in the original context
+</span>    <span class='id identifier rubyid_raise'>raise</span>
+  <span class='kw'>else</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_loaded'>loaded</span>
+      <span class='id identifier rubyid_restore_namespace_module'>restore_namespace_module</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_module'>parent_module</span><span class='comma'>,</span> <span class='id identifier rubyid_relative_name'>relative_name</span><span class='comma'>,</span> <span class='id identifier rubyid_previous_namespace_module'>previous_namespace_module</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_loaded'>loaded</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_module_content-instance_method">
+  
+    #<strong>read_module_content</strong>(parent_path, type, module_reference_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note abstract">
+  <strong>This method is abstract.</strong>
+  <div class='inline'>
+<p>Override to read the module content based on the method of the loader subclass and return a string.</p>
+</div>
+</div>
+
+<p>Read the content of the module from under path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>parent_path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path under which the module exists. This is not necessarily the same path as passed to <span class='object_link'><a href="#load_modules-instance_method" title="Msf::Modules::Loader::Base#load_modules (method)">#load_modules</a></span>: it may just be derived from that path.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The type of module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for referring to the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>module content that can be module_evaled into the <span class='object_link'><a href="#create_namespace_module-instance_method" title="Msf::Modules::Loader::Base#create_namespace_module (method)">#create_namespace_module</a></span></p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>::NotImplementedError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+573
+574
+575</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 573</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_module_content'>read_module_content</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='op'>::</span><span class='const'>NotImplementedError</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reload_module-instance_method">
+  
+    #<strong>reload_module</strong>(original_metasploit_class_or_instance)  &#x21d2; <tt>Class</tt>, <tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reloads the specified module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>original_metasploit_class_or_instance</span>
+      
+      
+        <span class='type'>(<tt>Class</tt>, <tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>either an instance of a module or a module class. If an instance is given, then the datastore will be copied to the new instance returned by this method.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Class</tt>, <tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>original_metasploit_class_or_instance if an instance of the reloaded module cannot be created.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Msf::Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>new instance of original_metasploit_class with datastore copied from original_metasploit_instance.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 273</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reload_module'>reload_module</span><span class='lparen'>(</span><span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></span>
+    <span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span>
+    <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_namespace_module'>namespace_module</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+  <span class='id identifier rubyid_parent_path'>parent_path</span> <span class='op'>=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='period'>.</span><span class='id identifier rubyid_parent_path'>parent_path</span>
+
+  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='id identifier rubyid_module_reference_name'>module_reference_name</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span>
+  <span class='id identifier rubyid_module_fullname'>module_fullname</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_class'>original_metasploit_class</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span>
+  <span class='id identifier rubyid_module_used_name'>module_used_name</span> <span class='op'>=</span> <span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span> <span class='kw'>if</span> <span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span>
+
+  <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reloading module </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_fullname'>module_fullname</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_load_module'>load_module</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_path'>parent_path</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='comma'>,</span> <span class='symbol'>:force</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='symbol'>:reload</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='comment'># Create a new instance of the module, using the alias if one was used
+</span>    <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_module_used_name'>module_used_name</span> <span class='op'>||</span> <span class='id identifier rubyid_module_fullname'>module_fullname</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_module_fullname'>module_fullname</span> <span class='op'>!=</span> <span class='id identifier rubyid_module_used_name'>module_used_name</span>
+      <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_module_fullname'>module_fullname</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span><span class='op'>&amp;.</span><span class='id identifier rubyid_add_warning'>add_warning</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Alias </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_used_name'>module_used_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> no longer available after reloading, using </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_fullname'>module_fullname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span>
+        <span class='comment'># copy over datastore
+</span>        <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_original_metasploit_instance'>original_metasploit_instance</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to create instance of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> after reload.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+      <span class='comment'># Return the old module instance to avoid an strace trace
+</span>      <span class='kw'>return</span> <span class='id identifier rubyid_original_metasploit_class_or_instance'>original_metasploit_class_or_instance</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to reload </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_module_fullname'>module_fullname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Let the specific module sets have an opportunity to handle the fact
+</span>  <span class='comment'># that this module was reloaded.
+</span>  <span class='id identifier rubyid_module_set'>module_set</span> <span class='op'>=</span> <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_module_set'>module_set</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_module_set'>module_set</span><span class='period'>.</span><span class='id identifier rubyid_on_module_reload'>on_module_reload</span><span class='lparen'>(</span><span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span><span class='rparen'>)</span>
+
+  <span class='comment'># Rebuild the cache for just this module
+</span>  <span class='id identifier rubyid_module_manager'>module_manager</span><span class='period'>.</span><span class='id identifier rubyid_refresh_cache_from_module_files'>refresh_cache_from_module_files</span><span class='lparen'>(</span><span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_reloaded_module_instance'>reloaded_module_instance</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="restore_namespace_module-instance_method">
+  
+    #<strong>restore_namespace_module</strong>(parent_module, relative_name, namespace_module)  &#x21d2; <tt>void</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Restores the namespace module to its original name under its original parent Module if there was a previous namespace module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>parent_module</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The .parent of namespace_module before it was removed from the constant tree.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>relative_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the constant under parent_module where namespace_module was attached.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>namespace_module</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Module.html" title="Msf::Module (class)">Module</a></span></tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The previous namespace module containing the old module content.  If `nil`, then the relative_name constant is removed from parent_module, but nothing is set as the new constant.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 585</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_restore_namespace_module'>restore_namespace_module</span><span class='lparen'>(</span><span class='id identifier rubyid_parent_module'>parent_module</span><span class='comma'>,</span> <span class='id identifier rubyid_relative_name'>relative_name</span><span class='comma'>,</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_parent_module'>parent_module</span>
+    <span class='comment'># If there is a current module with relative_name
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='rparen'>)</span>
+      <span class='comment'># if the current value isn&#39;t the value to be restored.
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span>
+        <span class='comment'># remove_const is private, so use send to bypass
+</span>        <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:remove_const</span><span class='comma'>,</span> <span class='id identifier rubyid_relative_name'>relative_name</span><span class='rparen'>)</span>
+
+        <span class='comment'># if there was a previous module, not set it to the name
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span>
+          <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_const_set'>const_set</span><span class='lparen'>(</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='comma'>,</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='comment'># if there was a previous module, but there isn&#39;t a current module, then restore the previous module
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span>
+        <span class='id identifier rubyid_parent_module'>parent_module</span><span class='period'>.</span><span class='id identifier rubyid_const_set'>const_set</span><span class='lparen'>(</span><span class='id identifier rubyid_relative_name'>relative_name</span><span class='comma'>,</span> <span class='id identifier rubyid_namespace_module'>namespace_module</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="script_path?-instance_method">
+  
+    #<strong>script_path?</strong>(path)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tries to determine if a file might be executable,</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+469
+470
+471
+472
+473</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 469</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_script_path?'>script_path?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_executable?'>executable?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+    <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#!</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>//</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="typed_path-instance_method">
+  
+    #<strong>typed_path</strong>(type, module_reference_name)  &#x21d2; <tt>String</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>To get the full path to the module, use <span class='object_link'><a href="#module_path-instance_method" title="Msf::Modules::Loader::Base#module_path (method)">#module_path</a></span>.</p>
+</div>
+  </div>
+
+
+<p>The path to the module qualified by the type directory.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The type of the module.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>module_reference_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The canonical name for the module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>path to the module starting with the type directory.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+629
+630
+631</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/loader/base.rb', line 629</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_typed_path'>typed_path</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_typed_path'>typed_path</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_module_reference_name'>module_reference_name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:02 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

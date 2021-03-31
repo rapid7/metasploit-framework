@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Plugin</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Plugin</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span>, Rex::Ref</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/plugin.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module represents an abstract plugin that can be loaded into the context of a framework instance.  Plugins are meant to provide an easy way to augment the feature set of the framework by being able to load and unload them during the course of a framework&#39;s lifetime.  For instance, a plugin could be loaded to alter the default behavior of new sessions, such as by scripting meterpreter sessions that are created.  The possibilities are endless!</p>
+
+<p>All plugins must exist under the Msf::Plugin namespace.  Plugins are reference counted to allow them to be loaded more than once if they&#39;re a singleton.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Plugin/Aggregator.html" title="Msf::Plugin::Aggregator (class)">Aggregator</a></span>, <span class='object_link'><a href="Plugin/Alias.html" title="Msf::Plugin::Alias (class)">Alias</a></span>, <span class='object_link'><a href="Plugin/AutoAddRoute.html" title="Msf::Plugin::AutoAddRoute (class)">AutoAddRoute</a></span>, <span class='object_link'><a href="Plugin/BeSECURE.html" title="Msf::Plugin::BeSECURE (class)">BeSECURE</a></span>, <span class='object_link'><a href="Plugin/Beholder.html" title="Msf::Plugin::Beholder (class)">Beholder</a></span>, <span class='object_link'><a href="Plugin/CredCollect.html" title="Msf::Plugin::CredCollect (class)">CredCollect</a></span>, <span class='object_link'><a href="Plugin/DB_Tracer.html" title="Msf::Plugin::DB_Tracer (class)">DB_Tracer</a></span>, <span class='object_link'><a href="Plugin/EventLibnotify.html" title="Msf::Plugin::EventLibnotify (class)">EventLibnotify</a></span>, <span class='object_link'><a href="Plugin/EventRSS.html" title="Msf::Plugin::EventRSS (class)">EventRSS</a></span>, <span class='object_link'><a href="Plugin/EventSounds.html" title="Msf::Plugin::EventSounds (class)">EventSounds</a></span>, <span class='object_link'><a href="Plugin/EventTester.html" title="Msf::Plugin::EventTester (class)">EventTester</a></span>, <span class='object_link'><a href="Plugin/FFAutoRegen.html" title="Msf::Plugin::FFAutoRegen (class)">FFAutoRegen</a></span>, <span class='object_link'><a href="Plugin/IPSFilter.html" title="Msf::Plugin::IPSFilter (class)">IPSFilter</a></span>, <span class='object_link'><a href="Plugin/Lab.html" title="Msf::Plugin::Lab (class)">Lab</a></span>, <span class='object_link'><a href="Plugin/MSGRPC.html" title="Msf::Plugin::MSGRPC (class)">MSGRPC</a></span>, <span class='object_link'><a href="Plugin/Msfd.html" title="Msf::Plugin::Msfd (class)">Msfd</a></span>, <span class='object_link'><a href="Plugin/Nessus.html" title="Msf::Plugin::Nessus (class)">Nessus</a></span>, <span class='object_link'><a href="Plugin/Nexpose.html" title="Msf::Plugin::Nexpose (class)">Nexpose</a></span>, <span class='object_link'><a href="Plugin/OpenVAS.html" title="Msf::Plugin::OpenVAS (class)">OpenVAS</a></span>, <span class='object_link'><a href="Plugin/PcapLog.html" title="Msf::Plugin::PcapLog (class)">PcapLog</a></span>, <span class='object_link'><a href="Plugin/Requests.html" title="Msf::Plugin::Requests (class)">Requests</a></span>, <span class='object_link'><a href="Plugin/Sample.html" title="Msf::Plugin::Sample (class)">Sample</a></span>, <span class='object_link'><a href="Plugin/SessionNotifier.html" title="Msf::Plugin::SessionNotifier (class)">SessionNotifier</a></span>, <span class='object_link'><a href="Plugin/SessionTagger.html" title="Msf::Plugin::SessionTagger (class)">SessionTagger</a></span>, <span class='object_link'><a href="Plugin/SocketLogger.html" title="Msf::Plugin::SocketLogger (class)">SocketLogger</a></span>, <span class='object_link'><a href="Plugin/Sqlmap.html" title="Msf::Plugin::Sqlmap (class)">Sqlmap</a></span>, <span class='object_link'><a href="Plugin/ThreadTest.html" title="Msf::Plugin::ThreadTest (class)">ThreadTest</a></span>, <span class='object_link'><a href="Plugin/TokenAdduser.html" title="Msf::Plugin::TokenAdduser (class)">TokenAdduser</a></span>, <span class='object_link'><a href="Plugin/TokenHunter.html" title="Msf::Plugin::TokenHunter (class)">TokenHunter</a></span>, <span class='object_link'><a href="Plugin/Wiki.html" title="Msf::Plugin::Wiki (class)">Wiki</a></span>, <span class='object_link'><a href="Plugin/Wmap.html" title="Msf::Plugin::Wmap (class)">Wmap</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Plugin/Aggregator.html" title="Msf::Plugin::Aggregator (class)">Aggregator</a></span>, <span class='object_link'><a href="Plugin/Alias.html" title="Msf::Plugin::Alias (class)">Alias</a></span>, <span class='object_link'><a href="Plugin/AutoAddRoute.html" title="Msf::Plugin::AutoAddRoute (class)">AutoAddRoute</a></span>, <span class='object_link'><a href="Plugin/BeSECURE.html" title="Msf::Plugin::BeSECURE (class)">BeSECURE</a></span>, <span class='object_link'><a href="Plugin/Beholder.html" title="Msf::Plugin::Beholder (class)">Beholder</a></span>, <span class='object_link'><a href="Plugin/CredCollect.html" title="Msf::Plugin::CredCollect (class)">CredCollect</a></span>, <span class='object_link'><a href="Plugin/DB_Tracer.html" title="Msf::Plugin::DB_Tracer (class)">DB_Tracer</a></span>, <span class='object_link'><a href="Plugin/EventLibnotify.html" title="Msf::Plugin::EventLibnotify (class)">EventLibnotify</a></span>, <span class='object_link'><a href="Plugin/EventRSS.html" title="Msf::Plugin::EventRSS (class)">EventRSS</a></span>, <span class='object_link'><a href="Plugin/EventSounds.html" title="Msf::Plugin::EventSounds (class)">EventSounds</a></span>, <span class='object_link'><a href="Plugin/EventTester.html" title="Msf::Plugin::EventTester (class)">EventTester</a></span>, <span class='object_link'><a href="Plugin/FFAutoRegen.html" title="Msf::Plugin::FFAutoRegen (class)">FFAutoRegen</a></span>, <span class='object_link'><a href="Plugin/IPSFilter.html" title="Msf::Plugin::IPSFilter (class)">IPSFilter</a></span>, <span class='object_link'><a href="Plugin/Lab.html" title="Msf::Plugin::Lab (class)">Lab</a></span>, <span class='object_link'><a href="Plugin/MSGRPC.html" title="Msf::Plugin::MSGRPC (class)">MSGRPC</a></span>, <span class='object_link'><a href="Plugin/Msfd.html" title="Msf::Plugin::Msfd (class)">Msfd</a></span>, <span class='object_link'><a href="Plugin/Nessus.html" title="Msf::Plugin::Nessus (class)">Nessus</a></span>, <span class='object_link'><a href="Plugin/Nexpose.html" title="Msf::Plugin::Nexpose (class)">Nexpose</a></span>, <span class='object_link'><a href="Plugin/OpenVAS.html" title="Msf::Plugin::OpenVAS (class)">OpenVAS</a></span>, <span class='object_link'><a href="Plugin/PcapLog.html" title="Msf::Plugin::PcapLog (class)">PcapLog</a></span>, <span class='object_link'><a href="Plugin/Requests.html" title="Msf::Plugin::Requests (class)">Requests</a></span>, <span class='object_link'><a href="Plugin/Sample.html" title="Msf::Plugin::Sample (class)">Sample</a></span>, <span class='object_link'><a href="Plugin/SessionNotifier.html" title="Msf::Plugin::SessionNotifier (class)">SessionNotifier</a></span>, <span class='object_link'><a href="Plugin/SessionTagger.html" title="Msf::Plugin::SessionTagger (class)">SessionTagger</a></span>, <span class='object_link'><a href="Plugin/SocketLogger.html" title="Msf::Plugin::SocketLogger (class)">SocketLogger</a></span>, <span class='object_link'><a href="Plugin/Sqlmap.html" title="Msf::Plugin::Sqlmap (class)">Sqlmap</a></span>, <span class='object_link'><a href="Plugin/ThreadTest.html" title="Msf::Plugin::ThreadTest (class)">ThreadTest</a></span>, <span class='object_link'><a href="Plugin/TokenAdduser.html" title="Msf::Plugin::TokenAdduser (class)">TokenAdduser</a></span>, <span class='object_link'><a href="Plugin/TokenHunter.html" title="Msf::Plugin::TokenHunter (class)">TokenHunter</a></span>, <span class='object_link'><a href="Plugin/Wiki.html" title="Msf::Plugin::Wiki (class)">Wiki</a></span>, <span class='object_link'><a href="Plugin/Wmap.html" title="Msf::Plugin::Wmap (class)">Wmap</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#opts-instance_method" title="#opts (instance method)">#<strong>opts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">.<strong>create</strong>(framework, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create an instance of the plugin using the supplied framework instance.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#add_console_dispatcher-instance_method" title="#add_console_dispatcher (instance method)">#<strong>add_console_dispatcher</strong>(disp)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds the console dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Allows the plugin to clean up as it is being unloaded.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A short description of the plugin.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#flush-instance_method" title="#flush (instance method)">#<strong>flush</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Flushes any buffered output.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, opts = {})  &#x21d2; Plugin </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the plugin instance with the supplied framework instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#input-instance_method" title="#input (instance method)">#<strong>input</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the local input handle if one was passed into the constructor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the name of the plugin.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#output-instance_method" title="#output (instance method)">#<strong>output</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the local output handle if one was passed into the constructor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print-instance_method" title="#print (instance method)">#<strong>print</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints a message with no decoration.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_error-instance_method" title="#print_error (instance method)">#<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+      (also: #print_bad)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints an error message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_good-instance_method" title="#print_good (instance method)">#<strong>print_good</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints a &#39;good&#39; message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_line-instance_method" title="#print_line (instance method)">#<strong>print_line</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints an undecorated line of information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_status-instance_method" title="#print_status (instance method)">#<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints a status line.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_warning-instance_method" title="#print_warning (instance method)">#<strong>print_warning</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Prints a warning.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#remove_console_dispatcher-instance_method" title="#remove_console_dispatcher (instance method)">#<strong>remove_console_dispatcher</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes the console dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Plugin (class)">Plugin</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the plugin instance with the supplied framework instance. The opts parameter is a hash of custom arguments that may be useful for a plugin.  Some of the pre-defined arguments are:</p>
+
+<p>LocalInput</p>
+
+<p>	The local input handle that implements the Rex::Ui::Text::Input 	interface.</p>
+
+<p>LocalOutput</p>
+
+<p>	The local output handle that implements the Rex::Ui::Output interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span>  <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span>       <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span>
+
+  <span class='id identifier rubyid_refinit'>refinit</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="opts=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="opts-instance_method">
+  
+    #<strong>opts</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_opts'>opts</span>
+  <span class='ivar'>@opts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    .<strong>create</strong>(framework, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create an instance of the plugin using the supplied framework instance. We use create instead of new directly so that singleton plugins can just return their singleton instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_console_dispatcher-instance_method">
+  
+    #<strong>add_console_dispatcher</strong>(disp)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds the console dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_console_dispatcher'>add_console_dispatcher</span><span class='lparen'>(</span><span class='id identifier rubyid_disp'>disp</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConsoleDriver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConsoleDriver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_append_dispatcher'>append_dispatcher</span><span class='lparen'>(</span><span class='id identifier rubyid_disp'>disp</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows the plugin to clean up as it is being unloaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A short description of the plugin.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="flush-instance_method">
+  
+    #<strong>flush</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Flushes any buffered output.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 156</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_flush'>flush</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_flush'>flush</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="input-instance_method">
+  
+    #<strong>input</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the local input handle if one was passed into the constructor.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_input'>input</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalInput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the name of the plugin.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unnamed</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="output-instance_method">
+  
+    #<strong>output</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the local output handle if one was passed into the constructor.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_output'>output</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print-instance_method">
+  
+    #<strong>print</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints a message with no decoration.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_error-instance_method">
+  
+    #<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='print_bad-instance_method'>print_bad</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints an error message.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 111</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_good-instance_method">
+  
+    #<strong>print_good</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints a &#39;good&#39; message.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 120</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_line-instance_method">
+  
+    #<strong>print_line</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints an undecorated line of information.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_status-instance_method">
+  
+    #<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints a status line.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_warning-instance_method">
+  
+    #<strong>print_warning</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Prints a warning</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_warning'><span class='object_link'><a href="../top-level-namespace.html#print_warning-instance_method" title="#print_warning (method)">print_warning</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_console_dispatcher-instance_method">
+  
+    #<strong>remove_console_dispatcher</strong>(name)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes the console dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/plugin.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_console_dispatcher'>remove_console_dispatcher</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConsoleDriver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConsoleDriver</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_remove_dispatcher'>remove_dispatcher</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:43 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

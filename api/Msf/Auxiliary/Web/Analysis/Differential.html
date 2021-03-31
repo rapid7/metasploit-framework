@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::Web::Analysis::Differential
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::Web::Analysis::Differential";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Web.html" title="Msf::Auxiliary::Web (module)">Web</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Analysis.html" title="Msf::Auxiliary::Web::Analysis (module)">Analysis</a></span></span>
+     &raquo; 
+    <span class="title">Differential</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::Web::Analysis::Differential
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/web/analysis/differential.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DIFFERENTIAL_OPTIONS-constant" class="">DIFFERENTIAL_OPTIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='comment'># amount of refinement iterations
+</span>  <span class='symbol'>:precision</span> <span class='op'>=&gt;</span> <span class='int'>2</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#differential_analysis-instance_method" title="#differential_analysis (instance method)">#<strong>differential_analysis</strong>(opts = {}, &amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs differential analysis and logs an issue should there be one.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="differential_analysis-instance_method">
+  
+    #<strong>differential_analysis</strong>(opts = {}, &amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs differential analysis and logs an issue should there be one.</p>
+
+<p>Fuzzer must provide:</p>
+
+<pre class="code ruby"><code class="ruby">- #boolean_seeds_for - array of boolean injection strings
+ (these are supposed to not alter the webapp behavior when interpreted)
+- #fault_seeds_for - array of fault injection strings
+ (these are supposed to force erroneous conditions when interpreted)
+</code></pre>
+
+<p>Here&#39;s how it goes:</p>
+<ul><li>
+<p>let <em>default</em> be the default/original response</p>
+</li><li>
+<p>let <em>fault</em>   be the response of the fault injection</p>
+</li><li>
+<p>let <em>bool</em>	be the response of the boolean injection</p>
+</li></ul>
+
+<p>A vulnerability is logged if:</p>
+
+<pre class="code ruby"><code class="ruby">default == bool AND bool.code == 200 AND fault != bool
+</code></pre>
+
+<p>The “bool” response is also checked in order to determine if it&#39;s a custom 404, if it is it&#39;ll be skipped.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Options Hash (default: {}) :precision - amount of refinement iterations (default: 2)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/web/analysis/differential.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_differential_analysis'>differential_analysis</span><span class='lparen'>(</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DIFFERENTIAL_OPTIONS-constant" title="Msf::Auxiliary::Web::Analysis::Differential::DIFFERENTIAL_OPTIONS (constant)">DIFFERENTIAL_OPTIONS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span> <span class='id identifier rubyid_opts'>opts</span> <span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_fuzzed?'>fuzzed?</span> <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:differential</span>
+  <span class='id identifier rubyid_fuzzed'>fuzzed</span> <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='symbol'>:differential</span>
+
+  <span class='comment'># don&#39;t continue if there&#39;s a missing value
+</span>  <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span> <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_val'>val</span> <span class='op'>||</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_responses'>responses</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='comment'># will hold the original, default, response that results from submitting
+</span>    <span class='symbol'>:orig</span> <span class='op'>=&gt;</span> <span class='kw'>nil</span><span class='comma'>,</span>
+
+    <span class='comment'># will hold responses of boolean injections
+</span>    <span class='symbol'>:good</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span>
+
+    <span class='comment'># will hold responses of fault injections
+</span>    <span class='symbol'>:bad</span> <span class='op'>=&gt;</span>  <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># submit the element, as is, opts[:precision] amount of times and
+</span>  <span class='comment'># rdiff the responses in order to arrive to a refined response without
+</span>  <span class='comment'># any superfluous dynamic content
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:precision</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='comment'># get the default responses
+</span>    <span class='id identifier rubyid_submit_async'>submit_async</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_res'>res</span><span class='op'>|</span>
+      <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:orig</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='comment'># remove context-irrelevant dynamic content like banners and such
+</span>      <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:orig</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_refine'>refine</span><span class='lparen'>(</span> <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:orig</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># perform fault injection opts[:precision] amount of times and
+</span>  <span class='comment'># rdiff the responses in order to arrive to a refined response without
+</span>  <span class='comment'># any superfluous dynamic content
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:precision</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+      <span class='id identifier rubyid_fuzzer'>fuzzer</span><span class='period'>.</span><span class='id identifier rubyid_fault_seeds_for'>fault_seeds_for</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_seed'>seed</span><span class='op'>|</span> <span class='id identifier rubyid_permutation_for'>permutation_for</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_seed'>seed</span> <span class='rparen'>)</span> <span class='rbrace'>}</span>
+         <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_elem'>elem</span><span class='op'>|</span>
+
+      <span class='comment'># submit the mutation and store the response
+</span>      <span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_submit_async'>submit_async</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_res'>res</span><span class='op'>|</span>
+              <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:bad</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_altered'>altered</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+
+        <span class='comment'># remove context-irrelevant dynamic content like banners and such
+</span>        <span class='comment'># from the error page
+</span>        <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:bad</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_altered'>altered</span><span class='rbracket'>]</span> <span class='op'>=</span>
+          <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_refine'>refine</span><span class='lparen'>(</span> <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:bad</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_altered'>altered</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='rparen'>)</span>
+      <span class='kw'>end</span>
+        <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># get injection variations that will not affect the outcome of the query
+</span>  <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='id identifier rubyid_fuzzer'>fuzzer</span><span class='period'>.</span><span class='id identifier rubyid_boolean_seeds_for'>boolean_seeds_for</span><span class='lparen'>(</span> <span class='id identifier rubyid_value'>value</span> <span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_seed'>seed</span><span class='op'>|</span> <span class='id identifier rubyid_permutation_for'>permutation_for</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_seed'>seed</span> <span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span><span class='period'>.</span><span class='id identifier rubyid_uniq'>uniq</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_elem'>elem</span><span class='op'>|</span>
+
+    <span class='comment'># submit the mutation and store the response
+</span>    <span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_submit_async'>submit_async</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_res'>res</span><span class='op'>|</span>
+      <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:good</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_altered'>altered</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+      <span class='comment'># save the response and some data for analysis
+</span>      <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:good</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_altered'>altered</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>res</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>elem</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_http'>http</span><span class='period'>.</span><span class='id identifier rubyid_after_run'>after_run</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:good</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+      <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:good</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_res'>res</span><span class='op'>|</span>
+
+        <span class='comment'># if default_response_body == bool_response_body AND
+</span>        <span class='comment'>#	fault_response_body != bool_response_body AND
+</span>        <span class='comment'>#	bool_response_code == 200
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:orig</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>res</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_responses'>responses</span><span class='lbracket'>[</span><span class='symbol'>:bad</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>res</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>res</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>200</span>
+
+          <span class='comment'># check to see if the current boolean response we&#39;re analyzing
+</span>          <span class='comment'># is a custom 404 page
+</span>          <span class='id identifier rubyid_http'>http</span><span class='period'>.</span><span class='id identifier rubyid_if_not_custom_404'>if_not_custom_404</span><span class='lparen'>(</span> <span class='id identifier rubyid_action'>action</span><span class='comma'>,</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>res</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span> <span class='rparen'>)</span> <span class='kw'>do</span>
+            <span class='comment'># if this isn&#39;t a custom 404 page then it means that
+</span>            <span class='comment'># the element is vulnerable, so go ahead and log the issue
+</span>            <span class='id identifier rubyid_fuzzer'>fuzzer</span><span class='period'>.</span><span class='id identifier rubyid_process_vulnerability'>process_vulnerability</span><span class='lparen'>(</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>elem</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Boolean manipulation.</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:48 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

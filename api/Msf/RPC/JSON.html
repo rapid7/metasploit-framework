@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::RPC::JSON
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::RPC::JSON";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (J)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../RPC.html" title="Msf::RPC (module)">RPC</a></span></span>
+     &raquo; 
+    <span class="title">JSON</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::RPC::JSON
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/rpc.rb<span class="defines">,<br />
+  lib/msf/core/rpc/json/error.rb,<br /> lib/msf/core/rpc/json/client.rb,<br /> lib/msf/core/rpc/json/request.rb,<br /> lib/msf/core/rpc/json/response.rb,<br /> lib/msf/core/rpc/json/dispatcher.rb,<br /> lib/msf/core/rpc/json/rpc_command.rb,<br /> lib/msf/core/rpc/json/v1_0/rpc_command.rb,<br /> lib/msf/core/rpc/json/dispatcher_helper.rb,<br /> lib/msf/core/rpc/json/rpc_command_factory.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="JSON/DispatcherHelper.html" title="Msf::RPC::JSON::DispatcherHelper (module)">DispatcherHelper</a></span>, <span class='object_link'><a href="JSON/V1_0.html" title="Msf::RPC::JSON::V1_0 (module)">V1_0</a></span>, <span class='object_link'><a href="JSON/V2_0.html" title="Msf::RPC::JSON::V2_0 (module)">V2_0</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="JSON/ApplicationServerError.html" title="Msf::RPC::JSON::ApplicationServerError (class)">ApplicationServerError</a></span>, <span class='object_link'><a href="JSON/Client.html" title="Msf::RPC::JSON::Client (class)">Client</a></span>, <span class='object_link'><a href="JSON/ClientError.html" title="Msf::RPC::JSON::ClientError (class)">ClientError</a></span>, <span class='object_link'><a href="JSON/Dispatcher.html" title="Msf::RPC::JSON::Dispatcher (class)">Dispatcher</a></span>, <span class='object_link'><a href="JSON/ErrorResponse.html" title="Msf::RPC::JSON::ErrorResponse (class)">ErrorResponse</a></span>, <span class='object_link'><a href="JSON/InternalError.html" title="Msf::RPC::JSON::InternalError (class)">InternalError</a></span>, <span class='object_link'><a href="JSON/InvalidParams.html" title="Msf::RPC::JSON::InvalidParams (class)">InvalidParams</a></span>, <span class='object_link'><a href="JSON/InvalidRequest.html" title="Msf::RPC::JSON::InvalidRequest (class)">InvalidRequest</a></span>, <span class='object_link'><a href="JSON/InvalidResponse.html" title="Msf::RPC::JSON::InvalidResponse (class)">InvalidResponse</a></span>, <span class='object_link'><a href="JSON/JSONParseError.html" title="Msf::RPC::JSON::JSONParseError (class)">JSONParseError</a></span>, <span class='object_link'><a href="JSON/MethodNotFound.html" title="Msf::RPC::JSON::MethodNotFound (class)">MethodNotFound</a></span>, <span class='object_link'><a href="JSON/Notification.html" title="Msf::RPC::JSON::Notification (class)">Notification</a></span>, <span class='object_link'><a href="JSON/ParseError.html" title="Msf::RPC::JSON::ParseError (class)">ParseError</a></span>, <span class='object_link'><a href="JSON/Request.html" title="Msf::RPC::JSON::Request (class)">Request</a></span>, <span class='object_link'><a href="JSON/Response.html" title="Msf::RPC::JSON::Response (class)">Response</a></span>, <span class='object_link'><a href="JSON/RpcCommand.html" title="Msf::RPC::JSON::RpcCommand (class)">RpcCommand</a></span>, <span class='object_link'><a href="JSON/RpcCommandFactory.html" title="Msf::RPC::JSON::RpcCommandFactory (class)">RpcCommandFactory</a></span>, <span class='object_link'><a href="JSON/RpcError.html" title="Msf::RPC::JSON::RpcError (class)">RpcError</a></span>, <span class='object_link'><a href="JSON/ServerError.html" title="Msf::RPC::JSON::ServerError (class)">ServerError</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="PARSE_ERROR-constant" class="">PARSE_ERROR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>JSON-RPC 2.0 Error Codes Specification errors:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32700</span></pre></dd>
+      
+        <dt id="INVALID_REQUEST-constant" class="">INVALID_REQUEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32600</span></pre></dd>
+      
+        <dt id="METHOD_NOT_FOUND-constant" class="">METHOD_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32601</span></pre></dd>
+      
+        <dt id="INVALID_PARAMS-constant" class="">INVALID_PARAMS =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32602</span></pre></dd>
+      
+        <dt id="INTERNAL_ERROR-constant" class="">INTERNAL_ERROR =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32603</span>
+<span class='comment'>## Implementation-defined server-errors:</span></pre></dd>
+      
+        <dt id="SERVER_ERROR_MAX-constant" class="">SERVER_ERROR_MAX =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Implementation-defined server-errors:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32000</span></pre></dd>
+      
+        <dt id="SERVER_ERROR_MIN-constant" class="">SERVER_ERROR_MIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32099</span></pre></dd>
+      
+        <dt id="APPLICATION_SERVER_ERROR-constant" class="">APPLICATION_SERVER_ERROR =
+          
+        </dt>
+        <dd><pre class="code"><span class='op'>-</span><span class='int'>32000</span></pre></dd>
+      
+        <dt id="ERROR_MESSAGES-constant" class="">ERROR_MESSAGES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>JSON-RPC 2.0 Error Messages</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='comment'># Specification errors:
+</span>  <span class='const'><span class='object_link'><a href="#PARSE_ERROR-constant" title="Msf::RPC::JSON::PARSE_ERROR (constant)">PARSE_ERROR</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid JSON was received by the server. An error occurred on the server while parsing the JSON text.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#INVALID_REQUEST-constant" title="Msf::RPC::JSON::INVALID_REQUEST (constant)">INVALID_REQUEST</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The JSON sent is not a valid Request object.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#METHOD_NOT_FOUND-constant" title="Msf::RPC::JSON::METHOD_NOT_FOUND (constant)">METHOD_NOT_FOUND</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The method %&lt;name&gt;s does not exist.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#INVALID_PARAMS-constant" title="Msf::RPC::JSON::INVALID_PARAMS (constant)">INVALID_PARAMS</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid method parameter(s).</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="#INTERNAL_ERROR-constant" title="Msf::RPC::JSON::INTERNAL_ERROR (constant)">INTERNAL_ERROR</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Internal JSON-RPC error</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+  <span class='comment'># Implementation-defined server-errors:
+</span>  <span class='const'><span class='object_link'><a href="#APPLICATION_SERVER_ERROR-constant" title="Msf::RPC::JSON::APPLICATION_SERVER_ERROR (constant)">APPLICATION_SERVER_ERROR</a></span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Application server error: %&lt;msg&gt;s</span><span class='tstring_end'>&#39;</span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:11 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

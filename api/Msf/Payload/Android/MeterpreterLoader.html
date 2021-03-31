@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Android::MeterpreterLoader
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Android::MeterpreterLoader";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Android.html" title="Msf::Payload::Android (module)">Android</a></span></span>
+     &raquo; 
+    <span class="title">MeterpreterLoader</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Android::MeterpreterLoader
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Android.html" title="Msf::Payload::Android (module)">Msf::Payload::Android</a></span>, <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span>, <span class='object_link'><a href="../../Sessions/MeterpreterOptions.html" title="Msf::Sessions::MeterpreterOptions (module)">Sessions::MeterpreterOptions</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/android/meterpreter_loader.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Common loader for Android payloads that make use of Meterpreter.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Sessions/MeterpreterOptions.html" title="Msf::Sessions::MeterpreterOptions (module)">Sessions::MeterpreterOptions</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Sessions/MeterpreterOptions.html#TIMEOUT_COMMS-constant" title="Msf::Sessions::MeterpreterOptions::TIMEOUT_COMMS (constant)">Sessions::MeterpreterOptions::TIMEOUT_COMMS</a></span>, <span class='object_link'><a href="../../Sessions/MeterpreterOptions.html#TIMEOUT_RETRY_TOTAL-constant" title="Msf::Sessions::MeterpreterOptions::TIMEOUT_RETRY_TOTAL (constant)">Sessions::MeterpreterOptions::TIMEOUT_RETRY_TOTAL</a></span>, <span class='object_link'><a href="../../Sessions/MeterpreterOptions.html#TIMEOUT_RETRY_WAIT-constant" title="Msf::Sessions::MeterpreterOptions::TIMEOUT_RETRY_WAIT (constant)">Sessions::MeterpreterOptions::TIMEOUT_RETRY_WAIT</a></span>, <span class='object_link'><a href="../../Sessions/MeterpreterOptions.html#TIMEOUT_SESSION-constant" title="Msf::Sessions::MeterpreterOptions::TIMEOUT_SESSION (constant)">Sessions::MeterpreterOptions::TIMEOUT_SESSION</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_meterpreter-instance_method" title="#stage_meterpreter (instance method)">#<strong>stage_meterpreter</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stage_payload-instance_method" title="#stage_payload (instance method)">#<strong>stage_payload</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Android.html" title="Msf::Payload::Android (module)">Msf::Payload::Android</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Android.html#fix_dex_header-instance_method" title="Msf::Payload::Android#fix_dex_header (method)">#fix_dex_header</a></span>, <span class='object_link'><a href="../Android.html#generate-instance_method" title="Msf::Payload::Android#generate (method)">#generate</a></span>, <span class='object_link'><a href="../Android.html#generate_config-instance_method" title="Msf::Payload::Android#generate_config (method)">#generate_config</a></span>, <span class='object_link'><a href="../Android.html#generate_default_stage-instance_method" title="Msf::Payload::Android#generate_default_stage (method)">#generate_default_stage</a></span>, <span class='object_link'><a href="../Android.html#generate_jar-instance_method" title="Msf::Payload::Android#generate_jar (method)">#generate_jar</a></span>, <span class='object_link'><a href="../Android.html#generate_stage-instance_method" title="Msf::Payload::Android#generate_stage (method)">#generate_stage</a></span>, <span class='object_link'><a href="../Android.html#java_string-instance_method" title="Msf::Payload::Android#java_string (method)">#java_string</a></span>, <span class='object_link'><a href="../Android.html#sign_jar-instance_method" title="Msf::Payload::Android#sign_jar (method)">#sign_jar</a></span>, <span class='object_link'><a href="../Android.html#signing_key-instance_method" title="Msf::Payload::Android#signing_key (method)">#signing_key</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../TransportConfig.html#transport_config_bind_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_named_pipe (method)">#transport_config_bind_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_bind_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_tcp (method)">#transport_config_bind_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_http-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_http (method)">#transport_config_reverse_http</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_https-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_https (method)">#transport_config_reverse_https</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_ipv6_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_ipv6_tcp (method)">#transport_config_reverse_ipv6_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_named_pipe (method)">#transport_config_reverse_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_tcp (method)">#transport_config_reverse_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_udp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_udp (method)">#transport_config_reverse_udp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_uri_components-instance_method" title="Msf::Payload::TransportConfig#transport_uri_components (method)">#transport_uri_components</a></span></p>
+
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android/meterpreter_loader.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_update_info'>update_info</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&#39;</span></span>          <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Android Meterpreter &amp; Configuration</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Android-specific meterpreter generation</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Author</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OJ Reeves</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Platform</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Arch</span><span class='tstring_end'>&#39;</span></span>          <span class='op'>=&gt;</span> <span class='const'>ARCH_DALVIK</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PayloadCompat</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Convention</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http https</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stage</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+  <span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_meterpreter-instance_method">
+  
+    #<strong>stage_meterpreter</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android/meterpreter_loader.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_meterpreter'>stage_meterpreter</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_clazz'>clazz</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>androidpayload.stage.Meterpreter</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_metstage'>metstage</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>android</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>metstage.jar</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_met'>met</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>android</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter.jar</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Name of the class to load from the stage, the actual jar to load
+</span>  <span class='comment'># it from, and then finally the meterpreter stage
+</span>  <span class='id identifier rubyid_blocks'>blocks</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_java_string'>java_string</span><span class='lparen'>(</span><span class='id identifier rubyid_clazz'>clazz</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_java_string'>java_string</span><span class='lparen'>(</span><span class='id identifier rubyid_metstage'>metstage</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_java_string'>java_string</span><span class='lparen'>(</span><span class='id identifier rubyid_met'>met</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_java_string'>java_string</span><span class='lparen'>(</span><span class='id identifier rubyid_generate_config'>generate_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span>
+
+  <span class='lparen'>(</span><span class='id identifier rubyid_blocks'>blocks</span> <span class='op'>+</span> <span class='lbracket'>[</span><span class='id identifier rubyid_blocks'>blocks</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A*</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_blocks'>blocks</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stage_payload-instance_method">
+  
+    #<strong>stage_payload</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android/meterpreter_loader.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stage_payload'>stage_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stage_meterpreter'>stage_meterpreter</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:48 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

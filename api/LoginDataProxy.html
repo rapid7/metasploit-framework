@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: LoginDataProxy
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "LoginDataProxy";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (L)</a> &raquo;
+    
+    
+    <span class="title">LoginDataProxy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: LoginDataProxy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="DataProxyAutoLoader.html" title="DataProxyAutoLoader (module)">DataProxyAutoLoader</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/data_service/proxy/login_data_proxy.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_credential_login-instance_method" title="#create_credential_login (instance method)">#<strong>create_credential_login</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#invalidate_login-instance_method" title="#invalidate_login (instance method)">#<strong>invalidate_login</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logins-instance_method" title="#logins (instance method)">#<strong>logins</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_login-instance_method" title="#update_login (instance method)">#<strong>update_login</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_credential_login-instance_method">
+  
+    #<strong>create_credential_login</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14
+15
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/login_data_proxy.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_credential_login'>create_credential_login</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_service_operation'>data_service_operation</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data_service'>data_service</span><span class='op'>|</span>
+      <span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_create_credential_login'>create_credential_login</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Problem creating login</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="invalidate_login-instance_method">
+  
+    #<strong>invalidate_login</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/login_data_proxy.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_invalidate_login'>invalidate_login</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_add_opts_workspace'>add_opts_workspace</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='comment'># Search for an existing Metasploit::Credential::Core object. It requires specific attributes.
+</span>    <span class='id identifier rubyid_core_opts'>core_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:user</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:username</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:pass</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:private_data</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:ports</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:port</span><span class='rparen'>)</span> <span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:host_ranges</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:address</span><span class='rparen'>)</span> <span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:address</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_core_opts'>core_opts</span><span class='lbracket'>[</span><span class='symbol'>:svcs</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_fetch'>fetch</span><span class='lparen'>(</span><span class='symbol'>:service_name</span><span class='rparen'>)</span> <span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span>
+
+    <span class='comment'># searching for cores and loading the array is a mitigation for
+</span>    <span class='comment'># an issue seen with Rails 5 when calling first using a local database
+</span>    <span class='id identifier rubyid_cores'>cores</span> <span class='op'>=</span> <span class='id identifier rubyid_creds'>creds</span><span class='lparen'>(</span><span class='id identifier rubyid_core_opts'>core_opts</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cores'>cores</span> <span class='op'>=</span> <span class='id identifier rubyid_cores'>cores</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cores'>cores</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_core'>core</span> <span class='op'>=</span> <span class='id identifier rubyid_cores'>cores</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_core'>core</span>
+      <span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_logins'>logins</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_login'>login</span><span class='op'>|</span>
+        <span class='id identifier rubyid_login_opts'>login_opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='symbol'>:access_level</span><span class='comma'>,</span> <span class='symbol'>:status</span><span class='comma'>,</span> <span class='symbol'>:last_attempted_at</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_login_opts'>login_opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_login'>login</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+        <span class='id identifier rubyid_update_login'>update_login</span><span class='lparen'>(</span><span class='id identifier rubyid_login_opts'>login_opts</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Problem invalidating login</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="logins-instance_method">
+  
+    #<strong>logins</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2
+3
+4
+5
+6
+7
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/login_data_proxy.rb', line 2</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_logins'>logins</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_service_operation'>data_service_operation</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data_service'>data_service</span><span class='op'>|</span>
+      <span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_logins'>logins</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Problem retrieving logins</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_login-instance_method">
+  
+    #<strong>update_login</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/login_data_proxy.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_login'>update_login</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_service_operation'>data_service_operation</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_data_service'>data_service</span><span class='op'>|</span>
+      <span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_update_login'>update_login</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Problem updating login</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:17 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

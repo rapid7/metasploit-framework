@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::RPC::JSON::Dispatcher
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::RPC::JSON::Dispatcher";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../RPC.html" title="Msf::RPC (module)">RPC</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../JSON.html" title="Msf::RPC::JSON (module)">JSON</a></span></span>
+     &raquo; 
+    <span class="title">Dispatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::RPC::JSON::Dispatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::RPC::JSON::Dispatcher</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/rpc/json/dispatcher.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="JSON_RPC_VERSION-constant" class="">JSON_RPC_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="JSON_RPC_REQUIRED_MEMBERS-constant" class="">JSON_RPC_REQUIRED_MEMBERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='qsymbols_beg'>%i(</span><span class='tstring_content'>jsonrpc</span><span class='words_sep'> </span><span class='tstring_content'>method</span><span class='tstring_end'>)</span></span></pre></dd>
+      
+        <dt id="JSON_RPC_MEMBER_TYPES-constant" class="">JSON_RPC_MEMBER_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+    <span class='comment'># A String specifying the version of the JSON-RPC protocol.
+</span>    <span class='label'>jsonrpc:</span> <span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='comment'># A String containing the name of the method to be invoked.
+</span>    <span class='label'>method:</span> <span class='lbracket'>[</span><span class='const'>String</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='comment'># If present, parameters for the rpc call MUST be provided as a Structured
+</span>    <span class='comment'># value. Either by-position through an Array or by-name through an Object.
+</span>    <span class='comment'># * by-position: params MUST be an Array, containing the values in the
+</span>    <span class='comment'>#   Server expected order.
+</span>    <span class='comment'># * by-name: params MUST be an Object, with member names that match the
+</span>    <span class='comment'>#   Server expected parameter names. The absence of expected names MAY
+</span>    <span class='comment'>#   result in an error being generated. The names MUST match exactly,
+</span>    <span class='comment'>#   including case, to the method&#39;s expected parameters.
+</span>    <span class='label'>params:</span> <span class='lbracket'>[</span><span class='const'>Array</span><span class='comma'>,</span> <span class='const'>Hash</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='comment'># An identifier established by the Client that MUST contain a String,
+</span>    <span class='comment'># Number, or NULL value if included. If it is not included it is assumed
+</span>    <span class='comment'># to be a notification. The value SHOULD normally not be Null [1] and
+</span>    <span class='comment'># Numbers SHOULD NOT contain fractional parts [2]
+</span>    <span class='label'>id:</span> <span class='lbracket'>[</span><span class='const'>Integer</span><span class='comma'>,</span> <span class='const'>String</span><span class='comma'>,</span> <span class='const'>NilClass</span><span class='rbracket'>]</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command-instance_method" title="#command (instance method)">#<strong>command</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute command.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#framework-instance_method" title="#framework (instance method)">#<strong>framework</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute framework.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_response_id_member-class_method" title="add_response_id_member (class method)">.<strong>add_response_id_member</strong>(response, request)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds response id based on request id.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_error_response-class_method" title="create_error_response (class method)">.<strong>create_error_response</strong>(error, request = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a JSON-RPC error response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_success_response-class_method" title="create_success_response (class method)">.<strong>create_success_response</strong>(result, request = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a JSON-RPC success response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_json-class_method" title="to_json (class method)">.<strong>to_json</strong>(data)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Serialize data as JSON string.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework)  &#x21d2; Dispatcher </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Instantiate a Dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_json_request-instance_method" title="#parse_json_request (instance method)">#<strong>parse_json_request</strong>(source)  &#x21d2; Hash or Array </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse the JSON document source into a Hash or Array with symbols for the names (keys).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process-instance_method" title="#process (instance method)">#<strong>process</strong>(source)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Process the JSON-RPC request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_request-instance_method" title="#process_request (instance method)">#<strong>process_request</strong>(request)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Validate and execute the JSON-RPC request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_command-instance_method" title="#set_command (instance method)">#<strong>set_command</strong>(command)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set the command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate_rpc_request-instance_method" title="#validate_rpc_request (instance method)">#<strong>validate_rpc_request</strong>(request)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Validate the JSON-RPC request.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::RPC::JSON::Dispatcher (class)">Dispatcher</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Instantiate a Dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>framework</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../Simple/Framework.html" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Framework wrapper instance</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+  <span class='ivar'>@framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@command</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="command-instance_method">
+  
+    #<strong>command</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command'>command</span>
+  <span class='ivar'>@command</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="framework-instance_method">
+  
+    #<strong>framework</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='ivar'>@framework</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_response_id_member-class_method">
+  
+    .<strong>add_response_id_member</strong>(response, request)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds response id based on request id.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>response</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC response</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_add_response_id_member'>add_response_id_member</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_request'>request</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_response'>response</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_error_response-class_method">
+  
+    .<strong>create_error_response</strong>(error, request = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a JSON-RPC error response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>error</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="RpcError.html" title="Msf::RPC::JSON::RpcError (class)">RpcError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a RpcError instance</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 192</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_error_response'>create_error_response</span><span class='lparen'>(</span><span class='id identifier rubyid_error'>error</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='comment'># A String specifying the version of the JSON-RPC protocol.
+</span>      <span class='label'>jsonrpc:</span> <span class='const'><span class='object_link'><a href="#JSON_RPC_VERSION-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_VERSION (constant)">JSON_RPC_VERSION</a></span></span><span class='comma'>,</span>
+
+      <span class='comment'># This member is REQUIRED on error.
+</span>      <span class='comment'># This member MUST NOT exist if there was no error triggered during invocation.
+</span>      <span class='comment'># The value for this member MUST be an Object as defined in section 5.1.
+</span>      <span class='label'>error:</span> <span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_to_h'>to_h</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_add_response_id_member'>add_response_id_member</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_success_response-class_method">
+  
+    .<strong>create_success_response</strong>(result, request = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a JSON-RPC success response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>result</span>
+      
+      
+        <span class='type'>(<tt>Object</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the RPC method&#39;s return value</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create_success_response'>create_success_response</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='comment'># A String specifying the version of the JSON-RPC protocol.
+</span>      <span class='label'>jsonrpc:</span> <span class='const'><span class='object_link'><a href="#JSON_RPC_VERSION-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_VERSION (constant)">JSON_RPC_VERSION</a></span></span><span class='comma'>,</span>
+
+      <span class='comment'># This member is REQUIRED on success.
+</span>      <span class='comment'># This member MUST NOT exist if there was an error invoking the method.
+</span>      <span class='comment'># The value of this member is determined by the method invoked on the Server.
+</span>      <span class='label'>result:</span> <span class='id identifier rubyid_result'>result</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_add_response_id_member'>add_response_id_member</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_json-class_method">
+  
+    .<strong>to_json</strong>(data)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Serialize data as JSON string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>data serialized JSON string if data not nil; otherwise, nil.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_json'>json</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_json'>json</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="parse_json_request-instance_method">
+  
+    #<strong>parse_json_request</strong>(source)  &#x21d2; <tt>Hash or Array</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse the JSON document source into a Hash or Array with symbols for the names (keys). An error occurred on the server while parsing the JSON text.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON source</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash or Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hash or Array representation of source</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="ParseError.html" title="Msf::RPC::JSON::ParseError (class)">ParseError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Invalid JSON was received by the server.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152
+153
+154
+155
+156</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_json_request'>parse_json_request</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='const'><span class='object_link'><a href="../JSON.html" title="Msf::RPC::JSON (module)">JSON</a></span></span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='comma'>,</span> <span class='label'>symbolize_names:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="ParseError.html" title="Msf::RPC::JSON::ParseError (class)">ParseError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ParseError.html#initialize-instance_method" title="Msf::RPC::JSON::ParseError#initialize (method)">new</a></span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process-instance_method">
+  
+    #<strong>process</strong>(source)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Process the JSON-RPC request. if successful; otherwise, a JSON-RPC error response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>JSON-RPC response that encapsulates the RPC result</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_json_request'>parse_json_request</span><span class='lparen'>(</span><span class='id identifier rubyid_source'>source</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+      <span class='comment'># If the batch rpc call itself fails to be recognized as an valid
+</span>      <span class='comment'># JSON or as an Array with at least one value, the response from
+</span>      <span class='comment'># the Server MUST be a single Response object.
+</span>      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="InvalidRequest.html" title="Msf::RPC::JSON::InvalidRequest (class)">InvalidRequest</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InvalidRequest.html#initialize-instance_method" title="Msf::RPC::JSON::InvalidRequest#initialize (method)">new</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='comment'># process batch request
+</span>      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_process_request'>process_request</span><span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+      <span class='comment'># A Response object SHOULD exist for each Request object, except that
+</span>      <span class='comment'># there SHOULD NOT be any Response objects for notifications.
+</span>      <span class='comment'># Remove nil responses from response array
+</span>      <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_compact!'>compact!</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_process_request'>process_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="ParseError.html" title="Msf::RPC::JSON::ParseError (class)">ParseError</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="InvalidRequest.html" title="Msf::RPC::JSON::InvalidRequest (class)">InvalidRequest</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># If there was an error in detecting the id in the Request object
+</span>    <span class='comment'># (e.g. Parse error/Invalid Request), then the id member MUST be
+</span>    <span class='comment'># Null. Don&#39;t pass request obj when building the error response.
+</span>    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_create_error_response'>create_error_response</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="RpcError.html" title="Msf::RPC::JSON::RpcError (class)">RpcError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># other JSON-RPC errors should include the id from the Request object
+</span>    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_create_error_response'>create_error_response</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_create_error_response'>create_error_response</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="ApplicationServerError.html" title="Msf::RPC::JSON::ApplicationServerError (class)">ApplicationServerError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ApplicationServerError.html#initialize-instance_method" title="Msf::RPC::JSON::ApplicationServerError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># When a rpc call is made, the Server MUST reply with a Response, except
+</span>  <span class='comment'># for in the case of Notifications. The Response is expressed as a single
+</span>  <span class='comment'># JSON Object.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_to_json'>to_json</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_request-instance_method">
+  
+    #<strong>process_request</strong>(request)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Validate and execute the JSON-RPC request. Msf::RPC::Exception that occurred during execution. if successful; otherwise, a JSON-RPC error response.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="InvalidParams.html" title="Msf::RPC::JSON::InvalidParams (class)">InvalidParams</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>ArgumentError occurred during execution.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="ApplicationServerError.html" title="Msf::RPC::JSON::ApplicationServerError (class)">ApplicationServerError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>General server-error wrapper around an</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_request'>process_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_validate_rpc_request'>validate_rpc_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_create_error_response'>create_error_response</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="InvalidRequest.html" title="Msf::RPC::JSON::InvalidRequest (class)">InvalidRequest</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InvalidRequest.html#initialize-instance_method" title="Msf::RPC::JSON::InvalidRequest#initialize (method)">new</a></span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># dispatch method execution to command
+</span>    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='ivar'>@command</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='lbracket'>[</span><span class='symbol'>:params</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='comment'># A Notification is a Request object without an &quot;id&quot; member. A Request
+</span>    <span class='comment'># object that is a Notification signifies the Client&#39;s lack of interest
+</span>    <span class='comment'># in the corresponding Response object, and as such no Response object
+</span>    <span class='comment'># needs to be returned to the client. The Server MUST NOT reply to a
+</span>    <span class='comment'># Notification, including those that are within a batch request.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_create_success_response'>create_success_response</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_response'>response</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../OptionValidateError.html" title="Msf::OptionValidateError (class)">OptionValidateError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="InvalidParams.html" title="Msf::RPC::JSON::InvalidParams (class)">InvalidParams</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InvalidParams.html#initialize-instance_method" title="Msf::RPC::JSON::InvalidParams#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>options:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='label'>message:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>NoMethodError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="MethodNotFound.html" title="Msf::RPC::JSON::MethodNotFound (class)">MethodNotFound</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="MethodNotFound.html#initialize-instance_method" title="Msf::RPC::JSON::MethodNotFound#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>method:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='label'>message:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>ArgumentError</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="InvalidParams.html" title="Msf::RPC::JSON::InvalidParams (class)">InvalidParams</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="InvalidParams.html#initialize-instance_method" title="Msf::RPC::JSON::InvalidParams#initialize (method)">new</a></span></span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../RPC.html" title="Msf::RPC (module)">RPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Exception.html" title="Msf::RPC::Exception (class)">Exception</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="ApplicationServerError.html" title="Msf::RPC::JSON::ApplicationServerError (class)">ApplicationServerError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="ApplicationServerError.html#initialize-instance_method" title="Msf::RPC::JSON::ApplicationServerError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='lbrace'>{</span> <span class='label'>code:</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_code'>code</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_command-instance_method">
+  
+    #<strong>set_command</strong>(command)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set the command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>command</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="RpcCommand.html" title="Msf::RPC::JSON::RpcCommand (class)">RpcCommand</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the command used by the Dispatcher.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_command'>set_command</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span>
+  <span class='ivar'>@command</span> <span class='op'>=</span> <span class='id identifier rubyid_command'>command</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate_rpc_request-instance_method">
+  
+    #<strong>validate_rpc_request</strong>(request)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Validate the JSON-RPC request.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the JSON-RPC request</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/json/dispatcher.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_validate_rpc_request'>validate_rpc_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='comment'># validate request is an object
+</span>  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span>
+
+  <span class='comment'># validate request contains required members
+</span>  <span class='const'><span class='object_link'><a href="#JSON_RPC_REQUIRED_MEMBERS-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_REQUIRED_MEMBERS (constant)">JSON_RPC_REQUIRED_MEMBERS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_member'>member</span><span class='op'>|</span> <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_member'>member</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_request'>request</span><span class='lbracket'>[</span><span class='symbol'>:jsonrpc</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='const'><span class='object_link'><a href="#JSON_RPC_VERSION-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_VERSION (constant)">JSON_RPC_VERSION</a></span></span>
+
+  <span class='comment'># validate request members are correct types
+</span>  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_member'>member</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#JSON_RPC_MEMBER_TYPES-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_MEMBER_TYPES (constant)">JSON_RPC_MEMBER_TYPES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_member'>member</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+        <span class='op'>!</span><span class='const'><span class='object_link'><a href="#JSON_RPC_MEMBER_TYPES-constant" title="Msf::RPC::JSON::Dispatcher::JSON_RPC_MEMBER_TYPES (constant)">JSON_RPC_MEMBER_TYPES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_member'>member</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_one?'>one?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_type'>type</span><span class='op'>|</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

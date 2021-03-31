@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::UDPScanner
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::UDPScanner";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">UDPScanner</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::UDPScanner
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Scanner.html" title="Msf::Auxiliary::Scanner (module)">Scanner</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/udp_scanner.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods for scanning UDP services</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#results-instance_method" title="#results (instance method)">#<strong>results</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A hash of results of a given batch run, keyed by host.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#build_probe-instance_method" title="#build_probe (instance method)">#<strong>build_probe</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Builds and returns the probe to be sent.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup_udp_sockets-instance_method" title="#cleanup_udp_sockets (instance method)">#<strong>cleanup_udp_sockets</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cport-instance_method" title="#cport (instance method)">#<strong>cport</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes an instance of an auxiliary module that scans UDP.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rport-instance_method" title="#rport (instance method)">#<strong>rport</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_batch-instance_method" title="#run_batch (instance method)">#<strong>run_batch</strong>(batch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start scanning a batch of IP addresses.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_batch_size-instance_method" title="#run_batch_size (instance method)">#<strong>run_batch_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Define our batch size.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scan_host-instance_method" title="#scan_host (instance method)">#<strong>scan_host</strong>(ip)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called for each IP in the batch.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_postscan-instance_method" title="#scanner_postscan (instance method)">#<strong>scanner_postscan</strong>(batch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called after the scan block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_prescan-instance_method" title="#scanner_prescan (instance method)">#<strong>scanner_prescan</strong>(batch)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called before the scan block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_process-instance_method" title="#scanner_process (instance method)">#<strong>scanner_process</strong>(data, shost, _sport)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called for each response packet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_recv-instance_method" title="#scanner_recv (instance method)">#<strong>scanner_recv</strong>(timeout = 0.1)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Process incoming packets and dispatch to the module Ensure a response flood doesn&#39;t trap us in a loop Ignore packets outside of our project&#39;s scope.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_send-instance_method" title="#scanner_send (instance method)">#<strong>scanner_send</strong>(data, ip, port)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a packet to a given host and port.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#scanner_spoof_send-instance_method" title="#scanner_spoof_send (instance method)">#<strong>scanner_spoof_send</strong>(data, ip, port, srcip, num_packets = 1)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a spoofed packet to a given host and port.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#udp_socket-instance_method" title="#udp_socket (instance method)">#<strong>udp_socket</strong>(ip, port, bind_peer: true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scanner.html" title="Msf::Auxiliary::Scanner (module)">Scanner</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scanner.html#add_delay_jitter-instance_method" title="Msf::Auxiliary::Scanner#add_delay_jitter (method)">#add_delay_jitter</a></span>, <span class='object_link'><a href="Scanner.html#check-instance_method" title="Msf::Auxiliary::Scanner#check (method)">#check</a></span>, <span class='object_link'><a href="Scanner.html#fail_with-instance_method" title="Msf::Auxiliary::Scanner#fail_with (method)">#fail_with</a></span>, <span class='object_link'><a href="Scanner.html#has_check%3F-instance_method" title="Msf::Auxiliary::Scanner#has_check? (method)">#has_check?</a></span>, <span class='object_link'><a href="Scanner.html#has_fatal_errors%3F-instance_method" title="Msf::Auxiliary::Scanner#has_fatal_errors? (method)">#has_fatal_errors?</a></span>, <span class='object_link'><a href="Scanner.html#peer-instance_method" title="Msf::Auxiliary::Scanner#peer (method)">#peer</a></span>, <span class='object_link'><a href="Scanner.html#run-instance_method" title="Msf::Auxiliary::Scanner#run (method)">#run</a></span>, <span class='object_link'><a href="Scanner.html#scanner_handle_fatal_errors-instance_method" title="Msf::Auxiliary::Scanner#scanner_handle_fatal_errors (method)">#scanner_handle_fatal_errors</a></span>, <span class='object_link'><a href="Scanner.html#scanner_progress-instance_method" title="Msf::Auxiliary::Scanner#scanner_progress (method)">#scanner_progress</a></span>, <span class='object_link'><a href="Scanner.html#scanner_show_progress-instance_method" title="Msf::Auxiliary::Scanner#scanner_show_progress (method)">#scanner_show_progress</a></span>, <span class='object_link'><a href="Scanner.html#seppuko!-instance_method" title="Msf::Auxiliary::Scanner#seppuko! (method)">#seppuko!</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="results=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="results-instance_method">
+  
+    #<strong>results</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A hash of results of a given batch run, keyed by host</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_results'>results</span>
+  <span class='ivar'>@results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="build_probe-instance_method">
+  
+    #<strong>build_probe</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Builds and returns the probe to be sent</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 221</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_build_probe'>build_probe</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup_udp_sockets-instance_method">
+  
+    #<strong>cleanup_udp_sockets</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 66</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup_udp_sockets'>cleanup_udp_sockets</span>
+  <span class='ivar'>@udp_sockets_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='ivar'>@udp_sockets</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_sock'>sock</span><span class='op'>|</span>
+      <span class='ivar'>@udp_sockets</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_remove_socket'>remove_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cport-instance_method">
+  
+    #<strong>cport</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+208
+209
+210</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 208</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cport'>cport</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes an instance of an auxiliary module that scans UDP</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#RPORT-constant" title="Msf::Opt::RPORT (constant)">RPORT</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BATCHSIZE</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The number of hosts to probe in each set</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>256</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>THREADS</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The number of concurrent threads</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='int'>10</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+  <span class='lbracket'>[</span>
+    <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#CHOST-constant" title="Msf::Opt::CHOST (constant)">CHOST</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#CPORT-constant" title="Msf::Opt::CPORT (constant)">CPORT</a></span></span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvInterval</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum numbers of sends before entering the processing loop</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>30</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerMaxResends</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum times to resend a packet when out of buffers</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>10</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvQueueLimit</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The maximum queue size before breaking out of the processing loop</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>100</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvWindow</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The number of seconds to wait post-scan to catch leftover replies</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>15</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rport-instance_method">
+  
+    #<strong>rport</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 212</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rport'>rport</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_batch-instance_method">
+  
+    #<strong>run_batch</strong>(batch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start scanning a batch of IP addresses</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_batch'>run_batch</span><span class='lparen'>(</span><span class='id identifier rubyid_batch'>batch</span><span class='rparen'>)</span>
+  <span class='ivar'>@udp_sockets</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@udp_sockets_mutex</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='ivar'>@udp_send_count</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@interval_mutex</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='comment'># Provide a hook for pre-scanning setup
+</span>  <span class='id identifier rubyid_scanner_prescan'>scanner_prescan</span><span class='lparen'>(</span><span class='id identifier rubyid_batch'>batch</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the including module once per IP
+</span>  <span class='id identifier rubyid_batch'>batch</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ip'>ip</span><span class='op'>|</span>
+    <span class='id identifier rubyid_scan_host'>scan_host</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Catch any stragglers
+</span>  <span class='id identifier rubyid_stime'>stime</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+
+  <span class='kw'>while</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>&lt;</span> <span class='lparen'>(</span> <span class='id identifier rubyid_stime'>stime</span> <span class='op'>+</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvWindow</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_scanner_recv'>scanner_recv</span><span class='lparen'>(</span><span class='float'>1.0</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Provide a hook for post-scanning processing
+</span>  <span class='id identifier rubyid_scanner_postscan'>scanner_postscan</span><span class='lparen'>(</span><span class='id identifier rubyid_batch'>batch</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_batch_size-instance_method">
+  
+    #<strong>run_batch_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Define our batch size</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_batch_size'>run_batch_size</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BATCHSIZE</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scan_host-instance_method">
+  
+    #<strong>scan_host</strong>(ip)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called for each IP in the batch.  This will send all necessary probes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+225
+226
+227</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 225</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scan_host'>scan_host</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_scanner_send'>scanner_send</span><span class='lparen'>(</span><span class='id identifier rubyid_build_probe'>build_probe</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_rport'>rport</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_postscan-instance_method">
+  
+    #<strong>scanner_postscan</strong>(batch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called after the scan block</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_postscan'>scanner_postscan</span><span class='lparen'>(</span><span class='id identifier rubyid_batch'>batch</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_prescan-instance_method">
+  
+    #<strong>scanner_prescan</strong>(batch)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called before the scan block</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+236
+237
+238
+239</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 236</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_prescan'>scanner_prescan</span><span class='lparen'>(</span><span class='id identifier rubyid_batch'>batch</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_vprint_status'>vprint_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Sending probes to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_batch'>batch</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>-&gt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_batch'>batch</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_batch'>batch</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> hosts)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@results</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_process-instance_method">
+  
+    #<strong>scanner_process</strong>(data, shost, _sport)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called for each response packet</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+230
+231
+232
+233</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 230</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_process'>scanner_process</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_shost'>shost</span><span class='comma'>,</span> <span class='id identifier rubyid__sport'>_sport</span><span class='rparen'>)</span>
+  <span class='ivar'>@results</span><span class='lbracket'>[</span><span class='id identifier rubyid_shost'>shost</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@results</span><span class='lbracket'>[</span><span class='id identifier rubyid_shost'>shost</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_recv-instance_method">
+  
+    #<strong>scanner_recv</strong>(timeout = 0.1)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Process incoming packets and dispatch to the module Ensure a response flood doesn&#39;t trap us in a loop Ignore packets outside of our project&#39;s scope</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_recv'>scanner_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='float'>0.1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_queue'>queue</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_start'>start</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='kw'>while</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_start'>start</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_readable'>readable</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span><span class='comma'>,</span> <span class='id identifier rubyid__'>_</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='ivar'>@udp_sockets</span><span class='period'>.</span><span class='id identifier rubyid_values'>values</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_readable'>readable</span>
+      <span class='kw'>for</span> <span class='id identifier rubyid_sock'>sock</span> <span class='kw'>in</span> <span class='id identifier rubyid_readable'>readable</span>
+        <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_recvfrom'>recvfrom</span><span class='lparen'>(</span><span class='int'>65535</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+
+        <span class='comment'># Ignore invalid responses
+</span>        <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+        <span class='comment'># Ignore empty responses
+</span>        <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+        <span class='comment'># Trim the IPv6-compat prefix off if needed
+</span>        <span class='id identifier rubyid_shost'>shost</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sub'>sub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^::ffff:</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='comment'># Ignore the response if we have a boundary
+</span>        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_inside_workspace_boundary?'>inside_workspace_boundary?</span><span class='lparen'>(</span><span class='id identifier rubyid_shost'>shost</span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_queue'>queue</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_shost'>shost</span><span class='comma'>,</span> <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvQueueLimit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_cleanup_udp_sockets'>cleanup_udp_sockets</span>
+
+  <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_q'>q</span><span class='op'>|</span>
+    <span class='id identifier rubyid_scanner_process'>scanner_process</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_q'>q</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_queue'>queue</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_send-instance_method">
+  
+    #<strong>scanner_send</strong>(data, ip, port)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a packet to a given host and port</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_send'>scanner_send</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+
+  <span class='comment'># flatten any bindata objects
+</span>  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_binary_s'>to_binary_s</span> <span class='kw'>if</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>to_binary_s</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_addrinfo'>addrinfo</span> <span class='op'>=</span> <span class='const'>Addrinfo</span><span class='period'>.</span><span class='id identifier rubyid_ip'>ip</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_addrinfo'>addrinfo</span><span class='period'>.</span><span class='id identifier rubyid_ipv4_multicast?'>ipv4_multicast?</span> <span class='op'>||</span> <span class='id identifier rubyid_addrinfo'>addrinfo</span><span class='period'>.</span><span class='id identifier rubyid_ipv6_multicast?'>ipv6_multicast?</span>
+      <span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='id identifier rubyid_udp_socket'>udp_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='label'>bind_peer:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='id identifier rubyid_udp_socket'>udp_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='label'>bind_peer:</span> <span class='kw'>false</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sendto'>sendto</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOBUFS</span>
+    <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_resend_count'>resend_count</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerMaxResends</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_vprint_error'>vprint_error</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_content'> Max resend count hit sending </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_scanner_recv'>scanner_recv</span><span class='lparen'>(</span><span class='float'>0.1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='float'>0.25</span><span class='rparen'>)</span>
+
+    <span class='kw'>retry</span>
+
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ECONNREFUSED</span>
+    <span class='comment'># This fires for host unreachable, net unreachable, and broadcast sends
+</span>    <span class='comment'># We can safely ignore all of these for UDP sends
+</span>  <span class='kw'>end</span>
+
+  <span class='ivar'>@interval_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='ivar'>@udp_send_count</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>if</span> <span class='ivar'>@udp_send_count</span> <span class='op'>%</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ScannerRecvInterval</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_scanner_recv'>scanner_recv</span><span class='lparen'>(</span><span class='float'>0.1</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="scanner_spoof_send-instance_method">
+  
+    #<strong>scanner_spoof_send</strong>(data, ip, port, srcip, num_packets = 1)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a spoofed packet to a given host and port</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_scanner_spoof_send'>scanner_spoof_send</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_srcip'>srcip</span><span class='comma'>,</span> <span class='id identifier rubyid_num_packets'>num_packets</span><span class='op'>=</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_open_pcap'>open_pcap</span>
+  <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'>PacketFu</span><span class='op'>::</span><span class='const'>UDPPacket</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_ip_saddr'>ip_saddr</span> <span class='op'>=</span> <span class='id identifier rubyid_srcip'>srcip</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_ip_daddr'>ip_daddr</span> <span class='op'>=</span> <span class='id identifier rubyid_ip'>ip</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_ip_ttl'>ip_ttl</span> <span class='op'>=</span> <span class='int'>255</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_udp_src'>udp_src</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='int'>2</span><span class='op'>**</span><span class='int'>16</span><span class='rparen'>)</span><span class='op'>-</span><span class='int'>1024</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>1024</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_udp_dst'>udp_dst</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_recalc'>recalc</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Sending </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_num_packets'>num_packets</span><span class='embexpr_end'>}</span><span class='tstring_content'> packet(s) to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_srcip'>srcip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_num_packets'>num_packets</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span>
+    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_capture_sendto'>capture_sendto</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_close_pcap'>close_pcap</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="udp_socket-instance_method">
+  
+    #<strong>udp_socket</strong>(ip, port, bind_peer: true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/udp_scanner.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_udp_socket'>udp_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='label'>bind_peer:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bind_peer'>bind_peer</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bound</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unbound</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@udp_sockets_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>unless</span> <span class='ivar'>@udp_sockets</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_sock_info'>sock_info</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>nil</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Context</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfExploit</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>self</span> <span class='rbrace'>}</span>
+      <span class='rbrace'>}</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_bind_peer'>bind_peer</span>
+        <span class='id identifier rubyid_sock_info'>sock_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ip'>ip</span>
+        <span class='id identifier rubyid_sock_info'>sock_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeerPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+      <span class='kw'>end</span>
+      <span class='ivar'>@udp_sockets</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Udp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_sock_info'>sock_info</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_add_socket'>add_socket</span><span class='lparen'>(</span><span class='ivar'>@udp_sockets</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>return</span> <span class='ivar'>@udp_sockets</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:55 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

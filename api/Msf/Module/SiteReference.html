@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Module::SiteReference
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Module::SiteReference";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span>
+     &raquo; 
+    <span class="title">SiteReference</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Module::SiteReference
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Reference.html" title="Msf::Module::Reference (class)">Reference</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Reference.html" title="Msf::Module::Reference (class)">Reference</a></span></li>
+          
+            <li class="next">Msf::Module::SiteReference</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/module/reference.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A reference to a website.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ctx_id-instance_method" title="#ctx_id (instance method)">#<strong>ctx_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The context identifier of the site, such as CVE.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ctx_val-instance_method" title="#ctx_val (instance method)">#<strong>ctx_val</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The context value of the reference, such as MS02-039.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#site-instance_method" title="#site (instance method)">#<strong>site</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The site being referenced.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Reference.html" title="Msf::Module::Reference (class)">Reference</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Reference.html#str-instance_method" title="Msf::Module::Reference#str (method)">#str</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_a-class_method" title="from_a (class method)">.<strong>from_a</strong>(ary)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a site reference from an array.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_s-class_method" title="from_s (class method)">.<strong>from_s</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Class method that translates a URL into a site reference instance.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#from_s-instance_method" title="#from_s (instance method)">#<strong>from_s</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Serializes a site URL string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(in_ctx_id = &#39;Unknown&#39;, in_ctx_val = &#39;&#39;)  &#x21d2; SiteReference </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initialize the site reference.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the absolute site URL.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Reference.html" title="Msf::Module::Reference (class)">Reference</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Reference.html#==-instance_method" title="Msf::Module::Reference#== (method)">#==</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(in_ctx_id = &#39;Unknown&#39;, in_ctx_val = &#39;&#39;)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Module::SiteReference (class)">SiteReference</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initialize the site reference. If you&#39;re updating the references, please also update:</p>
+<ul><li>
+<p>tools/module_reference.rb</p>
+</li><li>
+<p><a href="https://github.com/rapid7/metasploit-framework/wiki/Metasploit-module-reference-identifiers">github.com/rapid7/metasploit-framework/wiki/Metasploit-module-reference-identifiers</a></p>
+</li></ul>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 93</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Unknown</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span>  <span class='op'>=</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ctx_val'>ctx_val</span> <span class='op'>=</span> <span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CVE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://cvedetails.com/cve/CVE-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CWE</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://cwe.mitre.org/data/definitions/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_content'>.html</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BID</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://www.securityfocus.com/bid/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MSB</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_year'>year</span> <span class='op'>=</span> <span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='lbracket'>[</span><span class='int'>2</span><span class='op'>..</span><span class='int'>3</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_century'>century</span> <span class='op'>=</span> <span class='id identifier rubyid_year'>year</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>9</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>19</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>20</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://docs.microsoft.com/en-us/security-updates/SecurityBulletins/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_century'>century</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_year'>year</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EDB</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://www.exploit-db.com/exploits/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>US-CERT-VU</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://www.kb.cert.org/vuls/id/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ZDI</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://www.zerodayinitiative.com/advisories/ZDI-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WPVDB</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://wpscan.com/vulnerability/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PACKETSTORM</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://packetstormsecurity.com/files/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>URL</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LOGO</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Logo: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SOUNDTRACK</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Soundtrack: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span>  <span class='op'>=</span> <span class='id identifier rubyid_in_ctx_id'>in_ctx_id</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_in_ctx_val'>in_ctx_val</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="ctx_id=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="ctx_id-instance_method">
+  
+    #<strong>ctx_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The context identifier of the site, such as CVE.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 158</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ctx_id'>ctx_id</span>
+  <span class='ivar'>@ctx_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ctx_val=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ctx_val-instance_method">
+  
+    #<strong>ctx_val</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The context value of the reference, such as MS02-039</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+162
+163
+164</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 162</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ctx_val'>ctx_val</span>
+  <span class='ivar'>@ctx_val</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="site=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="site-instance_method">
+  
+    #<strong>site</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The site being referenced.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_site'>site</span>
+  <span class='ivar'>@site</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="from_a-class_method">
+  
+    .<strong>from_a</strong>(ary)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a site reference from an array.  <a href="0">ary</a> is the site and <a href="1">ary</a> is the site context identifier, such as CVE.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 81</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_a'>from_a</span><span class='lparen'>(</span><span class='id identifier rubyid_ary'>ary</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_ary'>ary</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>2</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_ary'>ary</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_ary'>ary</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="from_s-class_method">
+  
+    .<strong>from_s</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Class method that translates a URL into a site reference instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_from_s'>from_s</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_instance'>instance</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_from_s'>from_s</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_instance'>instance</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="from_s-instance_method">
+  
+    #<strong>from_s</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Serializes a site URL string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 139</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_from_s'>from_s</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(http:\/\/|https:\/\/|ftp:\/\/)</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ctx_id'>ctx_id</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>URL</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ctx_val'>ctx_val</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_site'>site</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the absolute site URL.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/module/reference.rb', line 132</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_site'>site</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:58 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

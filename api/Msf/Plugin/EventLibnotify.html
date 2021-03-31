@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::EventLibnotify
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::EventLibnotify";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span>
+     &raquo; 
+    <span class="title">EventLibnotify</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::EventLibnotify
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></li>
+          
+            <li class="next">Msf::Plugin::EventLibnotify</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../DatabaseEvent.html" title="Msf::DatabaseEvent (module)">DatabaseEvent</a></span>, <span class='object_link'><a href="../SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/libnotify.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#opts-instance_method" title="Msf::Plugin#opts (method)">#opts</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, opts)  &#x21d2; EventLibnotify </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of EventLibnotify.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#notify_send-instance_method" title="#notify_send (instance method)">#<strong>notify_send</strong>(urgency, title, message)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_client-instance_method" title="#on_db_client (instance method)">#<strong>on_db_client</strong>(client)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_host-instance_method" title="#on_db_host (instance method)">#<strong>on_db_host</strong>(host)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_host_state-instance_method" title="#on_db_host_state (instance method)">#<strong>on_db_host_state</strong>(host, ostate)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_ref-instance_method" title="#on_db_ref (instance method)">#<strong>on_db_ref</strong>(ref)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_service-instance_method" title="#on_db_service (instance method)">#<strong>on_db_service</strong>(service)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_service_state-instance_method" title="#on_db_service_state (instance method)">#<strong>on_db_service_state</strong>(service, port, ostate)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_db_vuln-instance_method" title="#on_db_vuln (instance method)">#<strong>on_db_vuln</strong>(vuln)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_close-instance_method" title="#on_session_close (instance method)">#<strong>on_session_close</strong>(session, reason = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_fail-instance_method" title="#on_session_fail (instance method)">#<strong>on_session_fail</strong>(reason = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_open-instance_method" title="#on_session_open (instance method)">#<strong>on_session_open</strong>(session)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../SessionEvent.html#on_session_command-instance_method" title="Msf::SessionEvent#on_session_command (method)">#on_session_command</a></span>, <span class='object_link'><a href="../SessionEvent.html#on_session_download-instance_method" title="Msf::SessionEvent#on_session_download (method)">#on_session_download</a></span>, <span class='object_link'><a href="../SessionEvent.html#on_session_filedelete-instance_method" title="Msf::SessionEvent#on_session_filedelete (method)">#on_session_filedelete</a></span>, <span class='object_link'><a href="../SessionEvent.html#on_session_interact-instance_method" title="Msf::SessionEvent#on_session_interact (method)">#on_session_interact</a></span>, <span class='object_link'><a href="../SessionEvent.html#on_session_output-instance_method" title="Msf::SessionEvent#on_session_output (method)">#on_session_output</a></span>, <span class='object_link'><a href="../SessionEvent.html#on_session_upload-instance_method" title="Msf::SessionEvent#on_session_upload (method)">#on_session_upload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#add_console_dispatcher-instance_method" title="Msf::Plugin#add_console_dispatcher (method)">#add_console_dispatcher</a></span>, <span class='object_link'><a href="../Plugin.html#create-class_method" title="Msf::Plugin.create (method)">create</a></span>, <span class='object_link'><a href="../Plugin.html#flush-instance_method" title="Msf::Plugin#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Plugin.html#input-instance_method" title="Msf::Plugin#input (method)">#input</a></span>, <span class='object_link'><a href="../Plugin.html#output-instance_method" title="Msf::Plugin#output (method)">#output</a></span>, <span class='object_link'><a href="../Plugin.html#print-instance_method" title="Msf::Plugin#print (method)">#print</a></span>, <span class='object_link'><a href="../Plugin.html#print_error-instance_method" title="Msf::Plugin#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Plugin.html#print_good-instance_method" title="Msf::Plugin#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Plugin.html#print_line-instance_method" title="Msf::Plugin#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Plugin.html#print_status-instance_method" title="Msf::Plugin#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Plugin.html#print_warning-instance_method" title="Msf::Plugin#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../Plugin.html#remove_console_dispatcher-instance_method" title="Msf::Plugin#remove_console_dispatcher (method)">#remove_console_dispatcher</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, opts)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Plugin::EventLibnotify (class)">EventLibnotify</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of EventLibnotify.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='ivar'>@bin</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:bin</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bin</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='backtick'>`</span><span class='tstring_content'>which notify-send</span><span class='tstring_end'>`</span></span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span>
+  <span class='ivar'>@bin_opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:opts</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>opts</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>--app-name=Metasploit</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>libnotify not found</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='ivar'>@bin</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_add_session_subscriber'>add_session_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_add_db_subscriber'>add_db_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_remove_session_subscriber'>remove_session_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_remove_db_subscriber'>remove_db_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Send desktop notification with libnotify on sessions &amp; db events</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>libnotify</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="notify_send-instance_method">
+  
+    #<strong>notify_send</strong>(urgency, title, message)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='id identifier rubyid_urgency'>urgency</span><span class='comma'>,</span> <span class='id identifier rubyid_title'>title</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_system'>system</span><span class='lparen'>(</span><span class='ivar'>@bin</span><span class='comma'>,</span> <span class='ivar'>@bin_opts</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-u</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_urgency'>urgency</span><span class='comma'>,</span> <span class='id identifier rubyid_title'>title</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>StandarError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error running </span><span class='embexpr_beg'>#{</span><span class='ivar'>@bin</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_client-instance_method">
+  
+    #<strong>on_db_client</strong>(client)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_client'>on_db_client</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>New client</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New client connected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_ua_string'>ua_string</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_host-instance_method">
+  
+    #<strong>on_db_host</strong>(host)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_host'>on_db_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>New host</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Addess: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nOS: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_os_name'>os_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_host_state-instance_method">
+  
+    #<strong>on_db_host_state</strong>(host, ostate)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_host_state'>on_db_host_state</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_ostate'>ostate</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Host </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'> changed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OS: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_os_name'>os_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nNb Services: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_service_count'>service_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nNb vulns: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_vuln_count'>vuln_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_ref-instance_method">
+  
+    #<strong>on_db_ref</strong>(ref)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_ref'>on_db_ref</span><span class='lparen'>(</span><span class='id identifier rubyid_ref'>ref</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>New ref</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reference </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ref'>ref</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> added in database.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_service-instance_method">
+  
+    #<strong>on_db_service</strong>(service)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_service'>on_db_service</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>New service</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New service: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_service_state-instance_method">
+  
+    #<strong>on_db_service_state</strong>(service, port, ostate)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_service_state'>on_db_service_state</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_ostate'>ostate</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Service </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_content'> changed</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nState: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nProto: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nInfo: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_db_vuln-instance_method">
+  
+    #<strong>on_db_vuln</strong>(vuln)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_db_vuln'>on_db_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_vuln'>vuln</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New vulnerability on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span> <span class='op'>?</span> <span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Vuln: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nInfos: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vuln'>vuln</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_close-instance_method">
+  
+    #<strong>on_session_close</strong>(session, reason = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_close'>on_session_close</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Connection closed</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> Type:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'> closed.\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_fail-instance_method">
+  
+    #<strong>on_session_fail</strong>(reason = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_fail'>on_session_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>critical</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Session Failure!</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_open-instance_method">
+  
+    #<strong>on_session_open</strong>(session)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/libnotify.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_open'>on_session_open</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_notify_send'>notify_send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>normal</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Got Shell!</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>New Session: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nIP: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nPeer: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_peer'>tunnel_peer</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>\
+              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Platform: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='embexpr_end'>}</span><span class='tstring_content'>\nType: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:56 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

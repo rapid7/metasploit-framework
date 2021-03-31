@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::DCERPC::Response
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::DCERPC::Response";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span>
+     &raquo; 
+    <span class="title">Response</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::DCERPC::Response
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::DCERPC::Response</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/dcerpc/response.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ack_reason-instance_method" title="#ack_reason (instance method)">#<strong>ack_reason</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ack_reason.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ack_result-instance_method" title="#ack_result (instance method)">#<strong>ack_result</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ack_result.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ack_xfer_syntax_uuid-instance_method" title="#ack_xfer_syntax_uuid (instance method)">#<strong>ack_xfer_syntax_uuid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ack_xfer_syntax_uuid.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ack_xfer_syntax_vers-instance_method" title="#ack_xfer_syntax_vers (instance method)">#<strong>ack_xfer_syntax_vers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute ack_xfer_syntax_vers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#alloc_hint-instance_method" title="#alloc_hint (instance method)">#<strong>alloc_hint</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute alloc_hint.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#assoc_group-instance_method" title="#assoc_group (instance method)">#<strong>assoc_group</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute assoc_group.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#auth_len-instance_method" title="#auth_len (instance method)">#<strong>auth_len</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute auth_len.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call_id-instance_method" title="#call_id (instance method)">#<strong>call_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute call_id.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cancel_cnt-instance_method" title="#cancel_cnt (instance method)">#<strong>cancel_cnt</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute cancel_cnt.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#context_id-instance_method" title="#context_id (instance method)">#<strong>context_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute context_id.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#data_rep-instance_method" title="#data_rep (instance method)">#<strong>data_rep</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute data_rep.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#flags-instance_method" title="#flags (instance method)">#<strong>flags</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute flags.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#frag_len-instance_method" title="#frag_len (instance method)">#<strong>frag_len</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute frag_len.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_frag_recv-instance_method" title="#max_frag_recv (instance method)">#<strong>max_frag_recv</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_frag_recv.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_frag_xmit-instance_method" title="#max_frag_xmit (instance method)">#<strong>max_frag_xmit</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_frag_xmit.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nack_reason-instance_method" title="#nack_reason (instance method)">#<strong>nack_reason</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute nack_reason.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#num_results-instance_method" title="#num_results (instance method)">#<strong>num_results</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute num_results.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#raw-instance_method" title="#raw (instance method)">#<strong>raw</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute raw.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sec_addr-instance_method" title="#sec_addr (instance method)">#<strong>sec_addr</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sec_addr.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sec_addr_len-instance_method" title="#sec_addr_len (instance method)">#<strong>sec_addr_len</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sec_addr_len.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#status-instance_method" title="#status (instance method)">#<strong>status</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute status.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stub_data-instance_method" title="#stub_data (instance method)">#<strong>stub_data</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute stub_data.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute type.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vers_major-instance_method" title="#vers_major (instance method)">#<strong>vers_major</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute vers_major.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#vers_minor-instance_method" title="#vers_minor (instance method)">#<strong>vers_minor</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute vers_minor.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#xfer_syntax_uuid-instance_method" title="#xfer_syntax_uuid (instance method)">#<strong>xfer_syntax_uuid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute xfer_syntax_uuid.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#xfer_syntax_vers-instance_method" title="#xfer_syntax_vers (instance method)">#<strong>xfer_syntax_vers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute xfer_syntax_vers.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(data)  &#x21d2; Response </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new DCERPC::Response object This can be initialized in two ways: 1) Call .new() with the first 10 bytes of packet, then call parse on the rest 2) Call .new() with the full packet contents.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse-instance_method" title="#parse (instance method)">#<strong>parse</strong>(body = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse the contents of a DCERPC response packet and fill out all the fields.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(data)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::DCERPC::Response (class)">Response</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new DCERPC::Response object This can be initialized in two ways: 1) Call .new() with the first 10 bytes of packet, then call parse on the rest 2) Call .new() with the full packet contents</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_result'>ack_result</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_reason'>ack_reason</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_xfer_syntax_uuid'>ack_xfer_syntax_uuid</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_xfer_syntax_vers'>ack_xfer_syntax_vers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span> <span class='id identifier rubyid_data'>data</span> <span class='kw'>or</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>10</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions.html" title="Rex::Proto::DCERPC::Exceptions (module)">Exceptions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions/InvalidPacket.html" title="Rex::Proto::DCERPC::Exceptions::InvalidPacket (class)">InvalidPacket</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DCERPC response packet is incomplete</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>10</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>8</span><span class='comma'>,</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>10</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="ack_reason=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="ack_reason-instance_method">
+  
+    #<strong>ack_reason</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ack_reason.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ack_reason'>ack_reason</span>
+  <span class='ivar'>@ack_reason</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ack_result=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ack_result-instance_method">
+  
+    #<strong>ack_result</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ack_result.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ack_result'>ack_result</span>
+  <span class='ivar'>@ack_result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ack_xfer_syntax_uuid=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ack_xfer_syntax_uuid-instance_method">
+  
+    #<strong>ack_xfer_syntax_uuid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ack_xfer_syntax_uuid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ack_xfer_syntax_uuid'>ack_xfer_syntax_uuid</span>
+  <span class='ivar'>@ack_xfer_syntax_uuid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ack_xfer_syntax_vers=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ack_xfer_syntax_vers-instance_method">
+  
+    #<strong>ack_xfer_syntax_vers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute ack_xfer_syntax_vers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ack_xfer_syntax_vers'>ack_xfer_syntax_vers</span>
+  <span class='ivar'>@ack_xfer_syntax_vers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="alloc_hint=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="alloc_hint-instance_method">
+  
+    #<strong>alloc_hint</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute alloc_hint.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_alloc_hint'>alloc_hint</span>
+  <span class='ivar'>@alloc_hint</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="assoc_group=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="assoc_group-instance_method">
+  
+    #<strong>assoc_group</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute assoc_group.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_assoc_group'>assoc_group</span>
+  <span class='ivar'>@assoc_group</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="auth_len=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="auth_len-instance_method">
+  
+    #<strong>auth_len</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute auth_len.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_auth_len'>auth_len</span>
+  <span class='ivar'>@auth_len</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="call_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="call_id-instance_method">
+  
+    #<strong>call_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute call_id.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call_id'>call_id</span>
+  <span class='ivar'>@call_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="cancel_cnt=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="cancel_cnt-instance_method">
+  
+    #<strong>cancel_cnt</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute cancel_cnt.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cancel_cnt'>cancel_cnt</span>
+  <span class='ivar'>@cancel_cnt</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="context_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="context_id-instance_method">
+  
+    #<strong>context_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute context_id.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_context_id'>context_id</span>
+  <span class='ivar'>@context_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="data_rep=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="data_rep-instance_method">
+  
+    #<strong>data_rep</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute data_rep.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_data_rep'>data_rep</span>
+  <span class='ivar'>@data_rep</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="flags=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="flags-instance_method">
+  
+    #<strong>flags</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute flags.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_flags'>flags</span>
+  <span class='ivar'>@flags</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="frag_len=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="frag_len-instance_method">
+  
+    #<strong>frag_len</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute frag_len.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_frag_len'>frag_len</span>
+  <span class='ivar'>@frag_len</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_frag_recv=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_frag_recv-instance_method">
+  
+    #<strong>max_frag_recv</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_frag_recv.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_frag_recv'>max_frag_recv</span>
+  <span class='ivar'>@max_frag_recv</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_frag_xmit=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_frag_xmit-instance_method">
+  
+    #<strong>max_frag_xmit</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_frag_xmit.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_frag_xmit'>max_frag_xmit</span>
+  <span class='ivar'>@max_frag_xmit</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="nack_reason=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="nack_reason-instance_method">
+  
+    #<strong>nack_reason</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute nack_reason.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nack_reason'>nack_reason</span>
+  <span class='ivar'>@nack_reason</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="num_results=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="num_results-instance_method">
+  
+    #<strong>num_results</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute num_results.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_num_results'>num_results</span>
+  <span class='ivar'>@num_results</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="raw=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="raw-instance_method">
+  
+    #<strong>raw</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute raw.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_raw'>raw</span>
+  <span class='ivar'>@raw</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sec_addr=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sec_addr-instance_method">
+  
+    #<strong>sec_addr</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sec_addr.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sec_addr'>sec_addr</span>
+  <span class='ivar'>@sec_addr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sec_addr_len=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sec_addr_len-instance_method">
+  
+    #<strong>sec_addr_len</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sec_addr_len.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sec_addr_len'>sec_addr_len</span>
+  <span class='ivar'>@sec_addr_len</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="status=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="status-instance_method">
+  
+    #<strong>status</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute status.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_status'>status</span>
+  <span class='ivar'>@status</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="stub_data=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="stub_data-instance_method">
+  
+    #<strong>stub_data</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute stub_data.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stub_data'>stub_data</span>
+  <span class='ivar'>@stub_data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="type=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='ivar'>@type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="vers_major=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vers_major-instance_method">
+  
+    #<strong>vers_major</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute vers_major.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vers_major'>vers_major</span>
+  <span class='ivar'>@vers_major</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="vers_minor=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="vers_minor-instance_method">
+  
+    #<strong>vers_minor</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute vers_minor.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_vers_minor'>vers_minor</span>
+  <span class='ivar'>@vers_minor</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="xfer_syntax_uuid=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="xfer_syntax_uuid-instance_method">
+  
+    #<strong>xfer_syntax_uuid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute xfer_syntax_uuid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_xfer_syntax_uuid'>xfer_syntax_uuid</span>
+  <span class='ivar'>@xfer_syntax_uuid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="xfer_syntax_vers=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="xfer_syntax_vers-instance_method">
+  
+    #<strong>xfer_syntax_vers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute xfer_syntax_vers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_xfer_syntax_vers'>xfer_syntax_vers</span>
+  <span class='ivar'>@xfer_syntax_vers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="parse-instance_method">
+  
+    #<strong>parse</strong>(body = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse the contents of a DCERPC response packet and fill out all the fields</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dcerpc/response.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_body'>body</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>+</span> <span class='id identifier rubyid_body'>body</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='lbracket'>[</span><span class='int'>2</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_uuid'>uuid</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="UUID.html" title="Rex::Proto::DCERPC::UUID (class)">UUID</a></span></span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span>
+
+
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions.html" title="Rex::Proto::DCERPC::Exceptions (module)">Exceptions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions/InvalidPacket.html" title="Rex::Proto::DCERPC::Exceptions::InvalidPacket (class)">InvalidPacket</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DCERPC response packet is incomplete</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># BIND_ACK == 12, ALTER_CONTEXT_RESP == 15
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='int'>12</span> <span class='kw'>or</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='int'>15</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decode most of the DCERPC header
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_major'>vers_major</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_minor'>vers_minor</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_trash'>trash</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_rep'>data_rep</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_auth_len'>auth_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_call_id'>call_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_max_frag_xmit'>max_frag_xmit</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_max_frag_recv'>max_frag_recv</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_assoc_group'>assoc_group</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sec_addr_len'>sec_addr_len</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCCCNvvVvvVv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span> <span class='kw'>or</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions.html" title="Rex::Proto::DCERPC::Exceptions (module)">Exceptions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions/InvalidPacket.html" title="Rex::Proto::DCERPC::Exceptions::InvalidPacket (class)">InvalidPacket</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DCERPC response packet is incomplete</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Keep an offset into the packet handy
+</span>    <span class='id identifier rubyid_x'>x</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='comment'># XXX This is still somewhat broken (4 digit ports)
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sec_addr'>sec_addr</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>26</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sec_addr_len'>sec_addr_len</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Move the pointer into the packet forward
+</span>    <span class='id identifier rubyid_x'>x</span> <span class='op'>+=</span> <span class='int'>26</span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sec_addr_len'>sec_addr_len</span>
+
+    <span class='comment'># Align the pointer on a dword boundary
+</span>    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span> <span class='op'>%</span> <span class='int'>4</span> <span class='op'>!=</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_x'>x</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Figure out how many results we have (multiple-context binds)
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_num_results'>num_results</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span> <span class='id identifier rubyid_x'>x</span><span class='comma'>,</span> <span class='int'>4</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+    <span class='comment'># Move the pointer to the ack_result[0] offset
+</span>    <span class='id identifier rubyid_x'>x</span> <span class='op'>+=</span> <span class='int'>4</span>
+
+    <span class='comment'># Initialize the ack_result index
+</span>    <span class='id identifier rubyid_ack'>ack</span> <span class='op'>=</span> <span class='int'>0</span>
+
+    <span class='comment'># Scan through all results and add them to the result arrays
+</span>    <span class='kw'>while</span> <span class='id identifier rubyid_ack'>ack</span> <span class='op'>&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_num_results'>num_results</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_result'>ack_result</span><span class='lbracket'>[</span><span class='id identifier rubyid_ack'>ack</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>+</span> <span class='int'>0</span><span class='comma'>,</span> <span class='int'>2</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_reason'>ack_reason</span><span class='lbracket'>[</span><span class='id identifier rubyid_ack'>ack</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>+</span> <span class='int'>2</span><span class='comma'>,</span> <span class='int'>2</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_xfer_syntax_uuid'>ack_xfer_syntax_uuid</span><span class='lbracket'>[</span><span class='id identifier rubyid_ack'>ack</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='period'>.</span><span class='id identifier rubyid_uuid_unpack'>uuid_unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>+</span> <span class='int'>4</span><span class='comma'>,</span> <span class='int'>16</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ack_xfer_syntax_vers'>ack_xfer_syntax_vers</span><span class='lbracket'>[</span><span class='id identifier rubyid_ack'>ack</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span> <span class='id identifier rubyid_x'>x</span> <span class='op'>+</span> <span class='int'>20</span><span class='comma'>,</span> <span class='int'>4</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_x'>x</span> <span class='op'>+=</span> <span class='int'>24</span>
+      <span class='id identifier rubyid_ack'>ack</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># End of BIND_ACK || ALTER_CONTEXT_RESP
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># BIND_NACK == 13
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='int'>13</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decode most of the DCERPC header
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_major'>vers_major</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_minor'>vers_minor</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_trash'>trash</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_rep'>data_rep</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_auth_len'>auth_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_call_id'>call_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nack_reason'>nack_reason</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCCCNvvVv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># RESPONSE == 2
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='int'>2</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decode the DCERPC response header
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_major'>vers_major</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_minor'>vers_minor</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_trash'>trash</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_rep'>data_rep</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_auth_len'>auth_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_call_id'>call_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alloc_hint'>alloc_hint</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_context_id'>context_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cancel_cnt'>cancel_cnt</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCCCNvvVVvC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Error out if the whole header was not read
+</span>    <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alloc_hint'>alloc_hint</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_context_id'>context_id</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cancel_cnt'>cancel_cnt</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions.html" title="Rex::Proto::DCERPC::Exceptions (module)">Exceptions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exceptions/InvalidPacket.html" title="Rex::Proto::DCERPC::Exceptions::InvalidPacket (class)">InvalidPacket</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DCERPC response packet is incomplete</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Put the application data into self.stub_data
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stub_data'>stub_data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alloc_hint'>alloc_hint</span><span class='comma'>,</span> <span class='int'>0xffff</span><span class='rbracket'>]</span>
+    <span class='comment'># End of RESPONSE
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># FAULT == 3
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='int'>3</span><span class='rparen'>)</span>
+
+    <span class='comment'># Decode the DCERPC response header
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_major'>vers_major</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_vers_minor'>vers_minor</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_trash'>trash</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data_rep'>data_rep</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_frag_len'>frag_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_auth_len'>auth_len</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_call_id'>call_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alloc_hint'>alloc_hint</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_context_id'>context_id</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cancel_cnt'>cancel_cnt</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_trash'>trash</span><span class='comma'>,</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCCCNvvVVvCCV</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Put the application data into self.stub_data
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stub_data'>stub_data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_alloc_hint'>alloc_hint</span><span class='comma'>,</span> <span class='int'>0xffff</span><span class='rbracket'>]</span>
+    <span class='comment'># End of FAULT
+</span>  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:49 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

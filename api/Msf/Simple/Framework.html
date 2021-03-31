@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Simple::Framework
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Simple::Framework";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span>
+     &raquo; 
+    <span class="title">Framework</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Simple::Framework
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../GeneralEventSubscriber.html" title="Msf::GeneralEventSubscriber (module)">GeneralEventSubscriber</a></span>, <span class='object_link'><a href="Framework/ModulePaths.html" title="Msf::Simple::Framework::ModulePaths (module)">ModulePaths</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/simple/framework.rb<span class="defines">,<br />
+  lib/msf/base/simple/framework/module_paths.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class wraps the framework-core supplied Framework class and adds some helper methods for analyzing statistics as well as other potentially useful information that is directly necessary to drive the framework-core.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Framework/ModulePaths.html" title="Msf::Simple::Framework::ModulePaths (module)">ModulePaths</a></span>, <span class='object_link'><a href="Framework/PluginManager.html" title="Msf::Simple::Framework::PluginManager (module)">PluginManager</a></span>
+    
+  
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="ModuleSimplifiers-constant" class="">ModuleSimplifiers =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_ENCODER-constant" title="Msf::MODULE_ENCODER (constant)">MODULE_ENCODER</a></span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Encoder.html" title="Msf::Simple::Encoder (module)">Encoder</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_EXPLOIT-constant" title="Msf::MODULE_EXPLOIT (constant)">MODULE_EXPLOIT</a></span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Exploit.html" title="Msf::Simple::Exploit (module)">Exploit</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_NOP-constant" title="Msf::MODULE_NOP (constant)">MODULE_NOP</a></span></span>     <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Nop.html" title="Msf::Simple::Nop (module)">Nop</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_PAYLOAD-constant" title="Msf::MODULE_PAYLOAD (constant)">MODULE_PAYLOAD</a></span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Payload.html" title="Msf::Simple::Payload (module)">Payload</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_AUX-constant" title="Msf::MODULE_AUX (constant)">MODULE_AUX</a></span></span>     <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Auxiliary.html" title="Msf::Simple::Auxiliary (module)">Auxiliary</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_POST-constant" title="Msf::MODULE_POST (constant)">MODULE_POST</a></span></span>    <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Post.html" title="Msf::Simple::Post (module)">Post</a></span></span><span class='comma'>,</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html#MODULE_EVASION-constant" title="Msf::MODULE_EVASION (constant)">MODULE_EVASION</a></span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Evasion.html" title="Msf::Simple::Evasion (module)">Evasion</a></span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_initialized-instance_method" title="#cache_initialized (instance method)">#<strong>cache_initialized</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Boolean indicating whether the cache is initialized yet.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cache_thread-instance_method" title="#cache_thread (instance method)">#<strong>cache_thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Thread of the running rebuild operation.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stats-instance_method" title="#stats (instance method)">#<strong>stats</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Statistics.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">.<strong>create</strong>(opts = {})  &#x21d2; Msf::Simple::Framework </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a simplified instance of the framework.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#simplify-class_method" title="simplify (class method)">.<strong>simplify</strong>(framework, opts)  &#x21d2; Msf::Simple::Framework </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Extends a framework object that may already exist.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#simplify_module-class_method" title="simplify_module (class method)">.<strong>simplify_module</strong>(instance, load_saved_config = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Simplifies a module instance if the type is supported by extending it with the simplified module interface.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_simplified-instance_method" title="#init_simplified (instance method)">#<strong>init_simplified</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the simplified interface.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_config-instance_method" title="#load_config (instance method)">#<strong>load_config</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads configuration, populates the root datastore, etc.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_module_created-instance_method" title="#on_module_created (instance method)">#<strong>on_module_created</strong>(instance)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Simplifies module instances when they&#39;re created.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#save_config-instance_method" title="#save_config (instance method)">#<strong>save_config</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Saves the module&#39;s datastore to the file.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../GeneralEventSubscriber.html" title="Msf::GeneralEventSubscriber (module)">GeneralEventSubscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../GeneralEventSubscriber.html#on_module_complete-instance_method" title="Msf::GeneralEventSubscriber#on_module_complete (method)">#on_module_complete</a></span>, <span class='object_link'><a href="../GeneralEventSubscriber.html#on_module_error-instance_method" title="Msf::GeneralEventSubscriber#on_module_error (method)">#on_module_error</a></span>, <span class='object_link'><a href="../GeneralEventSubscriber.html#on_module_load-instance_method" title="Msf::GeneralEventSubscriber#on_module_load (method)">#on_module_load</a></span>, <span class='object_link'><a href="../GeneralEventSubscriber.html#on_module_run-instance_method" title="Msf::GeneralEventSubscriber#on_module_run (method)">#on_module_run</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Framework/ModulePaths.html" title="Msf::Simple::Framework::ModulePaths (module)">ModulePaths</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/ModulePaths.html#init_module_paths-instance_method" title="Msf::Simple::Framework::ModulePaths#init_module_paths (method)">#init_module_paths</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="cache_initialized=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="cache_initialized-instance_method">
+  
+    #<strong>cache_initialized</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Boolean indicating whether the cache is initialized yet</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 180</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_initialized'>cache_initialized</span>
+  <span class='ivar'>@cache_initialized</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="cache_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="cache_thread-instance_method">
+  
+    #<strong>cache_thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Thread of the running rebuild operation</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+185
+186
+187</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 185</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cache_thread'>cache_thread</span>
+  <span class='ivar'>@cache_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="stats=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="stats-instance_method">
+  
+    #<strong>stats</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Statistics.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 174</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stats'>stats</span>
+  <span class='ivar'>@stats</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    .<strong>create</strong>(opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a simplified instance of the framework.  This routine takes a hash of parameters as an argument.  This hash can contain:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Object}</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">'OnCreateProc'</span>
+          <span class="type">(<tt>#call</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Proc to call after <span class='object_link'><a href="#init_simplified-instance_method" title="Msf::Simple::Framework#init_simplified (method)">#init_simplified</a></span>.  Will be passed `framework`.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'ConfigDirectory'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Directory where configuration is saved.  The `~/.msf4` directory.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'DisableLogging'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>`true` to disable `Msf::Logging.init`</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'Logger'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Flatfile</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Will default to logging to `~/.msf4`.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'DeferModuleLoads'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>`true` to disable `framework.init_module_paths`.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Framework.html" title="Msf::Framework (class)">Framework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Framework.html#initialize-instance_method" title="Msf::Framework#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_simplify'>simplify</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="simplify-class_method">
+  
+    .<strong>simplify</strong>(framework, opts)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>If `<a href="'ConfigDirectory'">opts</a>` is set, then `<a href="'ConfigDirectory'">Msf::Config::Defaults</a>` will be updated to `<a href="'ConfigDirectory'">opts</a>`.</p>
+</div>
+  </div>
+
+
+<p>Extends a framework object that may already exist.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>framework</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../Framework.html" title="Msf::Framework (class)">Msf::Framework</a></span></tt>, <tt><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>framework to simplify</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Object}</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">'OnCreateProc'</span>
+          <span class="type">(<tt>#call</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Proc to call after <span class='object_link'><a href="#init_simplified-instance_method" title="Msf::Simple::Framework#init_simplified (method)">#init_simplified</a></span>.  Will be passed `framework`.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'ConfigDirectory'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Directory where configuration is saved.  The `~/.msf4` directory.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'DisableLogging'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>`true` to disable `Msf::Logging.init`</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'Logger'</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>Flatfile</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Will default to logging to `~/.msf4`.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">'DeferModuleLoads'</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+              &mdash; default:
+              <tt>false</tt>
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>`true` to disable `framework.init_module_paths`.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Msf::Simple::Framework</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>`framework`</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simplify'>simplify</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the framework instance has not already been extended, do it now.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Framework</a></span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Framework</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_plugins'>plugins</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Framework/PluginManager.html" title="Msf::Simple::Framework::PluginManager (module)">PluginManager</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Initialize the simplified framework
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_init_simplified'>init_simplified</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the creation procedure if one was supplied
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OnCreateProc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OnCreateProc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Change to a different configuration path if requested
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConfigDirectory</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html#Defaults-constant" title="Msf::Config::Defaults (constant)">Defaults</a></span></span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConfigDirectory</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ConfigDirectory</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Initialize configuration and logging
+</span>  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_init'><span class='object_link'><a href="../Config.html#init-class_method" title="Msf::Config.init (method)">init</a></span></span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisableLogging</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_log_sink_name'>log_sink_name</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Logger</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Logging.html" title="Msf::Logging (class)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_init'><span class='object_link'><a href="../Logging.html#init-class_method" title="Msf::Logging.init (method)">init</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_log_sink_name'>log_sink_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Load the configuration
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_load_config'>load_config</span>
+
+  <span class='comment'># Register the framework as its own general event subscriber in this
+</span>  <span class='comment'># instance
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_add_general_subscriber'>add_general_subscriber</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DeferModuleLoads</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_init_module_paths'>init_module_paths</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_framework'>framework</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="simplify_module-class_method">
+  
+    .<strong>simplify_module</strong>(instance, load_saved_config = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Simplifies a module instance if the type is supported by extending it with the simplified module interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+134
+135
+136
+137
+138
+139
+140
+141</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 134</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simplify_module'>simplify_module</span><span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='comma'>,</span> <span class='id identifier rubyid_load_saved_config'>load_saved_config</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ModuleSimplifiers-constant" title="Msf::Simple::Framework::ModuleSimplifiers (constant)">ModuleSimplifiers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ModuleSimplifiers-constant" title="Msf::Simple::Framework::ModuleSimplifiers (constant)">ModuleSimplifiers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_extend'>extend</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ModuleSimplifiers-constant" title="Msf::Simple::Framework::ModuleSimplifiers (constant)">ModuleSimplifiers</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_instance'>instance</span><span class='period'>.</span><span class='id identifier rubyid_init_simplified'>init_simplified</span><span class='lparen'>(</span><span class='id identifier rubyid_load_saved_config'>load_saved_config</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="init_simplified-instance_method">
+  
+    #<strong>init_simplified</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the simplified interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 153</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_simplified'>init_simplified</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stats'>stats</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Statistics.html" title="Msf::Simple::Statistics (class)">Statistics</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Statistics.html#initialize-instance_method" title="Msf::Simple::Statistics#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_config-instance_method">
+  
+    #<strong>load_config</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads configuration, populates the root datastore, etc.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_config'>load_config</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_config_file'><span class='object_link'><a href="../Config.html#config_file-class_method" title="Msf::Config.config_file (method)">config_file</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>framework/core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_module_created-instance_method">
+  
+    #<strong>on_module_created</strong>(instance)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Simplifies module instances when they&#39;re created.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_module_created'>on_module_created</span><span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Simple.html" title="Msf::Simple (module)">Simple</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Simple::Framework (module)">Framework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_simplify_module'><span class='object_link'><a href="#simplify_module-class_method" title="Msf::Simple::Framework.simplify_module (method)">simplify_module</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_instance'>instance</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_config-instance_method">
+  
+    #<strong>save_config</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Saves the module&#39;s datastore to the file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/simple/framework.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_config'>save_config</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_to_file'>to_file</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_config_file'><span class='object_link'><a href="../Config.html#config_file-class_method" title="Msf::Config.config_file (method)">config_file</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>framework/core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:25 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

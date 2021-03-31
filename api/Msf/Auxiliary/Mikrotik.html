@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::Mikrotik
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::Mikrotik";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">Mikrotik</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::Mikrotik
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/mikrotik.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides methods for working with Mikrotik equipment</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#export_to_hash-instance_method" title="#export_to_hash (instance method)">#<strong>export_to_hash</strong>(config)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>this handles `export` (default), `export compact`, `export terse` and `export verbose` the format is a header line: `/ tree navigation` followed by commands: `set thing value`.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mikrotik_routeros_config_eater-instance_method" title="#mikrotik_routeros_config_eater (instance method)">#<strong>mikrotik_routeros_config_eater</strong>(thost, tport, config)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mikrotik_swos_config_eater-instance_method" title="#mikrotik_swos_config_eater (instance method)">#<strong>mikrotik_swos_config_eater</strong>(thost, tport, config)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#values_to_hash-instance_method" title="#values_to_hash (instance method)">#<strong>values_to_hash</strong>(line)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>this takes a string of config like &#39;add connect-to=10.99.99.99 name=l2tp-hm password=123 user=l2tp-hm&#39; and converts it to a hash of keys and values for easier processing.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Report.html#active_db%3F-instance_method" title="Msf::Auxiliary::Report#active_db? (method)">#active_db?</a></span>, <span class='object_link'><a href="Report.html#create_cracked_credential-instance_method" title="Msf::Auxiliary::Report#create_cracked_credential (method)">#create_cracked_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential-instance_method" title="Msf::Auxiliary::Report#create_credential (method)">#create_credential</a></span>, <span class='object_link'><a href="Report.html#create_credential_and_login-instance_method" title="Msf::Auxiliary::Report#create_credential_and_login (method)">#create_credential_and_login</a></span>, <span class='object_link'><a href="Report.html#create_credential_login-instance_method" title="Msf::Auxiliary::Report#create_credential_login (method)">#create_credential_login</a></span>, <span class='object_link'><a href="Report.html#db-instance_method" title="Msf::Auxiliary::Report#db (method)">#db</a></span>, <span class='object_link'><a href="Report.html#db_warning_given%3F-instance_method" title="Msf::Auxiliary::Report#db_warning_given? (method)">#db_warning_given?</a></span>, <span class='object_link'><a href="Report.html#get_client-instance_method" title="Msf::Auxiliary::Report#get_client (method)">#get_client</a></span>, <span class='object_link'><a href="Report.html#get_host-instance_method" title="Msf::Auxiliary::Report#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="Report.html#inside_workspace_boundary%3F-instance_method" title="Msf::Auxiliary::Report#inside_workspace_boundary? (method)">#inside_workspace_boundary?</a></span>, <span class='object_link'><a href="Report.html#invalidate_login-instance_method" title="Msf::Auxiliary::Report#invalidate_login (method)">#invalidate_login</a></span>, <span class='object_link'><a href="Report.html#mytask-instance_method" title="Msf::Auxiliary::Report#mytask (method)">#mytask</a></span>, <span class='object_link'><a href="Report.html#myworkspace-instance_method" title="Msf::Auxiliary::Report#myworkspace (method)">#myworkspace</a></span>, <span class='object_link'><a href="Report.html#myworkspace_id-instance_method" title="Msf::Auxiliary::Report#myworkspace_id (method)">#myworkspace_id</a></span>, <span class='object_link'><a href="Report.html#report_auth_info-instance_method" title="Msf::Auxiliary::Report#report_auth_info (method)">#report_auth_info</a></span>, <span class='object_link'><a href="Report.html#report_client-instance_method" title="Msf::Auxiliary::Report#report_client (method)">#report_client</a></span>, <span class='object_link'><a href="Report.html#report_exploit-instance_method" title="Msf::Auxiliary::Report#report_exploit (method)">#report_exploit</a></span>, <span class='object_link'><a href="Report.html#report_host-instance_method" title="Msf::Auxiliary::Report#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="Report.html#report_loot-instance_method" title="Msf::Auxiliary::Report#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="Report.html#report_note-instance_method" title="Msf::Auxiliary::Report#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="Report.html#report_service-instance_method" title="Msf::Auxiliary::Report#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="Report.html#report_vuln-instance_method" title="Msf::Auxiliary::Report#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="Report.html#report_web_form-instance_method" title="Msf::Auxiliary::Report#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="Report.html#report_web_page-instance_method" title="Msf::Auxiliary::Report#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="Report.html#report_web_site-instance_method" title="Msf::Auxiliary::Report#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="Report.html#report_web_vuln-instance_method" title="Msf::Auxiliary::Report#report_web_vuln (method)">#report_web_vuln</a></span>, <span class='object_link'><a href="Report.html#store_cred-instance_method" title="Msf::Auxiliary::Report#store_cred (method)">#store_cred</a></span>, <span class='object_link'><a href="Report.html#store_local-instance_method" title="Msf::Auxiliary::Report#store_local (method)">#store_local</a></span>, <span class='object_link'><a href="Report.html#store_loot-instance_method" title="Msf::Auxiliary::Report#store_loot (method)">#store_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Metasploit/Framework/Require.html" title="Metasploit::Framework::Require (module)">Metasploit::Framework::Require</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally-class_method" title="Metasploit::Framework::Require.optionally (method)">optionally</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_active_record_railtie-class_method" title="Metasploit::Framework::Require.optionally_active_record_railtie (method)">optionally_active_record_railtie</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-class_method" title="Metasploit::Framework::Require.optionally_include_metasploit_credential_creation (method)">optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_include_metasploit_credential_creation-instance_method" title="Metasploit::Framework::Require#optionally_include_metasploit_credential_creation (method)">#optionally_include_metasploit_credential_creation</a></span>, <span class='object_link'><a href="../../Metasploit/Framework/Require.html#optionally_require_metasploit_db_gem_engines-class_method" title="Metasploit::Framework::Require.optionally_require_metasploit_db_gem_engines (method)">optionally_require_metasploit_db_gem_engines</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="export_to_hash-instance_method">
+  
+    #<strong>export_to_hash</strong>(config)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>this handles `export` (default), `export compact`, `export terse` and `export verbose` the format is a header line: `/ tree navigation` followed by commands: `set thing value`</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/mikrotik.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_export_to_hash'>export_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+
+  <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\s{2,4}</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># replace code indents
+</span>  <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\\\s*\n</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># replace verbose multiline items as single lines, similar to terse
+</span>  <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='comment'># # jul/16/2020 14:26:57 by RouterOS 6.45.9
+</span>    <span class='comment'># typically the first line in the config
+</span>    <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>%r{</span><span class='tstring_content'>^# \w{3}/\d{2}/\d{4} \d{2}:\d{2}:\d{2} by (?&lt;os&gt;\w+) (?&lt;version&gt;[\d\.]+)$</span><span class='regexp_end'>}</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_os'>os</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_version'>version</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+    <span class='comment'># terse format format is more &#39;cisco&#39;-ish where header and setting is on one line
+</span>    <span class='comment'># /interface ovpn-client add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out1 password=password user=user
+</span>    <span class='comment'># /interface ovpn-client add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out2 password=password user=user
+</span>    <span class='kw'>elsif</span> <span class='tstring'><span class='regexp_beg'>%r{</span><span class='tstring_content'>^(?&lt;section&gt;/[\w -]+)</span><span class='regexp_end'>}</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> set </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> add </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> set </span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_div'>div</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_div'>div</span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_line'>line</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='id identifier rubyid_div'>div</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_div'>div</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_div'>div</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+
+    <span class='comment'># /interface ovpn-client
+</span>    <span class='comment'># these are the section headers
+</span>    <span class='kw'>elsif</span> <span class='tstring'><span class='regexp_beg'>%r{</span><span class='tstring_content'>^(?&lt;section&gt;/[\w -]+)$</span><span class='regexp_end'>}</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='id identifier rubyid_section'>section</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_header'>header</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='comment'># initialize
+</span>
+    <span class='comment'># take any line that isn&#39;t commented out
+</span>    <span class='kw'>elsif</span> <span class='op'>!</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>#</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_output'>output</span><span class='lbracket'>[</span><span class='id identifier rubyid_header'>header</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mikrotik_routeros_config_eater-instance_method">
+  
+    #<strong>mikrotik_routeros_config_eater</strong>(thost, tport, config)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/mikrotik.rb', line 175</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mikrotik_routeros_config_eater'>mikrotik_routeros_config_eater</span><span class='lparen'>(</span><span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+    <span class='id identifier rubyid_credential_data'>credential_data</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>address:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+      <span class='label'>port:</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span>
+      <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>workspace_id:</span> <span class='id identifier rubyid_myworkspace_id'>myworkspace_id</span><span class='comma'>,</span>
+      <span class='label'>origin_type:</span> <span class='symbol'>:service</span><span class='comma'>,</span>
+      <span class='label'>private_type:</span> <span class='symbol'>:password</span><span class='comma'>,</span>
+      <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>module_fullname:</span> <span class='id identifier rubyid_fullname'>fullname</span><span class='comma'>,</span>
+      <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNTRIED</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Default SNMP to UDP
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_tport'>tport</span> <span class='op'>==</span> <span class='int'>161</span>
+    <span class='id identifier rubyid_credential_data'>credential_data</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_store_loot'>store_loot</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mikrotik.config</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text/plain</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>config.txt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MikroTik Configuration</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_host_info'>host_info</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+    <span class='label'>os_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Mikrotik</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_info'>host_info</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+    <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='id identifier rubyid_export_to_hash'>export_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span> <span class='id identifier rubyid_values'>values</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_header'>header</span>
+      <span class='comment'>#
+</span>      <span class='comment'># Cover OS details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> OS: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_host_info'>host_info</span><span class='lbracket'>[</span><span class='symbol'>:os_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_host_info'>host_info</span><span class='lbracket'>[</span><span class='symbol'>:os_flavor</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_info'>host_info</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#
+</span>      <span class='comment'># OpenVPN client details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/interface ovpn-client</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Interface/OVPN#Client_Config
+</span>      <span class='comment'># add connect-to=10.99.99.98 mac-address=FE:45:B0:31:4A:34 name=ovpn-out1 password=password user=user
+</span>      <span class='comment'># add connect-to=10.99.99.98 disabled=yes mac-address=FE:45:B0:31:4A:34 name=ovpn-out3 password=password user=user
+</span>      <span class='comment'># no such thing as disabled=no, the value is just not there
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> Open VPN Client to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connect-to</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> on mac </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mac-address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>1194</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>openvpn</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#
+</span>      <span class='comment'># PPPoE client details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/interface pppoe-client</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Interface/PPPoE#PPPoE_Client
+</span>      <span class='comment'># add disabled=no interface=ether2 name=pppoe-user password=password service-name=internet user=user
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> PPPoE Client on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>interface</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and service name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>service-name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pppoe</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#
+</span>      <span class='comment'># L2TP client details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/interface l2tp-client</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Interface/L2TP#L2TP_Client
+</span>      <span class='comment'># add connect-to=10.99.99.99 name=l2tp-hm password=123 user=l2tp-hm
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> L2TP Client to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connect-to</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>1701</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>l2tp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># PPTP client details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/interface pptp-client</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Interface/PPTP#PPTP_Client
+</span>      <span class='comment'># add connect-to=10.99.99.99 disabled=no name=pptp-hm password=123 user=pptp-hm
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> PPTP Client to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connect-to</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pptp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>1723</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># SNMP details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/snmp community</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:SNMP
+</span>      <span class='comment'># add addresses=::/0 authentication-password=write name=write write-access=yes
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encryption-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='comment'># v3
+</span>          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> SNMP community </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication-protocol</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>), encryption password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encryption-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>encryption-protocol</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>) and </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write-access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write access</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read only</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> SNMP community </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write-access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write access</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read only</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>write-access</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yes</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RW</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RO</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>161</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># PPP tunnel bridging secret details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/ppp secret</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:BCP_bridging_(PPP_tunnel_bridging)#Office_1_configuration
+</span>      <span class='comment'># add name=ppp1 password=password profile=ppp_bridge
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> PPP tunnel bridging named </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> with profile name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>profile</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># SMB users details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/ip smb users</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:IP/SMB#User_setup
+</span>      <span class='comment'># add name=mtuser password=mtpasswd read-only=no
+</span>      <span class='comment'># add disabled=yes name=disableduser password=disabledpasswd
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yes</span><span class='tstring_end'>&#39;</span></span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>disabled</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_content'> SMB Username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> with RO only access</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yes</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>yes</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>read-only</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:access_level</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RO</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>smb</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># SMTP user details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/tool e-mail</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Tools/email#Properties
+</span>      <span class='comment'># set address=1.1.1.1 from=router@router.com password=smtppassword user=smtpuser
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>set </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> SMTP Username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> and password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>25</span><span class='tstring_end'>&#39;</span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+
+        <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>smtp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>:</span> <span class='int'>25</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:address</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>address</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>user</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='comment'>#
+</span>      <span class='comment'># Wireless networks details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/interface wireless security-profiles</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:Interface/Wireless#Security_Profiles
+</span>      <span class='comment'># add name=openwifi supplicant-identity=MikroTik
+</span>      <span class='comment'># add authentication-types=wpa-psk mode=dynamic-keys name=wpawifi supplicant-identity=MikroTik wpa-pre-shared-key=presharedkey
+</span>      <span class='comment'># add authentication-types=wpa2-psk mode=dynamic-keys name=wpa2wifi supplicant-identity=MikroTik wpa2-pre-shared-key=presharedkey
+</span>      <span class='comment'># add authentication-types=wpa2-eap mode=dynamic-keys mschapv2-password=password mschapv2-username=username name=wpaeapwifi supplicant-identity=MikroTik
+</span>      <span class='comment'># add mode=static-keys-required name=wepwifi static-key-0=0123456789 static-key-1=0987654321 static-key-2=1234509876 static-key-3=0192837645 supplicant-identity=MikroTik
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>add </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_output'>output</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> Wireless AP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+        <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication-types</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mode</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mode</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>none</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># open wifi
+</span>          <span class='id identifier rubyid_output'>output</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> with no encryption (open wifi)</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_vprint_good'>vprint_good</span><span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+          <span class='kw'>next</span>
+        <span class='kw'>end</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+        <span class='kw'>end</span>
+
+        <span class='comment'># The following section is a little complicated due to the way mikrotik exports values
+</span>        <span class='comment'># in compact/terse/default mode, it will skip printing default values, so we have to check
+</span>        <span class='comment'># that keys are present.
+</span>        <span class='comment'># In verbose mode, they will print but be empty
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+          <span class='id identifier rubyid_output'>output</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with WPA password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+            <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>elsif</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa2-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa2-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+          <span class='id identifier rubyid_output'>output</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with WPA2 password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa2-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+            <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa2-pre-shared-key</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>elsif</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>authentication-types</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wpa2-eap</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_output'>output</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with WPA2-EAP username </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mschapv2-username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mschapv2-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+            <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mschapv2-username</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mschapv2-password</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+            <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>elsif</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>static-key-0</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>static-key-1</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>static-key-2</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>static-key-3</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>3</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+            <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>static-key-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_i'>i</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+
+            <span class='id identifier rubyid_output'>output</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> with WEP password </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+            <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+              <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+              <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span> <span class='comment'># run for each key we find
+</span>            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'>#
+</span>      <span class='comment'># hostname details
+</span>      <span class='comment'>#
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/system identity</span><span class='tstring_end'>&#39;</span></span>
+      <span class='comment'># https://wiki.mikrotik.com/wiki/Manual:System/identity#Configuration
+</span>      <span class='comment'># set name=mikrotik_hostname
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_starts_with?'>starts_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>set </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_host_info'>host_info</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_info'>host_info</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mikrotik_swos_config_eater-instance_method">
+  
+    #<strong>mikrotik_swos_config_eater</strong>(thost, tport, config)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/mikrotik.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mikrotik_swos_config_eater'>mikrotik_swos_config_eater</span><span class='lparen'>(</span><span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+    <span class='id identifier rubyid_credential_data'>credential_data</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>address:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+      <span class='label'>port:</span> <span class='id identifier rubyid_tport'>tport</span><span class='comma'>,</span>
+      <span class='label'>protocol:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>workspace_id:</span> <span class='id identifier rubyid_myworkspace_id'>myworkspace_id</span><span class='comma'>,</span>
+      <span class='label'>origin_type:</span> <span class='symbol'>:service</span><span class='comma'>,</span>
+      <span class='label'>private_type:</span> <span class='symbol'>:password</span><span class='comma'>,</span>
+      <span class='label'>service_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='label'>module_fullname:</span> <span class='id identifier rubyid_fullname'>fullname</span><span class='comma'>,</span>
+      <span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNTRIED</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Default SNMP to UDP
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_tport'>tport</span> <span class='op'>==</span> <span class='int'>161</span>
+    <span class='id identifier rubyid_credential_data'>credential_data</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_store_loot'>store_loot</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mikrotik.config</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>text/plain</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>config.txt</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MikroTik Configuration</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_host_info'>host_info</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>host:</span> <span class='id identifier rubyid_thost'>thost</span><span class='comma'>,</span>
+    <span class='label'>os_name:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SwOS</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_info'>host_info</span><span class='rparen'>)</span>
+
+  <span class='comment'># Unfortunately SWoS doesn&#39;t have a very easily parsable format.  Config is exported in one big string
+</span>  <span class='comment'># they follow a key:value format followed by a comma, but since values can be arrays,
+</span>  <span class='comment'># or hashes the actual parsing of such would be pretty difficult.  Since there isn&#39;t a ton of value
+</span>  <span class='comment'># in this file, we simply run some regexes against it
+</span>
+  <span class='comment'># ,sys.b:{id:&#39;4d696b726f54696b2d637373333236&#39;,wdt:0x01,dsc:0x01,ivl:0x00,alla:0x00,allm:0x00,allp:0x03ffffff,avln:0x00,prio:0x8000,cost:0x00,igmp:0x00,ip:0x0158a8c0,iptp:0x02,dtrp:0x03ffffff,ainf:0x01}
+</span>  <span class='comment'># part we care about: ,ip:0x0158a8c0
+</span>  <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,ip:0x(?&lt;ip&gt;[\da-f]+)</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_config'>config</span>
+    <span class='id identifier rubyid_ip'>ip</span> <span class='op'>=</span> <span class='id identifier rubyid_ip'>ip</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>..</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_hex'>hex</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> IP Address: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># ,sys.b:{id:&#39;4d696b726f54696b2d637373333236&#39;
+</span>  <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,sys.b:{id:&#39;(?&lt;host&gt;[a-f\d]*)&#39;</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_config'>config</span>
+    <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_host_info'>host_info</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span>
+    <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_host_info'>host_info</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> Hostname: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># pull the switch password .pwd.b:{pwd:&#39;61646d696e&#39;} -&gt; admin
+</span>  <span class='comment'># pull the switch password .pwd.b:{pwd:&#39;&#39;} -&gt; (blank, which is default)
+</span>  <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,\.pwd\.b:{pwd:&#39;(?&lt;password&gt;[a-f\d]*)&#39;}</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_config'>config</span>
+    <span class='id identifier rubyid_password'>password</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> Admin login password: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_password'>password</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>80</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>www</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>admin</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># hardcoded
+</span>      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_password'>password</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># ,snmp.b:{en:0x01,com:&#39;7075626c6963&#39;,ci:&#39;636f6e74616374696e666f&#39;,loc:&#39;6c6f636174696f6e&#39;}
+</span>  <span class='comment'># ,snmp.b:{en:0x01,com:&#39;7075626c6963&#39;,ci:&#39;&#39;,loc:&#39;&#39;}
+</span>  <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,snmp\.b:{en:0x01,com:&#39;(?&lt;community&gt;[a-f\d]*)&#39;,ci:&#39;(?&lt;contact&gt;[a-f\d]*)&#39;,loc:&#39;(?&lt;location&gt;[a-f\d]*)&#39;}</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_config'>config</span>
+    <span class='id identifier rubyid_community'>community</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_community'>community</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_contact'>contact</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_contact'>contact</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_location'>location</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_location'>location</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> SNMP Community: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_community'>community</span><span class='embexpr_end'>}</span><span class='tstring_content'>, contact: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_contact'>contact</span><span class='embexpr_end'>}</span><span class='tstring_content'>, location: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_location'>location</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+      <span class='id identifier rubyid_cred'>cred</span> <span class='op'>=</span> <span class='id identifier rubyid_credential_data'>credential_data</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>161</span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:protocol</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>udp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:service_name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>snmp</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cred'>cred</span><span class='lbracket'>[</span><span class='symbol'>:private_data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_community'>community</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='id identifier rubyid_create_credential_and_login'>create_credential_and_login</span><span class='lparen'>(</span><span class='id identifier rubyid_cred'>cred</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># ,nm:[&#39;506f727431&#39;,&#39;506f727432&#39;,&#39;506f727433&#39;,&#39;506f727434&#39;,&#39;506f727435&#39;,&#39;506f727436&#39;,&#39;506f727437&#39;,&#39;506f727438&#39;,&#39;506f727439&#39;,&#39;506f72743130&#39;,&#39;506f72743131&#39;,&#39;506f72743132&#39;,&#39;506f72743133&#39;,&#39;506f72743134&#39;,&#39;506f72743135&#39;,&#39;506f72743136&#39;,&#39;506f72743137&#39;,&#39;506f72743138&#39;,&#39;506f72743139&#39;,&#39;506f72743230&#39;,&#39;506f72743231&#39;,&#39;506f72743232&#39;,&#39;506f72743233&#39;,&#39;75706c696e6b&#39;,&#39;53465031&#39;,&#39;53465032&#39;]}
+</span>  <span class='kw'>if</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>,nm:\[(?&lt;interfaces&gt;[a-f\d&#39;,]*)\]</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_config'>config</span>
+    <span class='id identifier rubyid_interfaces'>interfaces</span> <span class='op'>=</span> <span class='id identifier rubyid_interfaces'>interfaces</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_interfaces'>interfaces</span><span class='period'>.</span><span class='id identifier rubyid_each_with_index'>each_with_index</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_iface'>iface</span><span class='comma'>,</span> <span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+      <span class='id identifier rubyid_iface'>iface</span> <span class='op'>=</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_iface'>iface</span> <span class='op'>=</span> <span class='const'>Array</span><span class='lparen'>(</span><span class='id identifier rubyid_iface'>iface</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_iface'>iface</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Port</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='op'>||</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>SFP\d</span><span class='regexp_end'>/</span></span> <span class='op'>=~</span> <span class='id identifier rubyid_iface'>iface</span> <span class='comment'># skip defaults
+</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thost'>thost</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tport'>tport</span><span class='embexpr_end'>}</span><span class='tstring_content'> Port </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_i'>i</span> <span class='op'>+</span> <span class='int'>1</span><span class='embexpr_end'>}</span><span class='tstring_content'> Named: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_iface'>iface</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="values_to_hash-instance_method">
+  
+    #<strong>values_to_hash</strong>(line)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>this takes a string of config like &#39;add connect-to=10.99.99.99 name=l2tp-hm password=123 user=l2tp-hm&#39; and converts it to a hash of keys and values for easier processing</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/mikrotik.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_values_to_hash'>values_to_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span><span class='rbrace'>}</span> <span class='kw'>unless</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+
+  <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_array'>array</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_array'>array</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_setting'>setting</span><span class='op'>|</span>
+    <span class='id identifier rubyid_key_value'>key_value</span> <span class='op'>=</span> <span class='id identifier rubyid_setting'>setting</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_key_value'>key_value</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>2</span>
+      <span class='kw'>next</span> <span class='comment'># skip things like &#39;add&#39;
+</span>    <span class='kw'>end</span>
+    <span class='comment'># verbose mode gives empty fields, however our processing makes them &quot;&quot; instead of empty
+</span>    <span class='comment'># so we check if its empty and skip it to prevent a double quote or escaped double quote
+</span>    <span class='comment'># field from being loaded
+</span>    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_key_value'>key_value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;&quot;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_key_value'>key_value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\&quot;\\&quot;</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_key_value'>key_value</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_key_value'>key_value</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_hash'>hash</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:34 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

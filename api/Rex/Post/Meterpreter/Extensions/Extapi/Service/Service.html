@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Extapi::Service::Service
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Extapi::Service::Service";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extapi.html" title="Rex::Post::Meterpreter::Extensions::Extapi (module)">Extapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Service.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Service (module)">Service</a></span></span>
+     &raquo; 
+    <span class="title">Service</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Extapi::Service::Service
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Extapi::Service::Service</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/extapi/service/service.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This meterpreter extension contains extended API functions for querying and managing Windows services.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="SERVICE_OP_START-constant" class="">SERVICE_OP_START =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="SERVICE_OP_PAUSE-constant" class="">SERVICE_OP_PAUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="SERVICE_OP_RESUME-constant" class="">SERVICE_OP_RESUME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="SERVICE_OP_STOP-constant" class="">SERVICE_OP_STOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="SERVICE_OP_RESTART-constant" class="">SERVICE_OP_RESTART =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#control-instance_method" title="#control (instance method)">#<strong>control</strong>(service_name, op)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Control a single service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enumerate-instance_method" title="#enumerate (instance method)">#<strong>enumerate</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate all the services on the target.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Service </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#query-instance_method" title="#query (instance method)">#<strong>query</strong>(service_name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Query some detailed parameters about a particular service.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service (class)">Service</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Service.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/extapi/service/service.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='ivar'>@client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/extapi/service/service.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="control-instance_method">
+  
+    #<strong>control</strong>(service_name, op)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Control a single service</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/extapi/service/service.rb', line 74</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_control'>control</span><span class='lparen'>(</span><span class='id identifier rubyid_service_name'>service_name</span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_op'>op</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>String</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_op'>op</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>start</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_START-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_START (constant)">SERVICE_OP_START</a></span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>pause</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_PAUSE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_PAUSE (constant)">SERVICE_OP_PAUSE</a></span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resume</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_RESUME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_RESUME (constant)">SERVICE_OP_RESUME</a></span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>stop</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_STOP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_STOP (constant)">SERVICE_OP_STOP</a></span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>restart</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_RESTART-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_RESTART (constant)">SERVICE_OP_RESTART</a></span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='lparen'>(</span><span class='id identifier rubyid_op'>op</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_op'>op</span> <span class='op'>&gt;=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_START-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_START (constant)">SERVICE_OP_START</a></span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_op'>op</span> <span class='op'>&lt;=</span> <span class='const'><span class='object_link'><a href="#SERVICE_OP_RESTART-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::Service::Service::SERVICE_OP_RESTART (constant)">SERVICE_OP_RESTART</a></span></span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid operation: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_op'>op</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#COMMAND_ID_EXTAPI_SERVICE_CONTROL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_CONTROL (constant)">COMMAND_ID_EXTAPI_SERVICE_CONTROL</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_CTRL_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_NAME (constant)">TLV_TYPE_EXT_SERVICE_CTRL_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_service_name'>service_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_CTRL_OP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_OP (constant)">TLV_TYPE_EXT_SERVICE_CTRL_OP</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_op'>op</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enumerate-instance_method">
+  
+    #<strong>enumerate</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate all the services on the target.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/extapi/service/service.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enumerate'>enumerate</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#COMMAND_ID_EXTAPI_SERVICE_ENUM-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_ENUM (constant)">COMMAND_ID_EXTAPI_SERVICE_ENUM</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_services'>services</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_GROUP (constant)">TLV_TYPE_EXT_SERVICE_ENUM_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+    <span class='id identifier rubyid_services'>services</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='symbol'>:name</span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_NAME (constant)">TLV_TYPE_EXT_SERVICE_ENUM_NAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:display</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME (constant)">TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:pid</span>          <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_PID-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_PID (constant)">TLV_TYPE_EXT_SERVICE_ENUM_PID</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:status</span>       <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_STATUS (constant)">TLV_TYPE_EXT_SERVICE_ENUM_STATUS</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:interactive</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE (constant)">TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE</a></span></span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_services'>services</span><span class='period'>.</span><span class='id identifier rubyid_sort_by'>sort_by</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="query-instance_method">
+  
+    #<strong>query</strong>(service_name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Query some detailed parameters about a particular service.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/extapi/service/service.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_query'>query</span><span class='lparen'>(</span><span class='id identifier rubyid_service_name'>service_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#COMMAND_ID_EXTAPI_SERVICE_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_QUERY (constant)">COMMAND_ID_EXTAPI_SERVICE_QUERY</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_NAME (constant)">TLV_TYPE_EXT_SERVICE_ENUM_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_service_name'>service_name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span>
+    <span class='symbol'>:starttype</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE (constant)">TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:display</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME (constant)">TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:startname</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME (constant)">TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:path</span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_PATH (constant)">TLV_TYPE_EXT_SERVICE_QUERY_PATH</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:logroup</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP (constant)">TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:interactive</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE (constant)">TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:dacl</span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_DACL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DACL (constant)">TLV_TYPE_EXT_SERVICE_QUERY_DACL</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:status</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STATUS (constant)">TLV_TYPE_EXT_SERVICE_QUERY_STATUS</a></span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

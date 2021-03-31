@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::Lab::LabCommandDispatcher
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::Lab::LabCommandDispatcher";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Lab.html" title="Msf::Plugin::Lab (class)">Lab</a></span></span>
+     &raquo; 
+    <span class="title">LabCommandDispatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::Lab::LabCommandDispatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Plugin::Lab::LabCommandDispatcher</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/lab.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#controller-instance_method" title="#controller (instance method)">#<strong>controller</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute controller.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#driver-instance_method" title="Msf::Ui::Console::CommandDispatcher#driver (method)">#driver</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_browse_to-instance_method" title="#cmd_lab_browse_to (instance method)">#<strong>cmd_lab_browse_to</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_clear-instance_method" title="#cmd_lab_clear (instance method)">#<strong>cmd_lab_clear</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_help-instance_method" title="#cmd_lab_help (instance method)">#<strong>cmd_lab_help</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_load-instance_method" title="#cmd_lab_load (instance method)">#<strong>cmd_lab_load</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Regular Lab Commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_load_config-instance_method" title="#cmd_lab_load_config (instance method)">#<strong>cmd_lab_load_config</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_load_dir-instance_method" title="#cmd_lab_load_dir (instance method)">#<strong>cmd_lab_load_dir</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_load_running-instance_method" title="#cmd_lab_load_running (instance method)">#<strong>cmd_lab_load_running</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_load_tabs-instance_method" title="#cmd_lab_load_tabs (instance method)">#<strong>cmd_lab_load_tabs</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tab completion for the lab_load command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_reset-instance_method" title="#cmd_lab_reset (instance method)">#<strong>cmd_lab_reset</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_revert-instance_method" title="#cmd_lab_revert (instance method)">#<strong>cmd_lab_revert</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_run_command-instance_method" title="#cmd_lab_run_command (instance method)">#<strong>cmd_lab_run_command</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_save-instance_method" title="#cmd_lab_save (instance method)">#<strong>cmd_lab_save</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_search-instance_method" title="#cmd_lab_search (instance method)">#<strong>cmd_lab_search</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_search_tags-instance_method" title="#cmd_lab_search_tags (instance method)">#<strong>cmd_lab_search_tags</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_show-instance_method" title="#cmd_lab_show (instance method)">#<strong>cmd_lab_show</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Commands for dealing with a currently-loaded lab.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_show_running-instance_method" title="#cmd_lab_show_running (instance method)">#<strong>cmd_lab_show_running</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_snapshot-instance_method" title="#cmd_lab_snapshot (instance method)">#<strong>cmd_lab_snapshot</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_start-instance_method" title="#cmd_lab_start (instance method)">#<strong>cmd_lab_start</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_stop-instance_method" title="#cmd_lab_stop (instance method)">#<strong>cmd_lab_stop</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_suspend-instance_method" title="#cmd_lab_suspend (instance method)">#<strong>cmd_lab_suspend</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_lab_upload-instance_method" title="#cmd_lab_upload (instance method)">#<strong>cmd_lab_upload</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Command: lab_upload [vmids] [from] [to].</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the hash of commands supported by this dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extended_help-instance_method" title="#extended_help (instance method)">#<strong>extended_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>No extended help yet, but this is where more detailed documentation on particular commands would live.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(driver)  &#x21d2; LabCommandDispatcher </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of LabCommandDispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lab_usage-instance_method" title="#lab_usage (instance method)">#<strong>lab_usage</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Map for usages.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#longest_cmd_size-instance_method" title="#longest_cmd_size (instance method)">#<strong>longest_cmd_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Commands for help.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module (method)">#active_module</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module= (method)">#active_module=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session (method)">#active_session</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session= (method)">#active_session=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#build_range_array-instance_method" title="Msf::Ui::Console::CommandDispatcher#build_range_array (method)">#build_range_array</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#docs_dir-instance_method" title="Msf::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#framework-instance_method" title="Msf::Ui::Console::CommandDispatcher#framework (method)">#framework</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#log_error-instance_method" title="Msf::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#remove_lines-instance_method" title="Msf::Ui::Console::CommandDispatcher#remove_lines (method)">#remove_lines</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(driver)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Plugin::Lab::LabCommandDispatcher (class)">LabCommandDispatcher</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of LabCommandDispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_driver'>driver</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_driver'>driver</span><span class='rparen'>)</span>
+  <span class='ivar'>@controller</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  
+  <span class='comment'>#
+</span>  <span class='comment'># Require the lab gem, but fail nicely if it&#39;s not there. 
+</span>  <span class='comment'>#
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>lab</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>rescue</span> <span class='const'>LoadError</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>WARNING: Lab gem not found, Please &#39;gem install lab&#39;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="controller=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="controller-instance_method">
+  
+    #<strong>controller</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute controller.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_controller'>controller</span>
+  <span class='ivar'>@controller</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_lab_browse_to-instance_method">
+  
+    #<strong>cmd_lab_browse_to</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 414</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_browse_to'>cmd_lab_browse_to</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Opening: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> on all vms.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> opening to uri: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_open_uri'>open_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_name_arg'>name_arg</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='embexpr_end'>}</span><span class='tstring_content'> opening to uri: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_open_uri'>open_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_clear-instance_method">
+  
+    #<strong>cmd_lab_clear</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_clear'>cmd_lab_clear</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_clear!'>clear!</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_help-instance_method">
+  
+    #<strong>cmd_lab_help</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 466</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_help'>cmd_lab_help</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span> <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_longest_cmd_size'>longest_cmd_size</span><span class='embexpr_end'>}</span><span class='tstring_content'>s - %s</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_extended_help'>extended_help</span><span class='lbracket'>[</span><span class='id identifier rubyid_c'>c</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_commands'>commands</span><span class='lbracket'>[</span><span class='id identifier rubyid_c'>c</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_longest_cmd_size'>longest_cmd_size</span><span class='embexpr_end'>}</span><span class='tstring_content'>s - %s</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lbracket'>[</span><span class='id identifier rubyid_c'>c</span><span class='comma'>,</span><span class='id identifier rubyid_extended_help'>extended_help</span><span class='lbracket'>[</span><span class='id identifier rubyid_c'>c</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_commands'>commands</span><span class='lbracket'>[</span><span class='id identifier rubyid_c'>c</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown command &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_c'>c</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>In order to use this plugin, you&#39;ll want to configure a .yml lab file</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You can find an example in data/lab/test_targets.yml</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_load-instance_method">
+  
+    #<strong>cmd_lab_load</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Regular Lab Commands</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_load'>cmd_lab_load</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>and</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span> <span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+    <span class='comment'># then the provided argument is an absolute path and is gtg.
+</span>    <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span>
+  <span class='kw'>elsif</span>
+    <span class='comment'># let&#39;s check to see if it&#39;s in the data/lab dir (like when tab completed)
+</span>    <span class='lbracket'>[</span>
+      <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_data_directory'><span class='object_link'><a href="../../Config.html#data_directory-class_method" title="Msf::Config.data_directory (method)">data_directory</a></span></span> <span class='op'>+</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+      <span class='comment'># there isn&#39;t a user_data_directory, but could use:
+</span>      <span class='comment'>#::Msf::Config.user_plugins_directory + File::SEPARATOR + &quot;lab&quot;
+</span>    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dir'>dir</span><span class='op'>|</span>
+      <span class='id identifier rubyid_res_path'>res_path</span> <span class='op'>=</span> <span class='id identifier rubyid_dir'>dir</span> <span class='op'>+</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='id identifier rubyid_res'>res</span> 
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_res_path'>res_path</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_res_path'>res_path</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='id identifier rubyid_res_path'>res_path</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_good_res'>good_res</span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_from_file'>from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_good_res'>good_res</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_res'>res</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a valid lab definition file (.yml)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_load_config-instance_method">
+  
+    #<strong>cmd_lab_load_config</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 157</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_load_config'>cmd_lab_load_config</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^remote_</span><span class='regexp_end'>/</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>3</span>
+    <span class='comment'>## Expect a username &amp; password
+</span>    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_build_from_config'>build_from_config</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>1</span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_build_from_config'>build_from_config</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_load_dir-instance_method">
+  
+    #<strong>cmd_lab_load_dir</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_load_dir'>cmd_lab_load_dir</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>2</span>
+  <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_build_from_dir'>build_from_dir</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span><span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_load_running-instance_method">
+  
+    #<strong>cmd_lab_load_running</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_load_running'>cmd_lab_load_running</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^remote_</span><span class='regexp_end'>/</span></span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>3</span>
+    <span class='comment'>## Expect a username &amp; password
+</span>    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_build_from_running'>build_from_running</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>==</span> <span class='int'>1</span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_build_from_running'>build_from_running</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_load_tabs-instance_method">
+  
+    #<strong>cmd_lab_load_tabs</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tab completion for the lab_load command</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_load_tabs'>cmd_lab_load_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='comment'>#return tabs if words.length &gt; 1
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span> <span class='id identifier rubyid_str'>str</span> <span class='kw'>and</span> <span class='id identifier rubyid_str'>str</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_escape'>escape</span><span class='lparen'>(</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='regexp_end'>/</span></span> <span class='rparen'>)</span>
+    <span class='comment'># then you are probably specifying a full path so let&#39;s just use normal file completion
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_tab_complete_filenames'>tab_complete_filenames</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span><span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_words'>words</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_words'>words</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\/</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='comment'># then let&#39;s start tab completion in the data/lab directory
+</span>    <span class='kw'>begin</span>
+      <span class='lbracket'>[</span>
+        <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_data_directory'><span class='object_link'><a href="../../Config.html#data_directory-class_method" title="Msf::Config.data_directory (method)">data_directory</a></span></span> <span class='op'>+</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='comment'># there isn&#39;t a user_data_directory, but could use:
+</span>        <span class='comment'>#::Msf::Config.user_plugins_directory + File::SEPARATOR + &quot;lab&quot;
+</span>      <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dir'>dir</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span> <span class='id identifier rubyid_dir'>dir</span>
+        <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>+=</span> <span class='op'>::</span><span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_find_all'>find_all</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+          <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='id identifier rubyid_dir'>dir</span> <span class='op'>+</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='id identifier rubyid_e'>e</span>
+          <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+        <span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Exception.html" title="Msf::Exception (module)">Exception</a></span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>+=</span> <span class='id identifier rubyid_tab_complete_filenames'>tab_complete_filenames</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span><span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_tabs'>tabs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_reset-instance_method">
+  
+    #<strong>cmd_lab_reset</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 307</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_reset'>cmd_lab_reset</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Resetting all lab vms.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_reset'>reset</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_arg'>arg</span>
+        <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Resetting lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reset'>reset</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_revert-instance_method">
+  
+    #<strong>cmd_lab_revert</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 343</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_revert'>cmd_lab_revert</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;</span> <span class='int'>2</span>
+  <span class='id identifier rubyid_snapshot'>snapshot</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reverting all lab vms to snapshot: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_revert_snapshot'>revert_snapshot</span><span class='lparen'>(</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_name_arg'>name_arg</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reverting </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='embexpr_end'>}</span><span class='tstring_content'> to snapshot: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_revert_snapshot'>revert_snapshot</span><span class='lparen'>(</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_run_command-instance_method">
+  
+    #<strong>cmd_lab_run_command</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 360</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_run_command'>cmd_lab_run_command</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Running command </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_content'> on all vms.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> running command: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_run_command'>run_command</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_name_arg'>name_arg</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='embexpr_end'>}</span><span class='tstring_content'> running command: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_run_command'>run_command</span><span class='lparen'>(</span><span class='id identifier rubyid_command'>command</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_save-instance_method">
+  
+    #<strong>cmd_lab_save</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+139
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 139</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_save'>cmd_lab_save</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_to_file'>to_file</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_search-instance_method">
+  
+    #<strong>cmd_lab_search</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_search'>cmd_lab_search</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_hlp_print_lab'>hlp_print_lab</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Searching for vms with hostname matching </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>checking to see </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> matches </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> matched </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span> <span class='op'>=~</span> <span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_search_tags-instance_method">
+  
+    #<strong>cmd_lab_search_tags</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 221</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_search_tags'>cmd_lab_search_tags</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_hlp_print_lab'>hlp_print_lab</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Searching for vms with tags matching </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>checking to see </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> is tagged </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> tagged </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_tagged?'>tagged?</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>	
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_show-instance_method">
+  
+    #<strong>cmd_lab_show</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Commands for dealing with a currently-loaded lab</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_show'>cmd_lab_show</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_hlp_print_lab'>hlp_print_lab</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name'>name</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_name'>name</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_yaml'>to_yaml</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown vm &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_show_running-instance_method">
+  
+    #<strong>cmd_lab_show_running</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 202</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_show_running'>cmd_lab_show_running</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hlp_print_lab_running'>hlp_print_lab_running</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_snapshot-instance_method">
+  
+    #<strong>cmd_lab_snapshot</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 326</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_snapshot'>cmd_lab_snapshot</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;</span> <span class='int'>2</span>
+  <span class='id identifier rubyid_snapshot'>snapshot</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Snapshotting all lab vms to snapshot: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_create_snapshot'>create_snapshot</span><span class='lparen'>(</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_name_arg'>name_arg</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Snapshotting </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='embexpr_end'>}</span><span class='tstring_content'> to snapshot: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_name_arg'>name_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_create_snapshot'>create_snapshot</span><span class='lparen'>(</span><span class='id identifier rubyid_snapshot'>snapshot</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_start-instance_method">
+  
+    #<strong>cmd_lab_start</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 236</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_start'>cmd_lab_start</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Starting lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> already running.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_arg'>arg</span>
+        <span class='id identifier rubyid_vm'>vm</span> <span class='op'>=</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Starting lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> already running.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_stop-instance_method">
+  
+    #<strong>cmd_lab_stop</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_stop'>cmd_lab_stop</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> not running.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_arg'>arg</span>
+        <span class='id identifier rubyid_vm'>vm</span> <span class='op'>=</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_content'> not running.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_suspend-instance_method">
+  
+    #<strong>cmd_lab_suspend</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 290</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_suspend'>cmd_lab_suspend</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+    <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_suspend'>suspend</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_arg'>arg</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_arg'>arg</span>
+        <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Suspending lab vm </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_find_by_hostname'>find_by_hostname</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_suspend'>suspend</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_lab_upload-instance_method">
+  
+    #<strong>cmd_lab_upload</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Command: lab_upload [vmids] [from] [to]</p>
+
+<p>Description: Uploads a file to the guest(s)</p>
+
+<p>Quirks: Pass “all” as a vmid to have it operate on all vms.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 389</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_lab_upload'>cmd_lab_upload</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span> <span class='op'>&lt;</span> <span class='int'>3</span>
+
+  <span class='id identifier rubyid_local_path'>local_path</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_vm_path'>vm_path</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>all</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vm'>vm</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+            <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Copying from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_path'>local_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm_path'>vm_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_hostname'>hostname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+            <span class='id identifier rubyid_vm'>vm</span><span class='period'>.</span><span class='id identifier rubyid_copy_to_guest'>copy_to_guest</span><span class='lparen'>(</span><span class='id identifier rubyid_local_path'>local_path</span><span class='comma'>,</span> <span class='id identifier rubyid_vm_path'>vm_path</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_vmid_arg'>vmid_arg</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='ivar'>@controller</span><span class='period'>.</span><span class='id identifier rubyid_includes_hostname?'>includes_hostname?</span> <span class='id identifier rubyid_vmid_arg'>vmid_arg</span>
+      <span class='kw'>if</span> <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_vmid_arg'>vmid_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_running?'>running?</span>
+        <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Copying from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_path'>local_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vm_path'>vm_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_vmid_arg'>vmid_arg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='ivar'>@controller</span><span class='lbracket'>[</span><span class='id identifier rubyid_vmid_arg'>vmid_arg</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_copy_to_guest'>copy_to_guest</span><span class='lparen'>(</span><span class='id identifier rubyid_local_path'>local_path</span><span class='comma'>,</span> <span class='id identifier rubyid_vm_path'>vm_path</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the hash of commands supported by this dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+<span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_help</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_help &lt;lab command&gt; - Show that command&#39;s description.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_show</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_show - show all vms in the lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_search</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_search - search local vms in the lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_search_tags</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_search_tag - search local vms in the lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='comment'>#&quot;lab_search_remote&quot; =&gt; &quot;lab_search_remote - search remote vms in the lab.&quot;,
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_show_running</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_show_running - show running vms.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load [file] - load a lab definition from disk.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_save</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_save [filename] - persist a lab definition in a file.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_running</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_running [type] [user] [host] - use the running vms to create a lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_config</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_config [type] [user] [host] - use the vms in the config to create a lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_dir</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_load_dir [type] [directory] - create a lab from a specified directory.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_clear</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_clear - clear the running lab.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_start</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_start [vmid+|all] start the specified vm.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_reset</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_reset [vmid+|all] reset the specified vm.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_suspend</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_suspend [vmid+|all] suspend the specified vm.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_stop</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_stop [vmid+|all] stop the specified vm.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_revert</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_revert [vmid+|all] [snapshot] revert the specified vm.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_snapshot</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_snapshot [vmid+|all] [snapshot] snapshot all targets for this exploit.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_upload</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_upload [vmid] [local_path] [remote_path] upload a file.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_run_command</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_run_command [vmid+|all] [command] run a command on all targets.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_browse_to</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_browse_to [vmid+|all] [uri] use the default browser to browse to a uri.</span><span class='tstring_end'>&quot;</span></span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="extended_help-instance_method">
+  
+    #<strong>extended_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>No extended help yet, but this is where more detailed documentation on particular commands would live. Key is command, (not cmd_command), value is the documentation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+448
+449
+450
+451
+452
+453</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 448</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extended_help'>extended_help</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lab_fake_cmd</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span>              <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This is a fake command. It&#39;s got its own special docs.</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_longest_cmd_size'>longest_cmd_size</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>It might be long so so deal with formatting somehow.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lab_usage-instance_method">
+  
+    #<strong>lab_usage</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Map for usages</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+456
+457
+458
+459
+460
+461
+462
+463
+464</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 456</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lab_usage'>lab_usage</span>
+  <span class='id identifier rubyid_caller'>caller</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>`cmd_(.*)&#39;</span><span class='regexp_end'>/</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='backref'>$1</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_extended_help'>extended_help</span><span class='lbracket'>[</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_commands'>commands</span><span class='lbracket'>[</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_cmd_lab_help'>cmd_lab_help</span> <span class='id identifier rubyid_cmd'>cmd</span>
+  <span class='kw'>else</span> <span class='comment'># Should never really get here...
+</span>    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown command. Try &#39;help&#39;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="longest_cmd_size-instance_method">
+  
+    #<strong>longest_cmd_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Commands for help</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+441
+442
+443</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 441</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_longest_cmd_size'>longest_cmd_size</span>
+  <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/lab.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lab</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:51 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

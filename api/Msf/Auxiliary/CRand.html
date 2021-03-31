@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::CRand
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::CRand";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">CRand</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::CRand
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/crand.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides a complete port of the libc rand() and srand() functions. It is used by the NETGEAR WNR2000v5 auxiliary and exploit modules, but might be useful for any other module that needs to emulate C&#39;s random number generator.</p>
+
+<p>Author: Pedro Ribeiro (pedrib@gmail.com) / Agile Information Security</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="TYPE_3-constant" class="">TYPE_3 =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>ported from <a href="https://git.uclibc.org/uClibc/tree/libc/stdlib/random.c">git.uclibc.org/uClibc/tree/libc/stdlib/random.c</a> and <a href="https://git.uclibc.org/uClibc/tree/libc/stdlib/random_r.c">git.uclibc.org/uClibc/tree/libc/stdlib/random_r.c</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="BREAK_3-constant" class="">BREAK_3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>128</span></pre></dd>
+      
+        <dt id="DEG_3-constant" class="">DEG_3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>31</span></pre></dd>
+      
+        <dt id="SEP_3-constant" class="">SEP_3 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#randtbl-instance_method" title="#randtbl (instance method)">#<strong>randtbl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute randtbl.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unsafe_state-instance_method" title="#unsafe_state (instance method)">#<strong>unsafe_state</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute unsafe_state.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#random_r-instance_method" title="#random_r (instance method)">#<strong>random_r</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Emulate the behaviour of C&#39;s rand.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#srandom_r-instance_method" title="#srandom_r (instance method)">#<strong>srandom_r</strong>(seed)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Emulate the behaviour of C&#39;s srand.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="randtbl=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="randtbl-instance_method">
+  
+    #<strong>randtbl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute randtbl.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/crand.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_randtbl'>randtbl</span>
+  <span class='ivar'>@randtbl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="unsafe_state=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="unsafe_state-instance_method">
+  
+    #<strong>unsafe_state</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute unsafe_state.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+15
+16
+17</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/crand.rb', line 15</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unsafe_state'>unsafe_state</span>
+  <span class='ivar'>@unsafe_state</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/crand.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='ivar'>@randtbl</span> <span class='op'>=</span>
+  <span class='lbracket'>[</span>
+    <span class='comment'># we omit TYPE_3 from here, not needed
+</span>    <span class='op'>-</span><span class='int'>1726662223</span><span class='comma'>,</span> <span class='int'>379960547</span><span class='comma'>,</span> <span class='int'>1735697613</span><span class='comma'>,</span> <span class='int'>1040273694</span><span class='comma'>,</span> <span class='int'>1313901226</span><span class='comma'>,</span>
+    <span class='int'>1627687941</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>179304937</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>2073333483</span><span class='comma'>,</span> <span class='int'>1780058412</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>1989503057</span><span class='comma'>,</span>
+    <span class='op'>-</span><span class='int'>615974602</span><span class='comma'>,</span> <span class='int'>344556628</span><span class='comma'>,</span> <span class='int'>939512070</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>1249116260</span><span class='comma'>,</span> <span class='int'>1507946756</span><span class='comma'>,</span>
+    <span class='op'>-</span><span class='int'>812545463</span><span class='comma'>,</span> <span class='int'>154635395</span><span class='comma'>,</span> <span class='int'>1388815473</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>1926676823</span><span class='comma'>,</span> <span class='int'>525320961</span><span class='comma'>,</span>
+    <span class='op'>-</span><span class='int'>1009028674</span><span class='comma'>,</span> <span class='int'>968117788</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>123449607</span><span class='comma'>,</span> <span class='int'>1284210865</span><span class='comma'>,</span> <span class='int'>435012392</span><span class='comma'>,</span>
+    <span class='op'>-</span><span class='int'>2017506339</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>911064859</span><span class='comma'>,</span> <span class='op'>-</span><span class='int'>370259173</span><span class='comma'>,</span> <span class='int'>1132637927</span><span class='comma'>,</span> <span class='int'>1398500161</span><span class='comma'>,</span>
+    <span class='op'>-</span><span class='int'>205601318</span><span class='comma'>,</span>
+  <span class='rbracket'>]</span>
+
+  <span class='ivar'>@unsafe_state</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fptr</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#SEP_3-constant" title="Msf::Auxiliary::CRand::SEP_3 (constant)">SEP_3</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rptr</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>state</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rand_type</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#TYPE_3-constant" title="Msf::Auxiliary::CRand::TYPE_3 (constant)">TYPE_3</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rand_deg</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#DEG_3-constant" title="Msf::Auxiliary::CRand::DEG_3 (constant)">DEG_3</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rand_sep</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#SEP_3-constant" title="Msf::Auxiliary::CRand::SEP_3 (constant)">SEP_3</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>end_ptr</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#DEG_3-constant" title="Msf::Auxiliary::CRand::DEG_3 (constant)">DEG_3</a></span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="random_r-instance_method">
+  
+    #<strong>random_r</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Emulate the behaviour of C&#39;s rand</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/crand.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_random_r'>random_r</span>
+  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='ivar'>@unsafe_state</span>
+  <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>state</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_fptr'>fptr</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_rptr'>rptr</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_end_ptr'>end_ptr</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>end_ptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='ivar'>@randtbl</span><span class='lbracket'>[</span><span class='id identifier rubyid_fptr'>fptr</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='ivar'>@randtbl</span><span class='lbracket'>[</span><span class='id identifier rubyid_rptr'>rptr</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;&gt;</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0x7fffffff</span>
+  <span class='id identifier rubyid_fptr'>fptr</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fptr'>fptr</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_end_ptr'>end_ptr</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_fptr'>fptr</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span>
+    <span class='id identifier rubyid_rptr'>rptr</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_rptr'>rptr</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_rptr'>rptr</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_end_ptr'>end_ptr</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_rptr'>rptr</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_fptr'>fptr</span>
+  <span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rptr'>rptr</span>
+
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="srandom_r-instance_method">
+  
+    #<strong>srandom_r</strong>(seed)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Emulate the behaviour of C&#39;s srand</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/crand.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_srandom_r'>srandom_r</span> <span class='lparen'>(</span><span class='id identifier rubyid_seed'>seed</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='ivar'>@randtbl</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_seed'>seed</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_seed'>seed</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_state'>state</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_seed'>seed</span>
+
+  <span class='id identifier rubyid_dst'>dst</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='id identifier rubyid_seed'>seed</span>
+  <span class='id identifier rubyid_kc'>kc</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#DEG_3-constant" title="Msf::Auxiliary::CRand::DEG_3 (constant)">DEG_3</a></span></span>
+  <span class='kw'>for</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>in</span> <span class='int'>1</span><span class='op'>..</span><span class='lparen'>(</span><span class='id identifier rubyid_kc'>kc</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hi'>hi</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span> <span class='op'>/</span> <span class='int'>127773</span>
+    <span class='id identifier rubyid_lo'>lo</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span> <span class='op'>%</span> <span class='int'>127773</span>
+    <span class='id identifier rubyid_word'>word</span> <span class='op'>=</span> <span class='int'>16807</span> <span class='op'>*</span> <span class='id identifier rubyid_lo'>lo</span> <span class='op'>-</span> <span class='int'>2836</span> <span class='op'>*</span> <span class='id identifier rubyid_hi'>hi</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_word'>word</span> <span class='op'>&lt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_word'>word</span> <span class='op'>+=</span> <span class='int'>2147483647</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_dst'>dst</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_state'>state</span><span class='lbracket'>[</span><span class='id identifier rubyid_dst'>dst</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_word'>word</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@unsafe_state</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>fptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='ivar'>@unsafe_state</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rand_sep</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='ivar'>@unsafe_state</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rptr</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_kc'>kc</span> <span class='op'>*=</span> <span class='int'>10</span>
+  <span class='id identifier rubyid_kc'>kc</span> <span class='op'>-=</span> <span class='int'>1</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_kc'>kc</span> <span class='op'>&gt;=</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_random_r'>random_r</span>
+    <span class='id identifier rubyid_kc'>kc</span> <span class='op'>-=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:21 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

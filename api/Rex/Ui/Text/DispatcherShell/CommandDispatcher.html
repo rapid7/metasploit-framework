@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Ui::Text::DispatcherShell::CommandDispatcher
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Ui::Text::DispatcherShell::CommandDispatcher";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Ui.html" title="Rex::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Text.html" title="Rex::Ui::Text (module)">Text</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DispatcherShell.html" title="Rex::Ui::Text::DispatcherShell (module)">DispatcherShell</a></span></span>
+     &raquo; 
+    <span class="title">CommandDispatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Ui::Text::DispatcherShell::CommandDispatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../../../../Msf/Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Msf::Ui::Console::CommandDispatcher</a></span>, <span class='object_link'><a href="../../../Post/HWBridge/Ui/Console/CommandDispatcher.html" title="Rex::Post::HWBridge::Ui::Console::CommandDispatcher (module)">Post::HWBridge::Ui::Console::CommandDispatcher</a></span>, <span class='object_link'><a href="../../../Post/Meterpreter/Ui/Console/CommandDispatcher.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher (module)">Post::Meterpreter::Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/ui/text/dispatcher_shell.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Empty template base class for command dispatchers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell-instance_method" title="#shell (instance method)">#<strong>shell</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>No tab completion items by default.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tab_complete_items-instance_method" title="#tab_complete_items (instance method)">#<strong>tab_complete_items</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>No tab completion items by default.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_help-instance_method" title="#cmd_help (instance method)">#<strong>cmd_help</strong>(cmd = nil, *ignored)  &#x21d2; Object </a>
+    
+
+    
+      (also: #cmd_?)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Displays the help banner.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_help_help-instance_method" title="#cmd_help_help (instance method)">#<strong>cmd_help_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_help_tabs-instance_method" title="#cmd_help_tabs (instance method)">#<strong>cmd_help_tabs</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tab completion for the help command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns nil for an empty set of commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deprecated_cmd-instance_method" title="#deprecated_cmd (instance method)">#<strong>deprecated_cmd</strong>(method = nil, *args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Print a warning that the called command is deprecated and optionally forward to the replacement <code>method</code> (useful for when commands are renamed).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deprecated_commands-instance_method" title="#deprecated_commands (instance method)">#<strong>deprecated_commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an empty set of commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deprecated_help-instance_method" title="#deprecated_help (instance method)">#<strong>deprecated_help</strong>(method = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#docs_dir-instance_method" title="#docs_dir (instance method)">#<strong>docs_dir</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the subdir of the `documentation/` directory that should be used to find usage documentation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#help_to_s-instance_method" title="#help_to_s (instance method)">#<strong>help_to_s</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a pretty, user-readable table of commands provided by this dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(shell)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the command dispatcher mixin.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print-instance_method" title="#print (instance method)">#<strong>print</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_error-instance_method" title="#print_error (instance method)">#<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+      (also: #print_bad)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print_error.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_good-instance_method" title="#print_good (instance method)">#<strong>print_good</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print_good.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_line-instance_method" title="#print_line (instance method)">#<strong>print_line</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print_line.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_status-instance_method" title="#print_status (instance method)">#<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print_status.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_warning-instance_method" title="#print_warning (instance method)">#<strong>print_warning</strong>(msg = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.print_warning.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tab_complete_directory-instance_method" title="#tab_complete_directory (instance method)">#<strong>tab_complete_directory</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a list of possible directory for tab completion.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tab_complete_filenames-instance_method" title="#tab_complete_filenames (instance method)">#<strong>tab_complete_filenames</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provide a generic tab completion for file names.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tab_complete_generic-instance_method" title="#tab_complete_generic (instance method)">#<strong>tab_complete_generic</strong>(fmt, str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provide a generic tab completion function based on the specification pass as fmt.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tab_complete_source_address-instance_method" title="#tab_complete_source_address (instance method)">#<strong>tab_complete_source_address</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a list of possible source addresses for tab completion.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unknown_command-instance_method" title="#unknown_command (instance method)">#<strong>unknown_command</strong>(method, line)  &#x21d2; Symbol<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A callback that can be used to handle unknown commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_prompt-instance_method" title="#update_prompt (instance method)">#<strong>update_prompt</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wraps shell.update_prompt.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="shell=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="shell-instance_method">
+  
+    #<strong>shell</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>No tab completion items by default</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 255</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell'>shell</span>
+  <span class='ivar'>@shell</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="tab_complete_items=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="tab_complete_items-instance_method">
+  
+    #<strong>tab_complete_items</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>No tab completion items by default</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 255</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tab_complete_items'>tab_complete_items</span>
+  <span class='ivar'>@tab_complete_items</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_help-instance_method">
+  
+    #<strong>cmd_help</strong>(cmd = nil, *ignored)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='cmd_?-instance_method'>cmd_?</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Displays the help banner.  With no arguments, this is just a list of all commands grouped by dispatcher.  Otherwise, tries to use a method named cmd_#&lt;code&gt;cmd&lt;/code&gt;_help for the first dispatcher that has a command named <code>cmd</code>.  If no such method exists, uses <code>cmd</code> as a regex to compare against each enstacked dispatcher&#39;s name and dumps commands of any that match.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_help'>cmd_help</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_ignored'>ignored</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_cmd'>cmd</span>
+    <span class='id identifier rubyid_help_found'>help_found</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_cmd_found'>cmd_found</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_stack'>dispatcher_stack</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:commands</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_cmd_found'>cmd_found</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_help_found'>help_found</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_cmd_found'>cmd_found</span>
+      <span class='comment'># We didn&#39;t find a cmd, try it as a dispatcher name
+</span>      <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_stack'>dispatcher_stack</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='op'>|</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='regexp_end'>/i</span></span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_help_to_s'>help_to_s</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_cmd_found'>cmd_found</span> <span class='op'>=</span> <span class='id identifier rubyid_help_found'>help_found</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_docs_dir'>docs_dir</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_docs_dir'>docs_dir</span><span class='comma'>,</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.md</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+      <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_docs_dir'>docs_dir</span><span class='comma'>,</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.md</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No help for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>, try -h</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_cmd_found'>cmd_found</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_help_found'>help_found</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No such command</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_cmd_found'>cmd_found</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_help_to_s'>help_to_s</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_docs_dir'>docs_dir</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_docs_dir'>docs_dir</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.md</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+      <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_docs_dir'>docs_dir</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.md</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_help_help-instance_method">
+  
+    #<strong>cmd_help_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_help_help'>cmd_help_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>There&#39;s only so much I can do</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_help_tabs-instance_method">
+  
+    #<strong>cmd_help_tabs</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tab completion for the help command</p>
+
+<p>By default just returns a list of all commands in all dispatchers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203
+204
+205</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_help_tabs'>cmd_help_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_dispatcher_stack'>dispatcher_stack</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>+=</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_tabs'>tabs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns nil for an empty set of commands.</p>
+
+<p>This method should be overridden to return a Hash with command names for keys and brief help text for values.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deprecated_cmd-instance_method">
+  
+    #<strong>deprecated_cmd</strong>(method = nil, *args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Print a warning that the called command is deprecated and optionally forward to the replacement <code>method</code> (useful for when commands are renamed).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deprecated_cmd'>deprecated_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_caller'>caller</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>`cmd_(.*)&#39;</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> command is DEPRECATED</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>db_autopwn</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See http://r-7.co/xY65Zr instead</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_method'>method</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Use </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'> instead</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deprecated_commands-instance_method">
+  
+    #<strong>deprecated_commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an empty set of commands.</p>
+
+<p>This method should be overridden if the dispatcher has commands that should be treated as deprecated. Deprecated commands will not show up in help and will not tab-complete, but will still be callable.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deprecated_commands'>deprecated_commands</span>
+  <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="deprecated_help-instance_method">
+  
+    #<strong>deprecated_help</strong>(method = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deprecated_help'>deprecated_help</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_caller'>caller</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>`cmd_(.*)_help&#39;</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> command is DEPRECATED</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>db_autopwn</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>See http://r-7.co/xY65Zr instead</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_method'>method</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Use &#39;help </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; instead</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="docs_dir-instance_method">
+  
+    #<strong>docs_dir</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the subdir of the `documentation/` directory that should be used to find usage documentation</p>
+
+<p>TODO: get this value from somewhere that doesn&#39;t invert a bunch of dependencies</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 248</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_docs_dir'>docs_dir</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>..</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>..</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>..</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>..</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>..</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>documentation</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cli</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="help_to_s-instance_method">
+  
+    #<strong>help_to_s</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a pretty, user-readable table of commands provided by this dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 213</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_help_to_s'>help_to_s</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># If this dispatcher has no commands, we can&#39;t do anything useful.
+</span>  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='comment'># Display the commands
+</span>  <span class='id identifier rubyid_tbl'>tbl</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> Commands</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>4</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+      <span class='lbracket'>[</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Command</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ColProps</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Command</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+          <span class='lbrace'>{</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxWidth</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>12</span>
+          <span class='rbrace'>}</span>
+      <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tbl'>tbl</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_tbl'>tbl</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(shell)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the command dispatcher mixin.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_shell'>shell</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_shell'>shell</span> <span class='op'>=</span> <span class='id identifier rubyid_shell'>shell</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_tab_complete_items'>tab_complete_items</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print-instance_method">
+  
+    #<strong>print</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_error-instance_method">
+  
+    #<strong>print_error</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='print_bad-instance_method'>print_bad</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print_error</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print_error'>print_error</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_good-instance_method">
+  
+    #<strong>print_good</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print_good</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print_good'>print_good</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_line-instance_method">
+  
+    #<strong>print_line</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print_line</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_status-instance_method">
+  
+    #<strong>print_status</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print_status</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_warning-instance_method">
+  
+    #<strong>print_warning</strong>(msg = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.print_warning</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 92</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_warning'><span class='object_link'><a href="../../../../top-level-namespace.html#print_warning-instance_method" title="#print_warning (method)">print_warning</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_print_warning'>print_warning</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tab_complete_directory-instance_method">
+  
+    #<strong>tab_complete_directory</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a list of possible directory for tab completion.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+276
+277
+278
+279
+280
+281</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 276</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tab_complete_directory'>tab_complete_directory</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='kw'>if</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+  <span class='id identifier rubyid_dirs'>dirs</span> <span class='op'>=</span> <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>FNM_CASEFOLD</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_x'>x</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_dirs'>dirs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tab_complete_filenames-instance_method">
+  
+    #<strong>tab_complete_filenames</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provide a generic tab completion for file names.</p>
+
+<p>If the only completion is a directory, this descends into that directory and continues completions with filenames contained within.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+263
+264
+265
+266
+267
+268
+269
+270
+271</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 263</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tab_complete_filenames'>tab_complete_filenames</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Readline</span><span class='op'>::</span><span class='const'>FILENAME_COMPLETION_PROC</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_matches'>matches</span> <span class='kw'>and</span> <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span> <span class='kw'>and</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_matches'>matches</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dir'>dir</span> <span class='op'>=</span> <span class='id identifier rubyid_matches'>matches</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_dir'>dir</span> <span class='op'>+=</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='kw'>if</span> <span class='id identifier rubyid_dir'>dir</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span>
+    <span class='id identifier rubyid_matches'>matches</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Readline</span><span class='op'>::</span><span class='const'>FILENAME_COMPLETION_PROC</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_matches'>matches</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='id identifier rubyid_matches'>matches</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tab_complete_generic-instance_method">
+  
+    #<strong>tab_complete_generic</strong>(fmt, str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provide a generic tab completion function based on the specification pass as fmt. The fmt argument in a hash where values are an array defining how the command should be completed. The first element of the array can be one of:</p>
+
+<pre class="code ruby"><code class="ruby">nil      - This argument is a flag and takes no option.
+true     - This argument takes an option with no suggestions.
+:address - This option is a source address.
+:bool    - This option is a boolean.
+:file    - This option is a file path.
+Array    - This option is an array of possible values.
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 295</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tab_complete_generic'>tab_complete_generic</span><span class='lparen'>(</span><span class='id identifier rubyid_fmt'>fmt</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_last_word'>last_word</span> <span class='op'>=</span> <span class='id identifier rubyid_words'>words</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fmt'>fmt</span> <span class='op'>=</span> <span class='id identifier rubyid_fmt'>fmt</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span> <span class='id identifier rubyid_last_word'>last_word</span> <span class='op'>==</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_fmt'>fmt</span><span class='lbracket'>[</span><span class='id identifier rubyid_last_word'>last_word</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_fmt'>fmt</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_val'>val</span>  <span class='comment'># the last word does not look like a fmtspec
+</span>  <span class='id identifier rubyid_arg'>arg</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_fmt'>fmt</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_arg'>arg</span>  <span class='comment'># the last word is a fmtspec that takes no argument
+</span>
+  <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_arg'>arg</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span> <span class='op'>==</span> <span class='symbol'>:address</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='id identifier rubyid_tab_complete_source_address'>tab_complete_source_address</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_arg'>arg</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span> <span class='op'>==</span> <span class='symbol'>:bool</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>false</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_arg'>arg</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span> <span class='op'>==</span> <span class='symbol'>:file</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='id identifier rubyid_tab_complete_filenames'>tab_complete_filenames</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_arg'>arg</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_tabs'>tabs</span> <span class='op'>=</span> <span class='id identifier rubyid_arg'>arg</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='id identifier rubyid_a'>a</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_tabs'>tabs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tab_complete_source_address-instance_method">
+  
+    #<strong>tab_complete_source_address</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a list of possible source addresses for tab completion.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tab_complete_source_address'>tab_complete_source_address</span>
+  <span class='id identifier rubyid_addresses'>addresses</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_source_address'>source_address</span><span class='rbracket'>]</span>
+  <span class='comment'># getifaddrs was introduced in 2.1.2
+</span>  <span class='kw'>if</span> <span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:getifaddrs</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ifaddrs'>ifaddrs</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_getifaddrs'>getifaddrs</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ifaddr'>ifaddr</span><span class='op'>|</span>
+      <span class='id identifier rubyid_ifaddr'>ifaddr</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ifaddr'>ifaddr</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_ip?'>ip?</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_addresses'>addresses</span> <span class='op'>+=</span> <span class='id identifier rubyid_ifaddrs'>ifaddrs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_ifaddr'>ifaddr</span><span class='op'>|</span> <span class='id identifier rubyid_ifaddr'>ifaddr</span><span class='period'>.</span><span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_ip_address'>ip_address</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_addresses'>addresses</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unknown_command-instance_method">
+  
+    #<strong>unknown_command</strong>(method, line)  &#x21d2; <tt>Symbol</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A callback that can be used to handle unknown commands. This can for example, allow a dispatcher to mark a command as being disabled.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Returns a symbol specifying the action that was taken by the handler or `nil` if no action was taken. The only supported action at this time is `:handled`, signifying that the unknown command was handled by this dispatcher and no additional dispatchers should receive it.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+339
+340
+341</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 339</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unknown_command'>unknown_command</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_prompt-instance_method">
+  
+    #<strong>update_prompt</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wraps shell.update_prompt</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/ui/text/dispatcher_shell.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_prompt'>update_prompt</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell'>shell</span><span class='period'>.</span><span class='id identifier rubyid_update_prompt'>update_prompt</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:38 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

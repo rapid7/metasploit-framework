@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::Spec::Threads::Suite
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Spec::Threads::Suite";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span>
+     &raquo; 
+    <span class="title">Suite</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::Spec::Threads::Suite
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/spec/threads/suite.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" class="">EXPECTED_THREAD_COUNT_AROUND_SUITE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Number of allowed threads when threads are counted in `after(:suite)` or `before(:suite)`</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REMOTE_DB</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>?</span> <span class='int'>4</span> <span class='op'>:</span> <span class='int'>3</span></pre></dd>
+      
+        <dt id="LOG_PATHNAME-constant" class="">LOG_PATHNAME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>`caller` for all Thread.new calls</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>log/metasploit/framework/spec/threads/suite.log</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="UUID_REGEXP-constant" class="">UUID_REGEXP =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Regular expression for extracting the UUID out of <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> for each Thread.new caller block</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>BEGIN Thread.new caller \((?&lt;uuid&gt;.*)\)</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+        <dt id="UUID_THREAD_LOCAL_VARIABLE-constant" class="">UUID_THREAD_LOCAL_VARIABLE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Name of thread local variable that Thread UUID is stored</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>metasploit/framework/spec/threads/logger/uuid</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#caller_by_thread_uuid-class_method" title="caller_by_thread_uuid (class method)">.<strong>caller_by_thread_uuid</strong>  &#x21d2; Hash{String =&gt; Array&lt;String&gt;} </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The `caller` for each Thread UUID.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configure!-class_method" title="configure! (class method)">.<strong>configure!</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Configures `before(:suite)` and `after(:suite)` callback to detect thread leaks.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#define_task-class_method" title="define_task (class method)">.<strong>define_task</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_suite_line-class_method" title="each_suite_line (class method)">.<strong>each_suite_line</strong> {|line| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Yields each line of <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> that happened during the suite run.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_thread_line-class_method" title="each_thread_line (class method)">.<strong>each_thread_line</strong> {|uuid, line| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Yield each line for each Thread UUID gathered during the suite run.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#non_debugger_thread_list-class_method" title="non_debugger_thread_list (class method)">.<strong>non_debugger_thread_list</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="caller_by_thread_uuid-class_method">
+  
+    .<strong>caller_by_thread_uuid</strong>  &#x21d2; <tt>Hash{String =&gt; Array&lt;String&gt;}</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The `caller` for each Thread UUID.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash{String =&gt; Array&lt;String&gt;}</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 191</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_caller_by_thread_uuid'>caller_by_thread_uuid</span>
+  <span class='id identifier rubyid_lines_by_thread_uuid'>lines_by_thread_uuid</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_hash'>hash</span><span class='comma'>,</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='op'>|</span>
+    <span class='id identifier rubyid_hash'>hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_each_thread_line'>each_thread_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_uuid'>uuid</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_lines_by_thread_uuid'>lines_by_thread_uuid</span><span class='lbracket'>[</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_lines_by_thread_uuid'>lines_by_thread_uuid</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="configure!-class_method">
+  
+    .<strong>configure!</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Configures `before(:suite)` and `after(:suite)` callback to detect thread leaks.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 31</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configure!'>configure!</span>
+  <span class='kw'>unless</span> <span class='ivar'>@configured</span>
+    <span class='const'>RSpec</span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_before'>before</span><span class='lparen'>(</span><span class='symbol'>:suite</span><span class='rparen'>)</span> <span class='kw'>do</span>
+        <span class='id identifier rubyid_thread_count'>thread_count</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='period'>.</span><span class='id identifier rubyid_non_debugger_thread_list'><span class='object_link'><a href="#non_debugger_thread_list-class_method" title="Metasploit::Framework::Spec::Threads::Suite.non_debugger_thread_list (method)">non_debugger_thread_list</a></span></span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span>
+
+        <span class='comment'># check with if first so that error message can be constructed lazily
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_thread_count'>thread_count</span> <span class='op'>&gt;</span> <span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span>
+          <span class='comment'># LOG_PATHNAME may not exist if suite run without `rake spec`
+</span>          <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+            <span class='id identifier rubyid_log'>log</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='rparen'>)</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_log'>log</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run `rake spec` to log where Thread.new is called.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span>
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thread_count'>thread_count</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>thread</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_pluralize'>pluralize</span><span class='lparen'>(</span><span class='id identifier rubyid_thread_count'>thread_count</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> exist(s) when </span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>only </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>thread</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_pluralize'>pluralize</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> expected before suite runs:\n</span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_log'>log</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+
+        <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_mkpath'>mkpath</span>
+
+        <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>a</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+          <span class='comment'># separator so after(:suite) can differentiate between threads created before(:suite) and during the
+</span>          <span class='comment'># suites
+</span>          <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>before(:suite)</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_after'>after</span><span class='lparen'>(</span><span class='symbol'>:suite</span><span class='rparen'>)</span> <span class='kw'>do</span>
+        <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_mkpath'>mkpath</span>
+
+        <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>a</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+          <span class='comment'># separator so that a flip flop can be used when reading the file below.  Also useful if it turns
+</span>          <span class='comment'># out any threads are being created after this callback, which could be the case if another
+</span>          <span class='comment'># after(:suite) accidentally created threads by creating an Msf::Simple::Framework instance.
+</span>          <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>after(:suite)</span><span class='tstring_end'>&#39;</span></span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_thread_list'>thread_list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='period'>.</span><span class='id identifier rubyid_non_debugger_thread_list'><span class='object_link'><a href="#non_debugger_thread_list-class_method" title="Metasploit::Framework::Spec::Threads::Suite.non_debugger_thread_list (method)">non_debugger_thread_list</a></span></span>
+        <span class='id identifier rubyid_thread_count'>thread_count</span> <span class='op'>=</span> <span class='id identifier rubyid_thread_list'>thread_list</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_thread_count'>thread_count</span> <span class='op'>&gt;</span> <span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span>
+          <span class='id identifier rubyid_error_lines'>error_lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+          <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+            <span class='id identifier rubyid_caller_by_thread_uuid'>caller_by_thread_uuid</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='period'>.</span><span class='id identifier rubyid_caller_by_thread_uuid'><span class='object_link'><a href="#caller_by_thread_uuid-class_method" title="Metasploit::Framework::Spec::Threads::Suite.caller_by_thread_uuid (method)">caller_by_thread_uuid</a></span></span>
+
+            <span class='id identifier rubyid_thread_list'>thread_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_thread'>thread</span><span class='op'>|</span>
+              <span class='id identifier rubyid_thread_uuid'>thread_uuid</span> <span class='op'>=</span> <span class='id identifier rubyid_thread'>thread</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="#UUID_THREAD_LOCAL_VARIABLE-constant" title="Metasploit::Framework::Spec::Threads::Suite::UUID_THREAD_LOCAL_VARIABLE (constant)">UUID_THREAD_LOCAL_VARIABLE</a></span></span><span class='rbracket'>]</span>
+
+              <span class='comment'># unmanaged thread, such as the main VM thread
+</span>              <span class='kw'>unless</span> <span class='id identifier rubyid_thread_uuid'>thread_uuid</span>
+                <span class='kw'>next</span>
+              <span class='kw'>end</span>
+
+              <span class='id identifier rubyid_caller'>caller</span> <span class='op'>=</span> <span class='id identifier rubyid_caller_by_thread_uuid'>caller_by_thread_uuid</span><span class='lbracket'>[</span><span class='id identifier rubyid_thread_uuid'>thread_uuid</span><span class='rbracket'>]</span>
+
+              <span class='id identifier rubyid_error_lines'>error_lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Thread </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thread_uuid'>thread_uuid</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;s status is </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thread'>thread</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
+                             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>and was started here:\n</span><span class='tstring_end'>&quot;</span></span>
+
+              <span class='id identifier rubyid_error_lines'>error_lines</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_caller'>caller</span><span class='rparen'>)</span>
+            <span class='kw'>end</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_error_lines'>error_lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run `rake spec` to log where Thread.new is called.</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span>
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_thread_count'>thread_count</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>thread</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_pluralize'>pluralize</span><span class='lparen'>(</span><span class='id identifier rubyid_thread_count'>thread_count</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> exist(s) when only </span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>thread</span><span class='tstring_end'>&#39;</span></span><span class='period'>.</span><span class='id identifier rubyid_pluralize'>pluralize</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#EXPECTED_THREAD_COUNT_AROUND_SUITE-constant" title="Metasploit::Framework::Spec::Threads::Suite::EXPECTED_THREAD_COUNT_AROUND_SUITE (constant)">EXPECTED_THREAD_COUNT_AROUND_SUITE</a></span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> expected after suite runs:\n</span><span class='tstring_end'>&quot;</span></span> \
+                <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error_lines'>error_lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='ivar'>@configured</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@configured</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="define_task-class_method">
+  
+    .<strong>define_task</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span>
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metasploit:framework:spec:threads:suite</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+      <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Threads.html" title="Metasploit::Framework::Spec::Threads (module)">Threads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Threads::Suite (module)">Suite</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_parent_pathname'>parent_pathname</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+    <span class='id identifier rubyid_threads_logger_pathname'>threads_logger_pathname</span> <span class='op'>=</span> <span class='id identifier rubyid_parent_pathname'>parent_pathname</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>logger</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_load_pathname'>load_pathname</span> <span class='op'>=</span> <span class='id identifier rubyid_parent_pathname'>parent_pathname</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span>
+
+    <span class='comment'># Must append to RUBYOPT or Rubymine debugger will not work
+</span>    <span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RUBYOPT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>ENV</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RUBYOPT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> -I</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_load_pathname'>load_pathname</span><span class='embexpr_end'>}</span><span class='tstring_content'> -r</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_threads_logger_pathname'>threads_logger_pathname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span><span class='lparen'>(</span><span class='label'>spec:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metasploit:framework:spec:threads:suite</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_suite_line-class_method">
+  
+    .<strong>each_suite_line</strong> {|line| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Ensure <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> exists before calling.</p>
+</div>
+  </div>
+
+
+<p>Yields each line of <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> that happened during the suite run.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>line</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>line</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a line in the <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> between `before(:suite)` and `after(:suite)`</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 139</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_each_suite_line'>each_suite_line</span>
+  <span class='id identifier rubyid_in_suite'>in_suite</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_in_suite'>in_suite</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>after(:suite)</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='kw'>break</span>
+      <span class='kw'>else</span>
+        <span class='kw'>yield</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>before(:suite)</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_in_suite'>in_suite</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_thread_line-class_method">
+  
+    .<strong>each_thread_line</strong> {|uuid, line| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Ensure <span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Threads::Suite::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span> exists before calling.</p>
+</div>
+  </div>
+
+
+<p>Yield each line for each Thread UUID gathered during the suite run.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>uuid</tt>, <tt>line</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>uuid</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the UUID of thread thread</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>line</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a line in the `caller` for the given `uuid`</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_each_thread_line'>each_thread_line</span>
+  <span class='id identifier rubyid_in_thread_caller'>in_thread_caller</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_uuid'>uuid</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_each_suite_line'>each_suite_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_in_thread_caller'>in_thread_caller</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_start_with?'>start_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>END Thread.new caller</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_in_thread_caller'>in_thread_caller</span> <span class='op'>=</span> <span class='kw'>false</span>
+        <span class='kw'>next</span>
+      <span class='kw'>else</span>
+        <span class='kw'>yield</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_match'>match</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#UUID_REGEXP-constant" title="Metasploit::Framework::Spec::Threads::Suite::UUID_REGEXP (constant)">UUID_REGEXP</a></span></span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_match'>match</span>
+        <span class='id identifier rubyid_in_thread_caller'>in_thread_caller</span> <span class='op'>=</span> <span class='kw'>true</span>
+        <span class='id identifier rubyid_uuid'>uuid</span> <span class='op'>=</span> <span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="non_debugger_thread_list-class_method">
+  
+    .<strong>non_debugger_thread_list</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+204
+205
+206
+207
+208
+209
+210
+211</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/threads/suite.rb', line 204</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_non_debugger_thread_list'>non_debugger_thread_list</span>
+  <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_reject'>reject</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_thread'>thread</span><span class='op'>|</span>
+    <span class='comment'># don&#39;t do `is_a? Debugger::DebugThread` because it requires Debugger::DebugThread to be loaded, which it
+</span>    <span class='comment'># won&#39;t when not debugging.
+</span>    <span class='id identifier rubyid_thread'>thread</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Debugger::DebugThread</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span>
+      <span class='id identifier rubyid_thread'>thread</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Debase::DebugThread</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:16 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

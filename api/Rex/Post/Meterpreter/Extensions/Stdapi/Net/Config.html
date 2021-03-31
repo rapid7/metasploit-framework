@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Net.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net (module)">Net</a></span></span>
+     &raquo; 
+    <span class="title">Config</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/net/config.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides an interface to the network configuration that exists on the remote machine, such as interfaces, and routes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_route-instance_method" title="#add_route (instance method)">#<strong>add_route</strong>(subnet, netmask, gateway)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a route to the target machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_interface-instance_method" title="#each_interface (instance method)">#<strong>each_interface</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates each interface.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_route-instance_method" title="#each_route (instance method)">#<strong>each_route</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates each route.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_arp_table-instance_method" title="#get_arp_table (instance method)">#<strong>get_arp_table</strong>  &#x21d2; Object </a>
+    
+
+    
+      (also: #arp_table)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of arp entries with each element being an Arp.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_interfaces-instance_method" title="#get_interfaces (instance method)">#<strong>get_interfaces</strong>  &#x21d2; Array&lt;Interface&gt; </a>
+    
+
+    
+      (also: #interfaces)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of network interfaces with each element.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_netstat-instance_method" title="#get_netstat (instance method)">#<strong>get_netstat</strong>  &#x21d2; Object </a>
+    
+
+    
+      (also: #netstat)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of network connection entries with each element being a Netstat.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_proxy_config-instance_method" title="#get_proxy_config (instance method)">#<strong>get_proxy_config</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get&#39;s the current proxy configuration.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_routes-instance_method" title="#get_routes (instance method)">#<strong>get_routes</strong>  &#x21d2; Object </a>
+    
+
+    
+      (also: #routes)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of routes with each element being a Route.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Config </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a Config instance that is used to get information about the network configuration of the remote machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_route-instance_method" title="#remove_route (instance method)">#<strong>remove_route</strong>(subnet, netmask, gateway)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes a route from the target machine.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config (class)">Config</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a Config instance that is used to get information about the network configuration of the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+252
+253
+254</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 252</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_route-instance_method">
+  
+    #<strong>add_route</strong>(subnet, netmask, gateway)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a route to the target machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 205</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_route'>add_route</span><span class='lparen'>(</span><span class='id identifier rubyid_subnet'>subnet</span><span class='comma'>,</span> <span class='id identifier rubyid_netmask'>netmask</span><span class='comma'>,</span> <span class='id identifier rubyid_gateway'>gateway</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE (constant)">COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SUBNET_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SUBNET_STRING (constant)">TLV_TYPE_SUBNET_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_subnet'>subnet</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETMASK_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETMASK_STRING (constant)">TLV_TYPE_NETMASK_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_netmask'>netmask</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_GATEWAY_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_GATEWAY_STRING (constant)">TLV_TYPE_GATEWAY_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_gateway'>gateway</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_interface-instance_method">
+  
+    #<strong>each_interface</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates each interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_interface'>each_interface</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get_interfaces'>get_interfaces</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_route-instance_method">
+  
+    #<strong>each_route</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates each route.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_route'>each_route</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get_routes'>get_routes</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_arp_table-instance_method">
+  
+    #<strong>get_arp_table</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='arp_table-instance_method'>arp_table</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of arp entries with each element being an Arp.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 150</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_arp_table'>get_arp_table</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE (constant)">COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE</a></span></span><span class='rparen'>)</span>
+              <span class='id identifier rubyid_arps'>arps</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Build out the array of arp
+</span>  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ARP_ENTRY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ARP_ENTRY (constant)">TLV_TYPE_ARP_ENTRY</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_arp'>arp</span><span class='op'>|</span>
+    <span class='id identifier rubyid_arps'>arps</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Arp.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Arp (class)">Arp</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Arp.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Arp#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='symbol'>:ip_addr</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_arp'>arp</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_IP-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_IP (constant)">TLV_TYPE_IP</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:mac_addr</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_arp'>arp</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_MAC_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS (constant)">TLV_TYPE_MAC_ADDRESS</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:interface</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_arp'>arp</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_MAC_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MAC_NAME (constant)">TLV_TYPE_MAC_NAME</a></span></span><span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_arps'>arps</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_interfaces-instance_method">
+  
+    #<strong>get_interfaces</strong>  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="Interface.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Interface (class)">Interface</a></span>&gt;</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='interfaces-instance_method'>interfaces</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of network interfaces with each element.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="Interface.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Interface (class)">Interface</a></span>&gt;</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_interfaces'>get_interfaces</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES (constant)">COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ifaces'>ifaces</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETWORK_INTERFACE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE (constant)">TLV_TYPE_NETWORK_INTERFACE</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_iface'>iface</span><span class='op'>|</span>
+    <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_netmasks'>netmasks</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_scopes'>scopes</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_IP-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_IP (constant)">TLV_TYPE_IP</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='comment'># Netmasks aren&#39;t tightly associated with addresses, they&#39;re
+</span>      <span class='comment'># just thrown all together in the interface TLV ordered to
+</span>      <span class='comment'># match up. This could be done better by creating another
+</span>      <span class='comment'># GroupTlv type for addresses containing an address, a netmask,
+</span>      <span class='comment'># and possibly a scope.
+</span>      <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETMASK-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETMASK (constant)">TLV_TYPE_NETMASK</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span>
+        <span class='comment'># Some systems can&#39;t report a netmask, only a network
+</span>        <span class='comment'># prefix, so figure out the netmask from that.
+</span>        <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_IP_PREFIX-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_IP_PREFIX (constant)">TLV_TYPE_IP_PREFIX</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_n'>n</span>
+          <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_bit2netmask'>bit2netmask</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='comma'>,</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_a'>a</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>16</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_n'>n</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_ntoa'>addr_ntoa</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_IP6_SCOPE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_IP6_SCOPE (constant)">TLV_TYPE_IP6_SCOPE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_scopes'>scopes</span><span class='lbracket'>[</span><span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span> <span class='kw'>if</span> <span class='id identifier rubyid_s'>s</span>
+      <span class='id identifier rubyid_netmasks'>netmasks</span><span class='lbracket'>[</span><span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_n'>n</span> <span class='kw'>if</span> <span class='id identifier rubyid_n'>n</span>
+      <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_ntoa'>addr_ntoa</span><span class='lparen'>(</span><span class='id identifier rubyid_a'>a</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_ifaces'>ifaces</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Interface.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Interface (class)">Interface</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Interface.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Interface#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='symbol'>:index</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_INTERFACE_INDEX-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_INTERFACE_INDEX (constant)">TLV_TYPE_INTERFACE_INDEX</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:mac_addr</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_MAC_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS (constant)">TLV_TYPE_MAC_ADDRESS</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:mac_name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_MAC_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MAC_NAME (constant)">TLV_TYPE_MAC_NAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:mtu</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_INTERFACE_MTU-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_INTERFACE_MTU (constant)">TLV_TYPE_INTERFACE_MTU</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:flags</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_iface'>iface</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_INTERFACE_FLAGS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_INTERFACE_FLAGS (constant)">TLV_TYPE_INTERFACE_FLAGS</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:addrs</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_addrs'>addrs</span><span class='comma'>,</span>
+        <span class='symbol'>:netmasks</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_netmasks'>netmasks</span><span class='comma'>,</span>
+        <span class='symbol'>:scopes</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_scopes'>scopes</span>
+      <span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_ifaces'>ifaces</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_netstat-instance_method">
+  
+    #<strong>get_netstat</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='netstat-instance_method'>netstat</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of network connection entries with each element being a Netstat.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_netstat'>get_netstat</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT (constant)">COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT</a></span></span><span class='rparen'>)</span>
+              <span class='id identifier rubyid_netstat'>netstat</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Build out the array of netstat
+</span>  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETSTAT_ENTRY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETSTAT_ENTRY (constant)">TLV_TYPE_NETSTAT_ENTRY</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_connection'>connection</span><span class='op'>|</span>
+    <span class='id identifier rubyid_netstat'>netstat</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Netstat.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Netstat (class)">Netstat</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Netstat.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Netstat#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+                    <span class='symbol'>:local_addr</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_LOCAL_HOST_RAW-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_LOCAL_HOST_RAW (constant)">TLV_TYPE_LOCAL_HOST_RAW</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:remote_addr</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PEER_HOST_RAW-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PEER_HOST_RAW (constant)">TLV_TYPE_PEER_HOST_RAW</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:local_port</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_LOCAL_PORT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_LOCAL_PORT (constant)">TLV_TYPE_LOCAL_PORT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:remote_port</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PEER_PORT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PEER_PORT (constant)">TLV_TYPE_PEER_PORT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:protocol</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_MAC_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MAC_NAME (constant)">TLV_TYPE_MAC_NAME</a></span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='comment'># tcp/tcp6/udp/udp6
+</span>        <span class='symbol'>:state</span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SUBNET_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SUBNET_STRING (constant)">TLV_TYPE_SUBNET_STRING</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:uid</span>          <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PID-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PID (constant)">TLV_TYPE_PID</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:inode</span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROUTE_METRIC-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROUTE_METRIC (constant)">TLV_TYPE_ROUTE_METRIC</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='symbol'>:pid_name</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_connection'>connection</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PROCESS_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROCESS_NAME (constant)">TLV_TYPE_PROCESS_NAME</a></span></span><span class='rparen'>)</span>
+        <span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_netstat'>netstat</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_proxy_config-instance_method">
+  
+    #<strong>get_proxy_config</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get&#39;s the current proxy configuration</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_proxy_config'>get_proxy_config</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY (constant)">COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_proxy_config'>proxy_config</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:autodetect</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PROXY_CFG_AUTODETECT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROXY_CFG_AUTODETECT (constant)">TLV_TYPE_PROXY_CFG_AUTODETECT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:autoconfigurl</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PROXY_CFG_AUTOCONFIGURL-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROXY_CFG_AUTOCONFIGURL (constant)">TLV_TYPE_PROXY_CFG_AUTOCONFIGURL</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:proxy</span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PROXY_CFG_PROXY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROXY_CFG_PROXY (constant)">TLV_TYPE_PROXY_CFG_PROXY</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:proxybypass</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PROXY_CFG_PROXYBYPASS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROXY_CFG_PROXYBYPASS (constant)">TLV_TYPE_PROXY_CFG_PROXYBYPASS</a></span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_proxy_config'>proxy_config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_routes-instance_method">
+  
+    #<strong>get_routes</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='routes-instance_method'>routes</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of routes with each element being a Route.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 180</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_routes'>get_routes</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES (constant)">COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_routes'>routes</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Build out the array of routes
+</span>  <span class='comment'># Note: This will include both IPv4 and IPv6 routes
+</span>  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETWORK_ROUTE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETWORK_ROUTE (constant)">TLV_TYPE_NETWORK_ROUTE</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_route'>route</span><span class='op'>|</span>
+    <span class='id identifier rubyid_routes'>routes</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Route.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Route (class)">Route</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Route.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Route#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SUBNET-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SUBNET (constant)">TLV_TYPE_SUBNET</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETMASK-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETMASK (constant)">TLV_TYPE_NETMASK</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_GATEWAY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_GATEWAY (constant)">TLV_TYPE_GATEWAY</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_TYPE_STRING (constant)">TLV_TYPE_STRING</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROUTE_METRIC-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROUTE_METRIC (constant)">TLV_TYPE_ROUTE_METRIC</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_routes'>routes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_route-instance_method">
+  
+    #<strong>remove_route</strong>(subnet, netmask, gateway)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes a route from the target machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/net/config.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_route'>remove_route</span><span class='lparen'>(</span><span class='id identifier rubyid_subnet'>subnet</span><span class='comma'>,</span> <span class='id identifier rubyid_netmask'>netmask</span><span class='comma'>,</span> <span class='id identifier rubyid_gateway'>gateway</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE (constant)">COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SUBNET_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SUBNET_STRING (constant)">TLV_TYPE_SUBNET_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_subnet'>subnet</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_NETMASK_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_NETMASK_STRING (constant)">TLV_TYPE_NETMASK_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_netmask'>netmask</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_GATEWAY_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_GATEWAY_STRING (constant)">TLV_TYPE_GATEWAY_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_gateway'>gateway</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:00 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::Requests::ConsoleCommandDispatcher
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::Requests::ConsoleCommandDispatcher";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Requests.html" title="Msf::Plugin::Requests (class)">Requests</a></span></span>
+     &raquo; 
+    <span class="title">ConsoleCommandDispatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::Requests::ConsoleCommandDispatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Plugin::Requests::ConsoleCommandDispatcher</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/request.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="HELP_REGEX-constant" class="">HELP_REGEX =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^-?-h(?:elp)?$</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#driver-instance_method" title="Msf::Ui::Console::CommandDispatcher#driver (method)">#driver</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_request-instance_method" title="#cmd_request (instance method)">#<strong>cmd_request</strong>(*args)  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The main handler for the request command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_request_http-instance_method" title="#handle_request_http (instance method)">#<strong>handle_request_http</strong>(opts, opt_parser)  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Perform an HTTP request based on the user specifed options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#handle_request_https-instance_method" title="#handle_request_https (instance method)">#<strong>handle_request_https</strong>(opts, opt_parser)  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Perform an HTTPS request based on the user specifed options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#help-instance_method" title="#help (instance method)">#<strong>help</strong>(opt_parser = nil, msg = &#39;Usage: request [options] uri&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Print the appropriate help text depending on an optional option parser.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#output_line-instance_method" title="#output_line (instance method)">#<strong>output_line</strong>(opts, line)  &#x21d2; nil </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Output lines based on the provided options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_args-instance_method" title="#parse_args (instance method)">#<strong>parse_args</strong>(args, type = &#39;http&#39;)  &#x21d2; Array&lt;Hash, Rex::Parser::Arguments&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse the provided arguments by dispatching to the correct method based on the specified type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_args_http-instance_method" title="#parse_args_http (instance method)">#<strong>parse_args_http</strong>(args = [], type = &#39;http&#39;)  &#x21d2; Array&lt;Hash&gt;, Rex::Parser::Arguments </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse the provided arguments for making HTTP requests.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_args_https-instance_method" title="#parse_args_https (instance method)">#<strong>parse_args_https</strong>(args = [], type = &#39;https&#39;)  &#x21d2; Array&lt;Hash, Rex::Parser::Arguments&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse the provided arguments for making HTTPS requests.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#types-instance_method" title="#types (instance method)">#<strong>types</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Dynamically determine the types of requests that are supported based on methods prefixed with “parse_args”.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module (method)">#active_module</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module= (method)">#active_module=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session (method)">#active_session</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session= (method)">#active_session=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#build_range_array-instance_method" title="Msf::Ui::Console::CommandDispatcher#build_range_array (method)">#build_range_array</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#docs_dir-instance_method" title="Msf::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#framework-instance_method" title="Msf::Ui::Console::CommandDispatcher#framework (method)">#framework</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#initialize-instance_method" title="Msf::Ui::Console::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#log_error-instance_method" title="Msf::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#remove_lines-instance_method" title="Msf::Ui::Console::CommandDispatcher#remove_lines (method)">#remove_lines</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#initialize-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_request-instance_method">
+  
+    #<strong>cmd_request</strong>(*args)  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The main handler for the request command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The array of arguments provided by the user.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_request'>cmd_request</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'># short circuit the whole deal if they need help
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_help'>help</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_help'>help</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span> <span class='op'>=~</span> <span class='const'><span class='object_link'><a href="#HELP_REGEX-constant" title="Msf::Plugin::Requests::ConsoleCommandDispatcher::HELP_REGEX (constant)">HELP_REGEX</a></span></span>
+
+  <span class='comment'># detect the request type from the uri which must be the last arg given
+</span>  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[A-Za-z]{3,5}:\/\/</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>://</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The last argument must be a valid and supported URI</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_help'>help</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># parse options
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_args'>parse_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span>
+    <span class='comment'># handle any &quot;global&quot; options
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span>
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EACCES</span><span class='comma'>,</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>EISDIR</span><span class='comma'>,</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOTDIR</span>
+        <span class='kw'>return</span> <span class='id identifier rubyid_help'>help</span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to open the specified file for output</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'># hand off the actual request to the appropriate request handler
+</span>    <span class='id identifier rubyid_handler_method'>handler_method</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>handle_request_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_handler_method'>handler_method</span><span class='rparen'>)</span>
+      <span class='comment'># call the appropriate request handler
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_handler_method'>handler_method</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># this should be dead code if parse_args is doing it&#39;s job correctly
+</span>      <span class='id identifier rubyid_help'>help</span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No request handler found for type (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>).</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_types'>types</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_type'>type</span>
+      <span class='id identifier rubyid_help'>help</span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_help'>help</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>request</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Make a request of the specified type (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_types'>types</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_request_http-instance_method">
+  
+    #<strong>handle_request_http</strong>(opts, opt_parser)  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Perform an HTTP request based on the user specifed options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The options to use for making the HTTP request.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opt_parser</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the argument parser for the request type.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:auth_username</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An optional username to use with basic authentication.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:auth_password</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An optional password to use with basic authentication. This is only used when :auth_username is specified.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:data</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any data to include within the body of the request. Often used with the POST HTTP method.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:headers</span>
+          <span class="type">(<tt>Hash</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A hash of additional headers to include in the request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:method</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The HTTP method to use in the request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:output_file</span>
+          <span class="type">(<tt>#write</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A file to write the response data to.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:print_body</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to print the body of the response.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:print_headers</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to print the headers of the response.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:ssl_version</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The version of SSL to use if the request scheme is HTTPS.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:uri</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The target uri to request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:user_agent</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The value to use in the User-Agent header of the request.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+    
+    
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 258</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_request_http'>handle_request_http</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_http_client'>http_client</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto/Http/Client.html" title="Rex::Proto::Http::Client (class)">Client</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Rex/Proto/Http/Client.html#initialize-instance_method" title="Rex::Proto::Http::Client#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+    <span class='lbrace'>{</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_scheme'>scheme</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_version</span><span class='rbracket'>]</span>
+  <span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:auth_username</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_auth_str'>auth_str</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:auth_username</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:auth_password</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_auth_str'>auth_str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Basic </span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_encode_base64'>encode_base64</span><span class='lparen'>(</span><span class='id identifier rubyid_auth_str'>auth_str</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Authorization</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_auth_str'>auth_str</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_http_client'>http_client</span><span class='period'>.</span><span class='id identifier rubyid_connect'>connect</span>
+    <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='id identifier rubyid_http_client'>http_client</span><span class='period'>.</span><span class='id identifier rubyid_request_cgi'>request_cgi</span><span class='lparen'>(</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>agent</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>data</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>headers</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>method</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:auth_password</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>query</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_query'>query</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uri</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:auth_username</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>version</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span>
+    <span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_http_client'>http_client</span><span class='period'>.</span><span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLError</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encountered an SSL error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>ECONNRESET</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ex'>ex</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The connection was reset by the peer</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ETIMEDOUT</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encountered an error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_http_client'>http_client</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_response'>response</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:print_headers</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_output_line'>output_line</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_cmd_string'>cmd_string</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_output_line'>output_line</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_output_line'>output_line</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:print_body</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Wrote </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_tell'>tell</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="handle_request_https-instance_method">
+  
+    #<strong>handle_request_https</strong>(opts, opt_parser)  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Perform an HTTPS request based on the user specifed options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The options to use for making the HTTPS request.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opt_parser</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the argument parser for the request type.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:auth_username</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An optional username to use with basic authentication.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:auth_password</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An optional password to use with basic authentication. This is only used when :auth_username is specified.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:data</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Any data to include within the body of the request. Often used with the POST HTTP method.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:headers</span>
+          <span class="type">(<tt>Hash</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A hash of additional headers to include in the request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:method</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The HTTP method to use in the request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:output_file</span>
+          <span class="type">(<tt>#write</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A file to write the response data to.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:print_body</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to print the body of the response.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:print_headers</span>
+          <span class="type">(<tt>Boolean</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to print the headers of the response.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:ssl_version</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The version of SSL to use if the request scheme is HTTPS.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:uri</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The target uri to request.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:user_agent</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The value to use in the User-Agent header of the request.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+    
+    
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229
+230</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 227</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_handle_request_https'>handle_request_https</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+  <span class='comment'># let http do it
+</span>  <span class='id identifier rubyid_handle_request_http'>handle_request_http</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="help-instance_method">
+  
+    #<strong>help</strong>(opt_parser = nil, msg = &#39;Usage: request [options] uri&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Print the appropriate help text depending on an optional option parser.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='ivar'>@return</span> <span class='lbracket'>[</span><span class='kw'>nil</span><span class='rbracket'>]</span>
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opt_parser</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the argument parser for the request type.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>msg</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;Usage: request [options] uri&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the first line of the help text to display to the user.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+347
+348
+349
+350
+351
+352
+353
+354
+355</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 347</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_help'>help</span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: request [options] uri</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Supported uri types are: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_types'>types</span><span class='period'>.</span><span class='id identifier rubyid_collect'>collect</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_t'>t</span><span class='op'>|</span> <span class='id identifier rubyid_t'>t</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>://</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>To see usage for a specific uri type, use request -h uri</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 12</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Request</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="output_line-instance_method">
+  
+    #<strong>output_line</strong>(opts, line)  &#x21d2; <tt>nil</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Output lines based on the provided options. Data is either printed to the console or written to a file. Trailing new lines are removed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The options as parsed from parse_args.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>line</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The string to output.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:output_file</span>
+          <span class="type">(<tt>#write</tt>, <tt>nil</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>An optional file to write the output to.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+    
+    
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 326</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_output_line'>output_line</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>2</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_args-instance_method">
+  
+    #<strong>parse_args</strong>(args, type = &#39;http&#39;)  &#x21d2; <tt>Array&lt;Hash, <span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse the provided arguments by dispatching to the correct method based on the specified type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command line arguments to parse.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;http&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The protocol type that the request is for such as HTTP.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash, <span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array with the options hash and the argument parser.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88
+89
+90
+91
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_args'>parse_args</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_downcase!'>downcase!</span>
+  <span class='id identifier rubyid_parse_method'>parse_method</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>parse_args_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_parse_method'>parse_method</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_parse_method'>parse_method</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unsupported URI type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_args_http-instance_method">
+  
+    #<strong>parse_args_http</strong>(args = [], type = &#39;http&#39;)  &#x21d2; <tt>Array&lt;Hash&gt;</tt>, <tt><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse the provided arguments for making HTTP requests. The argument flags are intended to be similar to the curl utility.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command line arguments to parse.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;http&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The protocol type that the request is for.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash&gt;</tt>, <tt><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>] An array with the options hash and the argument parser.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 115</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_args_http'>parse_args_http</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>http</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opt_parser'>opt_parser</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Rex/Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-0</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Use HTTP 1.0</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-1</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Use TLSv1 (SSL)</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-2</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Use SSLv2 (SSL)</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-3</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Use SSLv3 (SSL)</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-A</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>User-Agent to send to server</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-d</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HTTP POST data</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-G</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Send the -d data with an HTTP GET</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>This help text</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-H</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Custom header to pass to server</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Include headers in the output</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-I</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Show document info only</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-o</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Write output to &lt;file&gt; instead of stdout</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-u</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Server user and password</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-X</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Request method to use</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+    <span class='comment'>#&#39;-x&#39; =&gt; [ true,  &#39;Proxy to use, format: [proto://][user:pass@]host[:port]&#39; +
+</span>    <span class='comment'>#                 &#39;  Proto defaults to http:// and port to 1080&#39;],
+</span>  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:headers</span>         <span class='op'>=&gt;</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='symbol'>:print_body</span>      <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='symbol'>:print_headers</span>   <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='symbol'>:ssl_version</span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Auto</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:user_agent</span>      <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto/Http/Client.html" title="Rex::Proto::Http::Client (class)">Client</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Proto/Http/Client.html#DefaultUserAgent-constant" title="Rex::Proto::Http::Client::DefaultUserAgent (constant)">DefaultUserAgent</a></span></span><span class='comma'>,</span>
+    <span class='symbol'>:version</span>         <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.1</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-0</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.0</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-1</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:ssl_version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TLS1</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-2</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:ssl_version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL2</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-3</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:ssl_version</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSL3</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-A</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:user_agent</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-d</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-G</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#HELP_REGEX-constant" title="Msf::Plugin::Requests::ConsoleCommandDispatcher::HELP_REGEX (constant)">HELP_REGEX</a></span></span>
+      <span class='comment'>#help(opt_parser)
+</span>      <span class='comment'># guard to prevent further option processing &amp; stymie request handling
+</span>      <span class='kw'>return</span> <span class='lbracket'>[</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-H</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:print_headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-I</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:print_headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:print_body</span><span class='rbracket'>]</span>    <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HEAD</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-o</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:output_file</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-u</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='comment'># only split on first &#39;:&#39; as per curl:
+</span>      <span class='comment'># from curl man page: &quot;The user name and passwords are split up on the
+</span>      <span class='comment'># first colon, which makes it impossible to use a colon in the user
+</span>      <span class='comment'># name with this option.  The password can, still.
+</span>      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:auth_username</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:auth_password</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:auth_password</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-X</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='comment'>#when &#39;-x&#39;
+</span>      <span class='comment'># @TODO proxy
+</span>    <span class='kw'>else</span>
+      <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_help'>help</span><span class='lparen'>(</span><span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>URI</span><span class='lparen'>(</span><span class='id identifier rubyid_options'>options</span><span class='lbracket'>[</span><span class='symbol'>:uri</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_options'>options</span><span class='comma'>,</span> <span class='id identifier rubyid_opt_parser'>opt_parser</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_args_https-instance_method">
+  
+    #<strong>parse_args_https</strong>(args = [], type = &#39;https&#39;)  &#x21d2; <tt>Array&lt;Hash, <span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse the provided arguments for making HTTPS requests. The argument flags are intended to be similar to the curl utility.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>args</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The command line arguments to parse.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;https&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The protocol type that the request is for.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Hash, <span class='object_link'><a href="../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Rex::Parser::Arguments</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array with the options hash and the argument parser.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_args_https'>parse_args_https</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>https</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='comment'># just let http do it
+</span>  <span class='id identifier rubyid_parse_args_http'>parse_args_http</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="types-instance_method">
+  
+    #<strong>types</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Dynamically determine the types of requests that are supported based on methods prefixed with “parse_args”.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The supported request types.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/request.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_types'>types</span>
+  <span class='id identifier rubyid_parse_methods'>parse_methods</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_public_methods'>public_methods</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^parse_args_</span><span class='regexp_end'>/</span></span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_parse_methods'>parse_methods</span><span class='period'>.</span><span class='id identifier rubyid_collect'>collect</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_m'>m</span><span class='op'>|</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='int'>2</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:55 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

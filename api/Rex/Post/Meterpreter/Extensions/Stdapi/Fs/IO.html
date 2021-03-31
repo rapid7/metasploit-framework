@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fs.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs (module)">Fs</a></span></span>
+     &raquo; 
+    <span class="title">IO</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The IO class acts as a base class for things that would normally implement the IO interface.  The methods it implements are for general operations that are common to all channels, such as read, write, and close.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="File.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></p>
+</div>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../IO.html#filed-instance_method" title="Rex::Post::IO#filed (method)">#filed</a></span>, <span class='object_link'><a href="../../../../IO.html#mode-instance_method" title="Rex::Post::IO#mode (method)">#mode</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes the channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sysread-instance_method" title="#sysread (instance method)">#<strong>sysread</strong>(length = nil)  &#x21d2; Object </a>
+    
+
+    
+      (also: #read)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Read the specified number of bytes from the channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#syswrite-instance_method" title="#syswrite (instance method)">#<strong>syswrite</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+      (also: #write)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Writes the supplied buffer to the channel.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../IO.html#binmode-instance_method" title="Rex::Post::IO#binmode (method)">#binmode</a></span>, <span class='object_link'><a href="../../../../IO.html#close_read-instance_method" title="Rex::Post::IO#close_read (method)">#close_read</a></span>, <span class='object_link'><a href="../../../../IO.html#close_write-instance_method" title="Rex::Post::IO#close_write (method)">#close_write</a></span>, <span class='object_link'><a href="../../../../IO.html#closed%3F-instance_method" title="Rex::Post::IO#closed? (method)">#closed?</a></span>, <span class='object_link'><a href="../../../../IO.html#each-instance_method" title="Rex::Post::IO#each (method)">#each</a></span>, <span class='object_link'><a href="../../../../IO.html#each_byte-instance_method" title="Rex::Post::IO#each_byte (method)">#each_byte</a></span>, <span class='object_link'><a href="../../../../IO.html#each_line-instance_method" title="Rex::Post::IO#each_line (method)">#each_line</a></span>, <span class='object_link'><a href="../../../../IO.html#eof-instance_method" title="Rex::Post::IO#eof (method)">#eof</a></span>, <span class='object_link'><a href="../../../../IO.html#eof%3F-instance_method" title="Rex::Post::IO#eof? (method)">#eof?</a></span>, <span class='object_link'><a href="../../../../IO.html#fcntl-instance_method" title="Rex::Post::IO#fcntl (method)">#fcntl</a></span>, <span class='object_link'><a href="../../../../IO.html#flush-instance_method" title="Rex::Post::IO#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../../../IO.html#fsync-instance_method" title="Rex::Post::IO#fsync (method)">#fsync</a></span>, <span class='object_link'><a href="../../../../IO.html#getc-instance_method" title="Rex::Post::IO#getc (method)">#getc</a></span>, <span class='object_link'><a href="../../../../IO.html#gets-instance_method" title="Rex::Post::IO#gets (method)">#gets</a></span>, <span class='object_link'><a href="../../../../IO.html#ioctl-instance_method" title="Rex::Post::IO#ioctl (method)">#ioctl</a></span>, <span class='object_link'><a href="../../../../IO.html#isatty-instance_method" title="Rex::Post::IO#isatty (method)">#isatty</a></span>, <span class='object_link'><a href="../../../../IO.html#lineno-instance_method" title="Rex::Post::IO#lineno (method)">#lineno</a></span>, <span class='object_link'><a href="../../../../IO.html#pos-instance_method" title="Rex::Post::IO#pos (method)">#pos</a></span>, <span class='object_link'><a href="../../../../IO.html#print-instance_method" title="Rex::Post::IO#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../IO.html#printf-instance_method" title="Rex::Post::IO#printf (method)">#printf</a></span>, <span class='object_link'><a href="../../../../IO.html#putc-instance_method" title="Rex::Post::IO#putc (method)">#putc</a></span>, <span class='object_link'><a href="../../../../IO.html#puts-instance_method" title="Rex::Post::IO#puts (method)">#puts</a></span>, <span class='object_link'><a href="../../../../IO.html#readchar-instance_method" title="Rex::Post::IO#readchar (method)">#readchar</a></span>, <span class='object_link'><a href="../../../../IO.html#readline-instance_method" title="Rex::Post::IO#readline (method)">#readline</a></span>, <span class='object_link'><a href="../../../../IO.html#readlines-instance_method" title="Rex::Post::IO#readlines (method)">#readlines</a></span>, <span class='object_link'><a href="../../../../IO.html#rewind-instance_method" title="Rex::Post::IO#rewind (method)">#rewind</a></span>, <span class='object_link'><a href="../../../../IO.html#seek-instance_method" title="Rex::Post::IO#seek (method)">#seek</a></span>, <span class='object_link'><a href="../../../../IO.html#stat-instance_method" title="Rex::Post::IO#stat (method)">#stat</a></span>, <span class='object_link'><a href="../../../../IO.html#sync-instance_method" title="Rex::Post::IO#sync (method)">#sync</a></span>, <span class='object_link'><a href="../../../../IO.html#sysseek-instance_method" title="Rex::Post::IO#sysseek (method)">#sysseek</a></span>, <span class='object_link'><a href="../../../../IO.html#tell-instance_method" title="Rex::Post::IO#tell (method)">#tell</a></span>, <span class='object_link'><a href="../../../../IO.html#tty%3F-instance_method" title="Rex::Post::IO#tty? (method)">#tty?</a></span>, <span class='object_link'><a href="../../../../IO.html#ungetc-instance_method" title="Rex::Post::IO#ungetc (method)">#ungetc</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes the channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sysread-instance_method">
+  
+    #<strong>sysread</strong>(length = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='read-instance_method'>read</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Read the specified number of bytes from the channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="syswrite-instance_method">
+  
+    #<strong>syswrite</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='write-instance_method'>write</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Writes the supplied buffer to the channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_syswrite'>syswrite</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:58 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

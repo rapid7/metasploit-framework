@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::Wmap
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::Wmap";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span>
+     &raquo; 
+    <span class="title">Wmap</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::Wmap
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></li>
+          
+            <li class="next">Msf::Plugin::Wmap</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/wmap.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Wmap/WebTarget.html" title="Msf::Plugin::Wmap::WebTarget (class)">WebTarget</a></span>, <span class='object_link'><a href="Wmap/WmapCommandDispatcher.html" title="Msf::Plugin::Wmap::WmapCommandDispatcher (class)">WmapCommandDispatcher</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#opts-instance_method" title="Msf::Plugin#opts (method)">#opts</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, opts)  &#x21d2; Wmap </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Wmap.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#add_console_dispatcher-instance_method" title="Msf::Plugin#add_console_dispatcher (method)">#add_console_dispatcher</a></span>, <span class='object_link'><a href="../Plugin.html#create-class_method" title="Msf::Plugin.create (method)">create</a></span>, <span class='object_link'><a href="../Plugin.html#flush-instance_method" title="Msf::Plugin#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Plugin.html#input-instance_method" title="Msf::Plugin#input (method)">#input</a></span>, <span class='object_link'><a href="../Plugin.html#output-instance_method" title="Msf::Plugin#output (method)">#output</a></span>, <span class='object_link'><a href="../Plugin.html#print-instance_method" title="Msf::Plugin#print (method)">#print</a></span>, <span class='object_link'><a href="../Plugin.html#print_error-instance_method" title="Msf::Plugin#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Plugin.html#print_good-instance_method" title="Msf::Plugin#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Plugin.html#print_line-instance_method" title="Msf::Plugin#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Plugin.html#print_status-instance_method" title="Msf::Plugin#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Plugin.html#print_warning-instance_method" title="Msf::Plugin#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../Plugin.html#remove_console_dispatcher-instance_method" title="Msf::Plugin#remove_console_dispatcher (method)">#remove_console_dispatcher</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, opts)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Plugin::Wmap (class)">Wmap</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Wmap.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2287
+2288
+2289
+2290
+2291
+2292
+2293
+2294
+2295
+2296
+2297
+2298
+2299
+2300
+2301
+2302
+2303
+2304
+2305
+2306
+2307
+2308
+2309
+2310
+2311
+2312
+2313
+2314
+2315
+2316
+2317</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wmap.rb', line 2287</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Database not connected (try db_connect)</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_color'>color</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ConsoleDriver</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_supports_color?'>supports_color?</span> <span class='kw'>rescue</span> <span class='kw'>false</span>
+
+  <span class='id identifier rubyid_wmapversion'>wmapversion</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>1.5.1</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_wmapbanner'>wmapbanner</span> <span class='op'>=</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%red\n.-.-.-..-.-.-..---..---.%clr\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_wmapbanner'>wmapbanner</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%red| | | || | | || | || |-&#39;%clr\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_wmapbanner'>wmapbanner</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%red`-----&#39;`-&#39;-&#39;-&#39;`-^-&#39;`-&#39;%clr\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_wmapbanner'>wmapbanner</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>[WMAP </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_wmapversion'>wmapversion</span><span class='embexpr_end'>}</span><span class='tstring_content'>] ===  et [  ] metasploit.com 2012\n</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@stdio</span>
+    <span class='ivar'>@stdio</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output.html" title="Rex::Ui::Text::Output (class)">Output</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Stdio.html" title="Rex::Ui::Text::Output::Stdio (class)">Stdio</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Stdio.html#initialize-instance_method" title="Rex::Ui::Text::Output::Stdio#initialize (method)">new</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_color'>color</span> <span class='op'>==</span> <span class='kw'>true</span>
+    <span class='ivar'>@stdio</span><span class='period'>.</span><span class='id identifier rubyid_auto_color'>auto_color</span>
+  <span class='kw'>else</span>
+    <span class='ivar'>@stdio</span><span class='period'>.</span><span class='id identifier rubyid_disable_color'>disable_color</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@stdio</span><span class='period'>.</span><span class='id identifier rubyid_print_raw'>print_raw</span><span class='lparen'>(</span><span class='ivar'>@stdio</span><span class='period'>.</span><span class='id identifier rubyid_substitute_colors'>substitute_colors</span><span class='lparen'>(</span><span class='id identifier rubyid_wmapbanner'>wmapbanner</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_add_console_dispatcher'>add_console_dispatcher</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Wmap/WmapCommandDispatcher.html" title="Msf::Plugin::Wmap::WmapCommandDispatcher (class)">WmapCommandDispatcher</a></span></span><span class='rparen'>)</span>
+  <span class='comment'>#print_status(&quot;#{wmapbanner}&quot;)
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2319
+2320
+2321</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wmap.rb', line 2319</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='id identifier rubyid_remove_console_dispatcher'>remove_console_dispatcher</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wmap</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2327
+2328
+2329</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wmap.rb', line 2327</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Web assessment plugin</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+2323
+2324
+2325</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wmap.rb', line 2323</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wmap</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:51 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

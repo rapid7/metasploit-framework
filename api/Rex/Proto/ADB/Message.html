@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::ADB::Message
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::ADB::Message";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ADB.html" title="Rex::Proto::ADB (module)">ADB</a></span></span>
+     &raquo; 
+    <span class="title">Message</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::ADB::Message
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::ADB::Message</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/adb/message.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>A Message for the ADB protocol. For documentation see: <a href="https://android.googlesource.com/platform/system/core/+/master/adb/protocol.txt">android.googlesource.com/platform/system/core/+/master/adb/protocol.txt</a></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Message/Auth.html" title="Rex::Proto::ADB::Message::Auth (class)">Auth</a></span>, <span class='object_link'><a href="Message/Close.html" title="Rex::Proto::ADB::Message::Close (class)">Close</a></span>, <span class='object_link'><a href="Message/Connect.html" title="Rex::Proto::ADB::Message::Connect (class)">Connect</a></span>, <span class='object_link'><a href="Message/Open.html" title="Rex::Proto::ADB::Message::Open (class)">Open</a></span>, <span class='object_link'><a href="Message/Ready.html" title="Rex::Proto::ADB::Message::Ready (class)">Ready</a></span>, <span class='object_link'><a href="Message/Sync.html" title="Rex::Proto::ADB::Message::Sync (class)">Sync</a></span>, <span class='object_link'><a href="Message/Write.html" title="Rex::Proto::ADB::Message::Write (class)">Write</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Message/Auth.html" title="Rex::Proto::ADB::Message::Auth (class)">Auth</a></span>, <span class='object_link'><a href="Message/Close.html" title="Rex::Proto::ADB::Message::Close (class)">Close</a></span>, <span class='object_link'><a href="Message/Connect.html" title="Rex::Proto::ADB::Message::Connect (class)">Connect</a></span>, <span class='object_link'><a href="Message/Open.html" title="Rex::Proto::ADB::Message::Open (class)">Open</a></span>, <span class='object_link'><a href="Message/Ready.html" title="Rex::Proto::ADB::Message::Ready (class)">Ready</a></span>, <span class='object_link'><a href="Message/Sync.html" title="Rex::Proto::ADB::Message::Sync (class)">Sync</a></span>, <span class='object_link'><a href="Message/Write.html" title="Rex::Proto::ADB::Message::Write (class)">Write</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="WORD_WIDTH-constant" class="">WORD_WIDTH =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>bytes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="WORD_PACK-constant" class="">WORD_PACK =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>L&lt;</span><span class='tstring_end'>&#39;</span></span></pre></dd>
+      
+        <dt id="MESSAGE_TYPES-constant" class="">MESSAGE_TYPES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Avoid a dependency on Rails&#39;s nice Class#subclasses</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Message/Connect.html" title="Rex::Proto::ADB::Message::Connect (class)">Connect</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Auth.html" title="Rex::Proto::ADB::Message::Auth (class)">Auth</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Open.html" title="Rex::Proto::ADB::Message::Open (class)">Open</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Ready.html" title="Rex::Proto::ADB::Message::Ready (class)">Ready</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Write.html" title="Rex::Proto::ADB::Message::Write (class)">Write</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Close.html" title="Rex::Proto::ADB::Message::Close (class)">Close</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Message/Sync.html" title="Rex::Proto::ADB::Message::Sync (class)">Sync</a></span></span><span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arg0-instance_method" title="#arg0 (instance method)">#<strong>arg0</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute arg0.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arg1-instance_method" title="#arg1 (instance method)">#<strong>arg1</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute arg1.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command-instance_method" title="#command (instance method)">#<strong>command</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute command.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#data-instance_method" title="#data (instance method)">#<strong>data</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute data.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-class_method" title="read (class method)">.<strong>read</strong>(socket)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command_word-instance_method" title="#command_word (instance method)">#<strong>command_word</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#data_check-instance_method" title="#data_check (instance method)">#<strong>data_check</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(arg0, arg1, data)  &#x21d2; Message </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Message.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#magic-instance_method" title="#magic (instance method)">#<strong>magic</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_recv-instance_method" title="#send_recv (instance method)">#<strong>send_recv</strong>(socket)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#serialize-instance_method" title="#serialize (instance method)">#<strong>serialize</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(arg0, arg1, data)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::ADB::Message (class)">Message</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Message.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+23
+24
+25
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 23</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_arg0'>arg0</span><span class='comma'>,</span> <span class='id identifier rubyid_arg1'>arg1</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='op'>::</span><span class='const'>COMMAND</span> <span class='kw'>if</span> <span class='kw'>defined?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='op'>::</span><span class='const'>COMMAND</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arg0'>arg0</span> <span class='op'>=</span> <span class='id identifier rubyid_arg0'>arg0</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arg1'>arg1</span> <span class='op'>=</span> <span class='id identifier rubyid_arg1'>arg1</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\0</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="arg0=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="arg0-instance_method">
+  
+    #<strong>arg0</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute arg0.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arg0'>arg0</span>
+  <span class='ivar'>@arg0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="arg1=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="arg1-instance_method">
+  
+    #<strong>arg1</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute arg1.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arg1'>arg1</span>
+  <span class='ivar'>@arg1</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="command=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="command-instance_method">
+  
+    #<strong>command</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command'>command</span>
+  <span class='ivar'>@command</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="data=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="data-instance_method">
+  
+    #<strong>data</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute data.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_data'>data</span>
+  <span class='ivar'>@data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="read-class_method">
+  
+    .<strong>read</strong>(socket)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_socket'>socket</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_recvfrom'>recvfrom</span><span class='lparen'>(</span><span class='int'>6</span> <span class='op'>*</span> <span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_arg0'>arg0</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_PACK-constant" title="Rex::Proto::ADB::Message::WORD_PACK (constant)">WORD_PACK</a></span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_arg1'>arg1</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='op'>*</span><span class='int'>2</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_PACK-constant" title="Rex::Proto::ADB::Message::WORD_PACK (constant)">WORD_PACK</a></span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_payload_len'>payload_len</span> <span class='op'>=</span> <span class='id identifier rubyid_header'>header</span><span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='op'>*</span><span class='int'>3</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#WORD_WIDTH-constant" title="Rex::Proto::ADB::Message::WORD_WIDTH (constant)">WORD_WIDTH</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_PACK-constant" title="Rex::Proto::ADB::Message::WORD_PACK (constant)">WORD_PACK</a></span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_recvfrom'>recvfrom</span><span class='lparen'>(</span><span class='id identifier rubyid_payload_len'>payload_len</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_klass'>klass</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#MESSAGE_TYPES-constant" title="Rex::Proto::ADB::Message::MESSAGE_TYPES (constant)">MESSAGE_TYPES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_klass'>klass</span><span class='op'>|</span> <span class='id identifier rubyid_klass'>klass</span><span class='op'>::</span><span class='const'>COMMAND</span> <span class='op'>==</span> <span class='id identifier rubyid_command'>command</span> <span class='rbrace'>}</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid adb command: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_klass'>klass</span><span class='period'>.</span><span class='id identifier rubyid_allocate'>allocate</span>
+  <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_command'>command</span> <span class='op'>=</span> <span class='id identifier rubyid_command'>command</span>
+  <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_arg0'>arg0</span> <span class='op'>=</span> <span class='id identifier rubyid_arg0'>arg0</span>
+  <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_arg1'>arg1</span> <span class='op'>=</span> <span class='id identifier rubyid_arg1'>arg1</span>
+  <span class='id identifier rubyid_message'>message</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_payload'>payload</span>
+  <span class='id identifier rubyid_message'>message</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="command_word-instance_method">
+  
+    #<strong>command_word</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command_word'>command_word</span>
+  <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_PACK-constant" title="Rex::Proto::ADB::Message::WORD_PACK (constant)">WORD_PACK</a></span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="data_check-instance_method">
+  
+    #<strong>data_check</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_data_check'>data_check</span>
+  <span class='comment'># this check is implemented in adb/transport.cpp, in the send_packet method.
+</span>  <span class='comment'># it is not crc32 as the docs make it appear, it is just a 32bit sum.
+</span>  <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_inject'>inject</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:+</span><span class='rparen'>)</span> <span class='op'>&amp;</span> <span class='int'>0xffffffff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="magic-instance_method">
+  
+    #<strong>magic</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_magic'>magic</span>
+  <span class='id identifier rubyid_command_word'>command_word</span> <span class='op'>^</span> <span class='int'>0xffffffff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_recv-instance_method">
+  
+    #<strong>send_recv</strong>(socket)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_socket'>socket</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_serialize'>serialize</span>
+  <span class='const'><span class='object_link'><a href="" title="Rex::Proto::ADB::Message (class)">Message</a></span></span><span class='period'>.</span><span class='id identifier rubyid_read'><span class='object_link'><a href="#read-class_method" title="Rex::Proto::ADB::Message.read (method)">read</a></span></span> <span class='id identifier rubyid_socket'>socket</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="serialize-instance_method">
+  
+    #<strong>serialize</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_serialize'>serialize</span>
+  <span class='lbracket'>[</span>
+    <span class='id identifier rubyid_command_word'>command_word</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_arg0'>arg0</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_arg1'>arg1</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_bytes'>bytes</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_data_check'>data_check</span><span class='comma'>,</span>
+    <span class='id identifier rubyid_magic'>magic</span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#WORD_PACK-constant" title="Rex::Proto::ADB::Message::WORD_PACK (constant)">WORD_PACK</a></span></span><span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/adb/message.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='lbracket'>[</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>command=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_command'>command</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>arg0=0x</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg0'>arg0</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>arg1=0x</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg1'>arg1</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data=</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:41 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

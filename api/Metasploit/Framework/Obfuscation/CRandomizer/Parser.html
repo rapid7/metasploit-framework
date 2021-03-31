@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::Obfuscation::CRandomizer::Parser
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Obfuscation::CRandomizer::Parser";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Obfuscation.html" title="Metasploit::Framework::Obfuscation (module)">Obfuscation</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../CRandomizer.html" title="Metasploit::Framework::Obfuscation::CRandomizer (module)">CRandomizer</a></span></span>
+     &raquo; 
+    <span class="title">Parser</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::Obfuscation::CRandomizer::Parser
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::Obfuscation::CRandomizer::Parser</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/obfuscation/crandomizer/parser.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fake_functions_collection-instance_method" title="#fake_functions_collection (instance method)">#<strong>fake_functions_collection</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute fake_functions_collection.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_random_weight-instance_method" title="#max_random_weight (instance method)">#<strong>max_random_weight</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_random_weight.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(weight, fake_functions = nil)  &#x21d2; Parser </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a Metasploit::Framework::Obfuscation::CRandomizer::Parser instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse-instance_method" title="#parse (instance method)">#<strong>parse</strong>(template)  &#x21d2; Metasm::C::Parser </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a parser.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(weight, fake_functions = nil)  &#x21d2; <tt><span class='object_link'><a href="" title="Metasploit::Framework::Obfuscation::CRandomizer::Parser (class)">Parser</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a Metasploit::Framework::Obfuscation::CRandomizer::Parser instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>weight</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Randomness of the code.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>fake_functions</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="CodeFactory/FakeFunctionCollection.html" title="Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunctionCollection (class)">Metasploit::Framework::Obfuscation::CRandomizer::CodeFactory::FakeFunctionCollection</a></span></tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+17
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/obfuscation/crandomizer/parser.rb', line 17</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_weight'>weight</span><span class='comma'>,</span> <span class='id identifier rubyid_fake_functions'>fake_functions</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='ivar'>@max_random_weight</span> <span class='op'>=</span> <span class='id identifier rubyid_weight'>weight</span>
+  <span class='ivar'>@fake_functions_collection</span> <span class='op'>=</span> <span class='id identifier rubyid_fake_functions'>fake_functions</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="fake_functions_collection=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="fake_functions_collection-instance_method">
+  
+    #<strong>fake_functions_collection</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute fake_functions_collection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+11
+12
+13</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/obfuscation/crandomizer/parser.rb', line 11</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fake_functions_collection'>fake_functions_collection</span>
+  <span class='ivar'>@fake_functions_collection</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_random_weight=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_random_weight-instance_method">
+  
+    #<strong>max_random_weight</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_random_weight.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+10
+11
+12</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/obfuscation/crandomizer/parser.rb', line 10</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_random_weight'>max_random_weight</span>
+  <span class='ivar'>@max_random_weight</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="parse-instance_method">
+  
+    #<strong>parse</strong>(template)  &#x21d2; <tt>Metasm::C::Parser</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a parser.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>template</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Soure code to parse.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Metasm::C::Parser</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/obfuscation/crandomizer/parser.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_template'>template</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_main_parser'>main_parser</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Obfuscation.html" title="Metasploit::Framework::Obfuscation (module)">Obfuscation</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CRandomizer.html" title="Metasploit::Framework::Obfuscation::CRandomizer (module)">CRandomizer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Utility.html" title="Metasploit::Framework::Obfuscation::CRandomizer::Utility (class)">Utility</a></span></span><span class='period'>.</span><span class='id identifier rubyid_parse'><span class='object_link'><a href="Utility.html#parse-class_method" title="Metasploit::Framework::Obfuscation::CRandomizer::Utility.parse (method)">parse</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_template'>template</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_modifier'>modifier</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Obfuscation.html" title="Metasploit::Framework::Obfuscation (module)">Obfuscation</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../CRandomizer.html" title="Metasploit::Framework::Obfuscation::CRandomizer (module)">CRandomizer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Modifier.html" title="Metasploit::Framework::Obfuscation::CRandomizer::Modifier (class)">Modifier</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Modifier.html#initialize-instance_method" title="Metasploit::Framework::Obfuscation::CRandomizer::Modifier#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_main_parser'>main_parser</span><span class='comma'>,</span> <span class='id identifier rubyid_fake_functions_collection'>fake_functions_collection</span><span class='comma'>,</span> <span class='id identifier rubyid_max_random_weight'>max_random_weight</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_main_parser'>main_parser</span><span class='period'>.</span><span class='id identifier rubyid_toplevel'>toplevel</span><span class='period'>.</span><span class='id identifier rubyid_statements'>statements</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+    <span class='kw'>when</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>C</span><span class='op'>::</span><span class='const'>Function</span>
+      <span class='comment'># Some function objects such as declarations don&#39;t really have
+</span>      <span class='comment'># any statements, if we run into something like that, skip it.
+</span>      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_var'>var</span><span class='period'>.</span><span class='id identifier rubyid_initializer'>initializer</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:statements</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_modifier'>modifier</span><span class='period'>.</span><span class='id identifier rubyid_modify_function'>modify_function</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_main_parser'>main_parser</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:33 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

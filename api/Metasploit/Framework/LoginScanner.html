@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::LoginScanner
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span>
+     &raquo; 
+    <span class="title">LoginScanner</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::LoginScanner
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner.rb<span class="defines">,<br />
+  lib/metasploit/framework/login_scanner/afp.rb,<br /> lib/metasploit/framework/login_scanner/db2.rb,<br /> lib/metasploit/framework/login_scanner/ftp.rb,<br /> lib/metasploit/framework/login_scanner/smb.rb,<br /> lib/metasploit/framework/login_scanner/smh.rb,<br /> lib/metasploit/framework/login_scanner/ssh.rb,<br /> lib/metasploit/framework/login_scanner/vnc.rb,<br /> lib/metasploit/framework/login_scanner/acpp.rb,<br /> lib/metasploit/framework/login_scanner/base.rb,<br /> lib/metasploit/framework/login_scanner/http.rb,<br /> lib/metasploit/framework/login_scanner/mqtt.rb,<br /> lib/metasploit/framework/login_scanner/ntlm.rb,<br /> lib/metasploit/framework/login_scanner/pop3.rb,<br /> lib/metasploit/framework/login_scanner/snmp.rb,<br /> lib/metasploit/framework/login_scanner/axis2.rb,<br /> lib/metasploit/framework/login_scanner/mssql.rb,<br /> lib/metasploit/framework/login_scanner/mysql.rb,<br /> lib/metasploit/framework/login_scanner/redis.rb,<br /> lib/metasploit/framework/login_scanner/winrm.rb,<br /> lib/metasploit/framework/login_scanner/caidao.rb,<br /> lib/metasploit/framework/login_scanner/gitlab.rb,<br /> lib/metasploit/framework/login_scanner/nessus.rb,<br /> lib/metasploit/framework/login_scanner/result.rb,<br /> lib/metasploit/framework/login_scanner/telnet.rb,<br /> lib/metasploit/framework/login_scanner/tomcat.rb,<br /> lib/metasploit/framework/login_scanner/zabbix.rb,<br /> lib/metasploit/framework/login_scanner/buffalo.rb,<br /> lib/metasploit/framework/login_scanner/invalid.rb,<br /> lib/metasploit/framework/login_scanner/ipboard.rb,<br /> lib/metasploit/framework/login_scanner/jenkins.rb,<br /> lib/metasploit/framework/login_scanner/jupyter.rb,<br /> lib/metasploit/framework/login_scanner/varnish.rb,<br /> lib/metasploit/framework/login_scanner/vmauthd.rb,<br /> lib/metasploit/framework/login_scanner/postgres.rb,<br /> lib/metasploit/framework/login_scanner/glassfish.rb,<br /> lib/metasploit/framework/login_scanner/chef_webui.rb,<br /> lib/metasploit/framework/login_scanner/phpmyadmin.rb,<br /> lib/metasploit/framework/login_scanner/rex_socket.rb,<br /> lib/metasploit/framework/login_scanner/directadmin.rb,<br /> lib/metasploit/framework/login_scanner/mybook_live.rb,<br /> lib/metasploit/framework/login_scanner/octopusdeploy.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_rpc.rb,<br /> lib/metasploit/framework/login_scanner/cisco_firepower.rb,<br /> lib/metasploit/framework/login_scanner/bavision_cameras.rb,<br /> lib/metasploit/framework/login_scanner/advantech_webaccess.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_multicall.rb,<br /> lib/metasploit/framework/login_scanner/symantec_web_gateway.rb,<br /> lib/metasploit/framework/login_scanner/manageengine_desktop_central.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides the namespace for all LoginScanner classes. LoginScanners are the classes that provide functionality for testing authentication against various different protocols and mechanisms.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="LoginScanner/Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">Base</a></span>, <span class='object_link'><a href="LoginScanner/NTLM.html" title="Metasploit::Framework::LoginScanner::NTLM (module)">NTLM</a></span>, <span class='object_link'><a href="LoginScanner/RexSocket.html" title="Metasploit::Framework::LoginScanner::RexSocket (module)">RexSocket</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="LoginScanner/ACPP.html" title="Metasploit::Framework::LoginScanner::ACPP (class)">ACPP</a></span>, <span class='object_link'><a href="LoginScanner/AFP.html" title="Metasploit::Framework::LoginScanner::AFP (class)">AFP</a></span>, <span class='object_link'><a href="LoginScanner/AdvantechWebAccess.html" title="Metasploit::Framework::LoginScanner::AdvantechWebAccess (class)">AdvantechWebAccess</a></span>, <span class='object_link'><a href="LoginScanner/Axis2.html" title="Metasploit::Framework::LoginScanner::Axis2 (class)">Axis2</a></span>, <span class='object_link'><a href="LoginScanner/BavisionCameras.html" title="Metasploit::Framework::LoginScanner::BavisionCameras (class)">BavisionCameras</a></span>, <span class='object_link'><a href="LoginScanner/BavisionCamerasException.html" title="Metasploit::Framework::LoginScanner::BavisionCamerasException (class)">BavisionCamerasException</a></span>, <span class='object_link'><a href="LoginScanner/Buffalo.html" title="Metasploit::Framework::LoginScanner::Buffalo (class)">Buffalo</a></span>, <span class='object_link'><a href="LoginScanner/Caidao.html" title="Metasploit::Framework::LoginScanner::Caidao (class)">Caidao</a></span>, <span class='object_link'><a href="LoginScanner/ChefWebUI.html" title="Metasploit::Framework::LoginScanner::ChefWebUI (class)">ChefWebUI</a></span>, <span class='object_link'><a href="LoginScanner/CiscoFirepower.html" title="Metasploit::Framework::LoginScanner::CiscoFirepower (class)">CiscoFirepower</a></span>, <span class='object_link'><a href="LoginScanner/DB2.html" title="Metasploit::Framework::LoginScanner::DB2 (class)">DB2</a></span>, <span class='object_link'><a href="LoginScanner/DirectAdmin.html" title="Metasploit::Framework::LoginScanner::DirectAdmin (class)">DirectAdmin</a></span>, <span class='object_link'><a href="LoginScanner/FTP.html" title="Metasploit::Framework::LoginScanner::FTP (class)">FTP</a></span>, <span class='object_link'><a href="LoginScanner/GitLab.html" title="Metasploit::Framework::LoginScanner::GitLab (class)">GitLab</a></span>, <span class='object_link'><a href="LoginScanner/Glassfish.html" title="Metasploit::Framework::LoginScanner::Glassfish (class)">Glassfish</a></span>, <span class='object_link'><a href="LoginScanner/HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span>, <span class='object_link'><a href="LoginScanner/IPBoard.html" title="Metasploit::Framework::LoginScanner::IPBoard (class)">IPBoard</a></span>, <span class='object_link'><a href="LoginScanner/Invalid.html" title="Metasploit::Framework::LoginScanner::Invalid (class)">Invalid</a></span>, <span class='object_link'><a href="LoginScanner/Jenkins.html" title="Metasploit::Framework::LoginScanner::Jenkins (class)">Jenkins</a></span>, <span class='object_link'><a href="LoginScanner/Jupyter.html" title="Metasploit::Framework::LoginScanner::Jupyter (class)">Jupyter</a></span>, <span class='object_link'><a href="LoginScanner/MQTT.html" title="Metasploit::Framework::LoginScanner::MQTT (class)">MQTT</a></span>, <span class='object_link'><a href="LoginScanner/MSSQL.html" title="Metasploit::Framework::LoginScanner::MSSQL (class)">MSSQL</a></span>, <span class='object_link'><a href="LoginScanner/ManageEngineDesktopCentral.html" title="Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral (class)">ManageEngineDesktopCentral</a></span>, <span class='object_link'><a href="LoginScanner/MyBookLive.html" title="Metasploit::Framework::LoginScanner::MyBookLive (class)">MyBookLive</a></span>, <span class='object_link'><a href="LoginScanner/MySQL.html" title="Metasploit::Framework::LoginScanner::MySQL (class)">MySQL</a></span>, <span class='object_link'><a href="LoginScanner/Nessus.html" title="Metasploit::Framework::LoginScanner::Nessus (class)">Nessus</a></span>, <span class='object_link'><a href="LoginScanner/OctopusDeploy.html" title="Metasploit::Framework::LoginScanner::OctopusDeploy (class)">OctopusDeploy</a></span>, <span class='object_link'><a href="LoginScanner/POP3.html" title="Metasploit::Framework::LoginScanner::POP3 (class)">POP3</a></span>, <span class='object_link'><a href="LoginScanner/PhpMyAdmin.html" title="Metasploit::Framework::LoginScanner::PhpMyAdmin (class)">PhpMyAdmin</a></span>, <span class='object_link'><a href="LoginScanner/Postgres.html" title="Metasploit::Framework::LoginScanner::Postgres (class)">Postgres</a></span>, <span class='object_link'><a href="LoginScanner/Redis.html" title="Metasploit::Framework::LoginScanner::Redis (class)">Redis</a></span>, <span class='object_link'><a href="LoginScanner/Result.html" title="Metasploit::Framework::LoginScanner::Result (class)">Result</a></span>, <span class='object_link'><a href="LoginScanner/SMB.html" title="Metasploit::Framework::LoginScanner::SMB (class)">SMB</a></span>, <span class='object_link'><a href="LoginScanner/SNMP.html" title="Metasploit::Framework::LoginScanner::SNMP (class)">SNMP</a></span>, <span class='object_link'><a href="LoginScanner/SSH.html" title="Metasploit::Framework::LoginScanner::SSH (class)">SSH</a></span>, <span class='object_link'><a href="LoginScanner/Smh.html" title="Metasploit::Framework::LoginScanner::Smh (class)">Smh</a></span>, <span class='object_link'><a href="LoginScanner/SymantecWebGateway.html" title="Metasploit::Framework::LoginScanner::SymantecWebGateway (class)">SymantecWebGateway</a></span>, <span class='object_link'><a href="LoginScanner/Telnet.html" title="Metasploit::Framework::LoginScanner::Telnet (class)">Telnet</a></span>, <span class='object_link'><a href="LoginScanner/Tomcat.html" title="Metasploit::Framework::LoginScanner::Tomcat (class)">Tomcat</a></span>, <span class='object_link'><a href="LoginScanner/VMAUTHD.html" title="Metasploit::Framework::LoginScanner::VMAUTHD (class)">VMAUTHD</a></span>, <span class='object_link'><a href="LoginScanner/VNC.html" title="Metasploit::Framework::LoginScanner::VNC (class)">VNC</a></span>, <span class='object_link'><a href="LoginScanner/VarnishCLI.html" title="Metasploit::Framework::LoginScanner::VarnishCLI (class)">VarnishCLI</a></span>, <span class='object_link'><a href="LoginScanner/WinRM.html" title="Metasploit::Framework::LoginScanner::WinRM (class)">WinRM</a></span>, <span class='object_link'><a href="LoginScanner/WordpressMulticall.html" title="Metasploit::Framework::LoginScanner::WordpressMulticall (class)">WordpressMulticall</a></span>, <span class='object_link'><a href="LoginScanner/WordpressRPC.html" title="Metasploit::Framework::LoginScanner::WordpressRPC (class)">WordpressRPC</a></span>, <span class='object_link'><a href="LoginScanner/Zabbix.html" title="Metasploit::Framework::LoginScanner::Zabbix (class)">Zabbix</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#classes_for_service-class_method" title="classes_for_service (class method)">.<strong>classes_for_service</strong>(service)  &#x21d2; Array&lt;LoginScanner::Base&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Gather a list of LoginScanner classes that can potentially be used for a given `service`, which should usually be an `Mdm::Service` object, but can be anything that responds to #name and #port.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_sane_defaults-instance_method" title="#set_sane_defaults (instance method)">#<strong>set_sane_defaults</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="classes_for_service-class_method">
+  
+    .<strong>classes_for_service</strong>(service)  &#x21d2; <tt>Array&lt;<span class='object_link'><a href="LoginScanner/Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">LoginScanner::Base</a></span>&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Gather a list of LoginScanner classes that can potentially be used for a given `service`, which should usually be an `Mdm::Service` object, but can be anything that responds to #name and #port.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>service</span>
+      
+      
+        <span class='type'>(<tt>Mdm::Service</tt>, <tt>#port</tt>, <tt>#name</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;<span class='object_link'><a href="LoginScanner/Base.html" title="Metasploit::Framework::LoginScanner::Base (module)">LoginScanner::Base</a></span>&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A collection of LoginScanner classes that will probably give useful results when run against `service`.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_classes_for_service'>classes_for_service</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='ivar'>@required</span>
+    <span class='comment'># Make sure we&#39;ve required all the scanner classes
+</span>    <span class='id identifier rubyid_dir'>dir</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>../login_scanner/</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>__FILE__</span><span class='rparen'>)</span>
+    <span class='const'>Dir</span><span class='period'>.</span><span class='id identifier rubyid_glob'>glob</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+      <span class='id identifier rubyid_require'>require</span> <span class='id identifier rubyid_f'>f</span> <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@required</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_sym'>sym</span><span class='op'>|</span> <span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_sym'>sym</span><span class='rparen'>)</span><span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_const'>const</span><span class='op'>|</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Class</span><span class='rparen'>)</span>
+
+    <span class='lparen'>(</span>
+      <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='symbol'>:LIKELY_PORTS</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='symbol'>:LIKELY_PORTS</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+    <span class='rparen'>)</span> <span class='op'>||</span> <span class='lparen'>(</span>
+      <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_const_defined?'>const_defined?</span><span class='lparen'>(</span><span class='symbol'>:LIKELY_SERVICE_NAMES</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+      <span class='id identifier rubyid_const'>const</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='symbol'>:LIKELY_SERVICE_NAMES</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_service'>service</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+    <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="set_sane_defaults-instance_method">
+  
+    #<strong>set_sane_defaults</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/login_scanner/postgres.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_sane_defaults'>set_sane_defaults</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_connection_timeout'>connection_timeout</span> <span class='op'>||=</span> <span class='int'>30</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span>               <span class='op'>||=</span> <span class='const'>DEFAULT_PORT</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:15 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

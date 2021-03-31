@@ -1,0 +1,3058 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::ClientCore
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::ClientCore";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+     &raquo; 
+    <span class="title">ClientCore</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::ClientCore
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::ClientCore</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/client_core.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class is responsible for providing the interface to the core client-side meterpreter API which facilitates the loading of extensions and the interaction with channels.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="METERPRETER_TRANSPORT_TCP-constant" class="">METERPRETER_TRANSPORT_TCP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="METERPRETER_TRANSPORT_HTTP-constant" class="">METERPRETER_TRANSPORT_HTTP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="METERPRETER_TRANSPORT_HTTPS-constant" class="">METERPRETER_TRANSPORT_HTTPS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="VALID_TRANSPORTS-constant" class="">VALID_TRANSPORTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_tcp</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#METERPRETER_TRANSPORT_TCP-constant" title="Rex::Post::Meterpreter::ClientCore::METERPRETER_TRANSPORT_TCP (constant)">METERPRETER_TRANSPORT_TCP</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_http</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#METERPRETER_TRANSPORT_HTTP-constant" title="Rex::Post::Meterpreter::ClientCore::METERPRETER_TRANSPORT_HTTP (constant)">METERPRETER_TRANSPORT_HTTP</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_https</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#METERPRETER_TRANSPORT_HTTPS-constant" title="Rex::Post::Meterpreter::ClientCore::METERPRETER_TRANSPORT_HTTPS (constant)">METERPRETER_TRANSPORT_HTTPS</a></span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bind_tcp</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#METERPRETER_TRANSPORT_TCP-constant" title="Rex::Post::Meterpreter::ClientCore::METERPRETER_TRANSPORT_TCP (constant)">METERPRETER_TRANSPORT_TCP</a></span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Extension.html#client-instance_method" title="Rex::Post::Meterpreter::Extension#client (method)">#client</a></span>, <span class='object_link'><a href="Extension.html#name-instance_method" title="Rex::Post::Meterpreter::Extension#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extension_id-class_method" title="extension_id (class method)">.<strong>extension_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_named_pipe_pivot-instance_method" title="#create_named_pipe_pivot (instance method)">#<strong>create_named_pipe_pivot</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>create a named pipe pivot.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#disable_ssl_hash_verify-instance_method" title="#disable_ssl_hash_verify (instance method)">#<strong>disable_ssl_hash_verify</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Disable the SSL certificate has verificate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enable_ssl_hash_verify-instance_method" title="#enable_ssl_hash_verify (instance method)">#<strong>enable_ssl_hash_verify</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enable the SSL certificate has verificate.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_loaded_extension_commands-instance_method" title="#get_loaded_extension_commands (instance method)">#<strong>get_loaded_extension_commands</strong>(extension)  &#x21d2; Array&lt;Integer&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get a list of loaded commands for the given extension.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_session_guid-instance_method" title="#get_session_guid (instance method)">#<strong>get_session_guid</strong>(timeout = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the session GUID from the target session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_ssl_hash_verify-instance_method" title="#get_ssl_hash_verify (instance method)">#<strong>get_ssl_hash_verify</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Attempt to get the SSL hash being used for verificaton (if any).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; ClientCore </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the &#39;core&#39; portion of the meterpreter client commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_library-instance_method" title="#load_library (instance method)">#<strong>load_library</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads a library on the remote meterpreter instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#machine_id-instance_method" title="#machine_id (instance method)">#<strong>machine_id</strong>(timeout = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the machine ID from the target session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#migrate-instance_method" title="#migrate (instance method)">#<strong>migrate</strong>(target_pid, writable_dir = nil, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Migrates the meterpreter instance to the process specified by pid.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#native_arch-instance_method" title="#native_arch (instance method)">#<strong>native_arch</strong>(timeout = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the current native arch from the target session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#negotiate_tlv_encryption-instance_method" title="#negotiate_tlv_encryption (instance method)">#<strong>negotiate_tlv_encryption</strong>(timeout: client.comm_timeout)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Negotiates the use of encryption at the TLV level.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#secure-instance_method" title="#secure (instance method)">#<strong>secure</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_session_guid-instance_method" title="#set_session_guid (instance method)">#<strong>set_session_guid</strong>(guid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set the session GUID on the target session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_transport_timeouts-instance_method" title="#set_transport_timeouts (instance method)">#<strong>set_transport_timeouts</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set associated transport timeouts for the currently active transport.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_uuid-instance_method" title="#set_uuid (instance method)">#<strong>set_uuid</strong>(uuid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set the UUID on the target session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shutdown-instance_method" title="#shutdown (instance method)">#<strong>shutdown</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Shuts the session down.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_add-instance_method" title="#transport_add (instance method)">#<strong>transport_add</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add a transport to the session based on the provided options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_change-instance_method" title="#transport_change (instance method)">#<strong>transport_change</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Change the currently active transport on the session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_list-instance_method" title="#transport_list (instance method)">#<strong>transport_list</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_next-instance_method" title="#transport_next (instance method)">#<strong>transport_next</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Change the active transport to the next one in the transport list.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_prev-instance_method" title="#transport_prev (instance method)">#<strong>transport_prev</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Change the active transport to the previous one in the transport list.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_remove-instance_method" title="#transport_remove (instance method)">#<strong>transport_remove</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Remove a transport from the session based on the provided options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_sleep-instance_method" title="#transport_sleep (instance method)">#<strong>transport_sleep</strong>(seconds)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sleep the current session for the given number of seconds.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#use-instance_method" title="#use (instance method)">#<strong>use</strong>(mod, opts = { })  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Loads a meterpreter extension on the remote server instance and initializes the client-side extension handlers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_transport%3F-instance_method" title="#valid_transport? (instance method)">#<strong>valid_transport?</strong>(transport)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Indicates if the given transport is a valid transport option.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the &#39;core&#39; portion of the meterpreter client commands.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extension_id-class_method">
+  
+    .<strong>extension_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extension_id'>extension_id</span>
+  <span class='const'><span class='object_link'><a href="../Meterpreter.html#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create_named_pipe_pivot-instance_method">
+  
+    #<strong>create_named_pipe_pivot</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>create a named pipe pivot</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_named_pipe_pivot'>create_named_pipe_pivot</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_PIVOT_ADD-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_PIVOT_ADD (constant)">COMMAND_ID_CORE_PIVOT_ADD</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_PIVOT_NAMED_PIPE_NAME-constant" title="Rex::Post::Meterpreter::TLV_TYPE_PIVOT_NAMED_PIPE_NAME (constant)">TLV_TYPE_PIVOT_NAMED_PIPE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pipe_name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+
+  <span class='id identifier rubyid_c'>c</span> <span class='op'>=</span> <span class='const'>Class</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_include'>include</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/Stager.html" title="Msf::Payload::Stager (module)">Stager</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_include'>include</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Include the appropriate reflective dll injection module for the target process architecture...
+</span>  <span class='comment'># Used to generate a reflective DLL when migrating. This is yet another
+</span>  <span class='comment'># argument for moving the meterpreter client into the Msf namespace.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'>ARCH_X86</span>
+    <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_include'>include</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/Windows/MeterpreterLoader.html" title="Msf::Payload::Windows::MeterpreterLoader (module)">MeterpreterLoader</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'>ARCH_X64</span>
+    <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_include'>include</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Payload/Windows/MeterpreterLoader_x64.html" title="Msf::Payload::Windows::MeterpreterLoader_x64 (module)">MeterpreterLoader_x64</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_stage_opts'>stage_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>force_write_handle:</span> <span class='kw'>true</span><span class='comma'>,</span>
+    <span class='label'>datastore:</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PIPEHOST</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pipe_host</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PIPENAME</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:pipe_name</span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_stager'>stager</span> <span class='op'>=</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_stage_opts'>stage_opts</span><span class='lbracket'>[</span><span class='symbol'>:transport_config</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_stager'>stager</span><span class='period'>.</span><span class='id identifier rubyid_transport_config_reverse_named_pipe'>transport_config_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_stage_opts'>stage_opts</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_stage'>stage</span> <span class='op'>=</span> <span class='id identifier rubyid_stager'>stager</span><span class='period'>.</span><span class='id identifier rubyid_stage_payload'>stage_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_stage_opts'>stage_opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_PIVOT_STAGE_DATA-constant" title="Rex::Post::Meterpreter::TLV_TYPE_PIVOT_STAGE_DATA (constant)">TLV_TYPE_PIVOT_STAGE_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_stage'>stage</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="disable_ssl_hash_verify-instance_method">
+  
+    #<strong>disable_ssl_hash_verify</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Disable the SSL certificate has verificate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 555</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_disable_ssl_hash_verify'>disable_ssl_hash_verify</span>
+  <span class='comment'># Not supported unless we have a socket with SSL enabled
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_type?'>type?</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp-ssl</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_SETCERTHASH-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_SETCERTHASH (constant)">COMMAND_ID_CORE_TRANSPORT_SETCERTHASH</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># send an empty request to disable it
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enable_ssl_hash_verify-instance_method">
+  
+    #<strong>enable_ssl_hash_verify</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enable the SSL certificate has verificate</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 538</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enable_ssl_hash_verify'>enable_ssl_hash_verify</span>
+  <span class='comment'># Not supported unless we have a socket with SSL enabled
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_type?'>type?</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp-ssl</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_SETCERTHASH-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_SETCERTHASH (constant)">COMMAND_ID_CORE_TRANSPORT_SETCERTHASH</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_sha1_raw'>sha1_raw</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sslctx'>sslctx</span><span class='period'>.</span><span class='id identifier rubyid_cert'>cert</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_CERT_HASH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_CERT_HASH (constant)">TLV_TYPE_TRANS_CERT_HASH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hash'>hash</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_hash'>hash</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_loaded_extension_commands-instance_method">
+  
+    #<strong>get_loaded_extension_commands</strong>(extension)  &#x21d2; <tt>Array&lt;Integer&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get a list of loaded commands for the given extension.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>extension</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Either the extension name or the extension ID to load the commands for.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Integer&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An array of command IDs that are supported by the specified extension.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_loaded_extension_commands'>get_loaded_extension_commands</span><span class='lparen'>(</span><span class='id identifier rubyid_extension'>extension</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_ENUMEXTCMD-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_ENUMEXTCMD (constant)">COMMAND_ID_CORE_ENUMEXTCMD</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># handle &#39;core&#39; as a special case since it&#39;s not a typical extension
+</span>  <span class='id identifier rubyid_extension'>extension</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#EXTENSION_ID_CORE-constant" title="Rex::Post::Meterpreter::EXTENSION_ID_CORE (constant)">EXTENSION_ID_CORE</a></span></span> <span class='kw'>if</span> <span class='id identifier rubyid_extension'>extension</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_extension'>extension</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_id'><span class='object_link'><a href="ExtensionMapper.html#get_extension_id-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_id (method)">get_extension_id</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_extension'>extension</span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_extension'>extension</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span> <span class='const'>Integer</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_UINT (constant)">TLV_TYPE_UINT</a></span></span><span class='comma'>,</span>   <span class='id identifier rubyid_extension'>extension</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_LENGTH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_LENGTH (constant)">TLV_TYPE_LENGTH</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_RANGE-constant" title="Rex::Post::Meterpreter::COMMAND_ID_RANGE (constant)">COMMAND_ID_RANGE</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_packet_wait_response'>send_packet_wait_response</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='comment'># In the case where orphaned shells call back with OLD copies of the meterpreter
+</span>    <span class='comment'># binaries, we end up with a case where this fails. So here we just return the
+</span>    <span class='comment'># empty list of supported commands.
+</span>    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># No response?
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No response was received to the core_enumextcmd request.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>!=</span> <span class='int'>0</span>
+    <span class='comment'># This case happens when the target doesn&#39;t support the core_enumextcmd message.
+</span>    <span class='comment'># If this is the case, then we just want to ignore the error and return an empty
+</span>    <span class='comment'># list. This will force the caller to load any required modules.
+</span>    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_commands'>commands</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_UINT (constant)">TLV_TYPE_UINT</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_commands'>commands</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_commands'>commands</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_session_guid-instance_method">
+  
+    #<strong>get_session_guid</strong>(timeout = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the session GUID from the target session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 416</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_session_guid'>get_session_guid</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_GET_SESSION_GUID-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_GET_SESSION_GUID (constant)">COMMAND_ID_CORE_GET_SESSION_GUID</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_request'>request</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='kw'>if</span> <span class='id identifier rubyid_timeout'>timeout</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_SESSION_GUID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SESSION_GUID (constant)">TLV_TYPE_SESSION_GUID</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_ssl_hash_verify-instance_method">
+  
+    #<strong>get_ssl_hash_verify</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Attempt to get the SSL hash being used for verificaton (if any).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        
+        <div class='inline'>
+<p>20-byte sha1 hash currently being used for verification.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+572
+573
+574
+575
+576
+577
+578
+579
+580</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 572</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_ssl_hash_verify'>get_ssl_hash_verify</span>
+  <span class='comment'># Not supported unless we have a socket with SSL enabled
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_type?'>type?</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tcp-ssl</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_GETCERTHASH-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_GETCERTHASH (constant)">COMMAND_ID_CORE_TRANSPORT_GETCERTHASH</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_CERT_HASH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_CERT_HASH (constant)">TLV_TYPE_TRANS_CERT_HASH</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_library-instance_method">
+  
+    #<strong>load_library</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads a library on the remote meterpreter instance.  This method supports loading both extension and non-extension libraries and also supports loading libraries from memory or disk depending on the flags that are specified</p>
+
+<p>Supported flags:</p>
+
+<p>LibraryFilePath 	The path to the library that is to be loaded</p>
+
+<p>LibraryFileImage 	Binary object containing the library to be loaded 	(can be used instead of LibraryFilePath)</p>
+
+<p>TargetFilePath 	The target library path when uploading</p>
+
+<p>UploadLibrary 	Indicates whether or not the library should be uploaded</p>
+
+<p>SaveToDisk 	Indicates whether or not the library should be saved to disk 	on the remote machine</p>
+
+<p>Extension 	Indicates whether or not the library is a meterpreter extension</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 224</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_library'>load_library</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_library_path'>library_path</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryFilePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_library_image'>library_image</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryFileImage</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_target_path'>target_path</span>  <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>TargetFilePath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_load_flags'>load_flags</span>   <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_LOCAL-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_LOCAL (constant)">LOAD_LIBRARY_FLAG_LOCAL</a></span></span>
+
+  <span class='comment'># No library path, no cookie.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_library_path'>library_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_library_image'>library_image</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No library file path or image was supplied</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set up the proper loading flags
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UploadLibrary</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_load_flags'>load_flags</span> <span class='op'>&amp;=</span> <span class='op'>~</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_LOCAL-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_LOCAL (constant)">LOAD_LIBRARY_FLAG_LOCAL</a></span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveToDisk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_load_flags'>load_flags</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_ON_DISK-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_ON_DISK (constant)">LOAD_LIBRARY_FLAG_ON_DISK</a></span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Extension</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_load_flags'>load_flags</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_EXTENSION-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_EXTENSION (constant)">LOAD_LIBRARY_FLAG_EXTENSION</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Create a request packet
+</span>  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_LOADLIB-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB (constant)">COMMAND_ID_CORE_LOADLIB</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># If we must upload the library, do so now
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_load_flags'>load_flags</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_LOCAL-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_LOCAL (constant)">LOAD_LIBRARY_FLAG_LOCAL</a></span></span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#LOAD_LIBRARY_FLAG_LOCAL-constant" title="Rex::Post::Meterpreter::LOAD_LIBRARY_FLAG_LOCAL (constant)">LOAD_LIBRARY_FLAG_LOCAL</a></span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_library_image'>library_image</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='comment'># Caller did not provide the image, load it from the path
+</span>      <span class='id identifier rubyid_library_image'>library_image</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+      <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_library_path'>library_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+        <span class='id identifier rubyid_library_image'>library_image</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_library_image'>library_image</span>
+      <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_DATA-constant" title="Rex::Post::Meterpreter::TLV_TYPE_DATA (constant)">TLV_TYPE_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_library_image'>library_image</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_capabilities'>capabilities</span><span class='lbracket'>[</span><span class='symbol'>:zlib</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to serialize library </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_library_path'>library_path</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># If it&#39;s an extension we&#39;re dealing with, rename the library
+</span>    <span class='comment'># path of the local and target so that it gets loaded with a random
+</span>    <span class='comment'># name
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Extension</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span> <span class='kw'>and</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+        <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(.*)\.(.*)</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_library_path'>library_path</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='backref'>$2</span>
+      <span class='kw'>elsif</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='int'>1</span>
+        <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_library_path'>library_path</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ext</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>1000000</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_suffix'>suffix</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_target_path'>target_path</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_library_path'>library_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Add the base TLVs
+</span>  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_LIBRARY_PATH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_LIBRARY_PATH (constant)">TLV_TYPE_LIBRARY_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_library_path'>library_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_FLAGS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_FLAGS (constant)">TLV_TYPE_FLAGS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_load_flags'>load_flags</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_target_path'>target_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TARGET_PATH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TARGET_PATH (constant)">TLV_TYPE_TARGET_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_path'>target_path</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Transmit the request and wait the default timeout seconds for a response
+</span>  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_packet_wait_response'>send_packet_wait_response</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_response_timeout'>response_timeout</span><span class='rparen'>)</span>
+
+  <span class='comment'># No response?
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No response was received to the core_loadlib request.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>!=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The core_loadlib request failed with result: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_commands'>commands</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_UINT (constant)">TLV_TYPE_UINT</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_commands'>commands</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_commands'>commands</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="machine_id-instance_method">
+  
+    #<strong>machine_id</strong>(timeout = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the machine ID from the target session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 430</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_machine_id'>machine_id</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_MACHINE_ID-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_MACHINE_ID (constant)">COMMAND_ID_CORE_MACHINE_ID</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_request'>request</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='kw'>if</span> <span class='id identifier rubyid_timeout'>timeout</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_mid'>mid</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MACHINE_ID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MACHINE_ID (constant)">TLV_TYPE_MACHINE_ID</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Normalise the format of the incoming machine id so that it&#39;s consistent
+</span>  <span class='comment'># regardless of case and leading/trailing spaces. This means that the
+</span>  <span class='comment'># individual meterpreters don&#39;t have to care.
+</span>
+  <span class='comment'># Note that the machine ID may be blank or nil and that is OK
+</span>  <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_md5'>md5</span><span class='lparen'>(</span><span class='id identifier rubyid_mid'>mid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="migrate-instance_method">
+  
+    #<strong>migrate</strong>(target_pid, writable_dir = nil, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Migrates the meterpreter instance to the process specified by pid.  The connection to the server remains established.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 586</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_migrate'>migrate</span><span class='lparen'>(</span><span class='id identifier rubyid_target_pid'>target_pid</span><span class='comma'>,</span> <span class='id identifier rubyid_writable_dir'>writable_dir</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_keepalive'>keepalive</span>              <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_keepalives'>send_keepalives</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_keepalives'>send_keepalives</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_target_process'>target_process</span>         <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_current_process'>current_process</span>        <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Load in the stdapi extension if not allready present so we can determine the target pid architecture...
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_use'>use</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stdapi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_current_pid'>current_pid</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_getpid'>getpid</span>
+
+  <span class='comment'># Find the current and target process instances
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_processes'>processes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span> <span class='id identifier rubyid_p'>p</span> <span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_p'>p</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_target_pid'>target_pid</span>
+      <span class='id identifier rubyid_target_process'>target_process</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_p'>p</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_current_pid'>current_pid</span>
+      <span class='id identifier rubyid_current_process'>current_process</span> <span class='op'>=</span> <span class='id identifier rubyid_p'>p</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># We cant migrate into a process that does not exist.
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_target_process'>target_process</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cannot migrate into non existent process</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># We cannot migrate into a process that we are unable to open
+</span>  <span class='comment'># On linux, arch is empty even if we can access the process
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='op'>||</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot migrate into this process (insufficient privileges)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># And we also cannot migrate into our own current process...
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_current_process'>current_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cannot migrate into current process</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_migrate_stub'>migrate_stub</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_migrate_stub'>generate_migrate_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_target_process'>target_process</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_migrate_payload'>migrate_payload</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_migrate_payload'>generate_migrate_payload</span><span class='lparen'>(</span><span class='id identifier rubyid_target_process'>target_process</span><span class='rparen'>)</span>
+
+  <span class='comment'># Build the migration request
+</span>  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_MIGRATE-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_MIGRATE (constant)">COMMAND_ID_CORE_MIGRATE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MIGRATE_PID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MIGRATE_PID (constant)">TLV_TYPE_MIGRATE_PID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_pid'>target_pid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MIGRATE_PAYLOAD-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MIGRATE_PAYLOAD (constant)">TLV_TYPE_MIGRATE_PAYLOAD</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_migrate_payload'>migrate_payload</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_capabilities'>capabilities</span><span class='lbracket'>[</span><span class='symbol'>:zlib</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MIGRATE_STUB-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MIGRATE_STUB (constant)">TLV_TYPE_MIGRATE_STUB</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_migrate_stub'>migrate_stub</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_capabilities'>capabilities</span><span class='lbracket'>[</span><span class='symbol'>:zlib</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'>ARCH_X64</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MIGRATE_ARCH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MIGRATE_ARCH (constant)">TLV_TYPE_MIGRATE_ARCH</a></span></span><span class='comma'>,</span> <span class='int'>2</span> <span class='rparen'>)</span> <span class='comment'># PROCESS_ARCH_X64
+</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_MIGRATE_ARCH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_MIGRATE_ARCH (constant)">TLV_TYPE_MIGRATE_ARCH</a></span></span><span class='comma'>,</span> <span class='int'>1</span> <span class='rparen'>)</span> <span class='comment'># PROCESS_ARCH_X86
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># if we change architecture, we need to change UUID as well
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_current_process'>current_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span> <span class='op'>=</span> <span class='id identifier rubyid_target_process'>target_process</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_UUID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_UUID (constant)">TLV_TYPE_UUID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_to_raw'>to_raw</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Send the migration request. Timeout can be specified by the caller, or set to a min
+</span>  <span class='comment'># of 60 seconds.
+</span>  <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='int'>60</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+
+  <span class='comment'># Post-migration the session doesn&#39;t have encryption any more.
+</span>  <span class='comment'># Set the TLV key to nil to make sure that the old key isn&#39;t used
+</span>  <span class='comment'># at all.
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_tlv_enc_key'>tlv_enc_key</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span>
+    <span class='comment'># Sleep for 5 seconds to allow the full handoff, this prevents
+</span>    <span class='comment'># the original process from stealing our loadlib requests
+</span>    <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>5.0</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='comment'># Prevent new commands from being sent while we finish migrating
+</span>    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_comm_mutex'>comm_mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='comment'># Disable the socket request monitor
+</span>      <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_monitor_stop'>monitor_stop</span>
+
+      <span class='comment'>###
+</span>      <span class='comment'># Now communicating with the new process
+</span>      <span class='comment'>###
+</span>
+      <span class='comment'># only renegotiate SSL if the session had support for it in the
+</span>      <span class='comment'># first place!
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span>
+        <span class='comment'># If renegotiation takes longer than a minute, it&#39;s a pretty
+</span>        <span class='comment'># good bet that migration failed and the remote side is hung.
+</span>        <span class='comment'># Since we have the comm_mutex here, we *must* release it to
+</span>        <span class='comment'># keep from hanging the packet dispatcher thread, which results
+</span>        <span class='comment'># in blocking the entire process.
+</span>        <span class='kw'>begin</span>
+          <span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span> <span class='kw'>do</span>
+            <span class='comment'># Renegotiate SSL over this socket
+</span>            <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_swap_sock_ssl_to_plain'>swap_sock_ssl_to_plain</span><span class='lparen'>(</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_swap_sock_plain_to_ssl'>swap_sock_plain_to_ssl</span><span class='lparen'>(</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>rescue</span> <span class='const'>TimeoutError</span>
+          <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_alive'>alive</span> <span class='op'>=</span> <span class='kw'>false</span>
+          <span class='kw'>return</span> <span class='kw'>false</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Restart the socket monitor
+</span>      <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_monitor_socket'>monitor_socket</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Renegotiate TLV encryption on the migrated session
+</span>  <span class='id identifier rubyid_secure'>secure</span>
+
+  <span class='comment'># Load all the extensions that were loaded in the previous instance (using the correct platform/binary_suffix)
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_ext'>ext</span><span class='period'>.</span><span class='id identifier rubyid_aliases'>aliases</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span>
+    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_use'>use</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Restore session keep-alives
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_keepalives'>send_keepalives</span> <span class='op'>=</span> <span class='id identifier rubyid_keepalive'>keepalive</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="native_arch-instance_method">
+  
+    #<strong>native_arch</strong>(timeout = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the current native arch from the target session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 451</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_native_arch'>native_arch</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='comment'># Not all meterpreter implementations support this
+</span>  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_NATIVE_ARCH-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_NATIVE_ARCH (constant)">COMMAND_ID_CORE_NATIVE_ARCH</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_request'>request</span> <span class='rbracket'>]</span>
+  <span class='id identifier rubyid_args'>args</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='kw'>if</span> <span class='id identifier rubyid_timeout'>timeout</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_TYPE_STRING (constant)">TLV_TYPE_STRING</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="negotiate_tlv_encryption-instance_method">
+  
+    #<strong>negotiate_tlv_encryption</strong>(timeout: client.comm_timeout)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Negotiates the use of encryption at the TLV level</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758
+759
+760
+761
+762
+763
+764
+765
+766
+767
+768
+769
+770
+771
+772</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 745</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_negotiate_tlv_encryption'>negotiate_tlv_encryption</span><span class='lparen'>(</span><span class='label'>timeout:</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_comm_timeout'>comm_timeout</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sym_key'>sym_key</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_rsa_key'>rsa_key</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='int'>2048</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rsa_pub_key'>rsa_pub_key</span> <span class='op'>=</span> <span class='id identifier rubyid_rsa_key'>rsa_key</span><span class='period'>.</span><span class='id identifier rubyid_public_key'>public_key</span>
+
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION (constant)">COMMAND_ID_CORE_NEGOTIATE_TLV_ENCRYPTION</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_RSA_PUB_KEY-constant" title="Rex::Post::Meterpreter::TLV_TYPE_RSA_PUB_KEY (constant)">TLV_TYPE_RSA_PUB_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_rsa_pub_key'>rsa_pub_key</span><span class='period'>.</span><span class='id identifier rubyid_to_der'>to_der</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_enc'>key_enc</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_ENC_SYM_KEY-constant" title="Rex::Post::Meterpreter::TLV_TYPE_ENC_SYM_KEY (constant)">TLV_TYPE_ENC_SYM_KEY</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key_type'>key_type</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_SYM_KEY_TYPE-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SYM_KEY_TYPE (constant)">TLV_TYPE_SYM_KEY_TYPE</a></span></span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_key_enc'>key_enc</span>
+      <span class='id identifier rubyid_sym_key'>sym_key</span> <span class='op'>=</span> <span class='id identifier rubyid_rsa_key'>rsa_key</span><span class='period'>.</span><span class='id identifier rubyid_private_decrypt'>private_decrypt</span><span class='lparen'>(</span><span class='id identifier rubyid_key_enc'>key_enc</span><span class='comma'>,</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSA</span><span class='op'>::</span><span class='const'>PKCS1_PADDING</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_sym_key'>sym_key</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_SYM_KEY-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SYM_KEY (constant)">TLV_TYPE_SYM_KEY</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>PKey</span><span class='op'>::</span><span class='const'>RSAError</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span>
+    <span class='comment'># 1) OpenSSL error may be due to padding issues (or something else)
+</span>    <span class='comment'># 2) Request error probably means the request isn&#39;t supported, so fallback to plain
+</span>  <span class='kw'>end</span>
+
+  <span class='lbrace'>{</span>
+    <span class='label'>key:</span>  <span class='id identifier rubyid_sym_key'>sym_key</span><span class='comma'>,</span>
+    <span class='label'>type:</span> <span class='id identifier rubyid_key_type'>key_type</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="secure-instance_method">
+  
+    #<strong>secure</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+711
+712
+713</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 711</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_secure'>secure</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_tlv_enc_key'>tlv_enc_key</span> <span class='op'>=</span> <span class='id identifier rubyid_negotiate_tlv_encryption'>negotiate_tlv_encryption</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_session_guid-instance_method">
+  
+    #<strong>set_session_guid</strong>(guid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set the session GUID on the target session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+404
+405
+406
+407
+408
+409
+410
+411</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 404</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_session_guid'>set_session_guid</span><span class='lparen'>(</span><span class='id identifier rubyid_guid'>guid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_SET_SESSION_GUID-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_SET_SESSION_GUID (constant)">COMMAND_ID_CORE_SET_SESSION_GUID</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_SESSION_GUID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SESSION_GUID (constant)">TLV_TYPE_SESSION_GUID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_guid'>guid</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_transport_timeouts-instance_method">
+  
+    #<strong>set_transport_timeouts</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set associated transport timeouts for the currently active transport.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_transport_timeouts'>set_transport_timeouts</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS (constant)">COMMAND_ID_CORE_TRANSPORT_SET_TIMEOUTS</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session_exp</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_SESSION_EXP-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_SESSION_EXP (constant)">TLV_TYPE_TRANS_SESSION_EXP</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session_exp</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:comm_timeout</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_COMM_TIMEOUT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_COMM_TIMEOUT (constant)">TLV_TYPE_TRANS_COMM_TIMEOUT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:comm_timeout</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_total</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_TOTAL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_TOTAL (constant)">TLV_TYPE_TRANS_RETRY_TOTAL</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_total</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_wait</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_WAIT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_WAIT (constant)">TLV_TYPE_TRANS_RETRY_WAIT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_wait</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span>
+    <span class='symbol'>:session_exp</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_SESSION_EXP-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_SESSION_EXP (constant)">TLV_TYPE_TRANS_SESSION_EXP</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:comm_timeout</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_COMM_TIMEOUT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_COMM_TIMEOUT (constant)">TLV_TYPE_TRANS_COMM_TIMEOUT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:retry_total</span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_TOTAL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_TOTAL (constant)">TLV_TYPE_TRANS_RETRY_TOTAL</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:retry_wait</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_WAIT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_WAIT (constant)">TLV_TYPE_TRANS_RETRY_WAIT</a></span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_uuid-instance_method">
+  
+    #<strong>set_uuid</strong>(uuid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set the UUID on the target session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+392
+393
+394
+395
+396
+397
+398
+399</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 392</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_uuid'>set_uuid</span><span class='lparen'>(</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_SET_UUID-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_SET_UUID (constant)">COMMAND_ID_CORE_SET_UUID</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_UUID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_UUID (constant)">TLV_TYPE_UUID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_uuid'>uuid</span><span class='period'>.</span><span class='id identifier rubyid_to_raw'>to_raw</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shutdown-instance_method">
+  
+    #<strong>shutdown</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Shuts the session down</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 718</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shutdown'>shutdown</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_SHUTDOWN-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_SHUTDOWN (constant)">COMMAND_ID_CORE_SHUTDOWN</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_passive_service'>passive_service</span>
+    <span class='comment'># If this is a HTTP/HTTPS session we need to wait a few seconds
+</span>    <span class='comment'># otherwise the session may not receive the command before we
+</span>    <span class='comment'># kill the handler. This could be improved by the server side
+</span>    <span class='comment'># sending a reply to shutdown first.
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_packet_wait_response'>send_packet_wait_response</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='comment'># If this is a standard TCP session, send and forget.
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_add-instance_method">
+  
+    #<strong>transport_add</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Add a transport to the session based on the provided options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+479
+480
+481
+482
+483
+484
+485
+486
+487</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 479</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_add'>transport_add</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_transport_prepare_request'>transport_prepare_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_ADD-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_ADD (constant)">COMMAND_ID_CORE_TRANSPORT_ADD</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_request'>request</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_change-instance_method">
+  
+    #<strong>transport_change</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Change the currently active transport on the session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+492
+493
+494
+495
+496
+497
+498
+499
+500</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 492</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_change'>transport_change</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_transport_prepare_request'>transport_prepare_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_CHANGE-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_CHANGE (constant)">COMMAND_ID_CORE_TRANSPORT_CHANGE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_request'>request</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_list-instance_method">
+  
+    #<strong>transport_list</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_list'>transport_list</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_LIST-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_LIST (constant)">COMMAND_ID_CORE_TRANSPORT_LIST</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:session_exp</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_SESSION_EXP-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_SESSION_EXP (constant)">TLV_TYPE_TRANS_SESSION_EXP</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='symbol'>:transports</span>  <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_GROUP-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_GROUP (constant)">TLV_TYPE_TRANS_GROUP</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_t'>t</span><span class='op'>|</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:transports</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='symbol'>:url</span>            <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_URL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_URL (constant)">TLV_TYPE_TRANS_URL</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:comm_timeout</span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_COMM_TIMEOUT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_COMM_TIMEOUT (constant)">TLV_TYPE_TRANS_COMM_TIMEOUT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:retry_total</span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_TOTAL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_TOTAL (constant)">TLV_TYPE_TRANS_RETRY_TOTAL</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:retry_wait</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_RETRY_WAIT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_RETRY_WAIT (constant)">TLV_TYPE_TRANS_RETRY_WAIT</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:ua</span>             <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_UA-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_UA (constant)">TLV_TYPE_TRANS_UA</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:proxy_host</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_PROXY_HOST-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_PROXY_HOST (constant)">TLV_TYPE_TRANS_PROXY_HOST</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:proxy_user</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_PROXY_USER-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_PROXY_USER (constant)">TLV_TYPE_TRANS_PROXY_USER</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:proxy_pass</span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_PROXY_PASS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_PROXY_PASS (constant)">TLV_TYPE_TRANS_PROXY_PASS</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:cert_hash</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_CERT_HASH-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_CERT_HASH (constant)">TLV_TYPE_TRANS_CERT_HASH</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='symbol'>:custom_headers</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_t'>t</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_HEADERS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_HEADERS (constant)">TLV_TYPE_TRANS_HEADERS</a></span></span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_next-instance_method">
+  
+    #<strong>transport_next</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Change the active transport to the next one in the transport list.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+520
+521
+522
+523
+524</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 520</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_next'>transport_next</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_NEXT-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_NEXT (constant)">COMMAND_ID_CORE_TRANSPORT_NEXT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_prev-instance_method">
+  
+    #<strong>transport_prev</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Change the active transport to the previous one in the transport list.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+529
+530
+531
+532
+533</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 529</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_prev'>transport_prev</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_PREV-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_PREV (constant)">COMMAND_ID_CORE_TRANSPORT_PREV</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_remove-instance_method">
+  
+    #<strong>transport_remove</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Remove a transport from the session based on the provided options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+466
+467
+468
+469
+470
+471
+472
+473
+474</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 466</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_remove'>transport_remove</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_transport_prepare_request'>transport_prepare_request</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_REMOVE-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_REMOVE (constant)">COMMAND_ID_CORE_TRANSPORT_REMOVE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_request'>request</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_sleep-instance_method">
+  
+    #<strong>transport_sleep</strong>(seconds)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sleep the current session for the given number of seconds.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 505</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_sleep'>transport_sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_seconds'>seconds</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_seconds'>seconds</span> <span class='op'>==</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#COMMAND_ID_CORE_TRANSPORT_SLEEP-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_TRANSPORT_SLEEP (constant)">COMMAND_ID_CORE_TRANSPORT_SLEEP</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># we&#39;re reusing the comms timeout setting here instead of
+</span>  <span class='comment'># creating a whole new TLV value
+</span>  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Meterpreter.html#TLV_TYPE_TRANS_COMM_TIMEOUT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_TRANS_COMM_TIMEOUT (constant)">TLV_TYPE_TRANS_COMM_TIMEOUT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_seconds'>seconds</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="use-instance_method">
+  
+    #<strong>use</strong>(mod, opts = { })  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Loads a meterpreter extension on the remote server instance and initializes the client-side extension handlers</p>
+
+<p>Module 	The module that should be loaded</p>
+
+<p>LoadFromDisk 	Indicates that the library should be loaded from disk, not from 	memory on the remote machine</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 321</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_use'>use</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No modules were specified</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_modnameprovided'>modnameprovided</span> <span class='op'>=</span> <span class='id identifier rubyid_mod'>mod</span>
+  <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span>
+    <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(.*)\.</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_s'>s</span><span class='embexpr_end'>}</span><span class='regexp_end'>/</span></span> <span class='rparen'>)</span>
+        <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='backref'>$1</span>
+        <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_suffix'>suffix</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_binary_suffix'>binary_suffix</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Query the remote instance to see if commands for the extension are
+</span>  <span class='comment'># already loaded
+</span>  <span class='id identifier rubyid_commands'>commands</span> <span class='op'>=</span> <span class='id identifier rubyid_get_loaded_extension_commands'>get_loaded_extension_commands</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+
+  <span class='comment'># if there are existing commands for the given extension, then we can use
+</span>  <span class='comment'># what&#39;s already there
+</span>  <span class='kw'>unless</span> <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_image'>image</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='comment'># If client.sys isn&#39;t setup, it&#39;s a Windows meterpreter
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:sys</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BuildTuple</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+      <span class='comment'># Query the payload gem directly for the extension image
+</span>      <span class='id identifier rubyid_image'>image</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='op'>::</span><span class='const'>Mettle</span><span class='period'>.</span><span class='id identifier rubyid_load_extension'>load_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BuildTuple</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='comma'>,</span> <span class='id identifier rubyid_suffix'>suffix</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># Get us to the installation root and then into data/meterpreter, where
+</span>      <span class='comment'># the file is expected to be
+</span>      <span class='id identifier rubyid_modname'>modname</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ext_server_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_meterpreter_path'>meterpreter_path</span><span class='lparen'>(</span><span class='id identifier rubyid_modname'>modname</span><span class='comma'>,</span> <span class='id identifier rubyid_suffix'>suffix</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExtensionPath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExtensionPath</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>and</span> <span class='id identifier rubyid_image'>image</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="ExtensionMapper.html" title="Rex::Post::Meterpreter::ExtensionMapper (class)">ExtensionMapper</a></span></span><span class='period'>.</span><span class='id identifier rubyid_get_extension_names'><span class='object_link'><a href="ExtensionMapper.html#get_extension_names-class_method" title="Rex::Post::Meterpreter::ExtensionMapper.get_extension_names (method)">get_extension_names</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; extension is not supported by this Meterpreter type (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_session_type'>session_type</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No module of the name </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_modnameprovided'>modnameprovided</span><span class='embexpr_end'>}</span><span class='tstring_content'> found</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Load the extension DLL
+</span>    <span class='id identifier rubyid_commands'>commands</span> <span class='op'>=</span> <span class='id identifier rubyid_load_library'>load_library</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryFilePath</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LibraryFileImage</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_image'>image</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UploadLibrary</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Extension</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveToDisk</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LoadFromDisk</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># wire the commands into the client
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_add_extension'>add_extension</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='id identifier rubyid_commands'>commands</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_transport?-instance_method">
+  
+    #<strong>valid_transport?</strong>(transport)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Indicates if the given transport is a valid transport option.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+737
+738
+739
+740</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/client_core.rb', line 737</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_valid_transport?'>valid_transport?</span><span class='lparen'>(</span><span class='id identifier rubyid_transport'>transport</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='const'><span class='object_link'><a href="#VALID_TRANSPORTS-constant" title="Rex::Post::Meterpreter::ClientCore::VALID_TRANSPORTS (constant)">VALID_TRANSPORTS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_transport'>transport</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:54 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

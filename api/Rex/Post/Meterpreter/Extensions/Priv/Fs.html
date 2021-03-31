@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Priv::Fs
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Priv::Fs";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Priv.html" title="Rex::Post::Meterpreter::Extensions::Priv (module)">Priv</a></span></span>
+     &raquo; 
+    <span class="title">Fs</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Priv::Fs
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Priv::Fs</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/priv/fs.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides an interface to modifying the file system to avoid detection, such as by modifying extended file system attributes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#blank_directory_mace-instance_method" title="#blank_directory_mace (instance method)">#<strong>blank_directory_mace</strong>(dir_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Recursively set the MACE values to the minimum threshold for the supplied directory.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#blank_file_mace-instance_method" title="#blank_file_mace (instance method)">#<strong>blank_file_mace</strong>(file_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the MACE values to the minimum threshold that will cause them to not be displayed by most all products for a file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_file_mace-instance_method" title="#get_file_mace (instance method)">#<strong>get_file_mace</strong>(file_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a hash of the Modified, Accessed, Created, and Entry Modified values for the specified file path.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Fs </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the file system subsystem of the privilege escalation extension.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_file_mace-instance_method" title="#set_file_mace (instance method)">#<strong>set_file_mace</strong>(file_path, modified = nil, accessed = nil, created = nil, entry_modified = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the Modified, Accessed, Created, and Entry Modified attributes of the specified file path.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_file_mace_from_file-instance_method" title="#set_file_mace_from_file (instance method)">#<strong>set_file_mace_from_file</strong>(target_file_path, source_file_path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the MACE attributes of the specified target_file_path to the MACE attributes of the source_file_path.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Priv::Fs (class)">Fs</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the file system subsystem of the privilege escalation extension.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="blank_directory_mace-instance_method">
+  
+    #<strong>blank_directory_mace</strong>(dir_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Recursively set the MACE values to the minimum threshold for the supplied directory.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_blank_directory_mace'>blank_directory_mace</span><span class='lparen'>(</span><span class='id identifier rubyid_dir_path'>dir_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#COMMAND_ID_PRIV_FS_BLANK_DIRECTORY_MACE-constant" title="Rex::Post::Meterpreter::Extensions::Priv::COMMAND_ID_PRIV_FS_BLANK_DIRECTORY_MACE (constant)">COMMAND_ID_PRIV_FS_BLANK_DIRECTORY_MACE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH (constant)">TLV_TYPE_FS_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_dir_path'>dir_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="blank_file_mace-instance_method">
+  
+    #<strong>blank_file_mace</strong>(file_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the MACE values to the minimum threshold that will cause them to not be displayed by most all products for a file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_blank_file_mace'>blank_file_mace</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#COMMAND_ID_PRIV_FS_BLANK_FILE_MACE-constant" title="Rex::Post::Meterpreter::Extensions::Priv::COMMAND_ID_PRIV_FS_BLANK_FILE_MACE (constant)">COMMAND_ID_PRIV_FS_BLANK_FILE_MACE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH (constant)">TLV_TYPE_FS_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_file_mace-instance_method">
+  
+    #<strong>get_file_mace</strong>(file_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a hash of the Modified, Accessed, Created, and Entry Modified values for the specified file path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_file_mace'>get_file_mace</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#COMMAND_ID_PRIV_FS_GET_FILE_MACE-constant" title="Rex::Post::Meterpreter::Extensions::Priv::COMMAND_ID_PRIV_FS_GET_FILE_MACE (constant)">COMMAND_ID_PRIV_FS_GET_FILE_MACE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH (constant)">TLV_TYPE_FS_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Return the hash of times associated with the MACE values
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Modified</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_MODIFIED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_MODIFIED (constant)">TLV_TYPE_FS_FILE_MODIFIED</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Accessed</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_ACCESSED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_ACCESSED (constant)">TLV_TYPE_FS_FILE_ACCESSED</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Created</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_CREATED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_CREATED (constant)">TLV_TYPE_FS_FILE_CREATED</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Entry Modified</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_EMODIFIED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_EMODIFIED (constant)">TLV_TYPE_FS_FILE_EMODIFIED</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='const'>RangeError</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RangeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Invalid MACE values</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_file_mace-instance_method">
+  
+    #<strong>set_file_mace</strong>(file_path, modified = nil, accessed = nil, created = nil, entry_modified = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the Modified, Accessed, Created, and Entry Modified attributes of the specified file path.  If a nil is supplied for a value, it will not be modified.  Otherwise, the times should be instances of the Time class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_file_mace'>set_file_mace</span><span class='lparen'>(</span><span class='id identifier rubyid_file_path'>file_path</span><span class='comma'>,</span> <span class='id identifier rubyid_modified'>modified</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_accessed'>accessed</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_created'>created</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span>
+  <span class='id identifier rubyid_entry_modified'>entry_modified</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#COMMAND_ID_PRIV_FS_SET_FILE_MACE-constant" title="Rex::Post::Meterpreter::Extensions::Priv::COMMAND_ID_PRIV_FS_SET_FILE_MACE (constant)">COMMAND_ID_PRIV_FS_SET_FILE_MACE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH (constant)">TLV_TYPE_FS_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_file_path'>file_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_MODIFIED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_MODIFIED (constant)">TLV_TYPE_FS_FILE_MODIFIED</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_modified'>modified</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_modified'>modified</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_ACCESSED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_ACCESSED (constant)">TLV_TYPE_FS_FILE_ACCESSED</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_accessed'>accessed</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_accessed'>accessed</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_CREATED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_CREATED (constant)">TLV_TYPE_FS_FILE_CREATED</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_created'>created</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_created'>created</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_EMODIFIED-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_EMODIFIED (constant)">TLV_TYPE_FS_FILE_EMODIFIED</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_entry_modified'>entry_modified</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_entry_modified'>entry_modified</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_file_mace_from_file-instance_method">
+  
+    #<strong>set_file_mace_from_file</strong>(target_file_path, source_file_path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the MACE attributes of the specified target_file_path to the MACE attributes of the source_file_path.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/priv/fs.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_file_mace_from_file'>set_file_mace_from_file</span><span class='lparen'>(</span><span class='id identifier rubyid_target_file_path'>target_file_path</span><span class='comma'>,</span> <span class='id identifier rubyid_source_file_path'>source_file_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#COMMAND_ID_PRIV_FS_SET_FILE_MACE_FROM_FILE-constant" title="Rex::Post::Meterpreter::Extensions::Priv::COMMAND_ID_PRIV_FS_SET_FILE_MACE_FROM_FILE (constant)">COMMAND_ID_PRIV_FS_SET_FILE_MACE_FROM_FILE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_FILE_PATH (constant)">TLV_TYPE_FS_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_file_path'>target_file_path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Priv.html#TLV_TYPE_FS_SRC_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Priv::TLV_TYPE_FS_SRC_FILE_PATH (constant)">TLV_TYPE_FS_SRC_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_source_file_path'>source_file_path</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:56 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

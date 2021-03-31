@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::SshCommandShell
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::SshCommandShell";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span>
+     &raquo; 
+    <span class="title">SshCommandShell</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::SshCommandShell
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="CommandShell.html" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="CommandShell.html" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span></li>
+          
+            <li class="next">Msf::Sessions::SshCommandShell</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Session/Basic.html" title="Msf::Session::Basic (module)">Msf::Session::Basic</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/ssh_command_shell.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides basic interaction with a ChannelFD abstraction provided by the Rex::Proto::Ssh wrapper around HrrRbSsh.</p>
+
+<pre class="code ruby"><code class="ruby">Date:    June 22, 2019
+Author:  RageLtMan
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#rstream-instance_method" title="Msf::Session::Interactive#rstream (method)">#rstream</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive-instance_method" title="Msf::Session#alive (method)">#alive</a></span>, <span class='object_link'><a href="../Session.html#db_record-instance_method" title="Msf::Session#db_record (method)">#db_record</a></span>, <span class='object_link'><a href="../Session.html#exploit-instance_method" title="Msf::Session#exploit (method)">#exploit</a></span>, <span class='object_link'><a href="../Session.html#exploit_datastore-instance_method" title="Msf::Session#exploit_datastore (method)">#exploit_datastore</a></span>, <span class='object_link'><a href="../Session.html#exploit_task-instance_method" title="Msf::Session#exploit_task (method)">#exploit_task</a></span>, <span class='object_link'><a href="../Session.html#exploit_uuid-instance_method" title="Msf::Session#exploit_uuid (method)">#exploit_uuid</a></span>, <span class='object_link'><a href="../Session.html#framework-instance_method" title="Msf::Session#framework (method)">#framework</a></span>, <span class='object_link'><a href="../Session.html#info-instance_method" title="Msf::Session#info (method)">#info</a></span>, <span class='object_link'><a href="../Session.html#machine_id-instance_method" title="Msf::Session#machine_id (method)">#machine_id</a></span>, <span class='object_link'><a href="../Session.html#payload_uuid-instance_method" title="Msf::Session#payload_uuid (method)">#payload_uuid</a></span>, <span class='object_link'><a href="../Session.html#routes-instance_method" title="Msf::Session#routes (method)">#routes</a></span>, <span class='object_link'><a href="../Session.html#sid-instance_method" title="Msf::Session#sid (method)">#sid</a></span>, <span class='object_link'><a href="../Session.html#sname-instance_method" title="Msf::Session#sname (method)">#sname</a></span>, <span class='object_link'><a href="../Session.html#target_host-instance_method" title="Msf::Session#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../Session.html#target_port-instance_method" title="Msf::Session#target_port (method)">#target_port</a></span>, <span class='object_link'><a href="../Session.html#username-instance_method" title="Msf::Session#username (method)">#username</a></span>, <span class='object_link'><a href="../Session.html#uuid-instance_method" title="Msf::Session#uuid (method)">#uuid</a></span>, <span class='object_link'><a href="../Session.html#via-instance_method" title="Msf::Session#via (method)">#via</a></span>, <span class='object_link'><a href="../Session.html#workspace-instance_method" title="Msf::Session#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="CommandShell.html" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CommandShell.html#arch-instance_method" title="Msf::Sessions::CommandShell#arch (method)">#arch</a></span>, <span class='object_link'><a href="CommandShell.html#max_threads-instance_method" title="Msf::Sessions::CommandShell#max_threads (method)">#max_threads</a></span>, <span class='object_link'><a href="CommandShell.html#platform-instance_method" title="Msf::Sessions::CommandShell#platform (method)">#platform</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_interact_stream-instance_method" title="#_interact_stream (instance method)">#<strong>_interact_stream</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the session description.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command-instance_method" title="#shell_command (instance method)">#<strong>shell_command</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#set_shell_token_index-instance_method" title="Msf::Session::Provider::SingleCommandShell#set_shell_token_index (method)">#set_shell_token_index</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_close-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_close (method)">#shell_close</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token (method)">#shell_command_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_unix-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_unix (method)">#shell_command_token_unix</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_win32-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_win32 (method)">#shell_command_token_win32</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_init-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_init (method)">#shell_init</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read (method)">#shell_read</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read_until_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read_until_token (method)">#shell_read_until_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_write-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_write (method)">#shell_write</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Basic.html" title="Msf::Session::Basic (module)">Msf::Session::Basic</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Basic.html#_interact-instance_method" title="Msf::Session::Basic#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="../Session/Basic.html#type-instance_method" title="Msf::Session::Basic#type (method)">#type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#_interact-instance_method" title="Msf::Session::Interactive#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interact_complete-instance_method" title="Msf::Session::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interrupt-instance_method" title="Msf::Session::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_suspend-instance_method" title="Msf::Session::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_usr1-instance_method" title="Msf::Session::Interactive#_usr1 (method)">#_usr1</a></span>, <span class='object_link'><a href="../Session/Interactive.html#cleanup-instance_method" title="Msf::Session::Interactive#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Session/Interactive.html#initialize-instance_method" title="Msf::Session::Interactive#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../Session/Interactive.html#interactive%3F-instance_method" title="Msf::Session::Interactive#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session/Interactive.html#kill-instance_method" title="Msf::Session::Interactive#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session/Interactive.html#run_cmd-instance_method" title="Msf::Session::Interactive#run_cmd (method)">#run_cmd</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_local-instance_method" title="Msf::Session::Interactive#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_peer-instance_method" title="Msf::Session::Interactive#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session/Interactive.html#user_want_abort%3F-instance_method" title="Msf::Session::Interactive#user_want_abort? (method)">#user_want_abort?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact-instance_method" title="Rex::Ui::Interactive#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact_complete-instance_method" title="Rex::Ui::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interrupt-instance_method" title="Rex::Ui::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_remote_fd-instance_method" title="Rex::Ui::Interactive#_remote_fd (method)">#_remote_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_local_write_remote-instance_method" title="Rex::Ui::Interactive#_stream_read_local_write_remote (method)">#_stream_read_local_write_remote</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_remote_write_local-instance_method" title="Rex::Ui::Interactive#_stream_read_remote_write_local (method)">#_stream_read_remote_write_local</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_suspend-instance_method" title="Rex::Ui::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive%3F-instance_method" title="Msf::Session#alive? (method)">#alive?</a></span>, <span class='object_link'><a href="../Session.html#cleanup-instance_method" title="Msf::Session#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Session.html#dead%3F-instance_method" title="Msf::Session#dead? (method)">#dead?</a></span>, <span class='object_link'><a href="../Session.html#initialize-instance_method" title="Msf::Session#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../Session.html#inspect-instance_method" title="Msf::Session#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="../Session.html#interactive%3F-instance_method" title="Msf::Session#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session.html#kill-instance_method" title="Msf::Session#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session.html#log_file_name-instance_method" title="Msf::Session#log_file_name (method)">#log_file_name</a></span>, <span class='object_link'><a href="../Session.html#log_source-instance_method" title="Msf::Session#log_source (method)">#log_source</a></span>, <span class='object_link'><a href="../Session.html#name-instance_method" title="Msf::Session#name (method)">#name</a></span>, <span class='object_link'><a href="../Session.html#name=-instance_method" title="Msf::Session#name= (method)">#name=</a></span>, <span class='object_link'><a href="../Session.html#register%3F-instance_method" title="Msf::Session#register? (method)">#register?</a></span>, <span class='object_link'><a href="../Session.html#session_host-instance_method" title="Msf::Session#session_host (method)">#session_host</a></span>, <span class='object_link'><a href="../Session.html#session_host=-instance_method" title="Msf::Session#session_host= (method)">#session_host=</a></span>, <span class='object_link'><a href="../Session.html#session_port-instance_method" title="Msf::Session#session_port (method)">#session_port</a></span>, <span class='object_link'><a href="../Session.html#session_port=-instance_method" title="Msf::Session#session_port= (method)">#session_port=</a></span>, <span class='object_link'><a href="../Session.html#session_type-instance_method" title="Msf::Session#session_type (method)">#session_type</a></span>, <span class='object_link'><a href="../Session.html#set_from_exploit-instance_method" title="Msf::Session#set_from_exploit (method)">#set_from_exploit</a></span>, <span class='object_link'><a href="../Session.html#set_via-instance_method" title="Msf::Session#set_via (method)">#set_via</a></span>, <span class='object_link'><a href="../Session.html#tunnel_local-instance_method" title="Msf::Session#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session.html#tunnel_peer-instance_method" title="Msf::Session#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session.html#tunnel_to_s-instance_method" title="Msf::Session#tunnel_to_s (method)">#tunnel_to_s</a></span>, <span class='object_link'><a href="../Session.html#type-class_method" title="Msf::Session.type (method)">type</a></span>, <span class='object_link'><a href="../Session.html#type-instance_method" title="Msf::Session#type (method)">#type</a></span>, <span class='object_link'><a href="../Session.html#via_exploit-instance_method" title="Msf::Session#via_exploit (method)">#via_exploit</a></span>, <span class='object_link'><a href="../Session.html#via_payload-instance_method" title="Msf::Session#via_payload (method)">#via_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="CommandShell.html" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CommandShell.html#_interact-instance_method" title="Msf::Sessions::CommandShell#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="CommandShell.html#binary_exists-instance_method" title="Msf::Sessions::CommandShell#binary_exists (method)">#binary_exists</a></span>, <span class='object_link'><a href="CommandShell.html#cleanup-instance_method" title="Msf::Sessions::CommandShell#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_background-instance_method" title="Msf::Sessions::CommandShell#cmd_background (method)">#cmd_background</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_background_help-instance_method" title="Msf::Sessions::CommandShell#cmd_background_help (method)">#cmd_background_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_download-instance_method" title="Msf::Sessions::CommandShell#cmd_download (method)">#cmd_download</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_download_help-instance_method" title="Msf::Sessions::CommandShell#cmd_download_help (method)">#cmd_download_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_help-instance_method" title="Msf::Sessions::CommandShell#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_help_help-instance_method" title="Msf::Sessions::CommandShell#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_irb-instance_method" title="Msf::Sessions::CommandShell#cmd_irb (method)">#cmd_irb</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_irb_help-instance_method" title="Msf::Sessions::CommandShell#cmd_irb_help (method)">#cmd_irb_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_pry-instance_method" title="Msf::Sessions::CommandShell#cmd_pry (method)">#cmd_pry</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_pry_help-instance_method" title="Msf::Sessions::CommandShell#cmd_pry_help (method)">#cmd_pry_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_resource-instance_method" title="Msf::Sessions::CommandShell#cmd_resource (method)">#cmd_resource</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_resource_help-instance_method" title="Msf::Sessions::CommandShell#cmd_resource_help (method)">#cmd_resource_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_sessions-instance_method" title="Msf::Sessions::CommandShell#cmd_sessions (method)">#cmd_sessions</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_sessions_help-instance_method" title="Msf::Sessions::CommandShell#cmd_sessions_help (method)">#cmd_sessions_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_shell-instance_method" title="Msf::Sessions::CommandShell#cmd_shell (method)">#cmd_shell</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_shell_help-instance_method" title="Msf::Sessions::CommandShell#cmd_shell_help (method)">#cmd_shell_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_source-instance_method" title="Msf::Sessions::CommandShell#cmd_source (method)">#cmd_source</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_source_help-instance_method" title="Msf::Sessions::CommandShell#cmd_source_help (method)">#cmd_source_help</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_upload-instance_method" title="Msf::Sessions::CommandShell#cmd_upload (method)">#cmd_upload</a></span>, <span class='object_link'><a href="CommandShell.html#cmd_upload_help-instance_method" title="Msf::Sessions::CommandShell#cmd_upload_help (method)">#cmd_upload_help</a></span>, <span class='object_link'><a href="CommandShell.html#commands-instance_method" title="Msf::Sessions::CommandShell#commands (method)">#commands</a></span>, <span class='object_link'><a href="CommandShell.html#docs_dir-instance_method" title="Msf::Sessions::CommandShell#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="CommandShell.html#execute_file-instance_method" title="Msf::Sessions::CommandShell#execute_file (method)">#execute_file</a></span>, <span class='object_link'><a href="CommandShell.html#file_exists-instance_method" title="Msf::Sessions::CommandShell#file_exists (method)">#file_exists</a></span>, <span class='object_link'><a href="CommandShell.html#initialize-instance_method" title="Msf::Sessions::CommandShell#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="CommandShell.html#process_autoruns-instance_method" title="Msf::Sessions::CommandShell#process_autoruns (method)">#process_autoruns</a></span>, <span class='object_link'><a href="CommandShell.html#repr-instance_method" title="Msf::Sessions::CommandShell#repr (method)">#repr</a></span>, <span class='object_link'><a href="CommandShell.html#run_builtin_cmd-instance_method" title="Msf::Sessions::CommandShell#run_builtin_cmd (method)">#run_builtin_cmd</a></span>, <span class='object_link'><a href="CommandShell.html#run_single-instance_method" title="Msf::Sessions::CommandShell#run_single (method)">#run_single</a></span>, <span class='object_link'><a href="CommandShell.html#shell_close-instance_method" title="Msf::Sessions::CommandShell#shell_close (method)">#shell_close</a></span>, <span class='object_link'><a href="CommandShell.html#shell_init-instance_method" title="Msf::Sessions::CommandShell#shell_init (method)">#shell_init</a></span>, <span class='object_link'><a href="CommandShell.html#shell_read-instance_method" title="Msf::Sessions::CommandShell#shell_read (method)">#shell_read</a></span>, <span class='object_link'><a href="CommandShell.html#shell_write-instance_method" title="Msf::Sessions::CommandShell#shell_write (method)">#shell_write</a></span>, <span class='object_link'><a href="CommandShell.html#type-class_method" title="Msf::Sessions::CommandShell.type (method)">type</a></span>, <span class='object_link'><a href="CommandShell.html#type-instance_method" title="Msf::Sessions::CommandShell#type (method)">#type</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Text/Resource.html" title="Rex::Ui::Text::Resource (module)">Rex::Ui::Text::Resource</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Text/Resource.html#load_resource-instance_method" title="Rex::Ui::Text::Resource#load_resource (method)">#load_resource</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scriptable.html#execute_file-instance_method" title="Msf::Sessions::Scriptable#execute_file (method)">#execute_file</a></span>, <span class='object_link'><a href="Scriptable.html#execute_script-instance_method" title="Msf::Sessions::Scriptable#execute_script (method)">#execute_script</a></span>, <span class='object_link'><a href="Scriptable.html#included-class_method" title="Msf::Sessions::Scriptable.included (method)">included</a></span>, <span class='object_link'><a href="Scriptable.html#legacy_script_to_post_module-instance_method" title="Msf::Sessions::Scriptable#legacy_script_to_post_module (method)">#legacy_script_to_post_module</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_interact_stream-instance_method">
+  
+    #<strong>_interact_stream</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/ssh_command_shell.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact_stream'>_interact_stream</span>
+  <span class='id identifier rubyid_fdr'>fdr</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd_rd'>fd_rd</span><span class='comma'>,</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_fdw'>fdw</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd_wr'>fd_wr</span><span class='comma'>,</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span><span class='rbracket'>]</span>
+  <span class='kw'>while</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+    <span class='id identifier rubyid_sd'>sd</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_fdr'>fdr</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_fdw'>fdw</span><span class='comma'>,</span> <span class='float'>0.5</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sd'>sd</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_sd'>sd</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd_rd'>fd_rd</span>
+      <span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_shell_read'>shell_read</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_sd'>sd</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span>
+      <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_pass'>pass</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the session description.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/ssh_command_shell.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSH command shell</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command-instance_method">
+  
+    #<strong>shell_command</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/ssh_command_shell.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='comment'># Send the command to the session&#39;s stdin.
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_timeo'>timeo</span> <span class='op'>=</span> <span class='float'>0.5</span>
+  <span class='id identifier rubyid_etime'>etime</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>+</span> <span class='id identifier rubyid_timeo'>timeo</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># Keep reading data until no more data is available or the timeout is
+</span>  <span class='comment'># reached.
+</span>  <span class='kw'>while</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_etime'>etime</span> <span class='kw'>and</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd_rd'>fd_rd</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_timeo'>timeo</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='float'>0.01</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buff'>buff</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='id identifier rubyid_timeo'>timeo</span> <span class='op'>=</span> <span class='id identifier rubyid_etime'>etime</span> <span class='op'>-</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_buff'>buff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:08 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

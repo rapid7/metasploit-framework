@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Rex.html" title="Rex (module)">Rex</a></span></span>
+     &raquo; 
+    <span class="title">Proto</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Proto/Http/Server.html" title="Rex::Proto::Http::Server (class)">Http::Server</a></span>, <span class='object_link'><a href="Proto/Ssh/Server.html" title="Rex::Proto::Ssh::Server (class)">Ssh::Server</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto.rb<span class="defines">,<br />
+  lib/rex/proto/dns.rb,<br /> lib/rex/proto/acpp.rb,<br /> lib/rex/proto/addp.rb,<br /> lib/rex/proto/ipmi.rb,<br /> lib/rex/proto/mqtt.rb,<br /> lib/rex/proto/iax2/call.rb,<br /> lib/rex/proto/mms/model.rb,<br /> lib/rex/proto/ntlm/base.rb,<br /> lib/rex/proto/ntp/modes.rb,<br /> lib/rex/proto/rmi/model.rb,<br /> lib/rex/proto/smb/crypt.rb,<br /> lib/rex/proto/smb/utils.rb,<br /> lib/rex/proto/sms/model.rb,<br /> lib/rex/proto/adb/client.rb,<br /> lib/rex/proto/dcerpc/ndr.rb,<br /> lib/rex/proto/dns/packet.rb,<br /> lib/rex/proto/dns/server.rb,<br /> lib/rex/proto/drda/utils.rb,<br /> lib/rex/proto/ftp/client.rb,<br /> lib/rex/proto/ipmi/rakp2.rb,<br /> lib/rex/proto/ipmi/utils.rb,<br /> lib/rex/proto/mms/client.rb,<br /> lib/rex/proto/ntlm/crypt.rb,<br /> lib/rex/proto/rfb/cipher.rb,<br /> lib/rex/proto/rfb/client.rb,<br /> lib/rex/proto/smb/client.rb,<br /> lib/rex/proto/sms/client.rb,<br /> lib/rex/proto/ssh/server.rb,<br /> lib/rex/proto/acpp/client.rb,<br /> lib/rex/proto/adb/message.rb,<br /> lib/rex/proto/dcerpc/uuid.rb,<br /> lib/rex/proto/dhcp/server.rb,<br /> lib/rex/proto/drda/packet.rb,<br /> lib/rex/proto/http/client.rb,<br /> lib/rex/proto/http/packet.rb,<br /> lib/rex/proto/http/server.rb,<br /> lib/rex/proto/iax2/client.rb,<br /> lib/rex/proto/mqtt/client.rb,<br /> lib/rex/proto/nuuo/client.rb,<br /> lib/rex/proto/tftp/client.rb,<br /> lib/rex/proto/tftp/server.rb,<br /> lib/rex/proto/acpp/message.rb,<br /> lib/rex/proto/dns/resolver.rb,<br /> lib/rex/proto/http/handler.rb,<br /> lib/rex/proto/http/request.rb,<br /> lib/rex/proto/kerberos/pac.rb,<br /> lib/rex/proto/ntlm/message.rb,<br /> lib/rex/proto/sip/response.rb,<br /> lib/rex/proto/smb/evasions.rb,<br /> lib/rex/proto/dcerpc/client.rb,<br /> lib/rex/proto/dcerpc/handle.rb,<br /> lib/rex/proto/dcerpc/packet.rb,<br /> lib/rex/proto/http/response.rb,<br /> lib/rex/proto/kademlia/ping.rb,<br /> lib/rex/proto/kademlia/pong.rb,<br /> lib/rex/proto/kademlia/util.rb,<br /> lib/rex/proto/mms/exception.rb,<br /> lib/rex/proto/natpmp/packet.rb,<br /> lib/rex/proto/ntp/constants.rb,<br /> lib/rex/proto/nuuo/response.rb,<br /> lib/rex/proto/proxy/socks4a.rb,<br /> lib/rex/proto/quake/message.rb,<br /> lib/rex/proto/rfb/constants.rb,<br /> lib/rex/proto/rmi/exception.rb,<br /> lib/rex/proto/smb/constants.rb,<br /> lib/rex/proto/sms/exception.rb,<br /> lib/rex/proto/steam/message.rb,<br /> lib/rex/proto/sunrpc/client.rb,<br /> lib/rex/proto/dhcp/constants.rb,<br /> lib/rex/proto/drda/constants.rb,<br /> lib/rex/proto/iax2/constants.rb,<br /> lib/rex/proto/kerberos/model.rb,<br /> lib/rex/proto/mms/model/smtp.rb,<br /> lib/rex/proto/ntlm/constants.rb,<br /> lib/rex/proto/nuuo/constants.rb,<br /> lib/rex/proto/rmi/model/call.rb,<br /> lib/rex/proto/rmi/model/ping.rb,<br /> lib/rex/proto/smb/exceptions.rb,<br /> lib/rex/proto/sms/model/smtp.rb,<br /> lib/rex/proto/ssh/connection.rb,<br /> lib/rex/proto/tftp/constants.rb,<br /> lib/rex/proto/dcerpc/response.rb,<br /> lib/rex/proto/kerberos/client.rb,<br /> lib/rex/proto/kerberos/crypto.rb,<br /> lib/rex/proto/ntlm/exceptions.rb,<br /> lib/rex/proto/http/handler/erb.rb,<br /> lib/rex/proto/iax2/codecs/g711.rb,<br /> lib/rex/proto/kademlia/message.rb,<br /> lib/rex/proto/natpmp/constants.rb,<br /> lib/rex/proto/rmi/decode_error.rb,<br /> lib/rex/proto/dcerpc/exceptions.rb,<br /> lib/rex/proto/http/handler/proc.rb,<br /> lib/rex/proto/iax2/codecs/a_law.rb,<br /> lib/rex/proto/kerberos/pac/type.rb,<br /> lib/rex/proto/mms/model/message.rb,<br /> lib/rex/proto/rmi/model/dgc_ack.rb,<br /> lib/rex/proto/rmi/model/element.rb,<br /> lib/rex/proto/smb/simple_client.rb,<br /> lib/rex/proto/sms/model/message.rb,<br /> lib/rex/proto/http/packet/header.rb,<br /> lib/rex/proto/iax2/codecs/mu_law.rb,<br /> lib/rex/proto/rmi/model/ping_ack.rb,<br /> lib/rex/proto/dcerpc/wdscp/packet.rb,<br /> lib/rex/proto/http/client_request.rb,<br /> lib/rex/proto/nuuo/client_request.rb,<br /> lib/rex/proto/proxy/socks5/packet.rb,<br /> lib/rex/proto/proxy/socks5/server.rb,<br /> lib/rex/proto/rmi/model/call_data.rb,<br /> lib/rex/proto/kerberos/pac/element.rb,<br /> lib/rex/proto/kerberos/model/ap_req.rb,<br /> lib/rex/proto/kerberos/model/ticket.rb,<br /> lib/rex/proto/rmi/model/return_data.rb,<br /> lib/rex/proto/dcerpc/wdscp/constants.rb,<br /> lib/rex/proto/kerberos/model/element.rb,<br /> lib/rex/proto/rmi/model/continuation.rb,<br /> lib/rex/proto/rmi/model/protocol_ack.rb,<br /> lib/rex/proto/rmi/model/return_value.rb,<br /> lib/rex/proto/ipmi/channel_auth_reply.rb,<br /> lib/rex/proto/ipmi/open_session_reply.rb,<br /> lib/rex/proto/kerberos/crypto/rsa_md5.rb,<br /> lib/rex/proto/kerberos/model/checksum.rb,<br /> lib/rex/proto/kerberos/pac/logon_info.rb,<br /> lib/rex/proto/rmi/model/output_header.rb,<br /> lib/rex/proto/kerberos/crypto/rc4_hmac.rb,<br /> lib/rex/proto/kerberos/model/krb_error.rb,<br /> lib/rex/proto/kerberos/pac/client_info.rb,<br /> lib/rex/proto/kerberos/credential_cache.rb,<br /> lib/rex/proto/kademlia/bootstrap_request.rb,<br /> lib/rex/proto/kerberos/model/kdc_request.rb,<br /> lib/rex/proto/proxy/socks5/server_client.rb,<br /> lib/rex/proto/kademlia/bootstrap_response.rb,<br /> lib/rex/proto/kerberos/model/kdc_response.rb,<br /> lib/rex/proto/kerberos/model/last_request.rb,<br /> lib/rex/proto/rmi/model/unique_identifier.rb,<br /> lib/rex/proto/smb/simple_client/open_pipe.rb,<br /> lib/rex/proto/kerberos/model/authenticator.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_data.rb,<br /> lib/rex/proto/kerberos/pac/server_checksum.rb,<br /> lib/rex/proto/kerberos/model/encrypted_data.rb,<br /> lib/rex/proto/kerberos/model/encryption_key.rb,<br /> lib/rex/proto/kerberos/model/principal_name.rb,<br /> lib/rex/proto/kerberos/credential_cache/time.rb,<br /> lib/rex/proto/kerberos/pac/priv_svr_checksum.rb,<br /> lib/rex/proto/kerberos/credential_cache/cache.rb,<br /> lib/rex/proto/kerberos/model/enc_kdc_response.rb,<br /> lib/rex/proto/kerberos/model/kdc_request_body.rb,<br /> lib/rex/proto/kerberos/credential_cache/element.rb,<br /> lib/rex/proto/kerberos/model/authorization_data.rb,<br /> lib/rex/proto/kerberos/credential_cache/key_block.rb,<br /> lib/rex/proto/kerberos/credential_cache/principal.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_pac_request.rb,<br /> lib/rex/proto/kerberos/credential_cache/credential.rb,<br /> lib/rex/proto/kerberos/model/pre_auth_enc_time_stamp.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Proto/ACPP.html" title="Rex::Proto::ACPP (module)">ACPP</a></span>, <span class='object_link'><a href="Proto/ADB.html" title="Rex::Proto::ADB (module)">ADB</a></span>, <span class='object_link'><a href="Proto/DCERPC.html" title="Rex::Proto::DCERPC (module)">DCERPC</a></span>, <span class='object_link'><a href="Proto/DHCP.html" title="Rex::Proto::DHCP (module)">DHCP</a></span>, <span class='object_link'><a href="Proto/DNS.html" title="Rex::Proto::DNS (module)">DNS</a></span>, <span class='object_link'><a href="Proto/DRDA.html" title="Rex::Proto::DRDA (module)">DRDA</a></span>, <span class='object_link'><a href="Proto/Ftp.html" title="Rex::Proto::Ftp (module)">Ftp</a></span>, <span class='object_link'><a href="Proto/Http.html" title="Rex::Proto::Http (module)">Http</a></span>, <span class='object_link'><a href="Proto/IAX2.html" title="Rex::Proto::IAX2 (module)">IAX2</a></span>, <span class='object_link'><a href="Proto/IPMI.html" title="Rex::Proto::IPMI (module)">IPMI</a></span>, <span class='object_link'><a href="Proto/Kademlia.html" title="Rex::Proto::Kademlia (module)">Kademlia</a></span>, <span class='object_link'><a href="Proto/Kerberos.html" title="Rex::Proto::Kerberos (module)">Kerberos</a></span>, <span class='object_link'><a href="Proto/MQTT.html" title="Rex::Proto::MQTT (module)">MQTT</a></span>, <span class='object_link'><a href="Proto/Mms.html" title="Rex::Proto::Mms (module)">Mms</a></span>, <span class='object_link'><a href="Proto/NATPMP.html" title="Rex::Proto::NATPMP (module)">NATPMP</a></span>, <span class='object_link'><a href="Proto/NTLM.html" title="Rex::Proto::NTLM (module)">NTLM</a></span>, <span class='object_link'><a href="Proto/NTP.html" title="Rex::Proto::NTP (module)">NTP</a></span>, <span class='object_link'><a href="Proto/Nuuo.html" title="Rex::Proto::Nuuo (module)">Nuuo</a></span>, <span class='object_link'><a href="Proto/PJL.html" title="Rex::Proto::PJL (module)">PJL</a></span>, <span class='object_link'><a href="Proto/Proxy.html" title="Rex::Proto::Proxy (module)">Proxy</a></span>, <span class='object_link'><a href="Proto/Quake.html" title="Rex::Proto::Quake (module)">Quake</a></span>, <span class='object_link'><a href="Proto/RFB.html" title="Rex::Proto::RFB (module)">RFB</a></span>, <span class='object_link'><a href="Proto/Rmi.html" title="Rex::Proto::Rmi (module)">Rmi</a></span>, <span class='object_link'><a href="Proto/SIP.html" title="Rex::Proto::SIP (module)">SIP</a></span>, <span class='object_link'><a href="Proto/SMB.html" title="Rex::Proto::SMB (module)">SMB</a></span>, <span class='object_link'><a href="Proto/Sms.html" title="Rex::Proto::Sms (module)">Sms</a></span>, <span class='object_link'><a href="Proto/Ssh.html" title="Rex::Proto::Ssh (module)">Ssh</a></span>, <span class='object_link'><a href="Proto/Steam.html" title="Rex::Proto::Steam (module)">Steam</a></span>, <span class='object_link'><a href="Proto/SunRPC.html" title="Rex::Proto::SunRPC (module)">SunRPC</a></span>, <span class='object_link'><a href="Proto/TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Proto/ADDP.html" title="Rex::Proto::ADDP (class)">ADDP</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#alias-instance_method" title="#alias (instance method)">#<strong>alias</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute alias.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="alias=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="alias-instance_method">
+  
+    #<strong>alias</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute alias.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+8
+9
+10</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto.rb', line 8</span>
+
+<span class='kw'>def</span> <span class='kw'>alias</span>
+  <span class='ivar'>@alias</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:35 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

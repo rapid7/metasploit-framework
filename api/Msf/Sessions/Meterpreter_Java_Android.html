@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::Meterpreter_Java_Android
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::Meterpreter_Java_Android";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span>
+     &raquo; 
+    <span class="title">Meterpreter_Java_Android</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::Meterpreter_Java_Android
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Meterpreter_Java_Java.html" title="Msf::Sessions::Meterpreter_Java_Java (class)">Meterpreter_Java_Java</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Meterpreter</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="Meterpreter_Java_Java.html" title="Msf::Sessions::Meterpreter_Java_Java (class)">Meterpreter_Java_Java</a></span></li>
+          
+            <li class="next">Msf::Sessions::Meterpreter_Java_Android</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/meterpreter_android.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class creates a platform-specific meterpreter session type</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#PACKET_TIMEOUT-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PACKET_TIMEOUT (constant)">Rex::Post::Meterpreter::PacketDispatcher::PACKET_TIMEOUT</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#PING_TIME-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PING_TIME (constant)">Rex::Post::Meterpreter::PacketDispatcher::PING_TIME</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Meterpreter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Meterpreter.html#base_arch-instance_method" title="Msf::Sessions::Meterpreter#base_arch (method)">#base_arch</a></span>, <span class='object_link'><a href="Meterpreter.html#base_platform-instance_method" title="Msf::Sessions::Meterpreter#base_platform (method)">#base_platform</a></span>, <span class='object_link'><a href="Meterpreter.html#console-instance_method" title="Msf::Sessions::Meterpreter#console (method)">#console</a></span>, <span class='object_link'><a href="Meterpreter.html#max_threads-instance_method" title="Msf::Sessions::Meterpreter#max_threads (method)">#max_threads</a></span>, <span class='object_link'><a href="Meterpreter.html#rstream-instance_method" title="Msf::Sessions::Meterpreter#rstream (method)">#rstream</a></span>, <span class='object_link'><a href="Meterpreter.html#skip_cleanup-instance_method" title="Msf::Sessions::Meterpreter#skip_cleanup (method)">#skip_cleanup</a></span>, <span class='object_link'><a href="Meterpreter.html#skip_ssl-instance_method" title="Msf::Sessions::Meterpreter#skip_ssl (method)">#skip_ssl</a></span>, <span class='object_link'><a href="Meterpreter.html#target_id-instance_method" title="Msf::Sessions::Meterpreter#target_id (method)">#target_id</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#rstream-instance_method" title="Msf::Session::Interactive#rstream (method)">#rstream</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive-instance_method" title="Msf::Session#alive (method)">#alive</a></span>, <span class='object_link'><a href="../Session.html#db_record-instance_method" title="Msf::Session#db_record (method)">#db_record</a></span>, <span class='object_link'><a href="../Session.html#exploit-instance_method" title="Msf::Session#exploit (method)">#exploit</a></span>, <span class='object_link'><a href="../Session.html#exploit_datastore-instance_method" title="Msf::Session#exploit_datastore (method)">#exploit_datastore</a></span>, <span class='object_link'><a href="../Session.html#exploit_task-instance_method" title="Msf::Session#exploit_task (method)">#exploit_task</a></span>, <span class='object_link'><a href="../Session.html#exploit_uuid-instance_method" title="Msf::Session#exploit_uuid (method)">#exploit_uuid</a></span>, <span class='object_link'><a href="../Session.html#framework-instance_method" title="Msf::Session#framework (method)">#framework</a></span>, <span class='object_link'><a href="../Session.html#info-instance_method" title="Msf::Session#info (method)">#info</a></span>, <span class='object_link'><a href="../Session.html#machine_id-instance_method" title="Msf::Session#machine_id (method)">#machine_id</a></span>, <span class='object_link'><a href="../Session.html#payload_uuid-instance_method" title="Msf::Session#payload_uuid (method)">#payload_uuid</a></span>, <span class='object_link'><a href="../Session.html#routes-instance_method" title="Msf::Session#routes (method)">#routes</a></span>, <span class='object_link'><a href="../Session.html#sid-instance_method" title="Msf::Session#sid (method)">#sid</a></span>, <span class='object_link'><a href="../Session.html#sname-instance_method" title="Msf::Session#sname (method)">#sname</a></span>, <span class='object_link'><a href="../Session.html#target_host-instance_method" title="Msf::Session#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../Session.html#target_port-instance_method" title="Msf::Session#target_port (method)">#target_port</a></span>, <span class='object_link'><a href="../Session.html#username-instance_method" title="Msf::Session#username (method)">#username</a></span>, <span class='object_link'><a href="../Session.html#uuid-instance_method" title="Msf::Session#uuid (method)">#uuid</a></span>, <span class='object_link'><a href="../Session.html#via-instance_method" title="Msf::Session#via (method)">#via</a></span>, <span class='object_link'><a href="../Session.html#workspace-instance_method" title="Msf::Session#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#alive-instance_method" title="Rex::Post::Meterpreter::Client#alive (method)">#alive</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#capabilities-instance_method" title="Rex::Post::Meterpreter::Client#capabilities (method)">#capabilities</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#comm_timeout-instance_method" title="Rex::Post::Meterpreter::Client#comm_timeout (method)">#comm_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#commands-instance_method" title="Rex::Post::Meterpreter::Client#commands (method)">#commands</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#conn_id-instance_method" title="Rex::Post::Meterpreter::Client#conn_id (method)">#conn_id</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#encode_unicode-instance_method" title="Rex::Post::Meterpreter::Client#encode_unicode (method)">#encode_unicode</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#expiration-instance_method" title="Rex::Post::Meterpreter::Client#expiration (method)">#expiration</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ext-instance_method" title="Rex::Post::Meterpreter::Client#ext (method)">#ext</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ext_aliases-instance_method" title="Rex::Post::Meterpreter::Client#ext_aliases (method)">#ext_aliases</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#last_checkin-instance_method" title="Rex::Post::Meterpreter::Client#last_checkin (method)">#last_checkin</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#parser-instance_method" title="Rex::Post::Meterpreter::Client#parser (method)">#parser</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::Client#passive_dispatcher (method)">#passive_dispatcher</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#pivot_session-instance_method" title="Rex::Post::Meterpreter::Client#pivot_session (method)">#pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#response_timeout-instance_method" title="Rex::Post::Meterpreter::Client#response_timeout (method)">#response_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#retry_total-instance_method" title="Rex::Post::Meterpreter::Client#retry_total (method)">#retry_total</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#retry_wait-instance_method" title="Rex::Post::Meterpreter::Client#retry_wait (method)">#retry_wait</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#send_keepalives-instance_method" title="Rex::Post::Meterpreter::Client#send_keepalives (method)">#send_keepalives</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#sock-instance_method" title="Rex::Post::Meterpreter::Client#sock (method)">#sock</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ssl-instance_method" title="Rex::Post::Meterpreter::Client#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ssl_cert-instance_method" title="Rex::Post::Meterpreter::Client#ssl_cert (method)">#ssl_cert</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#target_id-instance_method" title="Rex::Post::Meterpreter::Client#target_id (method)">#target_id</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#url-instance_method" title="Rex::Post::Meterpreter::Client#url (method)">#url</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">Rex::Post::Meterpreter::PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#pivot_listeners-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_listeners (method)">#pivot_listeners</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#pivot_sessions-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_sessions (method)">#pivot_sessions</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">Rex::Post::Meterpreter::ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#channels (method)">#channels</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#comm_mutex-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#comm_mutex (method)">#comm_mutex</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#dispatcher_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatcher_thread (method)">#dispatcher_thread</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#passive_service-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#passive_service (method)">#passive_service</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#receiver_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receiver_thread (method)">#receiver_thread</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#recv_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#recv_queue (method)">#recv_queue</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_queue (method)">#send_queue</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#session_guid-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#session_guid (method)">#session_guid</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#tlv_enc_key-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#tlv_enc_key (method)">#tlv_enc_key</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#waiters-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#waiters (method)">#waiters</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(rstream, opts = {})  &#x21d2; Meterpreter_Java_Android </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Meterpreter_Java_Android.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_android-instance_method" title="#load_android (instance method)">#<strong>load_android</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Meterpreter_Java_Java.html" title="Msf::Sessions::Meterpreter_Java_Java (class)">Meterpreter_Java_Java</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Meterpreter_Java_Java.html#supports_ssl%3F-instance_method" title="Msf::Sessions::Meterpreter_Java_Java#supports_ssl? (method)">#supports_ssl?</a></span>, <span class='object_link'><a href="Meterpreter_Java_Java.html#supports_zlib%3F-instance_method" title="Msf::Sessions::Meterpreter_Java_Java#supports_zlib? (method)">#supports_zlib?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Meterpreter.html" title="Msf::Sessions::Meterpreter (class)">Meterpreter</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Meterpreter.html#_interact-instance_method" title="Msf::Sessions::Meterpreter#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="Meterpreter.html#arch-instance_method" title="Msf::Sessions::Meterpreter#arch (method)">#arch</a></span>, <span class='object_link'><a href="Meterpreter.html#binary_suffix-instance_method" title="Msf::Sessions::Meterpreter#binary_suffix (method)">#binary_suffix</a></span>, <span class='object_link'><a href="Meterpreter.html#bootstrap-instance_method" title="Msf::Sessions::Meterpreter#bootstrap (method)">#bootstrap</a></span>, <span class='object_link'><a href="Meterpreter.html#cleanup-instance_method" title="Msf::Sessions::Meterpreter#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="Meterpreter.html#create-instance_method" title="Msf::Sessions::Meterpreter#create (method)">#create</a></span>, <span class='object_link'><a href="Meterpreter.html#desc-instance_method" title="Msf::Sessions::Meterpreter#desc (method)">#desc</a></span>, <span class='object_link'><a href="Meterpreter.html#execute_file-instance_method" title="Msf::Sessions::Meterpreter#execute_file (method)">#execute_file</a></span>, <span class='object_link'><a href="Meterpreter.html#find_internet_connected_address-instance_method" title="Msf::Sessions::Meterpreter#find_internet_connected_address (method)">#find_internet_connected_address</a></span>, <span class='object_link'><a href="Meterpreter.html#guess_target_platform-instance_method" title="Msf::Sessions::Meterpreter#guess_target_platform (method)">#guess_target_platform</a></span>, <span class='object_link'><a href="Meterpreter.html#init_ui-instance_method" title="Msf::Sessions::Meterpreter#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="Meterpreter.html#kill-instance_method" title="Msf::Sessions::Meterpreter#kill (method)">#kill</a></span>, <span class='object_link'><a href="Meterpreter.html#load_priv-instance_method" title="Msf::Sessions::Meterpreter#load_priv (method)">#load_priv</a></span>, <span class='object_link'><a href="Meterpreter.html#load_session_info-instance_method" title="Msf::Sessions::Meterpreter#load_session_info (method)">#load_session_info</a></span>, <span class='object_link'><a href="Meterpreter.html#load_stdapi-instance_method" title="Msf::Sessions::Meterpreter#load_stdapi (method)">#load_stdapi</a></span>, <span class='object_link'><a href="Meterpreter.html#lookup_error-instance_method" title="Msf::Sessions::Meterpreter#lookup_error (method)">#lookup_error</a></span>, <span class='object_link'><a href="Meterpreter.html#native_arch-instance_method" title="Msf::Sessions::Meterpreter#native_arch (method)">#native_arch</a></span>, <span class='object_link'><a href="Meterpreter.html#platform-instance_method" title="Msf::Sessions::Meterpreter#platform (method)">#platform</a></span>, <span class='object_link'><a href="Meterpreter.html#queue_cmd-instance_method" title="Msf::Sessions::Meterpreter#queue_cmd (method)">#queue_cmd</a></span>, <span class='object_link'><a href="Meterpreter.html#reset_ui-instance_method" title="Msf::Sessions::Meterpreter#reset_ui (method)">#reset_ui</a></span>, <span class='object_link'><a href="Meterpreter.html#run_cmd-instance_method" title="Msf::Sessions::Meterpreter#run_cmd (method)">#run_cmd</a></span>, <span class='object_link'><a href="Meterpreter.html#shell_close-instance_method" title="Msf::Sessions::Meterpreter#shell_close (method)">#shell_close</a></span>, <span class='object_link'><a href="Meterpreter.html#shell_command-instance_method" title="Msf::Sessions::Meterpreter#shell_command (method)">#shell_command</a></span>, <span class='object_link'><a href="Meterpreter.html#shell_init-instance_method" title="Msf::Sessions::Meterpreter#shell_init (method)">#shell_init</a></span>, <span class='object_link'><a href="Meterpreter.html#shell_read-instance_method" title="Msf::Sessions::Meterpreter#shell_read (method)">#shell_read</a></span>, <span class='object_link'><a href="Meterpreter.html#shell_write-instance_method" title="Msf::Sessions::Meterpreter#shell_write (method)">#shell_write</a></span>, <span class='object_link'><a href="Meterpreter.html#supports_ssl%3F-instance_method" title="Msf::Sessions::Meterpreter#supports_ssl? (method)">#supports_ssl?</a></span>, <span class='object_link'><a href="Meterpreter.html#supports_zlib%3F-instance_method" title="Msf::Sessions::Meterpreter#supports_zlib? (method)">#supports_zlib?</a></span>, <span class='object_link'><a href="Meterpreter.html#tunnel_to_s-instance_method" title="Msf::Sessions::Meterpreter#tunnel_to_s (method)">#tunnel_to_s</a></span>, <span class='object_link'><a href="Meterpreter.html#type-class_method" title="Msf::Sessions::Meterpreter.type (method)">type</a></span>, <span class='object_link'><a href="Meterpreter.html#type-instance_method" title="Msf::Sessions::Meterpreter#type (method)">#type</a></span>, <span class='object_link'><a href="Meterpreter.html#update_session_info-instance_method" title="Msf::Sessions::Meterpreter#update_session_info (method)">#update_session_info</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scriptable.html#execute_file-instance_method" title="Msf::Sessions::Scriptable#execute_file (method)">#execute_file</a></span>, <span class='object_link'><a href="Scriptable.html#execute_script-instance_method" title="Msf::Sessions::Scriptable#execute_script (method)">#execute_script</a></span>, <span class='object_link'><a href="Scriptable.html#included-class_method" title="Msf::Sessions::Scriptable.included (method)">included</a></span>, <span class='object_link'><a href="Scriptable.html#legacy_script_to_post_module-instance_method" title="Msf::Sessions::Scriptable#legacy_script_to_post_module (method)">#legacy_script_to_post_module</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#set_shell_token_index-instance_method" title="Msf::Session::Provider::SingleCommandShell#set_shell_token_index (method)">#set_shell_token_index</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_close-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_close (method)">#shell_close</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token (method)">#shell_command_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_unix-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_unix (method)">#shell_command_token_unix</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_win32-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_win32 (method)">#shell_command_token_win32</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_init-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_init (method)">#shell_init</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read (method)">#shell_read</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read_until_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read_until_token (method)">#shell_read_until_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_write-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_write (method)">#shell_write</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Comm.html" title="Msf::Session::Comm (module)">Msf::Session::Comm</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Comm.html#create-instance_method" title="Msf::Session::Comm#create (method)">#create</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#_interact-instance_method" title="Msf::Session::Interactive#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interact_complete-instance_method" title="Msf::Session::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interrupt-instance_method" title="Msf::Session::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_suspend-instance_method" title="Msf::Session::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_usr1-instance_method" title="Msf::Session::Interactive#_usr1 (method)">#_usr1</a></span>, <span class='object_link'><a href="../Session/Interactive.html#cleanup-instance_method" title="Msf::Session::Interactive#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Session/Interactive.html#interactive%3F-instance_method" title="Msf::Session::Interactive#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session/Interactive.html#kill-instance_method" title="Msf::Session::Interactive#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session/Interactive.html#run_cmd-instance_method" title="Msf::Session::Interactive#run_cmd (method)">#run_cmd</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_local-instance_method" title="Msf::Session::Interactive#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_peer-instance_method" title="Msf::Session::Interactive#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session/Interactive.html#user_want_abort%3F-instance_method" title="Msf::Session::Interactive#user_want_abort? (method)">#user_want_abort?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact-instance_method" title="Rex::Ui::Interactive#_interact (method)">#_interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact_complete-instance_method" title="Rex::Ui::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interrupt-instance_method" title="Rex::Ui::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_remote_fd-instance_method" title="Rex::Ui::Interactive#_remote_fd (method)">#_remote_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_local_write_remote-instance_method" title="Rex::Ui::Interactive#_stream_read_local_write_remote (method)">#_stream_read_local_write_remote</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_remote_write_local-instance_method" title="Rex::Ui::Interactive#_stream_read_remote_write_local (method)">#_stream_read_remote_write_local</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_suspend-instance_method" title="Rex::Ui::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive%3F-instance_method" title="Msf::Session#alive? (method)">#alive?</a></span>, <span class='object_link'><a href="../Session.html#cleanup-instance_method" title="Msf::Session#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Session.html#dead%3F-instance_method" title="Msf::Session#dead? (method)">#dead?</a></span>, <span class='object_link'><a href="../Session.html#desc-instance_method" title="Msf::Session#desc (method)">#desc</a></span>, <span class='object_link'><a href="../Session.html#inspect-instance_method" title="Msf::Session#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="../Session.html#interactive%3F-instance_method" title="Msf::Session#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session.html#kill-instance_method" title="Msf::Session#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session.html#log_file_name-instance_method" title="Msf::Session#log_file_name (method)">#log_file_name</a></span>, <span class='object_link'><a href="../Session.html#log_source-instance_method" title="Msf::Session#log_source (method)">#log_source</a></span>, <span class='object_link'><a href="../Session.html#name-instance_method" title="Msf::Session#name (method)">#name</a></span>, <span class='object_link'><a href="../Session.html#name=-instance_method" title="Msf::Session#name= (method)">#name=</a></span>, <span class='object_link'><a href="../Session.html#register%3F-instance_method" title="Msf::Session#register? (method)">#register?</a></span>, <span class='object_link'><a href="../Session.html#session_host-instance_method" title="Msf::Session#session_host (method)">#session_host</a></span>, <span class='object_link'><a href="../Session.html#session_host=-instance_method" title="Msf::Session#session_host= (method)">#session_host=</a></span>, <span class='object_link'><a href="../Session.html#session_port-instance_method" title="Msf::Session#session_port (method)">#session_port</a></span>, <span class='object_link'><a href="../Session.html#session_port=-instance_method" title="Msf::Session#session_port= (method)">#session_port=</a></span>, <span class='object_link'><a href="../Session.html#session_type-instance_method" title="Msf::Session#session_type (method)">#session_type</a></span>, <span class='object_link'><a href="../Session.html#set_from_exploit-instance_method" title="Msf::Session#set_from_exploit (method)">#set_from_exploit</a></span>, <span class='object_link'><a href="../Session.html#set_via-instance_method" title="Msf::Session#set_via (method)">#set_via</a></span>, <span class='object_link'><a href="../Session.html#tunnel_local-instance_method" title="Msf::Session#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session.html#tunnel_peer-instance_method" title="Msf::Session#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session.html#tunnel_to_s-instance_method" title="Msf::Session#tunnel_to_s (method)">#tunnel_to_s</a></span>, <span class='object_link'><a href="../Session.html#type-class_method" title="Msf::Session.type (method)">type</a></span>, <span class='object_link'><a href="../Session.html#type-instance_method" title="Msf::Session#type (method)">#type</a></span>, <span class='object_link'><a href="../Session.html#via_exploit-instance_method" title="Msf::Session#via_exploit (method)">#via_exploit</a></span>, <span class='object_link'><a href="../Session.html#via_payload-instance_method" title="Msf::Session#via_payload (method)">#via_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#add_extension-instance_method" title="Rex::Post::Meterpreter::Client#add_extension (method)">#add_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#check_ext_hash-class_method" title="Rex::Post::Meterpreter::Client.check_ext_hash (method)">check_ext_hash</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#cleanup_meterpreter-instance_method" title="Rex::Post::Meterpreter::Client#cleanup_meterpreter (method)">#cleanup_meterpreter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#default_timeout-class_method" title="Rex::Post::Meterpreter::Client.default_timeout (method)">default_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#deregister_extension-instance_method" title="Rex::Post::Meterpreter::Client#deregister_extension (method)">#deregister_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#deregister_extension_alias-instance_method" title="Rex::Post::Meterpreter::Client#deregister_extension_alias (method)">#deregister_extension_alias</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#dump_extension_tree-instance_method" title="Rex::Post::Meterpreter::Client#dump_extension_tree (method)">#dump_extension_tree</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#each_extension-instance_method" title="Rex::Post::Meterpreter::Client#each_extension (method)">#each_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#generate_ssl_context-instance_method" title="Rex::Post::Meterpreter::Client#generate_ssl_context (method)">#generate_ssl_context</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#init_meterpreter-instance_method" title="Rex::Post::Meterpreter::Client#init_meterpreter (method)">#init_meterpreter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#lookup_error-class_method" title="Rex::Post::Meterpreter::Client.lookup_error (method)">lookup_error</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#method_missing-instance_method" title="Rex::Post::Meterpreter::Client#method_missing (method)">#method_missing</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#register_extension_alias-instance_method" title="Rex::Post::Meterpreter::Client#register_extension_alias (method)">#register_extension_alias</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#register_extension_aliases-instance_method" title="Rex::Post::Meterpreter::Client#register_extension_aliases (method)">#register_extension_aliases</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#set_ext_hash-class_method" title="Rex::Post::Meterpreter::Client.set_ext_hash (method)">set_ext_hash</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#swap_sock_plain_to_ssl-instance_method" title="Rex::Post::Meterpreter::Client#swap_sock_plain_to_ssl (method)">#swap_sock_plain_to_ssl</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#swap_sock_ssl_to_plain-instance_method" title="Rex::Post::Meterpreter::Client#swap_sock_ssl_to_plain (method)">#swap_sock_ssl_to_plain</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#unicode_filter_decode-instance_method" title="Rex::Post::Meterpreter::Client#unicode_filter_decode (method)">#unicode_filter_decode</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#unicode_filter_encode-instance_method" title="Rex::Post::Meterpreter::Client#unicode_filter_encode (method)">#unicode_filter_encode</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">Rex::Post::Meterpreter::PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#add_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_listener (method)">#add_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#add_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_session (method)">#add_pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#find_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_listener (method)">#find_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#find_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_session (method)">#find_pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#initialize_pivots-instance_method" title="Rex::Post::Meterpreter::PivotContainer#initialize_pivots (method)">#initialize_pivots</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#remove_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_listener (method)">#remove_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#remove_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_session (method)">#remove_pivot_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">Rex::Post::Meterpreter::ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#add_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#add_channel (method)">#add_channel</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#find_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#find_channel (method)">#find_channel</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#initialize_channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#initialize_channels (method)">#initialize_channels</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#remove_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#remove_channel (method)">#remove_channel</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#add_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#add_response_waiter (method)">#add_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#decrypt_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#decrypt_inbound_packet (method)">#decrypt_inbound_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#deregister_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#deregister_inbound_handler (method)">#deregister_inbound_handler</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#dispatch_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatch_inbound_packet (method)">#dispatch_inbound_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#initialize_inbound_handlers-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_inbound_handlers (method)">#initialize_inbound_handlers</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#initialize_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_passive_dispatcher (method)">#initialize_passive_dispatcher</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#keepalive-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#keepalive (method)">#keepalive</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#monitor_socket-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_socket (method)">#monitor_socket</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#monitor_stop-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_stop (method)">#monitor_stop</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#notify_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#notify_response_waiter (method)">#notify_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#on_passive_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#on_passive_request (method)">#on_passive_request</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#pivot_keepalive_start-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#pivot_keepalive_start (method)">#pivot_keepalive_start</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#receive_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receive_packet (method)">#receive_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#register_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#register_inbound_handler (method)">#register_inbound_handler</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#remove_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#remove_response_waiter (method)">#remove_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet (method)">#send_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_packet_wait_response-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet_wait_response (method)">#send_packet_wait_response</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_request (method)">#send_request</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#shutdown_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#shutdown_passive_dispatcher (method)">#shutdown_passive_dispatcher</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(rstream, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Sessions::Meterpreter_Java_Android (class)">Meterpreter_Java_Android</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Meterpreter_Java_Android.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter_android.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_rstream'>rstream</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base_platform'>base_platform</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base_arch'>base_arch</span> <span class='op'>=</span> <span class='const'>ARCH_JAVA</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice super">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+      in the class <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#method_missing-instance_method" title="Rex::Post::Meterpreter::Client#method_missing (method)">Rex::Post::Meterpreter::Client</a></span>
+    
+  </p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="load_android-instance_method">
+  
+    #<strong>load_android</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter_android.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_android'>load_android</span>
+  <span class='id identifier rubyid_original'>original</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load android</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load appapi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:10 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,3272 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Encoder
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Encoder";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Encoder</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Encoder
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></li>
+          
+            <li class="next">Msf::Encoder</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/encoder.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class is the base class that all encoders inherit from.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Encoder/Alphanum.html" title="Msf::Encoder::Alphanum (class)">Alphanum</a></span>, <span class='object_link'><a href="Encoder/NonAlpha.html" title="Msf::Encoder::NonAlpha (class)">NonAlpha</a></span>, <span class='object_link'><a href="Encoder/NonUpper.html" title="Msf::Encoder::NonUpper (class)">NonUpper</a></span>, <span class='object_link'><a href="Encoder/Xor.html" title="Msf::Encoder::Xor (class)">Xor</a></span>, <span class='object_link'><a href="Encoder/XorDynamic.html" title="Msf::Encoder::XorDynamic (class)">XorDynamic</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Encoder/Type.html" title="Msf::Encoder::Type (module)">Type</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Encoder/Alphanum.html" title="Msf::Encoder::Alphanum (class)">Alphanum</a></span>, <span class='object_link'><a href="Encoder/NonAlpha.html" title="Msf::Encoder::NonAlpha (class)">NonAlpha</a></span>, <span class='object_link'><a href="Encoder/NonUpper.html" title="Msf::Encoder::NonUpper (class)">NonUpper</a></span>, <span class='object_link'><a href="Encoder/Xor.html" title="Msf::Encoder::Xor (class)">Xor</a></span>, <span class='object_link'><a href="Encoder/XorAdditiveFeedback.html" title="Msf::Encoder::XorAdditiveFeedback (class)">XorAdditiveFeedback</a></span>, <span class='object_link'><a href="Encoder/XorDynamic.html" title="Msf::Encoder::XorDynamic (class)">XorDynamic</a></span>
+    
+  
+</p>
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#REPLICANT_EXTENSION_DS_KEY-constant" title="Msf::Module::REPLICANT_EXTENSION_DS_KEY (constant)">Module::REPLICANT_EXTENSION_DS_KEY</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#UpdateableOptions-constant" title="Msf::Module::ModuleInfo::UpdateableOptions (constant)">Module::ModuleInfo::UpdateableOptions</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#available_space-instance_method" title="#available_space (instance method)">#<strong>available_space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The amount of space available to the encoder, which may be nil, indicating that the smallest possible encoding should be used.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#error-instance_method" title="Msf::Module#error (method)">#error</a></span>, <span class='object_link'><a href="Module.html#job_id-instance_method" title="Msf::Module#job_id (method)">#job_id</a></span>, <span class='object_link'><a href="Module.html#license-instance_method" title="Msf::Module#license (method)">#license</a></span>, <span class='object_link'><a href="Module.html#platform-instance_method" title="Msf::Module#platform (method)">#platform</a></span>, <span class='object_link'><a href="Module.html#privileged=-instance_method" title="Msf::Module#privileged= (method)">#privileged</a></span>, <span class='object_link'><a href="Module.html#references-instance_method" title="Msf::Module#references (method)">#references</a></span>, <span class='object_link'><a href="Module.html#user_data-instance_method" title="Msf::Module#user_data (method)">#user_data</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UUID.html#uuid-instance_method" title="Msf::Module::UUID#uuid (method)">#uuid</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Privileged.html#priveli=-instance_method" title="Msf::Module::Privileged#priveli= (method)">#priveli</a></span>, <span class='object_link'><a href="Module/Privileged.html#privileged-instance_method" title="Msf::Module::Privileged#privileged (method)">#privileged</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Options.html#options-instance_method" title="Msf::Module::Options#options (method)">#options</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleStore.html#module_store-instance_method" title="Msf::Module::ModuleStore#module_store (method)">#module_store</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#module_info-instance_method" title="Msf::Module::ModuleInfo#module_info (method)">#module_info</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/FullName.html#aliased_as-instance_method" title="Msf::Module::FullName#aliased_as (method)">#aliased_as</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/DataStore.html#datastore-instance_method" title="Msf::Module::DataStore#datastore (method)">#datastore</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Author.html#author-instance_method" title="Msf::Module::Author#author (method)">#author</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Arch.html#arch-instance_method" title="Msf::Module::Arch#arch (method)">#arch</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Alert.html#alerts-instance_method" title="Msf::Module::Alert#alerts (method)">#alerts</a></span>, <span class='object_link'><a href="Module/Alert.html#you_have_been_warned-instance_method" title="Msf::Module::Alert#you_have_been_warned (method)">#you_have_been_warned</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-class_method" title="type (class method)">.<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns MODULE_ENCODER to indicate that this is an encoder module.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#can_preserve_registers%3F-instance_method" title="#can_preserve_registers? (instance method)">#<strong>can_preserve_registers?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines whether the encoder can preserve registers at all.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_block_size-instance_method" title="#decoder_block_size (instance method)">#<strong>decoder_block_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the size of each logical encoding block, in bytes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_hash-instance_method" title="#decoder_hash (instance method)">#<strong>decoder_hash</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the module&#39;s decoder hash or an empty hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_key_offset-instance_method" title="#decoder_key_offset (instance method)">#<strong>decoder_key_offset</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the offset to the key associated with the decoder stub.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_key_pack-instance_method" title="#decoder_key_pack (instance method)">#<strong>decoder_key_pack</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the byte-packing character that should be used to encode the key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_key_size-instance_method" title="#decoder_key_size (instance method)">#<strong>decoder_key_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the size of the key, in bytes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#decoder_stub-instance_method" title="#decoder_stub (instance method)">#<strong>decoder_stub</strong>(state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the decoder stub to use based on the supplied state.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#do_encode-instance_method" title="#do_encode (instance method)">#<strong>do_encode</strong>(state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs the actual encoding operation after the encoder state has been initialized and is ready to go.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode-instance_method" title="#encode (instance method)">#<strong>encode</strong>(buf, badchars = nil, state = nil, platform = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates an encoded version of the supplied buffer in buf using the bad characters as guides.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_begin-instance_method" title="#encode_begin (instance method)">#<strong>encode_begin</strong>(state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when encoding is about to start immediately after the encoding state has been initialized.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_block-instance_method" title="#encode_block (instance method)">#<strong>encode_block</strong>(state, block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called once for each block being encoded based on the attributes of the decoder.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_end-instance_method" title="#encode_end (instance method)">#<strong>encode_end</strong>(state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called after encoding has completed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_finalize_stub-instance_method" title="#encode_finalize_stub (instance method)">#<strong>encode_finalize_stub</strong>(state, stub)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This callback allows a derived class to finalize a stub after a key have been selected.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoder_type-instance_method" title="#encoder_type (instance method)">#<strong>encoder_type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the type or types of encoders that this specific module classifies as.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_bad_keys-instance_method" title="#find_bad_keys (instance method)">#<strong>find_bad_keys</strong>(buf, badchars)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the list of bad keys associated with this encoder.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_context_key-instance_method" title="#find_context_key (instance method)">#<strong>find_context_key</strong>(buf, badchars, state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parses a context information file in an effort to find a compatible key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_key-instance_method" title="#find_key (instance method)">#<strong>find_key</strong>(buf, badchars, state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method finds a compatible key for the supplied buffer based also on the supplied bad characters list.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_key_verify-instance_method" title="#find_key_verify (instance method)">#<strong>find_key_verify</strong>(buf, key_bytes, badchars)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines if the key selected by find_key is usable.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#has_badchars%3F-instance_method" title="#has_badchars? (instance method)">#<strong>has_badchars?</strong>(buf, badchars)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the index of any bad characters found in the supplied buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#init_platform-instance_method" title="#init_platform (instance method)">#<strong>init_platform</strong>(platform)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This provides a hook method for platform specific processing prior to the rest of encode() running.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#init_state-instance_method" title="#init_state (instance method)">#<strong>init_state</strong>(state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the encoding state supplied as an argument to the attributes that have been defined for this decoder stub, such as key offset, size, and pack.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info)  &#x21d2; Encoder </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes an encoder module instance using the supplied information hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#integer_to_key_bytes-instance_method" title="#integer_to_key_bytes (instance method)">#<strong>integer_to_key_bytes</strong>(integer)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert an integer into the individual key bytes based on the decoder&#39;s key size and packing requirements.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#key_bytes_to_buffer-instance_method" title="#key_bytes_to_buffer (instance method)">#<strong>key_bytes_to_buffer</strong>(key_bytes)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert individual key bytes into a byte buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#key_bytes_to_integer-instance_method" title="#key_bytes_to_integer (instance method)">#<strong>key_bytes_to_integer</strong>(key_bytes)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert individual key bytes into a single integer based on the decoder&#39;s key size and packing requirements.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#modified_registers-instance_method" title="#modified_registers (instance method)">#<strong>modified_registers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A list of registers always modified by the encoder.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#obtain_key-instance_method" title="#obtain_key (instance method)">#<strong>obtain_key</strong>(buf, badchars, state)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Obtains the key to use during encoding.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepend_buf-instance_method" title="#prepend_buf (instance method)">#<strong>prepend_buf</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a string that should be prepended to the encoded version of the buffer before returning it to callers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#preserves_stack%3F-instance_method" title="#preserves_stack? (instance method)">#<strong>preserves_stack?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines whether the encoder can preserve the stack frame.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_native-instance_method" title="#to_native (instance method)">#<strong>to_native</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provides the encoder with an opportunity to return the native format (as in the format the code will be in when it executes on the target).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns MODULE_ENCODER to indicate that this is an encoder module.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#black_listed_auth_filenames-instance_method" title="Msf::Module#black_listed_auth_filenames (method)">#black_listed_auth_filenames</a></span>, <span class='object_link'><a href="Module.html#cached%3F-class_method" title="Msf::Module.cached? (method)">cached?</a></span>, <span class='object_link'><a href="Module.html#debugging%3F-instance_method" title="Msf::Module#debugging? (method)">#debugging?</a></span>, <span class='object_link'><a href="Module.html#default_cred%3F-instance_method" title="Msf::Module#default_cred? (method)">#default_cred?</a></span>, <span class='object_link'><a href="Module.html#fail_with-instance_method" title="Msf::Module#fail_with (method)">#fail_with</a></span>, <span class='object_link'><a href="Module.html#file_path-instance_method" title="Msf::Module#file_path (method)">#file_path</a></span>, <span class='object_link'><a href="Module.html#framework-instance_method" title="Msf::Module#framework (method)">#framework</a></span>, <span class='object_link'><a href="Module.html#has_check%3F-instance_method" title="Msf::Module#has_check? (method)">#has_check?</a></span>, <span class='object_link'><a href="Module.html#orig_cls-instance_method" title="Msf::Module#orig_cls (method)">#orig_cls</a></span>, <span class='object_link'><a href="Module.html#owner-instance_method" title="Msf::Module#owner (method)">#owner</a></span>, <span class='object_link'><a href="Module.html#perform_extensions-instance_method" title="Msf::Module#perform_extensions (method)">#perform_extensions</a></span>, <span class='object_link'><a href="Module.html#platform%3F-instance_method" title="Msf::Module#platform? (method)">#platform?</a></span>, <span class='object_link'><a href="Module.html#platform_to_s-instance_method" title="Msf::Module#platform_to_s (method)">#platform_to_s</a></span>, <span class='object_link'><a href="Module.html#post_auth%3F-instance_method" title="Msf::Module#post_auth? (method)">#post_auth?</a></span>, <span class='object_link'><a href="Module.html#register_extensions-instance_method" title="Msf::Module#register_extensions (method)">#register_extensions</a></span>, <span class='object_link'><a href="Module.html#register_parent-instance_method" title="Msf::Module#register_parent (method)">#register_parent</a></span>, <span class='object_link'><a href="Module.html#replicant-instance_method" title="Msf::Module#replicant (method)">#replicant</a></span>, <span class='object_link'><a href="Module.html#required_cred_options-instance_method" title="Msf::Module#required_cred_options (method)">#required_cred_options</a></span>, <span class='object_link'><a href="Module.html#set_defaults-instance_method" title="Msf::Module#set_defaults (method)">#set_defaults</a></span>, <span class='object_link'><a href="Module.html#workspace-instance_method" title="Msf::Module#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Reliability.html" title="Msf::Module::Reliability (module)">Module::Reliability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Reliability.html#reliability-instance_method" title="Msf::Module::Reliability#reliability (method)">#reliability</a></span>, <span class='object_link'><a href="Module/Reliability.html#reliability_to_s-instance_method" title="Msf::Module::Reliability#reliability_to_s (method)">#reliability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Stability.html" title="Msf::Module::Stability (module)">Module::Stability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Stability.html#stability-instance_method" title="Msf::Module::Stability#stability (method)">#stability</a></span>, <span class='object_link'><a href="Module/Stability.html#stability_to_s-instance_method" title="Msf::Module::Stability#stability_to_s (method)">#stability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/SideEffects.html" title="Msf::Module::SideEffects (module)">Module::SideEffects</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/SideEffects.html#side_effects-instance_method" title="Msf::Module::SideEffects#side_effects (method)">#side_effects</a></span>, <span class='object_link'><a href="Module/SideEffects.html#side_effects_to_s-instance_method" title="Msf::Module::SideEffects#side_effects_to_s (method)">#side_effects_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UUID.html#generate_uuid-instance_method" title="Msf::Module::UUID#generate_uuid (method)">#generate_uuid</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI.html" title="Msf::Module::UI (module)">Module::UI</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI.html#init_ui-instance_method" title="Msf::Module::UI#init_ui (method)">#init_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Message.html" title="Msf::Module::UI::Message (module)">Module::UI::Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Message.html#print_error-instance_method" title="Msf::Module::UI::Message#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_good-instance_method" title="Msf::Module::UI::Message#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_prefix-instance_method" title="Msf::Module::UI::Message#print_prefix (method)">#print_prefix</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_status-instance_method" title="Msf::Module::UI::Message#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_warning-instance_method" title="Msf::Module::UI::Message#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Message/Verbose.html" title="Msf::Module::UI::Message::Verbose (module)">Module::UI::Message::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_error-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_error (method)">#vprint_error</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_good-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_good (method)">#vprint_good</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_status-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_status (method)">#vprint_status</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_warning-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_warning (method)">#vprint_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Line.html" title="Msf::Module::UI::Line (module)">Module::UI::Line</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Line.html#print_line-instance_method" title="Msf::Module::UI::Line#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="Module/UI/Line.html#print_line_prefix-instance_method" title="Msf::Module::UI::Line#print_line_prefix (method)">#print_line_prefix</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Line/Verbose.html" title="Msf::Module::UI::Line::Verbose (module)">Module::UI::Line::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Line/Verbose.html#vprint_line-instance_method" title="Msf::Module::UI::Line::Verbose#vprint_line (method)">#vprint_line</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Type.html" title="Msf::Module::Type (module)">Module::Type</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Type.html#auxiliary%3F-instance_method" title="Msf::Module::Type#auxiliary? (method)">#auxiliary?</a></span>, <span class='object_link'><a href="Module/Type.html#encoder%3F-instance_method" title="Msf::Module::Type#encoder? (method)">#encoder?</a></span>, <span class='object_link'><a href="Module/Type.html#evasion%3F-instance_method" title="Msf::Module::Type#evasion? (method)">#evasion?</a></span>, <span class='object_link'><a href="Module/Type.html#exploit%3F-instance_method" title="Msf::Module::Type#exploit? (method)">#exploit?</a></span>, <span class='object_link'><a href="Module/Type.html#nop%3F-instance_method" title="Msf::Module::Type#nop? (method)">#nop?</a></span>, <span class='object_link'><a href="Module/Type.html#payload%3F-instance_method" title="Msf::Module::Type#payload? (method)">#payload?</a></span>, <span class='object_link'><a href="Module/Type.html#post%3F-instance_method" title="Msf::Module::Type#post? (method)">#post?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Ranking.html" title="Msf::Module::Ranking (module)">Module::Ranking</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Ranking.html#rank-instance_method" title="Msf::Module::Ranking#rank (method)">#rank</a></span>, <span class='object_link'><a href="Module/Ranking.html#rank_to_h-instance_method" title="Msf::Module::Ranking#rank_to_h (method)">#rank_to_h</a></span>, <span class='object_link'><a href="Module/Ranking.html#rank_to_s-instance_method" title="Msf::Module::Ranking#rank_to_s (method)">#rank_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Privileged.html#privileged%3F-instance_method" title="Msf::Module::Privileged#privileged? (method)">#privileged?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Options.html#deregister_options-instance_method" title="Msf::Module::Options#deregister_options (method)">#deregister_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_advanced_options-instance_method" title="Msf::Module::Options#register_advanced_options (method)">#register_advanced_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_evasion_options-instance_method" title="Msf::Module::Options#register_evasion_options (method)">#register_evasion_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_options-instance_method" title="Msf::Module::Options#register_options (method)">#register_options</a></span>, <span class='object_link'><a href="Module/Options.html#validate-instance_method" title="Msf::Module::Options#validate (method)">#validate</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Network.html" title="Msf::Module::Network (module)">Module::Network</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Network.html#comm-instance_method" title="Msf::Module::Network#comm (method)">#comm</a></span>, <span class='object_link'><a href="Module/Network.html#support_ipv6%3F-instance_method" title="Msf::Module::Network#support_ipv6? (method)">#support_ipv6?</a></span>, <span class='object_link'><a href="Module/Network.html#target_host-instance_method" title="Msf::Module::Network#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="Module/Network.html#target_port-instance_method" title="Msf::Module::Network#target_port (method)">#target_port</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleStore.html#[]-instance_method" title="Msf::Module::ModuleStore#[] (method)">#[]</a></span>, <span class='object_link'><a href="Module/ModuleStore.html#[]=-instance_method" title="Msf::Module::ModuleStore#[]= (method)">#[]=</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#alias-instance_method" title="Msf::Module::ModuleInfo#alias (method)">#alias</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#description-instance_method" title="Msf::Module::ModuleInfo#description (method)">#description</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#disclosure_date-instance_method" title="Msf::Module::ModuleInfo#disclosure_date (method)">#disclosure_date</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#info_fixups-instance_method" title="Msf::Module::ModuleInfo#info_fixups (method)">#info_fixups</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_check_key-instance_method" title="Msf::Module::ModuleInfo#merge_check_key (method)">#merge_check_key</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info-instance_method" title="Msf::Module::ModuleInfo#merge_info (method)">#merge_info</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_advanced_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_advanced_options (method)">#merge_info_advanced_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_alias-instance_method" title="Msf::Module::ModuleInfo#merge_info_alias (method)">#merge_info_alias</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_description-instance_method" title="Msf::Module::ModuleInfo#merge_info_description (method)">#merge_info_description</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_evasion_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_evasion_options (method)">#merge_info_evasion_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_name-instance_method" title="Msf::Module::ModuleInfo#merge_info_name (method)">#merge_info_name</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_options (method)">#merge_info_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_string-instance_method" title="Msf::Module::ModuleInfo#merge_info_string (method)">#merge_info_string</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_version-instance_method" title="Msf::Module::ModuleInfo#merge_info_version (method)">#merge_info_version</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#name-instance_method" title="Msf::Module::ModuleInfo#name (method)">#name</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#notes-instance_method" title="Msf::Module::ModuleInfo#notes (method)">#notes</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#update_info-instance_method" title="Msf::Module::ModuleInfo#update_info (method)">#update_info</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/FullName.html#aliases-instance_method" title="Msf::Module::FullName#aliases (method)">#aliases</a></span>, <span class='object_link'><a href="Module/FullName.html#fullname-instance_method" title="Msf::Module::FullName#fullname (method)">#fullname</a></span>, <span class='object_link'><a href="Module/FullName.html#promptname-instance_method" title="Msf::Module::FullName#promptname (method)">#promptname</a></span>, <span class='object_link'><a href="Module/FullName.html#realname-instance_method" title="Msf::Module::FullName#realname (method)">#realname</a></span>, <span class='object_link'><a href="Module/FullName.html#refname-instance_method" title="Msf::Module::FullName#refname (method)">#refname</a></span>, <span class='object_link'><a href="Module/FullName.html#shortname-instance_method" title="Msf::Module::FullName#shortname (method)">#shortname</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/DataStore.html#import_defaults-instance_method" title="Msf::Module::DataStore#import_defaults (method)">#import_defaults</a></span>, <span class='object_link'><a href="Module/DataStore.html#import_target_defaults-instance_method" title="Msf::Module::DataStore#import_target_defaults (method)">#import_target_defaults</a></span>, <span class='object_link'><a href="Module/DataStore.html#share_datastore-instance_method" title="Msf::Module::DataStore#share_datastore (method)">#share_datastore</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Compatibility.html" title="Msf::Module::Compatibility (module)">Module::Compatibility</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Compatibility.html#compat-instance_method" title="Msf::Module::Compatibility#compat (method)">#compat</a></span>, <span class='object_link'><a href="Module/Compatibility.html#compatible%3F-instance_method" title="Msf::Module::Compatibility#compatible? (method)">#compatible?</a></span>, <span class='object_link'><a href="Module/Compatibility.html#init_compat-instance_method" title="Msf::Module::Compatibility#init_compat (method)">#init_compat</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Author.html#author_to_s-instance_method" title="Msf::Module::Author#author_to_s (method)">#author_to_s</a></span>, <span class='object_link'><a href="Module/Author.html#each_author-instance_method" title="Msf::Module::Author#each_author (method)">#each_author</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Auth.html" title="Msf::Module::Auth (module)">Module::Auth</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Auth.html#store_valid_credential-instance_method" title="Msf::Module::Auth#store_valid_credential (method)">#store_valid_credential</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Arch.html#arch%3F-instance_method" title="Msf::Module::Arch#arch? (method)">#arch?</a></span>, <span class='object_link'><a href="Module/Arch.html#arch_to_s-instance_method" title="Msf::Module::Arch#arch_to_s (method)">#arch_to_s</a></span>, <span class='object_link'><a href="Module/Arch.html#each_arch-instance_method" title="Msf::Module::Arch#each_arch (method)">#each_arch</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Alert.html#add_alert-instance_method" title="Msf::Module::Alert#add_alert (method)">#add_alert</a></span>, <span class='object_link'><a href="Module/Alert.html#add_error-instance_method" title="Msf::Module::Alert#add_error (method)">#add_error</a></span>, <span class='object_link'><a href="Module/Alert.html#add_warning-instance_method" title="Msf::Module::Alert#add_warning (method)">#add_warning</a></span>, <span class='object_link'><a href="Module/Alert.html#alert_user-instance_method" title="Msf::Module::Alert#alert_user (method)">#alert_user</a></span>, <span class='object_link'><a href="Module/Alert.html#errors-instance_method" title="Msf::Module::Alert#errors (method)">#errors</a></span>, <span class='object_link'><a href="Module/Alert.html#get_alerts-instance_method" title="Msf::Module::Alert#get_alerts (method)">#get_alerts</a></span>, <span class='object_link'><a href="Module/Alert.html#included-class_method" title="Msf::Module::Alert.included (method)">included</a></span>, <span class='object_link'><a href="Module/Alert.html#is_usable%3F-instance_method" title="Msf::Module::Alert#is_usable? (method)">#is_usable?</a></span>, <span class='object_link'><a href="Module/Alert.html#warnings-instance_method" title="Msf::Module::Alert#warnings (method)">#warnings</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Encoder (class)">Encoder</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes an encoder module instance using the supplied information hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Platform</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='comment'># All platforms by default
+</span>    <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_update'>update</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="available_space=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="available_space-instance_method">
+  
+    #<strong>available_space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The amount of space available to the encoder, which may be nil, indicating that the smallest possible encoding should be used.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444
+445
+446</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 444</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_available_space'>available_space</span>
+  <span class='ivar'>@available_space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="type-class_method">
+  
+    .<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns MODULE_ENCODER to indicate that this is an encoder module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Msf.html#MODULE_ENCODER-constant" title="Msf::MODULE_ENCODER (constant)">MODULE_ENCODER</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="can_preserve_registers?-instance_method">
+  
+    #<strong>can_preserve_registers?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines whether the encoder can preserve registers at all</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+422
+423
+424</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 422</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_can_preserve_registers?'>can_preserve_registers?</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_block_size-instance_method">
+  
+    #<strong>decoder_block_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the size of each logical encoding block, in bytes.  This is typically the same as decoder_key_size.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 212</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_block_size'>decoder_block_size</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BlockSize</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_hash-instance_method">
+  
+    #<strong>decoder_hash</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the module&#39;s decoder hash or an empty hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 227</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span>
+  <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Decoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_key_offset-instance_method">
+  
+    #<strong>decoder_key_offset</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the offset to the key associated with the decoder stub.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_key_offset'>decoder_key_offset</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeyOffset</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_key_pack-instance_method">
+  
+    #<strong>decoder_key_pack</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the byte-packing character that should be used to encode the key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeyPack</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_key_size-instance_method">
+  
+    #<strong>decoder_key_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the size of the key, in bytes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 204</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeySize</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="decoder_stub-instance_method">
+  
+    #<strong>decoder_stub</strong>(state)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the decoder stub to use based on the supplied state.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+190
+191
+192</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 190</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_decoder_stub'>decoder_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_decoder_hash'>decoder_hash</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Stub</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="do_encode-instance_method">
+  
+    #<strong>do_encode</strong>(state)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs the actual encoding operation after the encoder state has been initialized and is ready to go.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 303</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_do_encode'>do_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='comment'># Copy the decoder stub since we may need to modify it
+</span>  <span class='id identifier rubyid_stub'>stub</span> <span class='op'>=</span> <span class='id identifier rubyid_decoder_stub'>decoder_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='kw'>and</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_offset'>decoder_key_offset</span><span class='rparen'>)</span>
+    <span class='comment'># Substitute the decoder key in the copy of the decoder stub with the
+</span>    <span class='comment'># one that we found
+</span>    <span class='id identifier rubyid_real_key'>real_key</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span>
+
+    <span class='comment'># If we&#39;re using context encoding, the actual value we use for
+</span>    <span class='comment'># substitution is the context address, not the key we use for
+</span>    <span class='comment'># encoding
+</span>    <span class='id identifier rubyid_real_key'>real_key</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_context_address'>context_address</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_context_encoding'>context_encoding</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_stub'>stub</span><span class='lbracket'>[</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_offset'>decoder_key_offset</span><span class='comma'>,</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_real_key'>real_key</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_stub'>stub</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_finalize_stub'>encode_finalize_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_stub'>stub</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Walk the buffer encoding each block along the way
+</span>  <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_decoder_block_size'>decoder_block_size</span><span class='rparen'>)</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='lbracket'>[</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_decoder_block_size'>decoder_block_size</span><span class='rbracket'>]</span>
+
+      <span class='comment'># Append here (String#&lt;&lt;) instead of creating a new string with
+</span>      <span class='comment'># String#+ because the allocations kill performance with large
+</span>      <span class='comment'># buffers. This isn&#39;t usually noticeable on most shellcode, but
+</span>      <span class='comment'># when doing stage encoding on meterpreter (~750k bytes) the
+</span>      <span class='comment'># difference is 2 orders of magnitude.
+</span>      <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_encode_block'>encode_block</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span>
+          <span class='id identifier rubyid_block'>block</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_decoder_block_size'>decoder_block_size</span> <span class='op'>-</span> <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='id identifier rubyid_decoder_block_size'>decoder_block_size</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_encode_block'>encode_block</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Prefix the decoder stub to the encoded buffer
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_stub'>stub</span> <span class='op'>+</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>
+
+  <span class='comment'># Last but not least, do one last badchar pass to see if the stub +
+</span>  <span class='comment'># encoded payload leads to any bad char issues...
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_badchar_idx'>badchar_idx</span> <span class='op'>=</span> <span class='id identifier rubyid_has_badchars?'>has_badchars?</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="BadcharError.html" title="Msf::BadcharError (class)">BadcharError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="BadcharError.html#initialize-instance_method" title="Msf::BadcharError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='comma'>,</span> <span class='id identifier rubyid_badchar_idx'>badchar_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_stub'>stub</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='lbracket'>[</span><span class='id identifier rubyid_badchar_idx'>badchar_idx</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder failed to encode without bad characters.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode-instance_method">
+  
+    #<strong>encode</strong>(buf, badchars = nil, state = nil, platform = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates an encoded version of the supplied buffer in buf using the bad characters as guides.  On success, an encoded and functional version of the supplied buffer will be returned.  Otherwise, an exception will be thrown if an error is encountered during the encoding process.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 244</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+
+  <span class='comment'># Configure platform hints if necessary
+</span>  <span class='id identifier rubyid_init_platform'>init_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_platform'>platform</span>
+
+  <span class='comment'># Initialize an empty set of bad characters
+</span>  <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+
+  <span class='comment'># Initialize the encoding state and key as necessary
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_state'>state</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="EncoderState.html" title="Msf::EncoderState (class)">EncoderState</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="EncoderState.html#initialize-instance_method" title="Msf::EncoderState#initialize (method)">new</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Prepend data to the buffer as necessary
+</span>  <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_prepend_buf'>prepend_buf</span> <span class='op'>+</span> <span class='id identifier rubyid_buf'>buf</span>
+
+  <span class='id identifier rubyid_init_state'>init_state</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='comment'># Save the buffer in the encoding state
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>=</span> <span class='id identifier rubyid_badchars'>badchars</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span>      <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span>
+
+  <span class='comment'># If this encoder is key-based and we don&#39;t already have a key, find one
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rparen'>)</span> <span class='kw'>and</span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='comment'># Find a key that doesn&#39;t contain and wont generate any bad
+</span>    <span class='comment'># characters
+</span>    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_init_key'>init_key</span><span class='lparen'>(</span><span class='id identifier rubyid_obtain_key'>obtain_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoKeyError.html" title="Msf::NoKeyError (class)">NoKeyError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A key could not be found for the </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Reset the encoded buffer at this point since it may have been changed
+</span>  <span class='comment'># while finding a key.
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Call encode_begin to do any encoder specific pre-processing
+</span>  <span class='id identifier rubyid_encode_begin'>encode_begin</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='comment'># Perform the actual encoding operation with the determined state
+</span>  <span class='id identifier rubyid_do_encode'>do_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call encoded_end to do any encoder specific post-processing
+</span>  <span class='id identifier rubyid_encode_end'>encode_end</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_arch?'>arch?</span><span class='lparen'>(</span><span class='const'>ARCH_CMD</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> result: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Return the encoded buffer to the caller
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_begin-instance_method">
+  
+    #<strong>encode_begin</strong>(state)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when encoding is about to start immediately after the encoding state has been initialized.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+382
+383
+384</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 382</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_begin'>encode_begin</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_block-instance_method">
+  
+    #<strong>encode_block</strong>(state, block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called once for each block being encoded based on the attributes of the decoder.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+405
+406
+407</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 405</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_block'>encode_block</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_block'>block</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_end-instance_method">
+  
+    #<strong>encode_end</strong>(state)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called after encoding has completed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+397
+398
+399</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 397</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_end'>encode_end</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_finalize_stub-instance_method">
+  
+    #<strong>encode_finalize_stub</strong>(state, stub)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This callback allows a derived class to finalize a stub after a key have been selected.  The finalized stub should be returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+390
+391
+392</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 390</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode_finalize_stub'>encode_finalize_stub</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='comma'>,</span> <span class='id identifier rubyid_stub'>stub</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stub'>stub</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encoder_type-instance_method">
+  
+    #<strong>encoder_type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the type or types of encoders that this specific module classifies as.  If there is more than one type, the values should be separated by whitespace.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 183</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoder_type'>encoder_type</span>
+  <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="Encoder/Type.html" title="Msf::Encoder::Type (module)">Type</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Encoder/Type.html#Unspecified-constant" title="Msf::Encoder::Type::Unspecified (constant)">Unspecified</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_bad_keys-instance_method">
+  
+    #<strong>find_bad_keys</strong>(buf, badchars)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the list of bad keys associated with this encoder.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+628
+629
+630</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 628</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_bad_keys'>find_bad_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_context_key-instance_method">
+  
+    #<strong>find_context_key</strong>(buf, badchars, state)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parses a context information file in an effort to find a compatible key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 541</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_context_key'>find_context_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='comment'># Make sure our context information file is sane
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ContextInformationFile</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoKeyError.html" title="Msf::NoKeyError (class)">NoKeyError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A context information file must specified when using context encoding</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Holds the address and key that we ultimately find
+</span>  <span class='id identifier rubyid_address'>address</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Now, parse records from the information file searching for entries
+</span>  <span class='comment'># that are compatible with our bad character set
+</span>  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ContextInformationFile</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='comment'># Keep looping until we hit an EOF error or we find
+</span>      <span class='comment'># a compatible key
+</span>      <span class='kw'>while</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='comment'># Read in the header
+</span>        <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_chunk_base_address'>chunk_base_address</span><span class='comma'>,</span> <span class='id identifier rubyid_size'>size</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='int'>9</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CNN</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='int'>0</span>
+
+        <span class='comment'># Read in the blob of data that will act as our key state
+</span>        <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span>
+
+        <span class='comment'># If the address doesn&#39;t contain bad characters, check to see
+</span>        <span class='comment'># the data itself will result in bad characters being generated
+</span>        <span class='kw'>while</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span>
+          <span class='comment'># Extract the current set of key bytes
+</span>          <span class='id identifier rubyid_key_bytes'>key_bytes</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+          <span class='comment'># My ruby is rusty
+</span>          <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_b'>b</span><span class='op'>|</span>
+            <span class='id identifier rubyid_key_bytes'>key_bytes</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_b'>b</span>
+          <span class='rbrace'>}</span>
+
+          <span class='comment'># If the key verifies correctly, we need to check it&#39;s address
+</span>          <span class='kw'>if</span> <span class='id identifier rubyid_find_key_verify'>find_key_verify</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_address'>address</span> <span class='op'>=</span> <span class='id identifier rubyid_chunk_base_address'>chunk_base_address</span> <span class='op'>+</span> <span class='id identifier rubyid_offset'>offset</span>
+
+            <span class='comment'># Pack it to byte form so that we can check each byte for
+</span>            <span class='comment'># bad characters
+</span>            <span class='id identifier rubyid_address_bytes'>address_bytes</span> <span class='op'>=</span> <span class='id identifier rubyid_integer_to_key_bytes'>integer_to_key_bytes</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='rparen'>)</span>
+
+            <span class='comment'># Scan each byte and see what we&#39;ve got going on to make sure
+</span>            <span class='comment'># no funny business is happening with the address
+</span>            <span class='id identifier rubyid_invalid_key'>invalid_key</span> <span class='op'>=</span> <span class='kw'>false</span>
+            <span class='id identifier rubyid_address_bytes'>address_bytes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_byte'>byte</span><span class='op'>|</span>
+              <span class='kw'>if</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_byte'>byte</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rparen'>)</span>
+                <span class='id identifier rubyid_invalid_key'>invalid_key</span> <span class='op'>=</span> <span class='kw'>true</span>
+              <span class='kw'>end</span>
+            <span class='rbrace'>}</span>
+
+            <span class='kw'>if</span> <span class='id identifier rubyid_invalid_key'>invalid_key</span> <span class='op'>==</span> <span class='kw'>false</span>
+              <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_key_bytes_to_integer'>key_bytes_to_integer</span><span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='rparen'>)</span>
+              <span class='kw'>break</span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+
+          <span class='comment'># If it didn&#39;t verify, then we need to proceed
+</span>          <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>-</span> <span class='int'>1</span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_offset'>offset</span> <span class='op'>+=</span> <span class='int'>1</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='const'>EOFError</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># If the key is nil after all is said and done, then we failed to locate
+</span>  <span class='comment'># a compatible context-sensitive key
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoKeyError.html" title="Msf::NoKeyError (class)">NoKeyError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No context key could be located in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ContextInformationFile</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='comment'># Otherwise, we successfully determined the key, now we need to update
+</span>  <span class='comment'># the encoding state with our context address and set context encoding
+</span>  <span class='comment'># to true so that the encoders know to use it
+</span>  <span class='kw'>else</span>
+    <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Successfully found context address @ </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_address'>address</span><span class='embexpr_end'>}</span><span class='tstring_content'> using key </span><span class='embexpr_beg'>#{</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%.8x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_context_address'>context_address</span>  <span class='op'>=</span> <span class='id identifier rubyid_address'>address</span>
+    <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_context_encoding'>context_encoding</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_key'>key</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_key-instance_method">
+  
+    #<strong>find_key</strong>(buf, badchars, state)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method finds a compatible key for the supplied buffer based also on the supplied bad characters list.  This is meant to make encoders more reliable and less prone to bad character failure by doing a fairly complete key search before giving up on an encoder.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 490</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_key'>find_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='comment'># Otherwise, we use the traditional method
+</span>  <span class='id identifier rubyid_key_bytes'>key_bytes</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='rbracket'>]</span>
+  <span class='id identifier rubyid_cur_key'>cur_key</span>   <span class='op'>=</span> <span class='lbracket'>[</span> <span class='rbracket'>]</span>
+  <span class='id identifier rubyid_bad_keys'>bad_keys</span>  <span class='op'>=</span> <span class='id identifier rubyid_find_bad_keys'>find_bad_keys</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_found'>found</span>     <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_allset'>allset</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='op'>*</span><span class='lparen'>(</span><span class='int'>0</span><span class='op'>..</span><span class='int'>255</span><span class='rparen'>)</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Keep chugging until we find something...right
+</span>  <span class='kw'>while</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_found'>found</span><span class='rparen'>)</span>
+    <span class='comment'># Scan each byte position
+</span>    <span class='int'>0</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span> <span class='op'>-</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_index'>index</span><span class='op'>|</span>
+
+      <span class='comment'># Subtract the bad and leave the good
+</span>      <span class='id identifier rubyid_good_keys'>good_keys</span> <span class='op'>=</span> <span class='id identifier rubyid_allset'>allset</span> <span class='op'>-</span> <span class='id identifier rubyid_bad_keys'>bad_keys</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+
+      <span class='comment'># Was there anything left for this index?
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_good_keys'>good_keys</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+        <span class='comment'># Not much we can do about this :(
+</span>        <span class='kw'>return</span> <span class='kw'>nil</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Set the appropriate key byte
+</span>      <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='lbracket'>[</span><span class='id identifier rubyid_index'>index</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_good_keys'>good_keys</span><span class='lbracket'>[</span> <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='id identifier rubyid_good_keys'>good_keys</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+
+    <span class='comment'># Assume that we&#39;re going to rock this...
+</span>    <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+    <span class='comment'># Scan each byte and see what we&#39;ve got going on to make sure
+</span>    <span class='comment'># no funny business is happening
+</span>    <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_byte'>byte</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_byte'>byte</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='id identifier rubyid_find_key_verify'>find_key_verify</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_found'>found</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Do we have all the key bytes accounted for?
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_key_bytes_to_integer'>key_bytes_to_integer</span><span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_key_verify-instance_method">
+  
+    #<strong>find_key_verify</strong>(buf, key_bytes, badchars)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines if the key selected by find_key is usable</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+673
+674
+675</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 673</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_key_verify'>find_key_verify</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="has_badchars?-instance_method">
+  
+    #<strong>has_badchars?</strong>(buf, badchars)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the index of any bad characters found in the supplied buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 635</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_badchars?'>has_badchars?</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_badchars'>badchars</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_badchar'>badchar</span><span class='op'>|</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_badchar'>badchar</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_idx'>idx</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_idx'>idx</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_platform-instance_method">
+  
+    #<strong>init_platform</strong>(platform)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This provides a hook method for platform specific processing prior to the rest of encode() running</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+468
+469
+470</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 468</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_platform'>init_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_state-instance_method">
+  
+    #<strong>init_state</strong>(state)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the encoding state supplied as an argument to the attributes that have been defined for this decoder stub, such as key offset, size, and pack.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 453</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_state'>init_state</span><span class='lparen'>(</span><span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='comment'># Update the state with default decoder information
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_offset'>decoder_key_offset</span> <span class='op'>=</span> <span class='id identifier rubyid_decoder_key_offset'>decoder_key_offset</span>
+  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span>   <span class='op'>=</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span>
+  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span>   <span class='op'>=</span> <span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span>
+  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_decoder_stub'>decoder_stub</span>       <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Restore the original buffer in case it was modified.
+</span>  <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_buf'>buf</span>                <span class='op'>=</span> <span class='id identifier rubyid_state'>state</span><span class='period'>.</span><span class='id identifier rubyid_orig_buf'>orig_buf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="integer_to_key_bytes-instance_method">
+  
+    #<strong>integer_to_key_bytes</strong>(integer)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert an integer into the individual key bytes based on the decoder&#39;s key size and packing requirements</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+666
+667
+668</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 666</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_integer_to_key_bytes'>integer_to_key_bytes</span><span class='lparen'>(</span><span class='id identifier rubyid_integer'>integer</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_integer'>integer</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key_bytes_to_buffer-instance_method">
+  
+    #<strong>key_bytes_to_buffer</strong>(key_bytes)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert individual key bytes into a byte buffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+658
+659
+660</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 658</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key_bytes_to_buffer'>key_bytes_to_buffer</span><span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_decoder_key_size'>decoder_key_size</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key_bytes_to_integer-instance_method">
+  
+    #<strong>key_bytes_to_integer</strong>(key_bytes)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert individual key bytes into a single integer based on the decoder&#39;s key size and packing requirements</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+651
+652
+653</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 651</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_key_bytes_to_integer'>key_bytes_to_integer</span><span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_key_bytes_to_buffer'>key_bytes_to_buffer</span><span class='lparen'>(</span><span class='id identifier rubyid_key_bytes'>key_bytes</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='id identifier rubyid_decoder_key_pack'>decoder_key_pack</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="modified_registers-instance_method">
+  
+    #<strong>modified_registers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A list of registers always modified by the encoder</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+429
+430
+431</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 429</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_modified_registers'>modified_registers</span>
+  <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="obtain_key-instance_method">
+  
+    #<strong>obtain_key</strong>(buf, badchars, state)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Obtains the key to use during encoding.  If context encoding is enabled, special steps are taken.  Otherwise, the derived class is given an opportunity to find the key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+476
+477
+478
+479
+480
+481
+482</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 476</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_obtain_key'>obtain_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EnableContextEncoding</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_find_context_key'>find_context_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_find_key'>find_key</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_badchars'>badchars</span><span class='comma'>,</span> <span class='id identifier rubyid_state'>state</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepend_buf-instance_method">
+  
+    #<strong>prepend_buf</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a string that should be prepended to the encoded version of the buffer before returning it to callers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+368
+369
+370</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 368</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepend_buf'>prepend_buf</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="preserves_stack?-instance_method">
+  
+    #<strong>preserves_stack?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines whether the encoder can preserve the stack frame</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+436
+437
+438</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 436</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_preserves_stack?'>preserves_stack?</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_native-instance_method">
+  
+    #<strong>to_native</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provides the encoder with an opportunity to return the native format (as in the format the code will be in when it executes on the target).  In general, the same buffer is returned to the caller.  However, for things like unicode, the buffer is unicod encoded and then returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+415
+416
+417</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 415</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_native'>to_native</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_buf'>buf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns MODULE_ENCODER to indicate that this is an encoder module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+174
+175
+176</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoder.rb', line 174</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Msf.html#MODULE_ENCODER-constant" title="Msf::MODULE_ENCODER (constant)">MODULE_ENCODER</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:43 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

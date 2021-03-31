@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Metasploit::Framework::DataService::DataProxy
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::DataService::DataProxy";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (D)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DataService.html" title="Metasploit::Framework::DataService (module)">DataService</a></span></span>
+     &raquo; 
+    <span class="title">DataProxy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Metasploit::Framework::DataService::DataProxy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Metasploit::Framework::DataService::DataProxy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../DataProxyAutoLoader.html" title="DataProxyAutoLoader (module)">DataProxyAutoLoader</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/data_service/proxy/core.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usable-instance_method" title="#usable (instance method)">#<strong>usable</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute usable.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#active-instance_method" title="#active (instance method)">#<strong>active</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines if the data service is active.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_opts_workspace-instance_method" title="#add_opts_workspace (instance method)">#<strong>add_opts_workspace</strong>(opts, wspace = nil)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a valid workspace value to the opts hash before sending on to the data layer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#data_service_operation-instance_method" title="#data_service_operation (instance method)">#<strong>data_service_operation</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a set of data service operations declared within the block.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_current_data_service-instance_method" title="#delete_current_data_service (instance method)">#<strong>delete_current_data_service</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_data_service-instance_method" title="#delete_data_service (instance method)">#<strong>delete_data_service</strong>(data_service_id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Delete the specified data service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#error-instance_method" title="#error (instance method)">#<strong>error</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns current error state.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_data_service-instance_method" title="#get_data_service (instance method)">#<strong>get_data_service</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_services_metadata-instance_method" title="#get_services_metadata (instance method)">#<strong>get_services_metadata</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves metadata about the data services.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(opts = {})  &#x21d2; DataProxy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of DataProxy.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_local%3F-instance_method" title="#is_local? (instance method)">#<strong>is_local?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#log_error-instance_method" title="#log_error (instance method)">#<strong>log_error</strong>(exception, ui_message)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method_missing-instance_method" title="#method_missing (instance method)">#<strong>method_missing</strong>(method, *args, &amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Used to bridge the local db.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_data_service-instance_method" title="#register_data_service (instance method)">#<strong>register_data_service</strong>(data_service)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Registers the specified data service with the proxy and immediately sets it as the primary if active.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#respond_to%3F-instance_method" title="#respond_to? (instance method)">#<strong>respond_to?</strong>(method_name, include_private = false)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_data_service-instance_method" title="#set_data_service (instance method)">#<strong>set_data_service</strong>(data_service_id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set the data service to be used.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../PayloadDataProxy.html" title="PayloadDataProxy (module)">PayloadDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../PayloadDataProxy.html#create_payload-instance_method" title="PayloadDataProxy#create_payload (method)">#create_payload</a></span>, <span class='object_link'><a href="../../../PayloadDataProxy.html#delete_payload-instance_method" title="PayloadDataProxy#delete_payload (method)">#delete_payload</a></span>, <span class='object_link'><a href="../../../PayloadDataProxy.html#payloads-instance_method" title="PayloadDataProxy#payloads (method)">#payloads</a></span>, <span class='object_link'><a href="../../../PayloadDataProxy.html#update_payload-instance_method" title="PayloadDataProxy#update_payload (method)">#update_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../MsfDataProxy.html" title="MsfDataProxy (module)">MsfDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../MsfDataProxy.html#get_msf_version-instance_method" title="MsfDataProxy#get_msf_version (method)">#get_msf_version</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../VulnAttemptDataProxy.html" title="VulnAttemptDataProxy (module)">VulnAttemptDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../VulnAttemptDataProxy.html#report_vuln_attempt-instance_method" title="VulnAttemptDataProxy#report_vuln_attempt (method)">#report_vuln_attempt</a></span>, <span class='object_link'><a href="../../../VulnAttemptDataProxy.html#vuln_attempts-instance_method" title="VulnAttemptDataProxy#vuln_attempts (method)">#vuln_attempts</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../DbImportDataProxy.html" title="DbImportDataProxy (module)">DbImportDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../DbImportDataProxy.html#import-instance_method" title="DbImportDataProxy#import (method)">#import</a></span>, <span class='object_link'><a href="../../../DbImportDataProxy.html#import_file-instance_method" title="DbImportDataProxy#import_file (method)">#import_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../DbExportDataProxy.html" title="DbExportDataProxy (module)">DbExportDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../DbExportDataProxy.html#run_db_export-instance_method" title="DbExportDataProxy#run_db_export (method)">#run_db_export</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../NmapDataProxy.html" title="NmapDataProxy (module)">NmapDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../NmapDataProxy.html#import_nmap_xml_file-instance_method" title="NmapDataProxy#import_nmap_xml_file (method)">#import_nmap_xml_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../LoginDataProxy.html" title="LoginDataProxy (module)">LoginDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../LoginDataProxy.html#create_credential_login-instance_method" title="LoginDataProxy#create_credential_login (method)">#create_credential_login</a></span>, <span class='object_link'><a href="../../../LoginDataProxy.html#invalidate_login-instance_method" title="LoginDataProxy#invalidate_login (method)">#invalidate_login</a></span>, <span class='object_link'><a href="../../../LoginDataProxy.html#logins-instance_method" title="LoginDataProxy#logins (method)">#logins</a></span>, <span class='object_link'><a href="../../../LoginDataProxy.html#update_login-instance_method" title="LoginDataProxy#update_login (method)">#update_login</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../CredentialDataProxy.html" title="CredentialDataProxy (module)">CredentialDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../CredentialDataProxy.html#create_cracked_credential-instance_method" title="CredentialDataProxy#create_cracked_credential (method)">#create_cracked_credential</a></span>, <span class='object_link'><a href="../../../CredentialDataProxy.html#create_credential-instance_method" title="CredentialDataProxy#create_credential (method)">#create_credential</a></span>, <span class='object_link'><a href="../../../CredentialDataProxy.html#create_credential_and_login-instance_method" title="CredentialDataProxy#create_credential_and_login (method)">#create_credential_and_login</a></span>, <span class='object_link'><a href="../../../CredentialDataProxy.html#creds-instance_method" title="CredentialDataProxy#creds (method)">#creds</a></span>, <span class='object_link'><a href="../../../CredentialDataProxy.html#delete_credentials-instance_method" title="CredentialDataProxy#delete_credentials (method)">#delete_credentials</a></span>, <span class='object_link'><a href="../../../CredentialDataProxy.html#update_credential-instance_method" title="CredentialDataProxy#update_credential (method)">#update_credential</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../SessionEventDataProxy.html" title="SessionEventDataProxy (module)">SessionEventDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../SessionEventDataProxy.html#report_session_event-instance_method" title="SessionEventDataProxy#report_session_event (method)">#report_session_event</a></span>, <span class='object_link'><a href="../../../SessionEventDataProxy.html#session_events-instance_method" title="SessionEventDataProxy#session_events (method)">#session_events</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../LootDataProxy.html" title="LootDataProxy (module)">LootDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../LootDataProxy.html#find_or_create_loot-instance_method" title="LootDataProxy#find_or_create_loot (method)">#find_or_create_loot</a></span>, <span class='object_link'><a href="../../../LootDataProxy.html#loots-instance_method" title="LootDataProxy#loots (method)">#loots</a></span>, <span class='object_link'><a href="../../../LootDataProxy.html#report_loot-instance_method" title="LootDataProxy#report_loot (method)">#report_loot</a></span>, <span class='object_link'><a href="../../../LootDataProxy.html#update_loot-instance_method" title="LootDataProxy#update_loot (method)">#update_loot</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../ExploitDataProxy.html" title="ExploitDataProxy (module)">ExploitDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../ExploitDataProxy.html#report_exploit_attempt-instance_method" title="ExploitDataProxy#report_exploit_attempt (method)">#report_exploit_attempt</a></span>, <span class='object_link'><a href="../../../ExploitDataProxy.html#report_exploit_failure-instance_method" title="ExploitDataProxy#report_exploit_failure (method)">#report_exploit_failure</a></span>, <span class='object_link'><a href="../../../ExploitDataProxy.html#report_exploit_success-instance_method" title="ExploitDataProxy#report_exploit_success (method)">#report_exploit_success</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../SessionDataProxy.html" title="SessionDataProxy (module)">SessionDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../SessionDataProxy.html#convert_msf_session_to_hash-class_method" title="SessionDataProxy.convert_msf_session_to_hash (method)">convert_msf_session_to_hash</a></span>, <span class='object_link'><a href="../../../SessionDataProxy.html#report_session-instance_method" title="SessionDataProxy#report_session (method)">#report_session</a></span>, <span class='object_link'><a href="../../../SessionDataProxy.html#sessions-instance_method" title="SessionDataProxy#sessions (method)">#sessions</a></span>, <span class='object_link'><a href="../../../SessionDataProxy.html#update_session-instance_method" title="SessionDataProxy#update_session (method)">#update_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../WebDataProxy.html" title="WebDataProxy (module)">WebDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../WebDataProxy.html#report_web_form-instance_method" title="WebDataProxy#report_web_form (method)">#report_web_form</a></span>, <span class='object_link'><a href="../../../WebDataProxy.html#report_web_page-instance_method" title="WebDataProxy#report_web_page (method)">#report_web_page</a></span>, <span class='object_link'><a href="../../../WebDataProxy.html#report_web_site-instance_method" title="WebDataProxy#report_web_site (method)">#report_web_site</a></span>, <span class='object_link'><a href="../../../WebDataProxy.html#report_web_vuln-instance_method" title="WebDataProxy#report_web_vuln (method)">#report_web_vuln</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../NoteDataProxy.html" title="NoteDataProxy (module)">NoteDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../NoteDataProxy.html#delete_note-instance_method" title="NoteDataProxy#delete_note (method)">#delete_note</a></span>, <span class='object_link'><a href="../../../NoteDataProxy.html#find_or_create_note-instance_method" title="NoteDataProxy#find_or_create_note (method)">#find_or_create_note</a></span>, <span class='object_link'><a href="../../../NoteDataProxy.html#notes-instance_method" title="NoteDataProxy#notes (method)">#notes</a></span>, <span class='object_link'><a href="../../../NoteDataProxy.html#report_note-instance_method" title="NoteDataProxy#report_note (method)">#report_note</a></span>, <span class='object_link'><a href="../../../NoteDataProxy.html#update_note-instance_method" title="NoteDataProxy#update_note (method)">#update_note</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../WorkspaceDataProxy.html" title="WorkspaceDataProxy (module)">WorkspaceDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../WorkspaceDataProxy.html#add_workspace-instance_method" title="WorkspaceDataProxy#add_workspace (method)">#add_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#default_workspace-instance_method" title="WorkspaceDataProxy#default_workspace (method)">#default_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#delete_workspaces-instance_method" title="WorkspaceDataProxy#delete_workspaces (method)">#delete_workspaces</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#find_workspace-instance_method" title="WorkspaceDataProxy#find_workspace (method)">#find_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#update_workspace-instance_method" title="WorkspaceDataProxy#update_workspace (method)">#update_workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#workspace-instance_method" title="WorkspaceDataProxy#workspace (method)">#workspace</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#workspace=-instance_method" title="WorkspaceDataProxy#workspace= (method)">#workspace=</a></span>, <span class='object_link'><a href="../../../WorkspaceDataProxy.html#workspaces-instance_method" title="WorkspaceDataProxy#workspaces (method)">#workspaces</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../EventDataProxy.html" title="EventDataProxy (module)">EventDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../EventDataProxy.html#events-instance_method" title="EventDataProxy#events (method)">#events</a></span>, <span class='object_link'><a href="../../../EventDataProxy.html#report_event-instance_method" title="EventDataProxy#report_event (method)">#report_event</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../VulnDataProxy.html" title="VulnDataProxy (module)">VulnDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../VulnDataProxy.html#delete_vuln-instance_method" title="VulnDataProxy#delete_vuln (method)">#delete_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataProxy.html#find_or_create_vuln-instance_method" title="VulnDataProxy#find_or_create_vuln (method)">#find_or_create_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataProxy.html#report_vuln-instance_method" title="VulnDataProxy#report_vuln (method)">#report_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataProxy.html#update_vuln-instance_method" title="VulnDataProxy#update_vuln (method)">#update_vuln</a></span>, <span class='object_link'><a href="../../../VulnDataProxy.html#vulns-instance_method" title="VulnDataProxy#vulns (method)">#vulns</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../HostDataProxy.html" title="HostDataProxy (module)">HostDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../HostDataProxy.html#add_host_tag-instance_method" title="HostDataProxy#add_host_tag (method)">#add_host_tag</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#delete_host-instance_method" title="HostDataProxy#delete_host (method)">#delete_host</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#delete_host_tag-instance_method" title="HostDataProxy#delete_host_tag (method)">#delete_host_tag</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#find_or_create_host-instance_method" title="HostDataProxy#find_or_create_host (method)">#find_or_create_host</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#get_host-instance_method" title="HostDataProxy#get_host (method)">#get_host</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#get_host_tags-instance_method" title="HostDataProxy#get_host_tags (method)">#get_host_tags</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#hosts-instance_method" title="HostDataProxy#hosts (method)">#hosts</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#report_host-instance_method" title="HostDataProxy#report_host (method)">#report_host</a></span>, <span class='object_link'><a href="../../../HostDataProxy.html#update_host-instance_method" title="HostDataProxy#update_host (method)">#update_host</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../ServiceDataProxy.html" title="ServiceDataProxy (module)">ServiceDataProxy</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../ServiceDataProxy.html#delete_service-instance_method" title="ServiceDataProxy#delete_service (method)">#delete_service</a></span>, <span class='object_link'><a href="../../../ServiceDataProxy.html#find_or_create_service-instance_method" title="ServiceDataProxy#find_or_create_service (method)">#find_or_create_service</a></span>, <span class='object_link'><a href="../../../ServiceDataProxy.html#report_service-instance_method" title="ServiceDataProxy#report_service (method)">#report_service</a></span>, <span class='object_link'><a href="../../../ServiceDataProxy.html#services-instance_method" title="ServiceDataProxy#services (method)">#services</a></span>, <span class='object_link'><a href="../../../ServiceDataProxy.html#update_service-instance_method" title="ServiceDataProxy#update_service (method)">#update_service</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Metasploit::Framework::DataService::DataProxy (class)">DataProxy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of DataProxy.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='ivar'>@data_services</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='ivar'>@data_service_id</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='ivar'>@usable</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_setup'>setup</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice this">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+  </p>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="method_missing-instance_method">
+  
+    #<strong>method_missing</strong>(method, *args, &amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Used to bridge the local db</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 132</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method_missing'>method_missing</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="usable-instance_method">
+  
+    #<strong>usable</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute usable.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usable'>usable</span>
+  <span class='ivar'>@usable</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="active-instance_method">
+  
+    #<strong>active</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines if the data service is active</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_active'>active</span>
+  <span class='kw'>if</span> <span class='ivar'>@current_data_service</span>
+    <span class='kw'>return</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_opts_workspace-instance_method">
+  
+    #<strong>add_opts_workspace</strong>(opts, wspace = nil)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a valid workspace value to the opts hash before sending on to the data layer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The opts hash that will be passed to the data layer.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>wspace</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A specific workspace name to add to the opts hash.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The opts hash with a valid :workspace value added.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_opts_workspace'>add_opts_workspace</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='comment'># If :id is present the user only wants a specific record, so workspace isn&#39;t needed
+</span>  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+
+  <span class='comment'># If the user passed in a specific workspace then use that in opts
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_wspace'>wspace</span> <span class='kw'>if</span> <span class='id identifier rubyid_wspace'>wspace</span>
+
+  <span class='comment'># We only want to pass the workspace name, so grab it if it is currently an object.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Workspace</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we still don&#39;t have a :workspace value, just set it to the current workspace.
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_workspace'>workspace</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:workspace</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_opts'>opts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="data_service_operation-instance_method">
+  
+    #<strong>data_service_operation</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a set of data service operations declared within the block. This passes the @current_data_service as a parameter to the block. If there is no current data service registered or the data service is not active, the block is not executed and the method simply returns.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_data_service_operation'>data_service_operation</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_data_service'>data_service</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_get_data_service'>get_data_service</span>
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_block'>block</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service'>data_service</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_current_data_service-instance_method">
+  
+    #<strong>delete_current_data_service</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_current_data_service'>delete_current_data_service</span>
+  <span class='ivar'>@data_services</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='comma'>,</span> <span class='id identifier rubyid_ds'>ds</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_ds'>ds</span> <span class='op'>==</span> <span class='ivar'>@current_data_service</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_id'>id</span> <span class='op'>==</span> <span class='int'>1</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to delete the local data service. Please use db_disconnect.</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>else</span>
+        <span class='ivar'>@data_services</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+        <span class='ivar'>@current_data_service</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_data_service-instance_method">
+  
+    #<strong>delete_data_service</strong>(data_service_id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Delete the specified data service</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_delete_data_service'>delete_data_service</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cannot delete data service id: 1</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>1</span>
+
+  <span class='id identifier rubyid_data_service'>data_service</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data service with id: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@current_data_service</span> <span class='op'>==</span> <span class='id identifier rubyid_data_service'>data_service</span>
+    <span class='comment'># set the current data service to the first data service created
+</span>    <span class='ivar'>@current_data_service</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="error-instance_method">
+  
+    #<strong>error</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns current error state</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_error'>error</span>
+  <span class='kw'>return</span> <span class='ivar'>@error</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@error</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span> <span class='kw'>if</span> <span class='ivar'>@current_data_service</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_error'>error</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unknown</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_data_service-instance_method">
+  
+    #<strong>get_data_service</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 146</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_data_service'>get_data_service</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No registered data_service</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='ivar'>@current_data_service</span>
+  <span class='kw'>return</span> <span class='ivar'>@current_data_service</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_services_metadata-instance_method">
+  
+    #<strong>get_services_metadata</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves metadata about the data services</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_services_metadata'>get_services_metadata</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_services_metadata'>services_metadata</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@data_services</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+    <span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='op'>!</span><span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_name'>name</span> <span class='op'>==</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+    <span class='id identifier rubyid_is_local'>is_local</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_is_local?'>is_local?</span>
+    <span class='id identifier rubyid_services_metadata'>services_metadata</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DataService.html" title="Metasploit::Framework::DataService (module)">DataService</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Metadata.html" title="Metasploit::Framework::DataService::Metadata (class)">Metadata</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Metadata.html#initialize-instance_method" title="Metasploit::Framework::DataService::Metadata#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_active'>active</span><span class='comma'>,</span> <span class='id identifier rubyid_is_local'>is_local</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_services_metadata'>services_metadata</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_local?-instance_method">
+  
+    #<strong>is_local?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_local?'>is_local?</span>
+  <span class='kw'>if</span> <span class='ivar'>@current_data_service</span>
+    <span class='kw'>return</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_is_local?'>is_local?</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="log_error-instance_method">
+  
+    #<strong>log_error</strong>(exception, ui_message)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_log_error'>log_error</span><span class='lparen'>(</span><span class='id identifier rubyid_exception'>exception</span><span class='comma'>,</span> <span class='id identifier rubyid_ui_message'>ui_message</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_ui_message'>ui_message</span><span class='comma'>,</span> <span class='label'>error:</span> <span class='id identifier rubyid_exception'>exception</span><span class='rparen'>)</span>
+  <span class='comment'># TODO: We should try to surface the original exception, instead of just a generic one.
+</span>  <span class='comment'># This should not display the full backtrace, only the message.
+</span>  <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_exception'>exception</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_data_service-instance_method">
+  
+    #<strong>register_data_service</strong>(data_service)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Registers the specified data service with the proxy and immediately sets it as the primary if active</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_data_service'>register_data_service</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service'>data_service</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service'>data_service</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data_service_id'>data_service_id</span> <span class='op'>=</span> <span class='ivar'>@data_service_id</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data_service'>data_service</span>
+  <span class='id identifier rubyid_set_data_service'>set_data_service</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="respond_to?-instance_method">
+  
+    #<strong>respond_to?</strong>(method_name, include_private = false)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='id identifier rubyid_include_private'>include_private</span><span class='op'>=</span><span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='kw'>return</span> <span class='ivar'>@current_data_service</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='id identifier rubyid_method_name'>method_name</span><span class='comma'>,</span> <span class='id identifier rubyid_include_private'>include_private</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_data_service-instance_method">
+  
+    #<strong>set_data_service</strong>(data_service_id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set the data service to be used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/data_service/proxy/core.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_data_service'>set_data_service</span><span class='lparen'>(</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data_service'>data_service</span> <span class='op'>=</span> <span class='ivar'>@data_services</span><span class='lbracket'>[</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data service with id: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data_service_id'>data_service_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_is_local?'>is_local?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data service </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data_service'>data_service</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not online, and won&#39;t be set as active</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_prev_data_service'>prev_data_service</span> <span class='op'>=</span> <span class='ivar'>@current_data_service</span>
+  <span class='ivar'>@current_data_service</span> <span class='op'>=</span> <span class='id identifier rubyid_data_service'>data_service</span>
+  <span class='comment'># reset the previous data service&#39;s active flag if it is remote
+</span>  <span class='comment'># to ensure checks are performed the next time it is set
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_prev_data_service'>prev_data_service</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_prev_data_service'>prev_data_service</span><span class='period'>.</span><span class='id identifier rubyid_is_local?'>is_local?</span>
+    <span class='id identifier rubyid_prev_data_service'>prev_data_service</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:30 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

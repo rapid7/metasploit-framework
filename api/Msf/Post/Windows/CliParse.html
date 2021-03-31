@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Windows::CliParse
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Windows::CliParse";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">CliParse</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Windows::CliParse
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Registry.html" title="Msf::Post::Windows::Registry (module)">Registry</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/windows/cli_parse.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="CliParse/ParseError.html" title="Msf::Post::Windows::CliParse::ParseError (class)">ParseError</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#win_parse_error-instance_method" title="#win_parse_error (instance method)">#<strong>win_parse_error</strong>(results)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parses error output of some windows CLI commands and returns hash with the keys/vals detected always returns hash as follows but :errval only comes back from sc.exe using &#39;FAILED&#39; keyword.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#win_parse_results-instance_method" title="#win_parse_results (instance method)">#<strong>win_parse_results</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parses output of some windows CLI commands and returns a hash with the keys/vals detected.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="win_parse_error-instance_method">
+  
+    #<strong>win_parse_error</strong>(results)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parses error output of some windows CLI commands and returns hash with the keys/vals detected always returns hash as follows but :errval only comes back from sc.exe using &#39;FAILED&#39; keyword</p>
+
+<p>Note, most of the time the :errval will be nil, it&#39;s not usually provided</p>
+
+<p>sc.exe error example:</p>
+
+<pre class="code ruby"><code class="ruby">[SC] EnumQueryServicesStatus:OpenService FAILED 1060:
+
+The specified service does not exist as an installed service.
+</code></pre>
+
+<p>returns:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='lbrace'>{</span>
+  <span class='symbol'>:error</span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified service does not exist as an installed service</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='symbol'>:errval</span> <span class='op'>=&gt;</span> <span class='int'>1060</span>
+<span class='rbrace'>}</span>
+</code></pre>
+
+<p>reg.exe error example:</p>
+
+<pre class="code ruby"><code class="ruby">ERROR: Invalid key name.
+Type &quot;REG QUERY /?&quot; for usage.
+</code></pre>
+
+<p>returns:</p>
+
+<pre class="code ruby"><code class="ruby">{
+  :error  =&gt; &quot;INVALID KEY NAME.&quot;
+  :errval =&gt; nil
+}
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/cli_parse.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_win_parse_error'>win_parse_error</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_hashish'>hashish</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:error</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown Error</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:errval</span> <span class='op'>=&gt;</span> <span class='kw'>nil</span>
+  <span class='rbrace'>}</span>
+  <span class='comment'># parse the results
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_ma'>ma</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^error:.*</span><span class='regexp_end'>/i</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span> <span class='comment'># if line starts with Error: just pass to regular parser
+</span>    <span class='id identifier rubyid_hashish'>hashish</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_win_parse_results'>win_parse_results</span><span class='lparen'>(</span><span class='id identifier rubyid_ma'>ma</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_upcase'>upcase</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='comment'>#upcase required to satisfy regular parser
+</span>    <span class='comment'># merge results.  Results from win_parse_results will override any duplicates in hashish
+</span>  <span class='kw'>elsif</span> <span class='id identifier rubyid_ma'>ma</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>FAILED +[0-9]+</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span> <span class='comment'># look for &#39;FAILED &#39; followed by some numbers
+</span>    <span class='id identifier rubyid_sa'>sa</span> <span class='op'>=</span> <span class='id identifier rubyid_ma'>ma</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hashish'>hashish</span><span class='lbracket'>[</span><span class='symbol'>:errval</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_sa'>sa</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+    <span class='comment'># ^ intended to capture the numbers after the word &#39;FAILED&#39; as [:errval]
+</span>    <span class='id identifier rubyid_ma'>ma</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[^\[\n].+</span><span class='regexp_end'>/</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_hashish'>hashish</span><span class='lbracket'>[</span><span class='symbol'>:error</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_ma'>ma</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='comment'># above intended to capture first non-empty line not starting with &#39;[&#39; or \n into [:error]
+</span>  <span class='kw'>else</span>
+    <span class='comment'># do nothing, defaults are good
+</span>  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hashish'>hashish</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="win_parse_results-instance_method">
+  
+    #<strong>win_parse_results</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parses output of some windows CLI commands and returns a hash with the keys/vals detected.  If the item has multiple values, they will all be returned in the val separated by commas. Keys are downcased and symbolized (key.downcase.to_sym)</p>
+
+<p>sc.exe example (somewhat contrived):</p>
+
+<pre class="code ruby"><code class="ruby">SERVICE_NAME: dumbservice
+DISPLAY_NAME: KernelSmith Dumb Service - User-mode
+TYPE               : 20  WIN32_SHARE_PROCESS
+STATE              : 4  RUNNING
+                        (NOT_STOPPABLE, NOT_PAUSABLE, IGNORES_SHUTDOWN)
+START_TYPE         : 2   AUTO_START
+BINARY_PATH_NAME   : C:\Windows\system32\svchost.exe -k LocalSystemNetworkRestricted
+DEPENDENCIES       : PlugPlay
+                   : DumberService
+SERVICE_START_NAME : LocalSystem
+</code></pre>
+
+<p>returns:</p>
+
+<pre class="code ruby"><code class="ruby">{
+  :service_name     =&gt; &quot;dumbservice&quot;,
+  :display_name     =&gt; &quot;KernelSmith Dumb Service - User-mod&quot;,
+  :state            =&gt; &quot;4  RUNNING&quot;,
+  :start_type       =&gt; &quot;2   AUTO_START&quot;,
+  :binary_path_name =&gt; &quot;C:\Windows\system32\svchost.exe -k LocalSystemNetworkRestricted&quot;,
+  :dependencies     =&gt; &quot;PlugPlay,DumberService&quot;
+  &lt;...etc...&gt;
+}
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/cli_parse.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_win_parse_results'>win_parse_results</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tip'>tip</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_hashish'>hashish</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_lastkey'>lastkey</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_chomp!'>chomp!</span>
+    <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\t</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># lose any tabs
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tip'>tip</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ + :</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+      <span class='comment'># then this is probably a continuation of the previous, let&#39;s append to previous
+</span>      <span class='comment'># NOTE:  this will NOT pickup the (NOT_STOPPABLE, NOT_PAUSABLE), see next, but it
+</span>      <span class='comment'># 	 will pickup when there&#39;s multiple dependencies
+</span>      <span class='id identifier rubyid_arr'>arr</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\w+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_arr'>arr</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># join with commas, though there is probably only one item in arr
+</span>      <span class='id identifier rubyid_hashish'>hashish</span><span class='lbracket'>[</span><span class='id identifier rubyid_lastkey'>lastkey</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_val'>val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># append to old val with preceding &#39;,&#39;
+</span>      <span class='comment'># if that&#39;s confusing, maybe:  hashish[lastkey] = &quot;#{hashish[lastkey]},#{val}&quot;
+</span>      <span class='id identifier rubyid_tip'>tip</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_tip'>tip</span> <span class='op'>==</span> <span class='kw'>true</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ + \(</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+      <span class='comment'># then this is probably a continuation of the previous, let&#39;s append to previous
+</span>      <span class='comment'># NOTE:  this WILL pickup (NOT_STOPPABLE, NOT_PAUSABLE) etc
+</span>      <span class='id identifier rubyid_arr'>arr</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\w+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='comment'># put each &quot;word&quot; into an array
+</span>      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_arr'>arr</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>,</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># join back together with commas in case comma wasn&#39;t the sep
+</span>      <span class='id identifier rubyid_hashish'>hashish</span><span class='lbracket'>[</span><span class='id identifier rubyid_lastkey'>lastkey</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_val'>val</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='comment'># append to old val with preceding &#39;,&#39;
+</span>      <span class='comment'># if that&#39;s confusing, maybe:  hashish[lastkey] = &quot;#{hashish[lastkey]},#{val}&quot;
+</span>      <span class='id identifier rubyid_tip'>tip</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='kw'>elsif</span> <span class='id identifier rubyid_line'>line</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ *[A-Z]+[_]*[A-Z]+.*:</span><span class='regexp_end'>/</span></span>
+      <span class='id identifier rubyid_tip'>tip</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='id identifier rubyid_arr'>arr</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_k'>k</span> <span class='op'>=</span> <span class='id identifier rubyid_arr'>arr</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+      <span class='comment'># grab all remaining fields for hash val in case &#39;:&#39; present in val
+</span>      <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_arr'>arr</span><span class='lbracket'>[</span><span class='int'>1</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../../../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='comment'># now add this entry to the hash
+</span>      <span class='id identifier rubyid_hashish'>hashish</span><span class='lbracket'>[</span><span class='id identifier rubyid_k'>k</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span>
+      <span class='id identifier rubyid_lastkey'>lastkey</span> <span class='op'>=</span> <span class='id identifier rubyid_k'>k</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hashish'>hashish</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:04 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

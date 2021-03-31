@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extension
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extension";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span>
+     &raquo; 
+    <span class="title">Extension</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extension
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extension</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extension.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Base class for all extensions that holds a reference to the client context that they are part of.  Each extension also has a defined name through which it is referenced.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="ClientCore.html" title="Rex::Post::Meterpreter::ClientCore (class)">ClientCore</a></span>, <span class='object_link'><a href="Extensions/Android/Android.html" title="Rex::Post::Meterpreter::Extensions::Android::Android (class)">Rex::Post::Meterpreter::Extensions::Android::Android</a></span>, <span class='object_link'><a href="Extensions/AppApi/AppApi.html" title="Rex::Post::Meterpreter::Extensions::AppApi::AppApi (class)">Rex::Post::Meterpreter::Extensions::AppApi::AppApi</a></span>, <span class='object_link'><a href="Extensions/Espia/Espia.html" title="Rex::Post::Meterpreter::Extensions::Espia::Espia (class)">Rex::Post::Meterpreter::Extensions::Espia::Espia</a></span>, <span class='object_link'><a href="Extensions/Extapi/Extapi.html" title="Rex::Post::Meterpreter::Extensions::Extapi::Extapi (class)">Rex::Post::Meterpreter::Extensions::Extapi::Extapi</a></span>, <span class='object_link'><a href="Extensions/Incognito/Incognito.html" title="Rex::Post::Meterpreter::Extensions::Incognito::Incognito (class)">Rex::Post::Meterpreter::Extensions::Incognito::Incognito</a></span>, <span class='object_link'><a href="Extensions/Kiwi/Kiwi.html" title="Rex::Post::Meterpreter::Extensions::Kiwi::Kiwi (class)">Rex::Post::Meterpreter::Extensions::Kiwi::Kiwi</a></span>, <span class='object_link'><a href="Extensions/Lanattacks/Lanattacks.html" title="Rex::Post::Meterpreter::Extensions::Lanattacks::Lanattacks (class)">Rex::Post::Meterpreter::Extensions::Lanattacks::Lanattacks</a></span>, <span class='object_link'><a href="Extensions/Peinjector/Peinjector.html" title="Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector (class)">Rex::Post::Meterpreter::Extensions::Peinjector::Peinjector</a></span>, <span class='object_link'><a href="Extensions/Powershell/Powershell.html" title="Rex::Post::Meterpreter::Extensions::Powershell::Powershell (class)">Rex::Post::Meterpreter::Extensions::Powershell::Powershell</a></span>, <span class='object_link'><a href="Extensions/Priv/Priv.html" title="Rex::Post::Meterpreter::Extensions::Priv::Priv (class)">Rex::Post::Meterpreter::Extensions::Priv::Priv</a></span>, <span class='object_link'><a href="Extensions/Python/Python.html" title="Rex::Post::Meterpreter::Extensions::Python::Python (class)">Rex::Post::Meterpreter::Extensions::Python::Python</a></span>, <span class='object_link'><a href="Extensions/Sniffer/Sniffer.html" title="Rex::Post::Meterpreter::Extensions::Sniffer::Sniffer (class)">Rex::Post::Meterpreter::Extensions::Sniffer::Sniffer</a></span>, <span class='object_link'><a href="Extensions/Stdapi/Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Stdapi (class)">Rex::Post::Meterpreter::Extensions::Stdapi::Stdapi</a></span>, <span class='object_link'><a href="Extensions/Unhook/Unhook.html" title="Rex::Post::Meterpreter::Extensions::Unhook::Unhook (class)">Rex::Post::Meterpreter::Extensions::Unhook::Unhook</a></span>, <span class='object_link'><a href="Extensions/Winpmem/Winpmem.html" title="Rex::Post::Meterpreter::Extensions::Winpmem::Winpmem (class)">Rex::Post::Meterpreter::Extensions::Winpmem::Winpmem</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The name of the extension.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client, name)  &#x21d2; Extension </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the client and name attributes.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client, name)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extension (class)">Extension</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the client and name attributes.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extension.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>   <span class='op'>=</span> <span class='id identifier rubyid_name'>name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extension.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="name=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The name of the extension.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extension.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='ivar'>@name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:53 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

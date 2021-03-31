@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::UI
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::UI";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (U)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span>
+     &raquo; 
+    <span class="title">UI</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::UI
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../../UI.html" title="Rex::Post::UI (class)">UI</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../UI.html" title="Rex::Post::UI (class)">UI</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::UI</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../ObjectAliasesContainer.html" title="Rex::Post::Meterpreter::ObjectAliasesContainer (module)">ObjectAliasesContainer</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/ui.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows for interacting with the user interface on the remote machine, such as by disabling the keyboard and mouse.</p>
+
+<p>WARNING:</p>
+
+<p>Using keyboard and mouse enabling/disabling features will result in a DLL file being written to disk.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../ObjectAliasesContainer.html" title="Rex::Post::Meterpreter::ObjectAliasesContainer (module)">ObjectAliasesContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../ObjectAliasesContainer.html#aliases-instance_method" title="Rex::Post::Meterpreter::ObjectAliasesContainer#aliases (method)">#aliases</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#disable_keyboard-instance_method" title="#disable_keyboard (instance method)">#<strong>disable_keyboard</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Disable keyboard input on the remote machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#disable_mouse-instance_method" title="#disable_mouse (instance method)">#<strong>disable_mouse</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Disable mouse input on the remote machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enable_keyboard-instance_method" title="#enable_keyboard (instance method)">#<strong>enable_keyboard</strong>(enable = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enable keyboard input on the remote machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enable_mouse-instance_method" title="#enable_mouse (instance method)">#<strong>enable_mouse</strong>(enable = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enable mouse input on the remote machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_desktops-instance_method" title="#enum_desktops (instance method)">#<strong>enum_desktops</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate desktops.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_desktop-instance_method" title="#get_desktop (instance method)">#<strong>get_desktop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the current desktop meterpreter is using.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#idle_time-instance_method" title="#idle_time (instance method)">#<strong>idle_time</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the number of seconds the remote machine has been idle from user input.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; UI </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes the post-exploitation user-interface manipulation subsystem.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyboard_send-instance_method" title="#keyboard_send (instance method)">#<strong>keyboard_send</strong>(keys)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send keystrokes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyevent_send-instance_method" title="#keyevent_send (instance method)">#<strong>keyevent_send</strong>(key_code, action = 0)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send key events.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyscan_dump-instance_method" title="#keyscan_dump (instance method)">#<strong>keyscan_dump</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Dump the keystroke buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyscan_start-instance_method" title="#keyscan_start (instance method)">#<strong>keyscan_start</strong>(trackwindow = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start the keyboard sniffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#keyscan_stop-instance_method" title="#keyscan_stop (instance method)">#<strong>keyscan_stop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop the keyboard sniffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mouse-instance_method" title="#mouse (instance method)">#<strong>mouse</strong>(mouseaction, x = -1,, y = -1))  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Mouse input.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#screenshot-instance_method" title="#screenshot (instance method)">#<strong>screenshot</strong>(quality = 50)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Grab a screenshot of the interactive desktop.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_desktop-instance_method" title="#set_desktop (instance method)">#<strong>set_desktop</strong>(session = -1,, station = &#39;WinSta0&#39;, name = &#39;Default&#39;, switch = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Change the meterpreters current desktop.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unlock_desktop-instance_method" title="#unlock_desktop (instance method)">#<strong>unlock_desktop</strong>(unlock = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Unlock or lock the desktop.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../ObjectAliasesContainer.html" title="Rex::Post::Meterpreter::ObjectAliasesContainer (module)">ObjectAliasesContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../ObjectAliasesContainer.html#dump_alias_tree-instance_method" title="Rex::Post::Meterpreter::ObjectAliasesContainer#dump_alias_tree (method)">#dump_alias_tree</a></span>, <span class='object_link'><a href="../../ObjectAliasesContainer.html#initialize_aliases-instance_method" title="Rex::Post::Meterpreter::ObjectAliasesContainer#initialize_aliases (method)">#initialize_aliases</a></span>, <span class='object_link'><a href="../../ObjectAliasesContainer.html#method_missing-instance_method" title="Rex::Post::Meterpreter::ObjectAliasesContainer#method_missing (method)">#method_missing</a></span></p>
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::UI (class)">UI</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes the post-exploitation user-interface manipulation subsystem.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice super">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+      in the class <span class='object_link'><a href="../../ObjectAliasesContainer.html#method_missing-instance_method" title="Rex::Post::Meterpreter::ObjectAliasesContainer#method_missing (method)">Rex::Post::Meterpreter::ObjectAliasesContainer</a></span>
+    
+  </p>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="disable_keyboard-instance_method">
+  
+    #<strong>disable_keyboard</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Disable keyboard input on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+48
+49
+50</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 48</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_disable_keyboard'>disable_keyboard</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_enable_keyboard'>enable_keyboard</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="disable_mouse-instance_method">
+  
+    #<strong>disable_mouse</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Disable mouse input on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_disable_mouse'>disable_mouse</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_enable_mouse'>enable_mouse</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enable_keyboard-instance_method">
+  
+    #<strong>enable_keyboard</strong>(enable = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enable keyboard input on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enable_keyboard'>enable_keyboard</span><span class='lparen'>(</span><span class='id identifier rubyid_enable'>enable</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD (constant)">COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_enable'>enable</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enable_mouse-instance_method">
+  
+    #<strong>enable_mouse</strong>(enable = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enable mouse input on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enable_mouse'>enable_mouse</span><span class='lparen'>(</span><span class='id identifier rubyid_enable'>enable</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_ENABLE_MOUSE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_ENABLE_MOUSE (constant)">COMMAND_ID_STDAPI_UI_ENABLE_MOUSE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_enable'>enable</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_desktops-instance_method">
+  
+    #<strong>enum_desktops</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate desktops.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 100</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_enum_desktops'>enum_desktops</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_DESKTOP_ENUM-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_DESKTOP_ENUM (constant)">COMMAND_ID_STDAPI_UI_DESKTOP_ENUM</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_desktopz'>desktopz</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP (constant)">TLV_TYPE_DESKTOP</a></span></span> <span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span> <span class='id identifier rubyid_desktop'>desktop</span> <span class='op'>|</span>
+    <span class='id identifier rubyid_desktopz'>desktopz</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_desktop'>desktop</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SESSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SESSION (constant)">TLV_TYPE_DESKTOP_SESSION</a></span></span> <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>station</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_desktop'>desktop</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_STATION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_STATION (constant)">TLV_TYPE_DESKTOP_STATION</a></span></span> <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_desktop'>desktop</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_NAME (constant)">TLV_TYPE_DESKTOP_NAME</a></span></span> <span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_desktopz'>desktopz</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_desktop-instance_method">
+  
+    #<strong>get_desktop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the current desktop meterpreter is using.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_desktop'>get_desktop</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_DESKTOP_GET-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_DESKTOP_GET (constant)">COMMAND_ID_STDAPI_UI_DESKTOP_GET</a></span></span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span> <span class='id identifier rubyid_request'>request</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_desktop'>desktop</span>  <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_desktop'>desktop</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SESSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SESSION (constant)">TLV_TYPE_DESKTOP_SESSION</a></span></span> <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>station</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_STATION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_STATION (constant)">TLV_TYPE_DESKTOP_STATION</a></span></span> <span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_NAME (constant)">TLV_TYPE_DESKTOP_NAME</a></span></span> <span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_desktop'>desktop</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="idle_time-instance_method">
+  
+    #<strong>idle_time</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the number of seconds the remote machine has been idle from user input.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_idle_time'>idle_time</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_GET_IDLE_TIME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_GET_IDLE_TIME (constant)">COMMAND_ID_STDAPI_UI_GET_IDLE_TIME</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_IDLE_TIME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_IDLE_TIME (constant)">TLV_TYPE_IDLE_TIME</a></span></span><span class='rparen'>)</span><span class='semicolon'>;</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyboard_send-instance_method">
+  
+    #<strong>keyboard_send</strong>(keys)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send keystrokes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+260
+261
+262
+263
+264
+265</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 260</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyboard_send'>keyboard_send</span><span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_SEND_KEYS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_SEND_KEYS (constant)">COMMAND_ID_STDAPI_UI_SEND_KEYS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_KEYS_SEND-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEYS_SEND (constant)">TLV_TYPE_KEYS_SEND</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_keys'>keys</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyevent_send-instance_method">
+  
+    #<strong>keyevent_send</strong>(key_code, action = 0)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send key events</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+270
+271
+272
+273
+274
+275
+276</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 270</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyevent_send'>keyevent_send</span><span class='lparen'>(</span><span class='id identifier rubyid_key_code'>key_code</span><span class='comma'>,</span> <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key_data'>key_data</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_action'>action</span><span class='comma'>,</span> <span class='id identifier rubyid_key_code'>key_code</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>VV</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_SEND_KEYEVENT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_SEND_KEYEVENT (constant)">COMMAND_ID_STDAPI_UI_SEND_KEYEVENT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_KEYEVENT_SEND-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEYEVENT_SEND (constant)">TLV_TYPE_KEYEVENT_SEND</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_key_data'>key_data</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyscan_dump-instance_method">
+  
+    #<strong>keyscan_dump</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Dump the keystroke buffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+251
+252
+253
+254
+255</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 251</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyscan_dump'>keyscan_dump</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8 (constant)">COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_KEYS_DUMP-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEYS_DUMP (constant)">TLV_TYPE_KEYS_DUMP</a></span></span><span class='rparen'>)</span><span class='semicolon'>;</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyscan_start-instance_method">
+  
+    #<strong>keyscan_start</strong>(trackwindow = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start the keyboard sniffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 232</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyscan_start'>keyscan_start</span><span class='lparen'>(</span><span class='id identifier rubyid_trackwindow'>trackwindow</span><span class='op'>=</span><span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_START_KEYSCAN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_START_KEYSCAN (constant)">COMMAND_ID_STDAPI_UI_START_KEYSCAN</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW (constant)">TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_trackwindow'>trackwindow</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="keyscan_stop-instance_method">
+  
+    #<strong>keyscan_stop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stop the keyboard sniffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243
+244
+245
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_keyscan_stop'>keyscan_stop</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_STOP_KEYSCAN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_STOP_KEYSCAN (constant)">COMMAND_ID_STDAPI_UI_STOP_KEYSCAN</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mouse-instance_method">
+  
+    #<strong>mouse</strong>(mouseaction, x = -1,, y = -1))  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Mouse input</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 281</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mouse'>mouse</span><span class='lparen'>(</span><span class='id identifier rubyid_mouseaction'>mouseaction</span><span class='comma'>,</span> <span class='id identifier rubyid_x'>x</span><span class='op'>=</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_y'>y</span><span class='op'>=</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_SEND_MOUSE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_SEND_MOUSE (constant)">COMMAND_ID_STDAPI_UI_SEND_MOUSE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_mouseaction'>mouseaction</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>move</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>click</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tap</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>leftclick</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>down</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>leftdown</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>2</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>up</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>leftup</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>3</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rightclick</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>4</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rightdown</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>5</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rightup</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>6</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>doubleclick</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='int'>7</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_action'>action</span> <span class='op'>=</span> <span class='id identifier rubyid_mouseaction'>mouseaction</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_MOUSE_ACTION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MOUSE_ACTION (constant)">TLV_TYPE_MOUSE_ACTION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_action'>action</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_MOUSE_X-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MOUSE_X (constant)">TLV_TYPE_MOUSE_X</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_x'>x</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_MOUSE_Y-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_MOUSE_Y (constant)">TLV_TYPE_MOUSE_Y</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_y'>y</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="screenshot-instance_method">
+  
+    #<strong>screenshot</strong>(quality = 50)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Grab a screenshot of the interactive desktop</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_screenshot'>screenshot</span><span class='lparen'>(</span> <span class='id identifier rubyid_quality'>quality</span><span class='op'>=</span><span class='int'>50</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT (constant)">COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT</a></span></span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY (constant)">TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_quality'>quality</span> <span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_base_platform'>base_platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+    <span class='comment'># Check if the target is running Windows 8/Windows Server 2012 or later and there are session 0 desktops visible.
+</span>    <span class='comment'># Session 0 desktops should only be visible to services. Windows 8/Server 2012 and later introduce the restricted
+</span>    <span class='comment'># desktop for services, which means that services cannot view the normal user&#39;s desktop or otherwise interact with
+</span>    <span class='comment'># it in any way. Attempting to take a screenshot from a service on these systems can lead to non-desireable
+</span>    <span class='comment'># behavior, such as explorer.exe crashing, which will force the compromised user to log back into their system
+</span>    <span class='comment'># again. For these reasons, any attempt to perform screenshots under these circumstances will be met with an error message.
+</span>    <span class='id identifier rubyid_opSys'>opSys</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_build'>build</span> <span class='op'>=</span> <span class='id identifier rubyid_opSys'>opSys</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Build (\d+)</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_build'>build</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Could not determine Windows build number to determine if taking a screenshot is safe.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_build_number'>build_number</span> <span class='op'>=</span> <span class='id identifier rubyid_build'>build</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_build_number'>build_number</span> <span class='op'>&gt;=</span> <span class='int'>9200</span> <span class='comment'># Windows 8/Windows Server 2012 and later
+</span>        <span class='id identifier rubyid_current_desktops'>current_desktops</span> <span class='op'>=</span> <span class='id identifier rubyid_enum_desktops'>enum_desktops</span>
+        <span class='id identifier rubyid_current_desktops'>current_desktops</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_desktop'>desktop</span><span class='op'>|</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_desktop'>desktop</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>session</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0</span><span class='tstring_end'>&#39;</span></span>
+            <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Current session was spawned by a service on Windows 8+. No desktops are available to screenshot.</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># include the x64 screenshot dll if the host OS is x64
+</span>    <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Architecture</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\S*x64\S*</span><span class='regexp_end'>/</span></span> <span class='rparen'>)</span>
+      <span class='id identifier rubyid_screenshot_path'>screenshot_path</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_meterpreter_path'>meterpreter_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>screenshot</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64.dll</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_screenshot_path'>screenshot_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>screenshot.x64.dll not found</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span> <span class='id identifier rubyid_screenshot_path'>screenshot_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+        <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span> <span class='op'>+=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER (constant)">TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='kw'>true</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># but always include the x86 screenshot dll as we can use it for wow64 processes if we are on x64
+</span>    <span class='id identifier rubyid_screenshot_path'>screenshot_path</span> <span class='op'>=</span> <span class='const'>MetasploitPayloads</span><span class='period'>.</span><span class='id identifier rubyid_meterpreter_path'>meterpreter_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>screenshot</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86.dll</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_screenshot_path'>screenshot_path</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>screenshot.x86.dll not found</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span> <span class='id identifier rubyid_screenshot_path'>screenshot_path</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+      <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span> <span class='op'>+=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER (constant)">TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_screenshot_dll'>screenshot_dll</span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='kw'>true</span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># send the request and return the jpeg image if successfull.
+</span>  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span> <span class='id identifier rubyid_request'>request</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SCREENSHOT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SCREENSHOT (constant)">TLV_TYPE_DESKTOP_SCREENSHOT</a></span></span> <span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_desktop-instance_method">
+  
+    #<strong>set_desktop</strong>(session = -1,, station = &#39;WinSta0&#39;, name = &#39;Default&#39;, switch = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Change the meterpreters current desktop. The switch param sets this new desktop as the interactive one (The local users visible desktop with screen/keyboard/mouse control).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_desktop'>set_desktop</span><span class='lparen'>(</span> <span class='id identifier rubyid_session'>session</span><span class='op'>=</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_station'>station</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WinSta0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Default</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_switch'>switch</span><span class='op'>=</span><span class='kw'>false</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_DESKTOP_SET-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_DESKTOP_SET (constant)">COMMAND_ID_STDAPI_UI_DESKTOP_SET</a></span></span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SESSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SESSION (constant)">TLV_TYPE_DESKTOP_SESSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_STATION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_STATION (constant)">TLV_TYPE_DESKTOP_STATION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_station'>station</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_NAME (constant)">TLV_TYPE_DESKTOP_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../Stdapi.html#TLV_TYPE_DESKTOP_SWITCH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_DESKTOP_SWITCH (constant)">TLV_TYPE_DESKTOP_SWITCH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_switch'>switch</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span> <span class='id identifier rubyid_request'>request</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unlock_desktop-instance_method">
+  
+    #<strong>unlock_desktop</strong>(unlock = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Unlock or lock the desktop</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+222
+223
+224
+225
+226
+227</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/ui.rb', line 222</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_unlock_desktop'>unlock_desktop</span><span class='lparen'>(</span><span class='id identifier rubyid_unlock'>unlock</span><span class='op'>=</span><span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span>  <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Stdapi.html#COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP (constant)">COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_unlock'>unlock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:57 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

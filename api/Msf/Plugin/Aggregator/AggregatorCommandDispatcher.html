@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::Aggregator::AggregatorCommandDispatcher
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::Aggregator::AggregatorCommandDispatcher";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Aggregator.html" title="Msf::Plugin::Aggregator (class)">Aggregator</a></span></span>
+     &raquo; 
+    <span class="title">AggregatorCommandDispatcher</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::Aggregator::AggregatorCommandDispatcher
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Plugin::Aggregator::AggregatorCommandDispatcher</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/aggregator.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#driver-instance_method" title="Msf::Ui::Console::CommandDispatcher#driver (method)">#driver</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_addresses-instance_method" title="#cmd_aggregator_addresses (instance method)">#<strong>cmd_aggregator_addresses</strong>(*_args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_cable_add-instance_method" title="#cmd_aggregator_cable_add (instance method)">#<strong>cmd_aggregator_cable_add</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_cable_remove-instance_method" title="#cmd_aggregator_cable_remove (instance method)">#<strong>cmd_aggregator_cable_remove</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_cables-instance_method" title="#cmd_aggregator_cables (instance method)">#<strong>cmd_aggregator_cables</strong>(*_args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_connect-instance_method" title="#cmd_aggregator_connect (instance method)">#<strong>cmd_aggregator_connect</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_default_forward-instance_method" title="#cmd_aggregator_default_forward (instance method)">#<strong>cmd_aggregator_default_forward</strong>(*_args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_disconnect-instance_method" title="#cmd_aggregator_disconnect (instance method)">#<strong>cmd_aggregator_disconnect</strong>(*_args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_save-instance_method" title="#cmd_aggregator_save (instance method)">#<strong>cmd_aggregator_save</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_session_forward-instance_method" title="#cmd_aggregator_session_forward (instance method)">#<strong>cmd_aggregator_session_forward</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_session_park-instance_method" title="#cmd_aggregator_session_park (instance method)">#<strong>cmd_aggregator_session_park</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_aggregator_sessions-instance_method" title="#cmd_aggregator_sessions (instance method)">#<strong>cmd_aggregator_sessions</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage-instance_method" title="#usage (instance method)">#<strong>usage</strong>(*lines)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_cable_add-instance_method" title="#usage_cable_add (instance method)">#<strong>usage_cable_add</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_cable_remove-instance_method" title="#usage_cable_remove (instance method)">#<strong>usage_cable_remove</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_connect-instance_method" title="#usage_connect (instance method)">#<strong>usage_connect</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_default_forward-instance_method" title="#usage_default_forward (instance method)">#<strong>usage_default_forward</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_save-instance_method" title="#usage_save (instance method)">#<strong>usage_save</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#usage_session_forward-instance_method" title="#usage_session_forward (instance method)">#<strong>usage_session_forward</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module (method)">#active_module</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_module=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module= (method)">#active_module=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session (method)">#active_session</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#active_session=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session= (method)">#active_session=</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#build_range_array-instance_method" title="Msf::Ui::Console::CommandDispatcher#build_range_array (method)">#build_range_array</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#docs_dir-instance_method" title="Msf::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#framework-instance_method" title="Msf::Ui::Console::CommandDispatcher#framework (method)">#framework</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#initialize-instance_method" title="Msf::Ui::Console::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#log_error-instance_method" title="Msf::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../../Ui/Console/CommandDispatcher.html#remove_lines-instance_method" title="Msf::Ui::Console::CommandDispatcher#remove_lines (method)">#remove_lines</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#initialize-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_aggregator_addresses-instance_method">
+  
+    #<strong>cmd_aggregator_addresses</strong>(*_args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 223</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_addresses'>cmd_aggregator_addresses</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid__args'>_args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+
+  <span class='id identifier rubyid_address_list'>address_list</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_available_addresses'>available_addresses</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_address_list'>address_list</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Remote addresses found:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_address_list'>address_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_addr'>addr</span><span class='op'>|</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_addr'>addr</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_cable_add-instance_method">
+  
+    #<strong>cmd_aggregator_cable_add</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_cable_add'>cmd_aggregator_cable_add</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_certificate'>certificate</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>2</span>
+      <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_certificate'>certificate</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='int'>3</span>
+      <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_certificate'>certificate</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_usage_cable_add'>usage_cable_add</span>
+      <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> \
+      <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_usage_cable_add'>usage_cable_add</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_certificate'>certificate</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_certificate'>certificate</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span> <span class='kw'>if</span> <span class='id identifier rubyid_certificate'>certificate</span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exists?'>exists?</span><span class='lparen'>(</span><span class='id identifier rubyid_certificate'>certificate</span><span class='rparen'>)</span>
+
+  <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_add_cable'>add_cable</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'>Aggregator</span><span class='op'>::</span><span class='const'>Cable</span><span class='op'>::</span><span class='const'>HTTPS</span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='comma'>,</span> <span class='id identifier rubyid_certificate'>certificate</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_cable_remove-instance_method">
+  
+    #<strong>cmd_aggregator_cable_remove</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 275</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_cable_remove'>cmd_aggregator_cable_remove</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='int'>2</span>
+      <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_usage_cable_remove'>usage_cable_remove</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_remove_cable'>remove_cable</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_cables-instance_method">
+  
+    #<strong>cmd_aggregator_cables</strong>(*_args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+265
+266
+267
+268
+269
+270
+271
+272
+273</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 265</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_cables'>cmd_aggregator_cables</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid__args'>_args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_cables'>cables</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Remote Cables:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='op'>|</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_k'>k</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_connect-instance_method">
+  
+    #<strong>cmd_aggregator_connect</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 136</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_connect'>cmd_aggregator_connect</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Msf.html#Aggregator_yaml-constant" title="Msf::Aggregator_yaml (constant)">Aggregator_yaml</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_lconfig'>lconfig</span> <span class='op'>=</span> <span class='const'>YAML</span><span class='period'>.</span><span class='id identifier rubyid_load_file'>load_file</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Msf.html#Aggregator_yaml-constant" title="Msf::Aggregator_yaml (constant)">Aggregator_yaml</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='ivar'>@host</span> <span class='op'>=</span> <span class='id identifier rubyid_lconfig'>lconfig</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>default</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>server</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='ivar'>@port</span> <span class='op'>=</span> <span class='id identifier rubyid_lconfig'>lconfig</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>default</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_aggregator_login'>aggregator_login</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_usage_connect'>usage_connect</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@host</span> <span class='op'>=</span> <span class='ivar'>@port</span> <span class='op'>=</span> <span class='ivar'>@sslv</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>when</span> <span class='int'>1</span>
+    <span class='ivar'>@host</span><span class='comma'>,</span> <span class='ivar'>@port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>:</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+    <span class='ivar'>@port</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2447</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>when</span> <span class='int'>2</span>
+    <span class='ivar'>@host</span><span class='comma'>,</span> <span class='ivar'>@port</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_usage_connect'>usage_connect</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_aggregator_login'>aggregator_login</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_default_forward-instance_method">
+  
+    #<strong>cmd_aggregator_default_forward</strong>(*_args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+314
+315
+316
+317
+318</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 314</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_default_forward'>cmd_aggregator_default_forward</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid__args'>_args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+
+  <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_register_default'>register_default</span><span class='lparen'>(</span><span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_disconnect-instance_method">
+  
+    #<strong>cmd_aggregator_disconnect</strong>(*_args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 341</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_disconnect'>cmd_aggregator_disconnect</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid__args'>_args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='ivar'>@aggregator</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_available?'>available?</span>
+    <span class='comment'># check if this connection is the default forward
+</span>    <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_register_default'>register_default</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_default'>default</span> <span class='op'>==</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span>
+
+    <span class='comment'># now check for any specifically forwarded sessions
+</span>    <span class='id identifier rubyid_local_sessions_by_id'>local_sessions_by_id</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid__id'>_id</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+      <span class='id identifier rubyid_local_sessions_by_id'>local_sessions_by_id</span><span class='lbracket'>[</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_sessions'>sessions</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_console'>console</span><span class='op'>|</span>
+        <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_local_sessions_by_id'>local_sessions_by_id</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_console'>console</span> <span class='op'>==</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span>
+           <span class='comment'># park each session locally addressed
+</span>          <span class='id identifier rubyid_cmd_aggregator_session_park'>cmd_aggregator_session_park</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span><span class='lparen'>(</span><span class='id identifier rubyid_local_sessions_by_id'>local_sessions_by_id</span><span class='lbracket'>[</span><span class='id identifier rubyid_session'>session</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='comment'># simple disconnect session that were from the default forward
+</span>          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_local_sessions_by_id'>local_sessions_by_id</span><span class='lbracket'>[</span><span class='id identifier rubyid_session'>session</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span> <span class='kw'>if</span> <span class='ivar'>@aggregator</span>
+  <span class='kw'>if</span> <span class='ivar'>@payload_job_ids</span>
+    <span class='ivar'>@payload_job_ids</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_id'>id</span><span class='op'>|</span>
+      <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_stop_job'>stop_job</span><span class='lparen'>(</span><span class='id identifier rubyid_id'>id</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@payload_job_ids</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@aggregator</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_save-instance_method">
+  
+    #<strong>cmd_aggregator_save</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_save'>cmd_aggregator_save</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'># if we are logged in, save session details to aggregator.yaml
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_usage_save'>usage_save</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_usage_save'>usage_save</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_group'>group</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>default</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@host</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@host</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='ivar'>@port</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@port</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span> <span class='op'>&amp;&amp;</span> <span class='ivar'>@port</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_config'>config</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_group'>group</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>server</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@host</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>port</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='ivar'>@port</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span>
+    <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Msf.html#Aggregator_yaml-constant" title="Msf::Aggregator_yaml (constant)">Aggregator_yaml</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='const'>YAML</span><span class='period'>.</span><span class='id identifier rubyid_dump'>dump</span><span class='lparen'>(</span><span class='id identifier rubyid_config'>config</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Msf.html#Aggregator_yaml-constant" title="Msf::Aggregator_yaml (constant)">Aggregator_yaml</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> created.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing server/port - reconnect and then try again.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_session_forward-instance_method">
+  
+    #<strong>cmd_aggregator_session_forward</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 320</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_session_forward'>cmd_aggregator_session_forward</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+
+  <span class='id identifier rubyid_remote_id'>remote_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_remote_id'>remote_id</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_usage_session_forward'>usage_session_forward</span>
+      <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='comment'># find session with ID matching request
+</span>  <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_session'>session</span><span class='op'>|</span>
+    <span class='id identifier rubyid_session_uri'>session_uri</span><span class='comma'>,</span> <span class='id identifier rubyid__target'>_target</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span>
+    <span class='id identifier rubyid_details'>details</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_session_details'>session_details</span><span class='lparen'>(</span><span class='id identifier rubyid_session_uri'>session_uri</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_details'>details</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_remote_id'>remote_id</span>
+      <span class='kw'>return</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_obtain_session'>obtain_session</span><span class='lparen'>(</span><span class='id identifier rubyid_session_uri'>session_uri</span><span class='comma'>,</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_remote_id'>remote_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> was not found.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_session_park-instance_method">
+  
+    #<strong>cmd_aggregator_session_park</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 289</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_session_park'>cmd_aggregator_session_park</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_session_id'>session_id</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_session_id'>session_id</span><span class='rparen'>)</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='kw'>if</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span>
+          <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_release_session'>release_session</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+        <span class='kw'>else</span>
+          <span class='comment'># TODO: determine if we can add a transport and route with the
+</span>          <span class='comment'># aggregator. For now, just report action not taken.
+</span>          <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session_id'>session_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not originate from the aggregator connection.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session_id'>session_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a valid session.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_session_park session_id</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_aggregator_sessions-instance_method">
+  
+    #<strong>cmd_aggregator_sessions</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_aggregator_sessions'>cmd_aggregator_sessions</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>when</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_isDetailed'>isDetailed</span> <span class='op'>=</span> <span class='kw'>false</span>
+    <span class='kw'>when</span> <span class='int'>1</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-v</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_usage_sessions'>usage_sessions</span>
+        <span class='kw'>return</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_isDetailed'>isDetailed</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_usage_sessions'>usage_sessions</span>
+      <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_aggregator_verify'>aggregator_verify</span>
+
+  <span class='id identifier rubyid_sessions_list'>sessions_list</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_sessions_list'>sessions_list</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='id identifier rubyid_session_map'>session_map</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># get details for each session and print in format of sessions -v
+</span>  <span class='id identifier rubyid_sessions_list'>sessions_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_session'>session</span><span class='op'>|</span>
+    <span class='id identifier rubyid_session_id'>session_id</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span>
+    <span class='id identifier rubyid_details'>details</span> <span class='op'>=</span> <span class='ivar'>@aggregator</span><span class='period'>.</span><span class='id identifier rubyid_session_details'>session_details</span><span class='lparen'>(</span><span class='id identifier rubyid_session_id'>session_id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_local_id'>local_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+      <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_conn_id'>conn_id</span> <span class='op'>==</span> <span class='id identifier rubyid_session_id'>session_id</span>
+      <span class='id identifier rubyid_local_id'>local_id</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span>
+    <span class='kw'>end</span>
+    <span class='comment'># filter session that do not have details as forwarding options (this may change later)
+</span>    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_details'>details</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_details'>details</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_session_map'>session_map</span><span class='lbracket'>[</span><span class='id identifier rubyid_details'>details</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ID</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_details'>details</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_local_id'>local_id</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Remote sessions</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>===============</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_map'>session_map</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No remote sessions.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_isDetailed'>isDetailed</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Id  Remote Id  Type                      Information          Connection</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  --  ---------  ----                      -----------          ----------</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_session_map'>session_map</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+      <span class='id identifier rubyid_details'>details</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_local_id'>local_id</span> <span class='op'>=</span> <span class='id identifier rubyid_session_map'>session_map</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_isDetailed'>isDetailed</span>
+        <span class='id identifier rubyid_show_session'>show_session</span><span class='lparen'>(</span><span class='id identifier rubyid_details'>details</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_local_id'>local_id</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_show_session_detailed'>show_session_detailed</span><span class='lparen'>(</span><span class='id identifier rubyid_details'>details</span><span class='comma'>,</span> <span class='id identifier rubyid_target'>target</span><span class='comma'>,</span> <span class='id identifier rubyid_local_id'>local_id</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_connect</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Connect to a running Aggregator instance ( host[:port] )</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_save</span><span class='tstring_end'>&#39;</span></span>            <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Save connection details to an Aggregator instance</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_disconnect</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Disconnect from an active Aggregator instance</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_addresses</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>List all remote ip addresses available for ingress</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cables</span><span class='tstring_end'>&#39;</span></span>          <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>List all remote listeners for sessions</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_add</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Setup remote https listener for sessions</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_remove</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stop remote listener for sessions</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_default_forward</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>forward a unlisted/unhandled sessions to a specified listener</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_sessions</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>List all remote sessions currently available from the Aggregator instance</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_session_forward</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>forward a session to a specified listener</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_session_park</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Park an existing session on the Aggregator instance</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Aggregator</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage-instance_method">
+  
+    #<strong>usage</strong>(*lines)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_lines'>lines</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>       </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_line'>line</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_cable_add-instance_method">
+  
+    #<strong>usage_cable_add</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66
+67
+68</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_cable_add'>usage_cable_add</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_add host:port [certificate]</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> -OR- </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_add host port [certificate]</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_cable_remove-instance_method">
+  
+    #<strong>usage_cable_remove</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_cable_remove'>usage_cable_remove</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_remove host:port</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> -OR- </span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aggregator_cable_remove host port</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_connect-instance_method">
+  
+    #<strong>usage_connect</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_connect'>usage_connect</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aggregator_connect host[:port]</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> -OR- </span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aggregator_connect host port</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_default_forward-instance_method">
+  
+    #<strong>usage_default_forward</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_default_forward'>usage_default_forward</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aggregator_session_forward</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_save-instance_method">
+  
+    #<strong>usage_save</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_save'>usage_save</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aggregator_save</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="usage_session_forward-instance_method">
+  
+    #<strong>usage_session_forward</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/aggregator.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_usage_session_forward'>usage_session_forward</span>
+  <span class='id identifier rubyid_usage'>usage</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>aggregator_session_forward remote_id</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:56 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

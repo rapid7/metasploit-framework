@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::DNS::Packet
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::DNS::Packet";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DNS.html" title="Rex::Proto::DNS (module)">DNS</a></span></span>
+     &raquo; 
+    <span class="title">Packet</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::DNS::Packet
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/dns/packet.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Packet/Raw.html" title="Rex::Proto::DNS::Packet::Raw (module)">Raw</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_drb-class_method" title="encode_drb (class method)">.<strong>encode_drb</strong>(packet)  &#x21d2; Dnsruby::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads a packet into the Dnsruby::Message format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_net-class_method" title="encode_net (class method)">.<strong>encode_net</strong>(packet)  &#x21d2; Net::DNS::Packet </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads a packet into the Net::DNS::Packet format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_raw-class_method" title="encode_raw (class method)">.<strong>encode_raw</strong>(packet)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads a packet into the raw String format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode_res-class_method" title="encode_res (class method)">.<strong>encode_res</strong>(packet)  &#x21d2; Resolv::DNS::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads a packet into the Resolv::DNS::Message format.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_request-class_method" title="generate_request (class method)">.<strong>generate_request</strong>(subject, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN, recurse = 1)  &#x21d2; Dnsruby::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates a request packet, taken from Net::DNS::Resolver.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_response-class_method" title="generate_response (class method)">.<strong>generate_response</strong>(request, answer = nil, authority = nil, additional = nil)  &#x21d2; Dnsruby::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates a response packet for an existing request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recalc_headers-class_method" title="recalc_headers (class method)">.<strong>recalc_headers</strong>(packet)  &#x21d2; Dnsruby::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets header values to match packet content.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#valid_hostname%3F-class_method" title="valid_hostname? (class method)">.<strong>valid_hostname?</strong>(subject = &#39;&#39;)  &#x21d2; TrueClass, FalseClass </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks string to ensure it can be used as a valid hostname.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#validate-class_method" title="validate (class method)">.<strong>validate</strong>(packet)  &#x21d2; Dnsruby::Message </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reconstructs a packet with both standard DNS libraries Ensures that headers match the payload.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="encode_drb-class_method">
+  
+    .<strong>encode_drb</strong>(packet)  &#x21d2; <tt>Dnsruby::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads a packet into the Dnsruby::Message format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Net::DNS::Packet</tt>, <tt>Resolv::DNS::Message</tt>, <tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_drb'>encode_drb</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span> <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Message</span><span class='rparen'>)</span>
+  <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Message</span><span class='period'>.</span><span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_raw'>encode_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_net-class_method">
+  
+    .<strong>encode_net</strong>(packet)  &#x21d2; <tt>Net::DNS::Packet</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads a packet into the Net::DNS::Packet format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Net::DNS::Packet</tt>, <tt>Resolv::DNS::Message</tt>, <tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Net::DNS::Packet</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_net'>encode_net</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span> <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Net</span><span class='op'>::</span><span class='const'>DNS</span><span class='op'>::</span><span class='const'>Packet</span><span class='rparen'>)</span>
+  <span class='const'>Net</span><span class='op'>::</span><span class='const'>DNS</span><span class='op'>::</span><span class='const'>Packet</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_raw'>encode_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_raw-class_method">
+  
+    .<strong>encode_raw</strong>(packet)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads a packet into the raw String format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Net::DNS::Packet</tt>, <tt>Resolv::DNS::Message</tt>, <tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 96</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_raw'>encode_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span> <span class='kw'>unless</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:encode</span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:data</span><span class='rparen'>)</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:data</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span> <span class='op'>:</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>binary</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode_res-class_method">
+  
+    .<strong>encode_res</strong>(packet)  &#x21d2; <tt>Resolv::DNS::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads a packet into the Resolv::DNS::Message format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Net::DNS::Packet</tt>, <tt>Resolv::DNS::Message</tt>, <tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input data</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Resolv::DNS::Message</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_res'>encode_res</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span> <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Resolv</span><span class='op'>::</span><span class='const'>DNS</span><span class='op'>::</span><span class='const'>Message</span><span class='rparen'>)</span>
+  <span class='const'>Resolv</span><span class='op'>::</span><span class='const'>DNS</span><span class='op'>::</span><span class='const'>Message</span><span class='period'>.</span><span class='id identifier rubyid_decode'>decode</span><span class='lparen'>(</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_raw'>encode_raw</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_request-class_method">
+  
+    .<strong>generate_request</strong>(subject, type = Dnsruby::Types::A, cls = Dnsruby::Classes::IN, recurse = 1)  &#x21d2; <tt>Dnsruby::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates a request packet, taken from Net::DNS::Resolver</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>subject</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Subject name of question section</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Dnsruby::Types::A</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Type of DNS record to query</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>cls</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>Dnsruby::Classes::IN</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Class of dns record to query</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>recurse</span>
+      
+      
+        <span class='type'>(<tt>Fixnum</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>1</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Recursive query or not</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>request packet</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_request'>generate_request</span><span class='lparen'>(</span><span class='id identifier rubyid_subject'>subject</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>A</span><span class='comma'>,</span> <span class='id identifier rubyid_cls'>cls</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Classes</span><span class='op'>::</span><span class='const'>IN</span><span class='comma'>,</span> <span class='id identifier rubyid_recurse'>recurse</span> <span class='op'>=</span> <span class='int'>1</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_subject'>subject</span>
+  <span class='kw'>when</span> <span class='const'>IPAddr</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_subject'>subject</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span>
+    <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>PTR</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\d</span><span class='regexp_end'>/</span></span> <span class='comment'># Contains a number, try to see if it&#39;s an IP or IPv6 address
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='const'>IPAddr</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_subject'>subject</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_reverse'>reverse</span>
+      <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Types</span><span class='op'>::</span><span class='const'>PTR</span>
+    <span class='kw'>rescue</span> <span class='const'>ArgumentError</span>
+      <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_subject'>subject</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_valid_hostname?'>valid_hostname?</span><span class='lparen'>(</span><span class='id identifier rubyid_subject'>subject</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_subject'>subject</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_valid_hostname?'>valid_hostname?</span><span class='lparen'>(</span><span class='id identifier rubyid_subject'>subject</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Create the packet
+</span>  <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>Message</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_cls'>cls</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_opcode'>opcode</span> <span class='op'>==</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>OpCode</span><span class='op'>::</span><span class='const'>Query</span>
+    <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_recursive'>recursive</span> <span class='op'>=</span> <span class='id identifier rubyid_recurse'>recurse</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># DNSSEC and TSIG stuff to be inserted here
+</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_response-class_method">
+  
+    .<strong>generate_response</strong>(request, answer = nil, authority = nil, additional = nil)  &#x21d2; <tt>Dnsruby::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates a response packet for an existing request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>request</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Net::DNS::Packet, Resolv::DNS::Message] Original request</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>answer</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Set of answers to provide in the response</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>authority</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Set of authority records to provide in the response</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>additional</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Set of additional records to provide in the response</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Response packet</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 147</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_generate_response'>generate_response</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_answer'>answer</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_authority'>authority</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_additional'>additional</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_drb'>encode_drb</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_answer'>answer</span> <span class='op'>=</span> <span class='id identifier rubyid_answer'>answer</span> <span class='kw'>if</span> <span class='id identifier rubyid_answer'>answer</span>
+  <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_authority'>authority</span> <span class='op'>=</span> <span class='id identifier rubyid_authority'>authority</span> <span class='kw'>if</span> <span class='id identifier rubyid_authority'>authority</span>
+  <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_additional'>additional</span> <span class='op'>=</span> <span class='id identifier rubyid_additional'>additional</span> <span class='kw'>if</span> <span class='id identifier rubyid_additional'>additional</span>
+  <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recalc_headers'>recalc_headers</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+
+  <span class='comment'># Set error code for NXDomain or unset it if reprocessing a response
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_ancount'>ancount</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+    <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_rcode'>rcode</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>RCode</span><span class='op'>::</span><span class='const'>NXDOMAIN</span>
+  <span class='kw'>else</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_qr'>qr</span> <span class='kw'>and</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_get_header_rcode'>get_header_rcode</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>==</span> <span class='int'>3</span>
+      <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_rcode'>rcode</span> <span class='op'>=</span> <span class='const'>Dnsruby</span><span class='op'>::</span><span class='const'>RCode</span><span class='op'>::</span><span class='const'>NOERROR</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Set response bit last to allow reprocessing of responses
+</span>  <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_qr'>qr</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='comment'># Set recursion available bit if recursion desired
+</span>  <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_ra'>ra</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_rd'>rd</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recalc_headers-class_method">
+  
+    .<strong>recalc_headers</strong>(packet)  &#x21d2; <tt>Dnsruby::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets header values to match packet content</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>packet</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Net::DNS::Packet, Resolv::DNS::Message,  Dnsruby::Message]</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_recalc_headers'>recalc_headers</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_packet'>packet</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_drb'>encode_drb</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span>
+    <span class='symbol'>:qdcount=</span> <span class='op'>=&gt;</span> <span class='symbol'>:question</span><span class='comma'>,</span>
+    <span class='symbol'>:ancount=</span> <span class='op'>=&gt;</span> <span class='symbol'>:answer</span><span class='comma'>,</span>
+    <span class='symbol'>:nscount=</span> <span class='op'>=&gt;</span> <span class='symbol'>:authority</span><span class='comma'>,</span>
+    <span class='symbol'>:arcount=</span> <span class='op'>=&gt;</span> <span class='symbol'>:additional</span>
+  <span class='rbrace'>}</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span><span class='id identifier rubyid_body'>body</span><span class='op'>|</span>
+    <span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_header'>header</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_header'>header</span><span class='comma'>,</span><span class='id identifier rubyid_packet'>packet</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_packet'>packet</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="valid_hostname?-class_method">
+  
+    .<strong>valid_hostname?</strong>(subject = &#39;&#39;)  &#x21d2; <tt>TrueClass</tt>, <tt>FalseClass</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks string to ensure it can be used as a valid hostname</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>subject</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&#39;&#39;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Subject name to check</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>TrueClass</tt>, <tt>FalseClass</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Disposition on name match</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_valid_hostname?'>valid_hostname?</span><span class='lparen'>(</span><span class='id identifier rubyid_subject'>subject</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='op'>!</span><span class='id identifier rubyid_subject'>subject</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../DNS.html" title="Rex::Proto::DNS (module)">DNS</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::DNS::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#MATCH_HOSTNAME-constant" title="Rex::Proto::DNS::Constants::MATCH_HOSTNAME (constant)">MATCH_HOSTNAME</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="validate-class_method">
+  
+    .<strong>validate</strong>(packet)  &#x21d2; <tt>Dnsruby::Message</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reconstructs a packet with both standard DNS libraries Ensures that headers match the payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>packet</span>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>Net::DNS::Packet</tt>, <tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Data to be validated</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Dnsruby::Message</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/dns/packet.rb', line 30</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_drb'>encode_drb</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_net'>encode_net</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encode_res'>encode_res</span><span class='lparen'>(</span><span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:36 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

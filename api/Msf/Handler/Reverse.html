@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Handler::Reverse
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Handler::Reverse";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Handler</a></span></span>
+     &raquo; 
+    <span class="title">Reverse</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Handler::Reverse
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="ReverseHttp.html" title="Msf::Handler::ReverseHttp (module)">ReverseHttp</a></span>, <span class='object_link'><a href="ReverseSsh.html" title="Msf::Handler::ReverseSsh (module)">ReverseSsh</a></span>, <span class='object_link'><a href="ReverseTcp.html" title="Msf::Handler::ReverseTcp (module)">ReverseTcp</a></span>, <span class='object_link'><a href="ReverseTcpDouble.html" title="Msf::Handler::ReverseTcpDouble (module)">ReverseTcpDouble</a></span>, <span class='object_link'><a href="ReverseTcpDoubleSSL.html" title="Msf::Handler::ReverseTcpDoubleSSL (module)">ReverseTcpDoubleSSL</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/handler/reverse.rb<span class="defines">,<br />
+  lib/msf/core/handler/reverse/ssl.rb,<br /> lib/msf/core/handler/reverse/comm.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Options and methods needed for all handlers that listen for a connection from the payload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Reverse/Comm.html" title="Msf::Handler::Reverse::Comm (module)">Comm</a></span>, <span class='object_link'><a href="Reverse/SSL.html" title="Msf::Handler::Reverse::SSL (module)">SSL</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bind_addresses-instance_method" title="#bind_addresses (instance method)">#<strong>bind_addresses</strong>  &#x21d2; Array&lt;String&gt; </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A list of addresses to attempt to bind, in preferred order.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bind_port-instance_method" title="#bind_port (instance method)">#<strong>bind_port</strong>  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_loopback_address%3F-instance_method" title="#is_loopback_address? (instance method)">#<strong>is_loopback_address?</strong>(address)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_handler-instance_method" title="#setup_handler (instance method)">#<strong>setup_handler</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Starts the listener but does not actually attempt to accept a connection.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="bind_addresses-instance_method">
+  
+    #<strong>bind_addresses</strong>  &#x21d2; <tt>Array&lt;String&gt;</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>A list of addresses to attempt to bind, in preferred order.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a two-element array. The first element will be the address that `<a href="'LHOST'">datastore</a>` resolves to, the second will be the INADDR_ANY address for IPv4 or IPv6, depending on the version of the first element.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bind_addresses'>bind_addresses</span>
+  <span class='comment'># Switch to IPv6 ANY address if the LHOST is also IPv6
+</span>  <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_resolv_nbo'>resolv_nbo</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='comment'># First attempt to bind LHOST. If that fails, the user probably has
+</span>  <span class='comment'># something else listening on that interface. Try again with ANY_ADDR.
+</span>  <span class='id identifier rubyid_any'>any</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>4</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::0</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_ntoa'>addr_ntoa</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+
+  <span class='comment'># Checking if LHOST is a loopback address
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_is_loopback_address?'>is_loopback_address?</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_warning'><span class='object_link'><a href="../../top-level-namespace.html#print_warning-instance_method" title="#print_warning (method)">print_warning</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You are binding to a loopback address by setting LHOST to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_addr'>addr</span><span class='embexpr_end'>}</span><span class='tstring_content'>. Did you want ReverseListenerBindAddress?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_any'>any</span> <span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseListenerBindAddress</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='comment'># Only try to bind to this specific interface
+</span>    <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseListenerBindAddress</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rbracket'>]</span>
+
+    <span class='comment'># Pick the right &quot;any&quot; address if either wildcard is used
+</span>    <span class='id identifier rubyid_addrs'>addrs</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_any'>any</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_addrs'>addrs</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_addrs'>addrs</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::0</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_addrs'>addrs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="bind_port-instance_method">
+  
+    #<strong>bind_port</strong>  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bind_port'>bind_port</span>
+  <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseListenerBindPort</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+  <span class='lparen'>(</span><span class='id identifier rubyid_port'>port</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_port'>port</span> <span class='op'>:</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse.rb', line 9</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_register_options'>register_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#LHOST-constant" title="Msf::Opt::LHOST (constant)">LHOST</a></span></span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../Opt.html" title="Msf::Opt (module)">Opt</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Opt.html#LPORT-constant" title="Msf::Opt::LPORT (constant)">LPORT</a></span></span><span class='lparen'>(</span><span class='int'>4444</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Handler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Handler::Reverse (module)">Reverse</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../OptPort.html" title="Msf::OptPort (class)">OptPort</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseListenerBindPort</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The port to bind to on the local system if different from LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseAllowProxy</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Allow reverse tcp even with Proxies specified. Connect back will NOT go through proxy but directly to LHOST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Handler.html" title="Msf::Handler (module)">Handler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Handler::Reverse (module)">Reverse</a></span></span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_loopback_address?-instance_method">
+  
+    #<strong>is_loopback_address?</strong>(address)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_loopback_address?'>is_loopback_address?</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+     <span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='const'>IPAddr</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_address'>address</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+     <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'>IPAddr</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>127.0.0.1/8</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>===</span> <span class='id identifier rubyid_a'>a</span>
+     <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='const'>IPAddr</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>::1</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>===</span> <span class='id identifier rubyid_a'>a</span>
+  <span class='kw'>rescue</span>
+  <span class='kw'>end</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_handler-instance_method">
+  
+    #<strong>setup_handler</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Starts the listener but does not actually attempt to accept a connection.  Throws socket exceptions if it fails to start the listener.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/reverse.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_handler'>setup_handler</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Proxies</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseAllowProxy</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TCP connect-back payloads cannot be used with Proxies. Use &#39;set ReverseAllowProxy true&#39; to override this behaviour.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_ex'>ex</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+  <span class='id identifier rubyid_comm'>comm</span> <span class='op'>=</span> <span class='id identifier rubyid_select_comm'>select_comm</span>
+  <span class='id identifier rubyid_local_port'>local_port</span> <span class='op'>=</span> <span class='id identifier rubyid_bind_port'>bind_port</span>
+
+  <span class='id identifier rubyid_bind_addresses'>bind_addresses</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ip'>ip</span><span class='op'>|</span>
+    <span class='kw'>begin</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_listener_sock'>listener_sock</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>TcpServer</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_local_port'>local_port</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Comm</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_comm'>comm</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Context</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span>
+        <span class='lbrace'>{</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Msf</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfPayload</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='kw'>self</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MsfExploit</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span>
+        <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span>
+      <span class='id identifier rubyid_ex'>ex</span> <span class='op'>=</span> <span class='gvar'>$!</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Handler failed to bind to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_port'>local_port</span><span class='embexpr_end'>}</span><span class='tstring_content'>:- </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_comm'>comm</span><span class='embexpr_end'>}</span><span class='tstring_content'> -</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_ex'>ex</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_via'>via</span> <span class='op'>=</span> <span class='id identifier rubyid_via_string_for_ip'>via_string_for_ip</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_comm'>comm</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Started </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_human_name'>human_name</span><span class='embexpr_end'>}</span><span class='tstring_content'> handler on </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ip'>ip</span><span class='embexpr_end'>}</span><span class='tstring_content'>:</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_local_port'>local_port</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_via'>via</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>break</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_ex'>ex</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_ex'>ex</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:24 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

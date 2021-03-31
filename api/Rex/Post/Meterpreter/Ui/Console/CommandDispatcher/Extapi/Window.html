@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Window
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Window";
+  relpath = '../../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Ui.html" title="Rex::Post::Meterpreter::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Console.html" title="Rex::Post::Meterpreter::Ui::Console (class)">Console</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../CommandDispatcher.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher (module)">CommandDispatcher</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Extapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi (class)">Extapi</a></span></span>
+     &raquo; 
+    <span class="title">Window</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Window
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi::Window</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../../Extensions/Extapi.html" title="Rex::Post::Meterpreter::Extensions::Extapi (module)">Extensions::Extapi</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher (module)">Rex::Post::Meterpreter::Ui::Console::CommandDispatcher</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Extended API window management user interface.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="Klass-constant" class="">Klass =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Console.html" title="Rex::Post::Meterpreter::Ui::Console (class)">Console</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../CommandDispatcher.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher (module)">CommandDispatcher</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Extapi.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Extapi (class)">Extapi</a></span></span><span class='op'>::</span><span class='const'>Window</span></pre></dd>
+      
+        <dt id="window_enum_opts-classvariable" class="">@@window_enum_opts =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Options for the window_enum command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../../Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../../Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../../../Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help banner</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Parent window handle, used to enumerate child windows</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-u</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Include unknown/untitled windows in the result set</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-c</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Specify the window class name to display. e.g. Edit,Button etc.</span><span class='tstring_end'>&#39;</span></span> <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../../Extensions/Extapi.html" title="Rex::Post::Meterpreter::Extensions::Extapi (module)">Extensions::Extapi</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_ADSI_DOMAIN_QUERY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_GET_DATA</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_DUMP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_DUMP (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_DUMP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PAUSE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PAUSE (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PAUSE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PURGE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PURGE (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_PURGE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_RESUME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_RESUME (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_RESUME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_START-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_START (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_START</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_STOP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_STOP (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_MONITOR_STOP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_CLIPBOARD_SET_DATA</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_NTDS_PARSE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_NTDS_PARSE (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_NTDS_PARSE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_PAGEANT_SEND_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_PAGEANT_SEND_QUERY (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_PAGEANT_SEND_QUERY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_SERVICE_CONTROL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_CONTROL (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_CONTROL</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_SERVICE_ENUM-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_ENUM (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_ENUM</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_SERVICE_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_QUERY (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_SERVICE_QUERY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_WINDOW_ENUM-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_WINDOW_ENUM (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_WINDOW_ENUM</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_WMI_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_WMI_QUERY (constant)">Extensions::Extapi::COMMAND_ID_EXTAPI_WMI_QUERY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#EXTENSION_ID_EXTAPI-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::EXTENSION_ID_EXTAPI (constant)">Extensions::Extapi::EXTENSION_ID_EXTAPI</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_EXTAPI-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_EXTAPI (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_EXTAPI</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_PAGEANT_BLOB_IN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_BLOB_IN (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_BLOB_IN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_PAGEANT_ERRORMESSAGE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_ERRORMESSAGE (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_ERRORMESSAGE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_PAGEANT_RETURNEDBLOB-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_RETURNEDBLOB (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_RETURNEDBLOB</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_PAGEANT_SIZE_IN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_SIZE_IN (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_SIZE_IN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXTENSION_PAGEANT_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_STATUS (constant)">Extensions::Extapi::TLV_TYPE_EXTENSION_PAGEANT_STATUS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_ARRAY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_ARRAY (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_ARRAY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_BIGNUMBER-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_BIGNUMBER (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_BIGNUMBER</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_BOOL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_BOOL (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_BOOL</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_DN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_DN (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_DN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_DOMAIN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_DOMAIN (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_DOMAIN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_FIELD-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_FIELD (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_FIELD</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_FILTER-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_FILTER (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_FILTER</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_MAXRESULTS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_MAXRESULTS (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_MAXRESULTS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_NUMBER-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_NUMBER (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_NUMBER</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_PAGESIZE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_PAGESIZE (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_PAGESIZE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_PATH_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_PATH (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_PATH</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_PATH_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_TYPE (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_TYPE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_PATH_VOL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_VOL (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_PATH_VOL</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_RAW-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_RAW (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_RAW</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_RESULT-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_RESULT (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_RESULT</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_ADSI_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_ADSI_STRING (constant)">Extensions::Extapi::TLV_TYPE_EXT_ADSI_STRING</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_DOWNLOAD</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_CAP_IMG_DATA</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_MON_DUMP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_DUMP (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_DUMP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_MON_PURGE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_PURGE (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_PURGE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_MON_WIN_CLASS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILES</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_NAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_FILE_SIZE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DATA</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMX</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_IMAGE_JPG_DIMY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TEXT_CONTENT</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP (constant)">Extensions::Extapi::TLV_TYPE_EXT_CLIPBOARD_TYPE_TIMESTAMP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_CTRL_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_NAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_NAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_CTRL_OP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_OP (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_CTRL_OP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_DISPLAYNAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_GROUP (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_GROUP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_INTERACTIVE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_NAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_NAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_PID-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_PID (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_PID</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_ENUM_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_STATUS (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_ENUM_STATUS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_DACL-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DACL (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DACL</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_DISPLAYNAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_INTERACTIVE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_LOADORDERGROUP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_PATH (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_PATH</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTNAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STARTTYPE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_SERVICE_QUERY_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STATUS (constant)">Extensions::Extapi::TLV_TYPE_EXT_SERVICE_QUERY_STATUS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_CLASSNAME-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_CLASSNAME (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_CLASSNAME</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_GROUP (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_GROUP</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_HANDLE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_HANDLE (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_HANDLE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_INCLUDEUNKNOWN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_PID-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_PID (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_PID</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WINDOW_ENUM_TITLE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_TITLE (constant)">Extensions::Extapi::TLV_TYPE_EXT_WINDOW_ENUM_TITLE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_DOMAIN-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_DOMAIN (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_DOMAIN</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_ERROR-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_ERROR (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_ERROR</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_FIELD-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_FIELD (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_FIELD</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_FIELDS-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_FIELDS (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_FIELDS</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_QUERY (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_QUERY</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_VALUE (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_VALUE</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_EXT_WMI_VALUES-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_EXT_WMI_VALUES (constant)">Extensions::Extapi::TLV_TYPE_EXT_WMI_VALUES</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_NTDS_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_NTDS_PATH (constant)">Extensions::Extapi::TLV_TYPE_NTDS_PATH</a></span>, <span class='object_link'><a href="../../../../Extensions/Extapi.html#TLV_TYPE_NTDS_TEST-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::TLV_TYPE_NTDS_TEST (constant)">Extensions::Extapi::TLV_TYPE_NTDS_TEST</a></span></p>
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_window_enum-instance_method" title="#cmd_window_enum (instance method)">#<strong>cmd_window_enum</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate top-level windows.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>List of supported commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Name for this dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#window_enum_usage-instance_method" title="#window_enum_usage (instance method)">#<strong>window_enum_usage</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../CommandDispatcher.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher (module)">Rex::Post::Meterpreter::Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../CommandDispatcher.html#check_hash-class_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher.check_hash (method)">check_hash</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#client-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#client (method)">#client</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#docs_dir-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#filter_commands-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#filter_commands (method)">#filter_commands</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#initialize-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#log_error-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#msf_loaded%3F-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#msf_loaded? (method)">#msf_loaded?</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#set_hash-class_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher.set_hash (method)">set_hash</a></span>, <span class='object_link'><a href="../../CommandDispatcher.html#unknown_command-instance_method" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher#unknown_command (method)">#unknown_command</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#initialize-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../../../../Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cmd_window_enum-instance_method">
+  
+    #<strong>cmd_window_enum</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate top-level windows.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_window_enum'>cmd_window_enum</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_parent_window'>parent_window</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_include_unknown'>include_unknown</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_window_class_name'>window_class_name</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='cvar'>@@window_enum_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid__idx'>_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-u</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_include_unknown'>include_unknown</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_parent_window'>parent_window</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_parent_window'>parent_window</span> <span class='op'>==</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_window_enum_usage'>window_enum_usage</span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_window_enum_usage'>window_enum_usage</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-c</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_window_class_name'>window_class_name</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_window_class_name'>window_class_name</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+        <span class='id identifier rubyid_window_enum_usage'>window_enum_usage</span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_windows'>windows</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_extapi'>extapi</span><span class='period'>.</span><span class='id identifier rubyid_window'>window</span><span class='period'>.</span><span class='id identifier rubyid_enumerate'>enumerate</span><span class='lparen'>(</span><span class='id identifier rubyid_include_unknown'>include_unknown</span><span class='comma'>,</span> <span class='id identifier rubyid_parent_window'>parent_window</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_header'>header</span> <span class='op'>=</span> <span class='id identifier rubyid_parent_window'>parent_window</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Child windows of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_parent_window'>parent_window</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Top-level windows</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_columns'>columns</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PID</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Handle</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ClassName</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Title</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_table'>table</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_header'>header</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SortIndex</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Handle</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_columns'>columns</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_windows'>windows</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_w'>w</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_window_class_name'>window_class_name</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_table'>table</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:pid</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:handle</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:class_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:title</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+    <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:class_name</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_window_class_name'>window_class_name</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_table'>table</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:pid</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:handle</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:class_name</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='symbol'>:title</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+    <span class='kw'>else</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_table'>table</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_parent_window'>parent_window</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Total top-level Windows: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_windows'>windows</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Total child Windows: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_windows'>windows</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>List of supported commands.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28
+29
+30
+31
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='id identifier rubyid_all'>all</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>window_enum</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Enumerate all current open windows</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_reqs'>reqs</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>window_enum</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="../../../../Extensions/Extapi.html#COMMAND_ID_EXTAPI_WINDOW_ENUM-constant" title="Rex::Post::Meterpreter::Extensions::Extapi::COMMAND_ID_EXTAPI_WINDOW_ENUM (constant)">COMMAND_ID_EXTAPI_WINDOW_ENUM</a></span></span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_filter_commands'>filter_commands</span><span class='lparen'>(</span><span class='id identifier rubyid_all'>all</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Name for this dispatcher</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb', line 39</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Extapi: Window Management</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="window_enum_usage-instance_method">
+  
+    #<strong>window_enum_usage</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/ui/console/command_dispatcher/extapi/window.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_window_enum_usage'>window_enum_usage</span>
+  <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nUsage: window_enum [-h] [-p parent_window] [-u]\n\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enumerate the windows on the target.\n\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Enumeration returns the Process ID and Window Handle for each window\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>found. The Window Handle can be used for further calls to window_enum\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>or the railgun API.\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+    <span class='cvar'>@@window_enum_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span> <span class='op'>+</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Note: Not all windows can be enumerated. An attempt to enumerate\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>      the children of such a window will result in a failure with the\n</span><span class='tstring_end'>&quot;</span></span> \
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>      message \&quot;Operation failed: The parameter is incorrect.\&quot;\n</span><span class='tstring_end'>&quot;</span></span>\
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>      Enumerable maximum text length is 256.\n\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:11 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

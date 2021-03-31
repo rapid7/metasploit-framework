@@ -1,0 +1,3382 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::RPC::RPC_Session
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::RPC::RPC_Session";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../RPC.html" title="Msf::RPC (module)">RPC</a></span></span>
+     &raquo; 
+    <span class="title">RPC_Session</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::RPC::RPC_Session
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></li>
+          
+            <li class="next">Msf::RPC::RPC_Session</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/rpc/v10/rpc_session.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="RPC_Base.html#framework-instance_method" title="Msf::RPC::RPC_Base#framework (method)">#framework</a></span>, <span class='object_link'><a href="RPC_Base.html#job_status_tracker-instance_method" title="Msf::RPC::RPC_Base#job_status_tracker (method)">#job_status_tracker</a></span>, <span class='object_link'><a href="RPC_Base.html#service-instance_method" title="Msf::RPC::RPC_Base#service (method)">#service</a></span>, <span class='object_link'><a href="RPC_Base.html#tokens-instance_method" title="Msf::RPC::RPC_Base#tokens (method)">#tokens</a></span>, <span class='object_link'><a href="RPC_Base.html#users-instance_method" title="Msf::RPC::RPC_Base#users (method)">#users</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_compatible_modules-instance_method" title="#rpc_compatible_modules (instance method)">#<strong>rpc_compatible_modules</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns all the compatible post modules for this session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_list-instance_method" title="#rpc_list (instance method)">#<strong>rpc_list</strong>  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a list of sessions that belong to the framework instance used by the RPC service.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_directory_separator-instance_method" title="#rpc_meterpreter_directory_separator (instance method)">#<strong>rpc_meterpreter_directory_separator</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the separator used by the meterpreter.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_read-instance_method" title="#rpc_meterpreter_read (instance method)">#<strong>rpc_meterpreter_read</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads the output from a meterpreter session (such as a command output).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_run_single-instance_method" title="#rpc_meterpreter_run_single (instance method)">#<strong>rpc_meterpreter_run_single</strong>(sid, data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Runs a meterpreter command even if interacting with a shell or other channel.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public deprecated">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_script-instance_method" title="#rpc_meterpreter_script (instance method)">#<strong>rpc_meterpreter_script</strong>(sid, data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  <span class="deprecated note title">deprecated</span>
+  
+
+  
+    <span class="summary_desc"><strong>Deprecated.</strong> <div class='inline'>
+<p>Metasploit no longer maintains or accepts meterpreter scripts. Please try to use post modules instead.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_session_detach-instance_method" title="#rpc_meterpreter_session_detach (instance method)">#<strong>rpc_meterpreter_session_detach</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Detaches from a meterpreter session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_session_kill-instance_method" title="#rpc_meterpreter_session_kill (instance method)">#<strong>rpc_meterpreter_session_kill</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Kills a meterpreter session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_tabs-instance_method" title="#rpc_meterpreter_tabs (instance method)">#<strong>rpc_meterpreter_tabs</strong>(sid, line)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a tab-completed version of your meterpreter prompt input.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_transport_change-instance_method" title="#rpc_meterpreter_transport_change (instance method)">#<strong>rpc_meterpreter_transport_change</strong>(sid, opts = {})  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Changes the Transport of a given Meterpreter Session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_meterpreter_write-instance_method" title="#rpc_meterpreter_write (instance method)">#<strong>rpc_meterpreter_write</strong>(sid, data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends an input to a meterpreter prompt.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_ring_clear-instance_method" title="#rpc_ring_clear (instance method)">#<strong>rpc_ring_clear</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Clears a shell session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_ring_last-instance_method" title="#rpc_ring_last (instance method)">#<strong>rpc_ring_last</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the last sequence (last issued ReadPointer) for a shell session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_ring_put-instance_method" title="#rpc_ring_put (instance method)">#<strong>rpc_ring_put</strong>(sid, data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sends an input to a session (such as a command).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_ring_read-instance_method" title="#rpc_ring_read (instance method)">#<strong>rpc_ring_read</strong>(sid, ptr = nil)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads from a session (such as a command output).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_shell_read-instance_method" title="#rpc_shell_read (instance method)">#<strong>rpc_shell_read</strong>(sid, ptr = nil)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads the output of a shell session (such as a command output).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_shell_upgrade-instance_method" title="#rpc_shell_upgrade (instance method)">#<strong>rpc_shell_upgrade</strong>(sid, lhost, lport)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Upgrades a shell to a meterpreter.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_shell_write-instance_method" title="#rpc_shell_write (instance method)">#<strong>rpc_shell_write</strong>(sid, data)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Writes to a shell session (such as a command).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_stop-instance_method" title="#rpc_stop (instance method)">#<strong>rpc_stop</strong>(sid)  &#x21d2; Hash </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stops a session.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="RPC_Base.html" title="Msf::RPC::RPC_Base (class)">RPC_Base</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="RPC_Base.html#error-instance_method" title="Msf::RPC::RPC_Base#error (method)">#error</a></span>, <span class='object_link'><a href="RPC_Base.html#initialize-instance_method" title="Msf::RPC::RPC_Base#initialize (method)">#initialize</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <p class="notice">This class inherits a constructor from <span class='object_link'><a href="RPC_Base.html#initialize-instance_method" title="Msf::RPC::RPC_Base#initialize (method)">Msf::RPC::RPC_Base</a></span></p>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="rpc_compatible_modules-instance_method">
+  
+    #<strong>rpc_compatible_modules</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns all the compatible post modules for this session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.compatible_modules</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Post modules. It contains the following key:</p>
+<ul><li>
+<p>&#39;modules&#39; [Array&lt;string&gt;] An array of post module names. Example: [&#39;post/windows/wlan/wlan_profile&#39;]</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 444</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_compatible_modules'>rpc_compatible_modules</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_mtype'>mtype</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>post</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_names'>names</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_post'>post</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_x'>x</span><span class='op'>|</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>post/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_x'>x</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_names'>names</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_mname'>mname</span><span class='op'>|</span>
+    <span class='id identifier rubyid_m'>m</span> <span class='op'>=</span> <span class='id identifier rubyid__find_module'>_find_module</span><span class='lparen'>(</span><span class='id identifier rubyid_mtype'>mtype</span><span class='comma'>,</span> <span class='id identifier rubyid_mname'>mname</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_session_compatible?'>session_compatible?</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_m'>m</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>modules</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ret'>ret</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_list-instance_method">
+  
+    #<strong>rpc_list</strong>  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a list of sessions that belong to the framework instance used by the RPC service.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.list</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Information about sessions. Each key is the session ID, and each value is a hash that contains the following:</p>
+<ul><li>
+<p>&#39;type&#39; [String] Payload type. Example: meterpreter.</p>
+</li><li>
+<p>&#39;tunnel_local&#39; [String] Tunnel (where the malicious traffic comes from).</p>
+</li><li>
+<p>&#39;tunnel_peer&#39; [String] Tunnel (local).</p>
+</li><li>
+<p>&#39;via_exploit&#39; [String] Name of the exploit used by the session.</p>
+</li><li>
+<p>&#39;desc&#39; [String] Session description.</p>
+</li><li>
+<p>&#39;info&#39; [String] Session info (most likely the target&#39;s computer name).</p>
+</li><li>
+<p>&#39;workspace&#39; [String] Name of the workspace.</p>
+</li><li>
+<p>&#39;session_host&#39; [String] Session host.</p>
+</li><li>
+<p>&#39;session_port&#39; [Integer] Session port.</p>
+</li><li>
+<p>&#39;target_host&#39; [String] Target host.</p>
+</li><li>
+<p>&#39;username&#39; [String] Username.</p>
+</li><li>
+<p>&#39;uuid&#39; [String] UUID.</p>
+</li><li>
+<p>&#39;exploit_uuid&#39; [String] Exploit&#39;s UUID.</p>
+</li><li>
+<p>&#39;routes&#39; [String] Routes.</p>
+</li><li>
+<p>&#39;platform&#39; [String] Platform.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_list'>rpc_list</span>
+  <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_sess'>sess</span><span class='op'>|</span>
+    <span class='id identifier rubyid_i'>i</span><span class='comma'>,</span><span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid_sess'>sess</span>
+    <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tunnel_local</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_local'>tunnel_local</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>tunnel_peer</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_peer'>tunnel_peer</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>via_exploit</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_via_exploit'>via_exploit</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>via_payload</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_via_payload'>via_payload</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>desc</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_desc'>desc</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>info</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>workspace</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_workspace'>workspace</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session_host</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session_port</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_session_port'>session_port</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>target_host</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_target_host'>target_host</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>username</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_username'>username</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uuid</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exploit_uuid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_exploit_uuid'>exploit_uuid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>routes</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_routes'>routes</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>,</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>arch</span><span class='tstring_end'>&#39;</span></span>         <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='rbrace'>}</span>
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>platform</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_res'>res</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_directory_separator-instance_method">
+  
+    #<strong>rpc_meterpreter_directory_separator</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the separator used by the meterpreter.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='comment'># This returns:
+</span><span class='comment'># {&quot;separator&quot;=&gt;&quot;\\&quot;}
+</span><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_directory_separator</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash that contains the separator. It contains the following key:</p>
+<ul><li>
+<p>&#39;separator&#39; [String] The separator used by the meterpreter.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+430
+431
+432
+433
+434</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 430</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_directory_separator'>rpc_meterpreter_directory_separator</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>separator</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_separator'>separator</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_read-instance_method">
+  
+    #<strong>rpc_meterpreter_read</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Multiple concurrent callers writing and reading the same Meterperter session can lead to a conflict, where one caller gets the others output and vice versa. Concurrent access to a Meterpreter session is best handled by post modules.</p>
+</div>
+  </div>
+
+
+<p>Reads the output from a meterpreter session (such as a command output).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_read</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>It contains the following key:</p>
+<ul><li>
+<p>&#39;data&#39; [String] Data read.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 157</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_read'>rpc_meterpreter_read</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:dump_buffer</span>
+    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input.html" title="Rex::Ui::Text::Input (class)">Input</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html" title="Rex::Ui::Text::Input::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Input::Buffer#initialize (method)">new</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output.html" title="Rex::Ui::Text::Output (class)">Output</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html" title="Rex::Ui::Text::Output::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Output::Buffer#initialize (method)">new</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_dump_buffer'>dump_buffer</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_data'>data</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_run_single-instance_method">
+  
+    #<strong>rpc_meterpreter_run_single</strong>(sid, data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Runs a meterpreter command even if interacting with a shell or other channel. You will want to use the #rpc_meterpreter_read to retrieve the output.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_run_single</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>getpid</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Command.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful. It contains the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] &#39;success&#39;</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 358</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_run_single'>rpc_meterpreter_run_single</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:dump_buffer</span>
+    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input.html" title="Rex::Ui::Text::Input (class)">Input</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html" title="Rex::Ui::Text::Input::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Input::Buffer#initialize (method)">new</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output.html" title="Rex::Ui::Text::Output (class)">Output</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html" title="Rex::Ui::Text::Output::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Output::Buffer#initialize (method)">new</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MeterpreterRunSingle</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_sess'>sess</span><span class='op'>|</span> <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_script-instance_method">
+  
+    #<strong>rpc_meterpreter_script</strong>(sid, data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <div class="note deprecated"><strong>Deprecated.</strong> <div class='inline'>
+<p>Metasploit no longer maintains or accepts meterpreter scripts. Please try to use post modules instead.</p>
+</div></div>
+
+<p>Runs a meterpreter script.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_script</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>checkvm</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Meterpreter script name.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful. It contains the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] &#39;success&#39;</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="RPC_Module.html#rpc_execute-instance_method" title="Msf::RPC::RPC_Module#rpc_execute (method)">You should use Msf::RPC::RPC_Module#rpc_execute instead.</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+381
+382
+383</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 381</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_script'>rpc_meterpreter_script</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rpc_meterpreter_run_single'>rpc_meterpreter_run_single</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>run </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_session_detach-instance_method">
+  
+    #<strong>rpc_meterpreter_session_detach</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Detaches from a meterpreter session. Serves the same purpose as [<a href="Z">CTRL]+</a>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_session_detach</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful or not. It contains:</p>
+<ul><li>
+<p>&#39;result&#39; [String] Either &#39;success&#39; or &#39;failure&#39;.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 292</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_session_detach'>rpc_meterpreter_session_detach</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_channels'>channels</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ch'>ch</span><span class='op'>|</span>
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>interacting</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_detach'>detach</span><span class='lparen'>(</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_session_kill-instance_method">
+  
+    #<strong>rpc_meterpreter_session_kill</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Kills a meterpreter session. Serves the same purpose as [<a href="C">CTRL]+</a>.</p>
+
+<pre class="code ruby"><code class="ruby">* &#39;result&#39; [String] Either &#39;success&#39; or &#39;failure&#39;.
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_session_kill</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful or not. It contains the following key:</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 315</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_session_kill'>rpc_meterpreter_session_kill</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_channels'>channels</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ch'>ch</span><span class='op'>|</span>
+    <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>interacting</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid__close'>_close</span>
+      <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>failure</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_tabs-instance_method">
+  
+    #<strong>rpc_meterpreter_tabs</strong>(sid, line)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a tab-completed version of your meterpreter prompt input.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='comment'># This returns:
+</span><span class='comment'># {&quot;tabs&quot;=&gt;[&quot;sysinfo&quot;]}
+</span><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_tabs</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>3</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sysin</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>line</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The tab-completed result. It contains the following key:</p>
+<ul><li>
+<p>&#39;tabs&#39; [String] The tab-completed version of your input.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+340
+341
+342
+343</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 340</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_tabs'>rpc_meterpreter_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tabs</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_tab_complete'>tab_complete</span><span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_transport_change-instance_method">
+  
+    #<strong>rpc_meterpreter_transport_change</strong>(sid, opts = {})  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Changes the Transport of a given Meterpreter Session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The Session ID of the `Msf::Session`</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:transport</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The transport protocol to use (e.g. reverse_tcp, reverse_http, bind_tcp etc)</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:lhost</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The LHOST of the listener to use</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:lport</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The LPORT of the listener to use</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:ua</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The User Agent String to use for reverse_http(s)</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_host</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The address of the proxy to route transport through</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_port</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The port the proxy is listening on</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_type</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The type of proxy to use</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_user</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The username to authenticate to the proxy with</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:proxy_pass</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The password to authenticate to the proxy with</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:comm_timeout</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Connection timeout in seconds</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:session_exp</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Session Expiration Timeout</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:retry_total</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Total number of times to retry etsablishing the transport</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:retry_wait</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The number of seconds to wait between retries</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:cert</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Path to the SSL Cert to use for HTTPS</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>whether the transport was changed successfully</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 403</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_transport_change'>rpc_meterpreter_transport_change</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_real_opts'>real_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='id identifier rubyid_real_opts'>real_opts</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_real_opts'>real_opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span>
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_transport_change'>transport_change</span><span class='lparen'>(</span><span class='id identifier rubyid_real_opts'>real_opts</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_rpc_stop'>rpc_stop</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_meterpreter_write-instance_method">
+  
+    #<strong>rpc_meterpreter_write</strong>(sid, data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>Multiple concurrent callers writing and reading the same Meterperter session can lead to a conflict, where one caller gets the others output and vice versa. Concurrent access to a Meterpreter session is best handled by post modules.</p>
+</div>
+  </div>
+
+
+<p>Sends an input to a meterpreter prompt. You may want to use #rpc_meterpreter_read to retrieve the output.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.meterpreter_write</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sysinfo</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Input to the meterpreter prompt.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful or not. It contains the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] Either &#39;success&#39; or &#39;failure&#39;.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#rpc_meterpreter_run_single-instance_method" title="Msf::RPC::RPC_Session#rpc_meterpreter_run_single (method)">#rpc_meterpreter_run_single</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 262</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_meterpreter_write'>rpc_meterpreter_write</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:dump_buffer</span>
+    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input.html" title="Rex::Ui::Text::Input (class)">Input</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html" title="Rex::Ui::Text::Input::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Input/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Input::Buffer#initialize (method)">new</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output.html" title="Rex::Ui::Text::Output (class)">Output</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html" title="Rex::Ui::Text::Output::Buffer (class)">Buffer</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/Output/Buffer.html#initialize-instance_method" title="Rex::Ui::Text::Output::Buffer#initialize (method)">new</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_channels'>channels</span><span class='period'>.</span><span class='id identifier rubyid_each_value'>each_value</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ch'>ch</span><span class='op'>|</span>
+    <span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>||=</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>interacting</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_ch'>ch</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_interacting'>interacting</span>
+    <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_threads'>threads</span><span class='period'>.</span><span class='id identifier rubyid_spawn'>spawn</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>MeterpreterRunSingle</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_sess'>sess</span><span class='op'>|</span> <span class='id identifier rubyid_sess'>sess</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_ring_clear-instance_method">
+  
+    #<strong>rpc_ring_clear</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Clears a shell session. This may be useful to reclaim memory for idle background sessions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.ring_clear</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating whether the action was successful or not. It contains:</p>
+<ul><li>
+<p>&#39;result&#39; [String] Either &#39;success&#39; or &#39;failure&#39;.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+241
+242
+243</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 241</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_ring_clear'>rpc_ring_clear</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_ring_last-instance_method">
+  
+    #<strong>rpc_ring_last</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the last sequence (last issued ReadPointer) for a shell session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.ring_last</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>It contains the following key:</p>
+<ul><li>
+<p>&#39;seq&#39; [String] Sequence.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+225
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 225</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_ring_last'>rpc_ring_last</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ring</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>seq</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_ring_put-instance_method">
+  
+    #<strong>rpc_ring_put</strong>(sid, data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sends an input to a session (such as a command).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.ring_put</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DATA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Data to write.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>It contains the following key:</p>
+<ul><li>
+<p>&#39;write_count&#39; [String] Number of bytes written.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li><li>
+<p>500 Session is disconnected.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207
+208
+209
+210
+211
+212
+213</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 205</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_ring_put'>rpc_ring_put</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ring</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>write_count</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='int'>500</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session Disconnected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_ring_read-instance_method">
+  
+    #<strong>rpc_ring_read</strong>(sid, ptr = nil)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads from a session (such as a command output).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.ring_read</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ptr</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Pointer (ignored)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>It contains the following key:</p>
+<ul><li>
+<p>&#39;seq&#39; [String] Sequence.</p>
+</li><li>
+<p>&#39;data&#39; [String] Read data.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li><li>
+<p>500 Session is disconnected.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+182
+183
+184
+185
+186
+187
+188
+189
+190</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 182</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_ring_read'>rpc_ring_read</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_ptr'>ptr</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ring</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>seq</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='int'>500</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session Disconnected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_shell_read-instance_method">
+  
+    #<strong>rpc_shell_read</strong>(sid, ptr = nil)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads the output of a shell session (such as a command output).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.shell_read</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>ptr</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Pointer.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>It contains the following keys:</p>
+<ul><li>
+<p>&#39;seq&#39; [String] Sequence.</p>
+</li><li>
+<p>&#39;data&#39; [String] Read data.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li><li>
+<p>500 Session is disconnected.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 89</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_shell_read'>rpc_shell_read</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_ptr'>ptr</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>seq</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>data</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='int'>500</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session Disconnected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_shell_upgrade-instance_method">
+  
+    #<strong>rpc_shell_upgrade</strong>(sid, lhost, lport)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>This uses post/multi/manage/shell_to_meterpreter.</p>
+</div>
+  </div>
+
+
+<p>Upgrades a shell to a meterpreter.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.shell_upgrade</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_payload_lhost'>payload_lhost</span><span class='comma'>,</span> <span class='id identifier rubyid_payload_lport'>payload_lport</span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>lhost</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Local host.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>lport</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Local port.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful. It contains the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A message that says &#39;success&#39;</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+135
+136
+137
+138
+139
+140
+141</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 135</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_shell_upgrade'>rpc_shell_upgrade</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_lhost'>lhost</span><span class='comma'>,</span> <span class='id identifier rubyid_lport'>lport</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_exploit_datastore'>exploit_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_lhost'>lhost</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_exploit_datastore'>exploit_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_lport'>lport</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>post/multi/manage/shell_to_meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_shell_write-instance_method">
+  
+    #<strong>rpc_shell_write</strong>(sid, data)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Writes to a shell session (such as a command). Note that you will to manually add a newline at the enf of your input so the system will process it. You may want to use #rpc_shell_read to retrieve the output.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Here&#39;s how you would use this from the client:</p>
+</div></p>
+      
+      <pre class="example code"><code><span class='id identifier rubyid_rpc'>rpc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>session.shell_write</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DATA</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The data to write.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><ul><li>
+<p>&#39;write_count&#39; [Integer] Number of bytes written.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>An error that could be one of these:</p>
+<ul><li>
+<p>500 Session ID is unknown.</p>
+</li><li>
+<p>500 Invalid session type.</p>
+</li><li>
+<p>500 Session is disconnected.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_shell_write'>rpc_shell_write</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='id identifier rubyid__valid_session'>_valid_session</span><span class='lparen'>(</span><span class='id identifier rubyid_sid'>sid</span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+    <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>write_count</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_res'>res</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbrace'>}</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='int'>500</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session Disconnected: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_stop-instance_method">
+  
+    #<strong>rpc_stop</strong>(sid)  &#x21d2; <tt>Hash</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stops a session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>sid</span>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A hash indicating the action was successful. It contains the following key:</p>
+<ul><li>
+<p>&#39;result&#39; [String] A message that says &#39;success&#39;.</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Exception.html" title="Msf::RPC::Exception (class)">Msf::RPC::Exception</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Unknown session ID.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+65
+66
+67
+68
+69
+70
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/rpc/v10/rpc_session.rb', line 65</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_stop'>rpc_stop</span><span class='lparen'>(</span> <span class='id identifier rubyid_sid'>sid</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='lbracket'>[</span><span class='id identifier rubyid_sid'>sid</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_s'>s</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_error'>error</span><span class='lparen'>(</span><span class='int'>500</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown Session ID</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_s'>s</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>result</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>success</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:03 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

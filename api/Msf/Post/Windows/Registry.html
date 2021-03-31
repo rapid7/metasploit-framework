@@ -1,0 +1,3608 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::Windows::Registry
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::Windows::Registry";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Post::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">Registry</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::Windows::Registry
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Dotnet.html" title="Msf::Post::Windows::Dotnet (module)">Dotnet</a></span>, <span class='object_link'><a href="Priv.html" title="Msf::Post::Windows::Priv (module)">Priv</a></span>, <span class='object_link'><a href="Services.html" title="Msf::Post::Windows::Services (module)">Services</a></span>, <span class='object_link'><a href="UserProfiles.html" title="Msf::Post::Windows::UserProfiles (module)">UserProfiles</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/windows/registry.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="REGISTRY_VIEW_NATIVE-constant" class="">REGISTRY_VIEW_NATIVE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>This is the default view. It reflects what the remote process would see natively. So, if you are using a remote 32-bit meterpreter session, you will see 32-bit registry keys and values.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="REGISTRY_VIEW_32_BIT-constant" class="">REGISTRY_VIEW_32_BIT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Access 32-bit registry keys and values regardless of whether the session is 32 or 64-bit.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="REGISTRY_VIEW_64_BIT-constant" class="">REGISTRY_VIEW_64_BIT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Access 64-bit registry keys and values regardless of whether the session is 32 or 64-bit.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="REG_NONE-constant" class="">REG_NONE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Windows Registry Constants.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="REG_SZ-constant" class="">REG_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="REG_EXPAND_SZ-constant" class="">REG_EXPAND_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="REG_BINARY-constant" class="">REG_BINARY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="REG_DWORD-constant" class="">REG_DWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="REG_LITTLE_ENDIAN-constant" class="">REG_LITTLE_ENDIAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="REG_BIG_ENDIAN-constant" class="">REG_BIG_ENDIAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="REG_LINK-constant" class="">REG_LINK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="REG_MULTI_SZ-constant" class="">REG_MULTI_SZ =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="HKEY_CLASSES_ROOT-constant" class="">HKEY_CLASSES_ROOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000000</span></pre></dd>
+      
+        <dt id="HKEY_CURRENT_USER-constant" class="">HKEY_CURRENT_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000001</span></pre></dd>
+      
+        <dt id="HKEY_LOCAL_MACHINE-constant" class="">HKEY_LOCAL_MACHINE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000002</span></pre></dd>
+      
+        <dt id="HKEY_USERS-constant" class="">HKEY_USERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000003</span></pre></dd>
+      
+        <dt id="HKEY_PERFORMANCE_DATA-constant" class="">HKEY_PERFORMANCE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000004</span></pre></dd>
+      
+        <dt id="HKEY_CURRENT_CONFIG-constant" class="">HKEY_CURRENT_CONFIG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000005</span></pre></dd>
+      
+        <dt id="HKEY_DYN_DATA-constant" class="">HKEY_DYN_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000006</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_createkey-instance_method" title="#meterpreter_registry_createkey (instance method)">#<strong>meterpreter_registry_createkey</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create a new registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_deletekey-instance_method" title="#meterpreter_registry_deletekey (instance method)">#<strong>meterpreter_registry_deletekey</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Delete the registry key <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_deleteval-instance_method" title="#meterpreter_registry_deleteval (instance method)">#<strong>meterpreter_registry_deleteval</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Delete the registry value <code>valname</code> store in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_enumkeys-instance_method" title="#meterpreter_registry_enumkeys (instance method)">#<strong>meterpreter_registry_enumkeys</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate the subkeys in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_enumvals-instance_method" title="#meterpreter_registry_enumvals (instance method)">#<strong>meterpreter_registry_enumvals</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate the values in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_getvaldata-instance_method" title="#meterpreter_registry_getvaldata (instance method)">#<strong>meterpreter_registry_getvaldata</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get the data stored in the value <code>valname</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_getvalinfo-instance_method" title="#meterpreter_registry_getvalinfo (instance method)">#<strong>meterpreter_registry_getvalinfo</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate the type and data of the value <code>valname</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_key_exist%3F-instance_method" title="#meterpreter_registry_key_exist? (instance method)">#<strong>meterpreter_registry_key_exist?</strong>(key)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if a key exists on the target registry using a meterpreter session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_loadkey-instance_method" title="#meterpreter_registry_loadkey (instance method)">#<strong>meterpreter_registry_loadkey</strong>(key, file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load a registry hive stored in <code>file</code> into <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_perms-instance_method" title="#meterpreter_registry_perms (instance method)">#<strong>meterpreter_registry_perms</strong>(perms, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Meterpreter-specific registry manipulation methods.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_setvaldata-instance_method" title="#meterpreter_registry_setvaldata (instance method)">#<strong>meterpreter_registry_setvaldata</strong>(key, valname, data, type, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add the value <code>valname</code> to the key <code>key</code> with the specified <code>type</code> and <code>data</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#meterpreter_registry_unloadkey-instance_method" title="#meterpreter_registry_unloadkey (instance method)">#<strong>meterpreter_registry_unloadkey</strong>(key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Unload the hive file stored in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#normalize_key-instance_method" title="#normalize_key (instance method)">#<strong>normalize_key</strong>(key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Normalize the supplied full registry key string so the root key is sane.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_createkey-instance_method" title="#registry_createkey (instance method)">#<strong>registry_createkey</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create the given registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_deletekey-instance_method" title="#registry_deletekey (instance method)">#<strong>registry_deletekey</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Delete a given registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_deleteval-instance_method" title="#registry_deleteval (instance method)">#<strong>registry_deleteval</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes a registry value given the key and value name.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_enumkeys-instance_method" title="#registry_enumkeys (instance method)">#<strong>registry_enumkeys</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return an array of subkeys for the given registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_enumvals-instance_method" title="#registry_enumvals (instance method)">#<strong>registry_enumvals</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return an array of value names for the given registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_getvaldata-instance_method" title="#registry_getvaldata (instance method)">#<strong>registry_getvaldata</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the data of a given registry key and value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_getvalinfo-instance_method" title="#registry_getvalinfo (instance method)">#<strong>registry_getvalinfo</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the data and type of a given registry key and value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_hive_lookup-instance_method" title="#registry_hive_lookup (instance method)">#<strong>registry_hive_lookup</strong>(hive)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Lookup registry hives by key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_key_exist%3F-instance_method" title="#registry_key_exist? (instance method)">#<strong>registry_key_exist?</strong>(key)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if a key exists on the target registry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_loadkey-instance_method" title="#registry_loadkey (instance method)">#<strong>registry_loadkey</strong>(key, file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load a hive file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_setvaldata-instance_method" title="#registry_setvaldata (instance method)">#<strong>registry_setvaldata</strong>(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the data for a given value and type of data on the target registry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#registry_unloadkey-instance_method" title="#registry_unloadkey (instance method)">#<strong>registry_unloadkey</strong>(key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Unload a hive file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#session_has_registry_ext-instance_method" title="#session_has_registry_ext (instance method)">#<strong>session_has_registry_ext</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determines whether the session can use meterpreter registry methods.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_cmd-instance_method" title="#shell_registry_cmd (instance method)">#<strong>shell_registry_cmd</strong>(suffix, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generic registry manipulation methods based on reg.exe.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_cmd_result-instance_method" title="#shell_registry_cmd_result (instance method)">#<strong>shell_registry_cmd_result</strong>(suffix, view = REGISTRY_VIEW_NATIVE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_createkey-instance_method" title="#shell_registry_createkey (instance method)">#<strong>shell_registry_createkey</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to create a new registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_deletekey-instance_method" title="#shell_registry_deletekey (instance method)">#<strong>shell_registry_deletekey</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to delete <code>key</code> and all its subkeys and values.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_deleteval-instance_method" title="#shell_registry_deleteval (instance method)">#<strong>shell_registry_deleteval</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to delete <code>valname</code> in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_enumkeys-instance_method" title="#shell_registry_enumkeys (instance method)">#<strong>shell_registry_enumkeys</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to enumerate all the subkeys in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_enumvals-instance_method" title="#shell_registry_enumvals (instance method)">#<strong>shell_registry_enumvals</strong>(key, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to enumerate all the values in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_getvaldata-instance_method" title="#shell_registry_getvaldata (instance method)">#<strong>shell_registry_getvaldata</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the data portion of the value <code>valname</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_getvalinfo-instance_method" title="#shell_registry_getvalinfo (instance method)">#<strong>shell_registry_getvalinfo</strong>(key, valname, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate the type and data stored in the registry value <code>valname</code> in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_key_exist%3F-instance_method" title="#shell_registry_key_exist? (instance method)">#<strong>shell_registry_key_exist?</strong>(key)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if a key exists on the target registry using a shell session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_loadkey-instance_method" title="#shell_registry_loadkey (instance method)">#<strong>shell_registry_loadkey</strong>(key, file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to load the hive file <code>file</code> into <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_setvaldata-instance_method" title="#shell_registry_setvaldata (instance method)">#<strong>shell_registry_setvaldata</strong>(key, valname, data, type, view)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to add a value <code>valname</code> in the key <code>key</code> with the specified <code>type</code> and <code>data</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#shell_registry_unloadkey-instance_method" title="#shell_registry_unloadkey (instance method)">#<strong>shell_registry_unloadkey</strong>(key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Use reg.exe to unload the hive in <code>key</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#split_key-instance_method" title="#split_key (instance method)">#<strong>split_key</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Split the supplied full registry key string into its root key and base key.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="CliParse.html" title="Msf::Post::Windows::CliParse (module)">CliParse</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="CliParse.html#win_parse_error-instance_method" title="Msf::Post::Windows::CliParse#win_parse_error (method)">#win_parse_error</a></span>, <span class='object_link'><a href="CliParse.html#win_parse_results-instance_method" title="Msf::Post::Windows::CliParse#win_parse_results (method)">#win_parse_results</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="meterpreter_registry_createkey-instance_method">
+  
+    #<strong>meterpreter_registry_createkey</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create a new registry key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 466</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_createkey'>meterpreter_registry_createkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WRITE-constant" title="KEY_WRITE (constant)">KEY_WRITE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_create_key'>create_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_deletekey-instance_method">
+  
+    #<strong>meterpreter_registry_deletekey</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Delete the registry key <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 497</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_deletekey'>meterpreter_registry_deletekey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WRITE-constant" title="KEY_WRITE (constant)">KEY_WRITE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_deleted'>deleted</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_delete_key'>delete_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_deleted'>deleted</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_deleteval-instance_method">
+  
+    #<strong>meterpreter_registry_deleteval</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Delete the registry value <code>valname</code> store in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 481</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_deleteval'>meterpreter_registry_deleteval</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WRITE-constant" title="KEY_WRITE (constant)">KEY_WRITE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_open_key'>open_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span><span class='period'>.</span><span class='id identifier rubyid_delete_value'>delete_value</span><span class='lparen'>(</span><span class='id identifier rubyid_valname'>valname</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_enumkeys-instance_method">
+  
+    #<strong>meterpreter_registry_enumkeys</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate the subkeys in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 511</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_enumkeys'>meterpreter_registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_key_direct'>enum_key_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_subkey'>subkey</span><span class='op'>|</span>
+      <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_subkey'>subkey</span>
+    <span class='rbrace'>}</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_subkeys'>subkeys</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_enumvals-instance_method">
+  
+    #<strong>meterpreter_registry_enumvals</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate the values in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 529</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_enumvals'>meterpreter_registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_values'>values</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_vals'>vals</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_vals'>vals</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_enum_value_direct'>enum_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_vals'>vals</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+      <span class='id identifier rubyid_values'>values</span> <span class='op'>&lt;&lt;</span>  <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+    <span class='rbrace'>}</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_values'>values</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_getvaldata-instance_method">
+  
+    #<strong>meterpreter_registry_getvaldata</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get the data stored in the value <code>valname</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 548</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_getvaldata'>meterpreter_registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_query_value_direct'>query_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_getvalinfo-instance_method">
+  
+    #<strong>meterpreter_registry_getvalinfo</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate the type and data of the value <code>valname</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 564</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_getvalinfo'>meterpreter_registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_open_key'>open_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_open_key'>open_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_v'>v</span> <span class='op'>=</span> <span class='id identifier rubyid_open_key'>open_key</span><span class='period'>.</span><span class='id identifier rubyid_query_value'>query_value</span><span class='lparen'>(</span><span class='id identifier rubyid_valname'>valname</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_data'>data</span>
+    <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+    <span class='id identifier rubyid_open_key'>open_key</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_key_exist?-instance_method">
+  
+    #<strong>meterpreter_registry_key_exist?</strong>(key)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if a key exists on the target registry using a meterpreter session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the full path of the key to check</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the key exists on the target registry, false otherwise (also in case of error)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 600</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_key_exist?'>meterpreter_registry_key_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>ArgumentError</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_check'>check</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_check_key_exists'>check_key_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span><span class='comma'>,</span> <span class='const'>TimesoutError</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_check'>check</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_loadkey-instance_method">
+  
+    #<strong>meterpreter_registry_loadkey</strong>(key, file)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load a registry hive stored in <code>file</code> into <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 407</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_loadkey'>meterpreter_registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getprivs'>getprivs</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_loadres'>loadres</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_load_key'>load_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>stdapi_registry_load_key: Operation failed: 1314</span><span class='tstring_end'>&quot;</span></span>
+        <span class='comment'>#print_error(&quot;You appear to be lacking the SeRestorePrivilege. Are you running with Admin privs?&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>stdapi_registry_load_key: Operation failed: The system cannot find the path specified.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='comment'>#print_error(&quot;The path you provided to the Registry Hive does not Appear to be valid: #{file}&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>stdapi_registry_load_key: Operation failed: The process cannot access the file because it is being used by another process.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='comment'>#print_error(&quot;The file you specified is currently locked by another process: #{file}&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>stdapi_registry_load_key: Operation failed:</span><span class='regexp_end'>/</span></span>
+        <span class='comment'>#print_error(&quot;An unknown error has occurred: #{loadres.to_s}&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>else</span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_perms-instance_method">
+  
+    #<strong>meterpreter_registry_perms</strong>(perms, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Meterpreter-specific registry manipulation methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+395
+396
+397
+398
+399
+400
+401
+402</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 395</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='id identifier rubyid_perms'>perms</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_32_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_32_BIT (constant)">REGISTRY_VIEW_32_BIT</a></span></span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WOW64_32KEY-constant" title="KEY_WOW64_32KEY (constant)">KEY_WOW64_32KEY</a></span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_64_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_64_BIT (constant)">REGISTRY_VIEW_64_BIT</a></span></span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WOW64_64KEY-constant" title="KEY_WOW64_64KEY (constant)">KEY_WOW64_64KEY</a></span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_perms'>perms</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_setvaldata-instance_method">
+  
+    #<strong>meterpreter_registry_setvaldata</strong>(key, valname, data, type, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Add the value <code>valname</code> to the key <code>key</code> with the specified <code>type</code> and <code>data</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 583</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_setvaldata'>meterpreter_registry_setvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='id identifier rubyid_meterpreter_registry_perms'>meterpreter_registry_perms</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../top-level-namespace.html#KEY_WRITE-constant" title="KEY_WRITE (constant)">KEY_WRITE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_set_value_direct'>set_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span>
+      <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_type2str'>type2str</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meterpreter_registry_unloadkey-instance_method">
+  
+    #<strong>meterpreter_registry_unloadkey</strong>(key)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Unload the hive file stored in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 440</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meterpreter_registry_unloadkey'>meterpreter_registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getprivs'>getprivs</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_unloadres'>unloadres</span><span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='period'>.</span><span class='id identifier rubyid_unload_key'>unload_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span><span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Post/Meterpreter/RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+      <span class='kw'>case</span> <span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>stdapi_registry_unload_key: Operation failed: The parameter is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+        <span class='comment'>#print_error(&quot;The KEY you provided does not appear to match a loaded Registry Hive: #{key}&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>stdapi_registry_unload_key: Operation failed:</span><span class='regexp_end'>/</span></span>
+        <span class='comment'>#print_error(&quot;An unknown error has occurred: #{unloadres.to_s}&quot;)
+</span>        <span class='kw'>return</span> <span class='kw'>false</span>
+      <span class='kw'>else</span>
+        <span class='kw'>return</span> <span class='kw'>true</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="normalize_key-instance_method">
+  
+    #<strong>normalize_key</strong>(key)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Normalize the supplied full registry key string so the root key is sane.  For instance, passing “HKLMSoftwareDog” will return &#39;HKEY_LOCAL_MACHINESoftwareDog&#39;</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 620</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_keys'>keys</span> <span class='op'>=</span> <span class='id identifier rubyid_split_key'>split_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKLM|HKEY_LOCAL_MACHINE</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_LOCAL_MACHINE</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKCU|HKEY_CURRENT_USER</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CURRENT_USER</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKU|HKEY_USERS</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_USERS</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKCR|HKEY_CLASSES_ROOT</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CLASSES_ROOT</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKCC|HKEY_CURRENT_CONFIG</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CURRENT_CONFIG</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKPD|HKEY_PERFORMANCE_DATA</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_PERFORMANCE_DATA</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>HKDD|HKEY_DYN_DATA</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_DYN_DATA</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot normalize unknown key: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Normalized </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'> to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='gvar'>$blab</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_keys'>keys</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_createkey-instance_method">
+  
+    #<strong>registry_createkey</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create the given registry key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_createkey'>registry_createkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_createkey'>meterpreter_registry_createkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_createkey'>shell_registry_createkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_deletekey-instance_method">
+  
+    #<strong>registry_deletekey</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Delete a given registry key</p>
+
+<p>returns true if succesful</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_deletekey'>registry_deletekey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_deletekey'>meterpreter_registry_deletekey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_deletekey'>shell_registry_deletekey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_deleteval-instance_method">
+  
+    #<strong>registry_deleteval</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes a registry value given the key and value name</p>
+
+<p>returns true if succesful</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_deleteval'>registry_deleteval</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_deleteval'>meterpreter_registry_deleteval</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_deleteval'>shell_registry_deleteval</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_enumkeys-instance_method">
+  
+    #<strong>registry_enumkeys</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return an array of subkeys for the given registry key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+138
+139
+140
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 138</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_enumkeys'>registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_enumkeys'>meterpreter_registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_enumkeys'>shell_registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_enumvals-instance_method">
+  
+    #<strong>registry_enumvals</strong>(key, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return an array of value names for the given registry key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_enumvals'>registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_enumvals'>meterpreter_registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_enumvals'>shell_registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_getvaldata-instance_method">
+  
+    #<strong>registry_getvaldata</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the data of a given registry key and value</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162
+163
+164
+165
+166</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_getvaldata'>registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_getvaldata'>meterpreter_registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_getvaldata'>shell_registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_getvalinfo-instance_method">
+  
+    #<strong>registry_getvalinfo</strong>(key, valname, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the data and type of a given registry key and value</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173
+174
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_getvalinfo'>registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_getvalinfo'>meterpreter_registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_getvalinfo'>shell_registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_hive_lookup-instance_method">
+  
+    #<strong>registry_hive_lookup</strong>(hive)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Lookup registry hives by key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_hive_lookup'>registry_hive_lookup</span><span class='lparen'>(</span><span class='id identifier rubyid_hive'>hive</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_hive'>hive</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCR</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_LOCAL_MACHINE-constant" title="Msf::Post::Windows::Registry::HKEY_LOCAL_MACHINE (constant)">HKEY_LOCAL_MACHINE</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCU</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_CURRENT_USER-constant" title="Msf::Post::Windows::Registry::HKEY_CURRENT_USER (constant)">HKEY_CURRENT_USER</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_LOCAL_MACHINE-constant" title="Msf::Post::Windows::Registry::HKEY_LOCAL_MACHINE (constant)">HKEY_LOCAL_MACHINE</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_USERS-constant" title="Msf::Post::Windows::Registry::HKEY_USERS (constant)">HKEY_USERS</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKPD</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_PERFORMANCE_DATA-constant" title="Msf::Post::Windows::Registry::HKEY_PERFORMANCE_DATA (constant)">HKEY_PERFORMANCE_DATA</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCC</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_CURRENT_CONFIG-constant" title="Msf::Post::Windows::Registry::HKEY_CURRENT_CONFIG (constant)">HKEY_CURRENT_CONFIG</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKDD</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="#HKEY_DYN_DATA-constant" title="Msf::Post::Windows::Registry::HKEY_DYN_DATA (constant)">HKEY_DYN_DATA</a></span></span>
+  <span class='kw'>else</span>
+    <span class='const'><span class='object_link'><a href="#HKEY_LOCAL_MACHINE-constant" title="Msf::Post::Windows::Registry::HKEY_LOCAL_MACHINE (constant)">HKEY_LOCAL_MACHINE</a></span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_key_exist?-instance_method">
+  
+    #<strong>registry_key_exist?</strong>(key)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if a key exists on the target registry</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the full path of the key to check</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the key exists on the target registry, false otherwise (also in case of error)</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_key_exist?'>registry_key_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_key_exist?'>meterpreter_registry_key_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_key_exist?'>shell_registry_key_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_loadkey-instance_method">
+  
+    #<strong>registry_loadkey</strong>(key, file)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load a hive file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_loadkey'>registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_loadkey'>meterpreter_registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_loadkey'>shell_registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_setvaldata-instance_method">
+  
+    #<strong>registry_setvaldata</strong>(key, valname, data, type, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the data for a given value and type of data on the target registry</p>
+
+<p>returns true if succesful</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+184
+185
+186
+187
+188
+189
+190</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 184</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_setvaldata'>registry_setvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_setvaldata'>meterpreter_registry_setvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_setvaldata'>shell_registry_setvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="registry_unloadkey-instance_method">
+  
+    #<strong>registry_unloadkey</strong>(key)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Unload a hive file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_registry_unloadkey'>registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+    <span class='id identifier rubyid_meterpreter_registry_unloadkey'>meterpreter_registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_shell_registry_unloadkey'>shell_registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session_has_registry_ext-instance_method">
+  
+    #<strong>session_has_registry_ext</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determines whether the session can use meterpreter registry methods</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+210
+211
+212
+213
+214
+215
+216</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 210</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_has_registry_ext'>session_has_registry_ext</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>return</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span> <span class='kw'>and</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_registry'>registry</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>NoMethodError</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_cmd-instance_method">
+  
+    #<strong>shell_registry_cmd</strong>(suffix, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generic registry manipulation methods based on reg.exe</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+223
+224
+225
+226
+227
+228
+229
+230
+231</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 223</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_suffix'>suffix</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd.exe /c reg</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_32_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_32_BIT (constant)">REGISTRY_VIEW_32_BIT</a></span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> /reg:32</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_64_BIT-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_64_BIT (constant)">REGISTRY_VIEW_64_BIT</a></span></span>
+    <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> /reg:64</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_suffix'>suffix</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_cmd_result-instance_method">
+  
+    #<strong>shell_registry_cmd_result</strong>(suffix, view = REGISTRY_VIEW_NATIVE)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+233
+234
+235
+236</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 233</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='id identifier rubyid_suffix'>suffix</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#REGISTRY_VIEW_NATIVE-constant" title="Msf::Post::Windows::Registry::REGISTRY_VIEW_NATIVE (constant)">REGISTRY_VIEW_NATIVE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_suffix'>suffix</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span><span class='semicolon'>;</span>
+  <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>The operation completed successfully</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_createkey-instance_method">
+  
+    #<strong>shell_registry_createkey</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to create a new registry key</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+257
+258
+259
+260
+261</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 257</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_createkey'>shell_registry_createkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='comment'># REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
+</span>  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>add /f \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_deletekey-instance_method">
+  
+    #<strong>shell_registry_deletekey</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to delete <code>key</code> and all its subkeys and values</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+275
+276
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 275</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_deletekey'>shell_registry_deletekey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='comment'># REG DELETE KeyName [/v ValueName | /ve | /va] [/f]
+</span>  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>delete \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /f</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_deleteval-instance_method">
+  
+    #<strong>shell_registry_deleteval</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to delete <code>valname</code> in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+266
+267
+268
+269
+270</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 266</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_deleteval'>shell_registry_deleteval</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='comment'># REG DELETE KeyName [/v ValueName | /ve | /va] [/f]
+</span>  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>delete \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /v \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_valname'>valname</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /f</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_enumkeys-instance_method">
+  
+    #<strong>shell_registry_enumkeys</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to enumerate all the subkeys in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 284</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_enumkeys'>shell_registry_enumkeys</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_reg_data_types'>reg_data_types</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_reg_data_types'>reg_data_types</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_bslashes'>bslashes</span> <span class='op'>=</span> <span class='id identifier rubyid_key'>key</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>query \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+      <span class='comment'># now let&#39;s keep the ones that have a count = bslashes+1
+</span>      <span class='comment'># feels like there&#39;s a smarter way to do this but...
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='id identifier rubyid_bslashes'>bslashes</span><span class='op'>+</span><span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_ends_with?'>ends_with?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='comment'>#then it&#39;s a first level subkey
+</span>        <span class='id identifier rubyid_subkeys'>subkeys</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span> <span class='comment'># take &amp; chomp the last item only
+</span>      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_subkeys'>subkeys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_enumvals-instance_method">
+  
+    #<strong>shell_registry_enumvals</strong>(key, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to enumerate all the values in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 307</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_enumvals'>shell_registry_enumvals</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_values'>values</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_reg_data_types'>reg_data_types</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_reg_data_types'>reg_data_types</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR</span><span class='tstring_end'>&#39;</span></span>
+  <span class='comment'># REG QUERY KeyName [/v ValueName | /ve] [/s]
+</span>  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>query \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Error</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_values'>values</span> <span class='op'>=</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ +.*[</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg_data_types'>reg_data_types</span><span class='embexpr_end'>}</span><span class='tstring_content'>].*</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+      <span class='comment'># yanked the lines with legit REG value types like REG_SZ
+</span>      <span class='comment'># now let&#39;s parse out the names (first field basically)
+</span>      <span class='id identifier rubyid_values'>values</span><span class='period'>.</span><span class='id identifier rubyid_collect!'>collect!</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+        <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='id identifier rubyid_line'>line</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span> <span class='comment'>#chomp for good measure
+</span>        <span class='comment'># check if reg returned &quot;&lt;NO NAME&gt;&quot;, which splits to &quot;&lt;NO&quot;, if so nil instead
+</span>        <span class='id identifier rubyid_t'>t</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_t'>t</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;NO</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_t'>t</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_values'>values</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_getvaldata-instance_method">
+  
+    #<strong>shell_registry_getvaldata</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the data portion of the value <code>valname</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+332
+333
+334
+335</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 332</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_getvaldata'>shell_registry_getvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_a'>a</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_getvalinfo'>shell_registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_getvalinfo-instance_method">
+  
+    #<strong>shell_registry_getvalinfo</strong>(key, valname, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate the type and data stored in the registry value <code>valname</code> in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 341</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_getvalinfo'>shell_registry_getvalinfo</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='comment'># defaults
+</span>  <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='comment'># REG QUERY KeyName [/v ValueName | /ve] [/s]
+</span>  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>query \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /v \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_valname'>valname</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_match_arr'>match_arr</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^ +</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_valname'>valname</span><span class='embexpr_end'>}</span><span class='tstring_content'>.*</span><span class='regexp_end'>/i</span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='rparen'>)</span>
+    <span class='comment'># pull out the interesting line (the one with the value name in it)
+</span>    <span class='comment'># and split it with &#39; &#39; yielding [valname,REGvaltype,REGdata]
+</span>    <span class='id identifier rubyid_split_arr'>split_arr</span> <span class='op'>=</span> <span class='id identifier rubyid_match_arr'>match_arr</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Type</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_split_arr'>split_arr</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_value'>value</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_split_arr'>split_arr</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='comment'># need to test to ensure all results can be parsed this way
+</span>  <span class='kw'>end</span>
+  <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_key_exist?-instance_method">
+  
+    #<strong>shell_registry_key_exist?</strong>(key)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if a key exists on the target registry using a shell session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the full path of the key to check</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the key exists on the target registry, false otherwise, even if case of error (invalid arguments) or the session hasn&#39;t permission to access the key</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 376</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_key_exist?'>shell_registry_key_exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>ArgumentError</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_registry_cmd'>shell_registry_cmd</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>query \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_results'>results</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>ERROR: </span><span class='regexp_end'>/i</span></span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_loadkey-instance_method">
+  
+    #<strong>shell_registry_loadkey</strong>(key, file)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to load the hive file <code>file</code> into <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+241
+242
+243
+244</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 241</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_loadkey'>shell_registry_loadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_file'>file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>load \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_file'>file</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_setvaldata-instance_method">
+  
+    #<strong>shell_registry_setvaldata</strong>(key, valname, data, type, view)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to add a value <code>valname</code> in the key <code>key</code> with the specified <code>type</code> and <code>data</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+363
+364
+365
+366
+367
+368</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 363</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_setvaldata'>shell_registry_setvaldata</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_valname'>valname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='comment'># REG ADD KeyName [/v ValueName | /ve] [/t Type] [/s Separator] [/d Data] [/f]
+</span>  <span class='comment'># /f to overwrite w/o prompt
+</span>  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>add /f \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /v \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_valname'>valname</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /t \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /d \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_data'>data</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot; /f</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_view'>view</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_registry_unloadkey-instance_method">
+  
+    #<strong>shell_registry_unloadkey</strong>(key)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Use reg.exe to unload the hive in <code>key</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+249
+250
+251
+252</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 249</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_registry_unloadkey'>shell_registry_unloadkey</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_normalize_key'>normalize_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_registry_cmd_result'>shell_registry_cmd_result</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>unload \&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="split_key-instance_method">
+  
+    #<strong>split_key</strong>(str)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Split the supplied full registry key string into its root key and base key.  For instance, passing “HKLMSoftwareDog” will return [ &#39;HKEY_LOCAL_MACHINE&#39;, &#39;SoftwareDog&#39; ]</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+648
+649
+650
+651
+652
+653
+654</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/windows/registry.rb', line 648</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_split_key'>split_key</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(.+?)\\(.*)$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='lbracket'>[</span> <span class='backref'>$1</span><span class='comma'>,</span> <span class='backref'>$2</span> <span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='kw'>nil</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:00 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

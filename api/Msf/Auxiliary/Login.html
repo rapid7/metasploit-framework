@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Auxiliary::Login
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary::Login";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Auxiliary.html" title="Msf::Auxiliary (class)">Auxiliary</a></span></span>
+     &raquo; 
+    <span class="title">Login</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Auxiliary::Login
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../../Metasploit/Framework/Telnet/Client.html" title="Metasploit::Framework::Telnet::Client (module)">Metasploit::Framework::Telnet::Client</a></span>, <span class='object_link'><a href="../Exploit/Remote/Telnet.html" title="Msf::Exploit::Remote::Telnet (module)">Exploit::Remote::Telnet</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary/login.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module exposes methods that may be useful to exploits that deal with servers that require authentication via /bin/login</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="NULL-constant" class="">NULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\000</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="CR-constant" class="">CR =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="LF-constant" class="">LF =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="EOL-constant" class="">EOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#CR-constant" title="Msf::Auxiliary::Login::CR (constant)">CR</a></span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#LF-constant" title="Msf::Auxiliary::Login::LF (constant)">LF</a></span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#busy_message%3F-instance_method" title="#busy_message? (instance method)">#<strong>busy_message?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#command_echo%3F-instance_method" title="#command_echo? (instance method)">#<strong>command_echo?</strong>(cmd)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_login_ivars-instance_method" title="#create_login_ivars (instance method)">#<strong>create_login_ivars</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates an instance of a login negotiation module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#login_failed%3F-instance_method" title="#login_failed? (instance method)">#<strong>login_failed?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#login_prompt%3F-instance_method" title="#login_prompt? (instance method)">#<strong>login_prompt?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#login_succeeded%3F-instance_method" title="#login_succeeded? (instance method)">#<strong>login_succeeded?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#password_prompt%3F-instance_method" title="#password_prompt? (instance method)">#<strong>password_prompt?</strong>(username = nil)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#raw_send-instance_method" title="#raw_send (instance method)">#<strong>raw_send</strong>(cmd, nsock = self.sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method transmits a telnet command and does not wait for a response.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv-instance_method" title="#recv (instance method)">#<strong>recv</strong>(fd = self.sock, timeout = 10)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Appends to the @recvd buffer which is used to tell us whether we&#39;re at a login prompt, a password prompt, or a working shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#recv_all-instance_method" title="#recv_all (instance method)">#<strong>recv_all</strong>(nsock = self.sock, timeout = 10)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_pass-instance_method" title="#send_pass (instance method)">#<strong>send_pass</strong>(pass, nsock = self.sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method completes user authentication by sending the supplied password.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_recv-instance_method" title="#send_recv (instance method)">#<strong>send_recv</strong>(msg, nsock = self.sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_user-instance_method" title="#send_user (instance method)">#<strong>send_user</strong>(user, nsock = self.sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method logs in as the supplied user by transmitting the username.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_for-instance_method" title="#wait_for (instance method)">#<strong>wait_for</strong>(expect, nsock = self.sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Wait for the supplied string (or Regexp) to show up on the socket, or a timeout.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#waiting_message%3F-instance_method" title="#waiting_message? (instance method)">#<strong>waiting_message?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="busy_message?-instance_method">
+  
+    #<strong>busy_message?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+127
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 127</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_busy_message?'>busy_message?</span>
+  <span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>=</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='ivar'>@busy_regex</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>!=</span> <span class='ivar'>@recvd</span><span class='rparen'>)</span>
+    <span class='ivar'>@recvd</span> <span class='op'>=</span> <span class='id identifier rubyid_recvn'>recvn</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="command_echo?-instance_method">
+  
+    #<strong>command_echo?</strong>(cmd)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_command_echo?'>command_echo?</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>=</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(\s*</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r?\n\s*|\s*\*+\s*)</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>!=</span> <span class='ivar'>@recvd</span><span class='rparen'>)</span>
+    <span class='ivar'>@recvd</span> <span class='op'>=</span> <span class='id identifier rubyid_recvn'>recvn</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_login_ivars-instance_method">
+  
+    #<strong>create_login_ivars</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create_login_ivars'>create_login_ivars</span>
+  <span class='comment'># Appended to by each read and gets reset after each send.  Doing it
+</span>  <span class='comment'># this way lets us deal with partial reads in the middle of expect
+</span>  <span class='comment'># strings, e.g., the first recv returns &quot;Pa&quot; and the second returns
+</span>  <span class='comment'># &quot;ssword: &quot;
+</span>  <span class='ivar'>@recvd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='ivar'>@trace</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Some of these regexes borrowed from NeXpose, others added from datasets
+</span>  <span class='comment'>#
+</span>  <span class='ivar'>@login_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:log[io]n( name|)|user( ?name|id|))\s*\:</span><span class='regexp_end'>/i</span></span>
+  <span class='ivar'>@password_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:password|passwd)\s*\:</span><span class='regexp_end'>/i</span></span>
+  <span class='ivar'>@false_failure_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:(^\s*last)\ login *\:|allows only\ .*\ Telnet\ Client\ License)</span><span class='regexp_end'>/i</span></span>
+  <span class='ivar'>@failure_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:
+      Incorrect | Unknown  | Fail      | Invalid  |
+      Login     | Password | Passwd    | Username |
+      Unable    | Error    | Denied    | Reject   |
+      Refuse    | Close    | Closing   | %\ Bad   |
+      Sorry     |
+      ^http | html |
+      Not\ on\ system\ console |
+      Enter\ username\ and\ password |
+      Auto\ Apply\ On |
+      YOU\ LOGGED\ IN\ USING\ ALL\ UPPERCASE\ CHARACTERS|
+      \n\*$ |
+      (Login ?|User ?)(name|): |
+      ^\s*\&lt;[a-f0-9]+\&gt;\s*$ |
+      ^\s*220.*FTP|
+      not\ allowed\ to\ log\ in
+    )</span><span class='regexp_end'>/mix</span></span>
+
+  <span class='ivar'>@waiting_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:
+    .*please\ wait.* |
+    .*one\ minute.*
+  )</span><span class='regexp_end'>/mix</span></span>
+
+  <span class='ivar'>@busy_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:
+    Another\ telnet\ session\ is\ in\ progress | Disconnecting\.\.\.
+  )</span><span class='regexp_end'>/mix</span></span>
+
+  <span class='ivar'>@success_regex</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(?:
+      list\ of\ built-in     |
+      sh.*[\#\$]\s*$         |
+      \[\/\]\s*$             |
+      or\ the\ MENU\ system  |
+      Password\ is\ not\ set |
+      logging\ in\ as\ visitor |
+      Login\ successful
+    )</span><span class='regexp_end'>/mix</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates an instance of a login negotiation module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_create_login_ivars'>create_login_ivars</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="login_failed?-instance_method">
+  
+    #<strong>login_failed?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_login_failed?'>login_failed?</span>
+  <span class='comment'># Naively, failure means matching the failure regex.
+</span>  <span class='comment'>#
+</span>  <span class='comment'># However, this leads to problems with false positives in the case of
+</span>  <span class='comment'># &quot;login:&quot; because unix systems commonly show &quot;Last login: Sat Jan  3
+</span>  <span class='comment'># 20:22:52&quot; upon successful login, so check against a false-positive
+</span>  <span class='comment'># regex, also.
+</span>  <span class='comment'>#
+</span>
+  <span class='comment'># Empty strings should not count
+</span>  <span class='kw'>if</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we have not seen a newline, this is likely an echo&#39;d prompt
+</span>  <span class='kw'>if</span> <span class='op'>!</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># We do have a set of highly-accurate success patterns
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='ivar'>@success_regex</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='ivar'>@failure_regex</span>
+    <span class='kw'>if</span> <span class='ivar'>@recvd</span> <span class='op'>!~</span> <span class='ivar'>@false_failure_regex</span>
+      <span class='kw'>return</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="login_prompt?-instance_method">
+  
+    #<strong>login_prompt?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 104</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_login_prompt?'>login_prompt?</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='ivar'>@login_regex</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="login_succeeded?-instance_method">
+  
+    #<strong>login_succeeded?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+176
+177
+178
+179
+180
+181</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 176</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_login_succeeded?'>login_succeeded?</span>
+  <span class='comment'># Much easier to test for failure than success because a few key words
+</span>  <span class='comment'># mean failure whereas all kinds of crap is used for success, much of
+</span>  <span class='comment'># which also shows up in failure messages.
+</span>  <span class='kw'>return</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_login_failed?'>login_failed?</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="password_prompt?-instance_method">
+  
+    #<strong>password_prompt?</strong>(username = nil)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+136
+137
+138
+139
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 136</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_password_prompt?'>password_prompt?</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span><span class='lparen'>(</span><span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='ivar'>@password_regex</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_username'>username</span>
+    <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;s</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="raw_send-instance_method">
+  
+    #<strong>raw_send</strong>(cmd, nsock = self.sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method transmits a telnet command and does not wait for a response</p>
+
+<p>Resets the @recvd buffer</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 221</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_raw_send'>raw_send</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='ivar'>@recvd</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='ivar'>@trace</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_cmd'>cmd</span>
+  <span class='id identifier rubyid_nsock'>nsock</span><span class='period'>.</span><span class='id identifier rubyid_put'>put</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv-instance_method">
+  
+    #<strong>recv</strong>(fd = self.sock, timeout = 10)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Appends to the @recvd buffer which is used to tell us whether we&#39;re at a login prompt, a password prompt, or a working shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>=</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>10</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_data'>data</span> <span class='kw'>or</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+
+    <span class='comment'># combine EOL into &quot;\n&quot;
+</span>    <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="#EOL-constant" title="Msf::Auxiliary::Login::EOL (constant)">EOL</a></span></span><span class='embexpr_end'>}</span><span class='regexp_end'>/no</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='ivar'>@trace</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span>
+    <span class='ivar'>@recvd</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span>
+    <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_flush'>flush</span>
+
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EPIPE</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="recv_all-instance_method">
+  
+    #<strong>recv_all</strong>(nsock = self.sock, timeout = 10)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_recv_all'>recv_all</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='int'>10</span><span class='rparen'>)</span>
+  <span class='comment'># Make sure we read something in
+</span>  <span class='id identifier rubyid_wait_for'>wait_for</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>.</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_pass-instance_method">
+  
+    #<strong>send_pass</strong>(pass, nsock = self.sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method completes user authentication by sending the supplied password</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+197
+198
+199
+200
+201
+202
+203</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 197</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_pass'>send_pass</span><span class='lparen'>(</span><span class='id identifier rubyid_pass'>pass</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_got_prompt'>got_prompt</span> <span class='op'>=</span> <span class='id identifier rubyid_wait_for'>wait_for</span><span class='lparen'>(</span><span class='ivar'>@password_regex</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_got_prompt'>got_prompt</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'> - Something is wrong, didn&#39;t get a password prompt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pass'>pass</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_recv-instance_method">
+  
+    #<strong>send_recv</strong>(msg, nsock = self.sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 205</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raw_send'>raw_send</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_recv_all'>recv_all</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='ivar'>@recvd</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_user-instance_method">
+  
+    #<strong>send_user</strong>(user, nsock = self.sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method logs in as the supplied user by transmitting the username</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+186
+187
+188
+189
+190
+191
+192</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 186</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_user'>send_user</span><span class='lparen'>(</span><span class='id identifier rubyid_user'>user</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_got_prompt'>got_prompt</span> <span class='op'>=</span> <span class='id identifier rubyid_wait_for'>wait_for</span><span class='lparen'>(</span><span class='ivar'>@login_regex</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_got_prompt'>got_prompt</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rhost'>rhost</span><span class='embexpr_end'>}</span><span class='tstring_content'> - Something is wrong, didn&#39;t get a login prompt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_user'>user</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_for-instance_method">
+  
+    #<strong>wait_for</strong>(expect, nsock = self.sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Wait for the supplied string (or Regexp) to show up on the socket, or a timeout</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 231</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_for'>wait_for</span><span class='lparen'>(</span><span class='id identifier rubyid_expect'>expect</span><span class='comma'>,</span> <span class='id identifier rubyid_nsock'>nsock</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_expect'>expect</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>Regexp</span>
+    <span class='id identifier rubyid_regx'>regx</span> <span class='op'>=</span> <span class='id identifier rubyid_expect'>expect</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_regx'>regx</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='const'>Regexp</span><span class='period'>.</span><span class='id identifier rubyid_quote'>quote</span><span class='lparen'>(</span><span class='id identifier rubyid_expect'>expect</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='regexp_end'>/i</span></span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='id identifier rubyid_regx'>regx</span>
+
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='id identifier rubyid_regx'>regx</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='id identifier rubyid_nsock'>nsock</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='ivar'>@recvd</span> <span class='op'>=~</span> <span class='id identifier rubyid_regx'>regx</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="waiting_message?-instance_method">
+  
+    #<strong>waiting_message?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary/login.rb', line 118</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_waiting_message?'>waiting_message?</span>
+  <span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>=</span> <span class='ivar'>@recvd</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='ivar'>@waiting_regex</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span><span class='id identifier rubyid_recvn'>recvn</span> <span class='op'>!=</span> <span class='ivar'>@recvd</span><span class='rparen'>)</span>
+    <span class='ivar'>@recvd</span> <span class='op'>=</span> <span class='id identifier rubyid_recvn'>recvn</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:21 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

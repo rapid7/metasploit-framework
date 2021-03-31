@@ -1,0 +1,2286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::WindowsError
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::WindowsError";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">WindowsError</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::WindowsError
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::WindowsError</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/windows_error.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="SUCCESS-constant" class="">SUCCESS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+        <dt id="INVALID_FUNCTION-constant" class="">INVALID_FUNCTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="FILE_NOT_FOUND-constant" class="">FILE_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="PATH_NOT_FOUND-constant" class="">PATH_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="TOO_MANY_OPEN_FILES-constant" class="">TOO_MANY_OPEN_FILES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="ACCESS_DENIED-constant" class="">ACCESS_DENIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="INVALID_HANDLE-constant" class="">INVALID_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>6</span></pre></dd>
+      
+        <dt id="ARENA_TRASHED-constant" class="">ARENA_TRASHED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>7</span></pre></dd>
+      
+        <dt id="NOT_ENOUGH_MEMORY-constant" class="">NOT_ENOUGH_MEMORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>8</span></pre></dd>
+      
+        <dt id="INVALID_BLOCK-constant" class="">INVALID_BLOCK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>9</span></pre></dd>
+      
+        <dt id="BAD_ENVIRONMENT-constant" class="">BAD_ENVIRONMENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>10</span></pre></dd>
+      
+        <dt id="BAD_FORMAT-constant" class="">BAD_FORMAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>11</span></pre></dd>
+      
+        <dt id="INVALID_ACCESS-constant" class="">INVALID_ACCESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>12</span></pre></dd>
+      
+        <dt id="INVALID_DATA-constant" class="">INVALID_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>13</span></pre></dd>
+      
+        <dt id="OUTOFMEMORY-constant" class="">OUTOFMEMORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>14</span></pre></dd>
+      
+        <dt id="INVALID_DRIVE-constant" class="">INVALID_DRIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>15</span></pre></dd>
+      
+        <dt id="CURRENT_DIRECTORY-constant" class="">CURRENT_DIRECTORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="NOT_SAME_DEVICE-constant" class="">NOT_SAME_DEVICE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>17</span></pre></dd>
+      
+        <dt id="NO_MORE_FILES-constant" class="">NO_MORE_FILES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="WRITE_PROTECT-constant" class="">WRITE_PROTECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>19</span></pre></dd>
+      
+        <dt id="BAD_UNIT-constant" class="">BAD_UNIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>20</span></pre></dd>
+      
+        <dt id="NOT_READY-constant" class="">NOT_READY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>21</span></pre></dd>
+      
+        <dt id="BAD_COMMAND-constant" class="">BAD_COMMAND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>22</span></pre></dd>
+      
+        <dt id="CRC-constant" class="">CRC =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>23</span></pre></dd>
+      
+        <dt id="BAD_LENGTH-constant" class="">BAD_LENGTH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>24</span></pre></dd>
+      
+        <dt id="SEEK-constant" class="">SEEK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>25</span></pre></dd>
+      
+        <dt id="NOT_DOS_DISK-constant" class="">NOT_DOS_DISK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>26</span></pre></dd>
+      
+        <dt id="SECTOR_NOT_FOUND-constant" class="">SECTOR_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>27</span></pre></dd>
+      
+        <dt id="OUT_OF_PAPER-constant" class="">OUT_OF_PAPER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>28</span></pre></dd>
+      
+        <dt id="WRITE_FAULT-constant" class="">WRITE_FAULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>29</span></pre></dd>
+      
+        <dt id="READ_FAULT-constant" class="">READ_FAULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>30</span></pre></dd>
+      
+        <dt id="GEN_FAILURE-constant" class="">GEN_FAILURE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>31</span></pre></dd>
+      
+        <dt id="SHARING_VIOLATION-constant" class="">SHARING_VIOLATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>32</span></pre></dd>
+      
+        <dt id="LOCK_VIOLATION-constant" class="">LOCK_VIOLATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>33</span></pre></dd>
+      
+        <dt id="WRONG_DISK-constant" class="">WRONG_DISK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>34</span></pre></dd>
+      
+        <dt id="SHARING_BUFFER_EXCEEDED-constant" class="">SHARING_BUFFER_EXCEEDED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>36</span></pre></dd>
+      
+        <dt id="HANDLE_EOF-constant" class="">HANDLE_EOF =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>38</span></pre></dd>
+      
+        <dt id="HANDLE_DISK_FULL-constant" class="">HANDLE_DISK_FULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>39</span></pre></dd>
+      
+        <dt id="NOT_SUPPORTED-constant" class="">NOT_SUPPORTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>50</span></pre></dd>
+      
+        <dt id="REM_NOT_LIST-constant" class="">REM_NOT_LIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>51</span></pre></dd>
+      
+        <dt id="DUP_NAME-constant" class="">DUP_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>52</span></pre></dd>
+      
+        <dt id="BAD_NETPATH-constant" class="">BAD_NETPATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>53</span></pre></dd>
+      
+        <dt id="NETWORK_BUSY-constant" class="">NETWORK_BUSY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>54</span></pre></dd>
+      
+        <dt id="DEV_NOT_EXIST-constant" class="">DEV_NOT_EXIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>55</span></pre></dd>
+      
+        <dt id="TOO_MANY_CMDS-constant" class="">TOO_MANY_CMDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>56</span></pre></dd>
+      
+        <dt id="ADAP_HDW_ERR-constant" class="">ADAP_HDW_ERR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>57</span></pre></dd>
+      
+        <dt id="BAD_NET_RESP-constant" class="">BAD_NET_RESP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>58</span></pre></dd>
+      
+        <dt id="UNEXP_NET_ERR-constant" class="">UNEXP_NET_ERR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>59</span></pre></dd>
+      
+        <dt id="BAD_REM_ADAP-constant" class="">BAD_REM_ADAP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>60</span></pre></dd>
+      
+        <dt id="PRINTQ_FULL-constant" class="">PRINTQ_FULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>61</span></pre></dd>
+      
+        <dt id="NO_SPOOL_SPACE-constant" class="">NO_SPOOL_SPACE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>62</span></pre></dd>
+      
+        <dt id="PRINT_CANCELLED-constant" class="">PRINT_CANCELLED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>63</span></pre></dd>
+      
+        <dt id="NETNAME_DELETED-constant" class="">NETNAME_DELETED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>64</span></pre></dd>
+      
+        <dt id="NETWORK_ACCESS_DENIED-constant" class="">NETWORK_ACCESS_DENIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>65</span></pre></dd>
+      
+        <dt id="BAD_DEV_TYPE-constant" class="">BAD_DEV_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>66</span></pre></dd>
+      
+        <dt id="BAD_NET_NAME-constant" class="">BAD_NET_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>67</span></pre></dd>
+      
+        <dt id="TOO_MANY_NAMES-constant" class="">TOO_MANY_NAMES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>68</span></pre></dd>
+      
+        <dt id="TOO_MANY_SESS-constant" class="">TOO_MANY_SESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>69</span></pre></dd>
+      
+        <dt id="SHARING_PAUSED-constant" class="">SHARING_PAUSED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>70</span></pre></dd>
+      
+        <dt id="REQ_NOT_ACCEP-constant" class="">REQ_NOT_ACCEP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>71</span></pre></dd>
+      
+        <dt id="REDIR_PAUSED-constant" class="">REDIR_PAUSED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>72</span></pre></dd>
+      
+        <dt id="FILE_EXISTS-constant" class="">FILE_EXISTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>80</span></pre></dd>
+      
+        <dt id="CANNOT_MAKE-constant" class="">CANNOT_MAKE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>82</span></pre></dd>
+      
+        <dt id="FAIL_I24-constant" class="">FAIL_I24 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>83</span></pre></dd>
+      
+        <dt id="OUT_OF_STRUCTURES-constant" class="">OUT_OF_STRUCTURES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>84</span></pre></dd>
+      
+        <dt id="ALREADY_ASSIGNED-constant" class="">ALREADY_ASSIGNED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>85</span></pre></dd>
+      
+        <dt id="INVALID_PASSWORD-constant" class="">INVALID_PASSWORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>86</span></pre></dd>
+      
+        <dt id="INVALID_PARAMETER-constant" class="">INVALID_PARAMETER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>87</span></pre></dd>
+      
+        <dt id="NET_WRITE_FAULT-constant" class="">NET_WRITE_FAULT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>88</span></pre></dd>
+      
+        <dt id="NO_PROC_SLOTS-constant" class="">NO_PROC_SLOTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>89</span></pre></dd>
+      
+        <dt id="TOO_MANY_SEMAPHORES-constant" class="">TOO_MANY_SEMAPHORES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>100</span></pre></dd>
+      
+        <dt id="EXCL_SEM_ALREADY_OWNED-constant" class="">EXCL_SEM_ALREADY_OWNED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>101</span></pre></dd>
+      
+        <dt id="SEM_IS_SET-constant" class="">SEM_IS_SET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>102</span></pre></dd>
+      
+        <dt id="TOO_MANY_SEM_REQUESTS-constant" class="">TOO_MANY_SEM_REQUESTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>103</span></pre></dd>
+      
+        <dt id="INVALID_AT_INTERRUPT_TIME-constant" class="">INVALID_AT_INTERRUPT_TIME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>104</span></pre></dd>
+      
+        <dt id="SEM_OWNER_DIED-constant" class="">SEM_OWNER_DIED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>105</span></pre></dd>
+      
+        <dt id="SEM_USER_LIMIT-constant" class="">SEM_USER_LIMIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>106</span></pre></dd>
+      
+        <dt id="DISK_CHANGE-constant" class="">DISK_CHANGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>107</span></pre></dd>
+      
+        <dt id="DRIVE_LOCKED-constant" class="">DRIVE_LOCKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>108</span></pre></dd>
+      
+        <dt id="BROKEN_PIPE-constant" class="">BROKEN_PIPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>109</span></pre></dd>
+      
+        <dt id="OPEN_FAILED-constant" class="">OPEN_FAILED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>110</span></pre></dd>
+      
+        <dt id="BUFFER_OVERFLOW-constant" class="">BUFFER_OVERFLOW =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>111</span></pre></dd>
+      
+        <dt id="DISK_FULL-constant" class="">DISK_FULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>112</span></pre></dd>
+      
+        <dt id="NO_MORE_SEARCH_HANDLES-constant" class="">NO_MORE_SEARCH_HANDLES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>113</span></pre></dd>
+      
+        <dt id="INVALID_TARGET_HANDLE-constant" class="">INVALID_TARGET_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>114</span></pre></dd>
+      
+        <dt id="INVALID_CATEGORY-constant" class="">INVALID_CATEGORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>117</span></pre></dd>
+      
+        <dt id="INVALID_VERIFY_SWITCH-constant" class="">INVALID_VERIFY_SWITCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>118</span></pre></dd>
+      
+        <dt id="BAD_DRIVER_LEVEL-constant" class="">BAD_DRIVER_LEVEL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>119</span></pre></dd>
+      
+        <dt id="CALL_NOT_IMPLEMENTED-constant" class="">CALL_NOT_IMPLEMENTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>120</span></pre></dd>
+      
+        <dt id="SEM_TIMEOUT-constant" class="">SEM_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>121</span></pre></dd>
+      
+        <dt id="INSUFFICIENT_BUFFER-constant" class="">INSUFFICIENT_BUFFER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>122</span></pre></dd>
+      
+        <dt id="INVALID_NAME-constant" class="">INVALID_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>123</span></pre></dd>
+      
+        <dt id="INVALID_LEVEL-constant" class="">INVALID_LEVEL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>124</span></pre></dd>
+      
+        <dt id="NO_VOLUME_LABEL-constant" class="">NO_VOLUME_LABEL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>125</span></pre></dd>
+      
+        <dt id="MOD_NOT_FOUND-constant" class="">MOD_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>126</span></pre></dd>
+      
+        <dt id="PROC_NOT_FOUND-constant" class="">PROC_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>127</span></pre></dd>
+      
+        <dt id="WAIT_NO_CHILDREN-constant" class="">WAIT_NO_CHILDREN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>128</span></pre></dd>
+      
+        <dt id="CHILD_NOT_COMPLETE-constant" class="">CHILD_NOT_COMPLETE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>129</span></pre></dd>
+      
+        <dt id="DIRECT_ACCESS_HANDLE-constant" class="">DIRECT_ACCESS_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>130</span></pre></dd>
+      
+        <dt id="NEGATIVE_SEEK-constant" class="">NEGATIVE_SEEK =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>131</span></pre></dd>
+      
+        <dt id="SEEK_ON_DEVICE-constant" class="">SEEK_ON_DEVICE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>132</span></pre></dd>
+      
+        <dt id="IS_JOIN_TARGET-constant" class="">IS_JOIN_TARGET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>133</span></pre></dd>
+      
+        <dt id="IS_JOINED-constant" class="">IS_JOINED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>134</span></pre></dd>
+      
+        <dt id="IS_SUBSTED-constant" class="">IS_SUBSTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>135</span></pre></dd>
+      
+        <dt id="NOT_JOINED-constant" class="">NOT_JOINED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>136</span></pre></dd>
+      
+        <dt id="NOT_SUBSTED-constant" class="">NOT_SUBSTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>137</span></pre></dd>
+      
+        <dt id="JOIN_TO_JOIN-constant" class="">JOIN_TO_JOIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>138</span></pre></dd>
+      
+        <dt id="SUBST_TO_SUBST-constant" class="">SUBST_TO_SUBST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>139</span></pre></dd>
+      
+        <dt id="JOIN_TO_SUBST-constant" class="">JOIN_TO_SUBST =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>140</span></pre></dd>
+      
+        <dt id="SUBST_TO_JOIN-constant" class="">SUBST_TO_JOIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>141</span></pre></dd>
+      
+        <dt id="BUSY_DRIVE-constant" class="">BUSY_DRIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>142</span></pre></dd>
+      
+        <dt id="SAME_DRIVE-constant" class="">SAME_DRIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>143</span></pre></dd>
+      
+        <dt id="DIR_NOT_ROOT-constant" class="">DIR_NOT_ROOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>144</span></pre></dd>
+      
+        <dt id="DIR_NOT_EMPTY-constant" class="">DIR_NOT_EMPTY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>145</span></pre></dd>
+      
+        <dt id="IS_SUBST_PATH-constant" class="">IS_SUBST_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>146</span></pre></dd>
+      
+        <dt id="IS_JOIN_PATH-constant" class="">IS_JOIN_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>147</span></pre></dd>
+      
+        <dt id="PATH_BUSY-constant" class="">PATH_BUSY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>148</span></pre></dd>
+      
+        <dt id="IS_SUBST_TARGET-constant" class="">IS_SUBST_TARGET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>149</span></pre></dd>
+      
+        <dt id="SYSTEM_TRACE-constant" class="">SYSTEM_TRACE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>150</span></pre></dd>
+      
+        <dt id="INVALID_EVENT_COUNT-constant" class="">INVALID_EVENT_COUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>151</span></pre></dd>
+      
+        <dt id="TOO_MANY_MUXWAITERS-constant" class="">TOO_MANY_MUXWAITERS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>152</span></pre></dd>
+      
+        <dt id="INVALID_LIST_FORMAT-constant" class="">INVALID_LIST_FORMAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>153</span></pre></dd>
+      
+        <dt id="LABEL_TOO_LONG-constant" class="">LABEL_TOO_LONG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>154</span></pre></dd>
+      
+        <dt id="TOO_MANY_TCBS-constant" class="">TOO_MANY_TCBS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>155</span></pre></dd>
+      
+        <dt id="SIGNAL_REFUSED-constant" class="">SIGNAL_REFUSED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>156</span></pre></dd>
+      
+        <dt id="DISCARDED-constant" class="">DISCARDED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>157</span></pre></dd>
+      
+        <dt id="NOT_LOCKED-constant" class="">NOT_LOCKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>158</span></pre></dd>
+      
+        <dt id="BAD_THREADID_ADDR-constant" class="">BAD_THREADID_ADDR =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>159</span></pre></dd>
+      
+        <dt id="BAD_ARGUMENTS-constant" class="">BAD_ARGUMENTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>160</span></pre></dd>
+      
+        <dt id="BAD_PATHNAME-constant" class="">BAD_PATHNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>161</span></pre></dd>
+      
+        <dt id="SIGNAL_PENDING-constant" class="">SIGNAL_PENDING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>162</span></pre></dd>
+      
+        <dt id="MAX_THRDS_REACHED-constant" class="">MAX_THRDS_REACHED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>164</span></pre></dd>
+      
+        <dt id="LOCK_FAILED-constant" class="">LOCK_FAILED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>167</span></pre></dd>
+      
+        <dt id="BUSY-constant" class="">BUSY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>170</span></pre></dd>
+      
+        <dt id="CANCEL_VIOLATION-constant" class="">CANCEL_VIOLATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>173</span></pre></dd>
+      
+        <dt id="ATOMIC_LOCKS_NOT_SUPPORTED-constant" class="">ATOMIC_LOCKS_NOT_SUPPORTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>174</span></pre></dd>
+      
+        <dt id="INVALID_SEGMENT_NUMBER-constant" class="">INVALID_SEGMENT_NUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>180</span></pre></dd>
+      
+        <dt id="INVALID_ORDINAL-constant" class="">INVALID_ORDINAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>182</span></pre></dd>
+      
+        <dt id="ALREADY_EXISTS-constant" class="">ALREADY_EXISTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>183</span></pre></dd>
+      
+        <dt id="INVALID_FLAG_NUMBER-constant" class="">INVALID_FLAG_NUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>186</span></pre></dd>
+      
+        <dt id="SEM_NOT_FOUND-constant" class="">SEM_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>187</span></pre></dd>
+      
+        <dt id="INVALID_STARTING_CODESEG-constant" class="">INVALID_STARTING_CODESEG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>188</span></pre></dd>
+      
+        <dt id="INVALID_STACKSEG-constant" class="">INVALID_STACKSEG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>189</span></pre></dd>
+      
+        <dt id="INVALID_MODULETYPE-constant" class="">INVALID_MODULETYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>190</span></pre></dd>
+      
+        <dt id="INVALID_EXE_SIGNATURE-constant" class="">INVALID_EXE_SIGNATURE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>191</span></pre></dd>
+      
+        <dt id="EXE_MARKED_INVALID-constant" class="">EXE_MARKED_INVALID =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>192</span></pre></dd>
+      
+        <dt id="BAD_EXE_FORMAT-constant" class="">BAD_EXE_FORMAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>193</span></pre></dd>
+      
+        <dt id="ITERATED_DATA_EXCEEDS_64k-constant" class="">ITERATED_DATA_EXCEEDS_64k =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>194</span></pre></dd>
+      
+        <dt id="INVALID_MINALLOCSIZE-constant" class="">INVALID_MINALLOCSIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>195</span></pre></dd>
+      
+        <dt id="DYNLINK_FROM_INVALID_RING-constant" class="">DYNLINK_FROM_INVALID_RING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>196</span></pre></dd>
+      
+        <dt id="IOPL_NOT_ENABLED-constant" class="">IOPL_NOT_ENABLED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>197</span></pre></dd>
+      
+        <dt id="INVALID_SEGDPL-constant" class="">INVALID_SEGDPL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>198</span></pre></dd>
+      
+        <dt id="AUTODATASEG_EXCEEDS_64k-constant" class="">AUTODATASEG_EXCEEDS_64k =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>199</span></pre></dd>
+      
+        <dt id="RING2SEG_MUST_BE_MOVABLE-constant" class="">RING2SEG_MUST_BE_MOVABLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>200</span></pre></dd>
+      
+        <dt id="RELOC_CHAIN_XEEDS_SEGLIM-constant" class="">RELOC_CHAIN_XEEDS_SEGLIM =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>201</span></pre></dd>
+      
+        <dt id="INFLOOP_IN_RELOC_CHAIN-constant" class="">INFLOOP_IN_RELOC_CHAIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>202</span></pre></dd>
+      
+        <dt id="ENVVAR_NOT_FOUND-constant" class="">ENVVAR_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>203</span></pre></dd>
+      
+        <dt id="NO_SIGNAL_SENT-constant" class="">NO_SIGNAL_SENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>205</span></pre></dd>
+      
+        <dt id="FILENAME_EXCED_RANGE-constant" class="">FILENAME_EXCED_RANGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>206</span></pre></dd>
+      
+        <dt id="RING2_STACK_IN_USE-constant" class="">RING2_STACK_IN_USE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>207</span></pre></dd>
+      
+        <dt id="META_EXPANSION_TOO_LONG-constant" class="">META_EXPANSION_TOO_LONG =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>208</span></pre></dd>
+      
+        <dt id="INVALID_SIGNAL_NUMBER-constant" class="">INVALID_SIGNAL_NUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>209</span></pre></dd>
+      
+        <dt id="THREAD_1_INACTIVE-constant" class="">THREAD_1_INACTIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>210</span></pre></dd>
+      
+        <dt id="LOCKED-constant" class="">LOCKED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>212</span></pre></dd>
+      
+        <dt id="TOO_MANY_MODULES-constant" class="">TOO_MANY_MODULES =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>214</span></pre></dd>
+      
+        <dt id="NESTING_NOT_ALLOWED-constant" class="">NESTING_NOT_ALLOWED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>215</span></pre></dd>
+      
+        <dt id="EXE_MACHINE_TYPE_MISMATCH-constant" class="">EXE_MACHINE_TYPE_MISMATCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>216</span></pre></dd>
+      
+        <dt id="EXE_CANNOT_MODIFY_SIGNED_BINARY-constant" class="">EXE_CANNOT_MODIFY_SIGNED_BINARY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>217</span></pre></dd>
+      
+        <dt id="EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY-constant" class="">EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>218</span></pre></dd>
+      
+        <dt id="FILE_CHECKED_OUT-constant" class="">FILE_CHECKED_OUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>220</span></pre></dd>
+      
+        <dt id="CHECKOUT_REQUIRED-constant" class="">CHECKOUT_REQUIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>221</span></pre></dd>
+      
+        <dt id="BAD_FILE_TYPE-constant" class="">BAD_FILE_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>222</span></pre></dd>
+      
+        <dt id="FILE_TOO_LARGE-constant" class="">FILE_TOO_LARGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>223</span></pre></dd>
+      
+        <dt id="FORMS_AUTH_REQUIRED-constant" class="">FORMS_AUTH_REQUIRED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>224</span></pre></dd>
+      
+        <dt id="VIRUS_INFECTED-constant" class="">VIRUS_INFECTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>225</span></pre></dd>
+      
+        <dt id="VIRUS_DELETED-constant" class="">VIRUS_DELETED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>226</span></pre></dd>
+      
+        <dt id="PIPE_LOCAL-constant" class="">PIPE_LOCAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>229</span></pre></dd>
+      
+        <dt id="BAD_PIPE-constant" class="">BAD_PIPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>230</span></pre></dd>
+      
+        <dt id="PIPE_BUSY-constant" class="">PIPE_BUSY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>231</span></pre></dd>
+      
+        <dt id="NO_DATA-constant" class="">NO_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>232</span></pre></dd>
+      
+        <dt id="PIPE_NOT_CONNECTED-constant" class="">PIPE_NOT_CONNECTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>233</span></pre></dd>
+      
+        <dt id="MORE_DATA-constant" class="">MORE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>234</span></pre></dd>
+      
+        <dt id="VC_DISCONNECTED-constant" class="">VC_DISCONNECTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>240</span></pre></dd>
+      
+        <dt id="INVALID_EA_NAME-constant" class="">INVALID_EA_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>254</span></pre></dd>
+      
+        <dt id="EA_LIST_INCONSISTENT-constant" class="">EA_LIST_INCONSISTENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>255</span></pre></dd>
+      
+        <dt id="WAIT_TIMEOUT-constant" class="">WAIT_TIMEOUT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>258</span></pre></dd>
+      
+        <dt id="NO_MORE_ITEMS-constant" class="">NO_MORE_ITEMS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>259</span></pre></dd>
+      
+        <dt id="CANNOT_COPY-constant" class="">CANNOT_COPY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>266</span></pre></dd>
+      
+        <dt id="DIRECTORY-constant" class="">DIRECTORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>267</span></pre></dd>
+      
+        <dt id="EAS_DIDNT_FIT-constant" class="">EAS_DIDNT_FIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>275</span></pre></dd>
+      
+        <dt id="EA_FILE_CORRUPT-constant" class="">EA_FILE_CORRUPT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>276</span></pre></dd>
+      
+        <dt id="EA_TABLE_FULL-constant" class="">EA_TABLE_FULL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>277</span></pre></dd>
+      
+        <dt id="INVALID_EA_HANDLE-constant" class="">INVALID_EA_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>278</span></pre></dd>
+      
+        <dt id="EAS_NOT_SUPPORTED-constant" class="">EAS_NOT_SUPPORTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>282</span></pre></dd>
+      
+        <dt id="NOT_OWNER-constant" class="">NOT_OWNER =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>288</span></pre></dd>
+      
+        <dt id="TOO_MANY_POSTS-constant" class="">TOO_MANY_POSTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>298</span></pre></dd>
+      
+        <dt id="PARTIAL_COPY-constant" class="">PARTIAL_COPY =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>299</span></pre></dd>
+      
+        <dt id="OPLOCK_NOT_GRANTED-constant" class="">OPLOCK_NOT_GRANTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>300</span></pre></dd>
+      
+        <dt id="INVALID_OPLOCK_PROTOCOL-constant" class="">INVALID_OPLOCK_PROTOCOL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>301</span></pre></dd>
+      
+        <dt id="DISK_TOO_FRAGMENTED-constant" class="">DISK_TOO_FRAGMENTED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>302</span></pre></dd>
+      
+        <dt id="DELETE_PENDING-constant" class="">DELETE_PENDING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>303</span></pre></dd>
+      
+        <dt id="INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING-constant" class="">INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>304</span></pre></dd>
+      
+        <dt id="SHORT_NAMES_NOT_ENABLED_ON_VOLUME-constant" class="">SHORT_NAMES_NOT_ENABLED_ON_VOLUME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>305</span></pre></dd>
+      
+        <dt id="SECURITY_STREAM_IS_INCONSISTENT-constant" class="">SECURITY_STREAM_IS_INCONSISTENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>306</span></pre></dd>
+      
+        <dt id="INVALID_LOCK_RANGE-constant" class="">INVALID_LOCK_RANGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>307</span></pre></dd>
+      
+        <dt id="IMAGE_SUBSYSTEM_NOT_PRESENT-constant" class="">IMAGE_SUBSYSTEM_NOT_PRESENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>308</span></pre></dd>
+      
+        <dt id="NOTIFICATION_GUID_ALREADY_DEFINED-constant" class="">NOTIFICATION_GUID_ALREADY_DEFINED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>309</span></pre></dd>
+      
+        <dt id="MR_MID_NOT_FOUND-constant" class="">MR_MID_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>317</span></pre></dd>
+      
+        <dt id="SCOPE_NOT_FOUND-constant" class="">SCOPE_NOT_FOUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>318</span></pre></dd>
+      
+        <dt id="FAIL_NOACTION_REBOOT-constant" class="">FAIL_NOACTION_REBOOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>350</span></pre></dd>
+      
+        <dt id="FAIL_SHUTDOWN-constant" class="">FAIL_SHUTDOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>351</span></pre></dd>
+      
+        <dt id="FAIL_RESTART-constant" class="">FAIL_RESTART =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>352</span></pre></dd>
+      
+        <dt id="MAX_SESSIONS_REACHED-constant" class="">MAX_SESSIONS_REACHED =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>353</span></pre></dd>
+      
+        <dt id="THREAD_MODE_ALREADY_BACKGROUND-constant" class="">THREAD_MODE_ALREADY_BACKGROUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>400</span></pre></dd>
+      
+        <dt id="THREAD_MODE_NOT_BACKGROUND-constant" class="">THREAD_MODE_NOT_BACKGROUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>401</span></pre></dd>
+      
+        <dt id="PROCESS_MODE_ALREADY_BACKGROUND-constant" class="">PROCESS_MODE_ALREADY_BACKGROUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>402</span></pre></dd>
+      
+        <dt id="PROCESS_MODE_NOT_BACKGROUND-constant" class="">PROCESS_MODE_NOT_BACKGROUND =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>403</span></pre></dd>
+      
+        <dt id="INVALID_ADDRESS-constant" class="">INVALID_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>487</span></pre></dd>
+      
+        <dt id="ADDRESS_IN_USE-constant" class="">ADDRESS_IN_USE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Socket stuff</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>10048</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#const_name-class_method" title="const_name (class method)">.<strong>const_name</strong>(code)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a string representation of the constant for a number.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#description-class_method" title="description (class method)">.<strong>description</strong>(code)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the description of an error code.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="const_name-class_method">
+  
+    .<strong>const_name</strong>(code)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a string representation of the constant for a number</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+245
+246
+247
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/windows_error.rb', line 245</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_name'>const_name</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_const_get'>const_get</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='id identifier rubyid_code'>code</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="description-class_method">
+  
+    .<strong>description</strong>(code)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the description of an error code</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594
+595
+596
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622
+623
+624
+625
+626
+627
+628
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692
+693
+694
+695
+696
+697
+698</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/windows_error.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_description'>description</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_code'>code</span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SUCCESS-constant" title="Msf::WindowsError::SUCCESS (constant)">SUCCESS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operation completed successfully.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_FUNCTION-constant" title="Msf::WindowsError::INVALID_FUNCTION (constant)">INVALID_FUNCTION</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Incorrect function.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FILE_NOT_FOUND-constant" title="Msf::WindowsError::FILE_NOT_FOUND (constant)">FILE_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot find the file specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PATH_NOT_FOUND-constant" title="Msf::WindowsError::PATH_NOT_FOUND (constant)">PATH_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot find the path specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_OPEN_FILES-constant" title="Msf::WindowsError::TOO_MANY_OPEN_FILES (constant)">TOO_MANY_OPEN_FILES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot open the file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ACCESS_DENIED-constant" title="Msf::WindowsError::ACCESS_DENIED (constant)">ACCESS_DENIED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Access is denied.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_HANDLE-constant" title="Msf::WindowsError::INVALID_HANDLE (constant)">INVALID_HANDLE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The handle is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ARENA_TRASHED-constant" title="Msf::WindowsError::ARENA_TRASHED (constant)">ARENA_TRASHED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The storage control blocks were destroyed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_ENOUGH_MEMORY-constant" title="Msf::WindowsError::NOT_ENOUGH_MEMORY (constant)">NOT_ENOUGH_MEMORY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not enough storage is available to process this command.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_BLOCK-constant" title="Msf::WindowsError::INVALID_BLOCK (constant)">INVALID_BLOCK</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The storage control block address is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_ENVIRONMENT-constant" title="Msf::WindowsError::BAD_ENVIRONMENT (constant)">BAD_ENVIRONMENT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The environment is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_FORMAT-constant" title="Msf::WindowsError::BAD_FORMAT (constant)">BAD_FORMAT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An attempt was made to load a program with an incorrect format.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_ACCESS-constant" title="Msf::WindowsError::INVALID_ACCESS (constant)">INVALID_ACCESS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The access code is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_DATA-constant" title="Msf::WindowsError::INVALID_DATA (constant)">INVALID_DATA</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The data is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#OUTOFMEMORY-constant" title="Msf::WindowsError::OUTOFMEMORY (constant)">OUTOFMEMORY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not enough storage is available to complete this operation.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_DRIVE-constant" title="Msf::WindowsError::INVALID_DRIVE (constant)">INVALID_DRIVE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot find the drive specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CURRENT_DIRECTORY-constant" title="Msf::WindowsError::CURRENT_DIRECTORY (constant)">CURRENT_DIRECTORY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The directory cannot be removed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_SAME_DEVICE-constant" title="Msf::WindowsError::NOT_SAME_DEVICE (constant)">NOT_SAME_DEVICE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot move the file to a different disk drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_MORE_FILES-constant" title="Msf::WindowsError::NO_MORE_FILES (constant)">NO_MORE_FILES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>There are no more files.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#WRITE_PROTECT-constant" title="Msf::WindowsError::WRITE_PROTECT (constant)">WRITE_PROTECT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The media is write protected.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_UNIT-constant" title="Msf::WindowsError::BAD_UNIT (constant)">BAD_UNIT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot find the device specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_READY-constant" title="Msf::WindowsError::NOT_READY (constant)">NOT_READY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The device is not ready.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_COMMAND-constant" title="Msf::WindowsError::BAD_COMMAND (constant)">BAD_COMMAND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The device does not recognize the command.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CRC-constant" title="Msf::WindowsError::CRC (constant)">CRC</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Data error ;.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_LENGTH-constant" title="Msf::WindowsError::BAD_LENGTH (constant)">BAD_LENGTH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The program issued a command but the command length is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEEK-constant" title="Msf::WindowsError::SEEK (constant)">SEEK</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The drive cannot locate a specific area or track on the disk.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_DOS_DISK-constant" title="Msf::WindowsError::NOT_DOS_DISK (constant)">NOT_DOS_DISK</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified disk or diskette cannot be accessed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SECTOR_NOT_FOUND-constant" title="Msf::WindowsError::SECTOR_NOT_FOUND (constant)">SECTOR_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The drive cannot find the sector requested.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#OUT_OF_PAPER-constant" title="Msf::WindowsError::OUT_OF_PAPER (constant)">OUT_OF_PAPER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The printer is out of paper.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#WRITE_FAULT-constant" title="Msf::WindowsError::WRITE_FAULT (constant)">WRITE_FAULT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot write to the specified device.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#READ_FAULT-constant" title="Msf::WindowsError::READ_FAULT (constant)">READ_FAULT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot read from the specified device.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#GEN_FAILURE-constant" title="Msf::WindowsError::GEN_FAILURE (constant)">GEN_FAILURE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A device attached to the system is not functioning.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SHARING_VIOLATION-constant" title="Msf::WindowsError::SHARING_VIOLATION (constant)">SHARING_VIOLATION</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The process cannot access the file because it is being used by another process.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#LOCK_VIOLATION-constant" title="Msf::WindowsError::LOCK_VIOLATION (constant)">LOCK_VIOLATION</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The process cannot access the file because another process has locked a portion of the file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#WRONG_DISK-constant" title="Msf::WindowsError::WRONG_DISK (constant)">WRONG_DISK</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The wrong diskette is in the drive. Insert %2 ; into drive %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SHARING_BUFFER_EXCEEDED-constant" title="Msf::WindowsError::SHARING_BUFFER_EXCEEDED (constant)">SHARING_BUFFER_EXCEEDED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Too many files opened for sharing.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#HANDLE_EOF-constant" title="Msf::WindowsError::HANDLE_EOF (constant)">HANDLE_EOF</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Reached the end of the file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#HANDLE_DISK_FULL-constant" title="Msf::WindowsError::HANDLE_DISK_FULL (constant)">HANDLE_DISK_FULL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The disk is full.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_SUPPORTED-constant" title="Msf::WindowsError::NOT_SUPPORTED (constant)">NOT_SUPPORTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The request is not supported.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#REM_NOT_LIST-constant" title="Msf::WindowsError::REM_NOT_LIST (constant)">REM_NOT_LIST</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Windows cannot find the network path. Verify that the network path is correct and the destination computer is not busy or turned off. If Windows still cannot find the network path, contact your network administrator.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DUP_NAME-constant" title="Msf::WindowsError::DUP_NAME (constant)">DUP_NAME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You were not connected because a duplicate name exists on the network. If joining a domain, go to System in Control Panel to change the computer name and try again. If joining a workgroup, choose another workgroup name.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_NETPATH-constant" title="Msf::WindowsError::BAD_NETPATH (constant)">BAD_NETPATH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network path was not found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NETWORK_BUSY-constant" title="Msf::WindowsError::NETWORK_BUSY (constant)">NETWORK_BUSY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network is busy.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DEV_NOT_EXIST-constant" title="Msf::WindowsError::DEV_NOT_EXIST (constant)">DEV_NOT_EXIST</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified network resource or device is no longer available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_CMDS-constant" title="Msf::WindowsError::TOO_MANY_CMDS (constant)">TOO_MANY_CMDS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network BIOS command limit has been reached.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ADAP_HDW_ERR-constant" title="Msf::WindowsError::ADAP_HDW_ERR (constant)">ADAP_HDW_ERR</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A network adapter hardware error occurred.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_NET_RESP-constant" title="Msf::WindowsError::BAD_NET_RESP (constant)">BAD_NET_RESP</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified server cannot perform the requested operation.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#UNEXP_NET_ERR-constant" title="Msf::WindowsError::UNEXP_NET_ERR (constant)">UNEXP_NET_ERR</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An unexpected network error occurred.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_REM_ADAP-constant" title="Msf::WindowsError::BAD_REM_ADAP (constant)">BAD_REM_ADAP</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The remote adapter is not compatible.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PRINTQ_FULL-constant" title="Msf::WindowsError::PRINTQ_FULL (constant)">PRINTQ_FULL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The printer queue is full.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_SPOOL_SPACE-constant" title="Msf::WindowsError::NO_SPOOL_SPACE (constant)">NO_SPOOL_SPACE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Space to store the file waiting to be printed is not available on the server.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PRINT_CANCELLED-constant" title="Msf::WindowsError::PRINT_CANCELLED (constant)">PRINT_CANCELLED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Your file waiting to be printed was deleted.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NETNAME_DELETED-constant" title="Msf::WindowsError::NETNAME_DELETED (constant)">NETNAME_DELETED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified network name is no longer available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NETWORK_ACCESS_DENIED-constant" title="Msf::WindowsError::NETWORK_ACCESS_DENIED (constant)">NETWORK_ACCESS_DENIED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Network access is denied.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_DEV_TYPE-constant" title="Msf::WindowsError::BAD_DEV_TYPE (constant)">BAD_DEV_TYPE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network resource type is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_NET_NAME-constant" title="Msf::WindowsError::BAD_NET_NAME (constant)">BAD_NET_NAME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network name cannot be found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_NAMES-constant" title="Msf::WindowsError::TOO_MANY_NAMES (constant)">TOO_MANY_NAMES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The name limit for the local computer network adapter card was exceeded.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_SESS-constant" title="Msf::WindowsError::TOO_MANY_SESS (constant)">TOO_MANY_SESS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The network BIOS session limit was exceeded.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SHARING_PAUSED-constant" title="Msf::WindowsError::SHARING_PAUSED (constant)">SHARING_PAUSED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The remote server has been paused or is in the process of being started.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#REQ_NOT_ACCEP-constant" title="Msf::WindowsError::REQ_NOT_ACCEP (constant)">REQ_NOT_ACCEP</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No more connections can be made to this remote computer at this time because there are already as many connections as the computer can accept.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#REDIR_PAUSED-constant" title="Msf::WindowsError::REDIR_PAUSED (constant)">REDIR_PAUSED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified printer or disk device has been paused.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FILE_EXISTS-constant" title="Msf::WindowsError::FILE_EXISTS (constant)">FILE_EXISTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file exists.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CANNOT_MAKE-constant" title="Msf::WindowsError::CANNOT_MAKE (constant)">CANNOT_MAKE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The directory or file cannot be created.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FAIL_I24-constant" title="Msf::WindowsError::FAIL_I24 (constant)">FAIL_I24</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Fail on INT 24.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#OUT_OF_STRUCTURES-constant" title="Msf::WindowsError::OUT_OF_STRUCTURES (constant)">OUT_OF_STRUCTURES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Storage to process this request is not available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ALREADY_ASSIGNED-constant" title="Msf::WindowsError::ALREADY_ASSIGNED (constant)">ALREADY_ASSIGNED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The local device name is already in use.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_PASSWORD-constant" title="Msf::WindowsError::INVALID_PASSWORD (constant)">INVALID_PASSWORD</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified network password is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_PARAMETER-constant" title="Msf::WindowsError::INVALID_PARAMETER (constant)">INVALID_PARAMETER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The parameter is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NET_WRITE_FAULT-constant" title="Msf::WindowsError::NET_WRITE_FAULT (constant)">NET_WRITE_FAULT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A write fault occurred on the network.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_PROC_SLOTS-constant" title="Msf::WindowsError::NO_PROC_SLOTS (constant)">NO_PROC_SLOTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot start another process at this time.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_SEMAPHORES-constant" title="Msf::WindowsError::TOO_MANY_SEMAPHORES (constant)">TOO_MANY_SEMAPHORES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot create another system semaphore.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EXCL_SEM_ALREADY_OWNED-constant" title="Msf::WindowsError::EXCL_SEM_ALREADY_OWNED (constant)">EXCL_SEM_ALREADY_OWNED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The exclusive semaphore is owned by another process.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEM_IS_SET-constant" title="Msf::WindowsError::SEM_IS_SET (constant)">SEM_IS_SET</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The semaphore is set and cannot be closed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_SEM_REQUESTS-constant" title="Msf::WindowsError::TOO_MANY_SEM_REQUESTS (constant)">TOO_MANY_SEM_REQUESTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The semaphore cannot be set again.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_AT_INTERRUPT_TIME-constant" title="Msf::WindowsError::INVALID_AT_INTERRUPT_TIME (constant)">INVALID_AT_INTERRUPT_TIME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot request exclusive semaphores at interrupt time.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEM_OWNER_DIED-constant" title="Msf::WindowsError::SEM_OWNER_DIED (constant)">SEM_OWNER_DIED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The previous ownership of this semaphore has ended.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEM_USER_LIMIT-constant" title="Msf::WindowsError::SEM_USER_LIMIT (constant)">SEM_USER_LIMIT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Insert the diskette for drive %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DISK_CHANGE-constant" title="Msf::WindowsError::DISK_CHANGE (constant)">DISK_CHANGE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The program stopped because an alternate diskette was not inserted.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DRIVE_LOCKED-constant" title="Msf::WindowsError::DRIVE_LOCKED (constant)">DRIVE_LOCKED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The disk is in use or locked by another process.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BROKEN_PIPE-constant" title="Msf::WindowsError::BROKEN_PIPE (constant)">BROKEN_PIPE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The pipe has been ended.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#OPEN_FAILED-constant" title="Msf::WindowsError::OPEN_FAILED (constant)">OPEN_FAILED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot open the device or file specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BUFFER_OVERFLOW-constant" title="Msf::WindowsError::BUFFER_OVERFLOW (constant)">BUFFER_OVERFLOW</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file name is too long.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DISK_FULL-constant" title="Msf::WindowsError::DISK_FULL (constant)">DISK_FULL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>There is not enough space on the disk.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_MORE_SEARCH_HANDLES-constant" title="Msf::WindowsError::NO_MORE_SEARCH_HANDLES (constant)">NO_MORE_SEARCH_HANDLES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No more internal file identifiers available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_TARGET_HANDLE-constant" title="Msf::WindowsError::INVALID_TARGET_HANDLE (constant)">INVALID_TARGET_HANDLE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The target internal file identifier is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_CATEGORY-constant" title="Msf::WindowsError::INVALID_CATEGORY (constant)">INVALID_CATEGORY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The IOCTL call made by the application program is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_VERIFY_SWITCH-constant" title="Msf::WindowsError::INVALID_VERIFY_SWITCH (constant)">INVALID_VERIFY_SWITCH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The verify-on-write switch parameter value is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_DRIVER_LEVEL-constant" title="Msf::WindowsError::BAD_DRIVER_LEVEL (constant)">BAD_DRIVER_LEVEL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system does not support the command requested.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CALL_NOT_IMPLEMENTED-constant" title="Msf::WindowsError::CALL_NOT_IMPLEMENTED (constant)">CALL_NOT_IMPLEMENTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This function is not supported on this system.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEM_TIMEOUT-constant" title="Msf::WindowsError::SEM_TIMEOUT (constant)">SEM_TIMEOUT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The semaphore timeout period has expired.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INSUFFICIENT_BUFFER-constant" title="Msf::WindowsError::INSUFFICIENT_BUFFER (constant)">INSUFFICIENT_BUFFER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The data area passed to a system call is too small.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_NAME-constant" title="Msf::WindowsError::INVALID_NAME (constant)">INVALID_NAME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The filename, directory name, or volume label syntax is incorrect.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_LEVEL-constant" title="Msf::WindowsError::INVALID_LEVEL (constant)">INVALID_LEVEL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system call level is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_VOLUME_LABEL-constant" title="Msf::WindowsError::NO_VOLUME_LABEL (constant)">NO_VOLUME_LABEL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The disk has no volume label.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#MOD_NOT_FOUND-constant" title="Msf::WindowsError::MOD_NOT_FOUND (constant)">MOD_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified module could not be found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PROC_NOT_FOUND-constant" title="Msf::WindowsError::PROC_NOT_FOUND (constant)">PROC_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified procedure could not be found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#WAIT_NO_CHILDREN-constant" title="Msf::WindowsError::WAIT_NO_CHILDREN (constant)">WAIT_NO_CHILDREN</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>There are no child processes to wait for.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CHILD_NOT_COMPLETE-constant" title="Msf::WindowsError::CHILD_NOT_COMPLETE (constant)">CHILD_NOT_COMPLETE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The %1 application cannot be run in Win32 mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DIRECT_ACCESS_HANDLE-constant" title="Msf::WindowsError::DIRECT_ACCESS_HANDLE (constant)">DIRECT_ACCESS_HANDLE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Attempt to use a file handle to an open disk partition for an operation other than raw disk I/O.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NEGATIVE_SEEK-constant" title="Msf::WindowsError::NEGATIVE_SEEK (constant)">NEGATIVE_SEEK</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An attempt was made to move the file pointer before the beginning of the file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEEK_ON_DEVICE-constant" title="Msf::WindowsError::SEEK_ON_DEVICE (constant)">SEEK_ON_DEVICE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file pointer cannot be set on the specified device or file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_JOIN_TARGET-constant" title="Msf::WindowsError::IS_JOIN_TARGET (constant)">IS_JOIN_TARGET</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A JOIN or SUBST command cannot be used for a drive that contains previously joined drives.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_JOINED-constant" title="Msf::WindowsError::IS_JOINED (constant)">IS_JOINED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An attempt was made to use a JOIN or SUBST command on a drive that has already been joined.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_SUBSTED-constant" title="Msf::WindowsError::IS_SUBSTED (constant)">IS_SUBSTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An attempt was made to use a JOIN or SUBST command on a drive that has already been substituted.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_JOINED-constant" title="Msf::WindowsError::NOT_JOINED (constant)">NOT_JOINED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to delete the JOIN of a drive that is not joined.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_SUBSTED-constant" title="Msf::WindowsError::NOT_SUBSTED (constant)">NOT_SUBSTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to delete the substitution of a drive that is not substituted.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#JOIN_TO_JOIN-constant" title="Msf::WindowsError::JOIN_TO_JOIN (constant)">JOIN_TO_JOIN</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to join a drive to a directory on a joined drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SUBST_TO_SUBST-constant" title="Msf::WindowsError::SUBST_TO_SUBST (constant)">SUBST_TO_SUBST</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to substitute a drive to a directory on a substituted drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#JOIN_TO_SUBST-constant" title="Msf::WindowsError::JOIN_TO_SUBST (constant)">JOIN_TO_SUBST</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to join a drive to a directory on a substituted drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SUBST_TO_JOIN-constant" title="Msf::WindowsError::SUBST_TO_JOIN (constant)">SUBST_TO_JOIN</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system tried to SUBST a drive to a directory on a joined drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BUSY_DRIVE-constant" title="Msf::WindowsError::BUSY_DRIVE (constant)">BUSY_DRIVE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot perform a JOIN or SUBST at this time.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SAME_DRIVE-constant" title="Msf::WindowsError::SAME_DRIVE (constant)">SAME_DRIVE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot join or substitute a drive to or for a directory on the same drive.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DIR_NOT_ROOT-constant" title="Msf::WindowsError::DIR_NOT_ROOT (constant)">DIR_NOT_ROOT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The directory is not a subdirectory of the root directory.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DIR_NOT_EMPTY-constant" title="Msf::WindowsError::DIR_NOT_EMPTY (constant)">DIR_NOT_EMPTY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The directory is not empty.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_SUBST_PATH-constant" title="Msf::WindowsError::IS_SUBST_PATH (constant)">IS_SUBST_PATH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The path specified is being used in a substitute.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_JOIN_PATH-constant" title="Msf::WindowsError::IS_JOIN_PATH (constant)">IS_JOIN_PATH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Not enough resources are available to process this command.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PATH_BUSY-constant" title="Msf::WindowsError::PATH_BUSY (constant)">PATH_BUSY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The path specified cannot be used at this time.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IS_SUBST_TARGET-constant" title="Msf::WindowsError::IS_SUBST_TARGET (constant)">IS_SUBST_TARGET</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An attempt was made to join or substitute a drive for which a directory on the drive is the target of a previous substitute.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SYSTEM_TRACE-constant" title="Msf::WindowsError::SYSTEM_TRACE (constant)">SYSTEM_TRACE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>System trace information was not specified in your CONFIG.SYS file, or tracing is disallowed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_EVENT_COUNT-constant" title="Msf::WindowsError::INVALID_EVENT_COUNT (constant)">INVALID_EVENT_COUNT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The number of specified semaphore events for DosMuxSemWait is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_MUXWAITERS-constant" title="Msf::WindowsError::TOO_MANY_MUXWAITERS (constant)">TOO_MANY_MUXWAITERS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>DosMuxSemWait did not execute; too many semaphores are already set.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_LIST_FORMAT-constant" title="Msf::WindowsError::INVALID_LIST_FORMAT (constant)">INVALID_LIST_FORMAT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The DosMuxSemWait list is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#LABEL_TOO_LONG-constant" title="Msf::WindowsError::LABEL_TOO_LONG (constant)">LABEL_TOO_LONG</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The volume label you entered exceeds the label character limit of the target file system.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_TCBS-constant" title="Msf::WindowsError::TOO_MANY_TCBS (constant)">TOO_MANY_TCBS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot create another thread.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SIGNAL_REFUSED-constant" title="Msf::WindowsError::SIGNAL_REFUSED (constant)">SIGNAL_REFUSED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The recipient process has refused the signal.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DISCARDED-constant" title="Msf::WindowsError::DISCARDED (constant)">DISCARDED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The segment is already discarded and cannot be locked.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_LOCKED-constant" title="Msf::WindowsError::NOT_LOCKED (constant)">NOT_LOCKED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The segment is already unlocked.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_THREADID_ADDR-constant" title="Msf::WindowsError::BAD_THREADID_ADDR (constant)">BAD_THREADID_ADDR</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The address for the thread ID is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_ARGUMENTS-constant" title="Msf::WindowsError::BAD_ARGUMENTS (constant)">BAD_ARGUMENTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>One or more arguments are not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_PATHNAME-constant" title="Msf::WindowsError::BAD_PATHNAME (constant)">BAD_PATHNAME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified path is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SIGNAL_PENDING-constant" title="Msf::WindowsError::SIGNAL_PENDING (constant)">SIGNAL_PENDING</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A signal is already pending.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#MAX_THRDS_REACHED-constant" title="Msf::WindowsError::MAX_THRDS_REACHED (constant)">MAX_THRDS_REACHED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No more threads can be created in the system.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#LOCK_FAILED-constant" title="Msf::WindowsError::LOCK_FAILED (constant)">LOCK_FAILED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unable to lock a region of a file.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BUSY-constant" title="Msf::WindowsError::BUSY (constant)">BUSY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The requested resource is in use.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CANCEL_VIOLATION-constant" title="Msf::WindowsError::CANCEL_VIOLATION (constant)">CANCEL_VIOLATION</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A lock request was not outstanding for the supplied cancel region.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ATOMIC_LOCKS_NOT_SUPPORTED-constant" title="Msf::WindowsError::ATOMIC_LOCKS_NOT_SUPPORTED (constant)">ATOMIC_LOCKS_NOT_SUPPORTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file system does not support atomic changes to the lock type.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_SEGMENT_NUMBER-constant" title="Msf::WindowsError::INVALID_SEGMENT_NUMBER (constant)">INVALID_SEGMENT_NUMBER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system detected a segment number that was not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_ORDINAL-constant" title="Msf::WindowsError::INVALID_ORDINAL (constant)">INVALID_ORDINAL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ALREADY_EXISTS-constant" title="Msf::WindowsError::ALREADY_EXISTS (constant)">ALREADY_EXISTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot create a file when that file already exists.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_FLAG_NUMBER-constant" title="Msf::WindowsError::INVALID_FLAG_NUMBER (constant)">INVALID_FLAG_NUMBER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The flag passed is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SEM_NOT_FOUND-constant" title="Msf::WindowsError::SEM_NOT_FOUND (constant)">SEM_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified system semaphore name was not found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_STARTING_CODESEG-constant" title="Msf::WindowsError::INVALID_STARTING_CODESEG (constant)">INVALID_STARTING_CODESEG</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_STACKSEG-constant" title="Msf::WindowsError::INVALID_STACKSEG (constant)">INVALID_STACKSEG</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_MODULETYPE-constant" title="Msf::WindowsError::INVALID_MODULETYPE (constant)">INVALID_MODULETYPE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_EXE_SIGNATURE-constant" title="Msf::WindowsError::INVALID_EXE_SIGNATURE (constant)">INVALID_EXE_SIGNATURE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot run %1 in Win32 mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EXE_MARKED_INVALID-constant" title="Msf::WindowsError::EXE_MARKED_INVALID (constant)">EXE_MARKED_INVALID</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_EXE_FORMAT-constant" title="Msf::WindowsError::BAD_EXE_FORMAT (constant)">BAD_EXE_FORMAT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>is not a valid Win32 application.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ITERATED_DATA_EXCEEDS_64k-constant" title="Msf::WindowsError::ITERATED_DATA_EXCEEDS_64k (constant)">ITERATED_DATA_EXCEEDS_64k</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_MINALLOCSIZE-constant" title="Msf::WindowsError::INVALID_MINALLOCSIZE (constant)">INVALID_MINALLOCSIZE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DYNLINK_FROM_INVALID_RING-constant" title="Msf::WindowsError::DYNLINK_FROM_INVALID_RING (constant)">DYNLINK_FROM_INVALID_RING</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run this application program.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IOPL_NOT_ENABLED-constant" title="Msf::WindowsError::IOPL_NOT_ENABLED (constant)">IOPL_NOT_ENABLED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system is not presently configured to run this application.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_SEGDPL-constant" title="Msf::WindowsError::INVALID_SEGDPL (constant)">INVALID_SEGDPL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#AUTODATASEG_EXCEEDS_64k-constant" title="Msf::WindowsError::AUTODATASEG_EXCEEDS_64k (constant)">AUTODATASEG_EXCEEDS_64k</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run this application program.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#RING2SEG_MUST_BE_MOVABLE-constant" title="Msf::WindowsError::RING2SEG_MUST_BE_MOVABLE (constant)">RING2SEG_MUST_BE_MOVABLE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The code segment cannot be greater than or equal to 64K.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#RELOC_CHAIN_XEEDS_SEGLIM-constant" title="Msf::WindowsError::RELOC_CHAIN_XEEDS_SEGLIM (constant)">RELOC_CHAIN_XEEDS_SEGLIM</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INFLOOP_IN_RELOC_CHAIN-constant" title="Msf::WindowsError::INFLOOP_IN_RELOC_CHAIN (constant)">INFLOOP_IN_RELOC_CHAIN</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The operating system cannot run %1.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ENVVAR_NOT_FOUND-constant" title="Msf::WindowsError::ENVVAR_NOT_FOUND (constant)">ENVVAR_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system could not find the environment option that was entered.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_SIGNAL_SENT-constant" title="Msf::WindowsError::NO_SIGNAL_SENT (constant)">NO_SIGNAL_SENT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No process in the command subtree has a signal handler.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FILENAME_EXCED_RANGE-constant" title="Msf::WindowsError::FILENAME_EXCED_RANGE (constant)">FILENAME_EXCED_RANGE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The filename or extension is too long.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#RING2_STACK_IN_USE-constant" title="Msf::WindowsError::RING2_STACK_IN_USE (constant)">RING2_STACK_IN_USE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The ring 2 stack is in use.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#META_EXPANSION_TOO_LONG-constant" title="Msf::WindowsError::META_EXPANSION_TOO_LONG (constant)">META_EXPANSION_TOO_LONG</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The global filename characters, * or ?, are entered incorrectly or too many global filename characters are specified.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_SIGNAL_NUMBER-constant" title="Msf::WindowsError::INVALID_SIGNAL_NUMBER (constant)">INVALID_SIGNAL_NUMBER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The signal being posted is not correct.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#THREAD_1_INACTIVE-constant" title="Msf::WindowsError::THREAD_1_INACTIVE (constant)">THREAD_1_INACTIVE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The signal handler cannot be set.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#LOCKED-constant" title="Msf::WindowsError::LOCKED (constant)">LOCKED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The segment is locked and cannot be reallocated.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_MODULES-constant" title="Msf::WindowsError::TOO_MANY_MODULES (constant)">TOO_MANY_MODULES</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Too many dynamic-link modules are attached to this program or dynamic-link module.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NESTING_NOT_ALLOWED-constant" title="Msf::WindowsError::NESTING_NOT_ALLOWED (constant)">NESTING_NOT_ALLOWED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cannot nest calls to LoadModule.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EXE_MACHINE_TYPE_MISMATCH-constant" title="Msf::WindowsError::EXE_MACHINE_TYPE_MISMATCH (constant)">EXE_MACHINE_TYPE_MISMATCH</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The version of %1 is not compatible with the version you&#39;re running. Check your computer&#39;s system information to see whether you need a x86 ; or x64 ; version of the program, and then contact the software publisher.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EXE_CANNOT_MODIFY_SIGNED_BINARY-constant" title="Msf::WindowsError::EXE_CANNOT_MODIFY_SIGNED_BINARY (constant)">EXE_CANNOT_MODIFY_SIGNED_BINARY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The image file %1 is signed, unable to modify.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY-constant" title="Msf::WindowsError::EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY (constant)">EXE_CANNOT_MODIFY_STRONG_SIGNED_BINARY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The image file %1 is strong signed, unable to modify.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FILE_CHECKED_OUT-constant" title="Msf::WindowsError::FILE_CHECKED_OUT (constant)">FILE_CHECKED_OUT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This file is checked out or locked for editing by another user.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CHECKOUT_REQUIRED-constant" title="Msf::WindowsError::CHECKOUT_REQUIRED (constant)">CHECKOUT_REQUIRED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file must be checked out before saving changes.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_FILE_TYPE-constant" title="Msf::WindowsError::BAD_FILE_TYPE (constant)">BAD_FILE_TYPE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file type being saved or retrieved has been blocked.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FILE_TOO_LARGE-constant" title="Msf::WindowsError::FILE_TOO_LARGE (constant)">FILE_TOO_LARGE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file size exceeds the limit allowed and cannot be saved.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FORMS_AUTH_REQUIRED-constant" title="Msf::WindowsError::FORMS_AUTH_REQUIRED (constant)">FORMS_AUTH_REQUIRED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Access Denied. Before opening files in this location, you must first add the web site to your trusted sites list, browse to the web site, and select the option to login automatically.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#VIRUS_INFECTED-constant" title="Msf::WindowsError::VIRUS_INFECTED (constant)">VIRUS_INFECTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Operation did not complete successfully because the file contains a virus.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#VIRUS_DELETED-constant" title="Msf::WindowsError::VIRUS_DELETED (constant)">VIRUS_DELETED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This file contains a virus and cannot be opened. Due to the nature of this virus, the file has been removed from this location.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PIPE_LOCAL-constant" title="Msf::WindowsError::PIPE_LOCAL (constant)">PIPE_LOCAL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The pipe is local.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#BAD_PIPE-constant" title="Msf::WindowsError::BAD_PIPE (constant)">BAD_PIPE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The pipe state is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PIPE_BUSY-constant" title="Msf::WindowsError::PIPE_BUSY (constant)">PIPE_BUSY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>All pipe instances are busy.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_DATA-constant" title="Msf::WindowsError::NO_DATA (constant)">NO_DATA</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The pipe is being closed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PIPE_NOT_CONNECTED-constant" title="Msf::WindowsError::PIPE_NOT_CONNECTED (constant)">PIPE_NOT_CONNECTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No process is on the other end of the pipe.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#MORE_DATA-constant" title="Msf::WindowsError::MORE_DATA (constant)">MORE_DATA</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>More data is available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#VC_DISCONNECTED-constant" title="Msf::WindowsError::VC_DISCONNECTED (constant)">VC_DISCONNECTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The session was canceled.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_EA_NAME-constant" title="Msf::WindowsError::INVALID_EA_NAME (constant)">INVALID_EA_NAME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified extended attribute name was invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EA_LIST_INCONSISTENT-constant" title="Msf::WindowsError::EA_LIST_INCONSISTENT (constant)">EA_LIST_INCONSISTENT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The extended attributes are inconsistent.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#WAIT_TIMEOUT-constant" title="Msf::WindowsError::WAIT_TIMEOUT (constant)">WAIT_TIMEOUT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The wait operation timed out.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NO_MORE_ITEMS-constant" title="Msf::WindowsError::NO_MORE_ITEMS (constant)">NO_MORE_ITEMS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No more data is available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#CANNOT_COPY-constant" title="Msf::WindowsError::CANNOT_COPY (constant)">CANNOT_COPY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The copy functions cannot be used.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DIRECTORY-constant" title="Msf::WindowsError::DIRECTORY (constant)">DIRECTORY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The directory name is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EAS_DIDNT_FIT-constant" title="Msf::WindowsError::EAS_DIDNT_FIT (constant)">EAS_DIDNT_FIT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The extended attributes did not fit in the buffer.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EA_FILE_CORRUPT-constant" title="Msf::WindowsError::EA_FILE_CORRUPT (constant)">EA_FILE_CORRUPT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The extended attribute file on the mounted file system is corrupt.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EA_TABLE_FULL-constant" title="Msf::WindowsError::EA_TABLE_FULL (constant)">EA_TABLE_FULL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The extended attribute table file is full.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_EA_HANDLE-constant" title="Msf::WindowsError::INVALID_EA_HANDLE (constant)">INVALID_EA_HANDLE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified extended attribute handle is invalid.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#EAS_NOT_SUPPORTED-constant" title="Msf::WindowsError::EAS_NOT_SUPPORTED (constant)">EAS_NOT_SUPPORTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The mounted file system does not support extended attributes.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOT_OWNER-constant" title="Msf::WindowsError::NOT_OWNER (constant)">NOT_OWNER</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Attempt to release mutex not owned by caller.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#TOO_MANY_POSTS-constant" title="Msf::WindowsError::TOO_MANY_POSTS (constant)">TOO_MANY_POSTS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Too many posts were made to a semaphore.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PARTIAL_COPY-constant" title="Msf::WindowsError::PARTIAL_COPY (constant)">PARTIAL_COPY</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Only part of a ReadProcessMemory or WriteProcessMemory request was completed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#OPLOCK_NOT_GRANTED-constant" title="Msf::WindowsError::OPLOCK_NOT_GRANTED (constant)">OPLOCK_NOT_GRANTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The oplock request is denied.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_OPLOCK_PROTOCOL-constant" title="Msf::WindowsError::INVALID_OPLOCK_PROTOCOL (constant)">INVALID_OPLOCK_PROTOCOL</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An invalid oplock acknowledgment was received by the system.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DISK_TOO_FRAGMENTED-constant" title="Msf::WindowsError::DISK_TOO_FRAGMENTED (constant)">DISK_TOO_FRAGMENTED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The volume is too fragmented to complete this operation.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#DELETE_PENDING-constant" title="Msf::WindowsError::DELETE_PENDING (constant)">DELETE_PENDING</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file cannot be opened because it is in the process of being deleted.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING-constant" title="Msf::WindowsError::INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING (constant)">INCOMPATIBLE_WITH_GLOBAL_SHORT_NAME_REGISTRY_SETTING</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Short name settings may not be changed on this volume due to the global registry setting.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SHORT_NAMES_NOT_ENABLED_ON_VOLUME-constant" title="Msf::WindowsError::SHORT_NAMES_NOT_ENABLED_ON_VOLUME (constant)">SHORT_NAMES_NOT_ENABLED_ON_VOLUME</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Short names are not enabled on this volume.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SECURITY_STREAM_IS_INCONSISTENT-constant" title="Msf::WindowsError::SECURITY_STREAM_IS_INCONSISTENT (constant)">SECURITY_STREAM_IS_INCONSISTENT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The security stream for the given volume is in an inconsistent state. Please run CHKDSK on the volume.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_LOCK_RANGE-constant" title="Msf::WindowsError::INVALID_LOCK_RANGE (constant)">INVALID_LOCK_RANGE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>A requested file lock operation cannot be processed due to an invalid byte range.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#IMAGE_SUBSYSTEM_NOT_PRESENT-constant" title="Msf::WindowsError::IMAGE_SUBSYSTEM_NOT_PRESENT (constant)">IMAGE_SUBSYSTEM_NOT_PRESENT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The subsystem needed to support the image type is not present.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#NOTIFICATION_GUID_ALREADY_DEFINED-constant" title="Msf::WindowsError::NOTIFICATION_GUID_ALREADY_DEFINED (constant)">NOTIFICATION_GUID_ALREADY_DEFINED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The specified file already has a notification GUID associated with it.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#MR_MID_NOT_FOUND-constant" title="Msf::WindowsError::MR_MID_NOT_FOUND (constant)">MR_MID_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The system cannot find message text for message number 0x%1 in the message file for %2.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#SCOPE_NOT_FOUND-constant" title="Msf::WindowsError::SCOPE_NOT_FOUND (constant)">SCOPE_NOT_FOUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The scope specified was not found.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FAIL_NOACTION_REBOOT-constant" title="Msf::WindowsError::FAIL_NOACTION_REBOOT (constant)">FAIL_NOACTION_REBOOT</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No action was taken as a system reboot is required.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FAIL_SHUTDOWN-constant" title="Msf::WindowsError::FAIL_SHUTDOWN (constant)">FAIL_SHUTDOWN</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The shutdown operation failed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#FAIL_RESTART-constant" title="Msf::WindowsError::FAIL_RESTART (constant)">FAIL_RESTART</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The restart operation failed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#MAX_SESSIONS_REACHED-constant" title="Msf::WindowsError::MAX_SESSIONS_REACHED (constant)">MAX_SESSIONS_REACHED</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The maximum number of sessions has been reached.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#THREAD_MODE_ALREADY_BACKGROUND-constant" title="Msf::WindowsError::THREAD_MODE_ALREADY_BACKGROUND (constant)">THREAD_MODE_ALREADY_BACKGROUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The thread is already in background processing mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#THREAD_MODE_NOT_BACKGROUND-constant" title="Msf::WindowsError::THREAD_MODE_NOT_BACKGROUND (constant)">THREAD_MODE_NOT_BACKGROUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The thread is not in background processing mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PROCESS_MODE_ALREADY_BACKGROUND-constant" title="Msf::WindowsError::PROCESS_MODE_ALREADY_BACKGROUND (constant)">PROCESS_MODE_ALREADY_BACKGROUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The process is already in background processing mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#PROCESS_MODE_NOT_BACKGROUND-constant" title="Msf::WindowsError::PROCESS_MODE_NOT_BACKGROUND (constant)">PROCESS_MODE_NOT_BACKGROUND</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The process is not in background processing mode.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#INVALID_ADDRESS-constant" title="Msf::WindowsError::INVALID_ADDRESS (constant)">INVALID_ADDRESS</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Attempt to access invalid address.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ADDRESS_IN_USE-constant" title="Msf::WindowsError::ADDRESS_IN_USE (constant)">ADDRESS_IN_USE</a></span></span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The address/port is already in use.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_code'>code</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:47 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

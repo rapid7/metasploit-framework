@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Android::Android
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Android::Android";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Android.html" title="Rex::Post::Meterpreter::Extensions::Android (module)">Android</a></span></span>
+     &raquo; 
+    <span class="title">Android</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Android::Android
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Android::Android</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/android/android.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Android extension - set of commands to be executed on android devices. extension by Anwar Mohamed (@anwarelmakrahy)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="COLLECT_TYPE_WIFI-constant" class="">COLLECT_TYPE_WIFI =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="COLLECT_TYPE_GEO-constant" class="">COLLECT_TYPE_GEO =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="COLLECT_TYPE_CELL-constant" class="">COLLECT_TYPE_CELL =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="COLLECT_ACTION_START-constant" class="">COLLECT_ACTION_START =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="COLLECT_ACTION_PAUSE-constant" class="">COLLECT_ACTION_PAUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>2</span></pre></dd>
+      
+        <dt id="COLLECT_ACTION_RESUME-constant" class="">COLLECT_ACTION_RESUME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="COLLECT_ACTION_STOP-constant" class="">COLLECT_ACTION_STOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+        <dt id="COLLECT_ACTION_DUMP-constant" class="">COLLECT_ACTION_DUMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>5</span></pre></dd>
+      
+        <dt id="COLLECT_TYPES-constant" class="">COLLECT_TYPES =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>wifi</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_WIFI-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_WIFI (constant)">COLLECT_TYPE_WIFI</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>geo</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_GEO-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_GEO (constant)">COLLECT_TYPE_GEO</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cell</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_CELL-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_CELL (constant)">COLLECT_TYPE_CELL</a></span></span><span class='comma'>,</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="COLLECT_ACTIONS-constant" class="">COLLECT_ACTIONS =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>start</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTION_START-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTION_START (constant)">COLLECT_ACTION_START</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pause</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTION_PAUSE-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTION_PAUSE (constant)">COLLECT_ACTION_PAUSE</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>resume</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTION_START-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTION_START (constant)">COLLECT_ACTION_START</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>stop</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTION_STOP-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTION_STOP (constant)">COLLECT_ACTION_STOP</a></span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dump</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTION_DUMP-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTION_DUMP (constant)">COLLECT_ACTION_DUMP</a></span></span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Extension.html#client-instance_method" title="Rex::Post::Meterpreter::Extension#client (method)">#client</a></span>, <span class='object_link'><a href="../../Extension.html#name-instance_method" title="Rex::Post::Meterpreter::Extension#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extension_id-class_method" title="extension_id (class method)">.<strong>extension_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#activity_start-instance_method" title="#activity_start (instance method)">#<strong>activity_start</strong>(uri)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_root-instance_method" title="#check_root (instance method)">#<strong>check_root</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#collect_actions-instance_method" title="#collect_actions (instance method)">#<strong>collect_actions</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#collect_types-instance_method" title="#collect_types (instance method)">#<strong>collect_types</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#device_shutdown-instance_method" title="#device_shutdown (instance method)">#<strong>device_shutdown</strong>(n)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dump_calllog-instance_method" title="#dump_calllog (instance method)">#<strong>dump_calllog</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dump_contacts-instance_method" title="#dump_contacts (instance method)">#<strong>dump_contacts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dump_sms-instance_method" title="#dump_sms (instance method)">#<strong>dump_sms</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#geolocate-instance_method" title="#geolocate (instance method)">#<strong>geolocate</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#hide_app_icon-instance_method" title="#hide_app_icon (instance method)">#<strong>hide_app_icon</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Android </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Android.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#interval_collect-instance_method" title="#interval_collect (instance method)">#<strong>interval_collect</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_sms-instance_method" title="#send_sms (instance method)">#<strong>send_sms</strong>(dest, body, dr)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_audio_mode-instance_method" title="#set_audio_mode (instance method)">#<strong>set_audio_mode</strong>(n)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_wallpaper-instance_method" title="#set_wallpaper (instance method)">#<strong>set_wallpaper</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sqlite_query-instance_method" title="#sqlite_query (instance method)">#<strong>sqlite_query</strong>(dbname, query, writeable)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wakelock-instance_method" title="#wakelock (instance method)">#<strong>wakelock</strong>(flags)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wlan_geolocate-instance_method" title="#wlan_geolocate (instance method)">#<strong>wlan_geolocate</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Android::Android (class)">Android</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Android.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Alias the following things on the client object so that they
+</span>  <span class='comment'># can be directly referenced
+</span>  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_register_extension_aliases'>register_extension_aliases</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ext</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='kw'>self</span>
+      <span class='rbrace'>}</span>
+    <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extension_id-class_method">
+  
+    .<strong>extension_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extension_id'>extension_id</span>
+  <span class='const'><span class='object_link'><a href="../Android.html#EXTENSION_ID_ANDROID-constant" title="Rex::Post::Meterpreter::Extensions::Android::EXTENSION_ID_ANDROID (constant)">EXTENSION_ID_ANDROID</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="activity_start-instance_method">
+  
+    #<strong>activity_start</strong>(uri)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 261</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_activity_start'>activity_start</span><span class='lparen'>(</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_ACTIVITY_START-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_ACTIVITY_START (constant)">COMMAND_ID_ANDROID_ACTIVITY_START</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_URI_STRING-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_URI_STRING (constant)">TLV_TYPE_URI_STRING</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_ACTIVITY_START_RESULT-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_ACTIVITY_START_RESULT (constant)">TLV_TYPE_ACTIVITY_START_RESULT</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_ACTIVITY_START_ERROR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_ACTIVITY_START_ERROR (constant)">TLV_TYPE_ACTIVITY_START_ERROR</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="check_root-instance_method">
+  
+    #<strong>check_root</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+249
+250
+251
+252
+253</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 249</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_root'>check_root</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_CHECK_ROOT-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_CHECK_ROOT (constant)">COMMAND_ID_ANDROID_CHECK_ROOT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CHECK_ROOT_BOOL-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CHECK_ROOT_BOOL (constant)">TLV_TYPE_CHECK_ROOT_BOOL</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="collect_actions-instance_method">
+  
+    #<strong>collect_actions</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 64</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_collect_actions'>collect_actions</span>
+  <span class='kw'>return</span> <span class='cvar'>@@collect_action_list</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTIONS-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTIONS (constant)">COLLECT_ACTIONS</a></span></span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="collect_types-instance_method">
+  
+    #<strong>collect_types</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_collect_types'>collect_types</span>
+  <span class='kw'>return</span> <span class='cvar'>@@collect_type_list</span> <span class='op'>||=</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPES-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPES (constant)">COLLECT_TYPES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="device_shutdown-instance_method">
+  
+    #<strong>device_shutdown</strong>(n)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_device_shutdown'>device_shutdown</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_DEVICE_SHUTDOWN-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_DEVICE_SHUTDOWN (constant)">COMMAND_ID_ANDROID_DEVICE_SHUTDOWN</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SHUTDOWN_TIMER-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SHUTDOWN_TIMER (constant)">TLV_TYPE_SHUTDOWN_TIMER</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'>TLV_TYPE_SHUTDOWN_OK</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dump_calllog-instance_method">
+  
+    #<strong>dump_calllog</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 232</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dump_calllog'>dump_calllog</span>
+  <span class='id identifier rubyid_log'>log</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_DUMP_CALLLOG-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_DUMP_CALLLOG (constant)">COMMAND_ID_ANDROID_DUMP_CALLLOG</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_GROUP (constant)">TLV_TYPE_CALLLOG_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='id identifier rubyid_log'>log</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_NAME (constant)">TLV_TYPE_CALLLOG_NAME</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>number</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_NUMBER-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_NUMBER (constant)">TLV_TYPE_CALLLOG_NUMBER</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>date</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_DATE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_DATE (constant)">TLV_TYPE_CALLLOG_DATE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>duration</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_DURATION-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_DURATION (constant)">TLV_TYPE_CALLLOG_DURATION</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CALLLOG_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CALLLOG_TYPE (constant)">TLV_TYPE_CALLLOG_TYPE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_log'>log</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dump_contacts-instance_method">
+  
+    #<strong>dump_contacts</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 204</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dump_contacts'>dump_contacts</span>
+  <span class='id identifier rubyid_contacts'>contacts</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_DUMP_CONTACTS-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_DUMP_CONTACTS (constant)">COMMAND_ID_ANDROID_DUMP_CONTACTS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CONTACT_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CONTACT_GROUP (constant)">TLV_TYPE_CONTACT_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='id identifier rubyid_contacts'>contacts</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CONTACT_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CONTACT_NAME (constant)">TLV_TYPE_CONTACT_NAME</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>email</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_values'>get_tlv_values</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CONTACT_EMAIL-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CONTACT_EMAIL (constant)">TLV_TYPE_CONTACT_EMAIL</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>number</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_values'>get_tlv_values</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CONTACT_NUMBER-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CONTACT_NUMBER (constant)">TLV_TYPE_CONTACT_NUMBER</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_contacts'>contacts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dump_sms-instance_method">
+  
+    #<strong>dump_sms</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 187</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dump_sms'>dump_sms</span>
+  <span class='id identifier rubyid_sms'>sms</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_DUMP_SMS-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_DUMP_SMS (constant)">COMMAND_ID_ANDROID_DUMP_SMS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_GROUP (constant)">TLV_TYPE_SMS_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='id identifier rubyid_sms'>sms</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>type</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_TYPE (constant)">TLV_TYPE_SMS_TYPE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>address</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_ADDRESS (constant)">TLV_TYPE_SMS_ADDRESS</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>body</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_BODY-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_BODY (constant)">TLV_TYPE_SMS_BODY</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_squish'>squish</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>status</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_STATUS-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_STATUS (constant)">TLV_TYPE_SMS_STATUS</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>date</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_DATE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_DATE (constant)">TLV_TYPE_SMS_DATE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_sms'>sms</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="geolocate-instance_method">
+  
+    #<strong>geolocate</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 219</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_geolocate'>geolocate</span>
+  <span class='id identifier rubyid_loc'>loc</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_GEOLOCATE-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_GEOLOCATE (constant)">COMMAND_ID_ANDROID_GEOLOCATE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_loc'>loc</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>lat</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_GEO_LAT-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_GEO_LAT (constant)">TLV_TYPE_GEO_LAT</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>long</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_GEO_LONG-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_GEO_LONG (constant)">TLV_TYPE_GEO_LONG</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_loc'>loc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="hide_app_icon-instance_method">
+  
+    #<strong>hide_app_icon</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+255
+256
+257
+258
+259</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 255</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_hide_app_icon'>hide_app_icon</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_HIDE_APP_ICON-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_HIDE_APP_ICON (constant)">COMMAND_ID_ANDROID_HIDE_APP_ICON</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_ICON_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_ICON_NAME (constant)">TLV_TYPE_ICON_NAME</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="interval_collect-instance_method">
+  
+    #<strong>interval_collect</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_interval_collect'>interval_collect</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_INTERVAL_COLLECT-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_INTERVAL_COLLECT (constant)">COMMAND_ID_ANDROID_INTERVAL_COLLECT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_ACTION-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_ACTION (constant)">TLV_TYPE_COLLECT_ACTION</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#COLLECT_ACTIONS-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_ACTIONS (constant)">COLLECT_ACTIONS</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:action</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_TYPE (constant)">TLV_TYPE_COLLECT_TYPE</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPES-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPES (constant)">COLLECT_TYPES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_TIMEOUT-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_TIMEOUT (constant)">TLV_TYPE_COLLECT_TIMEOUT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='label'>headers:</span>     <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>collections:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>case</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPES-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPES (constant)">COLLECT_TYPES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_WIFI-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_WIFI (constant)">COLLECT_TYPE_WIFI</a></span></span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Last Seen</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BSSID</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SSID</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Level</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_records'>records</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_GROUP (constant)">TLV_TYPE_COLLECT_RESULT_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_g'>g</span><span class='op'>|</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_TIMESTAMP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_TIMESTAMP (constant)">TLV_TYPE_COLLECT_RESULT_TIMESTAMP</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%Y-%m-%d %H:%M:%S</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_WIFI-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_WIFI (constant)">TLV_TYPE_COLLECT_RESULT_WIFI</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_w'>w</span><span class='op'>|</span>
+        <span class='id identifier rubyid_bssid'>bssid</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_WIFI_BSSID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_WIFI_BSSID (constant)">TLV_TYPE_COLLECT_RESULT_WIFI_BSSID</a></span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_ssid'>ssid</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_WIFI_SSID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_WIFI_SSID (constant)">TLV_TYPE_COLLECT_RESULT_WIFI_SSID</a></span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bssid'>bssid</span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ssid'>ssid</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+        <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_records'>records</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_records'>records</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_timestamp'>timestamp</span>
+          <span class='comment'># Level is passed through as positive, because UINT
+</span>          <span class='comment'># but we flip it back to negative on this side
+</span>          <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='op'>-</span><span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL (constant)">TLV_TYPE_COLLECT_RESULT_WIFI_LEVEL</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_records'>records</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span> <span class='id identifier rubyid_bssid'>bssid</span><span class='comma'>,</span> <span class='id identifier rubyid_ssid'>ssid</span><span class='comma'>,</span> <span class='id identifier rubyid_level'>level</span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_records'>records</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span> <span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+      <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_v'>v</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_GEO-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_GEO (constant)">COLLECT_TYPE_GEO</a></span></span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Timestamp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Latitude</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Longitude</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_records'>records</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_GROUP (constant)">TLV_TYPE_COLLECT_RESULT_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_g'>g</span><span class='op'>|</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_TIMESTAMP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_TIMESTAMP (constant)">TLV_TYPE_COLLECT_RESULT_TIMESTAMP</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%Y-%m-%d %H:%M:%S</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_GEO-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_GEO (constant)">TLV_TYPE_COLLECT_RESULT_GEO</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_w'>w</span><span class='op'>|</span>
+        <span class='id identifier rubyid_lat'>lat</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_GEO_LAT-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_GEO_LAT (constant)">TLV_TYPE_GEO_LAT</a></span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_lng'>lng</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_GEO_LONG-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_GEO_LONG (constant)">TLV_TYPE_GEO_LONG</a></span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span> <span class='id identifier rubyid_lat'>lat</span><span class='comma'>,</span> <span class='id identifier rubyid_lng'>lng</span><span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#COLLECT_TYPE_CELL-constant" title="Rex::Post::Meterpreter::Extensions::Android::Android::COLLECT_TYPE_CELL (constant)">COLLECT_TYPE_CELL</a></span></span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:headers</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Timestamp</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Cell Info</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_records'>records</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_GROUP (constant)">TLV_TYPE_COLLECT_RESULT_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_g'>g</span><span class='op'>|</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_TIMESTAMP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_TIMESTAMP (constant)">TLV_TYPE_COLLECT_RESULT_TIMESTAMP</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_at'>at</span><span class='lparen'>(</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_datetime'>to_datetime</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>%Y-%m-%d %H:%M:%S</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_g'>g</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_COLLECT_RESULT_CELL-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_COLLECT_RESULT_CELL (constant)">TLV_TYPE_COLLECT_RESULT_CELL</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_cell'>cell</span><span class='op'>|</span>
+
+        <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_ACTIVE_GSM-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_ACTIVE_GSM (constant)">TLV_TYPE_CELL_ACTIVE_GSM</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_info'>info</span><span class='op'>|</span>
+          <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_CID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_CID (constant)">TLV_TYPE_CELL_CID</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_lac'>lac</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_LAC-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_LAC (constant)">TLV_TYPE_CELL_LAC</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_psc'>psc</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_PSC-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_PSC (constant)">TLV_TYPE_CELL_PSC</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cid=%d lac=%d psc=%d</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_lac'>lac</span><span class='comma'>,</span> <span class='id identifier rubyid_psc'>psc</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GSM: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_ACTIVE_CDMA-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_ACTIVE_CDMA (constant)">TLV_TYPE_CELL_ACTIVE_CDMA</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_info'>info</span><span class='op'>|</span>
+          <span class='id identifier rubyid_bid'>bid</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_BASE_ID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_BASE_ID (constant)">TLV_TYPE_CELL_BASE_ID</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_lat'>lat</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_BASE_LAT-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_BASE_LAT (constant)">TLV_TYPE_CELL_BASE_LAT</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_lng'>lng</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_BASE_LONG-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_BASE_LONG (constant)">TLV_TYPE_CELL_BASE_LONG</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_net'>net</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_NET_ID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_NET_ID (constant)">TLV_TYPE_CELL_NET_ID</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_sys'>sys</span> <span class='op'>=</span> <span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_SYSTEM_ID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_SYSTEM_ID (constant)">TLV_TYPE_CELL_SYSTEM_ID</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>base_id=%d lat=%d lng=%d net_id=%d sys_id=%d</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_bid'>bid</span><span class='comma'>,</span> <span class='id identifier rubyid_lat'>lat</span><span class='comma'>,</span> <span class='id identifier rubyid_lng'>lng</span><span class='comma'>,</span> <span class='id identifier rubyid_net'>net</span><span class='comma'>,</span> <span class='id identifier rubyid_sys'>sys</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CDMA: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_info'>info</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_NEIGHBOR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_NEIGHBOR (constant)">TLV_TYPE_CELL_NEIGHBOR</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_w'>w</span><span class='op'>|</span>
+          <span class='id identifier rubyid_net'>net</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_NET_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_NET_TYPE (constant)">TLV_TYPE_CELL_NET_TYPE</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_cid'>cid</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_CID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_CID (constant)">TLV_TYPE_CELL_CID</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_lac'>lac</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_LAC-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_LAC (constant)">TLV_TYPE_CELL_LAC</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_psc'>psc</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_PSC-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_PSC (constant)">TLV_TYPE_CELL_PSC</a></span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_sig'>sig</span> <span class='op'>=</span> <span class='id identifier rubyid_w'>w</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_CELL_RSSI-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_CELL_RSSI (constant)">TLV_TYPE_CELL_RSSI</a></span></span><span class='rparen'>)</span> <span class='op'>*</span> <span class='op'>-</span><span class='int'>1</span>
+          <span class='id identifier rubyid_inf'>inf</span> <span class='op'>=</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>network_type=%d cid=%d lac=%d psc=%d rssi=%d</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_net'>net</span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_lac'>lac</span><span class='comma'>,</span> <span class='id identifier rubyid_psc'>psc</span><span class='comma'>,</span> <span class='id identifier rubyid_sig'>sig</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:entries</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_timestamp'>timestamp</span><span class='comma'>,</span> <span class='id identifier rubyid_inf'>inf</span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_result'>result</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_sms-instance_method">
+  
+    #<strong>send_sms</strong>(dest, body, dr)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 278</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_sms'>send_sms</span><span class='lparen'>(</span><span class='id identifier rubyid_dest'>dest</span><span class='comma'>,</span> <span class='id identifier rubyid_body'>body</span><span class='comma'>,</span> <span class='id identifier rubyid_dr'>dr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_SEND_SMS-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_SEND_SMS (constant)">COMMAND_ID_ANDROID_SEND_SMS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_ADDRESS-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_ADDRESS (constant)">TLV_TYPE_SMS_ADDRESS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_BODY-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_BODY (constant)">TLV_TYPE_SMS_BODY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_body'>body</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_DR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_DR (constant)">TLV_TYPE_SMS_DR</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_dr'>dr</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_dr'>dr</span> <span class='op'>==</span> <span class='kw'>false</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sr'>sr</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_SR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_SR (constant)">TLV_TYPE_SMS_SR</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_sr'>sr</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='int'>30</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_sr'>sr</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_SR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_SR (constant)">TLV_TYPE_SMS_SR</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+    <span class='id identifier rubyid_dr'>dr</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SMS_SR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SMS_SR (constant)">TLV_TYPE_SMS_SR</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+    <span class='kw'>return</span> <span class='lbracket'>[</span><span class='id identifier rubyid_sr'>sr</span><span class='comma'>,</span> <span class='id identifier rubyid_dr'>dr</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_audio_mode-instance_method">
+  
+    #<strong>set_audio_mode</strong>(n)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_audio_mode'>set_audio_mode</span><span class='lparen'>(</span><span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_SET_AUDIO_MODE-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_SET_AUDIO_MODE (constant)">COMMAND_ID_ANDROID_SET_AUDIO_MODE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_AUDIO_MODE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_AUDIO_MODE (constant)">TLV_TYPE_AUDIO_MODE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_n'>n</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_wallpaper-instance_method">
+  
+    #<strong>set_wallpaper</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+272
+273
+274
+275
+276</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 272</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_wallpaper'>set_wallpaper</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_SET_WALLPAPER-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_SET_WALLPAPER (constant)">COMMAND_ID_ANDROID_SET_WALLPAPER</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_WALLPAPER_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_WALLPAPER_DATA (constant)">TLV_TYPE_WALLPAPER_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sqlite_query-instance_method">
+  
+    #<strong>sqlite_query</strong>(dbname, query, writeable)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 309</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sqlite_query'>sqlite_query</span><span class='lparen'>(</span><span class='id identifier rubyid_dbname'>dbname</span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='comma'>,</span> <span class='id identifier rubyid_writeable'>writeable</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_SQLITE_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_SQLITE_QUERY (constant)">COMMAND_ID_ANDROID_SQLITE_QUERY</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_NAME (constant)">TLV_TYPE_SQLITE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_dbname'>dbname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_QUERY-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_QUERY (constant)">TLV_TYPE_SQLITE_QUERY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_query'>query</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_WRITE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_WRITE (constant)">TLV_TYPE_SQLITE_WRITE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_writeable'>writeable</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='int'>30</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_error_msg'>error_msg</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_ERROR-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_ERROR (constant)">TLV_TYPE_SQLITE_ERROR</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SQLiteException: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_error_msg'>error_msg</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_error_msg'>error_msg</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_writeable'>writeable</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='label'>columns:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='label'>rows:</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_RESULT_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_RESULT_GROUP (constant)">TLV_TYPE_SQLITE_RESULT_GROUP</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='id identifier rubyid_columns'>columns</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_RESULT_COLS-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_RESULT_COLS (constant)">TLV_TYPE_SQLITE_RESULT_COLS</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:columns</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_values'>get_tlv_values</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_VALUE (constant)">TLV_TYPE_SQLITE_VALUE</a></span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_RESULT_ROW-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_RESULT_ROW (constant)">TLV_TYPE_SQLITE_RESULT_ROW</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
+        <span class='id identifier rubyid_result'>result</span><span class='lbracket'>[</span><span class='symbol'>:rows</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_row'>row</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_values'>get_tlv_values</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_SQLITE_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_SQLITE_VALUE (constant)">TLV_TYPE_SQLITE_VALUE</a></span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_result'>result</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wakelock-instance_method">
+  
+    #<strong>wakelock</strong>(flags)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+335
+336
+337
+338
+339</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 335</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wakelock'>wakelock</span><span class='lparen'>(</span><span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_WAKELOCK-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_WAKELOCK (constant)">COMMAND_ID_ANDROID_WAKELOCK</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Meterpreter.html#TLV_TYPE_FLAGS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_FLAGS (constant)">TLV_TYPE_FLAGS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wlan_geolocate-instance_method">
+  
+    #<strong>wlan_geolocate</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/android/android.rb', line 295</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wlan_geolocate'>wlan_geolocate</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#COMMAND_ID_ANDROID_WLAN_GEOLOCATE-constant" title="Rex::Post::Meterpreter::Extensions::Android::COMMAND_ID_ANDROID_WLAN_GEOLOCATE (constant)">COMMAND_ID_ANDROID_WLAN_GEOLOCATE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='int'>30</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_networks'>networks</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_WLAN_GROUP-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_WLAN_GROUP (constant)">TLV_TYPE_WLAN_GROUP</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_p'>p</span><span class='op'>|</span>
+    <span class='id identifier rubyid_networks'>networks</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ssid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_WLAN_SSID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_WLAN_SSID (constant)">TLV_TYPE_WLAN_SSID</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bssid</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_WLAN_BSSID-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_WLAN_BSSID (constant)">TLV_TYPE_WLAN_BSSID</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>level</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Android.html#TLV_TYPE_WLAN_LEVEL-constant" title="Rex::Post::Meterpreter::Extensions::Android::TLV_TYPE_WLAN_LEVEL (constant)">TLV_TYPE_WLAN_LEVEL</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_networks'>networks</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:59 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

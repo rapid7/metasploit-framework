@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: CONTRIBUTING
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "CONTRIBUTING";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: CONTRIBUTING</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="contributing-to-metasploit">Contributing to Metasploit</h1>
+
+<p>Thank you for your interest in making Metasploit -- and therefore, the
+world -- a better place!  Before you get started, please review our <a href="https://github.com/rapid7/metasploit-framework/wiki/Code-Of-Conduct">Code of Conduct</a>. This helps us ensure our community is positive and supportive for everyone involved. </p>
+
+<h2 id="code-free-contributions">Code Free Contributions</h2>
+
+<p>Before we get into the details of contributing code, you should know there are multiple ways you can add to Metasploit without any coding experience:</p>
+
+<ul>
+<li>You can <a href="https://github.com/rapid7/metasploit-framework/issues/new/choose">submit bugs and feature requests</a> with detailed information about your issue or idea: 
+
+<ul>
+<li>If you&#39;d like to propose a feature, describe what you&#39;d like to see. Mock ups of console views would be great.</li>
+<li>If you&#39;re reporting a bug, please be sure to include the expected behaviour, the observed behaviour, and steps to reproduce the problem. Resource scripts, console copy-pastes, and any background on the environment you encountered the bug in would be appreciated. More information can be found <a href="#bug-reports">below</a>.</li>
+</ul></li>
+<li><a href="https://github.com/rapid7/metasploit-framework/issues">Help fellow users with open issues</a>. This can require technical knowledge, but you can also get involved in conversations about bug reports and feature requests. This is a great way to get involved without getting too overwhelmed! </li>
+<li><a href="https://github.com/rapid7/metasploit-framework/pulls">Help fellow committers test recently submitted pull requests</a>. Again this can require some technical skill, but by pulling down a pull request and testing it, you can help ensure our new code contributions for stability and quality. </li>
+<li><a href="https://www.rapid7.com/disclosure.jsp">Report a security vulnerability in Metasploit itself</a> to Rapid7. If you see something you think makes Metasploit vulnerable to an attack, let us know!<br></li>
+<li>Add <a href="https://github.com/rapid7/metasploit-framework/wiki/Module-Documentation">module documentation</a>. New documentation is always needed and cleaning up existing documents is just as important! If you&#39;re a non-native english speaker, you can help by replacing any ambiguous idioms, metaphors, or unclear language that might make our documentation hard to understand. </li>
+</ul>
+
+<h2 id="code-contributions">Code Contributions</h2>
+
+<p>For those of you who are looking to add code to Metasploit, your first step is to set up a <a href="http://r-7.co/MSF-DEV">development environment</a>. Once that&#39;s done, we recommend beginners start by adding a <a href="https://www.exploit-db.com/search?verified=true&hasapp=true&nomsf=true">proof-of-concept exploit from ExploitDB,</a> as a new module to the Metasploit framework. These exploits have been verified as recreatable and their ExploitDB page includes a copy of the exploitable software. This makes testing your module locally much simpler, and most importantly the exploits don&#39;t have an existing Metasploit implementation. ExploitDB can be slow to update however, so please double check that there isn&#39;t an existing module before beginning development! If you&#39;re certain the exploit you&#39;ve chosen isn&#39;t already in Metasploit, read our <a href="https://github.com/rapid7/metasploit-framework/wiki/Get-Started-Writing-an-Exploit">writing an exploit guide</a>. It will help you to get started and avoid some common mistakes.</p>
+
+<p>Once you have finished your new module and tested it locally to ensure it&#39;s working as expected, check out our <a href="https://github.com/rapid7/metasploit-framework/wiki/Guidelines-for-Accepting-Modules-and-Enhancements#module-additions">guide for accepting modules</a>. This will give you a good idea of how to clean up your code so that it&#39;s likely to get accepted.  </p>
+
+<p>Finally, follow our short list of do&#39;s and don&#39;ts below to make sure your valuable contributions actually make it into Metasploit&#39;s master branch! We try to consider all our pull requests fairly and in detail, but if you do not follow these rules, your contribution
+will be closed. We need to ensure the code we&#39;re adding to master is written to a high standard.</p>
+
+<h3 id="code-contribution-dos-donts">Code Contribution Do&#39;s &amp; Don&#39;ts:</h3>
+
+<p>--</p>
+
+<h4 id="pull-requests"><u>Pull Requests</u></h4>
+
+<p><strong>Pull request <a href="https://github.com/rapid7/metasploit-framework/pull/9966">PR#9966</a> is a good example to follow.</strong></p>
+
+<ul>
+<li><strong>Do</strong> create a <a href="http://git-scm.com/book/en/Git-Branching-Branching-Workflows#Topic-Branches">topic branch</a> to work on instead of working directly on <code>master</code>. This helps to:
+
+<ul>
+<li> Protect the process.</li>
+<li>Ensures users are aware of commits on the branch being considered for merge.<br></li>
+<li>Allows for a location for more commits to be offered without mingling with other contributor changes.</li>
+<li>Allows contributors to make progress while a PR is still being reviewed.</li>
+</ul></li>
+<li><strong>Do</strong> follow the <a href="http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html">50/72 rule</a> for Git commit messages.</li>
+<li><strong>Do</strong> write &quot;WIP&quot; on your PR and/or open a <a href="https://help.github.com/en/articles/about-pull-requests#draft-pull-requests">draft PR</a> if submitting <strong>working</strong> yet unfinished code.</li>
+<li><strong>Do</strong> target your pull request to the <strong>master branch</strong>.</li>
+<li><strong>Do</strong> specify a descriptive title to make searching for your pull request easier.</li>
+<li><strong>Do</strong> include <a href="https://docs.github.com/en/free-pro-team@latest/github/writing-on-github/creating-and-highlighting-code-blocks#fenced-code-blocks">console output</a>, especially for effects that can be witnessed in the  <code>msfconsole</code>.</li>
+<li><strong>Do</strong> list <a href="https://docs.github.com/en/free-pro-team@latest/github/writing-on-github/basic-writing-and-formatting-syntax#task-lists">verification steps</a> so your code is testable.</li>
+<li><strong>Do</strong> <a href="https://github.com/blog/1506-closing-issues-via-pull-requests">reference associated issues</a> in your pull request description.</li>
+<li><strong>Don&#39;t</strong> leave your pull request description blank.</li>
+<li><strong>Don&#39;t</strong> abandon your pull request. Being responsive helps us land your code faster.</li>
+<li><strong>Don&#39;t</strong> post questions in older closed PRs.</li>
+</ul>
+
+<h4 id="new-modules"><u>New Modules</u></h4>
+
+<ul>
+<li><strong>Do</strong> license your code as BSD 3-clause, BSD 2-clause, or MIT.</li>
+<li><strong>Do</strong> stick to the <a href="https://github.com/bbatsov/ruby-style-guide">Ruby style guide</a> and use <a href="https://rubygems.org/search?query=rubocop">Rubocop</a> to find common style issues.</li>
+<li><strong>Do</strong> set up <code>msftidy</code> to fix any errors or warnings that come up as a <a href="https://github.com/rapid7/metasploit-framework/blob/master/tools/dev/pre-commit-hook.rb">pre-commit hook</a>.</li>
+<li><strong>Do</strong> use the many module mixin <a href="https://rapid7.github.io/metasploit-framework/api">API</a>s.</li>
+<li><strong>Do</strong> include instructions on how to setup the vulnerable environment or software.</li>
+<li><strong>Do</strong> include <a href="https://github.com/rapid7/metasploit-framework/wiki/Module-Documentation">Module Documentation</a> showing sample run-throughs.</li>
+<li><strong>Don&#39;t</strong> include more than one module per pull request.</li>
+<li><strong>Don&#39;t</strong> submit new <a href="https://github.com/rapid7/metasploit-framework/tree/master/scripts">scripts</a>.  Scripts are shipped as examples for automating local tasks, and anything &quot;serious&quot; can be done with post modules and local exploits.</li>
+</ul>
+
+<h4 id="library-code"><u>Library Code</u></h4>
+
+<ul>
+<li><strong>Do</strong> write <a href="http://rspec.info">RSpec</a> tests - even the smallest change in a library can break existing code.</li>
+<li><strong>Do</strong> follow <a href="http://www.betterspecs.org/">Better Specs</a> - it&#39;s like the style guide for specs.</li>
+<li><strong>Do</strong> write <a href="http://yardoc.org">YARD</a> documentation - this makes it easier for people to use your code.</li>
+<li><strong>Don&#39;t</strong> fix a lot of things in one pull request. Small fixes are easier to validate.</li>
+</ul>
+
+<h4 id="bug-fixes"><u>Bug Fixes</u></h4>
+
+<ul>
+<li><strong>Do</strong> include reproduction steps in the form of verification steps.</li>
+<li><strong>Do</strong> link to any corresponding <a href="https://github.com/rapid7/metasploit-framework/issues">Issues</a> in the format of <code>See #1234</code> in your commit description.</li>
+</ul>
+
+<h2 id="bug-reports">Bug Reports</h2>
+
+<p>Please report vulnerabilities in Rapid7 software directly to <a href="mailto:security@rapid7.com">security@rapid7.com</a>. For more on our disclosure policy and Rapid7&#39;s approach to coordinated disclosure, <a href="https://www.rapid7.com/security">head over here</a>. </p>
+
+<p>When reporting Metasploit issues:</p>
+
+<ul>
+<li><strong>Do</strong> write a detailed description of your bug and use a descriptive title.</li>
+<li><strong>Do</strong> include reproduction steps, stack traces, and anything that might help us fix your bug.</li>
+<li><strong>Don&#39;t</strong> file duplicate reports; search for your bug before filing a new report.</li>
+<li><strong>Don&#39;t</strong> attempt to report issues on a closed PR.</li>
+</ul>
+
+<p>If you need some more guidance, talk to the main body of open source contributors over on our
+<a href="https://www.metasploit.com/slack">Metasploit Slack</a> or <a href="http://webchat.freenode.net/?channels=%23metasploit&uio=d4">#metasploit on Freenode IRC</a>.</p>
+
+<p>Finally, <strong>thank you</strong> for taking the few moments to read this far! You&#39;re already way ahead of the
+curve, so keep it up!</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:10 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

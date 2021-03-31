@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Auxiliary
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Auxiliary";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">Auxiliary</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Auxiliary
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></li>
+          
+            <li class="next">Msf::Auxiliary</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>HasActions</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/auxiliary.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>The auxiliary class acts as a base class for all modules that perform reconnaissance, retrieve data, brute force logins, or any other action that doesn&#39;t fit our concept of an &#39;exploit&#39; (involving payloads and targets and whatnot).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Auxiliary/Arista.html" title="Msf::Auxiliary::Arista (module)">Arista</a></span>, <span class='object_link'><a href="Auxiliary/AuthBrute.html" title="Msf::Auxiliary::AuthBrute (module)">AuthBrute</a></span>, <span class='object_link'><a href="Auxiliary/Brocade.html" title="Msf::Auxiliary::Brocade (module)">Brocade</a></span>, <span class='object_link'><a href="Auxiliary/CNPILOT.html" title="Msf::Auxiliary::CNPILOT (module)">CNPILOT</a></span>, <span class='object_link'><a href="Auxiliary/CRand.html" title="Msf::Auxiliary::CRand (module)">CRand</a></span>, <span class='object_link'><a href="Auxiliary/Cisco.html" title="Msf::Auxiliary::Cisco (module)">Cisco</a></span>, <span class='object_link'><a href="Auxiliary/CommandShell.html" title="Msf::Auxiliary::CommandShell (module)">CommandShell</a></span>, <span class='object_link'><a href="Auxiliary/DRDoS.html" title="Msf::Auxiliary::DRDoS (module)">DRDoS</a></span>, <span class='object_link'><a href="Auxiliary/Dos.html" title="Msf::Auxiliary::Dos (module)">Dos</a></span>, <span class='object_link'><a href="Auxiliary/EPMP.html" title="Msf::Auxiliary::EPMP (module)">EPMP</a></span>, <span class='object_link'><a href="Auxiliary/Etcd.html" title="Msf::Auxiliary::Etcd (module)">Etcd</a></span>, <span class='object_link'><a href="Auxiliary/F5.html" title="Msf::Auxiliary::F5 (module)">F5</a></span>, <span class='object_link'><a href="Auxiliary/Fuzzer.html" title="Msf::Auxiliary::Fuzzer (module)">Fuzzer</a></span>, <span class='object_link'><a href="Auxiliary/HttpCrawler.html" title="Msf::Auxiliary::HttpCrawler (module)">HttpCrawler</a></span>, <span class='object_link'><a href="Auxiliary/IAX2.html" title="Msf::Auxiliary::IAX2 (module)">IAX2</a></span>, <span class='object_link'><a href="Auxiliary/Juniper.html" title="Msf::Auxiliary::Juniper (module)">Juniper</a></span>, <span class='object_link'><a href="Auxiliary/Kademlia.html" title="Msf::Auxiliary::Kademlia (module)">Kademlia</a></span>, <span class='object_link'><a href="Auxiliary/LLMNR.html" title="Msf::Auxiliary::LLMNR (module)">LLMNR</a></span>, <span class='object_link'><a href="Auxiliary/Login.html" title="Msf::Auxiliary::Login (module)">Login</a></span>, <span class='object_link'><a href="Auxiliary/MDNS.html" title="Msf::Auxiliary::MDNS (module)">MDNS</a></span>, <span class='object_link'><a href="Auxiliary/MQTT.html" title="Msf::Auxiliary::MQTT (module)">MQTT</a></span>, <span class='object_link'><a href="Auxiliary/Mikrotik.html" title="Msf::Auxiliary::Mikrotik (module)">Mikrotik</a></span>, <span class='object_link'><a href="Auxiliary/MimeTypes.html" title="Msf::Auxiliary::MimeTypes (module)">MimeTypes</a></span>, <span class='object_link'><a href="Auxiliary/Mms.html" title="Msf::Auxiliary::Mms (module)">Mms</a></span>, <span class='object_link'><a href="Auxiliary/NATPMP.html" title="Msf::Auxiliary::NATPMP (module)">NATPMP</a></span>, <span class='object_link'><a href="Auxiliary/NTP.html" title="Msf::Auxiliary::NTP (module)">NTP</a></span>, <span class='object_link'><a href="Auxiliary/Nmap.html" title="Msf::Auxiliary::Nmap (module)">Nmap</a></span>, <span class='object_link'><a href="Auxiliary/PII.html" title="Msf::Auxiliary::PII (module)">PII</a></span>, <span class='object_link'><a href="Auxiliary/PasswordCracker.html" title="Msf::Auxiliary::PasswordCracker (module)">PasswordCracker</a></span>, <span class='object_link'><a href="Auxiliary/RServices.html" title="Msf::Auxiliary::RServices (module)">RServices</a></span>, <span class='object_link'><a href="Auxiliary/Redis.html" title="Msf::Auxiliary::Redis (module)">Redis</a></span>, <span class='object_link'><a href="Auxiliary/Report.html" title="Msf::Auxiliary::Report (module)">Report</a></span>, <span class='object_link'><a href="Auxiliary/Scanner.html" title="Msf::Auxiliary::Scanner (module)">Scanner</a></span>, <span class='object_link'><a href="Auxiliary/Sms.html" title="Msf::Auxiliary::Sms (module)">Sms</a></span>, <span class='object_link'><a href="Auxiliary/Timed.html" title="Msf::Auxiliary::Timed (module)">Timed</a></span>, <span class='object_link'><a href="Auxiliary/UDPScanner.html" title="Msf::Auxiliary::UDPScanner (module)">UDPScanner</a></span>, <span class='object_link'><a href="Auxiliary/Ubiquiti.html" title="Msf::Auxiliary::Ubiquiti (module)">Ubiquiti</a></span>, <span class='object_link'><a href="Auxiliary/VYOS.html" title="Msf::Auxiliary::VYOS (module)">VYOS</a></span>, <span class='object_link'><a href="Auxiliary/Web.html" title="Msf::Auxiliary::Web (module)">Web</a></span>, <span class='object_link'><a href="Auxiliary/WmapCrawler.html" title="Msf::Auxiliary::WmapCrawler (module)">WmapCrawler</a></span>, <span class='object_link'><a href="Auxiliary/WmapModule.html" title="Msf::Auxiliary::WmapModule (module)">WmapModule</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanDir.html" title="Msf::Auxiliary::WmapScanDir (module)">WmapScanDir</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanFile.html" title="Msf::Auxiliary::WmapScanFile (module)">WmapScanFile</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanGeneric.html" title="Msf::Auxiliary::WmapScanGeneric (module)">WmapScanGeneric</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanQuery.html" title="Msf::Auxiliary::WmapScanQuery (module)">WmapScanQuery</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanSSL.html" title="Msf::Auxiliary::WmapScanSSL (module)">WmapScanSSL</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanServer.html" title="Msf::Auxiliary::WmapScanServer (module)">WmapScanServer</a></span>, <span class='object_link'><a href="Auxiliary/WmapScanUniqueQuery.html" title="Msf::Auxiliary::WmapScanUniqueQuery (module)">WmapScanUniqueQuery</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Auxiliary/Complete.html" title="Msf::Auxiliary::Complete (class)">Complete</a></span>, <span class='object_link'><a href="Auxiliary/Failed.html" title="Msf::Auxiliary::Failed (class)">Failed</a></span>
+    
+  
+</p>
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants inherited
+     from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#REPLICANT_EXTENSION_DS_KEY-constant" title="Msf::Module::REPLICANT_EXTENSION_DS_KEY (constant)">Module::REPLICANT_EXTENSION_DS_KEY</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#UpdateableOptions-constant" title="Msf::Module::ModuleInfo::UpdateableOptions (constant)">Module::ModuleInfo::UpdateableOptions</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#passive=-instance_method" title="#passive= (instance method)">#<strong>passive</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+      <span class="note title writeonly">writeonly</span>
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the attribute passive.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#queue-instance_method" title="#queue (instance method)">#<strong>queue</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute queue.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#sockets-instance_method" title="#sockets (instance method)">#<strong>sockets</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sockets.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#error-instance_method" title="Msf::Module#error (method)">#error</a></span>, <span class='object_link'><a href="Module.html#job_id-instance_method" title="Msf::Module#job_id (method)">#job_id</a></span>, <span class='object_link'><a href="Module.html#license-instance_method" title="Msf::Module#license (method)">#license</a></span>, <span class='object_link'><a href="Module.html#platform-instance_method" title="Msf::Module#platform (method)">#platform</a></span>, <span class='object_link'><a href="Module.html#privileged=-instance_method" title="Msf::Module#privileged= (method)">#privileged</a></span>, <span class='object_link'><a href="Module.html#references-instance_method" title="Msf::Module#references (method)">#references</a></span>, <span class='object_link'><a href="Module.html#user_data-instance_method" title="Msf::Module#user_data (method)">#user_data</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UUID.html#uuid-instance_method" title="Msf::Module::UUID#uuid (method)">#uuid</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Privileged.html#priveli=-instance_method" title="Msf::Module::Privileged#priveli= (method)">#priveli</a></span>, <span class='object_link'><a href="Module/Privileged.html#privileged-instance_method" title="Msf::Module::Privileged#privileged (method)">#privileged</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Options.html#options-instance_method" title="Msf::Module::Options#options (method)">#options</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleStore.html#module_store-instance_method" title="Msf::Module::ModuleStore#module_store (method)">#module_store</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#module_info-instance_method" title="Msf::Module::ModuleInfo#module_info (method)">#module_info</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/FullName.html#aliased_as-instance_method" title="Msf::Module::FullName#aliased_as (method)">#aliased_as</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/DataStore.html#datastore-instance_method" title="Msf::Module::DataStore#datastore (method)">#datastore</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Author.html#author-instance_method" title="Msf::Module::Author#author (method)">#author</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Arch.html#arch-instance_method" title="Msf::Module::Arch#arch (method)">#arch</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Alert.html#alerts-instance_method" title="Msf::Module::Alert#alerts (method)">#alerts</a></span>, <span class='object_link'><a href="Module/Alert.html#you_have_been_warned-instance_method" title="Msf::Module::Alert#you_have_been_warned (method)">#you_have_been_warned</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">.<strong>create</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a singleton instance of this auxiliary class.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-class_method" title="type (class method)">.<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns MODULE_AUX to indicate that this is an auxiliary module.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#abort_sockets-instance_method" title="#abort_sockets (instance method)">#<strong>abort_sockets</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method is called once a new session has been created on behalf of this module instance and all socket connections created by this module should be closed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_socket-instance_method" title="#add_socket (instance method)">#<strong>add_socket</strong>(sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a socket to the list of sockets opened by this exploit.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#autofilter-instance_method" title="#autofilter (instance method)">#<strong>autofilter</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs last-minute sanity checking of auxiliary parameters.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#autofilter_ports-instance_method" title="#autofilter_ports (instance method)">#<strong>autofilter_ports</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provides a list of ports that can be used for matching this module against target systems.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#autofilter_services-instance_method" title="#autofilter_services (instance method)">#<strong>autofilter_services</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Provides a list of services that can be used for matching this module against target systems.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#auxiliary_commands-instance_method" title="#auxiliary_commands (instance method)">#<strong>auxiliary_commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called after &#39;run&#39; returns.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fail_with-instance_method" title="#fail_with (instance method)">#<strong>fail_with</strong>(reason, msg = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Override Msf::Module#fail_with for Msf::Simple::Auxiliary::job_run_proc.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Auxiliary </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates an instance of the auxiliary module.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_autofilter_ports-instance_method" title="#register_autofilter_ports (instance method)">#<strong>register_autofilter_ports</strong>(ports = [])  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds a port into the list of ports.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_autofilter_services-instance_method" title="#register_autofilter_services (instance method)">#<strong>register_autofilter_services</strong>(services = [])  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#remove_socket-instance_method" title="#remove_socket (instance method)">#<strong>remove_socket</strong>(sock)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Removes a socket from the list of sockets.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-instance_method" title="#run (instance method)">#<strong>run</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup-instance_method" title="#setup (instance method)">#<strong>setup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called directly before &#39;run&#39;.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns MODULE_AUX to indicate that this is an auxiliary module.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module.html#black_listed_auth_filenames-instance_method" title="Msf::Module#black_listed_auth_filenames (method)">#black_listed_auth_filenames</a></span>, <span class='object_link'><a href="Module.html#cached%3F-class_method" title="Msf::Module.cached? (method)">cached?</a></span>, <span class='object_link'><a href="Module.html#debugging%3F-instance_method" title="Msf::Module#debugging? (method)">#debugging?</a></span>, <span class='object_link'><a href="Module.html#default_cred%3F-instance_method" title="Msf::Module#default_cred? (method)">#default_cred?</a></span>, <span class='object_link'><a href="Module.html#file_path-instance_method" title="Msf::Module#file_path (method)">#file_path</a></span>, <span class='object_link'><a href="Module.html#framework-instance_method" title="Msf::Module#framework (method)">#framework</a></span>, <span class='object_link'><a href="Module.html#has_check%3F-instance_method" title="Msf::Module#has_check? (method)">#has_check?</a></span>, <span class='object_link'><a href="Module.html#orig_cls-instance_method" title="Msf::Module#orig_cls (method)">#orig_cls</a></span>, <span class='object_link'><a href="Module.html#owner-instance_method" title="Msf::Module#owner (method)">#owner</a></span>, <span class='object_link'><a href="Module.html#perform_extensions-instance_method" title="Msf::Module#perform_extensions (method)">#perform_extensions</a></span>, <span class='object_link'><a href="Module.html#platform%3F-instance_method" title="Msf::Module#platform? (method)">#platform?</a></span>, <span class='object_link'><a href="Module.html#platform_to_s-instance_method" title="Msf::Module#platform_to_s (method)">#platform_to_s</a></span>, <span class='object_link'><a href="Module.html#post_auth%3F-instance_method" title="Msf::Module#post_auth? (method)">#post_auth?</a></span>, <span class='object_link'><a href="Module.html#register_extensions-instance_method" title="Msf::Module#register_extensions (method)">#register_extensions</a></span>, <span class='object_link'><a href="Module.html#register_parent-instance_method" title="Msf::Module#register_parent (method)">#register_parent</a></span>, <span class='object_link'><a href="Module.html#replicant-instance_method" title="Msf::Module#replicant (method)">#replicant</a></span>, <span class='object_link'><a href="Module.html#required_cred_options-instance_method" title="Msf::Module#required_cred_options (method)">#required_cred_options</a></span>, <span class='object_link'><a href="Module.html#set_defaults-instance_method" title="Msf::Module#set_defaults (method)">#set_defaults</a></span>, <span class='object_link'><a href="Module.html#workspace-instance_method" title="Msf::Module#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Reliability.html" title="Msf::Module::Reliability (module)">Module::Reliability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Reliability.html#reliability-instance_method" title="Msf::Module::Reliability#reliability (method)">#reliability</a></span>, <span class='object_link'><a href="Module/Reliability.html#reliability_to_s-instance_method" title="Msf::Module::Reliability#reliability_to_s (method)">#reliability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Stability.html" title="Msf::Module::Stability (module)">Module::Stability</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Stability.html#stability-instance_method" title="Msf::Module::Stability#stability (method)">#stability</a></span>, <span class='object_link'><a href="Module/Stability.html#stability_to_s-instance_method" title="Msf::Module::Stability#stability_to_s (method)">#stability_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/SideEffects.html" title="Msf::Module::SideEffects (module)">Module::SideEffects</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/SideEffects.html#side_effects-instance_method" title="Msf::Module::SideEffects#side_effects (method)">#side_effects</a></span>, <span class='object_link'><a href="Module/SideEffects.html#side_effects_to_s-instance_method" title="Msf::Module::SideEffects#side_effects_to_s (method)">#side_effects_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UUID.html" title="Msf::Module::UUID (module)">Module::UUID</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UUID.html#generate_uuid-instance_method" title="Msf::Module::UUID#generate_uuid (method)">#generate_uuid</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI.html" title="Msf::Module::UI (module)">Module::UI</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI.html#init_ui-instance_method" title="Msf::Module::UI#init_ui (method)">#init_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Message.html" title="Msf::Module::UI::Message (module)">Module::UI::Message</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Message.html#print_error-instance_method" title="Msf::Module::UI::Message#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_good-instance_method" title="Msf::Module::UI::Message#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_prefix-instance_method" title="Msf::Module::UI::Message#print_prefix (method)">#print_prefix</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_status-instance_method" title="Msf::Module::UI::Message#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="Module/UI/Message.html#print_warning-instance_method" title="Msf::Module::UI::Message#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Message/Verbose.html" title="Msf::Module::UI::Message::Verbose (module)">Module::UI::Message::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_error-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_error (method)">#vprint_error</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_good-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_good (method)">#vprint_good</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_status-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_status (method)">#vprint_status</a></span>, <span class='object_link'><a href="Module/UI/Message/Verbose.html#vprint_warning-instance_method" title="Msf::Module::UI::Message::Verbose#vprint_warning (method)">#vprint_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Line.html" title="Msf::Module::UI::Line (module)">Module::UI::Line</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Line.html#print_line-instance_method" title="Msf::Module::UI::Line#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="Module/UI/Line.html#print_line_prefix-instance_method" title="Msf::Module::UI::Line#print_line_prefix (method)">#print_line_prefix</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/UI/Line/Verbose.html" title="Msf::Module::UI::Line::Verbose (module)">Module::UI::Line::Verbose</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/UI/Line/Verbose.html#vprint_line-instance_method" title="Msf::Module::UI::Line::Verbose#vprint_line (method)">#vprint_line</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Type.html" title="Msf::Module::Type (module)">Module::Type</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Type.html#auxiliary%3F-instance_method" title="Msf::Module::Type#auxiliary? (method)">#auxiliary?</a></span>, <span class='object_link'><a href="Module/Type.html#encoder%3F-instance_method" title="Msf::Module::Type#encoder? (method)">#encoder?</a></span>, <span class='object_link'><a href="Module/Type.html#evasion%3F-instance_method" title="Msf::Module::Type#evasion? (method)">#evasion?</a></span>, <span class='object_link'><a href="Module/Type.html#exploit%3F-instance_method" title="Msf::Module::Type#exploit? (method)">#exploit?</a></span>, <span class='object_link'><a href="Module/Type.html#nop%3F-instance_method" title="Msf::Module::Type#nop? (method)">#nop?</a></span>, <span class='object_link'><a href="Module/Type.html#payload%3F-instance_method" title="Msf::Module::Type#payload? (method)">#payload?</a></span>, <span class='object_link'><a href="Module/Type.html#post%3F-instance_method" title="Msf::Module::Type#post? (method)">#post?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Ranking.html" title="Msf::Module::Ranking (module)">Module::Ranking</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Ranking.html#rank-instance_method" title="Msf::Module::Ranking#rank (method)">#rank</a></span>, <span class='object_link'><a href="Module/Ranking.html#rank_to_h-instance_method" title="Msf::Module::Ranking#rank_to_h (method)">#rank_to_h</a></span>, <span class='object_link'><a href="Module/Ranking.html#rank_to_s-instance_method" title="Msf::Module::Ranking#rank_to_s (method)">#rank_to_s</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Privileged.html" title="Msf::Module::Privileged (module)">Module::Privileged</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Privileged.html#privileged%3F-instance_method" title="Msf::Module::Privileged#privileged? (method)">#privileged?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Options.html" title="Msf::Module::Options (module)">Module::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Options.html#deregister_options-instance_method" title="Msf::Module::Options#deregister_options (method)">#deregister_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_advanced_options-instance_method" title="Msf::Module::Options#register_advanced_options (method)">#register_advanced_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_evasion_options-instance_method" title="Msf::Module::Options#register_evasion_options (method)">#register_evasion_options</a></span>, <span class='object_link'><a href="Module/Options.html#register_options-instance_method" title="Msf::Module::Options#register_options (method)">#register_options</a></span>, <span class='object_link'><a href="Module/Options.html#validate-instance_method" title="Msf::Module::Options#validate (method)">#validate</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Network.html" title="Msf::Module::Network (module)">Module::Network</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Network.html#comm-instance_method" title="Msf::Module::Network#comm (method)">#comm</a></span>, <span class='object_link'><a href="Module/Network.html#support_ipv6%3F-instance_method" title="Msf::Module::Network#support_ipv6? (method)">#support_ipv6?</a></span>, <span class='object_link'><a href="Module/Network.html#target_host-instance_method" title="Msf::Module::Network#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="Module/Network.html#target_port-instance_method" title="Msf::Module::Network#target_port (method)">#target_port</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/ModuleStore.html" title="Msf::Module::ModuleStore (module)">Module::ModuleStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleStore.html#[]-instance_method" title="Msf::Module::ModuleStore#[] (method)">#[]</a></span>, <span class='object_link'><a href="Module/ModuleStore.html#[]=-instance_method" title="Msf::Module::ModuleStore#[]= (method)">#[]=</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/ModuleInfo.html" title="Msf::Module::ModuleInfo (module)">Module::ModuleInfo</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/ModuleInfo.html#alias-instance_method" title="Msf::Module::ModuleInfo#alias (method)">#alias</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#description-instance_method" title="Msf::Module::ModuleInfo#description (method)">#description</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#disclosure_date-instance_method" title="Msf::Module::ModuleInfo#disclosure_date (method)">#disclosure_date</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#info_fixups-instance_method" title="Msf::Module::ModuleInfo#info_fixups (method)">#info_fixups</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_check_key-instance_method" title="Msf::Module::ModuleInfo#merge_check_key (method)">#merge_check_key</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info-instance_method" title="Msf::Module::ModuleInfo#merge_info (method)">#merge_info</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_advanced_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_advanced_options (method)">#merge_info_advanced_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_alias-instance_method" title="Msf::Module::ModuleInfo#merge_info_alias (method)">#merge_info_alias</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_description-instance_method" title="Msf::Module::ModuleInfo#merge_info_description (method)">#merge_info_description</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_evasion_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_evasion_options (method)">#merge_info_evasion_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_name-instance_method" title="Msf::Module::ModuleInfo#merge_info_name (method)">#merge_info_name</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_options-instance_method" title="Msf::Module::ModuleInfo#merge_info_options (method)">#merge_info_options</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_string-instance_method" title="Msf::Module::ModuleInfo#merge_info_string (method)">#merge_info_string</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#merge_info_version-instance_method" title="Msf::Module::ModuleInfo#merge_info_version (method)">#merge_info_version</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#name-instance_method" title="Msf::Module::ModuleInfo#name (method)">#name</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#notes-instance_method" title="Msf::Module::ModuleInfo#notes (method)">#notes</a></span>, <span class='object_link'><a href="Module/ModuleInfo.html#update_info-instance_method" title="Msf::Module::ModuleInfo#update_info (method)">#update_info</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/FullName.html" title="Msf::Module::FullName (module)">Module::FullName</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/FullName.html#aliases-instance_method" title="Msf::Module::FullName#aliases (method)">#aliases</a></span>, <span class='object_link'><a href="Module/FullName.html#fullname-instance_method" title="Msf::Module::FullName#fullname (method)">#fullname</a></span>, <span class='object_link'><a href="Module/FullName.html#promptname-instance_method" title="Msf::Module::FullName#promptname (method)">#promptname</a></span>, <span class='object_link'><a href="Module/FullName.html#realname-instance_method" title="Msf::Module::FullName#realname (method)">#realname</a></span>, <span class='object_link'><a href="Module/FullName.html#refname-instance_method" title="Msf::Module::FullName#refname (method)">#refname</a></span>, <span class='object_link'><a href="Module/FullName.html#shortname-instance_method" title="Msf::Module::FullName#shortname (method)">#shortname</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/DataStore.html" title="Msf::Module::DataStore (module)">Module::DataStore</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/DataStore.html#import_defaults-instance_method" title="Msf::Module::DataStore#import_defaults (method)">#import_defaults</a></span>, <span class='object_link'><a href="Module/DataStore.html#import_target_defaults-instance_method" title="Msf::Module::DataStore#import_target_defaults (method)">#import_target_defaults</a></span>, <span class='object_link'><a href="Module/DataStore.html#share_datastore-instance_method" title="Msf::Module::DataStore#share_datastore (method)">#share_datastore</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Compatibility.html" title="Msf::Module::Compatibility (module)">Module::Compatibility</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Compatibility.html#compat-instance_method" title="Msf::Module::Compatibility#compat (method)">#compat</a></span>, <span class='object_link'><a href="Module/Compatibility.html#compatible%3F-instance_method" title="Msf::Module::Compatibility#compatible? (method)">#compatible?</a></span>, <span class='object_link'><a href="Module/Compatibility.html#init_compat-instance_method" title="Msf::Module::Compatibility#init_compat (method)">#init_compat</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Author.html" title="Msf::Module::Author (module)">Module::Author</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Author.html#author_to_s-instance_method" title="Msf::Module::Author#author_to_s (method)">#author_to_s</a></span>, <span class='object_link'><a href="Module/Author.html#each_author-instance_method" title="Msf::Module::Author#each_author (method)">#each_author</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Auth.html" title="Msf::Module::Auth (module)">Module::Auth</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Auth.html#store_valid_credential-instance_method" title="Msf::Module::Auth#store_valid_credential (method)">#store_valid_credential</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Arch.html" title="Msf::Module::Arch (module)">Module::Arch</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Arch.html#arch%3F-instance_method" title="Msf::Module::Arch#arch? (method)">#arch?</a></span>, <span class='object_link'><a href="Module/Arch.html#arch_to_s-instance_method" title="Msf::Module::Arch#arch_to_s (method)">#arch_to_s</a></span>, <span class='object_link'><a href="Module/Arch.html#each_arch-instance_method" title="Msf::Module::Arch#each_arch (method)">#each_arch</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Module/Alert.html" title="Msf::Module::Alert (module)">Module::Alert</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Module/Alert.html#add_alert-instance_method" title="Msf::Module::Alert#add_alert (method)">#add_alert</a></span>, <span class='object_link'><a href="Module/Alert.html#add_error-instance_method" title="Msf::Module::Alert#add_error (method)">#add_error</a></span>, <span class='object_link'><a href="Module/Alert.html#add_warning-instance_method" title="Msf::Module::Alert#add_warning (method)">#add_warning</a></span>, <span class='object_link'><a href="Module/Alert.html#alert_user-instance_method" title="Msf::Module::Alert#alert_user (method)">#alert_user</a></span>, <span class='object_link'><a href="Module/Alert.html#errors-instance_method" title="Msf::Module::Alert#errors (method)">#errors</a></span>, <span class='object_link'><a href="Module/Alert.html#get_alerts-instance_method" title="Msf::Module::Alert#get_alerts (method)">#get_alerts</a></span>, <span class='object_link'><a href="Module/Alert.html#included-class_method" title="Msf::Module::Alert.included (method)">included</a></span>, <span class='object_link'><a href="Module/Alert.html#is_usable%3F-instance_method" title="Msf::Module::Alert#is_usable? (method)">#is_usable?</a></span>, <span class='object_link'><a href="Module/Alert.html#warnings-instance_method" title="Msf::Module::Alert#warnings (method)">#warnings</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Auxiliary (class)">Auxiliary</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates an instance of the auxiliary module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='comment'># Call the parent constructor after making any necessary modifications
+</span>  <span class='comment'># to the information hash.
+</span>  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sockets'>sockets</span> <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_queue'>queue</span>   <span class='op'>=</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="passive=-instance_method">
+  
+    #<strong>passive=</strong>(value)  &#x21d2; <tt>Object</tt>  <span class="extras">(writeonly, protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the attribute passive</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>value</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the value to set the attribute passive to.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+170
+171
+172</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 170</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_passive='>passive=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='ivar'>@passive</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="queue=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="queue-instance_method">
+  
+    #<strong>queue</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute queue.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 165</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_queue'>queue</span>
+  <span class='ivar'>@queue</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sockets=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sockets-instance_method">
+  
+    #<strong>sockets</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sockets.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sockets'>sockets</span>
+  <span class='ivar'>@sockets</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    .<strong>create</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a singleton instance of this auxiliary class</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56
+57</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='cvar'>@@aux_singleton</span> <span class='kw'>if</span> <span class='cvar'>@@aux_singleton</span>
+  <span class='cvar'>@@aux_singleton</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-class_method">
+  
+    .<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns MODULE_AUX to indicate that this is an auxiliary module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+27
+28
+29</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 27</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Msf.html#MODULE_AUX-constant" title="Msf::MODULE_AUX (constant)">MODULE_AUX</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="abort_sockets-instance_method">
+  
+    #<strong>abort_sockets</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method is called once a new session has been created on behalf of this module instance and all socket connections created by this module should be closed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_abort_sockets'>abort_sockets</span>
+  <span class='id identifier rubyid_sockets'>sockets</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_sock'>sock</span><span class='op'>|</span>
+
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+    <span class='kw'>end</span>
+    <span class='kw'>true</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_socket-instance_method">
+  
+    #<strong>add_socket</strong>(sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a socket to the list of sockets opened by this exploit.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_socket'>add_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sockets'>sockets</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_sock'>sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="autofilter-instance_method">
+  
+    #<strong>autofilter</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs last-minute sanity checking of auxiliary parameters. This method is called during automated exploitation attempts and allows an auxiliary module to filter bad attempts, obtain more information, and choose better parameters based on the available data. Returning anything that evaluates to “false” will cause this specific auxiliary attempt to be skipped. This method can and will change datastore values and may interact with the backend database. The default value for auxiliary modules is false, since not all auxiliary modules actually attempt to exploit a vulnerability.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_autofilter'>autofilter</span>
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="autofilter_ports-instance_method">
+  
+    #<strong>autofilter_ports</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provides a list of ports that can be used for matching this module against target systems.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 86</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_autofilter_ports'>autofilter_ports</span>
+  <span class='ivar'>@autofilter_ports</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="autofilter_services-instance_method">
+  
+    #<strong>autofilter_services</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Provides a list of services that can be used for matching this module against target systems.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_autofilter_services'>autofilter_services</span>
+  <span class='ivar'>@autofilter_services</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="auxiliary_commands-instance_method">
+  
+    #<strong>auxiliary_commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_auxiliary_commands'>auxiliary_commands</span>
+  <span class='kw'>return</span> <span class='lbrace'>{</span> <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called after &#39;run&#39; returns</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='id identifier rubyid_abort_sockets'>abort_sockets</span><span class='lparen'>(</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fail_with-instance_method">
+  
+    #<strong>fail_with</strong>(reason, msg = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Override Msf::Module#fail_with for Msf::Simple::Auxiliary::job_run_proc</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Auxiliary/Failed.html" title="Msf::Auxiliary::Failed (class)">Msf::Auxiliary::Failed</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fail_with'>fail_with</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='comma'>,</span> <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Auxiliary (class)">Auxiliary</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Auxiliary/Failed.html" title="Msf::Auxiliary::Failed (class)">Failed</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_msg'>msg</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_autofilter_ports-instance_method">
+  
+    #<strong>register_autofilter_ports</strong>(ports = [])  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Adds a port into the list of ports</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_autofilter_ports'>register_autofilter_ports</span><span class='lparen'>(</span><span class='id identifier rubyid_ports'>ports</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@autofilter_ports</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@autofilter_ports</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_ports'>ports</span>
+  <span class='ivar'>@autofilter_ports</span><span class='period'>.</span><span class='id identifier rubyid_flatten!'>flatten!</span>
+  <span class='ivar'>@autofilter_ports</span><span class='period'>.</span><span class='id identifier rubyid_uniq!'>uniq!</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_autofilter_services-instance_method">
+  
+    #<strong>register_autofilter_services</strong>(services = [])  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+108
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 108</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_autofilter_services'>register_autofilter_services</span><span class='lparen'>(</span><span class='id identifier rubyid_services'>services</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='ivar'>@autofilter_services</span> <span class='op'>||=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='ivar'>@autofilter_services</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_services'>services</span>
+  <span class='ivar'>@autofilter_services</span><span class='period'>.</span><span class='id identifier rubyid_flatten!'>flatten!</span>
+  <span class='ivar'>@autofilter_services</span><span class='period'>.</span><span class='id identifier rubyid_uniq!'>uniq!</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="remove_socket-instance_method">
+  
+    #<strong>remove_socket</strong>(sock)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Removes a socket from the list of sockets.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+140
+141
+142</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 140</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_remove_socket'>remove_socket</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sockets'>sockets</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run-instance_method">
+  
+    #<strong>run</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+59
+60
+61</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 59</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run'>run</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Running the default Auxiliary handler</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup-instance_method">
+  
+    #<strong>setup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called directly before &#39;run&#39;</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup'>setup</span>
+  <span class='id identifier rubyid_alert_user'>alert_user</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns MODULE_AUX to indicate that this is an auxiliary module.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/auxiliary.rb', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Msf.html#MODULE_AUX-constant" title="Msf::MODULE_AUX (constant)">MODULE_AUX</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:48 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

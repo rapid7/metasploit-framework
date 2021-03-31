@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::Http::Request
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Http::Request";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Http.html" title="Rex::Proto::Http (module)">Http</a></span></span>
+     &raquo; 
+    <span class="title">Request</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::Http::Request
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Packet.html" title="Rex::Proto::Http::Packet (class)">Packet</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Packet.html" title="Rex::Proto::Http::Packet (class)">Packet</a></span></li>
+          
+            <li class="next">Rex::Proto::Http::Request</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/http/request.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>HTTP request class.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Request/Get.html" title="Rex::Proto::Http::Request::Get (class)">Get</a></span>, <span class='object_link'><a href="Request/Post.html" title="Rex::Proto::Http::Request::Post (class)">Post</a></span>, <span class='object_link'><a href="Request/Put.html" title="Rex::Proto::Http::Request::Put (class)">Put</a></span></p>
+</div>
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Request/Get.html" title="Rex::Proto::Http::Request::Get (class)">Get</a></span>, <span class='object_link'><a href="Request/Post.html" title="Rex::Proto::Http::Request::Post (class)">Post</a></span>, <span class='object_link'><a href="Request/Put.html" title="Rex::Proto::Http::Request::Put (class)">Put</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="PostRequests-constant" class="">PostRequests =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>POST</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SEARCH</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_directories-instance_method" title="#junk_directories (instance method)">#<strong>junk_directories</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk directories.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_end_of_uri-instance_method" title="#junk_end_of_uri (instance method)">#<strong>junk_end_of_uri</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk end of URI.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_param_start-instance_method" title="#junk_param_start (instance method)">#<strong>junk_param_start</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk start of params.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_params-instance_method" title="#junk_params (instance method)">#<strong>junk_params</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk params.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_pipeline-instance_method" title="#junk_pipeline (instance method)">#<strong>junk_pipeline</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk pipeline requests.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_self_referring_directories-instance_method" title="#junk_self_referring_directories (instance method)">#<strong>junk_self_referring_directories</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk self referring directories (aka  /././././).</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#junk_slashes-instance_method" title="#junk_slashes (instance method)">#<strong>junk_slashes</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>add junk slashes.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#method-instance_method" title="#method (instance method)">#<strong>method</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The method being used for the request (e.g. GET).</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#proto-instance_method" title="#proto (instance method)">#<strong>proto</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The protocol to be sent with the request.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#raw_uri-instance_method" title="#raw_uri (instance method)">#<strong>raw_uri</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The raw URI being requested, before any mucking gets to it.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#relative_resource-instance_method" title="#relative_resource (instance method)">#<strong>relative_resource</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The resource path relative to the root of a server mount point.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#uri_encode_mode-instance_method" title="#uri_encode_mode (instance method)">#<strong>uri_encode_mode</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>encoding uri.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#uri_parts-instance_method" title="#uri_parts (instance method)">#<strong>uri_parts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The split up parts of the URI.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Packet.html" title="Rex::Proto::Http::Packet (class)">Packet</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Packet.html#auto_cl-instance_method" title="Rex::Proto::Http::Packet#auto_cl (method)">#auto_cl</a></span>, <span class='object_link'><a href="Packet.html#body_bytes_left-instance_method" title="Rex::Proto::Http::Packet#body_bytes_left (method)">#body_bytes_left</a></span>, <span class='object_link'><a href="Packet.html#bufq-instance_method" title="Rex::Proto::Http::Packet#bufq (method)">#bufq</a></span>, <span class='object_link'><a href="Packet.html#chunk_max_size-instance_method" title="Rex::Proto::Http::Packet#chunk_max_size (method)">#chunk_max_size</a></span>, <span class='object_link'><a href="Packet.html#chunk_min_size-instance_method" title="Rex::Proto::Http::Packet#chunk_min_size (method)">#chunk_min_size</a></span>, <span class='object_link'><a href="Packet.html#compress-instance_method" title="Rex::Proto::Http::Packet#compress (method)">#compress</a></span>, <span class='object_link'><a href="Packet.html#error-instance_method" title="Rex::Proto::Http::Packet#error (method)">#error</a></span>, <span class='object_link'><a href="Packet.html#headers-instance_method" title="Rex::Proto::Http::Packet#headers (method)">#headers</a></span>, <span class='object_link'><a href="Packet.html#incomplete-instance_method" title="Rex::Proto::Http::Packet#incomplete (method)">#incomplete</a></span>, <span class='object_link'><a href="Packet.html#inside_chunk-instance_method" title="Rex::Proto::Http::Packet#inside_chunk (method)">#inside_chunk</a></span>, <span class='object_link'><a href="Packet.html#keepalive-instance_method" title="Rex::Proto::Http::Packet#keepalive (method)">#keepalive</a></span>, <span class='object_link'><a href="Packet.html#max_data-instance_method" title="Rex::Proto::Http::Packet#max_data (method)">#max_data</a></span>, <span class='object_link'><a href="Packet.html#state-instance_method" title="Rex::Proto::Http::Packet#state (method)">#state</a></span>, <span class='object_link'><a href="Packet.html#transfer_chunked-instance_method" title="Rex::Proto::Http::Packet#transfer_chunked (method)">#transfer_chunked</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#body-instance_method" title="#body (instance method)">#<strong>body</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_string-instance_method" title="#cmd_string (instance method)">#<strong>cmd_string</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the command string derived from the three values.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(method = &#39;GET&#39;, uri = &#39;/&#39;, proto = DefaultProtocol)  &#x21d2; Request </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes an instance of an HTTP request with the supplied method, URI, and protocol.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#meta_vars-instance_method" title="#meta_vars (instance method)">#<strong>meta_vars</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a hash of variables that contain information about the request, such as the remote host information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#normalize!-instance_method" title="#normalize! (instance method)">#<strong>normalize!</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>normalize out multiple slashes, directory traversal, and self referrential directories.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#param_string-instance_method" title="#param_string (instance method)">#<strong>param_string</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#parse_cgi_qstring-instance_method" title="#parse_cgi_qstring (instance method)">#<strong>parse_cgi_qstring</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parses a CGI query string into the var/val combinations.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#qstring-instance_method" title="#qstring (instance method)">#<strong>qstring</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>If there were CGI parameters in the URI, this will hold a hash of each variable to value.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource-instance_method" title="#resource (instance method)">#<strong>resource</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the resource that is being requested.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#resource=-instance_method" title="#resource= (instance method)">#<strong>resource=</strong>(rsrc)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Changes the resource URI.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#to_s-instance_method" title="#to_s (instance method)">#<strong>to_s</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns a request packet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_cmd_parts-instance_method" title="#update_cmd_parts (instance method)">#<strong>update_cmd_parts</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Updates the command parts for this specific packet type.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_uri_parts-instance_method" title="#update_uri_parts (instance method)">#<strong>update_uri_parts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Split the URI into the resource being requested and its query string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#uri-instance_method" title="#uri (instance method)">#<strong>uri</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Puts a URI back together based on the URI parts.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#uri=-instance_method" title="#uri= (instance method)">#<strong>uri=</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Updates the underlying URI structure.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Packet.html" title="Rex::Proto::Http::Packet (class)">Packet</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Packet.html#[]-instance_method" title="Rex::Proto::Http::Packet#[] (method)">#[]</a></span>, <span class='object_link'><a href="Packet.html#[]=-instance_method" title="Rex::Proto::Http::Packet#[]= (method)">#[]=</a></span>, <span class='object_link'><a href="Packet.html#check_100-instance_method" title="Rex::Proto::Http::Packet#check_100 (method)">#check_100</a></span>, <span class='object_link'><a href="Packet.html#chunk-instance_method" title="Rex::Proto::Http::Packet#chunk (method)">#chunk</a></span>, <span class='object_link'><a href="Packet.html#completed%3F-instance_method" title="Rex::Proto::Http::Packet#completed? (method)">#completed?</a></span>, <span class='object_link'><a href="Packet.html#from_s-instance_method" title="Rex::Proto::Http::Packet#from_s (method)">#from_s</a></span>, <span class='object_link'><a href="Packet.html#output_packet-instance_method" title="Rex::Proto::Http::Packet#output_packet (method)">#output_packet</a></span>, <span class='object_link'><a href="Packet.html#parse-instance_method" title="Rex::Proto::Http::Packet#parse (method)">#parse</a></span>, <span class='object_link'><a href="Packet.html#parse_body-instance_method" title="Rex::Proto::Http::Packet#parse_body (method)">#parse_body</a></span>, <span class='object_link'><a href="Packet.html#parse_header-instance_method" title="Rex::Proto::Http::Packet#parse_header (method)">#parse_header</a></span>, <span class='object_link'><a href="Packet.html#reset-instance_method" title="Rex::Proto::Http::Packet#reset (method)">#reset</a></span>, <span class='object_link'><a href="Packet.html#reset_except_queue-instance_method" title="Rex::Proto::Http::Packet#reset_except_queue (method)">#reset_except_queue</a></span>, <span class='object_link'><a href="Packet.html#to_terminal_output-instance_method" title="Rex::Proto::Http::Packet#to_terminal_output (method)">#to_terminal_output</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(method = &#39;GET&#39;, uri = &#39;/&#39;, proto = DefaultProtocol)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::Http::Request (class)">Request</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes an instance of an HTTP request with the supplied method, URI, and protocol.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 55</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Http.html#DefaultProtocol-constant" title="Rex::Proto::Http::DefaultProtocol (constant)">DefaultProtocol</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span>    <span class='op'>=</span> <span class='id identifier rubyid_method'>method</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span>   <span class='op'>=</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span>     <span class='op'>=</span> <span class='id identifier rubyid_proto'>proto</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="../Http.html#DefaultProtocol-constant" title="Rex::Proto::Http::DefaultProtocol (constant)">DefaultProtocol</a></span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_chunk_min_size'>chunk_min_size</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_chunk_max_size'>chunk_max_size</span> <span class='op'>=</span> <span class='int'>10</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hex-normal</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GET</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CONNECT</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_auto_cl'>auto_cl</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_update_uri_parts'>update_uri_parts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="junk_directories=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="junk_directories-instance_method">
+  
+    #<strong>junk_directories</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk directories</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+298
+299
+300</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 298</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_directories'>junk_directories</span>
+  <span class='ivar'>@junk_directories</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_end_of_uri=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_end_of_uri-instance_method">
+  
+    #<strong>junk_end_of_uri</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk end of URI</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+316
+317
+318</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 316</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_end_of_uri'>junk_end_of_uri</span>
+  <span class='ivar'>@junk_end_of_uri</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_param_start=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_param_start-instance_method">
+  
+    #<strong>junk_param_start</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk start of params</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+313
+314
+315</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 313</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_param_start'>junk_param_start</span>
+  <span class='ivar'>@junk_param_start</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_params=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_params-instance_method">
+  
+    #<strong>junk_params</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk params</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+307
+308
+309</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 307</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_params'>junk_params</span>
+  <span class='ivar'>@junk_params</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_pipeline=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_pipeline-instance_method">
+  
+    #<strong>junk_pipeline</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk pipeline requests</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 310</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_pipeline'>junk_pipeline</span>
+  <span class='ivar'>@junk_pipeline</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_self_referring_directories=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_self_referring_directories-instance_method">
+  
+    #<strong>junk_self_referring_directories</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk self referring directories (aka  /././././)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+304
+305
+306</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 304</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_self_referring_directories'>junk_self_referring_directories</span>
+  <span class='ivar'>@junk_self_referring_directories</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="junk_slashes=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="junk_slashes-instance_method">
+  
+    #<strong>junk_slashes</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>add junk slashes</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+301
+302
+303</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 301</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_junk_slashes'>junk_slashes</span>
+  <span class='ivar'>@junk_slashes</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="method=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="method-instance_method">
+  
+    #<strong>method</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The method being used for the request (e.g. GET).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+277
+278
+279</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 277</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_method'>method</span>
+  <span class='ivar'>@method</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="proto=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="proto-instance_method">
+  
+    #<strong>proto</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The protocol to be sent with the request.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+290
+291
+292</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 290</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_proto'>proto</span>
+  <span class='ivar'>@proto</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="raw_uri=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="raw_uri-instance_method">
+  
+    #<strong>raw_uri</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The raw URI being requested, before any mucking gets to it</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 281</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_raw_uri'>raw_uri</span>
+  <span class='ivar'>@raw_uri</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="relative_resource=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="relative_resource-instance_method">
+  
+    #<strong>relative_resource</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The resource path relative to the root of a server mount point.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+295
+296
+297</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 295</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_relative_resource'>relative_resource</span>
+  <span class='ivar'>@relative_resource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="uri_encode_mode=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="uri_encode_mode-instance_method">
+  
+    #<strong>uri_encode_mode</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>encoding uri</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+319
+320
+321</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 319</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span>
+  <span class='ivar'>@uri_encode_mode</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="uri_parts=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="uri_parts-instance_method">
+  
+    #<strong>uri_parts</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The split up parts of the URI.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+286
+287
+288</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 286</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uri_parts'>uri_parts</span>
+  <span class='ivar'>@uri_parts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="body-instance_method">
+  
+    #<strong>body</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 220</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_body'>body</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='kw'>super</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_str'>str</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#PostRequests-constant" title="Rex::Proto::Http::Request::PostRequests (constant)">PostRequests</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_param_string'>param_string</span>
+  <span class='kw'>end</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_string-instance_method">
+  
+    #<strong>cmd_string</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the command string derived from the three values.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_string'>cmd_string</span>
+  <span class='id identifier rubyid_proto_str'>proto_str</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\d</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>HTTP/</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span>
+
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_proto_str'>proto_str</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="meta_vars-instance_method">
+  
+    #<strong>meta_vars</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a hash of variables that contain information about the request, such as the remote host information.</p>
+
+<p>TODO</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+271
+272</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 271</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_meta_vars'>meta_vars</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="normalize!-instance_method">
+  
+    #<strong>normalize!</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>normalize out multiple slashes, directory traversal, and self referrential directories</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+109
+110
+111
+112
+113</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 109</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_normalize!'>normalize!</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_i'>i</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(\/\.\/|\/\w+\/\.\.\/|\/\/)</span><span class='regexp_end'>/</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='semicolon'>;</span> <span class='id identifier rubyid_i'>i</span> <span class='op'>+=</span> <span class='int'>1</span><span class='semicolon'>;</span> <span class='kw'>end</span>
+  <span class='id identifier rubyid_i'>i</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="param_string-instance_method">
+  
+    #<strong>param_string</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_param_string'>param_string</span>
+  <span class='id identifier rubyid_params'>params</span><span class='op'>=</span><span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>QueryString</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each_pair'>each_pair</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_param'>param</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='comment'># inject a random number of params in between each param
+</span>    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_params'>junk_params</span>
+      <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>5</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span>
+        <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>16</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_subvalue'>subvalue</span><span class='op'>|</span>
+  				<span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_subvalue'>subvalue</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>else</span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># inject some junk params at the end of the param list, just to be sure :P
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_params'>junk_params</span>
+    <span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>5</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span>
+      <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>64</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_params'>params</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&amp;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="parse_cgi_qstring-instance_method">
+  
+    #<strong>parse_cgi_qstring</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parses a CGI query string into the var/val combinations.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 324</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_parse_cgi_qstring'>parse_cgi_qstring</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_qstring'>qstring</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+
+  <span class='comment'># Delimit on each variable
+</span>  <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[;&amp;]</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_vv'>vv</span><span class='op'>|</span>
+    <span class='id identifier rubyid_var'>var</span> <span class='op'>=</span> <span class='id identifier rubyid_vv'>vv</span>
+    <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span> <span class='op'>=</span> <span class='id identifier rubyid_vv'>vv</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(.+?)=(.*)</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_var'>var</span> <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Add the item to the hash with logic to convert values to an array
+</span>    <span class='comment'># if so desired.
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_qstring'>qstring</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_var'>var</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_qstring'>qstring</span><span class='lbracket'>[</span><span class='id identifier rubyid_var'>var</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_qstring'>qstring</span><span class='lbracket'>[</span><span class='id identifier rubyid_var'>var</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_curr'>curr</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_qstring'>qstring</span><span class='lbracket'>[</span><span class='id identifier rubyid_var'>var</span><span class='rbracket'>]</span>
+        <span class='id identifier rubyid_qstring'>qstring</span><span class='lbracket'>[</span><span class='id identifier rubyid_var'>var</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_curr'>curr</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span> <span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_qstring'>qstring</span><span class='lbracket'>[</span><span class='id identifier rubyid_var'>var</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>end</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_qstring'>qstring</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="qstring-instance_method">
+  
+    #<strong>qstring</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>If there were CGI parameters in the URI, this will hold a hash of each variable to value.  If there is more than one value for a given variable, an array of each value is returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+261
+262
+263</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 261</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_qstring'>qstring</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>QueryString</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource-instance_method">
+  
+    #<strong>resource</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the resource that is being requested.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+244
+245
+246</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 244</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource'>resource</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="resource=-instance_method">
+  
+    #<strong>resource=</strong>(rsrc)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Changes the resource URI.  This is used when making a request relative to a given mount point.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+252
+253
+254</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 252</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_resource='>resource=</span><span class='lparen'>(</span><span class='id identifier rubyid_rsrc'>rsrc</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rsrc'>rsrc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="to_s-instance_method">
+  
+    #<strong>to_s</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a request packet</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 207</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_pipeline'>junk_pipeline</span>
+    <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Host</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Host: </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Host</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\r\n</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>GET / HTTP/1.1\r\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='embexpr_end'>}</span><span class='tstring_content'>Connection: Keep-Alive\r\n\r\n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_pipeline'>junk_pipeline</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_headers'>headers</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Connection</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Closed</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>+</span> <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_cmd_parts-instance_method">
+  
+    #<strong>update_cmd_parts</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Updates the command parts for this specific packet type.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_cmd_parts'>update_cmd_parts</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$</span><span class='regexp_end'>/i</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span>  <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span> <span class='op'>=</span> <span class='const'>CGI</span><span class='period'>.</span><span class='id identifier rubyid_unescape'>unescape</span><span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_proto'>proto</span>   <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>3</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_update_uri_parts'>update_uri_parts</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid request command string</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_uri_parts-instance_method">
+  
+    #<strong>update_uri_parts</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Split the URI into the resource being requested and its query string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_uri_parts'>update_uri_parts</span>
+  <span class='comment'># If it has a query string, get the parts.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>(.+?)\?(.*)$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>QueryString</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_parse_cgi_qstring'>parse_cgi_qstring</span><span class='lparen'>(</span><span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>    <span class='op'>=</span> <span class='id identifier rubyid_md'>md</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='comment'># Otherwise, just assume that the URI is equal to the resource being
+</span>  <span class='comment'># requested.
+</span>  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>QueryString</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>    <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_normalize!'>normalize!</span><span class='lparen'>(</span><span class='id identifier rubyid_resource'>resource</span><span class='rparen'>)</span>
+  <span class='comment'># Set the relative resource to the actual resource.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_relative_resource'>relative_resource</span> <span class='op'>=</span> <span class='id identifier rubyid_resource'>resource</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="uri-instance_method">
+  
+    #<strong>uri</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Puts a URI back together based on the URI parts</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 116</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uri'><span class='object_link'><a href="../../../top-level-namespace.html#uri-instance_method" title="#uri (method)">uri</a></span></span>
+  <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_parts'>uri_parts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Resource</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># /././././
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_self_referring_directories'>junk_self_referring_directories</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\/</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/.</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># /%3faaa=bbbbb
+</span>  <span class='comment'># which could possibly decode to &quot;/?aaa=bbbbb&quot;, which if the IDS normalizes first, then splits the URI on ?, then it can be bypassed
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_param_start'>junk_param_start</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_sub!'>sub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\/</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/%3f</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>=</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/../</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># /RAND/../RAND../
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_directories'>junk_directories</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\/</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+      <span class='id identifier rubyid_dirs'>dirs</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span><span class='op'>+</span><span class='int'>5</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_times'>times</span> <span class='lbrace'>{</span>
+        <span class='id identifier rubyid_dirs'>dirs</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>5</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/..</span><span class='tstring_end'>&#39;</span></span>
+      <span class='rbrace'>}</span>
+      <span class='id identifier rubyid_dirs'>dirs</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># ////
+</span>  <span class='comment'>#
+</span>  <span class='comment'># NOTE: this must be done after all other odd directory junk, since they would cancel this out, except junk_end_of_uri, since that a specific slash in a specific place
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_slashes'>junk_slashes</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\/</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='id identifier rubyid_rand'>rand</span><span class='lparen'>(</span><span class='int'>3</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='int'>2</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_sub!'>sub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^[\/]+</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># only one beginning slash!
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'># /%20HTTP/1.0%0d%0a/../../
+</span>  <span class='comment'># which decodes to &quot;/ HTTP/1.0\r\n&quot;
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_junk_end_of_uri'>junk_end_of_uri</span>
+    <span class='id identifier rubyid_str'>str</span><span class='period'>.</span><span class='id identifier rubyid_sub!'>sub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\/</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/%20HTTP/1.0%0d%0a/../../</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode'>uri_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uri_encode_mode'>uri_encode_mode</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='op'>!</span><span class='const'><span class='object_link'><a href="#PostRequests-constant" title="Rex::Proto::Http::Request::PostRequests (constant)">PostRequests</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_param_string'>param_string</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+      <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>?</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_param_string'>param_string</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_str'>str</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="uri=-instance_method">
+  
+    #<strong>uri=</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Updates the underlying URI structure</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201
+202
+203
+204</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/http/request.rb', line 201</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uri='>uri=</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw_uri'>raw_uri</span> <span class='op'>=</span> <span class='id identifier rubyid_str'>str</span>
+  <span class='id identifier rubyid_update_uri_parts'>update_uri_parts</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:45 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

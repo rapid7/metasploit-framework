@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::Spec::Constants::Each
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Spec::Constants::Each";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Constants.html" title="Metasploit::Framework::Spec::Constants (module)">Constants</a></span></span>
+     &raquo; 
+    <span class="title">Each</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::Spec::Constants::Each
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/spec/constants/each.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>This should only temporarily be used in `spec/spec_helper.rb` when `Metasploit::Framework::Spec::Constants::Suite.configure!` detects a leak.  Permanently having `Metasploit::Framework::Spec::Constants::Each.configure!` can lead to false positives when modules are purposely loaded in a `before(:all)` and cleaned up in a `after(:all)`.</p>
+</div>
+  </div>
+
+
+<p>Fails example if it leaks module loading constants.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="LOG_PATHNAME-constant" class="">LOG_PATHNAME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>CONSTANTS</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>log/metasploit/framework/spec/constants/each.log</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#leaks_cleaned-class_method" title="leaks_cleaned (class method)">.<strong>leaks_cleaned</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute leaks_cleaned.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configure!-class_method" title="configure! (class method)">.<strong>configure!</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Configures after(:each) callback for RSpe to fail example if leaked constants.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#configured%3F-class_method" title="configured? (class method)">.<strong>configured?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Whether <span class='object_link'><a href="#configure!-class_method" title="Metasploit::Framework::Spec::Constants::Each.configure! (method)">Each.configure!</a></span> was called.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#define_task-class_method" title="define_task (class method)">.<strong>define_task</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds action to `spec` task so that `rake spec` fails if configured! is unnecessary in `spec/spec_helper.rb` and should be removed.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#leaks_cleaned%3F-class_method" title="leaks_cleaned? (class method)">.<strong>leaks_cleaned?</strong>  &#x21d2; true, false </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Is Metasploit::Framework::Spec::Constants::Each.configure! still necessary or should it be removed?.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="leaks_cleaned=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="leaks_cleaned-class_method">
+  
+    .<strong>leaks_cleaned</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute leaks_cleaned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+19
+20
+21</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants/each.rb', line 19</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_leaks_cleaned'>leaks_cleaned</span>
+  <span class='ivar'>@leaks_cleaned</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="configure!-class_method">
+  
+    .<strong>configure!</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Configures after(:each) callback for RSpe to fail example if leaked constants.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants/each.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configure!'>configure!</span>
+  <span class='kw'>unless</span> <span class='ivar'>@configured</span>
+    <span class='const'>RSpec</span><span class='period'>.</span><span class='id identifier rubyid_configure'>configure</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_config'>config</span><span class='op'>|</span>
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_before'>before</span><span class='lparen'>(</span><span class='symbol'>:each</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_example'>example</span><span class='op'>|</span>
+        <span class='id identifier rubyid_leaks_cleaned'>leaks_cleaned</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Constants.html" title="Metasploit::Framework::Spec::Constants (module)">Constants</a></span></span><span class='period'>.</span><span class='id identifier rubyid_clean'><span class='object_link'><a href="../Constants.html#clean-class_method" title="Metasploit::Framework::Spec::Constants.clean (method)">clean</a></span></span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_leaks_cleaned'>leaks_cleaned</span>
+          <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cleaned leaked constants before </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_example'>example</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_full_description'>full_description</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+
+        <span class='comment'># clean so that leaks from earlier example aren&#39;t attributed to this example
+</span>        <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Constants.html" title="Metasploit::Framework::Spec::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Constants::Each (module)">Each</a></span></span><span class='period'>.</span><span class='id identifier rubyid_leaks_cleaned'><span class='object_link'><a href="#leaks_cleaned-class_method" title="Metasploit::Framework::Spec::Constants::Each.leaks_cleaned (method)">leaks_cleaned</a></span></span> <span class='op'>||=</span> <span class='id identifier rubyid_leaks_cleaned'>leaks_cleaned</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_after'>after</span><span class='lparen'>(</span><span class='symbol'>:each</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_example'>example</span><span class='op'>|</span>
+        <span class='id identifier rubyid_child_names'>child_names</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Constants.html" title="Metasploit::Framework::Spec::Constants (module)">Constants</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_enum'>to_enum</span><span class='lparen'>(</span><span class='symbol'>:each</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_child_names'>child_names</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+          <span class='id identifier rubyid_lines'>lines</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Leaked constants:</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+          <span class='id identifier rubyid_child_names'>child_names</span><span class='period'>.</span><span class='id identifier rubyid_sort'>sort</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_child_name'>child_name</span><span class='op'>|</span>
+            <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_child_name'>child_name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+          <span class='kw'>end</span>
+
+          <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+          <span class='id identifier rubyid_lines'>lines</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Add `include_context &#39;Metasploit::Framework::Spec::Constants cleaner&#39;` to clean up constants from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_example'>example</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_full_description'>full_description</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+          <span class='id identifier rubyid_message'>message</span> <span class='op'>=</span> <span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+          <span class='comment'># use caller metadata so that Jump to Source in the Rubymine RSpec running jumps to the example instead of
+</span>          <span class='comment'># here
+</span>          <span class='id identifier rubyid_fail'>fail</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='id identifier rubyid_message'>message</span><span class='comma'>,</span> <span class='id identifier rubyid_example'>example</span><span class='period'>.</span><span class='id identifier rubyid_metadata'>metadata</span><span class='lbracket'>[</span><span class='symbol'>:caller</span><span class='rbracket'>]</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+
+      <span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_after'>after</span><span class='lparen'>(</span><span class='symbol'>:suite</span><span class='rparen'>)</span> <span class='kw'>do</span>
+        <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Constants.html" title="Metasploit::Framework::Spec::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Metasploit::Framework::Spec::Constants::Each (module)">Each</a></span></span><span class='period'>.</span><span class='id identifier rubyid_leaks_cleaned?'><span class='object_link'><a href="#leaks_cleaned%3F-class_method" title="Metasploit::Framework::Spec::Constants::Each.leaks_cleaned? (method)">leaks_cleaned?</a></span></span>
+          <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+            <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+          <span class='kw'>end</span>
+        <span class='kw'>else</span>
+          <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>w</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+            <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No leaks were cleaned by `Metasploit::Framework::Spec::Constants::Each.configured!`.  Remove </span><span class='tstring_end'>&quot;</span></span> \
+                   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>it from `spec/spec_helper.rb` so it does not interfere with contexts that persist loaded </span><span class='tstring_end'>&quot;</span></span> \
+                   <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>modules for entire context and clean up modules in `after(:all)`</span><span class='tstring_end'>&quot;</span></span>
+          <span class='rbrace'>}</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+    <span class='ivar'>@configured</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="configured?-class_method">
+  
+    .<strong>configured?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Whether <span class='object_link'><a href="#configure!-class_method" title="Metasploit::Framework::Spec::Constants::Each.configure! (method)">configure!</a></span> was called</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants/each.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_configured?'>configured?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@configured</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="define_task-class_method">
+  
+    .<strong>define_task</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Adds action to `spec` task so that `rake spec` fails if configured! is unnecessary in `spec/spec_helper.rb` and should be removed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants/each.rb', line 98</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span>
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metasploit:framework:spec:constant:each:clean</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+      <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span><span class='lparen'>(</span><span class='label'>spec:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>metasploit:framework:spec:constant:each:clean</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='const'>Rake</span><span class='op'>::</span><span class='const'>Task</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span><span class='lparen'>(</span><span class='symbol'>:spec</span><span class='rparen'>)</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span>
+      <span class='const'><span class='object_link'><a href="#LOG_PATHNAME-constant" title="Metasploit::Framework::Spec::Constants::Each::LOG_PATHNAME (constant)">LOG_PATHNAME</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+        <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_line'>line</span><span class='op'>|</span>
+          <span class='gvar'>$stderr</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span> <span class='id identifier rubyid_line'>line</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+
+      <span class='id identifier rubyid_exit'>exit</span><span class='lparen'>(</span><span class='int'>1</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="leaks_cleaned?-class_method">
+  
+    .<strong>leaks_cleaned?</strong>  &#x21d2; <tt>true</tt>, <tt>false</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Is Metasploit::Framework::Spec::Constants::Each.configure! still necessary or should it be removed?</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if <span class='object_link'><a href="#configure!-class_method" title="Metasploit::Framework::Spec::Constants::Each.configure! (method)">configure!</a></span>&#39;s `before(:each)` cleaned up leaked constants</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants/each.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_leaks_cleaned?'>leaks_cleaned?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@leaks_cleaned</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:16 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

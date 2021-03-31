@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Proto::Proxy::Socks5::Address
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::Proxy::Socks5::Address";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (A)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proxy.html" title="Rex::Proto::Proxy (module)">Proxy</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Socks5.html" title="Rex::Proto::Proxy::Socks5 (module)">Socks5</a></span></span>
+     &raquo; 
+    <span class="title">Address</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Proto::Proxy::Socks5::Address
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Packet.html" title="Rex::Proto::Proxy::Socks5::Packet (class)">Packet</a></span>, <span class='object_link'><a href="UdpPacket.html" title="Rex::Proto::Proxy::Socks5::UdpPacket (class)">UdpPacket</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/proxy/socks5/packet.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Mixin for socks5 packets to include an address field.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="ADDRESS_TYPE_IPV4-constant" class="">ADDRESS_TYPE_IPV4 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1</span></pre></dd>
+      
+        <dt id="ADDRESS_TYPE_DOMAINNAME-constant" class="">ADDRESS_TYPE_DOMAINNAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>3</span></pre></dd>
+      
+        <dt id="ADDRESS_TYPE_IPV6-constant" class="">ADDRESS_TYPE_IPV6 =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>4</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#address-instance_method" title="#address (instance method)">#<strong>address</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#address=-instance_method" title="#address= (instance method)">#<strong>address=</strong>(value)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#address_length-instance_method" title="#address_length (instance method)">#<strong>address_length</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="address-instance_method">
+  
+    #<strong>address</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/proxy/socks5/packet.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_address'>address</span>
+  <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='id identifier rubyid_address_array'>address_array</span><span class='period'>.</span><span class='id identifier rubyid_to_ary'>to_ary</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_address_type'>address_type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV4-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV4 (constant)">ADDRESS_TYPE_IPV4</a></span></span> <span class='op'>||</span> <span class='id identifier rubyid_address_type'>address_type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV6-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV6 (constant)">ADDRESS_TYPE_IPV6</a></span></span>
+    <span class='id identifier rubyid_addr'>addr</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_ntoa'>addr_ntoa</span><span class='lparen'>(</span><span class='id identifier rubyid_addr'>addr</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_addr'>addr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="address=-instance_method">
+  
+    #<strong>address=</strong>(value)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/proxy/socks5/packet.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_address='>address=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ipv4?'>is_ipv4?</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_address_type'>address_type</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV4-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV4 (constant)">ADDRESS_TYPE_IPV4</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_domainname_length'>domainname_length</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_aton'>addr_aton</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_is_ipv6?'>is_ipv6?</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_address_type'>address_type</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV6-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV6 (constant)">ADDRESS_TYPE_IPV6</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_domainname_length'>domainname_length</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_value'>value</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_addr_aton'>addr_aton</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_address_type'>address_type</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_DOMAINNAME-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_DOMAINNAME (constant)">ADDRESS_TYPE_DOMAINNAME</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_domainname_length'>domainname_length</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_address_array'>address_array</span><span class='period'>.</span><span class='id identifier rubyid_assign'>assign</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="address_length-instance_method">
+  
+    #<strong>address_length</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/proxy/socks5/packet.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_address_length'>address_length</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_address_type'>address_type</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV4-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV4 (constant)">ADDRESS_TYPE_IPV4</a></span></span>
+      <span class='int'>4</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_DOMAINNAME-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_DOMAINNAME (constant)">ADDRESS_TYPE_DOMAINNAME</a></span></span>
+      <span class='id identifier rubyid_domainname_length'>domainname_length</span>
+    <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="#ADDRESS_TYPE_IPV6-constant" title="Rex::Proto::Proxy::Socks5::Address::ADDRESS_TYPE_IPV6 (constant)">ADDRESS_TYPE_IPV6</a></span></span>
+      <span class='int'>16</span>
+    <span class='kw'>else</span>
+      <span class='int'>0</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:38 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: OpenPipeSock
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "OpenPipeSock";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (O)</a> &raquo;
+    
+    
+    <span class="title">OpenPipeSock</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: OpenPipeSock
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html" title="Rex::Proto::SMB::SimpleClient::OpenPipe (class)">Rex::Proto::SMB::SimpleClient::OpenPipe</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html" title="Rex::Proto::SMB::SimpleClient::OpenFile (class)">Rex::Proto::SMB::SimpleClient::OpenFile</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html" title="Rex::Proto::SMB::SimpleClient::OpenPipe (class)">Rex::Proto::SMB::SimpleClient::OpenPipe</a></span></li>
+          
+            <li class="next">OpenPipeSock</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/handler/bind_named_pipe.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Socket interface for named pipes. Because of the way named pipes work, reads and writes each require both a sock.send (read/write request) and a sock.recv (read/write response). So, pipe.read and pipe.write need to be synchronized so the responses arent mixed up.</p>
+
+<p>The packet dispatcher calls select on the socket to check for packets to read. This is an issue when there are multiple writes since it will cause select to return which triggers a read, but there is nothing to read since the pipe will already have read the response. This read will then hold the mutex while the socket read waits to timeout. A peek operation on the pipe fixes this.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="STATUS_BUFFER_OVERFLOW-constant" class="">STATUS_BUFFER_OVERFLOW =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x80000005</span></pre></dd>
+      
+        <dt id="STATUS_PIPE_BROKEN-constant" class="">STATUS_PIPE_BROKEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0xc000014b</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#echo_thread-instance_method" title="#echo_thread (instance method)">#<strong>echo_thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute echo_thread.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#last_comm-instance_method" title="#last_comm (instance method)">#<strong>last_comm</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute last_comm.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mutex-instance_method" title="#mutex (instance method)">#<strong>mutex</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute mutex.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read_buff-instance_method" title="#read_buff (instance method)">#<strong>read_buff</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute read_buff.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#server_max_buffer_size-instance_method" title="#server_max_buffer_size (instance method)">#<strong>server_max_buffer_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute server_max_buffer_size.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#simple-instance_method" title="#simple (instance method)">#<strong>simple</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute simple.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_queue-instance_method" title="#write_queue (instance method)">#<strong>write_queue</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute write_queue.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write_thread-instance_method" title="#write_thread (instance method)">#<strong>write_thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute write_thread.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html" title="Rex::Proto::SMB::SimpleClient::OpenPipe (class)">Rex::Proto::SMB::SimpleClient::OpenPipe</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#mode-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#mode (method)">#mode</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html" title="Rex::Proto::SMB::SimpleClient::OpenFile (class)">Rex::Proto::SMB::SimpleClient::OpenFile</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#chunk_size-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#chunk_size (method)">#chunk_size</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#client-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#client (method)">#client</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#file_id-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#file_id (method)">#file_id</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#mode-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#mode (method)">#mode</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#name-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#name (method)">#name</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#tree_id-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#tree_id (method)">#tree_id</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#versions-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#versions (method)">#versions</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close-instance_method" title="#close (instance method)">#<strong>close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Intercepts the socket.close from the session manager when the session dies.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#dispatcher-instance_method" title="#dispatcher (instance method)">#<strong>dispatcher</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Runs as a thread and synchronizes writes.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#fd-instance_method" title="#fd (instance method)">#<strong>fd</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The session manager expects a socket object so we must implement fd, localinfo, and peerinfo.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#force_read-instance_method" title="#force_read (instance method)">#<strong>force_read</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send echo request to force select() to return in the packet dispatcher and read from the socket.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args, simple:, server_max_buffer_size:)  &#x21d2; OpenPipeSock </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of OpenPipeSock.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#localinfo-instance_method" title="#localinfo (instance method)">#<strong>localinfo</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#peerinfo-instance_method" title="#peerinfo (instance method)">#<strong>peerinfo</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#put-instance_method" title="#put (instance method)">#<strong>put</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-instance_method" title="#read (instance method)">#<strong>read</strong>(count)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#write-instance_method" title="#write (instance method)">#<strong>write</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html" title="Rex::Proto::SMB::SimpleClient::OpenPipe (class)">Rex::Proto::SMB::SimpleClient::OpenPipe</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#peek-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#peek (method)">#peek</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#peek_rex_smb-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#peek_rex_smb (method)">#peek_rex_smb</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#peek_ruby_smb-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#peek_ruby_smb (method)">#peek_ruby_smb</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#read_buffer-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#read_buffer (method)">#read_buffer</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html#write_trans-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenPipe#write_trans (method)">#write_trans</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html" title="Rex::Proto::SMB::SimpleClient::OpenFile (class)">Rex::Proto::SMB::SimpleClient::OpenFile</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#<<-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#&lt;&lt; (method)">#<<</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#delete-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#delete (method)">#delete</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#read_rex_smb-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#read_rex_smb (method)">#read_rex_smb</a></span>, <span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenFile.html#read_ruby_smb-instance_method" title="Rex::Proto::SMB::SimpleClient::OpenFile#read_ruby_smb (method)">#read_ruby_smb</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args, simple:, server_max_buffer_size:)  &#x21d2; <tt><span class='object_link'><a href="" title="OpenPipeSock (class)">OpenPipeSock</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of OpenPipeSock.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='comma'>,</span> <span class='label'>simple:</span><span class='comma'>,</span> <span class='label'>server_max_buffer_size:</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span> <span class='op'>=</span> <span class='id identifier rubyid_simple'>simple</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mutex'>mutex</span> <span class='op'>=</span> <span class='const'>Mutex</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>      <span class='comment'># synchronize read/writes
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>   <span class='comment'># last successfull read/write
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_queue'>write_queue</span> <span class='op'>=</span> <span class='const'>Queue</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='comment'># messages to send
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_thread'>write_thread</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span> <span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_echo_thread'>echo_thread</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_force_read'>force_read</span> <span class='rbrace'>}</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_server_max_buffer_size'>server_max_buffer_size</span> <span class='op'>=</span> <span class='id identifier rubyid_server_max_buffer_size'>server_max_buffer_size</span> <span class='comment'># max transaction size
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_chunk_size'>chunk_size</span> <span class='op'>=</span> <span class='id identifier rubyid_server_max_buffer_size'>server_max_buffer_size</span> <span class='op'>-</span> <span class='int'>260</span>       <span class='comment'># max read/write size
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="echo_thread=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="echo_thread-instance_method">
+  
+    #<strong>echo_thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute echo_thread.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_echo_thread'>echo_thread</span>
+  <span class='ivar'>@echo_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="last_comm=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="last_comm-instance_method">
+  
+    #<strong>last_comm</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute last_comm.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_last_comm'>last_comm</span>
+  <span class='ivar'>@last_comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="mutex=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="mutex-instance_method">
+  
+    #<strong>mutex</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute mutex.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_mutex'>mutex</span>
+  <span class='ivar'>@mutex</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="read_buff=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="read_buff-instance_method">
+  
+    #<strong>read_buff</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute read_buff.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read_buff'>read_buff</span>
+  <span class='ivar'>@read_buff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="server_max_buffer_size=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="server_max_buffer_size-instance_method">
+  
+    #<strong>server_max_buffer_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute server_max_buffer_size.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_server_max_buffer_size'>server_max_buffer_size</span>
+  <span class='ivar'>@server_max_buffer_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="simple=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="simple-instance_method">
+  
+    #<strong>simple</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute simple.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_simple'>simple</span>
+  <span class='ivar'>@simple</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="write_queue=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="write_queue-instance_method">
+  
+    #<strong>write_queue</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute write_queue.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_queue'>write_queue</span>
+  <span class='ivar'>@write_queue</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="write_thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="write_thread-instance_method">
+  
+    #<strong>write_thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute write_thread.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write_thread'>write_thread</span>
+  <span class='ivar'>@write_thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="close-instance_method">
+  
+    #<strong>close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Intercepts the socket.close from the session manager when the session dies. Cleanly terminates the SMB session and closes the socket.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_echo_thread'>echo_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='comment'># Give the meterpreter shutdown command a chance
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_queue'>write_queue</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_thread'>write_thread</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='float'>2.0</span><span class='rparen'>)</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_thread'>write_thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># close pipe, share, and socket
+</span>  <span class='kw'>super</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_disconnect'>disconnect</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_last_share'>last_share</span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dispatcher-instance_method">
+  
+    #<strong>dispatcher</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Runs as a thread and synchronizes writes. Allows write operations to return immediately instead of waiting for the mutex.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dispatcher'>dispatcher</span>
+  <span class='kw'>while</span> <span class='kw'>not</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_queue'>write_queue</span><span class='period'>.</span><span class='id identifier rubyid_closed?'>closed?</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_queue'>write_queue</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mutex'>mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_sent'>sent</span> <span class='op'>=</span> <span class='int'>0</span>
+      <span class='kw'>while</span> <span class='id identifier rubyid_sent'>sent</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+        <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_chunk_size'>chunk_size</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>-</span><span class='id identifier rubyid_sent'>sent</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span>
+        <span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='id identifier rubyid_sent'>sent</span><span class='comma'>,</span> <span class='id identifier rubyid_count'>count</span><span class='rbracket'>]</span>
+        <span class='const'><span class='object_link'><a href="Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Rex/Proto.html" title="Rex::Proto (module)">Proto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Rex/Proto/SMB.html" title="Rex::Proto::SMB (module)">SMB</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient.html" title="Rex::Proto::SMB::SimpleClient (class)">SimpleClient</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Rex/Proto/SMB/SimpleClient/OpenPipe.html" title="Rex::Proto::SMB::SimpleClient::OpenPipe (class)">OpenPipe</a></span></span><span class='period'>.</span><span class='id identifier rubyid_instance_method'>instance_method</span><span class='lparen'>(</span><span class='symbol'>:write</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_bind'>bind</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+        <span class='id identifier rubyid_sent'>sent</span> <span class='op'>+=</span> <span class='id identifier rubyid_count'>count</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="fd-instance_method">
+  
+    #<strong>fd</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The session manager expects a socket object so we must implement fd, localinfo, and peerinfo. fd is passed to select while localinfo and peerinfo are used to report the addresses and ports of the connection.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_fd'>fd</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="force_read-instance_method">
+  
+    #<strong>force_read</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send echo request to force select() to return in the packet dispatcher and read from the socket. This allows “channel -i” and “shell” to work.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_force_read'>force_read</span>
+  <span class='id identifier rubyid_wait'>wait</span> <span class='op'>=</span> <span class='float'>0.5</span>                  <span class='comment'># smaller is faster but generates more traffic
+</span>  <span class='kw'>while</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_elapsed'>elapsed</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_elapsed'>elapsed</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_wait'>wait</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mutex'>mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_echo'>echo</span><span class='lparen'>(</span><span class='rparen'>)</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='const'><span class='object_link'><a href="Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='id identifier rubyid_wait'>wait</span><span class='op'>-</span><span class='id identifier rubyid_elapsed'>elapsed</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="localinfo-instance_method">
+  
+    #<strong>localinfo</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 145</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_localinfo'>localinfo</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_localinfo'>localinfo</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="peerinfo-instance_method">
+  
+    #<strong>peerinfo</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 149</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_peerinfo'>peerinfo</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_simple'>simple</span><span class='period'>.</span><span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_peerinfo'>peerinfo</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="put-instance_method">
+  
+    #<strong>put</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_put'>put</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read-instance_method">
+  
+    #<strong>read</strong>(count)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_count'>count</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_count'>count</span> <span class='op'>&gt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='comment'># need more data to satisfy request
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_mutex'>mutex</span><span class='period'>.</span><span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_avail'>avail</span> <span class='op'>=</span> <span class='id identifier rubyid_peek'>peek</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_avail'>avail</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_left'>left</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_count'>count</span><span class='op'>-</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_avail'>avail</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+        <span class='kw'>while</span> <span class='id identifier rubyid_left'>left</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+          <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_left'>left</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_chunk_size'>chunk_size</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span><span class='rparen'>)</span>
+          <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_last_comm'>last_comm</span> <span class='op'>=</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+          <span class='id identifier rubyid_left'>left</span> <span class='op'>-=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+          <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span> <span class='op'>+=</span> <span class='id identifier rubyid_buff'>buff</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='id identifier rubyid_count'>count</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_min'>min</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_read_buff'>read_buff</span><span class='lbracket'>[</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span>
+    <span class='comment'># avoid full throttle polling
+</span>    <span class='const'><span class='object_link'><a href="Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_sleep'>sleep</span><span class='lparen'>(</span><span class='float'>0.2</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="write-instance_method">
+  
+    #<strong>write</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+130
+131
+132
+133</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/handler/bind_named_pipe.rb', line 130</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_write'>write</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write_queue'>write_queue</span><span class='period'>.</span><span class='id identifier rubyid_push'>push</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:05 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

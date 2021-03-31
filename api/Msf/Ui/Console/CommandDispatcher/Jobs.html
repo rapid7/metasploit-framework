@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Ui::Console::CommandDispatcher::Jobs
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Ui::Console::CommandDispatcher::Jobs";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (J)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Console.html" title="Msf::Ui::Console (module)">Console</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">CommandDispatcher</a></span></span>
+     &raquo; 
+    <span class="title">Jobs</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Ui::Console::CommandDispatcher::Jobs
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Ui::Console::CommandDispatcher::Jobs</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Msf::Ui::Console::CommandDispatcher</a></span>, <span class='object_link'><a href="Common.html" title="Msf::Ui::Console::CommandDispatcher::Common (module)">Common</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/ui/console/command_dispatcher/jobs.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p><span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Msf::Ui::Console::CommandDispatcher</a></span> for commands related to background jobs in Metasploit Framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="handler_opts-classvariable" class="">@@handler_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex/Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../Rex/Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Help Banner</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Shut the Handler down after a session is established</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The payload to configure the handler for</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-P</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The RPORT/LPORT to configure the handler for</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-H</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The RHOST/LHOST to configure the handler for</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-e</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>An Encoder to use for Payload Stage Encoding</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-n</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The custom name to give the handler job</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+        <dt id="jobs_opts-classvariable" class="">@@jobs_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex/Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../../Rex/Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Help banner.</span><span class='tstring_end'>&quot;</span></span>                                   <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-k</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Terminate jobs by job ID and/or range.</span><span class='tstring_end'>&quot;</span></span>         <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-K</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Terminate all running jobs.</span><span class='tstring_end'>&quot;</span></span>                    <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Lists detailed information about a running job.</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-l</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>List all running jobs.</span><span class='tstring_end'>&quot;</span></span>                         <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-v</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Print more detailed info.  Use with -i and -l</span><span class='tstring_end'>&quot;</span></span>  <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Add persistence to job by job ID</span><span class='tstring_end'>&quot;</span></span>               <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-P</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Persist all running jobs on restart.</span><span class='tstring_end'>&quot;</span></span>           <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-S</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Row search filter.</span><span class='tstring_end'>&quot;</span></span>                             <span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Msf::Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../CommandDispatcher.html#driver-instance_method" title="Msf::Ui::Console::CommandDispatcher#driver (method)">#driver</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#shell-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#shell (method)">#shell</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_items-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_items (method)">#tab_complete_items</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_persist_job-instance_method" title="#add_persist_job (instance method)">#<strong>add_persist_job</strong>(job_id)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Add a persistent job by job id.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_handler-instance_method" title="#cmd_handler (instance method)">#<strong>cmd_handler</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Allows the user to setup a payload handler as a background job from a single command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_handler_help-instance_method" title="#cmd_handler_help (instance method)">#<strong>cmd_handler_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_handler_tabs-instance_method" title="#cmd_handler_tabs (instance method)">#<strong>cmd_handler_tabs</strong>(str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_jobs-instance_method" title="#cmd_jobs (instance method)">#<strong>cmd_jobs</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Displays and manages running jobs for the active instance of the framework.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_jobs_help-instance_method" title="#cmd_jobs_help (instance method)">#<strong>cmd_jobs_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_jobs_tabs-instance_method" title="#cmd_jobs_tabs (instance method)">#<strong>cmd_jobs_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tab completion for the jobs command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_kill-instance_method" title="#cmd_kill (instance method)">#<strong>cmd_kill</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_kill_help-instance_method" title="#cmd_kill_help (instance method)">#<strong>cmd_kill_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_kill_tabs-instance_method" title="#cmd_kill_tabs (instance method)">#<strong>cmd_kill_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tab completion for the kill command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_rename_job-instance_method" title="#cmd_rename_job (instance method)">#<strong>cmd_rename_job</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_rename_job_help-instance_method" title="#cmd_rename_job_help (instance method)">#<strong>cmd_rename_job_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_rename_job_tabs-instance_method" title="#cmd_rename_job_tabs (instance method)">#<strong>cmd_rename_job_tabs</strong>(_str, words)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Tab completion for the rename_job command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the name of the command dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Common.html" title="Msf::Ui::Console::CommandDispatcher::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Common.html#arg_host_range-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#arg_host_range (method)">#arg_host_range</a></span>, <span class='object_link'><a href="Common.html#arg_port_range-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#arg_port_range (method)">#arg_port_range</a></span>, <span class='object_link'><a href="Common.html#index_from_list-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#index_from_list (method)">#index_from_list</a></span>, <span class='object_link'><a href="Common.html#set_rhosts_from_addrs-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#set_rhosts_from_addrs (method)">#set_rhosts_from_addrs</a></span>, <span class='object_link'><a href="Common.html#show_options-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#show_options (method)">#show_options</a></span>, <span class='object_link'><a href="Common.html#trim_path-instance_method" title="Msf::Ui::Console::CommandDispatcher::Common#trim_path (method)">#trim_path</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">Msf::Ui::Console::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../CommandDispatcher.html#active_module-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module (method)">#active_module</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#active_module=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_module= (method)">#active_module=</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#active_session-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session (method)">#active_session</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#active_session=-instance_method" title="Msf::Ui::Console::CommandDispatcher#active_session= (method)">#active_session=</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#build_range_array-instance_method" title="Msf::Ui::Console::CommandDispatcher#build_range_array (method)">#build_range_array</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#docs_dir-instance_method" title="Msf::Ui::Console::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#framework-instance_method" title="Msf::Ui::Console::CommandDispatcher#framework (method)">#framework</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#initialize-instance_method" title="Msf::Ui::Console::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#log_error-instance_method" title="Msf::Ui::Console::CommandDispatcher#log_error (method)">#log_error</a></span>, <span class='object_link'><a href="../CommandDispatcher.html#remove_lines-instance_method" title="Msf::Ui::Console::CommandDispatcher#remove_lines (method)">#remove_lines</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher (module)">Rex::Ui::Text::DispatcherShell::CommandDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help (method)">#cmd_help</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_help (method)">#cmd_help_help</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#cmd_help_tabs-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#cmd_help_tabs (method)">#cmd_help_tabs</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_cmd-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_cmd (method)">#deprecated_cmd</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_commands-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_commands (method)">#deprecated_commands</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#deprecated_help-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#deprecated_help (method)">#deprecated_help</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#docs_dir-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#docs_dir (method)">#docs_dir</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#help_to_s-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#help_to_s (method)">#help_to_s</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#initialize-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#initialize (method)">#initialize</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_error-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_good-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_line-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_status-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#print_warning-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_directory-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_directory (method)">#tab_complete_directory</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_filenames-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_filenames (method)">#tab_complete_filenames</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_generic-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_generic (method)">#tab_complete_generic</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#tab_complete_source_address-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#tab_complete_source_address (method)">#tab_complete_source_address</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#unknown_command-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#unknown_command (method)">#unknown_command</a></span>, <span class='object_link'><a href="../../../../Rex/Ui/Text/DispatcherShell/CommandDispatcher.html#update_prompt-instance_method" title="Rex::Ui::Text::DispatcherShell::CommandDispatcher#update_prompt (method)">#update_prompt</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_persist_job-instance_method">
+  
+    #<strong>add_persist_job</strong>(job_id)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Add a persistent job by job id. Persistent job would restore on console restarted.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 242</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_persist_job'>add_persist_job</span><span class='lparen'>(</span><span class='id identifier rubyid_job_id'>job_id</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_job_id'>job_id</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_handler_ctx'>handler_ctx</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ctx'>ctx</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_handler_ctx'>handler_ctx</span> <span class='kw'>and</span> <span class='id identifier rubyid_handler_ctx'>handler_ctx</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:replicant</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Add persistent job failed: job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_id'>job_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not payload handler.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_mod'>mod</span>     <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ctx'>ctx</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_replicant'>replicant</span>
+    <span class='id identifier rubyid_payload'>payload</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ctx'>ctx</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_replicant'>replicant</span>
+
+    <span class='id identifier rubyid_payload_opts'>payload_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Options</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_payload'>payload</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RunAsJob</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='kw'>true</span>
+    <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_mod_opts'>mod_opts</span> <span class='op'>=</span>  <span class='lbrace'>{</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mod_name</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span><span class='comma'>,</span>
+      <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mod_options</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_payload_opts'>payload_opts</span>
+    <span class='rbrace'>}</span>
+
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_persist_list'>persist_list</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span><span class='comma'>,</span> <span class='const'>JSON</span><span class='op'>::</span><span class='const'>ParserError</span>
+      <span class='id identifier rubyid_persist_list'>persist_list</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_persist_list'>persist_list</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_mod_opts'>mod_opts</span>
+    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+      <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span><span class='lparen'>(</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_pretty_generate'>pretty_generate</span><span class='lparen'>(</span><span class='id identifier rubyid_persist_list'>persist_list</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Added persistence to job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_id'>job_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Job ID</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_handler-instance_method">
+  
+    #<strong>cmd_handler</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Allows the user to setup a payload handler as a background job from a single command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 326</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_handler'>cmd_handler</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'># Display the help banner if no arguments were passed
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_cmd_handler_help'>cmd_handler_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_exit_on_session'>exit_on_session</span>     <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_payload_module'>payload_module</span>      <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_port'>port</span>                <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_host'>host</span>                <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_job_name'>job_name</span>            <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_stage_encoder'>stage_encoder</span>       <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Parse the command options
+</span>  <span class='cvar'>@@handler_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid__idx'>_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-x</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_exit_on_session'>exit_on_session</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_payload_module'>payload_module</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_payload_module'>payload_module</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Payload Name Supplied!</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>return</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-P</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-H</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_job_name'>job_name</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-e</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_encoder_module'>encoder_module</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_encoders'>encoders</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_encoder_module'>encoder_module</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Encoder Name Supplied</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_stage_encoder'>stage_encoder</span> <span class='op'>=</span> <span class='id identifier rubyid_encoder_module'>encoder_module</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_cmd_handler_help'>cmd_handler_help</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If we are missing any of the required options, inform the user about each
+</span>  <span class='comment'># missing options, and not just one. Then exit so they can try again.
+</span>  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You must select a payload with -p &lt;payload&gt;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_payload_module'>payload_module</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You must select a port(RPORT/LPORT) with -P &lt;port number&gt;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You must select a host(RHOST/LHOST) with -H &lt;hostname or address&gt;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_payload_module'>payload_module</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_port'>port</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_host'>host</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please supply missing arguments and try again.</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_handler'>handler</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_modules'>modules</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>exploit/multi/handler</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payload_datastore'>payload_datastore</span> <span class='op'>=</span> <span class='id identifier rubyid_payload_module'>payload_module</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span>
+
+  <span class='comment'># Set The RHOST or LHOST for the payload
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_host'>host</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not determine how to set Host on this payload...</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set the RPORT or LPORT for the payload
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Could not determine how to set Port on this payload...</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set StageEncoder if selected
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_stage_encoder'>stage_encoder</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EnableStageEncoding</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>StageEncoder</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_stage_encoder'>stage_encoder</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Merge payload datastore options into the handler options
+</span>  <span class='id identifier rubyid_handler_opts'>handler_opts</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='id identifier rubyid_payload_module'>payload_module</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalInput</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='id identifier rubyid_driver'>driver</span><span class='period'>.</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalOutput</span><span class='tstring_end'>&#39;</span></span>    <span class='op'>=&gt;</span> <span class='id identifier rubyid_driver'>driver</span><span class='period'>.</span><span class='id identifier rubyid_output'>output</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitOnSession</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='id identifier rubyid_exit_on_session'>exit_on_session</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RunAsJob</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='kw'>true</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_reverse_merge!'>reverse_merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_payload_datastore'>payload_datastore</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='id identifier rubyid_handler_opts'>handler_opts</span><span class='rparen'>)</span>
+
+  <span class='comment'># Launch our Handler and get the Job ID
+</span>  <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_exploit_simple'>exploit_simple</span><span class='lparen'>(</span><span class='id identifier rubyid_handler_opts'>handler_opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_job_id'>job_id</span> <span class='op'>=</span> <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_job_id'>job_id</span>
+
+  <span class='comment'># Customise the job name if the user asked for it
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_job_name'>job_name</span><span class='period'>.</span><span class='id identifier rubyid_present?'>present?</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:name=</span><span class='comma'>,</span> <span class='id identifier rubyid_job_name'>job_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Payload handler running as background job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_id'>job_id</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_handler_help-instance_method">
+  
+    #<strong>cmd_handler_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+318
+319
+320
+321
+322
+323</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 318</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_handler_help'>cmd_handler_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: handler [options]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Spin up a Payload Handler as background job.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@handler_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_handler_tabs-instance_method">
+  
+    #<strong>cmd_handler_tabs</strong>(str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 432</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_handler_tabs'>cmd_handler_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fmt'>fmt</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>nil</span>                                               <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-x</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>nil</span>                                               <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_refname'>refname</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span> <span class='id identifier rubyid_refname'>refname</span> <span class='rbrace'>}</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-P</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span>                                              <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-H</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='symbol'>:address</span>                                          <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-e</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_encoders'>encoders</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_refname'>refname</span><span class='comma'>,</span> <span class='id identifier rubyid_mod'>mod</span><span class='op'>|</span> <span class='id identifier rubyid_refname'>refname</span> <span class='rbrace'>}</span> <span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-n</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span> <span class='kw'>true</span>                                              <span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_tab_complete_generic'>tab_complete_generic</span><span class='lparen'>(</span><span class='id identifier rubyid_fmt'>fmt</span><span class='comma'>,</span> <span class='id identifier rubyid_str'>str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_jobs-instance_method">
+  
+    #<strong>cmd_jobs</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Displays and manages running jobs for the active instance of the framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 113</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_jobs'>cmd_jobs</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'># Make the default behavior listing all jobs if there were no options
+</span>  <span class='comment'># or the only option is the verbose flag
+</span>  <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-l</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span> <span class='op'>==</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-v</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_verbose'>verbose</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_dump_list'>dump_list</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_dump_info'>dump_info</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_kill_job'>kill_job</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_job_id'>job_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_job_list'>job_list</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Parse the command options
+</span>  <span class='cvar'>@@jobs_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid__idx'>_idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-v</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_verbose'>verbose</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-l</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_dump_list'>dump_list</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='comment'># Terminate the supplied job ID(s)
+</span>    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-k</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_job_list'>job_list</span> <span class='op'>=</span> <span class='id identifier rubyid_build_range_array'>build_range_array</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_kill_job'>kill_job</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-K</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping all jobs...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_each_key'>each_key</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+        <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_stop_job'>stop_job</span><span class='lparen'>(</span><span class='id identifier rubyid_i'>i</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+      <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_writable?'>writable?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-i</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># Defer printing anything until the end of option parsing
+</span>      <span class='comment'># so we can check for the verbose flag.
+</span>      <span class='id identifier rubyid_dump_info'>dump_info</span> <span class='op'>=</span> <span class='kw'>true</span>
+      <span class='id identifier rubyid_job_id'>job_id</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-p</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_job_list'>job_list</span> <span class='op'>=</span> <span class='id identifier rubyid_build_range_array'>build_range_array</span><span class='lparen'>(</span><span class='id identifier rubyid_val'>val</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_job_id'>job_id</span><span class='op'>|</span>
+        <span class='id identifier rubyid_add_persist_job'>add_persist_job</span><span class='lparen'>(</span><span class='id identifier rubyid_job_id'>job_id</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-P</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Making all jobs persistent ...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_job_list'>job_list</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_k'>k</span><span class='comma'>,</span><span class='id identifier rubyid_v'>v</span><span class='op'>|</span>
+        <span class='id identifier rubyid_v'>v</span><span class='period'>.</span><span class='id identifier rubyid_jid'>jid</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_job_id'>job_id</span><span class='op'>|</span>
+        <span class='id identifier rubyid_add_persist_job'>add_persist_job</span><span class='lparen'>(</span><span class='id identifier rubyid_job_id'>job_id</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-S</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>--search</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='id identifier rubyid_dump_list'>dump_list</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_cmd_jobs_help'>cmd_jobs_help</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_dump_list'>dump_list</span>
+    <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_jobs'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_jobs-class_method" title="Msf::Serializer::ReadableText.dump_jobs (method)">dump_jobs</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_verbose'>verbose</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_dump_info'>dump_info</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_job_id'>job_id</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_job'>job</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_mod'>mod</span> <span class='op'>=</span> <span class='id identifier rubyid_job'>job</span><span class='period'>.</span><span class='id identifier rubyid_ctx'>ctx</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+      <span class='id identifier rubyid_output'>output</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_output'>output</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Name: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_output'>output</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>, started at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job'>job</span><span class='period'>.</span><span class='id identifier rubyid_start_time'>start_time</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_job'>job</span><span class='period'>.</span><span class='id identifier rubyid_start_time'>start_time</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+
+      <span class='id identifier rubyid_show_options'>show_options</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_options'>options</span><span class='period'>.</span><span class='id identifier rubyid_has_options?'>has_options?</span>
+
+      <span class='kw'>if</span> <span class='id identifier rubyid_verbose'>verbose</span>
+        <span class='id identifier rubyid_mod_opt'>mod_opt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_advanced_options'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_advanced_options-class_method" title="Msf::Serializer::ReadableText.dump_advanced_options (method)">dump_advanced_options</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_mod_opt'>mod_opt</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_mod_opt'>mod_opt</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+          <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nModule advanced options:\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_opt'>mod_opt</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid Job ID</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_kill_job'>kill_job</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Please specify valid job identifier(s)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping the following job(s): </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>, </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='comment'># Remove  the persistent job when match the option of payload.
+</span>    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_persist_list'>persist_list</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span> <span class='const'>Errno</span><span class='op'>::</span><span class='const'>ENOENT</span><span class='comma'>,</span> <span class='const'>JSON</span><span class='op'>::</span><span class='const'>ParserError</span>
+      <span class='id identifier rubyid_persist_list'>persist_list</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Remove persistence by job id.
+</span>    <span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_job'>job</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_ctx_1'>ctx_1</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job'>job</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_ctx'>ctx</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+        <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_ctx_1'>ctx_1</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='op'>!</span><span class='id identifier rubyid_ctx_1'>ctx_1</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:datastore</span><span class='rparen'>)</span>  <span class='comment'># next if no payload context in the job
+</span>        <span class='id identifier rubyid_payload_option'>payload_option</span> <span class='op'>=</span> <span class='id identifier rubyid_ctx_1'>ctx_1</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span>
+        <span class='id identifier rubyid_persist_list'>persist_list</span><span class='period'>.</span><span class='id identifier rubyid_delete_if'>delete_if</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_pjob'>pjob</span><span class='op'>|</span><span class='id identifier rubyid_pjob'>pjob</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>mod_options</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Options</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_payload_option'>payload_option</span><span class='rbrace'>}</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='comment'># Write persist job back to config file.
+</span>    <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_persist_file'><span class='object_link'><a href="../../../Config.html#persist_file-class_method" title="Msf::Config.persist_file (method)">persist_file</a></span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>w</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_file'>file</span><span class='op'>|</span>
+      <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_puts'>puts</span><span class='lparen'>(</span><span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_pretty_generate'>pretty_generate</span><span class='lparen'>(</span><span class='id identifier rubyid_persist_list'>persist_list</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Stop the job by job id.
+</span>    <span class='id identifier rubyid_job_list'>job_list</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_s</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_job'>job</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stopping job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job'>job</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_stop_job'>stop_job</span><span class='lparen'>(</span><span class='id identifier rubyid_job'>job</span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid job identifier: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job'>job</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_jobs_help-instance_method">
+  
+    #<strong>cmd_jobs_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_jobs_help'>cmd_jobs_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: jobs [options]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Active job manipulation and interaction.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@jobs_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_jobs_tabs-instance_method">
+  
+    #<strong>cmd_jobs_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tab completion for the jobs command</p>
+
+<p>at least 1 when tab completion has reached this stage since the command itself has been completed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>str</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string currently being typed before tab was hit</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the previously completed words on the command line.  words is always</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+286
+287
+288
+289
+290
+291
+292
+293
+294</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 286</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_jobs_tabs'>cmd_jobs_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='cvar'>@@jobs_opts</span><span class='period'>.</span><span class='id identifier rubyid_fmt'>fmt</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>2</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='cvar'>@@jobs_opts</span><span class='period'>.</span><span class='id identifier rubyid_fmt'>fmt</span><span class='lbracket'>[</span><span class='id identifier rubyid_words'>words</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+  <span class='kw'>end</span>
+
+  <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_kill-instance_method">
+  
+    #<strong>cmd_kill</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+302
+303
+304</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 302</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_kill'>cmd_kill</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd_jobs'>cmd_jobs</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-k</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_kill_help-instance_method">
+  
+    #<strong>cmd_kill_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+296
+297
+298
+299
+300</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 296</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_kill_help'>cmd_kill_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: kill &lt;job1&gt; [job2 ...]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Equivalent to &#39;jobs -k job1 -k job2 ...&#39;</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_kill_tabs-instance_method">
+  
+    #<strong>cmd_kill_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tab completion for the kill command</p>
+
+<p>at least 1 when tab completion has reached this stage since the command itself has been completed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>str</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string currently being typed before tab was hit</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the previously completed words on the command line.  words is always</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+313
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 313</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_kill_tabs'>cmd_kill_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_rename_job-instance_method">
+  
+    #<strong>cmd_rename_job</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 68</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_rename_job'>cmd_rename_job</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>2</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>!~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^\d+$</span><span class='regexp_end'>/</span></span>
+    <span class='id identifier rubyid_cmd_rename_job_help'>cmd_rename_job_help</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_job_id'>job_id</span>   <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_job_name'>job_name</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_id'>job_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not exist.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># This is not respecting the Protected access control, but this seems to be the only way
+</span>  <span class='comment'># to rename a job. If you know a more appropriate way, patches accepted.
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='lbracket'>[</span><span class='id identifier rubyid_job_id'>job_id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:name=</span><span class='comma'>,</span> <span class='id identifier rubyid_job_name'>job_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Job </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_job_id'>job_id</span><span class='embexpr_end'>}</span><span class='tstring_content'> updated</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_rename_job_help-instance_method">
+  
+    #<strong>cmd_rename_job_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_rename_job_help'>cmd_rename_job_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: rename_job [ID] [Name]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Example: rename_job 0 \&quot;meterpreter HTTPS special\&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Rename a job that&#39;s currently active.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You may use the jobs command to see what jobs are available.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_rename_job_tabs-instance_method">
+  
+    #<strong>cmd_rename_job_tabs</strong>(_str, words)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Tab completion for the rename_job command</p>
+
+<p>at least 1 when tab completion has reached this stage since the command itself has been completed</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>str</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the string currently being typed before tab was hit</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>words</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the previously completed words on the command line.  words is always</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+97
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 97</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_rename_job_tabs'>cmd_rename_job_tabs</span><span class='lparen'>(</span><span class='id identifier rubyid__str'>_str</span><span class='comma'>,</span> <span class='id identifier rubyid_words'>words</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_words'>words</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_jobs'>jobs</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>jobs</span><span class='tstring_end'>&quot;</span></span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Displays and manages jobs</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rename_job</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Rename a job</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>kill</span><span class='tstring_end'>&quot;</span></span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Kill a job</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>handler</span><span class='tstring_end'>&quot;</span></span>    <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Start a payload handler as job</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the name of the command dispatcher.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/jobs.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Job</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:13 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

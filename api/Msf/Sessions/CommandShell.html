@@ -1,0 +1,3939 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::CommandShell
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::CommandShell";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span>
+     &raquo; 
+    <span class="title">CommandShell</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::CommandShell
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::Sessions::CommandShell</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Session/Basic.html" title="Msf::Session::Basic (module)">Msf::Session::Basic</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span>, <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span>, <span class='object_link'><a href="../../Rex/Ui/Text/Resource.html" title="Rex::Ui::Text::Resource (module)">Rex::Ui::Text::Resource</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/command_shell.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides basic interaction with a command shell on the remote endpoint.  This session is initialized with a stream that will be used as the pipe for reading and writing the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="CommandShellUnix.html" title="Msf::Sessions::CommandShellUnix (class)">CommandShellUnix</a></span>, <span class='object_link'><a href="CommandShellWindows.html" title="Msf::Sessions::CommandShellWindows (class)">CommandShellWindows</a></span>, <span class='object_link'><a href="EncryptedShell.html" title="Msf::Sessions::EncryptedShell (class)">EncryptedShell</a></span>, <span class='object_link'><a href="MainframeShell.html" title="Msf::Sessions::MainframeShell (class)">MainframeShell</a></span>, <span class='object_link'><a href="PowerShell.html" title="Msf::Sessions::PowerShell (class)">PowerShell</a></span>, <span class='object_link'><a href="SshCommandShell.html" title="Msf::Sessions::SshCommandShell (class)">SshCommandShell</a></span></p>
+</div>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="irb_opts-classvariable" class="">@@irb_opts =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Parser.html" title="Rex::Parser (module)">Parser</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Parser/Arguments.html" title="Rex::Parser::Arguments (class)">Arguments</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Parser/Arguments.html#initialize-instance_method" title="Rex::Parser::Arguments#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu.</span><span class='tstring_end'>&#39;</span></span>             <span class='rbracket'>]</span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-e</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='lbracket'>[</span><span class='kw'>true</span><span class='comma'>,</span>  <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Expression to evaluate.</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arch-instance_method" title="#arch (instance method)">#<strong>arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute arch.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_threads-instance_method" title="#max_threads (instance method)">#<strong>max_threads</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_threads.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#platform-instance_method" title="#platform (instance method)">#<strong>platform</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute platform.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#rstream-instance_method" title="Msf::Session::Interactive#rstream (method)">#rstream</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive-instance_method" title="Msf::Session#alive (method)">#alive</a></span>, <span class='object_link'><a href="../Session.html#db_record-instance_method" title="Msf::Session#db_record (method)">#db_record</a></span>, <span class='object_link'><a href="../Session.html#exploit-instance_method" title="Msf::Session#exploit (method)">#exploit</a></span>, <span class='object_link'><a href="../Session.html#exploit_datastore-instance_method" title="Msf::Session#exploit_datastore (method)">#exploit_datastore</a></span>, <span class='object_link'><a href="../Session.html#exploit_task-instance_method" title="Msf::Session#exploit_task (method)">#exploit_task</a></span>, <span class='object_link'><a href="../Session.html#exploit_uuid-instance_method" title="Msf::Session#exploit_uuid (method)">#exploit_uuid</a></span>, <span class='object_link'><a href="../Session.html#framework-instance_method" title="Msf::Session#framework (method)">#framework</a></span>, <span class='object_link'><a href="../Session.html#info-instance_method" title="Msf::Session#info (method)">#info</a></span>, <span class='object_link'><a href="../Session.html#machine_id-instance_method" title="Msf::Session#machine_id (method)">#machine_id</a></span>, <span class='object_link'><a href="../Session.html#payload_uuid-instance_method" title="Msf::Session#payload_uuid (method)">#payload_uuid</a></span>, <span class='object_link'><a href="../Session.html#routes-instance_method" title="Msf::Session#routes (method)">#routes</a></span>, <span class='object_link'><a href="../Session.html#sid-instance_method" title="Msf::Session#sid (method)">#sid</a></span>, <span class='object_link'><a href="../Session.html#sname-instance_method" title="Msf::Session#sname (method)">#sname</a></span>, <span class='object_link'><a href="../Session.html#target_host-instance_method" title="Msf::Session#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../Session.html#target_port-instance_method" title="Msf::Session#target_port (method)">#target_port</a></span>, <span class='object_link'><a href="../Session.html#username-instance_method" title="Msf::Session#username (method)">#username</a></span>, <span class='object_link'><a href="../Session.html#uuid-instance_method" title="Msf::Session#uuid (method)">#uuid</a></span>, <span class='object_link'><a href="../Session.html#via-instance_method" title="Msf::Session#via (method)">#via</a></span>, <span class='object_link'><a href="../Session.html#workspace-instance_method" title="Msf::Session#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-class_method" title="type (class method)">.<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the type of session.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_interact-instance_method" title="#_interact (instance method)">#<strong>_interact</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_interact_stream-instance_method" title="#_interact_stream (instance method)">#<strong>_interact_stream</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#binary_exists-instance_method" title="#binary_exists (instance method)">#<strong>binary_exists</strong>(binary)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check if there is a binary in PATH env.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_background-instance_method" title="#cmd_background (instance method)">#<strong>cmd_background</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_background_help-instance_method" title="#cmd_background_help (instance method)">#<strong>cmd_background_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_download-instance_method" title="#cmd_download (instance method)">#<strong>cmd_download</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_download_help-instance_method" title="#cmd_download_help (instance method)">#<strong>cmd_download_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_help-instance_method" title="#cmd_help (instance method)">#<strong>cmd_help</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_help_help-instance_method" title="#cmd_help_help (instance method)">#<strong>cmd_help_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_irb-instance_method" title="#cmd_irb (instance method)">#<strong>cmd_irb</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open an interactive Ruby shell on the current session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_irb_help-instance_method" title="#cmd_irb_help (instance method)">#<strong>cmd_irb_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_pry-instance_method" title="#cmd_pry (instance method)">#<strong>cmd_pry</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Open the Pry debugger on the current session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_pry_help-instance_method" title="#cmd_pry_help (instance method)">#<strong>cmd_pry_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_resource-instance_method" title="#cmd_resource (instance method)">#<strong>cmd_resource</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_resource_help-instance_method" title="#cmd_resource_help (instance method)">#<strong>cmd_resource_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_sessions-instance_method" title="#cmd_sessions (instance method)">#<strong>cmd_sessions</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_sessions_help-instance_method" title="#cmd_sessions_help (instance method)">#<strong>cmd_sessions_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_shell-instance_method" title="#cmd_shell (instance method)">#<strong>cmd_shell</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_shell_help-instance_method" title="#cmd_shell_help (instance method)">#<strong>cmd_shell_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_source-instance_method" title="#cmd_source (instance method)">#<strong>cmd_source</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_source_help-instance_method" title="#cmd_source_help (instance method)">#<strong>cmd_source_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_upload-instance_method" title="#cmd_upload (instance method)">#<strong>cmd_upload</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cmd_upload_help-instance_method" title="#cmd_upload_help (instance method)">#<strong>cmd_upload_help</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#commands-instance_method" title="#commands (instance method)">#<strong>commands</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>List of supported commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the session description.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#docs_dir-instance_method" title="#docs_dir (instance method)">#<strong>docs_dir</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the subdir of the `documentation/` directory that should be used to find usage documentation.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#execute_file-instance_method" title="#execute_file (instance method)">#<strong>execute_file</strong>(full_path, args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Scriptable implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#file_exists-instance_method" title="#file_exists (instance method)">#<strong>file_exists</strong>(path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Check if there is a file on the target machine.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(conn, opts = {})  &#x21d2; CommandShell </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of CommandShell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_autoruns-instance_method" title="#process_autoruns (instance method)">#<strong>process_autoruns</strong>(datastore)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Execute any specified auto-run scripts for this session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#repr-instance_method" title="#repr (instance method)">#<strong>repr</strong>(data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_builtin_cmd-instance_method" title="#run_builtin_cmd (instance method)">#<strong>run_builtin_cmd</strong>(method, arguments)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Run built-in command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_single-instance_method" title="#run_single (instance method)">#<strong>run_single</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Explicitly runs a single line command.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_close-instance_method" title="#shell_close (instance method)">#<strong>shell_close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command-instance_method" title="#shell_command (instance method)">#<strong>shell_command</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_init-instance_method" title="#shell_init (instance method)">#<strong>shell_init</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_read-instance_method" title="#shell_read (instance method)">#<strong>shell_read</strong>(length = -1,, timeout = 1)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_write-instance_method" title="#shell_write (instance method)">#<strong>shell_write</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calls the class method.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Text/Resource.html" title="Rex::Ui::Text::Resource (module)">Rex::Ui::Text::Resource</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Text/Resource.html#load_resource-instance_method" title="Rex::Ui::Text::Resource#load_resource (method)">#load_resource</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scriptable.html#execute_script-instance_method" title="Msf::Sessions::Scriptable#execute_script (method)">#execute_script</a></span>, <span class='object_link'><a href="Scriptable.html#included-class_method" title="Msf::Sessions::Scriptable.included (method)">included</a></span>, <span class='object_link'><a href="Scriptable.html#legacy_script_to_post_module-instance_method" title="Msf::Sessions::Scriptable#legacy_script_to_post_module (method)">#legacy_script_to_post_module</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#set_shell_token_index-instance_method" title="Msf::Session::Provider::SingleCommandShell#set_shell_token_index (method)">#set_shell_token_index</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token (method)">#shell_command_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_unix-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_unix (method)">#shell_command_token_unix</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_win32-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_win32 (method)">#shell_command_token_win32</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read_until_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read_until_token (method)">#shell_read_until_token</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#_interact_complete-instance_method" title="Msf::Session::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interrupt-instance_method" title="Msf::Session::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_suspend-instance_method" title="Msf::Session::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_usr1-instance_method" title="Msf::Session::Interactive#_usr1 (method)">#_usr1</a></span>, <span class='object_link'><a href="../Session/Interactive.html#interactive%3F-instance_method" title="Msf::Session::Interactive#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session/Interactive.html#kill-instance_method" title="Msf::Session::Interactive#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session/Interactive.html#run_cmd-instance_method" title="Msf::Session::Interactive#run_cmd (method)">#run_cmd</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_local-instance_method" title="Msf::Session::Interactive#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_peer-instance_method" title="Msf::Session::Interactive#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session/Interactive.html#user_want_abort%3F-instance_method" title="Msf::Session::Interactive#user_want_abort? (method)">#user_want_abort?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact_complete-instance_method" title="Rex::Ui::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interrupt-instance_method" title="Rex::Ui::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_remote_fd-instance_method" title="Rex::Ui::Interactive#_remote_fd (method)">#_remote_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_local_write_remote-instance_method" title="Rex::Ui::Interactive#_stream_read_local_write_remote (method)">#_stream_read_local_write_remote</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_remote_write_local-instance_method" title="Rex::Ui::Interactive#_stream_read_remote_write_local (method)">#_stream_read_remote_write_local</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_suspend-instance_method" title="Rex::Ui::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive%3F-instance_method" title="Msf::Session#alive? (method)">#alive?</a></span>, <span class='object_link'><a href="../Session.html#dead%3F-instance_method" title="Msf::Session#dead? (method)">#dead?</a></span>, <span class='object_link'><a href="../Session.html#inspect-instance_method" title="Msf::Session#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="../Session.html#interactive%3F-instance_method" title="Msf::Session#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session.html#kill-instance_method" title="Msf::Session#kill (method)">#kill</a></span>, <span class='object_link'><a href="../Session.html#log_file_name-instance_method" title="Msf::Session#log_file_name (method)">#log_file_name</a></span>, <span class='object_link'><a href="../Session.html#log_source-instance_method" title="Msf::Session#log_source (method)">#log_source</a></span>, <span class='object_link'><a href="../Session.html#name-instance_method" title="Msf::Session#name (method)">#name</a></span>, <span class='object_link'><a href="../Session.html#name=-instance_method" title="Msf::Session#name= (method)">#name=</a></span>, <span class='object_link'><a href="../Session.html#register%3F-instance_method" title="Msf::Session#register? (method)">#register?</a></span>, <span class='object_link'><a href="../Session.html#session_host-instance_method" title="Msf::Session#session_host (method)">#session_host</a></span>, <span class='object_link'><a href="../Session.html#session_host=-instance_method" title="Msf::Session#session_host= (method)">#session_host=</a></span>, <span class='object_link'><a href="../Session.html#session_port-instance_method" title="Msf::Session#session_port (method)">#session_port</a></span>, <span class='object_link'><a href="../Session.html#session_port=-instance_method" title="Msf::Session#session_port= (method)">#session_port=</a></span>, <span class='object_link'><a href="../Session.html#session_type-instance_method" title="Msf::Session#session_type (method)">#session_type</a></span>, <span class='object_link'><a href="../Session.html#set_from_exploit-instance_method" title="Msf::Session#set_from_exploit (method)">#set_from_exploit</a></span>, <span class='object_link'><a href="../Session.html#set_via-instance_method" title="Msf::Session#set_via (method)">#set_via</a></span>, <span class='object_link'><a href="../Session.html#tunnel_local-instance_method" title="Msf::Session#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session.html#tunnel_peer-instance_method" title="Msf::Session#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session.html#tunnel_to_s-instance_method" title="Msf::Session#tunnel_to_s (method)">#tunnel_to_s</a></span>, <span class='object_link'><a href="../Session.html#via_exploit-instance_method" title="Msf::Session#via_exploit (method)">#via_exploit</a></span>, <span class='object_link'><a href="../Session.html#via_payload-instance_method" title="Msf::Session#via_payload (method)">#via_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(conn, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Sessions::CommandShell (class)">CommandShell</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of CommandShell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 56</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_conn'>conn</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>     <span class='op'>||=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_max_threads'>max_threads</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='ivar'>@cleanup</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_datastore'>datastore</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CommandShellCleanupCommand</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+    <span class='ivar'>@cleanup_command</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>CommandShellCleanupCommand</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="arch=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="arch-instance_method">
+  
+    #<strong>arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute arch.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+725
+726
+727</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 725</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='ivar'>@arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_threads=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_threads-instance_method">
+  
+    #<strong>max_threads</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_threads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+727
+728
+729</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 727</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_threads'>max_threads</span>
+  <span class='ivar'>@max_threads</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="platform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="platform-instance_method">
+  
+    #<strong>platform</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute platform.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+726
+727
+728</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 726</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_platform'>platform</span>
+  <span class='ivar'>@platform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="type-class_method">
+  
+    .<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the type of session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 52</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_interact-instance_method">
+  
+    #<strong>_interact</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+<p>Override the basic session interaction to use shell_read and shell_write instead of operating on rstream directly.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+736
+737
+738
+739</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 736</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact'>_interact</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_interact'>on_session_interact</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid__interact_stream'>_interact_stream</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interact_stream-instance_method">
+  
+    #<strong>_interact_stream</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+744
+745
+746
+747
+748
+749
+750
+751
+752
+753
+754
+755
+756
+757
+758</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 744</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact_stream'>_interact_stream</span>
+  <span class='id identifier rubyid_fds'>fds</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span><span class='comma'>,</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span><span class='rbracket'>]</span>
+  <span class='kw'>while</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span>
+    <span class='id identifier rubyid_sd'>sd</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ThreadSafe</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_fds'>fds</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_fds'>fds</span><span class='comma'>,</span> <span class='float'>0.5</span><span class='rparen'>)</span>
+    <span class='kw'>next</span> <span class='kw'>unless</span> <span class='id identifier rubyid_sd'>sd</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_sd'>sd</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span>
+      <span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_shell_read'>shell_read</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_sd'>sd</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_fd'>fd</span>
+      <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_pass'>pass</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="binary_exists-instance_method">
+  
+    #<strong>binary_exists</strong>(binary)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check if there is a binary in PATH env</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 317</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_binary'>binary</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Trying to find binary(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binary'>binary</span><span class='embexpr_end'>}</span><span class='tstring_content'>) on target machine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_binary_path'>binary_path</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>which </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binary'>binary</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_binary_path'>binary_path</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binary'>binary</span><span class='embexpr_end'>}</span><span class='tstring_content'> not found</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_binary_path'>binary_path</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_binary_path'>binary_path</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Found </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binary'>binary</span><span class='embexpr_end'>}</span><span class='tstring_content'> at </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binary_path'>binary_path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_binary_path'>binary_path</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session implementors</p>
+
+<p>Closes the shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+684
+685
+686
+687
+688
+689
+690
+691
+692</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 674</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='ivar'>@cleanup</span>
+
+  <span class='ivar'>@cleanup</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_rstream'>rstream</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='ivar'>@cleanup_command</span><span class='period'>.</span><span class='id identifier rubyid_blank?'>blank?</span>
+      <span class='comment'># this is a best effort, since the session is possibly already dead
+</span>      <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='ivar'>@cleanup_command</span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+
+      <span class='comment'># we should only ever cleanup once
+</span>      <span class='ivar'>@cleanup_command</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># this is also a best-effort
+</span>    <span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_rstream'>rstream</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_background-instance_method">
+  
+    #<strong>cmd_background</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_background'>cmd_background</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='comment'># We assume that background does not need arguments
+</span>    <span class='comment'># If user input does not follow this specification
+</span>    <span class='comment'># Then show help (Including &#39;-h&#39; &#39;--help&#39;...)
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_background_help'>cmd_background_help</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Background session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_background_help-instance_method">
+  
+    #<strong>cmd_background_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_background_help'>cmd_background_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: background</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Stop interacting with this session and return to the parent prompt</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_download-instance_method">
+  
+    #<strong>cmd_download</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 358</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_download'>cmd_download</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>2</span>
+    <span class='comment'># no argumnets, just print help message
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_download_help'>cmd_download_help</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_dst'>dst</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Check if src exists
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_file_exists'>file_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The target file does not exist</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Get file content
+</span>  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Download </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src'>src</span><span class='embexpr_end'>}</span><span class='tstring_content'> =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_content'>content</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cat </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src'>src</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Write file to local machine
+</span>  <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_content'>content</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Done</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_download_help-instance_method">
+  
+    #<strong>cmd_download_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+350
+351
+352
+353
+354
+355
+356</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 350</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_download_help'>cmd_download_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: download [src] [dst]</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Downloads remote files to the local machine.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This command does not support to download a FOLDER yet</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_help-instance_method">
+  
+    #<strong>cmd_help</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 121</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_help'>cmd_help</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_cmd'>cmd</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No such command</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>No help for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>, try -h</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>return</span> <span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cmd_</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cmd'>cmd</span><span class='embexpr_end'>}</span><span class='tstring_content'>_help</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_columns'>columns</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Command</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Description</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_tbl'>tbl</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Header</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Meta shell commands</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prefix</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Postfix</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Indent</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='int'>4</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Columns</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_columns'>columns</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SortIndex</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='op'>-</span><span class='int'>1</span>
+  <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='op'>|</span>
+    <span class='id identifier rubyid_tbl'>tbl</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_tbl'>tbl</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_help_help-instance_method">
+  
+    #<strong>cmd_help_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_help_help'>cmd_help_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>There&#39;s only so much I can do</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_irb-instance_method">
+  
+    #<strong>cmd_irb</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open an interactive Ruby shell on the current session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 513</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_irb'>cmd_irb</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_expressions'>expressions</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Parse the command options
+</span>  <span class='cvar'>@@irb_opts</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid_idx'>idx</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-e</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_expressions'>expressions</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_val'>val</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_cmd_irb_help'>cmd_irb_help</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='kw'>self</span>
+  <span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_expressions'>expressions</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Starting IRB shell...</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You are in the \&quot;self\&quot; (session) object\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui.html" title="Rex::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text.html" title="Rex::Ui::Text (module)">Text</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Ui/Text/IrbShell.html" title="Rex::Ui::Text::IrbShell (class)">IrbShell</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Ui/Text/IrbShell.html#initialize-instance_method" title="Rex::Ui::Text::IrbShell#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_run'><span class='object_link'><a href="../../Rex/Ui/Text/IrbShell.html#run-instance_method" title="Rex::Ui::Text::IrbShell#run (method)">run</a></span></span>
+  <span class='kw'>else</span>
+    <span class='comment'># XXX: No vprint_status here
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VERBOSE</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You are executing expressions in </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_binding'>binding</span><span class='period'>.</span><span class='id identifier rubyid_receiver'>receiver</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_expressions'>expressions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_expression'>expression</span><span class='op'>|</span> <span class='id identifier rubyid_eval'>eval</span><span class='lparen'>(</span><span class='id identifier rubyid_expression'>expression</span><span class='comma'>,</span> <span class='id identifier rubyid_binding'>binding</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_irb_help-instance_method">
+  
+    #<strong>cmd_irb_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+503
+504
+505
+506
+507
+508</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 503</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_irb_help'>cmd_irb_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: irb</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Open an interactive Ruby shell on the current session.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print'>print</span> <span class='cvar'>@@irb_opts</span><span class='period'>.</span><span class='id identifier rubyid_usage'>usage</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_pry-instance_method">
+  
+    #<strong>cmd_pry</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Open the Pry debugger on the current session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 554</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_pry'>cmd_pry</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_cmd_pry_help'>cmd_pry_help</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pry</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>rescue</span> <span class='const'>LoadError</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Failed to load Pry, try &quot;gem install pry&quot;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Starting Pry shell...</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>You are in the \&quot;self\&quot; (session) object\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pry'>pry</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_pry_help-instance_method">
+  
+    #<strong>cmd_pry_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+544
+545
+546
+547
+548
+549</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 544</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_pry_help'>cmd_pry_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: pry</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Open the Pry debugger on the current session.</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_resource-instance_method">
+  
+    #<strong>cmd_resource</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_resource'>cmd_resource</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_cmd_resource_help'>cmd_resource_help</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_res'>res</span><span class='op'>|</span>
+    <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-</span><span class='tstring_end'>&#39;</span></span>
+      <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='kw'>elsif</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='kw'>elsif</span>
+      <span class='comment'># let&#39;s check to see if it&#39;s in the scripts/resource dir (like when tab completed)
+</span>    <span class='lbracket'>[</span>
+        <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_script_directory'><span class='object_link'><a href="../Config.html#script_directory-class_method" title="Msf::Config.script_directory (method)">script_directory</a></span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>resource</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Config.html" title="Msf::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_user_script_directory'><span class='object_link'><a href="../Config.html#user_script_directory-class_method" title="Msf::Config.user_script_directory (method)">user_script_directory</a></span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>resource</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&#39;</span></span>
+    <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_dir'>dir</span><span class='op'>|</span>
+      <span class='id identifier rubyid_res_path'>res_path</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='id identifier rubyid_res'>res</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_res_path'>res_path</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_good_res'>good_res</span> <span class='op'>=</span> <span class='id identifier rubyid_res_path'>res_path</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_good_res'>good_res</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Executing resource script </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_good_res'>good_res</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_good_res'>good_res</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Resource script </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_good_res'>good_res</span><span class='embexpr_end'>}</span><span class='tstring_content'> complete</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_res'>res</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a valid resource file</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_resource_help-instance_method">
+  
+    #<strong>cmd_resource_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+247
+248
+249
+250
+251
+252
+253</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 247</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_resource_help'>cmd_resource_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: resource path1 [path2 ...]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Run the commands stored in the supplied files. (- for stdin, press CTRL+D to end input from stdin)</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Resource files may also contain ERB or Ruby code between &lt;ruby&gt;&lt;/ruby&gt; tags.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_sessions-instance_method">
+  
+    #<strong>cmd_sessions</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 183</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_sessions'>cmd_sessions</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_zero?'>zero?</span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>&lt;=</span> <span class='int'>0</span>
+    <span class='comment'># No args
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_sessions_help'>cmd_sessions_help</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='comment'># One arg, and args[1] =&gt; &#39;-h&#39; &#39;-H&#39; &#39;help&#39;
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_sessions_help'>cmd_sessions_help</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>1</span>
+    <span class='comment'># More than one argument
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_sessions_help'>cmd_sessions_help</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='comment'># Src == Dst
+</span>    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> is already interactive.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Backgrounding session </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># store the next session id so that it can be referenced as soon
+</span>    <span class='comment'># as this session is no longer interacting
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_next_session'>next_session</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_sessions_help-instance_method">
+  
+    #<strong>cmd_sessions_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+174
+175
+176
+177
+178
+179
+180
+181</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 174</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_sessions_help'>cmd_sessions_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: sessions &lt;id&gt;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Interact with a different session Id.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>This command only accepts one positive numeric argument.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>This works the same as calling this from the MSF shell: sessions -i &lt;session id&gt;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_shell-instance_method">
+  
+    #<strong>cmd_shell</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 268</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_shell'>cmd_shell</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>1</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>-h</span><span class='tstring_end'>&#39;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>help</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='comment'># One arg, and args[1] =&gt; &#39;-h&#39; &#39;-H&#39; &#39;help&#39;
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_sessions_help'>cmd_sessions_help</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># 1. Using python
+</span>  <span class='id identifier rubyid_python_path'>python_path</span> <span class='op'>=</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>python</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>python3</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_python_path'>python_path</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Using `python` to pop up an interactive shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Ideally use bash for a friendlier shell, but fall back to /bin/sh if it doesn&#39;t exist
+</span>    <span class='id identifier rubyid_shell_path'>shell_path</span> <span class='op'>=</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bash</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/bin/sh</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_python_path'>python_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> -c \&quot;</span><span class='embexpr_beg'>#{</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Payload/Python.html" title="Msf::Payload::Python (module)">Python</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_exec_stub'><span class='object_link'><a href="../Payload/Python.html#create_exec_stub-class_method" title="Msf::Payload::Python.create_exec_stub (method)">create_exec_stub</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>import pty; pty.spawn(&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_shell_path'>shell_path</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='embexpr_end'>}</span><span class='tstring_content'> \&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># 2. Using script
+</span>  <span class='id identifier rubyid_script_path'>script_path</span> <span class='op'>=</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>script</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_script_path'>script_path</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Using `script` to pop up an interactive shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Payload: script /dev/null
+</span>    <span class='comment'># Using /dev/null to make sure there is no log file on the target machine
+</span>    <span class='comment'># Prevent being detected by the admin or antivirus softwares
+</span>    <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_script_path'>script_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> /dev/null</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># 3. Using socat
+</span>  <span class='id identifier rubyid_socat_path'>socat_path</span> <span class='op'>=</span> <span class='id identifier rubyid_binary_exists'>binary_exists</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>socat</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_socat_path'>socat_path</span> <span class='op'>!=</span> <span class='kw'>nil</span>
+    <span class='comment'># Payload: socat - exec:&#39;bash -li&#39;,pty,stderr,setsid,sigint,sane
+</span>    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Using `socat` to pop up an interactive shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_socat_path'>socat_path</span><span class='embexpr_end'>}</span><span class='tstring_content'> - exec:&#39;/bin/sh -li&#39;,pty,stderr,setsid,sigint,sane</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># 4. Using pty program
+</span>  <span class='comment'># 4.1 Detect arch and destribution
+</span>  <span class='comment'># 4.2 Real time compiling
+</span>  <span class='comment'># 4.3 Upload binary
+</span>  <span class='comment'># 4.4 Change mode of binary
+</span>  <span class='comment'># 4.5 Execute binary
+</span>
+  <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Can not pop up an interactive shell</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_shell_help-instance_method">
+  
+    #<strong>cmd_shell_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 255</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_shell_help'>cmd_shell_help</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Usage: shell</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Pop up an interactive shell via multiple methods.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>An interactive shell means that you can use several useful commands like `passwd`, `su [username]`</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>There are four implementations of it: </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\t1. using python `pty` module (default choice)</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\t2. using `socat` command</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\t3. using `script` command</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>\t4. upload a pty program via reverse shell</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_source-instance_method">
+  
+    #<strong>cmd_source</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 476</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_source'>cmd_source</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>2</span>
+    <span class='comment'># no argumnets, just print help message
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_source_help'>cmd_source_help</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_background'>background</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>y</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_local_file'>local_file</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_remote_file'>remote_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/tmp/.</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>32</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>.sh</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='id identifier rubyid_cmd_upload'>cmd_upload</span><span class='lparen'>(</span><span class='id identifier rubyid_local_file'>local_file</span><span class='comma'>,</span> <span class='id identifier rubyid_remote_file'>remote_file</span><span class='rparen'>)</span>
+
+  <span class='comment'># Change file permission in case of TOCTOU
+</span>  <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>chmod 0600 </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_remote_file'>remote_file</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_background'>background</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Executing on remote machine background</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>nohup sh -x </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_remote_file'>remote_file</span><span class='embexpr_end'>}</span><span class='tstring_content'> &amp;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Executing on remote machine foreground</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sh -x </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_remote_file'>remote_file</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Cleaning temp file on remote machine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rm -rf &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_remote_file'>remote_file</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_source_help-instance_method">
+  
+    #<strong>cmd_source_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+466
+467
+468
+469
+470
+471
+472
+473
+474</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 466</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_source_help'>cmd_source_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: source [file] [background]</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Execute a local shell script file on remote machine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This meta command will upload the script then execute it on the remote machine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>background</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>`y` represent execute the script in background, `n` represent on foreground</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_upload-instance_method">
+  
+    #<strong>cmd_upload</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 392</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_upload'>cmd_upload</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>!=</span> <span class='int'>2</span>
+    <span class='comment'># no argumnets, just print help message
+</span>    <span class='kw'>return</span> <span class='id identifier rubyid_cmd_upload_help'>cmd_upload_help</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_dst'>dst</span> <span class='op'>=</span> <span class='id identifier rubyid_args'>args</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Check target file exists on the target machine
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_file_exists'>file_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_dst'>dst</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_warning'><span class='object_link'><a href="../../top-level-namespace.html#print_warning-instance_method" title="#print_warning (method)">print_warning</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The file &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; already exists on the target machine</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Overwrite the target file &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt;?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='comment'># Create an empty file on the target machine
+</span>      <span class='comment'># Notice here does not check the permission of the target file (folder)
+</span>      <span class='comment'># So if you generate a reverse shell with out redirection the STDERR
+</span>      <span class='comment'># you will not realise that the current user does not have permission to write to the target file
+</span>      <span class='comment'># IMPORTANT:
+</span>      <span class='comment'>#   assume(the current have the write access on the target file)
+</span>      <span class='comment'>#   if (the current user can not write on the target file) &amp;&amp; (stderr did not redirected)
+</span>      <span class='comment'>#     No error reporting, you must check the file created or not manually
+</span>      <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>cat /dev/null &gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Create new file on the target machine failed. (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>return</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Create new file on the target machine succeed</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>=</span> <span class='int'>0x100</span>
+
+  <span class='kw'>begin</span>
+    <span class='comment'># Open local file
+</span>    <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='id identifier rubyid_open'>open</span> <span class='id identifier rubyid_src'>src</span>
+    <span class='comment'># Get local file size
+</span>    <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+    <span class='comment'># Calc how many time to append to the remote file
+</span>    <span class='id identifier rubyid_times'>times</span> <span class='op'>=</span> <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>/</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>%</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>?</span> <span class='int'>0</span> <span class='op'>:</span> <span class='int'>1</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>File &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src'>src</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; size: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_content'>, need </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_times'>times</span><span class='embexpr_end'>}</span><span class='tstring_content'> times writes to upload</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Start transfer
+</span>
+    <span class='kw'>for</span> <span class='id identifier rubyid_i'>i</span> <span class='kw'>in</span> <span class='int'>1</span><span class='op'>..</span><span class='id identifier rubyid_times'>times</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploading (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_i'>i</span> <span class='op'>*</span> <span class='id identifier rubyid_buffer_size'>buffer_size</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk'>chunk</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_buffer_size'>buffer_size</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_chunk_repr'>chunk_repr</span> <span class='op'>=</span> <span class='id identifier rubyid_repr'>repr</span><span class='lparen'>(</span><span class='id identifier rubyid_chunk'>chunk</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>echo -ne &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_chunk_repr'>chunk_repr</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39; &gt;&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+        <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Appending content to the target file &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; failed. (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_result'>result</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='comment'># Do some cleanup
+</span>        <span class='comment'># Delete the target file
+</span>        <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rm -rf &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Target file &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; deleted</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='kw'>return</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_print_good'><span class='object_link'><a href="../../top-level-namespace.html#print_good-instance_method" title="#print_good (method)">print_good</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>File &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; upload finished</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error occurs while uploading &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src'>src</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; to &lt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_dst'>dst</span><span class='embexpr_end'>}</span><span class='tstring_content'>&gt; </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cmd_upload_help-instance_method">
+  
+    #<strong>cmd_upload_help</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+384
+385
+386
+387
+388
+389
+390</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 384</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cmd_upload_help'>cmd_upload_help</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Usage: upload [src] [dst]</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploads load file to the victim machine.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This command does not support to upload a FOLDER yet</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="commands-instance_method">
+  
+    #<strong>commands</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>List of supported commands.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_commands'>commands</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>help</span><span class='tstring_end'>&#39;</span></span>       <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Help menu</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>background</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Backgrounds the current shell session</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>sessions</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Quickly switch to another session</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>resource</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Run a meta commands script stored in a local file</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Spawn an interactive shell (*NIX Only)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>download</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Download files (*NIX Only)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>upload</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Upload files (*NIX Only)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>source</span><span class='tstring_end'>&#39;</span></span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Run a shell script on remote machine (*NIX Only)</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>irb</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Open an interactive Ruby shell on the current session</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>pry</span><span class='tstring_end'>&#39;</span></span>        <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Open the Pry debugger on the current session</span><span class='tstring_end'>&#39;</span></span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the session description.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Command shell</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="docs_dir-instance_method">
+  
+    #<strong>docs_dir</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the subdir of the `documentation/` directory that should be used to find usage documentation</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_docs_dir'>docs_dir</span>
+  <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='kw'>super</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>shell_session</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="execute_file-instance_method">
+  
+    #<strong>execute_file</strong>(full_path, args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Scriptable implementors</p>
+
+<p>Runs the shell session script or resource file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_execute_file'>execute_file</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_extname'>extname</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.rb</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Script.html" title="Rex::Script (module)">Script</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Script/Shell.html" title="Rex::Script::Shell (class)">Shell</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Script/Base.html#initialize-instance_method" title="Rex::Script::Base#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_run'><span class='object_link'><a href="../../Rex/Script/Base.html#run-instance_method" title="Rex::Script::Base#run (method)">run</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="file_exists-instance_method">
+  
+    #<strong>file_exists</strong>(path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Check if there is a file on the target machine</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 332</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_file_exists'>file_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='comment'># Use `ls` command to check file exists
+</span>  <span class='comment'># If file exists, `ls [path]` will echo the varible `path`
+</span>  <span class='comment'># Or `ls` command will report an error message
+</span>  <span class='comment'># But we can not ensure that the implementation of ls command are the same on different destribution
+</span>  <span class='comment'># So just check the success flag not error message
+</span>  <span class='comment'># eg:
+</span>  <span class='comment'># $ ls /etc/passwd
+</span>  <span class='comment'># /etc/passwd
+</span>  <span class='comment'># $ ls /etc/nosuchfile
+</span>  <span class='comment'># ls: cannot access &#39;/etc/nosuchfile&#39;: No such file or directory
+</span>  <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_command_token'>shell_command_token</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ls </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path'>path</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_result'>result</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_autoruns-instance_method">
+  
+    #<strong>process_autoruns</strong>(datastore)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Execute any specified auto-run scripts for this session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 697</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_autoruns'>process_autoruns</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+  <span class='comment'># Read the initial output and mash it into a single line
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='kw'>or</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_initial_output'>initial_output</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='float'>0.01</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_initial_output'>initial_output</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_initial_output'>initial_output</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ASCII-8BIT</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_initial_output'>initial_output</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:force_encoding</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_initial_output'>initial_output</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+</span><span class='regexp_end'>/n</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_initial_output'>initial_output</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\r\n\t]+</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'> </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_initial_output'>initial_output</span><span class='period'>.</span><span class='id identifier rubyid_strip!'>strip!</span>
+
+      <span class='comment'># Set the inital output to .info
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_initial_output'>initial_output</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InitialAutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InitialAutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='const'>Shellwords</span><span class='period'>.</span><span class='id identifier rubyid_shellwords'>shellwords</span><span class='lparen'>(</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InitialAutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session ID </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>) processing InitialAutoRunScript &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InitialAutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='const'>Shellwords</span><span class='period'>.</span><span class='id identifier rubyid_shellwords'>shellwords</span><span class='lparen'>(</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session ID </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>) processing AutoRunScript &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="repr-instance_method">
+  
+    #<strong>repr</strong>(data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+457
+458
+459
+460
+461
+462
+463
+464</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 457</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_repr'>repr</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data_repr'>data_repr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_each_char'>each_char</span> <span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+    <span class='id identifier rubyid_data_repr'>data_repr</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\x</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_data_repr'>data_repr</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_data_repr'>data_repr</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_builtin_cmd-instance_method">
+  
+    #<strong>run_builtin_cmd</strong>(method, arguments)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Run built-in command</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+595
+596
+597
+598</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 595</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_builtin_cmd'>run_builtin_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='comment'># Dynamic function call
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>cmd_</span><span class='tstring_end'>&#39;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_single-instance_method">
+  
+    #<strong>run_single</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Explicitly runs a single line command.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 576</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='comment'># Do nil check for cmd (CTRL+D will cause nil error)
+</span>  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_cmd'>cmd</span>
+
+  <span class='id identifier rubyid_arguments'>arguments</span> <span class='op'>=</span> <span class='const'>Shellwords</span><span class='period'>.</span><span class='id identifier rubyid_shellwords'>shellwords</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_method'>method</span>    <span class='op'>=</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+
+  <span class='comment'># Built-in command
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_run_builtin_cmd'>run_builtin_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_method'>method</span><span class='comma'>,</span> <span class='id identifier rubyid_arguments'>arguments</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># User input is not a built-in command, write to socket directly
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_close-instance_method">
+  
+    #<strong>shell_close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Closes the shell. Note: parent&#39;s &#39;self.kill&#39; method calls cleanup below.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+665
+666
+667</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 665</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_close'>shell_close</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command-instance_method">
+  
+    #<strong>shell_command</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Explicitly run a single command, return the output.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+605
+606
+607
+608
+609
+610
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620
+621
+622</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 605</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='comment'># Send the command to the session&#39;s stdin.
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_timeo'>timeo</span> <span class='op'>=</span> <span class='int'>5</span>
+  <span class='id identifier rubyid_etime'>etime</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>+</span> <span class='id identifier rubyid_timeo'>timeo</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># Keep reading data until no more data is available or the timeout is
+</span>  <span class='comment'># reached.
+</span>  <span class='kw'>while</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_etime'>etime</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:ring</span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_rstream'>rstream</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_timeo'>timeo</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='float'>0.01</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_buff'>buff</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_res'>res</span> <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='id identifier rubyid_timeo'>timeo</span> <span class='op'>=</span> <span class='id identifier rubyid_etime'>etime</span> <span class='op'>-</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_buff'>buff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_init-instance_method">
+  
+    #<strong>shell_init</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>The shell will have been initialized by default.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_init'>shell_init</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_read-instance_method">
+  
+    #<strong>shell_read</strong>(length = -1,, timeout = 1)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Read from the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+629
+630
+631
+632
+633
+634
+635
+636
+637
+638
+639</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 629</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='op'>=</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_get_once'>get_once</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_output'>on_session_output</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_rv'>rv</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_rv'>rv</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_rv'>rv</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>SocketError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IOError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EPIPE</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'>#print_error(&quot;Socket error: #{e.class}: #{e}&quot;)
+</span>    <span class='id identifier rubyid_shell_close'>shell_close</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_write-instance_method">
+  
+    #<strong>shell_write</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Writes to the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 646</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_buf'>buf</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_command'>on_session_command</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rstream'>rstream</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>SocketError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>EOFError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IOError</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>Errno</span><span class='op'>::</span><span class='const'>EPIPE</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'>#print_error(&quot;Socket error: #{e.class}: #{e}&quot;)
+</span>    <span class='id identifier rubyid_shell_close'>shell_close</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calls the class method</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/command_shell.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:05 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

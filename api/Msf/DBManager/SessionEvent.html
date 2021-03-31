@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::DBManager::SessionEvent
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::DBManager::SessionEvent";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">DBManager</a></span></span>
+     &raquo; 
+    <span class="title">SessionEvent</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::DBManager::SessionEvent
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../DBManager.html" title="Msf::DBManager (class)">Msf::DBManager</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/db_manager/session_event.rb</dd>
+  </dl>
+  
+</div>
+
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="DEFAULT_ORDER-constant" class="">DEFAULT_ORDER =
+          
+        </dt>
+        <dd><pre class="code"><span class='symbol'>:desc</span></pre></dd>
+      
+        <dt id="DEFAULT_LIMIT-constant" class="">DEFAULT_LIMIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>100</span></pre></dd>
+      
+        <dt id="DEFAULT_OFFSET-constant" class="">DEFAULT_OFFSET =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_session_event-instance_method" title="#report_session_event (instance method)">#<strong>report_session_event</strong>(opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Record a session event in the database.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#session_events-instance_method" title="#session_events (instance method)">#<strong>session_events</strong>(opts)  &#x21d2; Array&lt;Mdm::SessionEvent&gt;|Mdm::SessionEvent::ActiveRecord_Relation </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Retrieves session events that are stored in the database.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="report_session_event-instance_method">
+  
+    #<strong>report_session_event</strong>(opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Record a session event in the database</p>
+
+<p>opts MUST contain one of:</p>
+<dl class="rdoc-list note-list"><dt><code>:session</code>
+<dd>
+<p>the Msf::Session, Mdm::Session or Hash representation of Mdm::Session we are reporting</p>
+</dd><dt><code>:etype</code>
+<dd>
+<p>event type, enum: command, output, upload, download, filedelete</p>
+</dd></dl>
+
+<p>opts may contain</p>
+<dl class="rdoc-list note-list"><dt><code>:output</code>
+<dd>
+<p>the data for an output event</p>
+</dd><dt><code>:command</code>
+<dd>
+<p>the data for an command event</p>
+</dd><dt><code>:remote_path</code>
+<dd>
+<p>path to the associated file for upload, download, and filedelete events</p>
+</dd><dt><code>:local_path</code>
+<dd>
+<p>path to the associated file for upload, and download</p>
+</dd></dl>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>ArgumentError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session_event.rb', line 63</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_session_event'>report_session_event</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_active'>active</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing required option :session</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Expected an :etype</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>unless</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:etype</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+<span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:db_record</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_db_record'>db_record</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='comment'># The session doesn&#39;t have a db_record which means
+</span>      <span class='comment'>#  a) the database wasn&#39;t connected at session registration time
+</span>      <span class='comment'># or
+</span>      <span class='comment'>#  b) something awful happened and the report_session call failed
+</span>      <span class='comment'>#
+</span>      <span class='comment'># Either way, we can&#39;t do anything with this session as is, so
+</span>      <span class='comment'># log a warning and punt.
+</span>      <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Warning: trying to report a session_event for a session with no db_record (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_event_data'>event_data</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:created_at</span> <span class='op'>=&gt;</span> <span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='rbrace'>}</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:session</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_event_data'>event_data</span> <span class='op'>=</span> <span class='lbrace'>{</span> <span class='symbol'>:created_at</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:created_at</span><span class='rbracket'>]</span> <span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_session_id'>session_id</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>Session</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session_id'>session_id</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_id'>id</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Hash</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='symbol'>:id</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session_id'>session_id</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_event_data'>event_data</span><span class='lbracket'>[</span><span class='symbol'>:session_id</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_session_id'>session_id</span>
+  <span class='lbracket'>[</span><span class='symbol'>:remote_path</span><span class='comma'>,</span> <span class='symbol'>:local_path</span><span class='comma'>,</span> <span class='symbol'>:output</span><span class='comma'>,</span> <span class='symbol'>:command</span><span class='comma'>,</span> <span class='symbol'>:etype</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_attr'>attr</span><span class='op'>|</span>
+    <span class='id identifier rubyid_event_data'>event_data</span><span class='lbracket'>[</span><span class='id identifier rubyid_attr'>attr</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='id identifier rubyid_attr'>attr</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='id identifier rubyid_attr'>attr</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_s'>s</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>SessionEvent</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_event_data'>event_data</span><span class='rparen'>)</span>
+<span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="session_events-instance_method">
+  
+    #<strong>session_events</strong>(opts)  &#x21d2; <tt>Array&lt;Mdm::SessionEvent&gt;|Mdm::SessionEvent::ActiveRecord_Relation</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Retrieves session events that are stored in the database.</p>
+
+<p>Additional query options:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>opts</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Hash containing query key-value pairs based on the session event model.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  
+    
+    
+    <p class="tag_title">Options Hash (<tt>opts</tt>):</p>
+    <ul class="option">
+      
+        <li>
+          <span class="name">:id</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>A specific session event ID. If specified, all other options are ignored.</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:order</span>
+          <span class="type">(<tt>Symbol|String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The session event created_at sort order. Valid values: :asc, :desc, &#39;asc&#39; or &#39;desc&#39;. Default: :desc</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:limit</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The maximum number of session events that will be retrieved from the query. Default: 100</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:offset</span>
+          <span class="type">(<tt>Integer</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>The number of session events the query will begin reading from the start of the set. Default: 0</p>
+</div>
+          
+        </li>
+      
+        <li>
+          <span class="name">:search_term</span>
+          <span class="type">(<tt>String</tt>)</span>
+          <span class="default">
+            
+          </span>
+          
+            &mdash; <div class='inline'>
+<p>Search regular expression used to filter results. All fields are converted to strings and results are returned if the pattern is matched.</p>
+</div>
+          
+        </li>
+      
+    </ul>
+  
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Array&lt;Mdm::SessionEvent&gt;|Mdm::SessionEvent::ActiveRecord_Relation</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>session events that are matched.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/db_manager/session_event.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_session_events'>session_events</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+    <span class='comment'># If we have the ID, there is no point in creating a complex query.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='kw'>return</span> <span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_wrap'>wrap</span><span class='lparen'>(</span><span class='const'>Mdm</span><span class='op'>::</span><span class='const'>SessionEvent</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
+</span>    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:workspace</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_order'>order</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:order</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_order'>order</span> <span class='op'>=</span> <span class='id identifier rubyid_order'>order</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="#DEFAULT_ORDER-constant" title="Msf::DBManager::SessionEvent::DEFAULT_ORDER (constant)">DEFAULT_ORDER</a></span></span> <span class='op'>:</span> <span class='id identifier rubyid_order'>order</span><span class='period'>.</span><span class='id identifier rubyid_to_sym'>to_sym</span>
+
+    <span class='id identifier rubyid_limit'>limit</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:limit</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="#DEFAULT_LIMIT-constant" title="Msf::DBManager::SessionEvent::DEFAULT_LIMIT (constant)">DEFAULT_LIMIT</a></span></span>
+    <span class='id identifier rubyid_offset'>offset</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:offset</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='const'><span class='object_link'><a href="#DEFAULT_OFFSET-constant" title="Msf::DBManager::SessionEvent::DEFAULT_OFFSET (constant)">DEFAULT_OFFSET</a></span></span>
+
+    <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:search_term</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='const'>Mdm</span><span class='op'>::</span><span class='const'>SessionEvent</span><span class='period'>.</span><span class='id identifier rubyid_where'>where</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_order'>order</span><span class='lparen'>(</span><span class='label'>created_at:</span> <span class='id identifier rubyid_order'>order</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_offset'>offset</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_limit'>limit</span><span class='lparen'>(</span><span class='id identifier rubyid_limit'>limit</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='id identifier rubyid_search_term'>search_term</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_search_term'>search_term</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_re_search_term'>re_search_term</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_search_term'>search_term</span><span class='embexpr_end'>}</span><span class='regexp_end'>/mi</span></span>
+      <span class='id identifier rubyid_results'>results</span> <span class='op'>=</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_event'>event</span><span class='op'>|</span>
+        <span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_attribute_names'>attribute_names</span><span class='period'>.</span><span class='id identifier rubyid_any?'>any?</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='id identifier rubyid_event'>event</span><span class='lbracket'>[</span><span class='id identifier rubyid_a'>a</span><span class='period'>.</span><span class='id identifier rubyid_intern'>intern</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_re_search_term'>re_search_term</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_results'>results</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:08 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

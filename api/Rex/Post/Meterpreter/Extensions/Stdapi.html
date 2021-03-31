@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Post::Meterpreter::Extensions::Stdapi
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span>
+     &raquo; 
+    <span class="title">Stdapi</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Post::Meterpreter::Extensions::Stdapi
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Fs.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Fs (class)">Ui::Console::CommandDispatcher::Stdapi::Fs</a></span>, <span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Mic.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Mic (class)">Ui::Console::CommandDispatcher::Stdapi::Mic</a></span>, <span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Net.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Net (class)">Ui::Console::CommandDispatcher::Stdapi::Net</a></span>, <span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Sys.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys (class)">Ui::Console::CommandDispatcher::Stdapi::Sys</a></span>, <span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Ui.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Ui (class)">Ui::Console::CommandDispatcher::Stdapi::Ui</a></span>, <span class='object_link'><a href="../Ui/Console/CommandDispatcher/Stdapi/Webcam.html" title="Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Webcam (class)">Ui::Console::CommandDispatcher::Stdapi::Webcam</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/ui.rb<span class="defines">,<br />
+  lib/rex/post/meterpreter/extensions/stdapi/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/io.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/stdapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/mic/mic.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/arp.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/mount.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/route.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/power.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/config.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/config.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/thread.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/command_ids.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/netstat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/resolve.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/tlv.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/fs/file_stat.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/interface.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/webcam/webcam.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/railgun.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/multicall.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/buffer_item.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/const_manager.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/platform_util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_helper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_wrapper.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/library_function.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/io.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/audio_output/audio_output.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/def_libc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/def_libobjc.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/image.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/memory.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/osx/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ntdll.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_psapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_user32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_ws2_32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/linux/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_crypt32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_shell32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_version.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wlanapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_wldap32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/udp_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_advapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_iphlpapi.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_kernel32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/def_netapi32.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/railgun/def/windows/api_constants.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/event_log_subsystem/event_record.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_client_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/net/socket_subsystem/tcp_server_channel.rb,<br /> lib/rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/remote_registry_key.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Stdapi/AudioOutput.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::AudioOutput (module)">AudioOutput</a></span>, <span class='object_link'><a href="Stdapi/Fs.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs (module)">Fs</a></span>, <span class='object_link'><a href="Stdapi/Mic.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Mic (module)">Mic</a></span>, <span class='object_link'><a href="Stdapi/Net.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net (module)">Net</a></span>, <span class='object_link'><a href="Stdapi/Railgun.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Railgun (module)">Railgun</a></span>, <span class='object_link'><a href="Stdapi/Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span>, <span class='object_link'><a href="Stdapi/Webcam.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Webcam (module)">Webcam</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Stdapi/Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Stdapi (class)">Stdapi</a></span>, <span class='object_link'><a href="Stdapi/UI.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::UI (class)">UI</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="TLV_TYPE_HANDLE-constant" class="">TLV_TYPE_HANDLE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>General</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span>  <span class='int'>600</span></pre></dd>
+      
+        <dt id="TLV_TYPE_INHERIT-constant" class="">TLV_TYPE_INHERIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>    <span class='op'>|</span>  <span class='int'>601</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_HANDLE-constant" class="">TLV_TYPE_PROCESS_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span>  <span class='int'>630</span></pre></dd>
+      
+        <dt id="TLV_TYPE_THREAD_HANDLE-constant" class="">TLV_TYPE_THREAD_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span>  <span class='int'>631</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PRIVILEGE-constant" class="">TLV_TYPE_PRIVILEGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span>  <span class='int'>632</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DIRECTORY_PATH-constant" class="">TLV_TYPE_DIRECTORY_PATH =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Fs</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1200</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_NAME-constant" class="">TLV_TYPE_FILE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1201</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_PATH-constant" class="">TLV_TYPE_FILE_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1202</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_MODE-constant" class="">TLV_TYPE_FILE_MODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1203</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_SIZE-constant" class="">TLV_TYPE_FILE_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1204</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_SHORT_NAME-constant" class="">TLV_TYPE_FILE_SHORT_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1205</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_HASH-constant" class="">TLV_TYPE_FILE_HASH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1206</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT-constant" class="">TLV_TYPE_MOUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1207</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_NAME-constant" class="">TLV_TYPE_MOUNT_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1208</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_TYPE-constant" class="">TLV_TYPE_MOUNT_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1209</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_SPACE_USER-constant" class="">TLV_TYPE_MOUNT_SPACE_USER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>1210</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_SPACE_TOTAL-constant" class="">TLV_TYPE_MOUNT_SPACE_TOTAL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>1211</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_SPACE_FREE-constant" class="">TLV_TYPE_MOUNT_SPACE_FREE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>1212</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUNT_UNCPATH-constant" class="">TLV_TYPE_MOUNT_UNCPATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1213</span></pre></dd>
+      
+        <dt id="TLV_TYPE_STAT_BUF32-constant" class="">TLV_TYPE_STAT_BUF32 =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_COMPLEX-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_COMPLEX (constant)">TLV_META_TYPE_COMPLEX</a></span></span> <span class='op'>|</span> <span class='int'>1220</span></pre></dd>
+      
+        <dt id="TLV_TYPE_STAT_BUF-constant" class="">TLV_TYPE_STAT_BUF =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_COMPLEX-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_COMPLEX (constant)">TLV_META_TYPE_COMPLEX</a></span></span> <span class='op'>|</span> <span class='int'>1221</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEARCH_RECURSE-constant" class="">TLV_TYPE_SEARCH_RECURSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>    <span class='op'>|</span> <span class='int'>1230</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEARCH_GLOB-constant" class="">TLV_TYPE_SEARCH_GLOB =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1231</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEARCH_ROOT-constant" class="">TLV_TYPE_SEARCH_ROOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1232</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SEARCH_RESULTS-constant" class="">TLV_TYPE_SEARCH_RESULTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1233</span></pre></dd>
+      
+        <dt id="TLV_TYPE_FILE_MODE_T-constant" class="">TLV_TYPE_FILE_MODE_T =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1234</span></pre></dd>
+      
+        <dt id="TLV_TYPE_HOST_NAME-constant" class="">TLV_TYPE_HOST_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1400</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PORT-constant" class="">TLV_TYPE_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1401</span></pre></dd>
+      
+        <dt id="TLV_TYPE_INTERFACE_MTU-constant" class="">TLV_TYPE_INTERFACE_MTU =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1402</span></pre></dd>
+      
+        <dt id="TLV_TYPE_INTERFACE_FLAGS-constant" class="">TLV_TYPE_INTERFACE_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1403</span></pre></dd>
+      
+        <dt id="TLV_TYPE_INTERFACE_INDEX-constant" class="">TLV_TYPE_INTERFACE_INDEX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1404</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SUBNET-constant" class="">TLV_TYPE_SUBNET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1420</span></pre></dd>
+      
+        <dt id="TLV_TYPE_NETMASK-constant" class="">TLV_TYPE_NETMASK =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1421</span></pre></dd>
+      
+        <dt id="TLV_TYPE_GATEWAY-constant" class="">TLV_TYPE_GATEWAY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1422</span></pre></dd>
+      
+        <dt id="TLV_TYPE_NETWORK_ROUTE-constant" class="">TLV_TYPE_NETWORK_ROUTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1423</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IP_PREFIX-constant" class="">TLV_TYPE_IP_PREFIX =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1424</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ARP_ENTRY-constant" class="">TLV_TYPE_ARP_ENTRY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1425</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IP-constant" class="">TLV_TYPE_IP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1430</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MAC_ADDRESS-constant" class="">TLV_TYPE_MAC_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1431</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MAC_NAME-constant" class="">TLV_TYPE_MAC_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1432</span></pre></dd>
+      
+        <dt id="TLV_TYPE_NETWORK_INTERFACE-constant" class="">TLV_TYPE_NETWORK_INTERFACE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1433</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IP6_SCOPE-constant" class="">TLV_TYPE_IP6_SCOPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1434</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SUBNET_STRING-constant" class="">TLV_TYPE_SUBNET_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1440</span></pre></dd>
+      
+        <dt id="TLV_TYPE_NETMASK_STRING-constant" class="">TLV_TYPE_NETMASK_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1441</span></pre></dd>
+      
+        <dt id="TLV_TYPE_GATEWAY_STRING-constant" class="">TLV_TYPE_GATEWAY_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1442</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ROUTE_METRIC-constant" class="">TLV_TYPE_ROUTE_METRIC =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1443</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ADDR_TYPE-constant" class="">TLV_TYPE_ADDR_TYPE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Resolve</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1444</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROXY_CFG_AUTODETECT-constant" class="">TLV_TYPE_PROXY_CFG_AUTODETECT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Proxy configuration</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>    <span class='op'>|</span> <span class='int'>1445</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROXY_CFG_AUTOCONFIGURL-constant" class="">TLV_TYPE_PROXY_CFG_AUTOCONFIGURL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1446</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROXY_CFG_PROXY-constant" class="">TLV_TYPE_PROXY_CFG_PROXY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1447</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROXY_CFG_PROXYBYPASS-constant" class="">TLV_TYPE_PROXY_CFG_PROXYBYPASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1448</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PEER_HOST-constant" class="">TLV_TYPE_PEER_HOST =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Socket</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1500</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PEER_PORT-constant" class="">TLV_TYPE_PEER_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1501</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LOCAL_HOST-constant" class="">TLV_TYPE_LOCAL_HOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1502</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LOCAL_PORT-constant" class="">TLV_TYPE_LOCAL_PORT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1503</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CONNECT_RETRIES-constant" class="">TLV_TYPE_CONNECT_RETRIES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1504</span></pre></dd>
+      
+        <dt id="TLV_TYPE_NETSTAT_ENTRY-constant" class="">TLV_TYPE_NETSTAT_ENTRY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1505</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PEER_HOST_RAW-constant" class="">TLV_TYPE_PEER_HOST_RAW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1506</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LOCAL_HOST_RAW-constant" class="">TLV_TYPE_LOCAL_HOST_RAW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1507</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SHUTDOWN_HOW-constant" class="">TLV_TYPE_SHUTDOWN_HOW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1530</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_HIDDEN-constant" class="">PROCESS_EXECUTE_FLAG_HIDDEN =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Sys</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_CHANNELIZED-constant" class="">PROCESS_EXECUTE_FLAG_CHANNELIZED =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_SUSPENDED-constant" class="">PROCESS_EXECUTE_FLAG_SUSPENDED =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN-constant" class="">PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_DESKTOP-constant" class="">PROCESS_EXECUTE_FLAG_DESKTOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>4</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_SESSION-constant" class="">PROCESS_EXECUTE_FLAG_SESSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>5</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="PROCESS_EXECUTE_FLAG_SUBSHELL-constant" class="">PROCESS_EXECUTE_FLAG_SUBSHELL =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>6</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_HKEY-constant" class="">TLV_TYPE_HKEY =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Registry</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>1000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ROOT_KEY-constant" class="">TLV_TYPE_ROOT_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span></pre></dd>
+      
+        <dt id="TLV_TYPE_BASE_KEY-constant" class="">TLV_TYPE_BASE_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1001</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PERMISSION-constant" class="">TLV_TYPE_PERMISSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1002</span></pre></dd>
+      
+        <dt id="TLV_TYPE_KEY_NAME-constant" class="">TLV_TYPE_KEY_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1003</span></pre></dd>
+      
+        <dt id="TLV_TYPE_VALUE_NAME-constant" class="">TLV_TYPE_VALUE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1010</span></pre></dd>
+      
+        <dt id="TLV_TYPE_VALUE_TYPE-constant" class="">TLV_TYPE_VALUE_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1011</span></pre></dd>
+      
+        <dt id="TLV_TYPE_VALUE_DATA-constant" class="">TLV_TYPE_VALUE_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>1012</span></pre></dd>
+      
+        <dt id="TLV_TYPE_TARGET_HOST-constant" class="">TLV_TYPE_TARGET_HOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1013</span></pre></dd>
+      
+        <dt id="TLV_TYPE_COMPUTER_NAME-constant" class="">TLV_TYPE_COMPUTER_NAME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Config</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1040</span></pre></dd>
+      
+        <dt id="TLV_TYPE_OS_NAME-constant" class="">TLV_TYPE_OS_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1041</span></pre></dd>
+      
+        <dt id="TLV_TYPE_USER_NAME-constant" class="">TLV_TYPE_USER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1042</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ARCHITECTURE-constant" class="">TLV_TYPE_ARCHITECTURE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1043</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LANG_SYSTEM-constant" class="">TLV_TYPE_LANG_SYSTEM =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1044</span></pre></dd>
+      
+        <dt id="TLV_TYPE_SID-constant" class="">TLV_TYPE_SID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1045</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DOMAIN-constant" class="">TLV_TYPE_DOMAIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1046</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LOGGED_ON_USER_COUNT-constant" class="">TLV_TYPE_LOGGED_ON_USER_COUNT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>1047</span></pre></dd>
+      
+        <dt id="TLV_TYPE_LOCAL_DATETIME-constant" class="">TLV_TYPE_LOCAL_DATETIME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1048</span></pre></dd>
+      
+        <dt id="TLV_TYPE_BUILD_TUPLE-constant" class="">TLV_TYPE_BUILD_TUPLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1049</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENV_VARIABLE-constant" class="">TLV_TYPE_ENV_VARIABLE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Environment</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1100</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENV_VALUE-constant" class="">TLV_TYPE_ENV_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>1101</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENV_GROUP-constant" class="">TLV_TYPE_ENV_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>1102</span></pre></dd>
+      
+        <dt id="DELETE_KEY_FLAG_RECURSIVE-constant" class="">DELETE_KEY_FLAG_RECURSIVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='lparen'>(</span><span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>0</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_BASE_ADDRESS-constant" class="">TLV_TYPE_BASE_ADDRESS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Process</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ALLOCATION_TYPE-constant" class="">TLV_TYPE_ALLOCATION_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2001</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROTECTION-constant" class="">TLV_TYPE_PROTECTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2002</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_PERMS-constant" class="">TLV_TYPE_PROCESS_PERMS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2003</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_MEMORY-constant" class="">TLV_TYPE_PROCESS_MEMORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>2004</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ALLOC_BASE_ADDRESS-constant" class="">TLV_TYPE_ALLOC_BASE_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2005</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MEMORY_STATE-constant" class="">TLV_TYPE_MEMORY_STATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2006</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MEMORY_TYPE-constant" class="">TLV_TYPE_MEMORY_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2007</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ALLOC_PROTECTION-constant" class="">TLV_TYPE_ALLOC_PROTECTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2008</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PID-constant" class="">TLV_TYPE_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2300</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_NAME-constant" class="">TLV_TYPE_PROCESS_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2301</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_PATH-constant" class="">TLV_TYPE_PROCESS_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2302</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_GROUP-constant" class="">TLV_TYPE_PROCESS_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>2303</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_FLAGS-constant" class="">TLV_TYPE_PROCESS_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2304</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_ARGUMENTS-constant" class="">TLV_TYPE_PROCESS_ARGUMENTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2305</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_ARCH-constant" class="">TLV_TYPE_PROCESS_ARCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2306</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PARENT_PID-constant" class="">TLV_TYPE_PARENT_PID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2307</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_SESSION-constant" class="">TLV_TYPE_PROCESS_SESSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2308</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCESS_ARCH_NAME-constant" class="">TLV_TYPE_PROCESS_ARCH_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2309</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DRIVER_ENTRY-constant" class="">TLV_TYPE_DRIVER_ENTRY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>2320</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DRIVER_BASENAME-constant" class="">TLV_TYPE_DRIVER_BASENAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2321</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DRIVER_FILENAME-constant" class="">TLV_TYPE_DRIVER_FILENAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2322</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IMAGE_FILE-constant" class="">TLV_TYPE_IMAGE_FILE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2400</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IMAGE_FILE_PATH-constant" class="">TLV_TYPE_IMAGE_FILE_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2401</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCEDURE_NAME-constant" class="">TLV_TYPE_PROCEDURE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2402</span></pre></dd>
+      
+        <dt id="TLV_TYPE_PROCEDURE_ADDRESS-constant" class="">TLV_TYPE_PROCEDURE_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2403</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IMAGE_BASE-constant" class="">TLV_TYPE_IMAGE_BASE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2404</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IMAGE_GROUP-constant" class="">TLV_TYPE_IMAGE_GROUP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>2405</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IMAGE_NAME-constant" class="">TLV_TYPE_IMAGE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2406</span></pre></dd>
+      
+        <dt id="TLV_TYPE_THREAD_ID-constant" class="">TLV_TYPE_THREAD_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2500</span></pre></dd>
+      
+        <dt id="TLV_TYPE_THREAD_PERMS-constant" class="">TLV_TYPE_THREAD_PERMS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2502</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EXIT_CODE-constant" class="">TLV_TYPE_EXIT_CODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2510</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENTRY_POINT-constant" class="">TLV_TYPE_ENTRY_POINT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2511</span></pre></dd>
+      
+        <dt id="TLV_TYPE_ENTRY_PARAMETER-constant" class="">TLV_TYPE_ENTRY_PARAMETER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>2512</span></pre></dd>
+      
+        <dt id="TLV_TYPE_CREATION_FLAGS-constant" class="">TLV_TYPE_CREATION_FLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2513</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REGISTER_NAME-constant" class="">TLV_TYPE_REGISTER_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>2540</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REGISTER_SIZE-constant" class="">TLV_TYPE_REGISTER_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2541</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REGISTER_VALUE_32-constant" class="">TLV_TYPE_REGISTER_VALUE_32 =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>2542</span></pre></dd>
+      
+        <dt id="TLV_TYPE_REGISTER-constant" class="">TLV_TYPE_REGISTER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>   <span class='op'>|</span> <span class='int'>2550</span></pre></dd>
+      
+        <dt id="TLV_TYPE_IDLE_TIME-constant" class="">TLV_TYPE_IDLE_TIME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Ui</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_KEYS_DUMP-constant" class="">TLV_TYPE_KEYS_DUMP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>3001</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SCREENSHOT-constant" class="">TLV_TYPE_DESKTOP_SCREENSHOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>3002</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SWITCH-constant" class="">TLV_TYPE_DESKTOP_SWITCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>   <span class='op'>|</span> <span class='int'>3003</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP-constant" class="">TLV_TYPE_DESKTOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_GROUP-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_GROUP (constant)">TLV_META_TYPE_GROUP</a></span></span>  <span class='op'>|</span> <span class='int'>3004</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SESSION-constant" class="">TLV_TYPE_DESKTOP_SESSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3005</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_STATION-constant" class="">TLV_TYPE_DESKTOP_STATION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>3006</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_NAME-constant" class="">TLV_TYPE_DESKTOP_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>3007</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY-constant" class="">TLV_TYPE_DESKTOP_SCREENSHOT_QUALITY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3008</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER-constant" class="">TLV_TYPE_DESKTOP_SCREENSHOT_PE32DLL_BUFFER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>3010</span></pre></dd>
+      
+        <dt id="TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER-constant" class="">TLV_TYPE_DESKTOP_SCREENSHOT_PE64DLL_BUFFER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>3012</span></pre></dd>
+      
+        <dt id="TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW-constant" class="">TLV_TYPE_KEYSCAN_TRACK_ACTIVE_WINDOW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_BOOL (constant)">TLV_META_TYPE_BOOL</a></span></span>   <span class='op'>|</span> <span class='int'>3013</span></pre></dd>
+      
+        <dt id="TLV_TYPE_KEYS_SEND-constant" class="">TLV_TYPE_KEYS_SEND =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span> <span class='op'>|</span> <span class='int'>3014</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUSE_ACTION-constant" class="">TLV_TYPE_MOUSE_ACTION =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3015</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUSE_X-constant" class="">TLV_TYPE_MOUSE_X =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3016</span></pre></dd>
+      
+        <dt id="TLV_TYPE_MOUSE_Y-constant" class="">TLV_TYPE_MOUSE_Y =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>   <span class='op'>|</span> <span class='int'>3017</span></pre></dd>
+      
+        <dt id="TLV_TYPE_KEYEVENT_SEND-constant" class="">TLV_TYPE_KEYEVENT_SEND =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>    <span class='op'>|</span> <span class='int'>3018</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_SOURCENAME-constant" class="">TLV_TYPE_EVENT_SOURCENAME =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Event Log</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>4000</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_HANDLE-constant" class="">TLV_TYPE_EVENT_HANDLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_QWORD-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_QWORD (constant)">TLV_META_TYPE_QWORD</a></span></span>   <span class='op'>|</span> <span class='int'>4001</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_NUMRECORDS-constant" class="">TLV_TYPE_EVENT_NUMRECORDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4002</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_READFLAGS-constant" class="">TLV_TYPE_EVENT_READFLAGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4003</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_RECORDOFFSET-constant" class="">TLV_TYPE_EVENT_RECORDOFFSET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4004</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_RECORDNUMBER-constant" class="">TLV_TYPE_EVENT_RECORDNUMBER =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4006</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_TIMEGENERATED-constant" class="">TLV_TYPE_EVENT_TIMEGENERATED =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4007</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_TIMEWRITTEN-constant" class="">TLV_TYPE_EVENT_TIMEWRITTEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4008</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_ID-constant" class="">TLV_TYPE_EVENT_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4009</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_TYPE-constant" class="">TLV_TYPE_EVENT_TYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4010</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_CATEGORY-constant" class="">TLV_TYPE_EVENT_CATEGORY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4011</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_STRING-constant" class="">TLV_TYPE_EVENT_STRING =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='int'>4012</span></pre></dd>
+      
+        <dt id="TLV_TYPE_EVENT_DATA-constant" class="">TLV_TYPE_EVENT_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='int'>4013</span></pre></dd>
+      
+        <dt id="TLV_TYPE_POWER_FLAGS-constant" class="">TLV_TYPE_POWER_FLAGS =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Power</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4100</span></pre></dd>
+      
+        <dt id="TLV_TYPE_POWER_REASON-constant" class="">TLV_TYPE_POWER_REASON =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='int'>4101</span></pre></dd>
+      
+        <dt id="TLV_TYPE_WEBCAM_IMAGE-constant" class="">TLV_TYPE_WEBCAM_IMAGE =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Webcam</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>1</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_WEBCAM_INTERFACE_ID-constant" class="">TLV_TYPE_WEBCAM_INTERFACE_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>2</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_WEBCAM_QUALITY-constant" class="">TLV_TYPE_WEBCAM_QUALITY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>3</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_WEBCAM_NAME-constant" class="">TLV_TYPE_WEBCAM_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>4</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_AUDIO_DURATION-constant" class="">TLV_TYPE_AUDIO_DURATION =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Audio</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>10</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_AUDIO_DATA-constant" class="">TLV_TYPE_AUDIO_DATA =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_RAW-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_RAW (constant)">TLV_META_TYPE_RAW</a></span></span>     <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>11</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_AUDIO_INTERFACE_ID-constant" class="">TLV_TYPE_AUDIO_INTERFACE_ID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_UINT-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_UINT (constant)">TLV_META_TYPE_UINT</a></span></span>    <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>12</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="TLV_TYPE_AUDIO_INTERFACE_NAME-constant" class="">TLV_TYPE_AUDIO_INTERFACE_NAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_META_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_META_TYPE_STRING (constant)">TLV_META_TYPE_STRING</a></span></span>  <span class='op'>|</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_EXTENSIONS-constant" title="Rex::Post::Meterpreter::TLV_EXTENSIONS (constant)">TLV_EXTENSIONS</a></span></span> <span class='op'>+</span> <span class='int'>13</span><span class='rparen'>)</span></pre></dd>
+      
+        <dt id="EXTENSION_ID_STDAPI-constant" class="">EXTENSION_ID_STDAPI =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>ID for the extension (needs to be a multiple of 1000)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='int'>1000</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_CHDIR-constant" class="">COMMAND_ID_STDAPI_FS_CHDIR =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Associated command ids</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>1</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_CHMOD-constant" class="">COMMAND_ID_STDAPI_FS_CHMOD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>2</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_DELETE_DIR-constant" class="">COMMAND_ID_STDAPI_FS_DELETE_DIR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>3</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_DELETE_FILE-constant" class="">COMMAND_ID_STDAPI_FS_DELETE_FILE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>4</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_FILE_COPY-constant" class="">COMMAND_ID_STDAPI_FS_FILE_COPY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>5</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH-constant" class="">COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>6</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_FILE_MOVE-constant" class="">COMMAND_ID_STDAPI_FS_FILE_MOVE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>7</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_GETWD-constant" class="">COMMAND_ID_STDAPI_FS_GETWD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>8</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_LS-constant" class="">COMMAND_ID_STDAPI_FS_LS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>9</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_MD5-constant" class="">COMMAND_ID_STDAPI_FS_MD5 =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>10</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_MKDIR-constant" class="">COMMAND_ID_STDAPI_FS_MKDIR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>11</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_MOUNT_SHOW-constant" class="">COMMAND_ID_STDAPI_FS_MOUNT_SHOW =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>12</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_SEARCH-constant" class="">COMMAND_ID_STDAPI_FS_SEARCH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>13</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_SEPARATOR-constant" class="">COMMAND_ID_STDAPI_FS_SEPARATOR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>14</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_SHA1-constant" class="">COMMAND_ID_STDAPI_FS_SHA1 =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>15</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_FS_STAT-constant" class="">COMMAND_ID_STDAPI_FS_STAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>16</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>17</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>18</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>19</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>20</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>21</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>22</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE-constant" class="">COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>23</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_RESOLVE_HOST-constant" class="">COMMAND_ID_STDAPI_NET_RESOLVE_HOST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>24</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_RESOLVE_HOSTS-constant" class="">COMMAND_ID_STDAPI_NET_RESOLVE_HOSTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>25</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_SOCKET_TCP_SHUTDOWN-constant" class="">COMMAND_ID_STDAPI_NET_SOCKET_TCP_SHUTDOWN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>26</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN-constant" class="">COMMAND_ID_STDAPI_NET_TCP_CHANNEL_OPEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>27</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_RAILGUN_API-constant" class="">COMMAND_ID_STDAPI_RAILGUN_API =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>28</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_RAILGUN_API_MULTI-constant" class="">COMMAND_ID_STDAPI_RAILGUN_API_MULTI =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>29</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_RAILGUN_MEMREAD-constant" class="">COMMAND_ID_STDAPI_RAILGUN_MEMREAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>30</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_RAILGUN_MEMWRITE-constant" class="">COMMAND_ID_STDAPI_RAILGUN_MEMWRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>31</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS-constant" class="">COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>32</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>33</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>34</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>35</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE-constant" class="">COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>36</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>37</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT-constant" class="">COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>38</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE-constant" class="">COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>39</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT-constant" class="">COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>40</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>41</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>42</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>43</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS-constant" class="">COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>44</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE-constant" class="">COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>45</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT-constant" class="">COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>46</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_SET_VALUE-constant" class="">COMMAND_ID_STDAPI_REGISTRY_SET_VALUE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>47</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT-constant" class="">COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>48</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY-constant" class="">COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>49</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_DRIVER_LIST-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_DRIVER_LIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>50</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_DROP_TOKEN-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_DROP_TOKEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>51</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_GETENV-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_GETENV =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>52</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_GETPRIVS-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_GETPRIVS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>53</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_GETSID-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_GETSID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>54</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_GETUID-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_GETUID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>55</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_LOCALTIME-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_LOCALTIME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>56</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_REV2SELF-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_REV2SELF =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>57</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_STEAL_TOKEN-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_STEAL_TOKEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>58</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_CONFIG_SYSINFO-constant" class="">COMMAND_ID_STDAPI_SYS_CONFIG_SYSINFO =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>59</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_CLEAR-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_CLEAR =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>60</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_CLOSE-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>61</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_NUMRECORDS-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_NUMRECORDS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>62</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_OLDEST-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_OLDEST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>63</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_OPEN-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_OPEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>64</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_EVENTLOG_READ-constant" class="">COMMAND_ID_STDAPI_SYS_EVENTLOG_READ =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>65</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS-constant" class="">COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>66</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_ATTACH =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>67</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_CLOSE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>68</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_EXECUTE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>69</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_GET_INFO-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_GET_INFO =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>70</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_GET_PROCESSES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>71</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_GETPID-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_GETPID =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>72</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_IMAGES-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_IMAGES =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>73</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_PROC_ADDRESS-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_GET_PROC_ADDRESS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>74</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_LOAD-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_LOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>75</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_UNLOAD-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_IMAGE_UNLOAD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>76</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_KILL-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_KILL =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>77</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_ALLOCATE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_ALLOCATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>78</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_FREE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_FREE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>79</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_LOCK-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_LOCK =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>80</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_PROTECT-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_PROTECT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>81</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_QUERY-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_QUERY =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>82</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_READ-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_READ =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>83</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_UNLOCK-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_UNLOCK =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>84</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_WRITE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_MEMORY_WRITE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>85</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CLOSE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CLOSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>86</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>87</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>88</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>89</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_QUERY_REGS-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_QUERY_REGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>90</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_RESUME-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_RESUME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>91</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SET_REGS-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SET_REGS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>92</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SUSPEND-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_SUSPEND =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>93</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_TERMINATE-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_TERMINATE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>94</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_SYS_PROCESS_WAIT-constant" class="">COMMAND_ID_STDAPI_SYS_PROCESS_WAIT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>95</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_DESKTOP_ENUM-constant" class="">COMMAND_ID_STDAPI_UI_DESKTOP_ENUM =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>96</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_DESKTOP_GET-constant" class="">COMMAND_ID_STDAPI_UI_DESKTOP_GET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>97</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT-constant" class="">COMMAND_ID_STDAPI_UI_DESKTOP_SCREENSHOT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>98</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_DESKTOP_SET-constant" class="">COMMAND_ID_STDAPI_UI_DESKTOP_SET =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>99</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD-constant" class="">COMMAND_ID_STDAPI_UI_ENABLE_KEYBOARD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>100</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_ENABLE_MOUSE-constant" class="">COMMAND_ID_STDAPI_UI_ENABLE_MOUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>101</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_GET_IDLE_TIME-constant" class="">COMMAND_ID_STDAPI_UI_GET_IDLE_TIME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>102</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8-constant" class="">COMMAND_ID_STDAPI_UI_GET_KEYS_UTF8 =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>103</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_SEND_KEYEVENT-constant" class="">COMMAND_ID_STDAPI_UI_SEND_KEYEVENT =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>104</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_SEND_KEYS-constant" class="">COMMAND_ID_STDAPI_UI_SEND_KEYS =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>105</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_SEND_MOUSE-constant" class="">COMMAND_ID_STDAPI_UI_SEND_MOUSE =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>106</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_START_KEYSCAN-constant" class="">COMMAND_ID_STDAPI_UI_START_KEYSCAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>107</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_STOP_KEYSCAN-constant" class="">COMMAND_ID_STDAPI_UI_STOP_KEYSCAN =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>108</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP-constant" class="">COMMAND_ID_STDAPI_UI_UNLOCK_DESKTOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>109</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_WEBCAM_AUDIO_RECORD-constant" class="">COMMAND_ID_STDAPI_WEBCAM_AUDIO_RECORD =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>110</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_WEBCAM_GET_FRAME-constant" class="">COMMAND_ID_STDAPI_WEBCAM_GET_FRAME =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>111</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_WEBCAM_LIST-constant" class="">COMMAND_ID_STDAPI_WEBCAM_LIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>112</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_WEBCAM_START-constant" class="">COMMAND_ID_STDAPI_WEBCAM_START =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>113</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_WEBCAM_STOP-constant" class="">COMMAND_ID_STDAPI_WEBCAM_STOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>114</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_AUDIO_MIC_START-constant" class="">COMMAND_ID_STDAPI_AUDIO_MIC_START =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>115</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_AUDIO_MIC_STOP-constant" class="">COMMAND_ID_STDAPI_AUDIO_MIC_STOP =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>116</span></pre></dd>
+      
+        <dt id="COMMAND_ID_STDAPI_AUDIO_MIC_LIST-constant" class="">COMMAND_ID_STDAPI_AUDIO_MIC_LIST =
+          
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="#EXTENSION_ID_STDAPI-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::EXTENSION_ID_STDAPI (constant)">EXTENSION_ID_STDAPI</a></span></span> <span class='op'>+</span> <span class='int'>117</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:39 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::Spec::Constants
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::Spec::Constants";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span></span>
+     &raquo; 
+    <span class="title">Constants</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::Spec::Constants
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd>ActiveSupport::Autoload</dd>
+  </dl>
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/spec/constants.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Monitor constants created by module loading to ensure that the loads in one example don&#39;t interfere with the assertions in another example.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Constants/Each.html" title="Metasploit::Framework::Spec::Constants::Each (module)">Each</a></span>, <span class='object_link'><a href="Constants/Suite.html" title="Metasploit::Framework::Spec::Constants::Suite (module)">Suite</a></span>
+    
+  
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="LOADED_MODULE_CHILD_CONSTANT_REGEXP-constant" class="">LOADED_MODULE_CHILD_CONSTANT_REGEXP =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Regex parsing loaded module constants</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^Mod(?&lt;unpacked_full_name&gt;[0-9a-f]+)$</span><span class='regexp_end'>/</span></span></pre></dd>
+      
+        <dt id="PARENT_CONSTANT-constant" class="">PARENT_CONSTANT =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>The parent namespace child_constant_name that can have children added when loading modules.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf/Modules.html" title="Msf::Modules (module)">Modules</a></span></span></pre></dd>
+      
+        <dt id="PERSISTENT_CHILD_CONSTANT_NAMES-constant" class="">PERSISTENT_CHILD_CONSTANT_NAMES =
+          <div class="docstring">
+  <div class="discussion">
+    
+<p>Constant names under <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span> that can persist between specs because they are part of the loader library and not dynamically loaded code</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+        </dt>
+        <dd><pre class="code"><span class='qwords_beg'>%w{</span><span class='words_sep'>
+  </span><span class='tstring_content'>Error</span><span class='words_sep'>
+  </span><span class='tstring_content'>External</span><span class='words_sep'>
+  </span><span class='tstring_content'>Loader</span><span class='words_sep'>
+  </span><span class='tstring_content'>Metadata</span><span class='words_sep'>
+  </span><span class='tstring_content'>MetasploitClassCompatibilityError</span><span class='words_sep'>
+  </span><span class='tstring_content'>Namespace</span><span class='words_sep'>
+  </span><span class='tstring_content'>VersionCompatibilityError</span><span class='words_sep'>
+</span><span class='tstring_end'>}</span></span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:to_sym</span><span class='rparen'>)</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#clean-class_method" title="clean (class method)">.<strong>clean</strong>  &#x21d2; true, false </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Cleans child constants from <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#define_task-class_method" title="define_task (class method)">.<strong>define_task</strong>  &#x21d2; void </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Adds actions to `spec` task so that `rake spec` fails if any of the following:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each-class_method" title="each (class method)">.<strong>each</strong> {|child_name| ... } &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Yields each child_constant_name under <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#full_name-class_method" title="full_name (class method)">.<strong>full_name</strong>(child_constant_name)  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The module full name for `child_constant_name`.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="clean-class_method">
+  
+    .<strong>clean</strong>  &#x21d2; <tt>true</tt>, <tt>false</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Cleans child constants from <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>true</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if there were leaked constants that were cleaned.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>false</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if there were no leaked constants.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="#each-class_method" title="Metasploit::Framework::Spec::Constants.each (method)">each</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+35
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants.rb', line 35</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_clean'>clean</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_child_name'>child_name</span><span class='op'>|</span>
+    <span class='const'><span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span></span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:remove_const</span><span class='comma'>,</span> <span class='id identifier rubyid_child_name'>child_name</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>!=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="define_task-class_method">
+  
+    .<strong>define_task</strong>  &#x21d2; <tt>void</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p class="note returns_void">This method returns an undefined value.</p>
+<p>Adds actions to `spec` task so that `rake spec` fails if any of the following:</p>
+
+<p># `log/leaked-constants.log` exists after printing out the leaked constants. # Each.configured! is unnecessary in `spec/spec_helper.rb` and should be removed.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_define_task'>define_task</span>
+  <span class='const'><span class='object_link'><a href="Constants/Suite.html" title="Metasploit::Framework::Spec::Constants::Suite (module)">Suite</a></span></span><span class='period'>.</span><span class='id identifier rubyid_define_task'><span class='object_link'><a href="Constants/Suite.html#define_task-class_method" title="Metasploit::Framework::Spec::Constants::Suite.define_task (method)">define_task</a></span></span>
+  <span class='comment'># After Suite as Suite will kill for leaks before Each say it cleaned no leaks in case there are leaks in an
+</span>  <span class='comment'># `after(:all)` that {Each} won&#39;t catch in its `after(:each)` checks.
+</span>  <span class='const'><span class='object_link'><a href="Constants/Each.html" title="Metasploit::Framework::Spec::Constants::Each (module)">Each</a></span></span><span class='period'>.</span><span class='id identifier rubyid_define_task'><span class='object_link'><a href="Constants/Each.html#define_task-class_method" title="Metasploit::Framework::Spec::Constants::Each.define_task (method)">define_task</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each-class_method">
+  
+    .<strong>each</strong> {|child_name| ... } &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Yields each child_constant_name under <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>child_name</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Parameters:</p>
+<ul class="yieldparam">
+  
+    <li>
+      
+        <span class='name'>child_name</span>
+      
+      
+        <span class='type'>(<tt>Symbol</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>name of child_constant_name relative to <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Yield Returns:</p>
+<ul class="yieldreturn">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>void</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>count</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span>
+  <span class='id identifier rubyid_inherit'>inherit</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_count'>count</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_child_constant_names'>child_constant_names</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span></span><span class='period'>.</span><span class='id identifier rubyid_constants'>constants</span><span class='lparen'>(</span><span class='id identifier rubyid_inherit'>inherit</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_child_constant_names'>child_constant_names</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_child_constant_name'>child_constant_name</span><span class='op'>|</span>
+    <span class='kw'>unless</span> <span class='const'><span class='object_link'><a href="#PERSISTENT_CHILD_CONSTANT_NAMES-constant" title="Metasploit::Framework::Spec::Constants::PERSISTENT_CHILD_CONSTANT_NAMES (constant)">PERSISTENT_CHILD_CONSTANT_NAMES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_child_constant_name'>child_constant_name</span>
+      <span class='id identifier rubyid_count'>count</span> <span class='op'>+=</span> <span class='int'>1</span>
+      <span class='kw'>yield</span> <span class='id identifier rubyid_child_constant_name'>child_constant_name</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_count'>count</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="full_name-class_method">
+  
+    .<strong>full_name</strong>(child_constant_name)  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The module full name for `child_constant_name`</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>child_constant_name</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the name of a child constant_name under <span class='object_link'><a href="#PARENT_CONSTANT-constant" title="Metasploit::Framework::Spec::Constants::PARENT_CONSTANT (constant)">PARENT_CONSTANT</a></span>.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>full module name used to load `child_constant_name`.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if `child_constant_name` does not correspond to a loaded module.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/spec/constants.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_full_name'>full_name</span><span class='lparen'>(</span><span class='id identifier rubyid_child_constant_name'>child_constant_name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_full_name'>full_name</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='id identifier rubyid_match'>match</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#LOADED_MODULE_CHILD_CONSTANT_REGEXP-constant" title="Metasploit::Framework::Spec::Constants::LOADED_MODULE_CHILD_CONSTANT_REGEXP (constant)">LOADED_MODULE_CHILD_CONSTANT_REGEXP</a></span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_child_constant_name'>child_constant_name</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_match'>match</span>
+    <span class='id identifier rubyid_potential_full_name'>potential_full_name</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_match'>match</span><span class='lbracket'>[</span><span class='symbol'>:unpacked_full_name</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_module_type'>module_type</span><span class='comma'>,</span> <span class='id identifier rubyid__reference_name'>_reference_name</span> <span class='op'>=</span> <span class='id identifier rubyid_potential_full_name'>potential_full_name</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Msf.html#MODULE_TYPES-constant" title="Msf::MODULE_TYPES (constant)">MODULE_TYPES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_module_type'>module_type</span>
+      <span class='id identifier rubyid_full_name'>full_name</span> <span class='op'>=</span> <span class='id identifier rubyid_potential_full_name'>potential_full_name</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_full_name'>full_name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:16 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Rex::Post::HWBridge::Ui::Console::InteractiveChannel
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::HWBridge::Ui::Console::InteractiveChannel";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../HWBridge.html" title="Rex::Post::HWBridge (module)">HWBridge</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Rex::Post::HWBridge::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Rex::Post::HWBridge::Ui::Console (class)">Console</a></span></span>
+     &raquo; 
+    <span class="title">InteractiveChannel</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Rex::Post::HWBridge::Ui::Console::InteractiveChannel
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/hwbridge/ui/console/interactive_channel.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Mixin that is meant to extend the base channel class from hwbridge in a manner that adds interactive capabilities.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_log_proc-instance_method" title="#on_log_proc (instance method)">#<strong>on_log_proc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute on_log_proc.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interact-instance_method" title="#_interact (instance method)">#<strong>_interact</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Interacts with self.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interact_complete-instance_method" title="#_interact_complete (instance method)">#<strong>_interact_complete</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes the channel like it aint no thang.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interrupt-instance_method" title="#_interrupt (instance method)">#<strong>_interrupt</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when an interrupt is sent.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_remote_fd-instance_method" title="#_remote_fd (instance method)">#<strong>_remote_fd</strong>(stream)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the remote file descriptor to select on.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_stream_read_local_write_remote-instance_method" title="#_stream_read_local_write_remote (instance method)">#<strong>_stream_read_local_write_remote</strong>(channel)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads data from local input and writes it remotely.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_stream_read_remote_write_local-instance_method" title="#_stream_read_remote_write_local (instance method)">#<strong>_stream_read_remote_write_local</strong>(channel)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads from the channel and writes locally.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_suspend-instance_method" title="#_suspend (instance method)">#<strong>_suspend</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Suspends interaction with the channel.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../../../Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber.html#init_ui-instance_method" title="Rex::Ui::Subscriber#init_ui (method)">#init_ui</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber.html#reset_ui-instance_method" title="Rex::Ui::Subscriber#reset_ui (method)">#reset_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../../../Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="on_log_proc=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="on_log_proc-instance_method">
+  
+    #<strong>on_log_proc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute on_log_proc.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 95</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_log_proc'>on_log_proc</span>
+  <span class='ivar'>@on_log_proc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_interact-instance_method">
+  
+    #<strong>_interact</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Interacts with self.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact'>_interact</span>
+  <span class='comment'># If the channel has a left-side socket, then we can interact with it.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interactive'>interactive</span><span class='lparen'>(</span><span class='kw'>true</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_interact_stream'>interact_stream</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interactive'>interactive</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Channel </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not support interaction.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interact_complete-instance_method">
+  
+    #<strong>_interact_complete</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes the channel like it aint no thang.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact_complete'>_interact_complete</span>
+  <span class='kw'>begin</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interactive'>interactive</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>rescue</span> <span class='const'>IOError</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_interrupt-instance_method">
+  
+    #<strong>_interrupt</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when an interrupt is sent.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interrupt'>_interrupt</span>
+  <span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Terminate channel </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='embexpr_end'>}</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_remote_fd-instance_method">
+  
+    #<strong>_remote_fd</strong>(stream)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the remote file descriptor to select on</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 91</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__remote_fd'>_remote_fd</span><span class='lparen'>(</span><span class='id identifier rubyid_stream'>stream</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_stream_read_local_write_remote-instance_method">
+  
+    #<strong>_stream_read_local_write_remote</strong>(channel)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads data from local input and writes it remotely.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__stream_read_local_write_remote'>_stream_read_local_write_remote</span><span class='lparen'>(</span><span class='id identifier rubyid_channel'>channel</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_user_input'>user_input</span><span class='period'>.</span><span class='id identifier rubyid_gets'>gets</span>
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_data'>data</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_command_proc'>on_command_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_command_proc'>on_command_proc</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_stream_read_remote_write_local-instance_method">
+  
+    #<strong>_stream_read_remote_write_local</strong>(channel)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads from the channel and writes locally.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__stream_read_remote_write_local'>_stream_read_remote_write_local</span><span class='lparen'>(</span><span class='id identifier rubyid_channel'>channel</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_lsock'>lsock</span><span class='period'>.</span><span class='id identifier rubyid_sysread'>sysread</span><span class='lparen'>(</span><span class='int'>16384</span><span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_print_proc'>on_print_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_print_proc'>on_print_proc</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_log_proc'>on_log_proc</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_on_log_proc'>on_log_proc</span>
+  <span class='id identifier rubyid_user_output'>user_output</span><span class='period'>.</span><span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="_suspend-instance_method">
+  
+    #<strong>_suspend</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Suspends interaction with the channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/hwbridge/ui/console/interactive_channel.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__suspend'>_suspend</span>
+  <span class='comment'># Ask the user if they would like to background the session
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_prompt_yesno'>prompt_yesno</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Background channel </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='embexpr_end'>}</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interactive'>interactive</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:39 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

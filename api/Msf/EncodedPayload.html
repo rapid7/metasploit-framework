@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::EncodedPayload
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::EncodedPayload";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span>
+     &raquo; 
+    <span class="title">EncodedPayload</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::EncodedPayload
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Msf::EncodedPayload</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/encoded_payload.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class wrappers an encoded payload buffer and the means used to create one.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoded-instance_method" title="#encoded (instance method)">#<strong>encoded</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The encoded version of the raw payload plus the NOP sled if one was generated.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoder-instance_method" title="#encoder (instance method)">#<strong>encoder</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The encoder that was used.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#iterations-instance_method" title="#iterations (instance method)">#<strong>iterations</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The number of encoding iterations used.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nop-instance_method" title="#nop (instance method)">#<strong>nop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The NOP generator that was used.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nop_sled-instance_method" title="#nop_sled (instance method)">#<strong>nop_sled</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The NOP sled itself.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#nop_sled_size-instance_method" title="#nop_sled_size (instance method)">#<strong>nop_sled_size</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The size of the NOP sled.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#payload=-instance_method" title="#payload= (instance method)">#<strong>payload</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+      <span class="note title writeonly">writeonly</span>
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#pinst-instance_method" title="#pinst (instance method)">#<strong>pinst</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The payload instance used to generate the payload.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#raw-instance_method" title="#raw (instance method)">#<strong>raw</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The raw version of the payload.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#reqs-instance_method" title="#reqs (instance method)">#<strong>reqs</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The requirements used for generation.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#space-instance_method" title="#space (instance method)">#<strong>space</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The maximum number of bytes acceptable for the encoded payload.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-class_method" title="create (class method)">.<strong>create</strong>(pinst, reqs = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method creates an encoded payload instance and returns it to the caller.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arch-instance_method" title="#arch (instance method)">#<strong>arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>An array containing the architecture(s) that this payload was made to run on.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encode-instance_method" title="#encode (instance method)">#<strong>encode</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Scans for a compatible encoder using ranked precedence and populates the encoded attribute.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoded_exe-instance_method" title="#encoded_exe (instance method)">#<strong>encoded_exe</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Convert the payload to an executable appropriate for its arch and platform.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoded_jar-instance_method" title="#encoded_jar (instance method)">#<strong>encoded_jar</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a jar file containing the encoded payload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#encoded_war-instance_method" title="#encoded_war (instance method)">#<strong>encoded_war</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Similar to <code>encoded_jar</code> but builds a web archive for use in servlet containers such as Tomcat.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(raw = nil)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method generates the full encoded payload and returns the encoded payload buffer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_raw-instance_method" title="#generate_raw (instance method)">#<strong>generate_raw</strong>  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generates the raw payload from the payload instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_sled-instance_method" title="#generate_sled (instance method)">#<strong>generate_sled</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Construct a NOP sled if necessary.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#has_chars%3F-instance_method" title="#has_chars? (instance method)">#<strong>has_chars?</strong>(chars)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, pinst, reqs)  &#x21d2; EncodedPayload </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates an instance of an EncodedPayload.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#needs_encoding-instance_method" title="#needs_encoding (instance method)">#<strong>needs_encoding</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#platform-instance_method" title="#platform (instance method)">#<strong>platform</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>An array containing the platform(s) that this payload was made to run on.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, pinst, reqs)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::EncodedPayload (class)">EncodedPayload</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates an instance of an EncodedPayload.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pinst'>pinst</span>     <span class='op'>=</span> <span class='id identifier rubyid_pinst'>pinst</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_reqs'>reqs</span>      <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_space'>space</span>     <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Space</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="encoded=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="encoded-instance_method">
+  
+    #<strong>encoded</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The encoded version of the raw payload plus the NOP sled if one was generated.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+486
+487
+488</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 486</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoded'>encoded</span>
+  <span class='ivar'>@encoded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="encoder=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="encoder-instance_method">
+  
+    #<strong>encoder</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The encoder that was used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+498
+499
+500</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 498</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoder'>encoder</span>
+  <span class='ivar'>@encoder</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="iterations=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="iterations-instance_method">
+  
+    #<strong>iterations</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The number of encoding iterations used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+506
+507
+508</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 506</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_iterations'>iterations</span>
+  <span class='ivar'>@iterations</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="nop=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="nop-instance_method">
+  
+    #<strong>nop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The NOP generator that was used</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+502
+503
+504</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 502</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nop'>nop</span>
+  <span class='ivar'>@nop</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="nop_sled=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="nop_sled-instance_method">
+  
+    #<strong>nop_sled</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The NOP sled itself</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+494
+495
+496</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 494</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nop_sled'>nop_sled</span>
+  <span class='ivar'>@nop_sled</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="nop_sled_size=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="nop_sled_size-instance_method">
+  
+    #<strong>nop_sled_size</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The size of the NOP sled</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+490
+491
+492</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 490</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span>
+  <span class='ivar'>@nop_sled_size</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="payload=-instance_method">
+  
+    #<strong>payload=</strong>(value)  &#x21d2; <tt>Object</tt>  <span class="extras">(writeonly, protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+517
+518
+519</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 517</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_payload='>payload=</span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='ivar'>@payload</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="pinst=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="pinst-instance_method">
+  
+    #<strong>pinst</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The payload instance used to generate the payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+526
+527
+528</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 526</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pinst'>pinst</span>
+  <span class='ivar'>@pinst</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="raw=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="raw-instance_method">
+  
+    #<strong>raw</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The raw version of the payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+481
+482
+483</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 481</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_raw'>raw</span>
+  <span class='ivar'>@raw</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="reqs=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="reqs-instance_method">
+  
+    #<strong>reqs</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The requirements used for generation</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+530
+531
+532</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 530</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reqs'>reqs</span>
+  <span class='ivar'>@reqs</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="space=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="space-instance_method">
+  
+    #<strong>space</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The maximum number of bytes acceptable for the encoded payload</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+510
+511
+512</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 510</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_space'>space</span>
+  <span class='ivar'>@space</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-class_method">
+  
+    .<strong>create</strong>(pinst, reqs = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method creates an encoded payload instance and returns it to the caller.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22
+23
+24
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Create the encoded payload instance
+</span>  <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="" title="Msf::EncodedPayload (class)">EncodedPayload</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="Msf::EncodedPayload#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Raw</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_p'>p</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="arch-instance_method">
+  
+    #<strong>arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>An array containing the architecture(s) that this payload was made to run on</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+463
+464
+465
+466
+467</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 463</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span>
+    <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encode-instance_method">
+  
+    #<strong>encode</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Scans for a compatible encoder using ranked precedence and populates the encoded attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 131</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encode'>encode</span>
+  <span class='comment'># If the exploit needs the payload to be encoded, we need to run the list of
+</span>  <span class='comment'># encoders in ranked precedence and try to encode with them.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_needs_encoding'>needs_encoding</span>
+    <span class='id identifier rubyid_encoders'>encoders</span> <span class='op'>=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_compatible_encoders'>compatible_encoders</span>
+
+    <span class='comment'># Make sure the encoder name from the user has the same String#encoding
+</span>    <span class='comment'># as the framework&#39;s list of encoder names so we can compare them later.
+</span>    <span class='comment'># This is important for when we get input from RPC.
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_encoders'>encoders</span><span class='period'>.</span><span class='id identifier rubyid_keys'>keys</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_encoding'>encoding</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># If the caller had a preferred encoder, use this encoder only
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_preferred'>preferred</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_encoders'>encoders</span><span class='lbracket'>[</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_encoders'>encoders</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='lbracket'>[</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_preferred'>preferred</span><span class='rbracket'>]</span> <span class='rbracket'>]</span>
+    <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Failed to find preferred encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoEncodersSucceededError.html" title="Msf::NoEncodersSucceededError (class)">NoEncodersSucceededError</a></span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Failed to find preferred encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_encoders'>encoders</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_encname'>encname</span><span class='comma'>,</span> <span class='id identifier rubyid_encmod'>encmod</span><span class='op'>|</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span> <span class='op'>=</span> <span class='id identifier rubyid_encmod'>encmod</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+      <span class='comment'># If the encoding is requested by an exploit check compatibility
+</span>      <span class='comment'># options first of all. For the &#39;generic/none&#39; encoder compatibility
+</span>      <span class='comment'># options don&#39;t apply.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exploit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&amp;&amp;</span>
+          <span class='op'>!</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Exploit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_compatible?'>compatible?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+          <span class='id identifier rubyid_encname'>encname</span> <span class='op'>!~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>generic\/none</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> doesn&#39;t match the exploit Compat options</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># If there is an encoder type restriction, check to see if this
+</span>      <span class='comment'># encoder matches with what we&#39;re searching for.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_encoder_type'>encoder_type</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\s+</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='kw'>false</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not a compatible encoder type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> != </span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_encoder_type'>encoder_type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># If the exploit did not explicitly request a kind of encoder and
+</span>      <span class='comment'># the current encoder has a manual ranking, then it should not be
+</span>      <span class='comment'># considered as a valid encoder.  A manual ranking tells the
+</span>      <span class='comment'># framework that an encoder must be explicitly defined as the
+</span>      <span class='comment'># encoder of choice for an exploit.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderType</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_rank'>rank</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../Msf.html#ManualRanking-constant" title="Msf::ManualRanking (constant)">ManualRanking</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> is manual ranked and was not defined as a preferred encoder.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># If the caller explicitly requires register preservation, make sure
+</span>      <span class='comment'># that the module in question can handle it. This is mostly used by
+</span>      <span class='comment'># the stage encoder path.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ForceSaveRegisters</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span>
+          <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveRegisters</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span> <span class='kw'>and</span>
+          <span class='lparen'>(</span><span class='op'>!</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_can_preserve_registers?'>can_preserve_registers?</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> does not preserve registers and the caller needs </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveRegisters</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'> preserved.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Import the datastore from payload (and likely exploit by proxy)
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_share_datastore'>share_datastore</span><span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+
+      <span class='comment'># If we have any encoder options, import them into the datastore
+</span>      <span class='comment'># of the encoder.
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='period'>.</span><span class='id identifier rubyid_import_options_from_hash'>import_options_from_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncoderOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Validate the encoder to make sure it&#39;s properly initialized.
+</span>      <span class='kw'>begin</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_validate'>validate</span>
+      <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+        <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Failed to validate encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>next</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># Tell the encoder how much space is available
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_space'>space</span>
+
+      <span class='id identifier rubyid_eout'>eout</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+
+      <span class='id identifier rubyid_next_encoder'>next_encoder</span> <span class='op'>=</span> <span class='kw'>false</span>
+
+      <span class='comment'># Try encoding with the current encoder
+</span>      <span class='comment'>#
+</span>      <span class='comment'># NOTE: Using more than one iteration may cause successive iterations to switch
+</span>      <span class='comment'># to using a different encoder.
+</span>      <span class='comment'>#
+</span>      <span class='int'>1</span><span class='period'>.</span><span class='id identifier rubyid_upto'>upto</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_iter'>iter</span><span class='op'>|</span>
+        <span class='id identifier rubyid_err_start'>err_start</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: iteration </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_iter'>iter</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+
+        <span class='kw'>begin</span>
+          <span class='id identifier rubyid_eout'>eout</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='id identifier rubyid_eout'>eout</span><span class='comma'>,</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+        <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="EncodingError.html" title="Msf::EncodingError (class)">EncodingError</a></span></span>
+          <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_err_start'>err_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_err_start'>err_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Call stack\n</span><span class='embexpr_beg'>#{</span><span class='gvar'>$@</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="../top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_3</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_next_encoder'>next_encoder</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='kw'>break</span>
+
+        <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+          <span class='id identifier rubyid_elog'><span class='object_link'><a href="../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Broken encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>error:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_next_encoder'>next_encoder</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+
+        <span class='comment'># Get the minimum number of nops to use
+</span>        <span class='id identifier rubyid_min'>min</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MinNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+        <span class='id identifier rubyid_min'>min</span> <span class='op'>=</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisableNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+        <span class='comment'># Check to see if we have enough room for the minimum requirements
+</span>        <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Space</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Space</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_eout'>eout</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>+</span> <span class='id identifier rubyid_min'>min</span><span class='rparen'>)</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_err_start'>err_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Encoded payload version is too large (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_eout'>eout</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'> bytes) with encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_next_encoder'>next_encoder</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_err_start'>err_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Successfully encoded with encoder </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_encoder'>encoder</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> (size is </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_eout'>eout</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='embexpr_end'>}</span><span class='tstring_content'>)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_0</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_next_encoder'>next_encoder</span>
+
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_eout'>eout</span>
+      <span class='kw'>break</span>
+    <span class='rbrace'>}</span>
+
+    <span class='comment'># If the encoded payload is nil, raise an exception saying that we
+</span>    <span class='comment'># suck at life.
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoEncodersSucceededError.html" title="Msf::NoEncodersSucceededError (class)">NoEncodersSucceededError</a></span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: All encoders failed to encode.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+
+  <span class='comment'># If there are no bad characters, then the raw is the same as the
+</span>  <span class='comment'># encoded
+</span>  <span class='kw'>else</span>
+    <span class='comment'># NOTE: BadChars can contain whitespace, so don&#39;t use String#blank?
+</span>    <span class='kw'>unless</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_ilog'><span class='object_link'><a href="../top-level-namespace.html#ilog-instance_method" title="#ilog (method)">ilog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: payload contains no badchars, skipping automatic encoding</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_0</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='id identifier rubyid_raw'>raw</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Prefix the prepend encoder value
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependEncoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>&lt;&lt;</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendEncoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encoded_exe-instance_method">
+  
+    #<strong>encoded_exe</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Convert the payload to an executable appropriate for its arch and platform.</p>
+
+<p><code>opts</code> are passed directly to <code>Msf::Util::EXE.to_executable</code></p>
+
+<p>see <code>Msf::Exploit::EXE</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 391</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoded_exe'>encoded_exe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='comment'># Ensure arch and platform are in the format that to_executable expects
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'>Array</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span> <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Module/PlatformList.html" title="Msf::Module::PlatformList (class)">PlatformList</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_platforms'>platforms</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_emod'>emod</span> <span class='op'>=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_assoc_exploit'>assoc_exploit</span> <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:assoc_exploit</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_emod'>emod</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>EXE::Custom</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:get_custom_exe</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_get_custom_exe'>get_custom_exe</span>
+    <span class='kw'>end</span>
+    <span class='comment'># This is a little ghetto, grabbing datastore options from the
+</span>    <span class='comment'># associated exploit, but it doesn&#39;t really make sense for the
+</span>    <span class='comment'># payload to have exe options if the exploit doesn&#39;t need an exe.
+</span>    <span class='comment'># Msf::Util::EXE chooses reasonable defaults if these aren&#39;t given,
+</span>    <span class='comment'># so it&#39;s not that big of an issue.
+</span>    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+      <span class='symbol'>:template_path</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXE::Path</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:template</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXE::Template</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:inject</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXE::Inject</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:fallback</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXE::FallBack</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+      <span class='symbol'>:sub_method</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EXE::OldMethod</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='comment'># Prefer the target&#39;s platform/architecture information, but use
+</span>    <span class='comment'># the exploit module&#39;s if no target specific information exists.
+</span>    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_target_platform'>target_platform</span>  <span class='kw'>if</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:target_platform</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>         <span class='kw'>if</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:platform</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_target_arch'>target_arch</span>          <span class='kw'>if</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:target_arch</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>                 <span class='kw'>if</span> <span class='id identifier rubyid_emod'>emod</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:arch</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Lastly, try the payload&#39;s. This always happens if we don&#39;t have an
+</span>  <span class='comment'># associated exploit module.
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:platform</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>         <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:arch</span>
+
+  <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util/EXE.html" title="Msf::Util::EXE (class)">EXE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_executable'><span class='object_link'><a href="Util/EXE.html#to_executable-class_method" title="Msf::Util::EXE.to_executable (method)">to_executable</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:platform</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_encoded'>encoded</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encoded_jar-instance_method">
+  
+    #<strong>encoded_jar</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a jar file containing the encoded payload.</p>
+
+<p>Uses the payload&#39;s <code>generate_jar</code> method if it is implemented (Java payloads should all have it).  Otherwise, converts the payload to an executable and uses Msf::Util::EXE.to_jar to create a jar file that dumps the exe out to a random file name in the system&#39;s temporary directory and executes it.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+442
+443
+444
+445
+446
+447
+448</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 442</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoded_jar'>encoded_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_generate_jar'>generate_jar</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:generate_jar</span>
+
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:spawn</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Spawn</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util/EXE.html" title="Msf::Util::EXE (class)">EXE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_jar'><span class='object_link'><a href="Util/EXE.html#to_jar-class_method" title="Msf::Util::EXE.to_jar (method)">to_jar</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_encoded_exe'>encoded_exe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="encoded_war-instance_method">
+  
+    #<strong>encoded_war</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Similar to <code>encoded_jar</code> but builds a web archive for use in servlet containers such as Tomcat.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+454
+455
+456
+457
+458</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 454</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_encoded_war'>encoded_war</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_generate_war'>generate_war</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:generate_war</span>
+
+  <span class='const'><span class='object_link'><a href="../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Util/EXE.html" title="Msf::Util::EXE (class)">EXE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_to_jsp_war'><span class='object_link'><a href="Util/EXE.html#to_jsp_war-class_method" title="Msf::Util::EXE.to_jsp_war (method)">to_jsp_war</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_encoded_exe'>encoded_exe</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(raw = nil)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method generates the full encoded payload and returns the encoded payload buffer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The encoded payload.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 44</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span>           <span class='op'>=</span> <span class='id identifier rubyid_raw'>raw</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>       <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span>      <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoder'>encoder</span>       <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop'>nop</span>           <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Increase thread priority as necessary.  This is done
+</span>  <span class='comment'># to ensure that the encoding and sled generation get
+</span>  <span class='comment'># enough time slices from the ruby thread scheduler.
+</span>  <span class='id identifier rubyid_priority'>priority</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_priority'>priority</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_priority'>priority</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_priority'>priority</span> <span class='op'>=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>begin</span>
+    <span class='comment'># First, validate
+</span>    <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_validate'>validate</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+    <span class='comment'># Propagate space information when set
+</span>    <span class='kw'>unless</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_space'>space</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+      <span class='comment'># Tell the payload how much space is available
+</span>      <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_space'>space</span>
+      <span class='comment'># Reserve 10% of the available space if encoding is required
+</span>      <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_available_space'>available_space</span> <span class='op'>-=</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_space'>space</span> <span class='op'>*</span> <span class='float'>0.1</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_ceil'>ceil</span> <span class='kw'>if</span> <span class='id identifier rubyid_needs_encoding'>needs_encoding</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Generate the raw version of the payload first
+</span>    <span class='id identifier rubyid_generate_raw'>generate_raw</span><span class='lparen'>(</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+    <span class='comment'># If encoder is set, it could be an encoders list
+</span>    <span class='comment'># The form is &quot;&lt;encoder&gt;:&lt;iteration&gt;, &lt;encoder2&gt;:&lt;iteration&gt;&quot;...
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_encoder_str'>encoder_str</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_encoder_str'>encoder_str</span><span class='period'>.</span><span class='id identifier rubyid_scan'>scan</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>([^:, ]+):?([^,]+)?</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_encoder_opt'>encoder_opt</span><span class='op'>|</span>
+        <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_encoder_opt'>encoder_opt</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_encoder_opt'>encoder_opt</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Iterations</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>=</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+
+        <span class='comment'># Encode the payload with every encoders in the list
+</span>        <span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='rparen'>)</span>
+        <span class='comment'># Encoded payload is now the raw payload to be encoded by the next encoder
+</span>        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Iterations</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>=</span> <span class='int'>1</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_iterations'>iterations</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+      <span class='comment'># No specified encoder, let BadChars or ForceEncode do their job
+</span>      <span class='id identifier rubyid_encode'>encode</span><span class='lparen'>(</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Build the NOP sled
+</span>    <span class='id identifier rubyid_generate_sled'>generate_sled</span><span class='lparen'>(</span><span class='rparen'>)</span>
+
+    <span class='comment'># Finally, set the complete payload definition
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span>
+  <span class='kw'>ensure</span>
+    <span class='comment'># Restore the thread priority
+</span>    <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_current'>current</span><span class='period'>.</span><span class='id identifier rubyid_priority'>priority</span> <span class='op'>=</span> <span class='id identifier rubyid_priority'>priority</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Return the complete payload
+</span>  <span class='kw'>return</span> <span class='id identifier rubyid_encoded'>encoded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_raw-instance_method">
+  
+    #<strong>generate_raw</strong>  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generates the raw payload from the payload instance.  This populates the <span class='object_link'><a href="#raw-instance_method" title="Msf::EncodedPayload#raw (method)">#raw</a></span> attribute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The raw, unencoded payload.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_raw'>generate_raw</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Prepend</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>+</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_generate_complete'>generate_complete</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Append</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># If an encapsulation routine was supplied, then we should call it so
+</span>  <span class='comment'># that we can get the real raw payload.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncapsulationRoutine</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EncapsulationRoutine</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='comma'>,</span> <span class='id identifier rubyid_raw'>raw</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_sled-instance_method">
+  
+    #<strong>generate_sled</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Construct a NOP sled if necessary</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 298</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_sled'>generate_sled</span>
+  <span class='id identifier rubyid_min'>min</span>   <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MinNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_space'>space</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Space</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pad_nops'>pad_nops</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PadNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='id identifier rubyid_min'>min</span>
+
+  <span class='comment'># Calculate the number of NOPs to pad out the buffer with based on the
+</span>  <span class='comment'># requirements.  If there was a space requirement, check to see if
+</span>  <span class='comment'># there&#39;s any room at all left for a sled.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_space'>space</span><span class='rparen'>)</span> <span class='kw'>and</span>
+     <span class='lparen'>(</span><span class='id identifier rubyid_space'>space</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Space</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>-</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If the maximum number of NOPs has been exceeded, wrap it back down.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span>
+     <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MaxNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Check for the DisableNops setting
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='int'>0</span> <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisableNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='comment'># Check for the PadNops setting
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_pad_nops'>pad_nops</span> <span class='op'>-</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_encoded'>encoded</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PadNops</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='comment'># Now construct the actual sled
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_nops'>nops</span> <span class='op'>=</span> <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_compatible_nops'>compatible_nops</span>
+
+    <span class='comment'># If the caller had a preferred nop, try to find it and prefix it
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='kw'>and</span>
+        <span class='lparen'>(</span><span class='id identifier rubyid_preferred'>preferred</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_nops'>nops</span><span class='lbracket'>[</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_nops'>nops</span><span class='period'>.</span><span class='id identifier rubyid_unshift'>unshift</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_preferred'>preferred</span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_wlog'><span class='object_link'><a href="../top-level-namespace.html#wlog-instance_method" title="#wlog (method)">wlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Failed to find preferred nop </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Nop</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_nops'>nops</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_nopname'>nopname</span><span class='comma'>,</span> <span class='id identifier rubyid_nopmod'>nopmod</span><span class='op'>|</span>
+      <span class='comment'># Create an instance of the nop module
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='id identifier rubyid_nopmod'>nopmod</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+      <span class='comment'># Propagate options from the payload and possibly exploit
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop'>nop</span><span class='period'>.</span><span class='id identifier rubyid_share_datastore'>share_datastore</span><span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+
+      <span class='comment'># The list of save registers
+</span>      <span class='id identifier rubyid_save_regs'>save_regs</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveRegisters</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span> <span class='op'>+</span> <span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_save_registers'>save_registers</span> <span class='op'>||</span> <span class='lbracket'>[</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_save_regs'>save_regs</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_save_regs'>save_regs</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>end</span>
+
+      <span class='kw'>begin</span>
+        <span class='id identifier rubyid_nop'>nop</span><span class='period'>.</span><span class='id identifier rubyid_copy_ui'>copy_ui</span><span class='lparen'>(</span><span class='id identifier rubyid_pinst'>pinst</span><span class='rparen'>)</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span> <span class='op'>=</span> <span class='id identifier rubyid_nop'>nop</span><span class='period'>.</span><span class='id identifier rubyid_generate_sled'>generate_sled</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SaveRegisters</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_save_regs'>save_regs</span><span class='rparen'>)</span>
+
+        <span class='kw'>if</span> <span class='id identifier rubyid_nop_sled'>nop_sled</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_nop_sled'>nop_sled</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='id identifier rubyid_nop_sled_size'>nop_sled_size</span>
+          <span class='kw'>break</span>
+        <span class='kw'>else</span>
+          <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Nop generator </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_nop'>nop</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed to generate sled for payload</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>rescue</span>
+        <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: Nop generator </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_nop'>nop</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed to generate sled for payload: </span><span class='embexpr_beg'>#{</span><span class='gvar'>$!</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='const'>LEV_1</span><span class='rparen'>)</span>
+
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop'>nop</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='kw'>end</span>
+    <span class='rbrace'>}</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="NoNopsSucceededError.html" title="Msf::NoNopsSucceededError (class)">NoNopsSucceededError</a></span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_refname'>refname</span><span class='embexpr_end'>}</span><span class='tstring_content'>: All NOP generators failed to construct sled for.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='id identifier rubyid_caller'>caller</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_nop_sled'>nop_sled</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="has_chars?-instance_method">
+  
+    #<strong>has_chars?</strong>(chars)  &#x21d2; <tt>Boolean</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 536</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_has_chars?'>has_chars?</span><span class='lparen'>(</span><span class='id identifier rubyid_chars'>chars</span><span class='rparen'>)</span>
+  <span class='comment'># NOTE: BadChars can contain whitespace, so don&#39;t use String#blank?
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># payload hasn&#39;t been set yet but we have bad characters so assume they&#39;ll need to be encoded
+</span>  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+
+  <span class='id identifier rubyid_chars'>chars</span><span class='period'>.</span><span class='id identifier rubyid_each_byte'>each_byte</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_bad'>bad</span><span class='op'>|</span>
+    <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_raw'>raw</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_bad'>bad</span><span class='period'>.</span><span class='id identifier rubyid_chr'>chr</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>Encoding</span><span class='op'>::</span><span class='const'>ASCII_8BIT</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="needs_encoding-instance_method">
+  
+    #<strong>needs_encoding</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+532
+533
+534</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 532</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_needs_encoding'>needs_encoding</span>
+  <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Encoder</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ForceEncode</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_has_chars?'>has_chars?</span><span class='lparen'>(</span><span class='id identifier rubyid_reqs'>reqs</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>BadChars</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="platform-instance_method">
+  
+    #<strong>platform</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>An array containing the platform(s) that this payload was made to run on</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+472
+473
+474
+475
+476</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/encoded_payload.rb', line 472</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_pinst'>pinst</span>
+    <span class='id identifier rubyid_pinst'>pinst</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:56 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

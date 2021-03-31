@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Incognito::Incognito
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Incognito::Incognito";
+  relpath = '../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../_index.html">Index (I)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Incognito.html" title="Rex::Post::Meterpreter::Extensions::Incognito (module)">Incognito</a></span></span>
+     &raquo; 
+    <span class="title">Incognito</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Incognito::Incognito
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Incognito::Incognito</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/incognito/incognito.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This meterpreter extensions a privilege escalation interface that is capable of doing things like dumping password hashes and performing local exploitation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Extension.html" title="Rex::Post::Meterpreter::Extension (class)">Rex::Post::Meterpreter::Extension</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Extension.html#client-instance_method" title="Rex::Post::Meterpreter::Extension#client (method)">#client</a></span>, <span class='object_link'><a href="../../Extension.html#name-instance_method" title="Rex::Post::Meterpreter::Extension#name (method)">#name</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extension_id-class_method" title="extension_id (class method)">.<strong>extension_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_add_group_user-instance_method" title="#incognito_add_group_user (instance method)">#<strong>incognito_add_group_user</strong>(host, groupname, username)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_add_localgroup_user-instance_method" title="#incognito_add_localgroup_user (instance method)">#<strong>incognito_add_localgroup_user</strong>(host, groupname, username)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_add_user-instance_method" title="#incognito_add_user (instance method)">#<strong>incognito_add_user</strong>(host, username, password)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_impersonate_token-instance_method" title="#incognito_impersonate_token (instance method)">#<strong>incognito_impersonate_token</strong>(username)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_list_tokens-instance_method" title="#incognito_list_tokens (instance method)">#<strong>incognito_list_tokens</strong>(token_order)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incognito_snarf_hashes-instance_method" title="#incognito_snarf_hashes (instance method)">#<strong>incognito_snarf_hashes</strong>(host)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client)  &#x21d2; Incognito </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Incognito.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Incognito::Incognito (class)">Incognito</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Incognito.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>incognito</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_register_extension_aliases'>register_extension_aliases</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>incognito</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ext</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span> <span class='kw'>self</span>
+      <span class='rbrace'>}</span><span class='comma'>,</span>
+    <span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extension_id-class_method">
+  
+    .<strong>extension_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_extension_id'>extension_id</span>
+  <span class='const'><span class='object_link'><a href="../Incognito.html#EXTENSION_ID_INCOGNITO-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::EXTENSION_ID_INCOGNITO (constant)">EXTENSION_ID_INCOGNITO</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="incognito_add_group_user-instance_method">
+  
+    #<strong>incognito_add_group_user</strong>(host, groupname, username)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+67
+68
+69
+70
+71
+72
+73
+74
+75</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 67</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_add_group_user'>incognito_add_group_user</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_groupname'>groupname</span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_ADD_GROUP_USER-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_ADD_GROUP_USER (constant)">COMMAND_ID_INCOGNITO_ADD_GROUP_USER</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_USERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_USERNAME (constant)">TLV_TYPE_INCOGNITO_USERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GROUPNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GROUPNAME (constant)">TLV_TYPE_INCOGNITO_GROUPNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_groupname'>groupname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_SERVERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_SERVERNAME (constant)">TLV_TYPE_INCOGNITO_SERVERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GENERIC_RESPONSE-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GENERIC_RESPONSE (constant)">TLV_TYPE_INCOGNITO_GENERIC_RESPONSE</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="incognito_add_localgroup_user-instance_method">
+  
+    #<strong>incognito_add_localgroup_user</strong>(host, groupname, username)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+77
+78
+79
+80
+81
+82
+83
+84
+85</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 77</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_add_localgroup_user'>incognito_add_localgroup_user</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_groupname'>groupname</span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_ADD_LOCALGROUP_USER-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_ADD_LOCALGROUP_USER (constant)">COMMAND_ID_INCOGNITO_ADD_LOCALGROUP_USER</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_USERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_USERNAME (constant)">TLV_TYPE_INCOGNITO_USERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GROUPNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GROUPNAME (constant)">TLV_TYPE_INCOGNITO_GROUPNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_groupname'>groupname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_SERVERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_SERVERNAME (constant)">TLV_TYPE_INCOGNITO_SERVERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GENERIC_RESPONSE-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GENERIC_RESPONSE (constant)">TLV_TYPE_INCOGNITO_GENERIC_RESPONSE</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="incognito_add_user-instance_method">
+  
+    #<strong>incognito_add_user</strong>(host, username, password)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+57
+58
+59
+60
+61
+62
+63
+64
+65</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 57</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_add_user'>incognito_add_user</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_ADD_USER-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_ADD_USER (constant)">COMMAND_ID_INCOGNITO_ADD_USER</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_USERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_USERNAME (constant)">TLV_TYPE_INCOGNITO_USERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_PASSWORD-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_PASSWORD (constant)">TLV_TYPE_INCOGNITO_PASSWORD</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_SERVERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_SERVERNAME (constant)">TLV_TYPE_INCOGNITO_SERVERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GENERIC_RESPONSE-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GENERIC_RESPONSE (constant)">TLV_TYPE_INCOGNITO_GENERIC_RESPONSE</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="incognito_impersonate_token-instance_method">
+  
+    #<strong>incognito_impersonate_token</strong>(username)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_impersonate_token'>incognito_impersonate_token</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_IMPERSONATE_TOKEN-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_IMPERSONATE_TOKEN (constant)">COMMAND_ID_INCOGNITO_IMPERSONATE_TOKEN</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_IMPERSONATE_TOKEN-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_IMPERSONATE_TOKEN (constant)">TLV_TYPE_INCOGNITO_IMPERSONATE_TOKEN</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_username'>username</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_GENERIC_RESPONSE-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_GENERIC_RESPONSE (constant)">TLV_TYPE_INCOGNITO_GENERIC_RESPONSE</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="incognito_list_tokens-instance_method">
+  
+    #<strong>incognito_list_tokens</strong>(token_order)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 37</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_list_tokens'>incognito_list_tokens</span><span class='lparen'>(</span><span class='id identifier rubyid_token_order'>token_order</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_LIST_TOKENS-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_LIST_TOKENS (constant)">COMMAND_ID_INCOGNITO_LIST_TOKENS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_LIST_TOKENS_ORDER-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_LIST_TOKENS_ORDER (constant)">TLV_TYPE_INCOGNITO_LIST_TOKENS_ORDER</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_token_order'>token_order</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>delegation</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_LIST_TOKENS_DELEGATION-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_LIST_TOKENS_DELEGATION (constant)">TLV_TYPE_INCOGNITO_LIST_TOKENS_DELEGATION</a></span></span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>impersonation</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_LIST_TOKENS_IMPERSONATION-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_LIST_TOKENS_IMPERSONATION (constant)">TLV_TYPE_INCOGNITO_LIST_TOKENS_IMPERSONATION</a></span></span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="incognito_snarf_hashes-instance_method">
+  
+    #<strong>incognito_snarf_hashes</strong>(host)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+87
+88
+89
+90
+91
+92
+93</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/incognito/incognito.rb', line 87</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incognito_snarf_hashes'>incognito_snarf_hashes</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#COMMAND_ID_INCOGNITO_SNARF_HASHES-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::COMMAND_ID_INCOGNITO_SNARF_HASHES (constant)">COMMAND_ID_INCOGNITO_SNARF_HASHES</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../Incognito.html#TLV_TYPE_INCOGNITO_SERVERNAME-constant" title="Rex::Post::Meterpreter::Extensions::Incognito::TLV_TYPE_INCOGNITO_SERVERNAME (constant)">TLV_TYPE_INCOGNITO_SERVERNAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_host'>host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:01 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

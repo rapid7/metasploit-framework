@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Ui::Console::CommandDispatcher::Common
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Ui::Console::CommandDispatcher::Common";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (C)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Console.html" title="Msf::Ui::Console (module)">Console</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../CommandDispatcher.html" title="Msf::Ui::Console::CommandDispatcher (module)">CommandDispatcher</a></span></span>
+     &raquo; 
+    <span class="title">Common</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Ui::Console::CommandDispatcher::Common
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Core.html" title="Msf::Ui::Console::CommandDispatcher::Core (class)">Core</a></span>, <span class='object_link'><a href="Creds.html" title="Msf::Ui::Console::CommandDispatcher::Creds (class)">Creds</a></span>, <span class='object_link'><a href="Db.html" title="Msf::Ui::Console::CommandDispatcher::Db (class)">Db</a></span>, <span class='object_link'><a href="Jobs.html" title="Msf::Ui::Console::CommandDispatcher::Jobs (class)">Jobs</a></span>, <span class='object_link'><a href="Modules.html" title="Msf::Ui::Console::CommandDispatcher::Modules (class)">Modules</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/ui/console/command_dispatcher/common.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>These are functions that are used in two or more command dispatchers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arg_host_range-instance_method" title="#arg_host_range (instance method)">#<strong>arg_host_range</strong>(arg, host_ranges, required = false)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse <code>arg</code> into a Rex::Socket::RangeWalker and append the result into <code>host_ranges</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arg_port_range-instance_method" title="#arg_port_range (instance method)">#<strong>arg_port_range</strong>(arg, port_ranges, required = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Parse <code>arg</code> into an array of ports and append the result into <code>port_ranges</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#index_from_list-instance_method" title="#index_from_list (instance method)">#<strong>index_from_list</strong>(list, index) {|list[idx]| ... } &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This is for the “use” and “set” commands.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_rhosts_from_addrs-instance_method" title="#set_rhosts_from_addrs (instance method)">#<strong>set_rhosts_from_addrs</strong>(rhosts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Set RHOSTS in the <code>active_module</code>&#39;s (or global if none) datastore from an array of addresses.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#show_options-instance_method" title="#show_options (instance method)">#<strong>show_options</strong>(mod)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#trim_path-instance_method" title="#trim_path (instance method)">#<strong>trim_path</strong>(path, path_head, extensions: [&#39;rb&#39;, &#39;py&#39;, &#39;go&#39;])  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Trims starting `.`, `./` `/`, `<code>path_head</code>/`, &amp; `/<code>path_head</code>/` from <code>path</code>.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="arg_host_range-instance_method">
+  
+    #<strong>arg_host_range</strong>(arg, host_ranges, required = false)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+  <div class="note notetag">
+    <strong>Note:</strong>
+    <div class='inline'>
+<p>This modifies <code>host_ranges</code> in place</p>
+</div>
+  </div>
+
+
+<p>Parse <code>arg</code> into a Rex::Socket::RangeWalker and append the result into <code>host_ranges</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>arg</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The thing to turn into a RangeWalker</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>host_ranges</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The array of ranges to append</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>required</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Whether an empty <code>arg</code> should be an error</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if parsing was successful or false otherwise</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 22</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arg_host_range'>arg_host_range</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='comma'>,</span> <span class='id identifier rubyid_host_ranges'>host_ranges</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_arg'>arg</span> <span class='kw'>and</span> <span class='id identifier rubyid_required'>required</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Missing required host argument</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_rw'>rw</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>RangeWalker</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid host parameter, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_rw'>rw</span><span class='period'>.</span><span class='id identifier rubyid_valid?'>valid?</span>
+    <span class='id identifier rubyid_host_ranges'>host_ranges</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_rw'>rw</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid host parameter, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>false</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="arg_port_range-instance_method">
+  
+    #<strong>arg_port_range</strong>(arg, port_ranges, required = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Parse <code>arg</code> into an array of ports and append the result into <code>port_ranges</code></p>
+
+<p>Returns true if parsing was successful or nil otherwise.</p>
+
+<p>NOTE: This modifies <code>port_ranges</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 50</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arg_port_range'>arg_port_range</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='comma'>,</span> <span class='id identifier rubyid_port_ranges'>port_ranges</span><span class='comma'>,</span> <span class='id identifier rubyid_required'>required</span><span class='op'>=</span><span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_arg'>arg</span> <span class='kw'>and</span> <span class='id identifier rubyid_required'>required</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Argument required for -p</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_port_ranges'>port_ranges</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_portspec_to_portlist'>portspec_to_portlist</span><span class='lparen'>(</span><span class='id identifier rubyid_arg'>arg</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid port parameter, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_arg'>arg</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="index_from_list-instance_method">
+  
+    #<strong>index_from_list</strong>(list, index) {|list[idx]| ... } &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This is for the “use” and “set” commands</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>list[idx]</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 144</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_index_from_list'>index_from_list</span><span class='lparen'>(</span><span class='id identifier rubyid_list'>list</span><span class='comma'>,</span> <span class='id identifier rubyid_index'>index</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'>Array</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_index'>index</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_idx'>idx</span> <span class='op'>=</span> <span class='const'>Integer</span><span class='lparen'>(</span><span class='id identifier rubyid_index'>index</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'>ArgumentError</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Don&#39;t support negative indices
+</span>  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_idx'>idx</span> <span class='op'>&lt;</span> <span class='int'>0</span>
+
+  <span class='kw'>yield</span> <span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='id identifier rubyid_idx'>idx</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_rhosts_from_addrs-instance_method">
+  
+    #<strong>set_rhosts_from_addrs</strong>(rhosts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Set RHOSTS in the <code>active_module</code>&#39;s (or global if none) datastore from an array of addresses</p>
+
+<p>This stores all the addresses to a temporary file and utilizes the &lt;pre&gt;file:/tmp/filename&lt;/pre&gt; syntax to confer the addrs.  <code>rhosts</code> should be an Array.  NOTE: the temporary file is <strong>not</strong> deleted automatically.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 72</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_rhosts_from_addrs'>set_rhosts_from_addrs</span><span class='lparen'>(</span><span class='id identifier rubyid_rhosts'>rhosts</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_rhosts'>rhosts</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>The list is empty, cowardly refusing to set RHOSTS</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_active_module'>active_module</span>
+    <span class='id identifier rubyid_mydatastore'>mydatastore</span> <span class='op'>=</span> <span class='id identifier rubyid_active_module'>active_module</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span>
+  <span class='kw'>else</span>
+    <span class='comment'># if there is no module in use set the list to the global variable
+</span>    <span class='id identifier rubyid_mydatastore'>mydatastore</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_rhosts'>rhosts</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>5</span>
+    <span class='comment'># Lots of hosts makes &#39;show options&#39; wrap which is difficult to
+</span>    <span class='comment'># read, store to a temp file
+</span>    <span class='id identifier rubyid_rhosts_file'>rhosts_file</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Quickfile</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>msf-db-rhosts-</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mydatastore'>mydatastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOSTS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>file:</span><span class='tstring_end'>&#39;</span></span><span class='op'>+</span><span class='id identifier rubyid_rhosts_file'>rhosts_file</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span>
+    <span class='comment'># create the output file and assign it to the RHOSTS variable
+</span>    <span class='id identifier rubyid_rhosts_file'>rhosts_file</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_rhosts'>rhosts</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='op'>+</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rhosts_file'>rhosts_file</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>else</span>
+    <span class='comment'># For short lists, just set it directly
+</span>    <span class='id identifier rubyid_mydatastore'>mydatastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOSTS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_rhosts'>rhosts</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>RHOSTS =&gt; </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mydatastore'>mydatastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>RHOSTS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_print_line'><span class='object_link'><a href="../../../../top-level-namespace.html#print_line-instance_method" title="#print_line (method)">print_line</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="show_options-instance_method">
+  
+    #<strong>show_options</strong>(mod)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_show_options'>show_options</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='rparen'>)</span> <span class='comment'># :nodoc:
+</span>  <span class='id identifier rubyid_mod_opt'>mod_opt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_options'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_options-class_method" title="Msf::Serializer::ReadableText.dump_options (method)">dump_options</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nModule options (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_fullname'>fullname</span><span class='embexpr_end'>}</span><span class='tstring_content'>):\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_opt'>mod_opt</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod_opt'>mod_opt</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod_opt'>mod_opt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+
+  <span class='comment'># If it&#39;s an exploit and a payload is defined, create it and
+</span>  <span class='comment'># display the payload&#39;s options
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_exploit?'>exploit?</span> <span class='kw'>or</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_evasion?'>evasion?</span> <span class='rparen'>)</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PAYLOAD</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_p'>p</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_payloads'>payloads</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PAYLOAD</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>!</span><span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid payload defined: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PAYLOAD</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>return</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_p'>p</span><span class='period'>.</span><span class='id identifier rubyid_share_datastore'>share_datastore</span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_p_opt'>p_opt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_options'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_options-class_method" title="Msf::Serializer::ReadableText.dump_options (method)">dump_options</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_p'>p</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nPayload options (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PAYLOAD</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>):\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_p_opt'>p_opt</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_p_opt'>p_opt</span> <span class='kw'>and</span> <span class='id identifier rubyid_p_opt'>p_opt</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>   **DisablePayloadHandler: True   (no handler will be created!)**\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DisablePayloadHandler</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>true</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Print the selected target
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_exploit?'>exploit?</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_target'>target</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mod_targ'>mod_targ</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_exploit_target'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_exploit_target-class_method" title="Msf::Serializer::ReadableText.dump_exploit_target (method)">dump_exploit_target</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nExploit target:\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_targ'>mod_targ</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod_targ'>mod_targ</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod_targ'>mod_targ</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_evasion?'>evasion?</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_target'>target</span>
+    <span class='id identifier rubyid_mod_targ'>mod_targ</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_evasion_target'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_evasion_target-class_method" title="Msf::Serializer::ReadableText.dump_evasion_target (method)">dump_evasion_target</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\nEvasion target:\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_targ'>mod_targ</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod_targ'>mod_targ</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod_targ'>mod_targ</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Print the selected action
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_kind_of?'>kind_of?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Module/HasActions.html" title="Msf::Module::HasActions (module)">HasActions</a></span></span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_action'>action</span>
+    <span class='id identifier rubyid_mod_action'>mod_action</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Serializer.html" title="Msf::Serializer (module)">Serializer</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Serializer/ReadableText.html" title="Msf::Serializer::ReadableText (class)">ReadableText</a></span></span><span class='period'>.</span><span class='id identifier rubyid_dump_module_action'><span class='object_link'><a href="../../../Serializer/ReadableText.html#dump_module_action-class_method" title="Msf::Serializer::ReadableText.dump_module_action (method)">dump_module_action</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_mod'>mod</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>   </span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print'>print</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod'>mod</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='period'>.</span><span class='id identifier rubyid_capitalize'>capitalize</span><span class='embexpr_end'>}</span><span class='tstring_content'> action:\n\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_mod_action'>mod_action</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_mod_action'>mod_action</span> <span class='kw'>and</span> <span class='id identifier rubyid_mod_action'>mod_action</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Uncomment this line if u want target like msf2 format
+</span>  <span class='comment'>#print(&quot;\nTarget: #{mod.target.name}\n\n&quot;)
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="trim_path-instance_method">
+  
+    #<strong>trim_path</strong>(path, path_head, extensions: [&#39;rb&#39;, &#39;py&#39;, &#39;go&#39;])  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Trims starting `.`, `./` `/`, `<code>path_head</code>/`, &amp; `/<code>path_head</code>/` from <code>path</code>. Also trims trailing `.<code>extension</code>` from <code>path</code>, and any possible combination of misspellings of <code>extension</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path to be trimmed</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>path_head</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The top-level directory that should be removed from the path</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>extensions</span>
+      
+      
+        <span class='type'>(<tt>Array</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[&#39;rb&#39;, &#39;py&#39;, &#39;go&#39;]</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>File extensions to be trimmed from <code>path</code>. `.` is automatically included. Defaults to [&#39;rb&#39;, &#39;py&#39;, &#39;go&#39;].</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Altered <code>path</code>. Will return unaltered <code>path</code> if regex constructed with <code>path_head</code> &amp; <code>path</code> is not detected</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/command_dispatcher/common.rb', line 166</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_trim_path'>trim_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span> <span class='id identifier rubyid_path_head'>path_head</span><span class='comma'>,</span> <span class='label'>extensions:</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>py</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>go</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='comment'>#Builds capture groups for all supported file extensions
+</span>  <span class='id identifier rubyid_regex_extension'>regex_extension</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_extensions'>extensions</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_ext'>ext</span><span class='op'>|</span>
+    <span class='id identifier rubyid_regex_extension'>regex_extension</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>([</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ext'>ext</span><span class='embexpr_end'>}</span><span class='tstring_content'>])+|</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_regex_extension'>regex_extension</span><span class='period'>.</span><span class='id identifier rubyid_delete_suffix!'>delete_suffix!</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>|</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_regexp'>regexp</span> <span class='op'>=</span> <span class='tstring'><span class='regexp_beg'>%r{</span><span class='tstring_content'>
+      (
+        ^\.?                      # Dot at beginning of path
+        /?                        # Slash at beginning of path
+        (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_path_head'>path_head</span><span class='embexpr_end'>}</span><span class='tstring_content'>/)?          # top level directory (slash prepending directory name is optional)
+      )
+
+      |                           # OR
+
+      (
+        \.(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_regex_extension'>regex_extension</span><span class='embexpr_end'>}</span><span class='tstring_content'>)$   # any possible file extension at end of path
+      )
+
+      |                           # OR
+
+      (
+        \.$                       # trailing dot
+      )
+  </span><span class='regexp_end'>}ix</span></span>
+
+  <span class='id identifier rubyid_path'>path</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='id identifier rubyid_regexp'>regexp</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:43 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

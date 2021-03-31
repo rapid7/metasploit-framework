@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread";
+  relpath = '../../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../../_index.html">Index (T)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../ProcessSubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem (module)">ProcessSubsystem</a></span></span>
+     &raquo; 
+    <span class="title">Thread</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Interfaces with a process&#39; executing threads by enumerating, opening, and creating threads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#process-instance_method" title="#process (instance method)">#<strong>process</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-instance_method" title="#create (instance method)">#<strong>create</strong>(entry, parameter = nil, suspended = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a new thread in the context of the process and returns a Sys::Thread instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#each_thread-instance_method" title="#each_thread (instance method)">#<strong>each_thread</strong>(&amp;block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerate through each thread identifier.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_threads-instance_method" title="#get_threads (instance method)">#<strong>get_threads</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of thread identifiers.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(process)  &#x21d2; Thread </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a thread instance that operates in the context of the supplied process instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open-instance_method" title="#open (instance method)">#<strong>open</strong>(tid, access = THREAD_ALL)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Opens an existing thread that is running within the context of the process and returns a Sys::Thread instance.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(process)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread (class)">Thread</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a thread instance that operates in the context of the supplied process instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_process'>process</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="process=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="process-instance_method">
+  
+    #<strong>process</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process'>process</span>
+  <span class='ivar'>@process</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="create-instance_method">
+  
+    #<strong>create</strong>(entry, parameter = nil, suspended = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a new thread in the context of the process and returns a Sys::Thread instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 80</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_entry'>entry</span><span class='comma'>,</span> <span class='id identifier rubyid_parameter'>parameter</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_suspended'>suspended</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE (constant)">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_CREATE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_creation_flags'>creation_flags</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_PROCESS_HANDLE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PROCESS_HANDLE (constant)">TLV_TYPE_PROCESS_HANDLE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_handle'>handle</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_ENTRY_POINT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ENTRY_POINT (constant)">TLV_TYPE_ENTRY_POINT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_entry'>entry</span><span class='rparen'>)</span>
+
+  <span class='comment'># Are we passing a parameter to the entry point of the thread?
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_parameter'>parameter</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_ENTRY_PARAMETER-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ENTRY_PARAMETER (constant)">TLV_TYPE_ENTRY_PARAMETER</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_parameter'>parameter</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Should we create the thread suspended?
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_suspended'>suspended</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_creation_flags'>creation_flags</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#CREATE_SUSPENDED-constant" title="CREATE_SUSPENDED (constant)">CREATE_SUSPENDED</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_CREATION_FLAGS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_CREATION_FLAGS (constant)">TLV_TYPE_CREATION_FLAGS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_creation_flags'>creation_flags</span><span class='rparen'>)</span>
+
+  <span class='comment'># Transmit the request
+</span>  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+
+  <span class='id identifier rubyid_thread_id'>thread_id</span>     <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_ID-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_ID (constant)">TLV_TYPE_THREAD_ID</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_thread_handle'>thread_handle</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_HANDLE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_HANDLE (constant)">TLV_TYPE_THREAD_HANDLE</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Create a thread class instance
+</span>  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Thread.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread (class)">Thread</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Thread.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_process'>process</span><span class='comma'>,</span> <span class='id identifier rubyid_thread_handle'>thread_handle</span><span class='comma'>,</span> <span class='id identifier rubyid_thread_id'>thread_id</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="each_thread-instance_method">
+  
+    #<strong>each_thread</strong>(&amp;block)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerate through each thread identifier.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+114
+115
+116</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 114</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_each_thread'>each_thread</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_get_threads'>get_threads</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_threads-instance_method">
+  
+    #<strong>get_threads</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of thread identifiers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 121</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_threads'>get_threads</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS (constant)">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_GET_THREADS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_threads'>threads</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_PID-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PID (constant)">TLV_TYPE_PID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_pid'>pid</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_ID-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_ID (constant)">TLV_TYPE_THREAD_ID</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_thr'>thr</span><span class='op'>|</span>
+    <span class='id identifier rubyid_threads'>threads</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_thr'>thr</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_threads'>threads</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open-instance_method">
+  
+    #<strong>open</strong>(tid, access = THREAD_ALL)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Opens an existing thread that is running within the context of the process and returns a Sys::Thread instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/process_subsystem/thread.rb', line 47</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_tid'>tid</span><span class='comma'>,</span> <span class='id identifier rubyid_access'>access</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../Permission.html#THREAD_ALL-constant" title="Rex::Post::Permission::THREAD_ALL (constant)">THREAD_ALL</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN (constant)">COMMAND_ID_STDAPI_SYS_PROCESS_THREAD_OPEN</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_real'>real</span>    <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Translate access
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_access'>access</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="../../../../../Permission.html#THREAD_READ-constant" title="Rex::Post::Permission::THREAD_READ (constant)">THREAD_READ</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_real'>real</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_GET_CONTEXT-constant" title="THREAD_GET_CONTEXT (constant)">THREAD_GET_CONTEXT</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_QUERY_INFORMATION-constant" title="THREAD_QUERY_INFORMATION (constant)">THREAD_QUERY_INFORMATION</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#SYNCHRONIZE-constant" title="SYNCHRONIZE (constant)">SYNCHRONIZE</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_access'>access</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="../../../../../Permission.html#THREAD_WRITE-constant" title="Rex::Post::Permission::THREAD_WRITE (constant)">THREAD_WRITE</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_real'>real</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_SET_CONTEXT-constant" title="THREAD_SET_CONTEXT (constant)">THREAD_SET_CONTEXT</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_SET_INFORMATION-constant" title="THREAD_SET_INFORMATION (constant)">THREAD_SET_INFORMATION</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_SET_THREAD_TOKEN-constant" title="THREAD_SET_THREAD_TOKEN (constant)">THREAD_SET_THREAD_TOKEN</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_IMPERSONATE-constant" title="THREAD_IMPERSONATE (constant)">THREAD_IMPERSONATE</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_DIRECT_IMPERSONATION-constant" title="THREAD_DIRECT_IMPERSONATION (constant)">THREAD_DIRECT_IMPERSONATION</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_access'>access</span> <span class='op'>&amp;</span> <span class='const'><span class='object_link'><a href="../../../../../Permission.html#THREAD_EXECUTE-constant" title="Rex::Post::Permission::THREAD_EXECUTE (constant)">THREAD_EXECUTE</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_real'>real</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_TERMINATE-constant" title="THREAD_TERMINATE (constant)">THREAD_TERMINATE</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#THREAD_SUSPEND_RESUME-constant" title="THREAD_SUSPEND_RESUME (constant)">THREAD_SUSPEND_RESUME</a></span></span> <span class='op'>|</span> <span class='const'><span class='object_link'><a href="../../../../../../../top-level-namespace.html#SYNCHRONIZE-constant" title="SYNCHRONIZE (constant)">SYNCHRONIZE</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Add the thread identifier and permissions
+</span>  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_ID-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_ID (constant)">TLV_TYPE_THREAD_ID</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_tid'>tid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_PERMS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_PERMS (constant)">TLV_TYPE_THREAD_PERMS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_real'>real</span><span class='rparen'>)</span>
+
+  <span class='comment'># Transmit the request
+</span>  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Create a thread class instance
+</span>  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Thread.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread (class)">Thread</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../Thread.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Thread#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_process'>process</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Stdapi.html#TLV_TYPE_THREAD_HANDLE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_THREAD_HANDLE (constant)">TLV_TYPE_THREAD_HANDLE</a></span></span><span class='rparen'>)</span><span class='comma'>,</span> <span class='id identifier rubyid_tid'>tid</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:12 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

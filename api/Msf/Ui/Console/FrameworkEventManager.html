@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Ui::Console::FrameworkEventManager
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Ui::Console::FrameworkEventManager";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Ui.html" title="Msf::Ui (module)">Ui</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Console.html" title="Msf::Ui::Console (module)">Console</a></span></span>
+     &raquo; 
+    <span class="title">FrameworkEventManager</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Ui::Console::FrameworkEventManager
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span></dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="Driver.html" title="Msf::Ui::Console::Driver (class)">Driver</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/ui/console/framework_event_manager.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Handles events of various types that are sent from the framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#deregister_event_handlers-instance_method" title="#deregister_event_handlers (instance method)">#<strong>deregister_event_handlers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Unsubscribes from the framework.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_close-instance_method" title="#on_session_close (instance method)">#<strong>on_session_close</strong>(session, reason = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when a session is closed and removed from the framework.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_fail-instance_method" title="#on_session_fail (instance method)">#<strong>on_session_fail</strong>(reason = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#on_session_open-instance_method" title="#on_session_open (instance method)">#<strong>on_session_open</strong>(session)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called when a session is registered with the framework.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_event_handlers-instance_method" title="#register_event_handlers (instance method)">#<strong>register_event_handlers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Subscribes to the framework as a subscriber of various events.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../SessionEvent.html" title="Msf::SessionEvent (module)">SessionEvent</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../SessionEvent.html#on_session_command-instance_method" title="Msf::SessionEvent#on_session_command (method)">#on_session_command</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_download-instance_method" title="Msf::SessionEvent#on_session_download (method)">#on_session_download</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_filedelete-instance_method" title="Msf::SessionEvent#on_session_filedelete (method)">#on_session_filedelete</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_interact-instance_method" title="Msf::SessionEvent#on_session_interact (method)">#on_session_interact</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_output-instance_method" title="Msf::SessionEvent#on_session_output (method)">#on_session_output</a></span>, <span class='object_link'><a href="../../SessionEvent.html#on_session_upload-instance_method" title="Msf::SessionEvent#on_session_upload (method)">#on_session_upload</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="deregister_event_handlers-instance_method">
+  
+    #<strong>deregister_event_handlers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Unsubscribes from the framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+25
+26
+27</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/framework_event_manager.rb', line 25</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_deregister_event_handlers'>deregister_event_handlers</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_remove_session_subscriber'>remove_session_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_close-instance_method">
+  
+    #<strong>on_session_close</strong>(session, reason = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when a session is closed and removed from the framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/framework_event_manager.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_close'>on_session_close</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_line'>print_line</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># If logging had been enabled for this session, stop it now.
+</span>  <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Logging.html" title="Msf::Logging (class)">Logging</a></span></span><span class='op'>::</span><span class='id identifier rubyid_stop_session_log'><span class='object_link'><a href="../../Logging.html#stop_session_log-class_method" title="Msf::Logging.stop_session_log (method)">stop_session_log</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span><span class='embexpr_end'>}</span><span class='tstring_content'> - </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_desc'>desc</span><span class='embexpr_end'>}</span><span class='tstring_content'> session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> closed.</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_reason'>reason</span> <span class='kw'>and</span> <span class='id identifier rubyid_reason'>reason</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+    <span class='id identifier rubyid_msg'>msg</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>  Reason: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_reason'>reason</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_fail-instance_method">
+  
+    #<strong>on_session_fail</strong>(reason = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/framework_event_manager.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_fail'>on_session_fail</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="on_session_open-instance_method">
+  
+    #<strong>on_session_open</strong>(session)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called when a session is registered with the framework.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34
+35
+36
+37
+38</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/framework_event_manager.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_on_session_open'>on_session_open</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span><span class='kw'>nil</span><span class='comma'>,</span><span class='kw'>nil</span><span class='comma'>,</span><span class='float'>0.125</span><span class='rparen'>)</span> <span class='comment'># Give the session time enough to register itself properly.
+</span>  <span class='id identifier rubyid_output'>output</span><span class='period'>.</span><span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_desc'>desc</span><span class='embexpr_end'>}</span><span class='tstring_content'> session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='embexpr_end'>}</span><span class='tstring_content'> opened (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>) at </span><span class='embexpr_beg'>#{</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Logging.html" title="Msf::Logging (class)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_session_logging_enabled?'><span class='object_link'><a href="../../Logging.html#session_logging_enabled%3F-class_method" title="Msf::Logging.session_logging_enabled? (method)">session_logging_enabled?</a></span></span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+    <span class='const'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Logging.html" title="Msf::Logging (class)">Logging</a></span></span><span class='period'>.</span><span class='id identifier rubyid_start_session_log'><span class='object_link'><a href="../../Logging.html#start_session_log-class_method" title="Msf::Logging.start_session_log (method)">start_session_log</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_event_handlers-instance_method">
+  
+    #<strong>register_event_handlers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Subscribes to the framework as a subscriber of various events.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+18
+19
+20</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/ui/console/framework_event_manager.rb', line 18</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_event_handlers'>register_event_handlers</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_add_session_subscriber'>add_session_subscriber</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:31:35 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Proto::TFTP::Server
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Proto::TFTP::Server";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Proto.html" title="Rex::Proto (module)">Proto</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span>
+     &raquo; 
+    <span class="title">Server</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Proto::TFTP::Server
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Proto::TFTP::Server</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/proto/tftp/server.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>TFTP Server class</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#context-instance_method" title="#context (instance method)">#<strong>context</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute context.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#files-instance_method" title="#files (instance method)">#<strong>files</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute files.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#incoming_file_hook-instance_method" title="#incoming_file_hook (instance method)">#<strong>incoming_file_hook</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute incoming_file_hook.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#listen_host-instance_method" title="#listen_host (instance method)">#<strong>listen_host</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute listen_host.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#listen_port-instance_method" title="#listen_port (instance method)">#<strong>listen_port</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute listen_port.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sock-instance_method" title="#sock (instance method)">#<strong>sock</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute sock.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#thread-instance_method" title="#thread (instance method)">#<strong>thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute thread.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#transfers-instance_method" title="#transfers (instance method)">#<strong>transfers</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute transfers.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#uploaded-instance_method" title="#uploaded (instance method)">#<strong>uploaded</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute uploaded.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#check_retransmission-instance_method" title="#check_retransmission (instance method)">#<strong>check_retransmission</strong>(tr)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#dispatch_request-instance_method" title="#dispatch_request (instance method)">#<strong>dispatch_request</strong>(from, buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Dispatch a packet that we received.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_file-instance_method" title="#find_file (instance method)">#<strong>find_file</strong>(fname)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find the hash entry for a file that may be offered.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#find_file_in_root-instance_method" title="#find_file_in_root (instance method)">#<strong>find_file_in_root</strong>(fname)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Find the file in the specified tftp root and add a temporary entry to the files hash.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_transfer-instance_method" title="#find_transfer (instance method)">#<strong>find_transfer</strong>(type, from, block)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(port = 69, listen_host = &#39;0.0.0.0&#39;, context = {})  &#x21d2; Server </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of Server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#monitor_socket-instance_method" title="#monitor_socket (instance method)">#<strong>monitor_socket</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>See if there is anything to do..</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#next_block-instance_method" title="#next_block (instance method)">#<strong>next_block</strong>(tr)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#process_options-instance_method" title="#process_options (instance method)">#<strong>process_options</strong>(from, buf, tr)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#register_file-instance_method" title="#register_file (instance method)">#<strong>register_file</strong>(fn, content, once = false)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register a filename and content for a client to request.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#save_output-instance_method" title="#save_output (instance method)">#<strong>save_output</strong>(tr)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_error-instance_method" title="#send_error (instance method)">#<strong>send_error</strong>(from, num)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send an error packet w/the specified code and string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_packet-instance_method" title="#send_packet (instance method)">#<strong>send_packet</strong>(from, pkt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Send a single packet to the specified host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_output_dir-instance_method" title="#set_output_dir (instance method)">#<strong>set_output_dir</strong>(outdir)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register a directory to write uploaded files to.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_tftproot-instance_method" title="#set_tftproot (instance method)">#<strong>set_tftproot</strong>(rootdir)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Register an entire directory to serve files from.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start-instance_method" title="#start (instance method)">#<strong>start</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Start the TFTP server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop-instance_method" title="#stop (instance method)">#<strong>stop</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Stop the TFTP server.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(port = 69, listen_host = &#39;0.0.0.0&#39;, context = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Proto::TFTP::Server (class)">Server</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of Server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='int'>69</span><span class='comma'>,</span> <span class='id identifier rubyid_listen_host'>listen_host</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_listen_host'>listen_host</span> <span class='op'>=</span> <span class='id identifier rubyid_listen_host'>listen_host</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_listen_port'>listen_port</span> <span class='op'>=</span> <span class='id identifier rubyid_port'>port</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_context'>context</span> <span class='op'>=</span> <span class='id identifier rubyid_context'>context</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@shutting_down</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@output_dir</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@tftproot</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uploaded'>uploaded</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="context=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="context-instance_method">
+  
+    #<strong>context</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute context.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_context'>context</span>
+  <span class='ivar'>@context</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="files=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="files-instance_method">
+  
+    #<strong>files</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute files.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_files'>files</span>
+  <span class='ivar'>@files</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="incoming_file_hook=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="incoming_file_hook-instance_method">
+  
+    #<strong>incoming_file_hook</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute incoming_file_hook.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+175
+176
+177</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 175</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_incoming_file_hook'>incoming_file_hook</span>
+  <span class='ivar'>@incoming_file_hook</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="listen_host=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="listen_host-instance_method">
+  
+    #<strong>listen_host</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute listen_host.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_listen_host'>listen_host</span>
+  <span class='ivar'>@listen_host</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="listen_port=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="listen_port-instance_method">
+  
+    #<strong>listen_port</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute listen_port.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+171
+172
+173</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 171</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_listen_port'>listen_port</span>
+  <span class='ivar'>@listen_port</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="sock=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="sock-instance_method">
+  
+    #<strong>sock</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute sock.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='ivar'>@sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="thread=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="thread-instance_method">
+  
+    #<strong>thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute thread.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+173
+174
+175</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 173</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_thread'>thread</span>
+  <span class='ivar'>@thread</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="transfers=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="transfers-instance_method">
+  
+    #<strong>transfers</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute transfers.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_transfers'>transfers</span>
+  <span class='ivar'>@transfers</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="uploaded=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="uploaded-instance_method">
+  
+    #<strong>uploaded</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute uploaded.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_uploaded'>uploaded</span>
+  <span class='ivar'>@uploaded</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_retransmission-instance_method">
+  
+    #<strong>check_retransmission</strong>(tr)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 205</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_check_retransmission'>check_retransmission</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_elapsed'>elapsed</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_elapsed'>elapsed</span> <span class='op'>&gt;=</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='comment'># max retries reached?
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:retries</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='int'>3</span><span class='rparen'>)</span>
+      <span class='comment'>#if (tr[:type] == OpRead)
+</span>      <span class='comment'>#	puts &quot;[-] ack timed out, resending block&quot;
+</span>      <span class='comment'>#else
+</span>      <span class='comment'>#	puts &quot;[-] block timed out, resending ack&quot;
+</span>      <span class='comment'>#end
+</span>      <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+      <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:retries</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='int'>1</span>
+    <span class='kw'>else</span>
+      <span class='comment'>#puts &quot;[-] maximum tries reached, terminating transfer&quot;
+</span>      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="dispatch_request-instance_method">
+  
+    #<strong>dispatch_request</strong>(from, buf)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Dispatch a packet that we received</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 312</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_dispatch_request'>dispatch_request</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_op'>op</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span><span class='int'>2</span><span class='rparen'>)</span>
+
+  <span class='comment'>#XXX: todo - create call backs for status
+</span>  <span class='comment'>#start = &quot;[*] TFTP - %s:%u - %s&quot; % [from[0], from[1], OPCODES[op]]
+</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_op'>op</span>
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpRead-constant" title="Rex::Proto::TFTP::Constants::OpRead (constant)">OpRead</a></span></span>
+    <span class='comment'># Process RRQ packets
+</span>    <span class='id identifier rubyid_fn'>fn</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+    <span class='comment'>#puts &quot;%s %s %s&quot; % [start, fn, mode]
+</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='ivar'>@shutting_down</span><span class='rparen'>)</span> <span class='kw'>and</span> <span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_find_file'>find_file</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_file'>file</span><span class='lbracket'>[</span><span class='symbol'>:once</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_file'>file</span><span class='lbracket'>[</span><span class='symbol'>:started</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrFileNotFound-constant" title="Rex::Proto::TFTP::Constants::ErrFileNotFound (constant)">ErrFileNotFound</a></span></span><span class='rparen'>)</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_transfer'>transfer</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+          <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpRead-constant" title="Rex::Proto::TFTP::Constants::OpRead (constant)">OpRead</a></span></span><span class='comma'>,</span>
+          <span class='symbol'>:from</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span>
+          <span class='symbol'>:file</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_file'>file</span><span class='comma'>,</span>
+          <span class='symbol'>:block</span> <span class='op'>=&gt;</span> <span class='int'>1</span><span class='comma'>,</span>
+          <span class='symbol'>:blksize</span> <span class='op'>=&gt;</span> <span class='int'>512</span><span class='comma'>,</span>
+          <span class='symbol'>:offset</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span>
+          <span class='symbol'>:timeout</span> <span class='op'>=&gt;</span> <span class='int'>3</span><span class='comma'>,</span>
+          <span class='symbol'>:last_sent</span> <span class='op'>=&gt;</span> <span class='kw'>nil</span><span class='comma'>,</span>
+          <span class='symbol'>:retries</span> <span class='op'>=&gt;</span> <span class='int'>0</span>
+        <span class='rbrace'>}</span>
+
+        <span class='id identifier rubyid_process_options'>process_options</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_transfer'>transfer</span><span class='rparen'>)</span>
+
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_transfer'>transfer</span>
+      <span class='kw'>end</span>
+    <span class='kw'>else</span>
+      <span class='comment'>#puts &quot;[-] file not found!&quot;
+</span>      <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrFileNotFound-constant" title="Rex::Proto::TFTP::Constants::ErrFileNotFound (constant)">ErrFileNotFound</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpWrite-constant" title="Rex::Proto::TFTP::Constants::OpWrite (constant)">OpWrite</a></span></span>
+    <span class='comment'># Process WRQ packets
+</span>    <span class='id identifier rubyid_fn'>fn</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+
+    <span class='comment'>#puts &quot;%s %s %s&quot; % [start, fn, mode]
+</span>
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='ivar'>@shutting_down</span>
+      <span class='id identifier rubyid_transfer'>transfer</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpWrite-constant" title="Rex::Proto::TFTP::Constants::OpWrite (constant)">OpWrite</a></span></span><span class='comma'>,</span>
+        <span class='symbol'>:from</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span>
+        <span class='symbol'>:file</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span> <span class='rbrace'>}</span><span class='comma'>,</span>
+        <span class='symbol'>:block</span> <span class='op'>=&gt;</span> <span class='int'>0</span><span class='comma'>,</span> <span class='comment'># WRQ starts at 0
+</span>        <span class='symbol'>:blksize</span> <span class='op'>=&gt;</span> <span class='int'>512</span><span class='comma'>,</span>
+        <span class='symbol'>:timeout</span> <span class='op'>=&gt;</span> <span class='int'>3</span><span class='comma'>,</span>
+        <span class='symbol'>:last_sent</span> <span class='op'>=&gt;</span> <span class='kw'>nil</span><span class='comma'>,</span>
+        <span class='symbol'>:retries</span> <span class='op'>=&gt;</span> <span class='int'>0</span>
+      <span class='rbrace'>}</span>
+
+      <span class='id identifier rubyid_process_options'>process_options</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_transfer'>transfer</span><span class='rparen'>)</span>
+
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_transfer'>transfer</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrIllegalOperation-constant" title="Rex::Proto::TFTP::Constants::ErrIllegalOperation (constant)">ErrIllegalOperation</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpAck-constant" title="Rex::Proto::TFTP::Constants::OpAck (constant)">OpAck</a></span></span>
+    <span class='comment'># Process ACK packets
+</span>    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+    <span class='comment'>#puts &quot;%s %d&quot; % [start, block]
+</span>
+    <span class='id identifier rubyid_tr'>tr</span> <span class='op'>=</span> <span class='id identifier rubyid_find_transfer'>find_transfer</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpRead-constant" title="Rex::Proto::TFTP::Constants::OpRead (constant)">OpRead</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_tr'>tr</span>
+      <span class='comment'># NOTE: some clients, such as pxelinux, send an ack for block 0.
+</span>      <span class='comment'># To deal with this, we simply ignore it as we start with block 1.
+</span>      <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_block'>block</span> <span class='op'>==</span> <span class='int'>0</span>
+
+      <span class='comment'># If we didn&#39;t find it, send an error.
+</span>      <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrUnknownTransferId-constant" title="Rex::Proto::TFTP::Constants::ErrUnknownTransferId (constant)">ErrUnknownTransferId</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># acked! send the next block
+</span>      <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:offset</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:blksize</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_next_block'>next_block</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+
+      <span class='comment'># If the transfer is finished, delete it
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:offset</span><span class='rbracket'>]</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+        <span class='comment'>#puts &quot;[*] Transfer complete&quot;
+</span>        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+
+        <span class='comment'># if the file is a one-serve, delete it from the files array
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:once</span><span class='rbracket'>]</span>
+          <span class='comment'>#puts &quot;[*] Removed one-serve file: #{tr[:file][:name]}&quot;
+</span>          <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>when</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpData-constant" title="Rex::Proto::TFTP::Constants::OpData (constant)">OpData</a></span></span>
+    <span class='comment'># Process Data packets
+</span>    <span class='id identifier rubyid_block'>block</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='int'>2</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+
+    <span class='comment'>#puts &quot;%s %d %d bytes&quot; % [start, block, data.length]
+</span>
+    <span class='id identifier rubyid_tr'>tr</span> <span class='op'>=</span> <span class='id identifier rubyid_find_transfer'>find_transfer</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpWrite-constant" title="Rex::Proto::TFTP::Constants::OpWrite (constant)">OpWrite</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_block'>block</span><span class='op'>-</span><span class='int'>1</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_tr'>tr</span>
+      <span class='comment'># If we didn&#39;t find it, send an error.
+</span>      <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrUnknownTransferId-constant" title="Rex::Proto::TFTP::Constants::ErrUnknownTransferId (constant)">ErrUnknownTransferId</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_data'>data</span>
+      <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_size</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+      <span class='id identifier rubyid_next_block'>next_block</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+
+      <span class='comment'># Similar to RRQ transfers, we cannot detect that the
+</span>      <span class='comment'># transfer finished here. We must do so after transmitting
+</span>      <span class='comment'># the final ACK.
+</span>    <span class='kw'>end</span>
+
+  <span class='kw'>else</span>
+    <span class='comment'># Other packets are unsupported
+</span>    <span class='comment'>#puts start
+</span>    <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ErrAccessViolation-constant" title="Rex::Proto::TFTP::Constants::ErrAccessViolation (constant)">ErrAccessViolation</a></span></span><span class='rparen'>)</span>
+
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_file-instance_method">
+  
+    #<strong>find_file</strong>(fname)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find the hash entry for a file that may be offered</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_file'>find_file</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+  <span class='comment'># Files served via register_file() take precedence.
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_f'>f</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span> <span class='op'>==</span> <span class='id identifier rubyid_f'>f</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_f'>f</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Now, if we have a tftproot, see if it can serve from it
+</span>  <span class='kw'>if</span> <span class='ivar'>@tftproot</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_find_file_in_root'>find_file_in_root</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_file_in_root-instance_method">
+  
+    #<strong>find_file_in_root</strong>(fname)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Find the file in the specified tftp root and add a temporary entry to the files hash.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_file_in_root'>find_file_in_root</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_fn'>fn</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@tftproot</span><span class='comma'>,</span> <span class='id identifier rubyid_fname'>fname</span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Don&#39;t allow directory traversal
+</span>  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_fn'>fn</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='ivar'>@tftproot</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='int'>0</span>
+
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_file?'>file?</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readable?'>readable?</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span>
+
+  <span class='comment'># Read the file contents, and register it as being served once
+</span>  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span> <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_register_file'>register_file</span><span class='lparen'>(</span><span class='id identifier rubyid_fname'>fname</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='comment'># Return the last file in the array
+</span>  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_transfer-instance_method">
+  
+    #<strong>find_transfer</strong>(type, from, block)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182
+183
+184
+185
+186</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_transfer'>find_transfer</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tr'>tr</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_type'>type</span> <span class='kw'>and</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:from</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_from'>from</span> <span class='kw'>and</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:block</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='id identifier rubyid_block'>block</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_tr'>tr</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="monitor_socket-instance_method">
+  
+    #<strong>monitor_socket</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>See if there is anything to do.. If so, dispatch it.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 228</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_monitor_socket'>monitor_socket</span>
+  <span class='kw'>while</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_rds'>rds</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='ivar'>@sock</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_wds'>wds</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tr'>tr</span><span class='op'>|</span>
+      <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_wds'>wds</span> <span class='op'>&lt;&lt;</span> <span class='ivar'>@sock</span>
+        <span class='kw'>break</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_eds'>eds</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='ivar'>@sock</span><span class='rbracket'>]</span>
+
+    <span class='id identifier rubyid_r'>r</span><span class='comma'>,</span><span class='id identifier rubyid_w'>w</span><span class='comma'>,</span><span class='id identifier rubyid_e'>e</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='id identifier rubyid_rds'>rds</span><span class='comma'>,</span><span class='id identifier rubyid_wds'>wds</span><span class='comma'>,</span><span class='id identifier rubyid_eds'>eds</span><span class='comma'>,</span><span class='int'>1</span><span class='rparen'>)</span>
+
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_r'>r</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='kw'>and</span> <span class='id identifier rubyid_r'>r</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span><span class='id identifier rubyid_port'>port</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_recvfrom'>recvfrom</span><span class='lparen'>(</span><span class='int'>65535</span><span class='rparen'>)</span>
+      <span class='comment'># Lame compatabilitiy :-/
+</span>      <span class='id identifier rubyid_from'>from</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_host'>host</span><span class='comma'>,</span> <span class='id identifier rubyid_port'>port</span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_dispatch_request'>dispatch_request</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'>#
+</span>    <span class='comment'># Check to see if transfers need maintenance
+</span>    <span class='comment'>#
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tr'>tr</span><span class='op'>|</span>
+      <span class='comment'># We handle RRQ and WRQ separately
+</span>      <span class='comment'>#
+</span>      <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpRead-constant" title="Rex::Proto::TFTP::Constants::OpRead (constant)">OpRead</a></span></span><span class='rparen'>)</span>
+        <span class='comment'># Are we awaiting an ack?
+</span>        <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_check_retransmission'>check_retransmission</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+        <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='kw'>and</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+          <span class='comment'># No ack waiting, send next block..
+</span>          <span class='id identifier rubyid_chunk'>chunk</span> <span class='op'>=</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_slice'>slice</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:offset</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:blksize</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_chunk'>chunk</span> <span class='kw'>and</span> <span class='id identifier rubyid_chunk'>chunk</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;=</span> <span class='int'>0</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpData-constant" title="Rex::Proto::TFTP::Constants::OpData (constant)">OpData</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:block</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_chunk'>chunk</span>
+
+            <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:from</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+
+            <span class='comment'># If the file is a one-serve, mark it as started
+</span>            <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:started</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:once</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+          <span class='kw'>else</span>
+            <span class='comment'># No more chunks.. transfer is most likely done.
+</span>            <span class='comment'># However, we can only delete it once the last chunk has been
+</span>            <span class='comment'># acked.
+</span>          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>else</span>
+        <span class='comment'># Are we awaiting data?
+</span>        <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_check_retransmission'>check_retransmission</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+        <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_w'>w</span> <span class='op'>!=</span> <span class='kw'>nil</span> <span class='kw'>and</span> <span class='id identifier rubyid_w'>w</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+          <span class='comment'># Not waiting for data, send an ack..
+</span>          <span class='comment'>#puts &quot;[*] sending ack for block %d&quot; % [tr[:block]]
+</span>          <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpAck-constant" title="Rex::Proto::TFTP::Constants::OpAck (constant)">OpAck</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:block</span><span class='rbracket'>]</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+          <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:from</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+
+          <span class='comment'># If we had a 0-511 byte chunk, we&#39;re done.
+</span>          <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_size</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_size</span><span class='rbracket'>]</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:blksize</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+            <span class='comment'>#puts &quot;[*] Transfer complete, saving output&quot;
+</span>            <span class='id identifier rubyid_save_output'>save_output</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="next_block-instance_method">
+  
+    #<strong>next_block</strong>(tr)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+302
+303
+304
+305
+306</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 302</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_next_block'>next_block</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:block</span><span class='rbracket'>]</span> <span class='op'>+=</span> <span class='int'>1</span>
+  <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:last_sent</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:retries</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='int'>0</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_options-instance_method">
+  
+    #<strong>process_options</strong>(from, buf, tr)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 440</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_options'>process_options</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='comma'>,</span> <span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_to_ack'>to_ack</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='kw'>while</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;=</span> <span class='int'>4</span>
+    <span class='id identifier rubyid_opt'>opt</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../TFTP.html" title="Rex::Proto::TFTP (module)">TFTP</a></span></span><span class='op'>::</span><span class='id identifier rubyid_get_string'><span class='object_link'><a href="../TFTP.html#get_string-class_method" title="Rex::Proto::TFTP.get_string (method)">get_string</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_val'>val</span>
+
+    <span class='id identifier rubyid_found'>found</span> <span class='op'>+=</span> <span class='int'>1</span>
+
+    <span class='comment'># Is it one we support?
+</span>    <span class='id identifier rubyid_opt'>opt</span><span class='period'>.</span><span class='id identifier rubyid_downcase!'>downcase!</span>
+
+    <span class='kw'>case</span> <span class='id identifier rubyid_opt'>opt</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>blksize</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:blksize</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+        <span class='id identifier rubyid_to_ack'>to_ack</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>timeout</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&gt;=</span> <span class='int'>1</span> <span class='kw'>and</span> <span class='id identifier rubyid_val'>val</span> <span class='op'>&lt;=</span> <span class='int'>255</span>
+        <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:timeout</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+        <span class='id identifier rubyid_to_ack'>to_ack</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rbracket'>]</span>
+      <span class='kw'>end</span>
+
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tsize</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpRead-constant" title="Rex::Proto::TFTP::Constants::OpRead (constant)">OpRead</a></span></span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+      <span class='kw'>else</span>
+        <span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span>
+        <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_to_ack'>to_ack</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_opt'>opt</span><span class='comma'>,</span> <span class='id identifier rubyid_len'>len</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='rbracket'>]</span>
+
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>if</span> <span class='id identifier rubyid_to_ack'>to_ack</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>1</span>
+
+  <span class='comment'># if we have anything to ack, do it
+</span>  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpOptAck-constant" title="Rex::Proto::TFTP::Constants::OpOptAck (constant)">OpOptAck</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_to_ack'>to_ack</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_el'>el</span><span class='op'>|</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_el'>el</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_el'>el</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="register_file-instance_method">
+  
+    #<strong>register_file</strong>(fn, content, once = false)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register a filename and content for a client to request</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 82</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_register_file'>register_file</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span> <span class='id identifier rubyid_once'>once</span> <span class='op'>=</span> <span class='kw'>false</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span>
+    <span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_content'>content</span><span class='comma'>,</span>
+    <span class='symbol'>:once</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_once'>once</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="save_output-instance_method">
+  
+    #<strong>save_output</strong>(tr)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 188</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_save_output'>save_output</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_uploaded'>uploaded</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_incoming_file_hook'>incoming_file_hook</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_incoming_file_hook'>incoming_file_hook</span>
+
+  <span class='kw'>if</span> <span class='ivar'>@output_dir</span>
+    <span class='id identifier rubyid_fn'>fn</span> <span class='op'>=</span> <span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_fn'>fn</span>
+      <span class='id identifier rubyid_fn'>fn</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='ivar'>@output_dir</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_clean_path'>clean_path</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_fn'>fn</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_fd'>fd</span><span class='op'>|</span>
+        <span class='id identifier rubyid_fd'>fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_tr'>tr</span><span class='lbracket'>[</span><span class='symbol'>:file</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='symbol'>:data</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_error-instance_method">
+  
+    #<strong>send_error</strong>(from, num)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send an error packet w/the specified code and string</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_error'>send_error</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_num'>num</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_num'>num</span> <span class='op'>&lt;</span> <span class='int'>1</span> <span class='kw'>or</span> <span class='id identifier rubyid_num'>num</span> <span class='op'>&gt;=</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ERRCODES-constant" title="Rex::Proto::TFTP::Constants::ERRCODES (constant)">ERRCODES</a></span></span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='comment'># ignore..
+</span>    <span class='kw'>return</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#OpError-constant" title="Rex::Proto::TFTP::Constants::OpError (constant)">OpError</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>nn</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="Constants.html" title="Rex::Proto::TFTP::Constants (module)">Constants</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Constants.html#ERRCODES-constant" title="Rex::Proto::TFTP::Constants::ERRCODES (constant)">ERRCODES</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_num'>num</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_packet-instance_method">
+  
+    #<strong>send_packet</strong>(from, pkt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Send a single packet to the specified host</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+125
+126
+127</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 125</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_from'>from</span><span class='comma'>,</span> <span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_sendto'>sendto</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='comma'>,</span> <span class='id identifier rubyid_from'>from</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_from'>from</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_output_dir-instance_method">
+  
+    #<strong>set_output_dir</strong>(outdir)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register a directory to write uploaded files to</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+102
+103
+104</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 102</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_output_dir'>set_output_dir</span><span class='lparen'>(</span><span class='id identifier rubyid_outdir'>outdir</span><span class='rparen'>)</span>
+  <span class='ivar'>@output_dir</span> <span class='op'>=</span> <span class='id identifier rubyid_outdir'>outdir</span> <span class='kw'>if</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_outdir'>outdir</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_tftproot-instance_method">
+  
+    #<strong>set_tftproot</strong>(rootdir)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Register an entire directory to serve files from</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_set_tftproot'>set_tftproot</span><span class='lparen'>(</span><span class='id identifier rubyid_rootdir'>rootdir</span><span class='rparen'>)</span>
+  <span class='ivar'>@tftproot</span> <span class='op'>=</span> <span class='id identifier rubyid_rootdir'>rootdir</span> <span class='kw'>if</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_rootdir'>rootdir</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start-instance_method">
+  
+    #<strong>start</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Start the TFTP server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>Udp</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalHost</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_listen_host'>listen_host</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>LocalPort</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_listen_port'>listen_port</span><span class='comma'>,</span>
+    <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Context</span><span class='tstring_end'>&#39;</span></span>   <span class='op'>=&gt;</span> <span class='id identifier rubyid_context'>context</span>
+    <span class='rparen'>)</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_thread'>thread</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ThreadFactory.html" title="Rex::ThreadFactory (class)">ThreadFactory</a></span></span><span class='period'>.</span><span class='id identifier rubyid_spawn'><span class='object_link'><a href="../../ThreadFactory.html#spawn-class_method" title="Rex::ThreadFactory.spawn (method)">spawn</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>TFTPServerMonitor</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='kw'>false</span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+    <span class='id identifier rubyid_monitor_socket'>monitor_socket</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop-instance_method">
+  
+    #<strong>stop</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Stop the TFTP server</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/proto/tftp/server.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop'>stop</span>
+  <span class='ivar'>@shutting_down</span> <span class='op'>=</span> <span class='kw'>true</span>
+
+  <span class='comment'># Wait a maximum of 30 seconds for all transfers to finish.
+</span>  <span class='id identifier rubyid_start'>start</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span>
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_transfers'>transfers</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='op'>::</span><span class='const'>IO</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.5</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dur'>dur</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span> <span class='op'>-</span> <span class='id identifier rubyid_start'>start</span>
+    <span class='kw'>break</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dur'>dur</span> <span class='op'>&gt;</span> <span class='int'>30</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_thread'>thread</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>rescue</span> <span class='kw'>nil</span> <span class='comment'># might be closed already
+</span><span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:44 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

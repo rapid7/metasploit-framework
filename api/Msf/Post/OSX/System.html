@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Msf::Post::OSX::System
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Post::OSX::System";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Post.html" title="Msf::Post (class)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../OSX.html" title="Msf::Post::OSX (module)">OSX</a></span></span>
+     &raquo; 
+    <span class="title">System</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Msf::Post::OSX::System
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span>, <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/core/post/osx/system.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_groups-instance_method" title="#get_groups (instance method)">#<strong>get_groups</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each representing user group on the system Keys are name, guid and users.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_nonsystem_accounts-instance_method" title="#get_nonsystem_accounts (instance method)">#<strong>get_nonsystem_accounts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each representing non system accounts on the system Keys are name, gid, uid, dir and shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_sysinfo-instance_method" title="#get_sysinfo (instance method)">#<strong>get_sysinfo</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return a hash with system Information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_system_accounts-instance_method" title="#get_system_accounts (instance method)">#<strong>get_system_accounts</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each representing a system accounts on the system Keys are name, gid, uid, dir and shell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_system_version-instance_method" title="#get_system_version (instance method)">#<strong>get_system_version</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#get_users-instance_method" title="#get_users (instance method)">#<strong>get_users</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns an array of hashes each representing a user on the system Keys are name, gid, uid, dir and shell.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../File.html" title="Msf::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../File.html#_read_file_meterpreter-instance_method" title="Msf::Post::File#_read_file_meterpreter (method)">#_read_file_meterpreter</a></span>, <span class='object_link'><a href="../File.html#_unix_max_line_length-instance_method" title="Msf::Post::File#_unix_max_line_length (method)">#_unix_max_line_length</a></span>, <span class='object_link'><a href="../File.html#_write_file_unix_shell-instance_method" title="Msf::Post::File#_write_file_unix_shell (method)">#_write_file_unix_shell</a></span>, <span class='object_link'><a href="../File.html#append_file-instance_method" title="Msf::Post::File#append_file (method)">#append_file</a></span>, <span class='object_link'><a href="../File.html#attributes-instance_method" title="Msf::Post::File#attributes (method)">#attributes</a></span>, <span class='object_link'><a href="../File.html#cd-instance_method" title="Msf::Post::File#cd (method)">#cd</a></span>, <span class='object_link'><a href="../File.html#chmod-instance_method" title="Msf::Post::File#chmod (method)">#chmod</a></span>, <span class='object_link'><a href="../File.html#dir-instance_method" title="Msf::Post::File#dir (method)">#dir</a></span>, <span class='object_link'><a href="../File.html#directory%3F-instance_method" title="Msf::Post::File#directory? (method)">#directory?</a></span>, <span class='object_link'><a href="../File.html#executable%3F-instance_method" title="Msf::Post::File#executable? (method)">#executable?</a></span>, <span class='object_link'><a href="../File.html#exist%3F-instance_method" title="Msf::Post::File#exist? (method)">#exist?</a></span>, <span class='object_link'><a href="../File.html#expand_path-instance_method" title="Msf::Post::File#expand_path (method)">#expand_path</a></span>, <span class='object_link'><a href="../File.html#exploit_data-instance_method" title="Msf::Post::File#exploit_data (method)">#exploit_data</a></span>, <span class='object_link'><a href="../File.html#file%3F-instance_method" title="Msf::Post::File#file? (method)">#file?</a></span>, <span class='object_link'><a href="../File.html#file_local_write-instance_method" title="Msf::Post::File#file_local_write (method)">#file_local_write</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestmd5-instance_method" title="Msf::Post::File#file_remote_digestmd5 (method)">#file_remote_digestmd5</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha1-instance_method" title="Msf::Post::File#file_remote_digestsha1 (method)">#file_remote_digestsha1</a></span>, <span class='object_link'><a href="../File.html#file_remote_digestsha2-instance_method" title="Msf::Post::File#file_remote_digestsha2 (method)">#file_remote_digestsha2</a></span>, <span class='object_link'><a href="../File.html#immutable%3F-instance_method" title="Msf::Post::File#immutable? (method)">#immutable?</a></span>, <span class='object_link'><a href="../File.html#mkdir-instance_method" title="Msf::Post::File#mkdir (method)">#mkdir</a></span>, <span class='object_link'><a href="../File.html#pwd-instance_method" title="Msf::Post::File#pwd (method)">#pwd</a></span>, <span class='object_link'><a href="../File.html#read_file-instance_method" title="Msf::Post::File#read_file (method)">#read_file</a></span>, <span class='object_link'><a href="../File.html#readable%3F-instance_method" title="Msf::Post::File#readable? (method)">#readable?</a></span>, <span class='object_link'><a href="../File.html#rename_file-instance_method" title="Msf::Post::File#rename_file (method)">#rename_file</a></span>, <span class='object_link'><a href="../File.html#rm_f-instance_method" title="Msf::Post::File#rm_f (method)">#rm_f</a></span>, <span class='object_link'><a href="../File.html#rm_rf-instance_method" title="Msf::Post::File#rm_rf (method)">#rm_rf</a></span>, <span class='object_link'><a href="../File.html#setuid%3F-instance_method" title="Msf::Post::File#setuid? (method)">#setuid?</a></span>, <span class='object_link'><a href="../File.html#upload_and_chmodx-instance_method" title="Msf::Post::File#upload_and_chmodx (method)">#upload_and_chmodx</a></span>, <span class='object_link'><a href="../File.html#upload_file-instance_method" title="Msf::Post::File#upload_file (method)">#upload_file</a></span>, <span class='object_link'><a href="../File.html#writable%3F-instance_method" title="Msf::Post::File#writable? (method)">#writable?</a></span>, <span class='object_link'><a href="../File.html#write_file-instance_method" title="Msf::Post::File#write_file (method)">#write_file</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Common.html" title="Msf::Post::Common (module)">Common</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Common.html#clear_screen-instance_method" title="Msf::Post::Common#clear_screen (method)">#clear_screen</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec-instance_method" title="Msf::Post::Common#cmd_exec (method)">#cmd_exec</a></span>, <span class='object_link'><a href="../Common.html#cmd_exec_get_pid-instance_method" title="Msf::Post::Common#cmd_exec_get_pid (method)">#cmd_exec_get_pid</a></span>, <span class='object_link'><a href="../Common.html#command_exists%3F-instance_method" title="Msf::Post::Common#command_exists? (method)">#command_exists?</a></span>, <span class='object_link'><a href="../Common.html#get_env-instance_method" title="Msf::Post::Common#get_env (method)">#get_env</a></span>, <span class='object_link'><a href="../Common.html#get_envs-instance_method" title="Msf::Post::Common#get_envs (method)">#get_envs</a></span>, <span class='object_link'><a href="../Common.html#has_pid%3F-instance_method" title="Msf::Post::Common#has_pid? (method)">#has_pid?</a></span>, <span class='object_link'><a href="../Common.html#peer-instance_method" title="Msf::Post::Common#peer (method)">#peer</a></span>, <span class='object_link'><a href="../Common.html#report_virtualization-instance_method" title="Msf::Post::Common#report_virtualization (method)">#report_virtualization</a></span>, <span class='object_link'><a href="../Common.html#rhost-instance_method" title="Msf::Post::Common#rhost (method)">#rhost</a></span>, <span class='object_link'><a href="../Common.html#rport-instance_method" title="Msf::Post::Common#rport (method)">#rport</a></span></p>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="get_groups-instance_method">
+  
+    #<strong>get_groups</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each representing user group on the system Keys are name, guid and users</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 106</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_groups'>get_groups</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/dscacheutil -q group</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_groups'>groups</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_groups_arry'>groups_arry</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_output'>cmd_output</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_groups_arry'>groups_arry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_u'>u</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+    <span class='id identifier rubyid_u'>u</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+      <span class='id identifier rubyid_field'>field</span><span class='comma'>,</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_field'>field</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_field'>field</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_groups'>groups</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_groups'>groups</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_nonsystem_accounts-instance_method">
+  
+    #<strong>get_nonsystem_accounts</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each representing non system accounts on the system Keys are name, gid, uid, dir and shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 83</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_nonsystem_accounts'>get_nonsystem_accounts</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/dscacheutil -q user</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users'>users</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_output'>cmd_output</span><span class='period'>.</span><span class='id identifier rubyid_tr'>tr</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_u'>u</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_u'>u</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+      <span class='id identifier rubyid_field'>field</span><span class='comma'>,</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_field'>field</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_field'>field</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_users'>users</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_users'>users</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_sysinfo-instance_method">
+  
+    #<strong>get_sysinfo</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return a hash with system Information</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_sysinfo'>get_sysinfo</span>
+  <span class='id identifier rubyid_system_info'>system_info</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/sw_vers</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+    <span class='id identifier rubyid_field'>field</span><span class='comma'>,</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>:</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='id identifier rubyid_field'>field</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Kernel</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>uname -a</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hostname</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Kernel</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+    <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_rhost'>rhost</span><span class='comma'>,</span>
+    <span class='symbol'>:os_name</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span>
+    <span class='symbol'>:os_flavor</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Kernel</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+    <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_system_info'>system_info</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hostname</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_system_info'>system_info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_system_accounts-instance_method">
+  
+    #<strong>get_system_accounts</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each representing a system accounts on the system Keys are name, gid, uid, dir and shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_system_accounts'>get_system_accounts</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/dscacheutil -q user</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users'>users</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_output'>cmd_output</span><span class='period'>.</span><span class='id identifier rubyid_tr'>tr</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_u'>u</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+    <span class='id identifier rubyid_u'>u</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+      <span class='id identifier rubyid_field'>field</span><span class='comma'>,</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_field'>field</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_field'>field</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>name</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>_</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_users'>users</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_users'>users</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_system_version-instance_method">
+  
+    #<strong>get_system_version</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+7
+8
+9</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 7</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_system_version'>get_system_version</span>
+  <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/sw_vers -productVersion</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="get_users-instance_method">
+  
+    #<strong>get_users</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns an array of hashes each representing a user on the system Keys are name, gid, uid, dir and shell</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/core/post/osx/system.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_get_users'>get_users</span>
+  <span class='id identifier rubyid_cmd_output'>cmd_output</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_exec'>cmd_exec</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/usr/bin/dscacheutil -q user</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users'>users</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span> <span class='op'>=</span> <span class='id identifier rubyid_cmd_output'>cmd_output</span><span class='period'>.</span><span class='id identifier rubyid_tr'>tr</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_users_arry'>users_arry</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_u'>u</span><span class='op'>|</span>
+    <span class='id identifier rubyid_entry'>entry</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+    <span class='id identifier rubyid_u'>u</span><span class='period'>.</span><span class='id identifier rubyid_each_line'>each_line</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_l'>l</span><span class='op'>|</span>
+      <span class='id identifier rubyid_field'>field</span><span class='comma'>,</span><span class='id identifier rubyid_val'>val</span> <span class='op'>=</span> <span class='id identifier rubyid_l'>l</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='period'>.</span><span class='id identifier rubyid_split'>split</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>: </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='kw'>next</span> <span class='kw'>if</span> <span class='id identifier rubyid_field'>field</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>password</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>unless</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+        <span class='id identifier rubyid_entry'>entry</span><span class='lbracket'>[</span><span class='id identifier rubyid_field'>field</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+    <span class='id identifier rubyid_users'>users</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_entry'>entry</span>
+  <span class='kw'>end</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_users'>users</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:25 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

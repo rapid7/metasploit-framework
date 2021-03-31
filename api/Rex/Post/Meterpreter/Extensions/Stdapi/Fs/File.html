@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Fs.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs (module)">Fs</a></span></span>
+     &raquo; 
+    <span class="title">File</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="IO.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO (class)">IO</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></li>
+          
+            <li class="next"><span class='object_link'><a href="IO.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO (class)">IO</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../../../../File.html" title="Rex::Post::File (module)">File</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class implements the Rex::Post::File interface and wraps interaction with files on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="MIN_BLOCK_SIZE-constant" class="">MIN_BLOCK_SIZE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>1024</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-class_method" title="client (class method)">.<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#client-instance_method" title="#client (instance method)">#<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../../../File.html" title="Rex::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../File.html#filename-instance_method" title="Rex::Post::File#filename (method)">#filename</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../IO.html#filed-instance_method" title="Rex::Post::IO#filed (method)">#filed</a></span>, <span class='object_link'><a href="../../../../IO.html#mode-instance_method" title="Rex::Post::IO#mode (method)">#mode</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#basename-class_method" title="basename (class method)">.<strong>basename</strong>(*a)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the base name of the supplied file path to the caller.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#chmod-class_method" title="chmod (class method)">.<strong>chmod</strong>(name, mode)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a chmod on the remote file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cp-class_method" title="cp (class method)">.<strong>cp</strong>(oldname, newname)  &#x21d2; Object </a>
+    
+
+    
+      (also: copy)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a copy from oldname to newname.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#download-class_method" title="download (class method)">.<strong>download</strong>(dest, src_files, opts = {}, &amp;stat)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Download one or more files from the remote computer to the local directory supplied in destination.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#download_file-class_method" title="download_file (class method)">.<strong>download_file</strong>(dest_file, src_file, opts = {}, &amp;stat)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Download a single file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#exist%3F-class_method" title="exist? (class method)">.<strong>exist?</strong>(name)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns true if the remote file <code>name</code> exists, false otherwise.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#expand_path-class_method" title="expand_path (class method)">.<strong>expand_path</strong>(path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Expands a file path, substituting all environment variables, such as %TEMP%.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_glob%3F-class_method" title="is_glob? (class method)">.<strong>is_glob?</strong>(name)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#md5-class_method" title="md5 (class method)">.<strong>md5</strong>(path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calculates the MD5 (16-bytes raw) of a remote file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#mv-class_method" title="mv (class method)">.<strong>mv</strong>(oldname, newname)  &#x21d2; Object </a>
+    
+
+    
+      (also: move, rename)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a rename from oldname to newname.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open-class_method" title="open (class method)">.<strong>open</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>With no associated block, File.open is a synonym for ::new.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#rm-class_method" title="rm (class method)">.<strong>rm</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+      (also: unlink, delete)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a delete on the remote file <code>name</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#search-class_method" title="search (class method)">.<strong>search</strong>(root = nil, glob = &quot;*.*&quot;, recurse = true, timeout = -1 ))  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Search for files matching <code>glob</code> starting in directory <code>root</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#separator-class_method" title="separator (class method)">.<strong>separator</strong>  &#x21d2; Object </a>
+    
+
+    
+      (also: Separator, SEPARATOR)
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the directory separator, i.e.: “/” on unix, “\” on windows.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sha1-class_method" title="sha1 (class method)">.<strong>sha1</strong>(path)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calculates the SHA1 (20-bytes raw) of a remote file.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stat-class_method" title="stat (class method)">.<strong>stat</strong>(name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Performs a stat on a file and returns a FileStat instance.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#upload-class_method" title="upload (class method)">.<strong>upload</strong>(destination, *src_files, &amp;stat)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Upload one or more files to the remote remote directory supplied in <code>destination</code>.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#upload_file-class_method" title="upload_file (class method)">.<strong>upload_file</strong>(dest_file, src_file, &amp;stat)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Upload a single file.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_open-instance_method" title="#_open (instance method)">#<strong>_open</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates a File channel using the supplied information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#eof-instance_method" title="#eof (instance method)">#<strong>eof</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns whether or not the file has reach EOF.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; File </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes and opens the specified file with the specified permissions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pos-instance_method" title="#pos (instance method)">#<strong>pos</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the current position of the file pointer.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#seek-instance_method" title="#seek (instance method)">#<strong>seek</strong>(offset, whence = ::IO::SEEK_SET)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Synonym for sysseek.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#sysseek-instance_method" title="#sysseek (instance method)">#<strong>sysseek</strong>(offset, whence = ::IO::SEEK_SET)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Seeks to the supplied offset based on the supplied relativity.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../../../File.html" title="Rex::Post::File (module)">File</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../File.html#atime-class_method" title="Rex::Post::File.atime (method)">atime</a></span>, <span class='object_link'><a href="../../../../File.html#blockdev%3F-class_method" title="Rex::Post::File.blockdev? (method)">blockdev?</a></span>, <span class='object_link'><a href="../../../../File.html#chardev%3F-class_method" title="Rex::Post::File.chardev? (method)">chardev?</a></span>, <span class='object_link'><a href="../../../../File.html#chown-class_method" title="Rex::Post::File.chown (method)">chown</a></span>, <span class='object_link'><a href="../../../../File.html#ctime-class_method" title="Rex::Post::File.ctime (method)">ctime</a></span>, <span class='object_link'><a href="../../../../File.html#directory%3F-class_method" title="Rex::Post::File.directory? (method)">directory?</a></span>, <span class='object_link'><a href="../../../../File.html#dirname-class_method" title="Rex::Post::File.dirname (method)">dirname</a></span>, <span class='object_link'><a href="../../../../File.html#executable%3F-class_method" title="Rex::Post::File.executable? (method)">executable?</a></span>, <span class='object_link'><a href="../../../../File.html#executable_real%3F-class_method" title="Rex::Post::File.executable_real? (method)">executable_real?</a></span>, <span class='object_link'><a href="../../../../File.html#extname-class_method" title="Rex::Post::File.extname (method)">extname</a></span>, <span class='object_link'><a href="../../../../File.html#file%3F-class_method" title="Rex::Post::File.file? (method)">file?</a></span>, <span class='object_link'><a href="../../../../File.html#fnmatch-class_method" title="Rex::Post::File.fnmatch (method)">fnmatch</a></span>, <span class='object_link'><a href="../../../../File.html#fnmatch%3F-class_method" title="Rex::Post::File.fnmatch? (method)">fnmatch?</a></span>, <span class='object_link'><a href="../../../../File.html#ftype-class_method" title="Rex::Post::File.ftype (method)">ftype</a></span>, <span class='object_link'><a href="../../../../File.html#grpowned%3F-class_method" title="Rex::Post::File.grpowned? (method)">grpowned?</a></span>, <span class='object_link'><a href="../../../../File.html#join-class_method" title="Rex::Post::File.join (method)">join</a></span>, <span class='object_link'><a href="../../../../File.html#lchmod-class_method" title="Rex::Post::File.lchmod (method)">lchmod</a></span>, <span class='object_link'><a href="../../../../File.html#lchown-class_method" title="Rex::Post::File.lchown (method)">lchown</a></span>, <span class='object_link'><a href="../../../../File.html#link-class_method" title="Rex::Post::File.link (method)">link</a></span>, <span class='object_link'><a href="../../../../File.html#lstat-class_method" title="Rex::Post::File.lstat (method)">lstat</a></span>, <span class='object_link'><a href="../../../../File.html#mtime-class_method" title="Rex::Post::File.mtime (method)">mtime</a></span>, <span class='object_link'><a href="../../../../File.html#owned%3F-class_method" title="Rex::Post::File.owned? (method)">owned?</a></span>, <span class='object_link'><a href="../../../../File.html#path-instance_method" title="Rex::Post::File#path (method)">#path</a></span>, <span class='object_link'><a href="../../../../File.html#pipe%3F-class_method" title="Rex::Post::File.pipe? (method)">pipe?</a></span>, <span class='object_link'><a href="../../../../File.html#readable%3F-class_method" title="Rex::Post::File.readable? (method)">readable?</a></span>, <span class='object_link'><a href="../../../../File.html#readable_real%3F-class_method" title="Rex::Post::File.readable_real? (method)">readable_real?</a></span>, <span class='object_link'><a href="../../../../File.html#setgid%3F-class_method" title="Rex::Post::File.setgid? (method)">setgid?</a></span>, <span class='object_link'><a href="../../../../File.html#setuid%3F-class_method" title="Rex::Post::File.setuid? (method)">setuid?</a></span>, <span class='object_link'><a href="../../../../File.html#size-class_method" title="Rex::Post::File.size (method)">size</a></span>, <span class='object_link'><a href="../../../../File.html#socket%3F-class_method" title="Rex::Post::File.socket? (method)">socket?</a></span>, <span class='object_link'><a href="../../../../File.html#sticky%3F-class_method" title="Rex::Post::File.sticky? (method)">sticky?</a></span>, <span class='object_link'><a href="../../../../File.html#symlink%3F-class_method" title="Rex::Post::File.symlink? (method)">symlink?</a></span>, <span class='object_link'><a href="../../../../File.html#writeable%3F-class_method" title="Rex::Post::File.writeable? (method)">writeable?</a></span>, <span class='object_link'><a href="../../../../File.html#writeable_real%3F-class_method" title="Rex::Post::File.writeable_real? (method)">writeable_real?</a></span>, <span class='object_link'><a href="../../../../File.html#zero%3F-class_method" title="Rex::Post::File.zero? (method)">zero?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="IO.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO (class)">IO</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="IO.html#close-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO#close (method)">#close</a></span>, <span class='object_link'><a href="IO.html#sysread-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO#sysread (method)">#sysread</a></span>, <span class='object_link'><a href="IO.html#syswrite-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO#syswrite (method)">#syswrite</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../../../IO.html" title="Rex::Post::IO (class)">IO</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../../../IO.html#binmode-instance_method" title="Rex::Post::IO#binmode (method)">#binmode</a></span>, <span class='object_link'><a href="../../../../IO.html#close-instance_method" title="Rex::Post::IO#close (method)">#close</a></span>, <span class='object_link'><a href="../../../../IO.html#close_read-instance_method" title="Rex::Post::IO#close_read (method)">#close_read</a></span>, <span class='object_link'><a href="../../../../IO.html#close_write-instance_method" title="Rex::Post::IO#close_write (method)">#close_write</a></span>, <span class='object_link'><a href="../../../../IO.html#closed%3F-instance_method" title="Rex::Post::IO#closed? (method)">#closed?</a></span>, <span class='object_link'><a href="../../../../IO.html#each-instance_method" title="Rex::Post::IO#each (method)">#each</a></span>, <span class='object_link'><a href="../../../../IO.html#each_byte-instance_method" title="Rex::Post::IO#each_byte (method)">#each_byte</a></span>, <span class='object_link'><a href="../../../../IO.html#each_line-instance_method" title="Rex::Post::IO#each_line (method)">#each_line</a></span>, <span class='object_link'><a href="../../../../IO.html#eof%3F-instance_method" title="Rex::Post::IO#eof? (method)">#eof?</a></span>, <span class='object_link'><a href="../../../../IO.html#fcntl-instance_method" title="Rex::Post::IO#fcntl (method)">#fcntl</a></span>, <span class='object_link'><a href="../../../../IO.html#flush-instance_method" title="Rex::Post::IO#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../../../IO.html#fsync-instance_method" title="Rex::Post::IO#fsync (method)">#fsync</a></span>, <span class='object_link'><a href="../../../../IO.html#getc-instance_method" title="Rex::Post::IO#getc (method)">#getc</a></span>, <span class='object_link'><a href="../../../../IO.html#gets-instance_method" title="Rex::Post::IO#gets (method)">#gets</a></span>, <span class='object_link'><a href="../../../../IO.html#ioctl-instance_method" title="Rex::Post::IO#ioctl (method)">#ioctl</a></span>, <span class='object_link'><a href="../../../../IO.html#isatty-instance_method" title="Rex::Post::IO#isatty (method)">#isatty</a></span>, <span class='object_link'><a href="../../../../IO.html#lineno-instance_method" title="Rex::Post::IO#lineno (method)">#lineno</a></span>, <span class='object_link'><a href="../../../../IO.html#print-instance_method" title="Rex::Post::IO#print (method)">#print</a></span>, <span class='object_link'><a href="../../../../IO.html#printf-instance_method" title="Rex::Post::IO#printf (method)">#printf</a></span>, <span class='object_link'><a href="../../../../IO.html#putc-instance_method" title="Rex::Post::IO#putc (method)">#putc</a></span>, <span class='object_link'><a href="../../../../IO.html#puts-instance_method" title="Rex::Post::IO#puts (method)">#puts</a></span>, <span class='object_link'><a href="../../../../IO.html#read-instance_method" title="Rex::Post::IO#read (method)">#read</a></span>, <span class='object_link'><a href="../../../../IO.html#readchar-instance_method" title="Rex::Post::IO#readchar (method)">#readchar</a></span>, <span class='object_link'><a href="../../../../IO.html#readline-instance_method" title="Rex::Post::IO#readline (method)">#readline</a></span>, <span class='object_link'><a href="../../../../IO.html#readlines-instance_method" title="Rex::Post::IO#readlines (method)">#readlines</a></span>, <span class='object_link'><a href="../../../../IO.html#rewind-instance_method" title="Rex::Post::IO#rewind (method)">#rewind</a></span>, <span class='object_link'><a href="../../../../IO.html#stat-instance_method" title="Rex::Post::IO#stat (method)">#stat</a></span>, <span class='object_link'><a href="../../../../IO.html#sync-instance_method" title="Rex::Post::IO#sync (method)">#sync</a></span>, <span class='object_link'><a href="../../../../IO.html#sysread-instance_method" title="Rex::Post::IO#sysread (method)">#sysread</a></span>, <span class='object_link'><a href="../../../../IO.html#syswrite-instance_method" title="Rex::Post::IO#syswrite (method)">#syswrite</a></span>, <span class='object_link'><a href="../../../../IO.html#tell-instance_method" title="Rex::Post::IO#tell (method)">#tell</a></span>, <span class='object_link'><a href="../../../../IO.html#tty%3F-instance_method" title="Rex::Post::IO#tty? (method)">#tty?</a></span>, <span class='object_link'><a href="../../../../IO.html#ungetc-instance_method" title="Rex::Post::IO#ungetc (method)">#ungetc</a></span>, <span class='object_link'><a href="../../../../IO.html#write-instance_method" title="Rex::Post::IO#write (method)">#write</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes and opens the specified file with the specified permissions.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+488
+489
+490
+491</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 488</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span>  <span class='op'>=</span> <span class='id identifier rubyid__open'>_open</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="client=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-class_method">
+  
+    .<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+32
+33
+34</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 32</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="client=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-instance_method">
+  
+    #<strong>client</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+543
+544
+545</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 543</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="basename-class_method">
+  
+    .<strong>basename</strong>(*a)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the base name of the supplied file path to the caller.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 110</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='op'>*</span><span class='id identifier rubyid_a'>a</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_path'>path</span> <span class='op'>=</span> <span class='id identifier rubyid_a'>a</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Allow both kinds of dir serparators since lots and lots of code
+</span>  <span class='comment'># assumes one or the other so this ends up getting called with strings
+</span>  <span class='comment'># like: &quot;C:\\foo/bar&quot;
+</span>  <span class='id identifier rubyid_path'>path</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>%r#</span><span class='tstring_content'>.*[/\\](.*)$</span><span class='regexp_end'>#</span></span>
+
+  <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_clean_path'>clean_path</span><span class='lparen'>(</span><span class='backref'>$1</span> <span class='op'>||</span> <span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="chmod-class_method">
+  
+    .<strong>chmod</strong>(name, mode)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a chmod on the remote file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 253</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_chmod'>chmod</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_CHMOD-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_CHMOD (constant)">COMMAND_ID_STDAPI_FS_CHMOD</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_MODE_T-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE_T (constant)">TLV_TYPE_FILE_MODE_T</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cp-class_method">
+  
+    .<strong>cp</strong>(oldname, newname)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='copy-class_method'>copy</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a copy from oldname to newname</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_cp'>cp</span><span class='lparen'>(</span><span class='id identifier rubyid_oldname'>oldname</span><span class='comma'>,</span> <span class='id identifier rubyid_newname'>newname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_FILE_COPY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_FILE_COPY (constant)">COMMAND_ID_STDAPI_FS_FILE_COPY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_NAME (constant)">TLV_TYPE_FILE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_oldname'>oldname</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_newname'>newname</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="download-class_method">
+  
+    .<strong>download</strong>(dest, src_files, opts = {}, &amp;stat)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Download one or more files from the remote computer to the local directory supplied in destination.</p>
+
+<p>If a block is given, it will be called before each file is downloaded and again when each download is complete.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 325</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='lparen'>(</span><span class='id identifier rubyid_dest'>dest</span><span class='comma'>,</span> <span class='id identifier rubyid_src_files'>src_files</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_timestamp'>timestamp</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>timestamp</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='lbracket'>[</span><span class='op'>*</span><span class='id identifier rubyid_src_files'>src_files</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_src'>src</span><span class='op'>|</span>
+    <span class='id identifier rubyid_src'>src</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>UTF-8</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_basename'><span class='object_link'><a href="#basename-class_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename (method)">basename</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='comment'># The destination when downloading is a local file so use this
+</span>      <span class='comment'># system&#39;s separator
+</span>      <span class='id identifier rubyid_dest'>dest</span> <span class='op'>+=</span> <span class='op'>::</span><span class='const'>File</span><span class='op'>::</span><span class='const'>SEPARATOR</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_basename'><span class='object_link'><a href="#basename-class_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename (method)">basename</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># XXX: dest can be the same object as src, so we use += instead of &lt;&lt;
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_timestamp'>timestamp</span>
+      <span class='id identifier rubyid_dest'>dest</span> <span class='op'>+=</span> <span class='id identifier rubyid_timestamp'>timestamp</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Downloading</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_result'>result</span> <span class='op'>=</span> <span class='id identifier rubyid_download_file'>download_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest'>dest</span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_result'>result</span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="download_file-class_method">
+  
+    .<strong>download_file</strong>(dest_file, src_file, opts = {}, &amp;stat)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Download a single file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 349</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_download_file'>download_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stat'>stat</span> <span class='op'>||=</span> <span class='id identifier rubyid_lambda'>lambda</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='comma'>,</span><span class='id identifier rubyid_b'>b</span><span class='comma'>,</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span> <span class='rbrace'>}</span>
+
+  <span class='id identifier rubyid_adaptive'>adaptive</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>adaptive</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_block_size'>block_size</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>block_size</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span> <span class='op'>||</span> <span class='int'>1024</span> <span class='op'>*</span> <span class='int'>1024</span>
+  <span class='id identifier rubyid_continue'>continue</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>continue</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_tries_no'>tries_no</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tries_no</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_tries'>tries</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>tries</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Check for changes
+</span>  <span class='id identifier rubyid_src_stat'>src_stat</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_filestat'>filestat</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_file'>src_file</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dst_stat'>dst_stat</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>==</span> <span class='id identifier rubyid_dst_stat'>dst_stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span> <span class='op'>==</span> <span class='id identifier rubyid_dst_stat'>dst_stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span>
+      <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>skipped</span><span class='tstring_end'>&#39;</span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Make the destination path if necessary
+</span>  <span class='id identifier rubyid_dir'>dir</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_dirname'>dirname</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+  <span class='op'>::</span><span class='const'>FileUtils</span><span class='period'>.</span><span class='id identifier rubyid_mkdir_p'>mkdir_p</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_dir'>dir</span> <span class='kw'>and</span> <span class='kw'>not</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_directory?'>directory?</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>=</span> <span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_continue'>continue</span>
+    <span class='comment'># continue downloading the file - skip downloaded part in the source
+</span>    <span class='id identifier rubyid_dst_fd'>dst_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ab</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>begin</span>
+      <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_END</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_in_pos'>in_pos</span> <span class='op'>=</span> <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span>
+      <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_in_pos'>in_pos</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Continuing from </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_in_pos'>in_pos</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+    <span class='kw'>rescue</span>
+      <span class='comment'># if we can&#39;t seek, download again
+</span>      <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Error continuing - downloading from scratch</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+      <span class='id identifier rubyid_dst_fd'>dst_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_dst_fd'>dst_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Keep transferring until EOF is reached...
+</span>  <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_tries'>tries</span>
+      <span class='comment'># resume when timeouts encountered
+</span>      <span class='id identifier rubyid_seek_back'>seek_back</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_adjust_block'>adjust_block</span> <span class='op'>=</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_tries_cnt'>tries_cnt</span> <span class='op'>=</span> <span class='int'>0</span>
+      <span class='kw'>begin</span> <span class='comment'># while
+</span>        <span class='kw'>begin</span> <span class='comment'># exception
+</span>          <span class='kw'>if</span> <span class='id identifier rubyid_seek_back'>seek_back</span>
+            <span class='id identifier rubyid_in_pos'>in_pos</span> <span class='op'>=</span> <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span>
+            <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_in_pos'>in_pos</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_seek_back'>seek_back</span> <span class='op'>=</span> <span class='kw'>false</span>
+            <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Resuming at </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_in_pos'>in_pos</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+          <span class='kw'>else</span>
+            <span class='comment'># succesfully read and wrote - reset the counter
+</span>            <span class='id identifier rubyid_tries_cnt'>tries_cnt</span> <span class='op'>=</span> <span class='int'>0</span>
+          <span class='kw'>end</span>
+          <span class='id identifier rubyid_adjust_block'>adjust_block</span> <span class='op'>=</span> <span class='kw'>true</span>
+          <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_block_size'>block_size</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_adjust_block'>adjust_block</span> <span class='op'>=</span> <span class='kw'>false</span>
+        <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span>
+          <span class='comment'># timeout encountered - either seek back and retry or quit
+</span>          <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_tries'>tries</span> <span class='op'>&amp;&amp;</span> <span class='lparen'>(</span><span class='id identifier rubyid_tries_no'>tries_no</span> <span class='op'>==</span> <span class='int'>0</span> <span class='op'>||</span> <span class='id identifier rubyid_tries_cnt'>tries_cnt</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_tries_no'>tries_no</span><span class='rparen'>)</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_tries_cnt'>tries_cnt</span> <span class='op'>+=</span> <span class='int'>1</span>
+            <span class='id identifier rubyid_seek_back'>seek_back</span> <span class='op'>=</span> <span class='kw'>true</span>
+            <span class='comment'># try a smaller block size for the next round
+</span>            <span class='kw'>if</span> <span class='id identifier rubyid_adaptive'>adaptive</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_adjust_block'>adjust_block</span>
+              <span class='id identifier rubyid_block_size'>block_size</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_block_size'>block_size</span> <span class='op'>&gt;&gt;</span> <span class='int'>1</span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#MIN_BLOCK_SIZE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File::MIN_BLOCK_SIZE (constant)">MIN_BLOCK_SIZE</a></span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_max'>max</span>
+              <span class='id identifier rubyid_adjust_block'>adjust_block</span> <span class='op'>=</span> <span class='kw'>false</span>
+              <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error downloading, block size set to </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_block_size'>block_size</span><span class='embexpr_end'>}</span><span class='tstring_content'> - retry # </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tries_cnt'>tries_cnt</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+              <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+            <span class='kw'>else</span>
+              <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Error downloading - retry # </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_tries_cnt'>tries_cnt</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+            <span class='kw'>end</span>
+            <span class='kw'>retry</span>
+          <span class='kw'>else</span>
+            <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Error downloading - giving up</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_raise'>raise</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>*</span> <span class='float'>100.0</span>
+        <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Downloaded </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_percent'>percent</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>%)</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+      <span class='kw'>end</span> <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='comment'># do the simple copying quiting on the first error
+</span>      <span class='kw'>while</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_block_size'>block_size</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>*</span> <span class='float'>100.0</span>
+        <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Downloaded </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_src_size'>src_size</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_percent'>percent</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>%)</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='const'>EOFError</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='id identifier rubyid_dst_fd'>dst_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Clone the times from the remote file
+</span>  <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_utime'>utime</span><span class='lparen'>(</span><span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_atime'>atime</span><span class='comma'>,</span> <span class='id identifier rubyid_src_stat'>src_stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>download</span><span class='tstring_end'>&#39;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="exist?-class_method">
+  
+    .<strong>exist?</strong>(name)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns true if the remote file <code>name</code> exists, false otherwise</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+190
+191
+192
+193</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 190</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_exist?'>exist?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_r'>r</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_filestat'>filestat</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_r'>r</span> <span class='op'>?</span> <span class='kw'>true</span> <span class='op'>:</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="expand_path-class_method">
+  
+    .<strong>expand_path</strong>(path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Expands a file path, substituting all environment variables, such as %TEMP%.</p>
+
+<p>Examples:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%appdata%</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='comment'># =&gt; &quot;C:\\Documents and Settings\\user\\Application Data&quot;
+</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>asdf</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='comment'># =&gt; &quot;asdf&quot;
+</span></code></pre>
+
+<p>NOTE: This method is fairly specific to Windows. It has next to no relation to the ::File.expand_path method! In particular, it does <strong>not</strong> do ~ expansion or environment variable expansion on non-Windows systems. For these reasons, this method may be deprecated in the future. Use it with caution.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+137
+138
+139
+140
+141
+142
+143
+144
+145</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 137</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_expand_path'>expand_path</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH (constant)">COMMAND_ID_STDAPI_FS_FILE_EXPAND_PATH</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_path'>path</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="is_glob?-class_method">
+  
+    .<strong>is_glob?</strong>(name)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 314</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_is_glob?'>is_glob?</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\*|\[|\?</span><span class='regexp_end'>/</span></span> <span class='op'>===</span> <span class='id identifier rubyid_name'>name</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="md5-class_method">
+  
+    .<strong>md5</strong>(path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calculates the MD5 (16-bytes raw) of a remote file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_md5'>md5</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_MD5-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_MD5 (constant)">COMMAND_ID_STDAPI_FS_MD5</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_path'>path</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># older meterpreter binaries will send FILE_NAME containing the hash
+</span>  <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_HASH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_HASH (constant)">TLV_TYPE_FILE_HASH</a></span></span><span class='rparen'>)</span> <span class='op'>||</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_NAME (constant)">TLV_TYPE_FILE_NAME</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hash'>hash</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="mv-class_method">
+  
+    .<strong>mv</strong>(oldname, newname)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='move-class_method'>move</span>, <span id='rename-class_method'>rename</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a rename from oldname to newname</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 216</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_mv'>mv</span><span class='lparen'>(</span><span class='id identifier rubyid_oldname'>oldname</span><span class='comma'>,</span> <span class='id identifier rubyid_newname'>newname</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_FILE_MOVE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_FILE_MOVE (constant)">COMMAND_ID_STDAPI_FS_FILE_MOVE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_NAME (constant)">TLV_TYPE_FILE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_oldname'>oldname</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_newname'>newname</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open-class_method">
+  
+    .<strong>open</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>With no associated block, File.open is a synonym for ::new. If the optional code block is given, it will be passed the opened file as an argument, and the File object will automatically be closed when the block terminates. In this instance, File.open returns the value of the block.</p>
+
+<p>(doc stolen from <a href="http://www.ruby-doc.org/core-1.9.3/File.html#method-c-open">www.ruby-doc.org/core-1.9.3/File.html#method-c-open</a>)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 468</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='op'>=</span><span class='int'>0</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+    <span class='id identifier rubyid_ret'>ret</span> <span class='op'>=</span> <span class='kw'>yield</span> <span class='id identifier rubyid_f'>f</span>
+    <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_ret'>ret</span>
+  <span class='kw'>else</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_f'>f</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="rm-class_method">
+  
+    .<strong>rm</strong>(name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='unlink-class_method'>unlink</span>, <span id='delete-class_method'>delete</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a delete on the remote file <code>name</code></p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+198
+199
+200
+201
+202
+203
+204
+205
+206</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 198</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_rm'>rm</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_DELETE_FILE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_DELETE_FILE (constant)">COMMAND_ID_STDAPI_FS_DELETE_FILE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="search-class_method">
+  
+    .<strong>search</strong>(root = nil, glob = &quot;*.*&quot;, recurse = true, timeout = -1 ))  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Search for files matching <code>glob</code> starting in directory <code>root</code>.</p>
+
+<p>Returns an Array (possibly empty) of Hashes. Each element has the following keys:</p>
+<dl class="rdoc-list note-list"><dt>&#39;path&#39;
+<dd>
+<p>The directory in which the file was found</p>
+</dd><dt>&#39;name&#39;
+<dd>
+<p>File name</p>
+</dd><dt>&#39;size&#39;
+<dd>
+<p>Size of the file, in bytes</p>
+</dd></dl>
+
+<p>Example:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_search'>search</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_dir'>dir</span><span class='period'>.</span><span class='id identifier rubyid_pwd'>pwd</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.txt</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+<span class='comment'># =&gt; [{&quot;path&quot;=&gt;&quot;C:\\Documents and Settings\\user\\Desktop&quot;, &quot;name&quot;=&gt;&quot;foo.txt&quot;, &quot;size&quot;=&gt;0}]
+</span></code></pre>
+
+<p>Raises a RequestError if <code>root</code> is not a directory.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 78</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_search'>search</span><span class='lparen'>(</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_glob'>glob</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>*.*</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_recurse'>recurse</span><span class='op'>=</span><span class='kw'>true</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='op'>-</span><span class='int'>1</span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_files'>files</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Array</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_SEARCH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_SEARCH (constant)">COMMAND_ID_STDAPI_FS_SEARCH</a></span></span> <span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span><span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
+  <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='lparen'>(</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_separator'>separator</span> <span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SEARCH_ROOT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SEARCH_ROOT (constant)">TLV_TYPE_SEARCH_ROOT</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root'><span class='object_link'><a href="../../../../../../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SEARCH_GLOB-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SEARCH_GLOB (constant)">TLV_TYPE_SEARCH_GLOB</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_glob'>glob</span> <span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SEARCH_RECURSE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SEARCH_RECURSE (constant)">TLV_TYPE_SEARCH_RECURSE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_recurse'>recurse</span> <span class='rparen'>)</span>
+
+  <span class='comment'># we set the response timeout to -1 to wait indefinatly as a
+</span>  <span class='comment'># search could take an indeterminate ammount of time to complete.
+</span>  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span> <span class='id identifier rubyid_request'>request</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span> <span class='rparen'>)</span>
+  <span class='kw'>if</span><span class='lparen'>(</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_result'>result</span> <span class='op'>==</span> <span class='int'>0</span> <span class='rparen'>)</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_SEARCH_RESULTS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_SEARCH_RESULTS (constant)">TLV_TYPE_SEARCH_RESULTS</a></span></span> <span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span> <span class='id identifier rubyid_results'>results</span> <span class='op'>|</span>
+      <span class='id identifier rubyid_files'>files</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>path</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_chomp'>chomp</span><span class='lparen'>(</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_separator'>separator</span> <span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>name</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_encode'>unicode_filter_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_NAME (constant)">TLV_TYPE_FILE_NAME</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span><span class='comma'>,</span>
+        <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>size</span><span class='tstring_end'>&#39;</span></span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_results'>results</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_SIZE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_SIZE (constant)">TLV_TYPE_FILE_SIZE</a></span></span><span class='rparen'>)</span>
+      <span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_files'>files</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="separator-class_method">
+  
+    .<strong>separator</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+    <span class="aliases">Also known as:
+    <span class="names"><span id='Separator-class_method'>Separator</span>, <span id='SEPARATOR-class_method'>SEPARATOR</span></span>
+    </span>
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the directory separator, i.e.: “/” on unix, “\” on windows</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_separator'>separator</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='comment'># The separator won&#39;t change, so cache it to prevent sending
+</span>  <span class='comment'># unnecessary requests.
+</span>  <span class='kw'>return</span> <span class='ivar'>@separator</span> <span class='kw'>if</span> <span class='ivar'>@separator</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_SEPARATOR-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_SEPARATOR (constant)">COMMAND_ID_STDAPI_FS_SEPARATOR</a></span></span><span class='rparen'>)</span>
+
+  <span class='comment'># Fall back to the old behavior of always assuming windows.  This
+</span>  <span class='comment'># allows meterpreter executables built before the addition of this
+</span>  <span class='comment'># command to continue functioning.
+</span>  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+    <span class='ivar'>@separator</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_STRING-constant" title="Rex::Post::Meterpreter::TLV_TYPE_STRING (constant)">TLV_TYPE_STRING</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../../RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">RequestError</a></span></span>
+    <span class='ivar'>@separator</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\\</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='ivar'>@separator</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sha1-class_method">
+  
+    .<strong>sha1</strong>(path)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calculates the SHA1 (20-bytes raw) of a remote file</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 167</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_sha1'>sha1</span><span class='lparen'>(</span><span class='id identifier rubyid_path'>path</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_FS_SHA1-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_FS_SHA1 (constant)">COMMAND_ID_STDAPI_FS_SHA1</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_path'>path</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># older meterpreter binaries will send FILE_NAME containing the hash
+</span>  <span class='id identifier rubyid_hash'>hash</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_HASH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_HASH (constant)">TLV_TYPE_FILE_HASH</a></span></span><span class='rparen'>)</span> <span class='op'>||</span>
+    <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_NAME (constant)">TLV_TYPE_FILE_NAME</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_hash'>hash</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stat-class_method">
+  
+    .<strong>stat</strong>(name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Performs a stat on a file and returns a FileStat instance.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 183</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_filestat'>filestat</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span> <span class='id identifier rubyid_name'>name</span> <span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="upload-class_method">
+  
+    .<strong>upload</strong>(destination, *src_files, &amp;stat)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Upload one or more files to the remote remote directory supplied in <code>destination</code>.</p>
+
+<p>If a block is given, it will be called before each file is uploaded and again when each upload is complete.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 271</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_upload'>upload</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_src_files'>src_files</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_src_files'>src_files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_src'>src</span><span class='op'>|</span>
+    <span class='id identifier rubyid_dest'>dest</span> <span class='op'>=</span> <span class='id identifier rubyid_destination'>destination</span>
+
+    <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uploading</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_destination'>destination</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_dest'>dest</span> <span class='op'>+=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_separator'>separator</span> <span class='op'>+</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_basename'>basename</span><span class='lparen'>(</span><span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_upload_file'>upload_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest'>dest</span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uploaded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src'>src</span><span class='comma'>,</span> <span class='id identifier rubyid_dest'>dest</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="upload_file-class_method">
+  
+    .<strong>upload_file</strong>(dest_file, src_file, &amp;stat)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Upload a single file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 288</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_upload_file'>upload_file</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='op'>&amp;</span><span class='id identifier rubyid_stat'>stat</span><span class='rparen'>)</span>
+  <span class='comment'># Open the file on the remote side for writing and read
+</span>  <span class='comment'># all of the contents of the local file
+</span>  <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uploading</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_stat'>stat</span>
+  <span class='id identifier rubyid_dest_fd'>dest_fd</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='id identifier rubyid_buf_size'>buf_size</span> <span class='op'>=</span> <span class='int'>8</span> <span class='op'>*</span> <span class='int'>1024</span> <span class='op'>*</span> <span class='int'>1024</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_dest_fd'>dest_fd</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_file'>dest_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_open'>open</span><span class='lparen'>(</span><span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rb</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_src_size'>src_size</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span> <span class='op'>=</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_buf_size'>buf_size</span><span class='rparen'>)</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_percent'>percent</span> <span class='op'>=</span> <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>/</span> <span class='id identifier rubyid_src_size'>src_size</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>*</span> <span class='float'>100.0</span>
+      <span class='id identifier rubyid_msg'>msg</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uploaded </span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_pos'>pos</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> of </span><span class='tstring_end'>&quot;</span></span> \
+        <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'>Filesize</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_src_size'>src_size</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_pretty'>pretty</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_percent'>percent</span><span class='period'>.</span><span class='id identifier rubyid_round'>round</span><span class='lparen'>(</span><span class='int'>2</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_content'>%)</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='id identifier rubyid_msg'>msg</span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_stat'>stat</span>
+    <span class='kw'>end</span>
+  <span class='kw'>ensure</span>
+    <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_src_fd'>src_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>unless</span> <span class='id identifier rubyid_dest_fd'>dest_fd</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>uploaded</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_src_file'>src_file</span><span class='comma'>,</span> <span class='id identifier rubyid_dest_file'>dest_file</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_stat'>stat</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_open-instance_method">
+  
+    #<strong>_open</strong>(name, mode = &quot;r&quot;, perms = 0)  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates a File channel using the supplied information.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+538
+539
+540
+541</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 538</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__open'>_open</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span> <span class='op'>=</span> <span class='int'>0</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Channels.html" title="Rex::Post::Meterpreter::Channels (module)">Channels</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Channels/Pools.html" title="Rex::Post::Meterpreter::Channels::Pools (module)">Pools</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Channels/Pools/File.html" title="Rex::Post::Meterpreter::Channels::Pools::File (class)">File</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open'><span class='object_link'><a href="../../../Channels/Pools/File.html#open-class_method" title="Rex::Post::Meterpreter::Channels::Pools::File.open (method)">open</a></span></span><span class='lparen'>(</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_mode'>mode</span><span class='comma'>,</span> <span class='id identifier rubyid_perms'>perms</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="eof-instance_method">
+  
+    #<strong>eof</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns whether or not the file has reach EOF.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+502
+503
+504</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 502</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_eof'>eof</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_eof'>eof</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pos-instance_method">
+  
+    #<strong>pos</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the current position of the file pointer.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+509
+510
+511</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 509</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pos'>pos</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_tell'>tell</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="seek-instance_method">
+  
+    #<strong>seek</strong>(offset, whence = ::IO::SEEK_SET)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Synonym for sysseek.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+516
+517
+518</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 516</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_whence'>whence</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sysseek'>sysseek</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_whence'>whence</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="sysseek-instance_method">
+  
+    #<strong>sysseek</strong>(offset, whence = ::IO::SEEK_SET)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Seeks to the supplied offset based on the supplied relativity.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+523
+524
+525</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/fs/file.rb', line 523</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_sysseek'>sysseek</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_whence'>whence</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_filed'>filed</span><span class='period'>.</span><span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_whence'>whence</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:59 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

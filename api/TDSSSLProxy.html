@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: TDSSSLProxy
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "TDSSSLProxy";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (T)</a> &raquo;
+    
+    
+    <span class="title">TDSSSLProxy</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: TDSSSLProxy
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">TDSSSLProxy</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/mssql/tdssslproxy.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>TDSSSLProxy:</p>
+
+<p>SQL Server uses the TDS protocol to transmit data between clients and servers. Of course this sits on top of TCP.</p>
+
+<p>By default, the TDS payload is not encrypted. However, if “force encryption” is set under the SQL Server protocol properties, it will use SSL/TLS to encrypt the TDS data. Oddly, the entire TCP stream is not encrypted (as is say for HTTPS), but instead a TDS header is put on the front of the TLS packet. As a result, the full TLS/SSL setup is done within a series of TDS payloads.</p>
+
+<p>This “proxy” basically creates a fake SSL endpoint (s2) from which it can add/remove the TDS header as required. This is implemented as a socket pair (think, a bidirectional pipe), where the other end is s1:</p>
+
+<p>sslsock &lt;-&gt; s1 &lt;-&gt; s2 &lt;-&gt; tdssock &lt;-&gt; target SQL Server.</p>
+
+<p>(tdssock is the reference to the “sock” from the scanner module)</p>
+
+<p>TO DO:</p>
+
+<p>This enables brute force of a SQL Server which requires encryption. However, future updates will permit any read/write using mssql_send_recv() to use crypto if required and transparently to other MSF developers.</p>
+
+<p>Cheers, JH</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="TYPE_TDS7_LOGIN-constant" class="">TYPE_TDS7_LOGIN =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>16</span></pre></dd>
+      
+        <dt id="TYPE_PRE_LOGIN_MESSAGE-constant" class="">TYPE_PRE_LOGIN_MESSAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>18</span></pre></dd>
+      
+        <dt id="STATUS_END_OF_MESSAGE-constant" class="">STATUS_END_OF_MESSAGE =
+          
+        </dt>
+        <dd><pre class="code"><span class='int'>0x01</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(sock)  &#x21d2; TDSSSLProxy </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>A new instance of TDSSSLProxy.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#send_recv-instance_method" title="#send_recv (instance method)">#<strong>send_recv</strong>(pkt)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#setup_ssl-instance_method" title="#setup_ssl (instance method)">#<strong>setup_ssl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#ssl_setup_thread-instance_method" title="#ssl_setup_thread (instance method)">#<strong>ssl_setup_thread</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(sock)  &#x21d2; <tt><span class='object_link'><a href="" title="TDSSSLProxy (class)">TDSSSLProxy</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns a new instance of TDSSSLProxy.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43
+44</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/tdssslproxy.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_sock'>sock</span><span class='rparen'>)</span>
+  <span class='ivar'>@tdssock</span> <span class='op'>=</span> <span class='id identifier rubyid_sock'>sock</span>
+  <span class='ivar'>@s1</span><span class='comma'>,</span> <span class='ivar'>@s2</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_tcp_socket_pair'>tcp_socket_pair</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/tdssslproxy.rb', line 46</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='ivar'>@t1</span><span class='period'>.</span><span class='id identifier rubyid_join'><span class='object_link'><a href="top-level-namespace.html#join-instance_method" title="#join (method)">join</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="send_recv-instance_method">
+  
+    #<strong>send_recv</strong>(pkt)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/tdssslproxy.rb', line 60</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_send_recv'>send_recv</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+  <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_done'>done</span> <span class='op'>=</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='kw'>while</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_done'>done</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_head'>head</span> <span class='op'>=</span> <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_head'>head</span> <span class='kw'>and</span> <span class='id identifier rubyid_head'>head</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>8</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>false</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Is this the last buffer?
+</span>    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_head'>head</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x01</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>or</span> <span class='kw'>not</span> <span class='id identifier rubyid_check_status'>check_status</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_done'>done</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># Grab this block&#39;s length
+</span>    <span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>=</span> <span class='id identifier rubyid_head'>head</span><span class='lbracket'>[</span><span class='int'>2</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>n</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span> <span class='op'>-</span> <span class='int'>8</span>
+
+    <span class='kw'>while</span> <span class='lparen'>(</span><span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>&gt;</span> <span class='int'>0</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_rlen'>rlen</span><span class='rparen'>)</span>
+      <span class='kw'>return</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_buff'>buff</span>
+      <span class='id identifier rubyid_resp'>resp</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_buff'>buff</span>
+      <span class='id identifier rubyid_rlen'>rlen</span> <span class='op'>-=</span> <span class='id identifier rubyid_buff'>buff</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+    <span class='kw'>end</span>
+
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_resp'>resp</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="setup_ssl-instance_method">
+  
+    #<strong>setup_ssl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+51
+52
+53
+54
+55
+56
+57
+58</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/tdssslproxy.rb', line 51</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_setup_ssl'>setup_ssl</span>
+  <span class='ivar'>@running</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='ivar'>@t1</span> <span class='op'>=</span> <span class='const'>Thread</span><span class='period'>.</span><span class='id identifier rubyid_start'>start</span> <span class='lbrace'>{</span> <span class='id identifier rubyid_ssl_setup_thread'>ssl_setup_thread</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_ctx'>ctx</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLContext</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='symbol'>:SSLv23</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ctx'>ctx</span><span class='period'>.</span><span class='id identifier rubyid_ciphers'>ciphers</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ALL:!ADH:!EXPORT:!SSLv2:!SSLv3:+HIGH:+MEDIUM</span><span class='tstring_end'>&quot;</span></span>
+  <span class='ivar'>@ssl_socket</span> <span class='op'>=</span> <span class='const'>OpenSSL</span><span class='op'>::</span><span class='const'>SSL</span><span class='op'>::</span><span class='const'>SSLSocket</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='ivar'>@s1</span><span class='comma'>,</span> <span class='id identifier rubyid_ctx'>ctx</span><span class='rparen'>)</span>
+  <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_connect'>connect</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="ssl_setup_thread-instance_method">
+  
+    #<strong>ssl_setup_thread</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework/mssql/tdssslproxy.rb', line 90</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_ssl_setup_thread'>ssl_setup_thread</span>
+  <span class='kw'>while</span> <span class='ivar'>@running</span> <span class='kw'>do</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='lbracket'>[</span><span class='ivar'>@tdssock</span><span class='comma'>,</span> <span class='ivar'>@s2</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='float'>0.1</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_res'>res</span>
+      <span class='id identifier rubyid_res'>res</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span>
+        <span class='comment'># response from SQL Server for client
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_r'>r</span> <span class='op'>==</span> <span class='ivar'>@tdssock</span>
+          <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='ivar'>@tdssock</span><span class='period'>.</span><span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='int'>4096</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSLOK</span><span class='tstring_end'>&quot;</span></span>
+            <span class='ivar'>@s2</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+          <span class='kw'>else</span>
+            <span class='ivar'>@s2</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='lbracket'>[</span><span class='int'>8</span><span class='op'>..</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+
+        <span class='comment'># request from client for SQL Server
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_r'>r</span> <span class='op'>==</span> <span class='ivar'>@s2</span>
+          <span class='id identifier rubyid_resp'>resp</span> <span class='op'>=</span> <span class='ivar'>@s2</span><span class='period'>.</span><span class='id identifier rubyid_recv'>recv</span><span class='lparen'>(</span><span class='int'>4096</span><span class='rparen'>)</span>
+          <span class='comment'># SSL negotiation completed - just send it on
+</span>          <span class='kw'>if</span> <span class='ivar'>@ssl_socket</span><span class='period'>.</span><span class='id identifier rubyid_state'>state</span><span class='lbracket'>[</span><span class='int'>0</span><span class='comma'>,</span> <span class='int'>5</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SSLOK</span><span class='tstring_end'>&quot;</span></span>
+            <span class='ivar'>@tdssock</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_resp'>resp</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+            <span class='comment'># Still doing SSL
+</span>          <span class='kw'>else</span>
+            <span class='id identifier rubyid_tds_pkt_len'>tds_pkt_len</span> <span class='op'>=</span> <span class='int'>8</span> <span class='op'>+</span> <span class='id identifier rubyid_resp'>resp</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>
+            <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span>
+            <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>&lt;&lt;</span> <span class='lbracket'>[</span><span class='const'><span class='object_link'><a href="#TYPE_PRE_LOGIN_MESSAGE-constant" title="TDSSSLProxy::TYPE_PRE_LOGIN_MESSAGE (constant)">TYPE_PRE_LOGIN_MESSAGE</a></span></span><span class='comma'>,</span> <span class='const'><span class='object_link'><a href="#STATUS_END_OF_MESSAGE-constant" title="TDSSSLProxy::STATUS_END_OF_MESSAGE (constant)">STATUS_END_OF_MESSAGE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_tds_pkt_len'>tds_pkt_len</span><span class='comma'>,</span> <span class='int'>0x0000</span><span class='comma'>,</span> <span class='int'>0x00</span><span class='comma'>,</span> <span class='int'>0x00</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>CCnnCC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+            <span class='id identifier rubyid_pkt'>pkt</span> <span class='op'>=</span> <span class='id identifier rubyid_pkt_hdr'>pkt_hdr</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_resp'>resp</span>
+            <span class='ivar'>@tdssock</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='id identifier rubyid_pkt'>pkt</span><span class='comma'>,</span> <span class='int'>0</span><span class='rparen'>)</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='ivar'>@s1</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='ivar'>@s2</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:26 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

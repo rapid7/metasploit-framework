@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry";
+  relpath = '../../../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../../../_index.html">Index (R)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span>
+     &raquo; 
+    <span class="title">Registry</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class provides access to the Windows registry on the remote machine.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+  <h2>Class Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#client-class_method" title="client (class method)">.<strong>client</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute client.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#check_key_exists-class_method" title="check_key_exists (class method)">.<strong>check_key_exists</strong>(root_key, base_key)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks if a key exists on the target registry.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#close_key-class_method" title="close_key (class method)">.<strong>close_key</strong>(hkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Closes the supplied registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create_key-class_method" title="create_key (class method)">.<strong>create_key</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Creates the supplied registry key or opens it if it already exists.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_key-class_method" title="delete_key (class method)">.<strong>delete_key</strong>(root_key, base_key, recursive = true)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes the supplied registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#delete_value-class_method" title="delete_value (class method)">.<strong>delete_value</strong>(hkey, name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Deletes the registry value supplied in name from the supplied registry key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_key-class_method" title="enum_key (class method)">.<strong>enum_key</strong>(hkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates the supplied registry key returning an array of key names.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_key_direct-class_method" title="enum_key_direct (class method)">.<strong>enum_key_direct</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_value-class_method" title="enum_value (class method)">.<strong>enum_value</strong>(hkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Enumerates all of the values at the supplied hkey including their names.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#enum_value_direct-class_method" title="enum_value_direct (class method)">.<strong>enum_value_direct</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#key2str-class_method" title="key2str (class method)">.<strong>key2str</strong>(key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Return the key value associated with the supplied string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_key-class_method" title="load_key (class method)">.<strong>load_key</strong>(root_key, base_key, hive_file)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Opens the supplied registry key relative to the root key with the supplied permissions.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_key-class_method" title="open_key (class method)">.<strong>open_key</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#open_remote_key-class_method" title="open_remote_key (class method)">.<strong>open_remote_key</strong>(target_host, root_key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Opens the supplied registry key on the specified remote host.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#query_class-class_method" title="query_class (class method)">.<strong>query_class</strong>(hkey)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Queries the registry class name and returns a string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#query_value-class_method" title="query_value (class method)">.<strong>query_value</strong>(hkey, name)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#query_value_direct-class_method" title="query_value_direct (class method)">.<strong>query_value_direct</strong>(root_key, base_key, name, perm = KEY_READ)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Queries the registry value supplied in name and returns an initialized RegistryValue instance if a match is found.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_value-class_method" title="set_value (class method)">.<strong>set_value</strong>(hkey, name, type, data)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Sets the registry value relative to the supplied hkey.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#set_value_direct-class_method" title="set_value_direct (class method)">.<strong>set_value_direct</strong>(root_key, base_key, name, type, data, perm = KEY_WRITE)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#splitkey-class_method" title="splitkey (class method)">.<strong>splitkey</strong>(str)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Split the supplied full registry key into its root key and base key.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type2str-class_method" title="type2str (class method)">.<strong>type2str</strong>(type)  &#x21d2; Integer </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the integer value associated with the supplied registry value type (like REG_SZ).</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#unload_key-class_method" title="unload_key (class method)">.<strong>unload_key</strong>(root_key, base_key)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="class_attr_details" class="attr_details">
+    <h2>Class Attribute Details</h2>
+    
+      
+      <span id="client=-class_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="client-class_method">
+  
+    .<strong>client</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute client.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+28
+29
+30</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 28</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_client'>client</span>
+  <span class='ivar'>@client</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="check_key_exists-class_method">
+  
+    .<strong>check_key_exists</strong>(root_key, base_key)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks if a key exists on the target registry</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>root_key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the root part of the key path. Ex: HKEY_LOCAL_MACHINE</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>base_key</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>the base part of the key path</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>true if the key exists on the target registry, false otherwise, even it the session hasn&#39;t permissions to access the target key.</p>
+</div>
+      
+    </li>
+  
+</ul>
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>TimeoutError</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the timeout expires when waiting the answer</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="../../../RequestError.html" title="Rex::Post::Meterpreter::RequestError (class)">Rex::Post::Meterpreter::RequestError</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>if the parameters are not valid</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+88
+89
+90
+91
+92
+93
+94</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 88</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_check_key_exists'>check_key_exists</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS (constant)">COMMAND_ID_STDAPI_REGISTRY_CHECK_KEY_EXISTS</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="close_key-class_method">
+  
+    .<strong>close_key</strong>(hkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Closes the supplied registry key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+155
+156
+157
+158
+159
+160
+161
+162
+163</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 155</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_close_key'>close_key</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_CLOSE_KEY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_packet'>send_packet</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create_key-class_method">
+  
+    .<strong>create_key</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Creates the supplied registry key or opens it if it already exists.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 117</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_key'>create_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_CREATE_KEY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey (class)">RegistryKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_key-class_method">
+  
+    .<strong>delete_key</strong>(root_key, base_key, recursive = true)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes the supplied registry key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete_key'>delete_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_recursive'>recursive</span> <span class='op'>=</span> <span class='kw'>true</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_DELETE_KEY</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_flags'>flags</span>   <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_recursive'>recursive</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_flags'>flags</span> <span class='op'>|=</span> <span class='const'><span class='object_link'><a href="../../Stdapi.html#DELETE_KEY_FLAG_RECURSIVE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::DELETE_KEY_FLAG_RECURSIVE (constant)">DELETE_KEY_FLAG_RECURSIVE</a></span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_FLAGS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_FLAGS (constant)">TLV_TYPE_FLAGS</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="delete_value-class_method">
+  
+    .<strong>delete_value</strong>(hkey, name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Deletes the registry value supplied in name from the supplied registry key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 305</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_delete_value'>delete_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE (constant)">COMMAND_ID_STDAPI_REGISTRY_DELETE_VALUE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span> <span class='op'>!=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_key-class_method">
+  
+    .<strong>enum_key</strong>(hkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates the supplied registry key returning an array of key names.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 168</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_enum_key'>enum_key</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_keys'>keys</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Enumerate through all of the registry keys
+</span>  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_KEY_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEY_NAME (constant)">TLV_TYPE_KEY_NAME</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_key_name'>key_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_keys'>keys</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_key_name'>key_name</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_key_direct-class_method">
+  
+    .<strong>enum_key_direct</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 184</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_enum_key_direct'>enum_key_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT (constant)">COMMAND_ID_STDAPI_REGISTRY_ENUM_KEY_DIRECT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_keys'>keys</span>    <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='comment'># Enumerate through all of the registry keys
+</span>  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_KEY_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_KEY_NAME (constant)">TLV_TYPE_KEY_NAME</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key_name'>key_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_keys'>keys</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_key_name'>key_name</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_keys'>keys</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_value-class_method">
+  
+    .<strong>enum_value</strong>(hkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Enumerates all of the values at the supplied hkey including their names.  An array of RegistryValue&#39;s is returned.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 337</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_enum_value'>enum_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE (constant)">COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_values'>values</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='rparen'>)</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_value_name'>value_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_values'>values</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue (class)">RegistryValue</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_value_name'>value_name</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='rbrace'>}</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_values'>values</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="enum_value_direct-class_method">
+  
+    .<strong>enum_value_direct</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 353</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_enum_value_direct'>enum_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT (constant)">COMMAND_ID_STDAPI_REGISTRY_ENUM_VALUE_DIRECT</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_values'>values</span>  <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_value_name'>value_name</span><span class='op'>|</span>
+    <span class='id identifier rubyid_values'>values</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue (class)">RegistryValue</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+        <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_value_name'>value_name</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_values'>values</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="key2str-class_method">
+  
+    .<strong>key2str</strong>(key)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Return the key value associated with the supplied string.  This is useful for converting HKLM as a string into its actual integer representation.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 375</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_key2str'>key2str</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKLM</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_LOCAL_MACHINE</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_LOCAL_MACHINE-constant" title="HKEY_LOCAL_MACHINE (constant)">HKEY_LOCAL_MACHINE</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCU</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CURRENT_USER</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_CURRENT_USER-constant" title="HKEY_CURRENT_USER (constant)">HKEY_CURRENT_USER</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKU</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_USERS</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_USERS-constant" title="HKEY_USERS (constant)">HKEY_USERS</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKCR</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>or</span> <span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CLASSES_ROOT</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_CLASSES_ROOT-constant" title="HKEY_CLASSES_ROOT (constant)">HKEY_CLASSES_ROOT</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_CURRENT_CONFIG</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_CURRENT_CONFIG-constant" title="HKEY_CURRENT_CONFIG (constant)">HKEY_CURRENT_CONFIG</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_PERFORMANCE_DATA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_PERFORMANCE_DATA-constant" title="HKEY_PERFORMANCE_DATA (constant)">HKEY_PERFORMANCE_DATA</a></span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HKEY_DYN_DATA</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#HKEY_DYN_DATA-constant" title="HKEY_DYN_DATA (constant)">HKEY_DYN_DATA</a></span></span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unknown key: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_key-class_method">
+  
+    .<strong>load_key</strong>(root_key, base_key, hive_file)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Opens the supplied registry key relative to the root key with the supplied permissions.  Right now this is merely a wrapper around create_key.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+43
+44
+45
+46
+47
+48
+49
+50
+51</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 43</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_load_key'>load_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span><span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span><span class='id identifier rubyid_hive_file'>hive_file</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_LOAD_KEY</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_FILE_PATH-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH (constant)">TLV_TYPE_FILE_PATH</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_unicode_filter_decode'>unicode_filter_decode</span><span class='lparen'>(</span> <span class='id identifier rubyid_hive_file'>hive_file</span> <span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_RESULT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_RESULT (constant)">TLV_TYPE_RESULT</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_key-class_method">
+  
+    .<strong>open_key</strong>(root_key, base_key, perm = KEY_READ)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 62</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open_key'>open_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='rparen'>)</span>
+  <span class='comment'># If no base key was provided, just return the root_key.
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_base_key'>base_key</span> <span class='op'>==</span> <span class='kw'>nil</span> <span class='kw'>or</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey (class)">RegistryKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_OPEN_KEY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey (class)">RegistryKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryKey.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="open_remote_key-class_method">
+  
+    .<strong>open_remote_key</strong>(target_host, root_key)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Opens the supplied registry key on the specified remote host. Requires that the current process has credentials to access the target and that the target has the remote registry service running.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 101</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_open_remote_key'>open_remote_key</span><span class='lparen'>(</span><span class='id identifier rubyid_target_host'>target_host</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_OPEN_REMOTE_KEY</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_TARGET_HOST-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_TARGET_HOST (constant)">TLV_TYPE_TARGET_HOST</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_target_host'>target_host</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RemoteRegistryKey.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey (class)">RemoteRegistryKey</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RemoteRegistryKey.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_target_host'>target_host</span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="query_class-class_method">
+  
+    .<strong>query_class</strong>(hkey)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Queries the registry class name and returns a string</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 321</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_query_class'>query_class</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS (constant)">COMMAND_ID_STDAPI_REGISTRY_QUERY_CLASS</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_cls'>cls</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_DATA (constant)">TLV_TYPE_VALUE_DATA</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_cls'>cls</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_cls'>cls</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>\x00.*</span><span class='regexp_end'>/n</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="query_value-class_method">
+  
+    .<strong>query_value</strong>(hkey, name)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 280</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_query_value'>query_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE (constant)">COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_DATA (constant)">TLV_TYPE_VALUE_DATA</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_TYPE (constant)">TLV_TYPE_VALUE_TYPE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_SZ-constant" title="REG_SZ (constant)">REG_SZ</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_DWORD-constant" title="REG_DWORD (constant)">REG_DWORD</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>N</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue (class)">RegistryValue</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="query_value_direct-class_method">
+  
+    .<strong>query_value_direct</strong>(root_key, base_key, name, perm = KEY_READ)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Queries the registry value supplied in name and returns an initialized RegistryValue instance if a match is found.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 257</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_query_value_direct'>query_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_READ-constant" title="KEY_READ (constant)">KEY_READ</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT (constant)">COMMAND_ID_STDAPI_REGISTRY_QUERY_VALUE_DIRECT</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_type'>type</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_TYPE (constant)">TLV_TYPE_VALUE_TYPE</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+  <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_DATA (constant)">TLV_TYPE_VALUE_DATA</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_SZ-constant" title="REG_SZ (constant)">REG_SZ</a></span></span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='op'>-</span><span class='int'>2</span><span class='rbracket'>]</span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_DWORD-constant" title="REG_DWORD (constant)">REG_DWORD</a></span></span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_unpack'>unpack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>N</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='const'><span class='object_link'><a href="../../../../../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../../Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../../Extensions.html" title="Rex::Post::Meterpreter::Extensions (module)">Extensions</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Stdapi.html" title="Rex::Post::Meterpreter::Extensions::Stdapi (module)">Stdapi</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Sys.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys (module)">Sys</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem (module)">RegistrySubsystem</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue (class)">RegistryValue</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="RegistrySubsystem/RegistryValue.html#initialize-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryValue#initialize (method)">new</a></span></span><span class='lparen'>(</span>
+      <span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='int'>0</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_value-class_method">
+  
+    .<strong>set_value</strong>(hkey, name, type, data)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Sets the registry value relative to the supplied hkey.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 211</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_set_value'>set_value</span><span class='lparen'>(</span><span class='id identifier rubyid_hkey'>hkey</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_SET_VALUE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_SET_VALUE (constant)">COMMAND_ID_STDAPI_REGISTRY_SET_VALUE</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_HKEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_HKEY (constant)">TLV_TYPE_HKEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_hkey'>hkey</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_TYPE (constant)">TLV_TYPE_VALUE_TYPE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_SZ-constant" title="REG_SZ (constant)">REG_SZ</a></span></span> <span class='op'>||</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_MULTI_SZ-constant" title="REG_MULTI_SZ (constant)">REG_MULTI_SZ</a></span></span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_DWORD-constant" title="REG_DWORD (constant)">REG_DWORD</a></span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='lbracket'>[</span> <span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>V</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_DATA (constant)">TLV_TYPE_VALUE_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>return</span> <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="set_value_direct-class_method">
+  
+    .<strong>set_value_direct</strong>(root_key, base_key, name, type, data, perm = KEY_WRITE)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 231</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_set_value_direct'>set_value_direct</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#KEY_WRITE-constant" title="KEY_WRITE (constant)">KEY_WRITE</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT (constant)">COMMAND_ID_STDAPI_REGISTRY_SET_VALUE_DIRECT</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_PERMISSION-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_PERMISSION (constant)">TLV_TYPE_PERMISSION</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_perm'>perm</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_NAME-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_NAME (constant)">TLV_TYPE_VALUE_NAME</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_TYPE-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_TYPE (constant)">TLV_TYPE_VALUE_TYPE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_SZ-constant" title="REG_SZ (constant)">REG_SZ</a></span></span> <span class='op'>||</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_MULTI_SZ-constant" title="REG_MULTI_SZ (constant)">REG_MULTI_SZ</a></span></span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>+=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>elsif</span> <span class='id identifier rubyid_type'>type</span> <span class='op'>==</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_DWORD-constant" title="REG_DWORD (constant)">REG_DWORD</a></span></span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>V</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_VALUE_DATA-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_VALUE_DATA (constant)">TLV_TYPE_VALUE_DATA</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_data'>data</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="splitkey-class_method">
+  
+    .<strong>splitkey</strong>(str)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Split the supplied full registry key into its root key and base key.  For instance, passing HKLMSoftwareDog will return [ HKEY_LOCAL_MACHINE, &#39;SoftwareDog&#39; ]</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+420
+421
+422
+423
+424
+425
+426</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 420</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_splitkey'>splitkey</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span> <span class='op'>=~</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^(.+?)[\\]{1,}(.*)$</span><span class='regexp_end'>/</span></span><span class='rparen'>)</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_key2str'>key2str</span><span class='lparen'>(</span><span class='backref'>$1</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='backref'>$2</span> <span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='lbracket'>[</span> <span class='id identifier rubyid_key2str'>key2str</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span><span class='comma'>,</span> <span class='kw'>nil</span> <span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type2str-class_method">
+  
+    .<strong>type2str</strong>(type)  &#x21d2; <tt>Integer</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the integer value associated with the supplied registry value type (like REG_SZ).</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>type</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>A Windows registry type constant name, e.g. &#39;REG_SZ&#39;</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Integer</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>one of the `REG_*` constants</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms724884(v=vs.85).aspx" target="_parent" title="https://msdn.microsoft.com/en-us/library/windows/desktop/ms724884(v=vs.85).aspx">https://msdn.microsoft.com/en-us/library/windows/desktop/ms724884(v=vs.85).aspx</a></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 402</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type2str'>type2str</span><span class='lparen'>(</span><span class='id identifier rubyid_type'>type</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_BINARY</span><span class='tstring_end'>&#39;</span></span>    <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_BINARY-constant" title="REG_BINARY (constant)">REG_BINARY</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_DWORD</span><span class='tstring_end'>&#39;</span></span>     <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_DWORD-constant" title="REG_DWORD (constant)">REG_DWORD</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_EXPAND_SZ</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_EXPAND_SZ-constant" title="REG_EXPAND_SZ (constant)">REG_EXPAND_SZ</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_MULTI_SZ</span><span class='tstring_end'>&#39;</span></span>  <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_MULTI_SZ-constant" title="REG_MULTI_SZ (constant)">REG_MULTI_SZ</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_NONE</span><span class='tstring_end'>&#39;</span></span>      <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_NONE-constant" title="REG_NONE (constant)">REG_NONE</a></span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>REG_SZ</span><span class='tstring_end'>&#39;</span></span>        <span class='kw'>then</span> <span class='const'><span class='object_link'><a href="../../../../../../top-level-namespace.html#REG_SZ-constant" title="REG_SZ (constant)">REG_SZ</a></span></span>
+  <span class='kw'>else</span>
+    <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="unload_key-class_method">
+  
+    .<strong>unload_key</strong>(root_key, base_key)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/extensions/stdapi/sys/registry.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='const'><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Extensions::Stdapi::Sys::Registry (class)">Registry</a></span></span><span class='period'>.</span><span class='id identifier rubyid_unload_key'>unload_key</span><span class='lparen'>(</span><span class='id identifier rubyid_root_key'>root_key</span><span class='comma'>,</span><span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../../../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY (constant)">COMMAND_ID_STDAPI_REGISTRY_UNLOAD_KEY</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_ROOT_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_ROOT_KEY (constant)">TLV_TYPE_ROOT_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_root_key'>root_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Stdapi.html#TLV_TYPE_BASE_KEY-constant" title="Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_BASE_KEY (constant)">TLV_TYPE_BASE_KEY</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_base_key'>base_key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv'>get_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../../../Meterpreter.html#TLV_TYPE_RESULT-constant" title="Rex::Post::Meterpreter::TLV_TYPE_RESULT (constant)">TLV_TYPE_RESULT</a></span></span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_value'>value</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:02 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

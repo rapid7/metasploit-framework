@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework::LoginScanner::Base
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework::LoginScanner::Base";
+  relpath = '../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../_index.html">Index (B)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Framework.html" title="Metasploit::Framework (module)">Framework</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span></span>
+     &raquo; 
+    <span class="title">Base</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework::LoginScanner::Base
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd>ActiveSupport::Concern</dd>
+  </dl>
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>ActiveModel::Validations</dd>
+  </dl>
+  
+  
+
+  
+  <dl>
+    <dt>Included in:</dt>
+    <dd><span class='object_link'><a href="ACPP.html" title="Metasploit::Framework::LoginScanner::ACPP (class)">ACPP</a></span>, <span class='object_link'><a href="AFP.html" title="Metasploit::Framework::LoginScanner::AFP (class)">AFP</a></span>, <span class='object_link'><a href="DB2.html" title="Metasploit::Framework::LoginScanner::DB2 (class)">DB2</a></span>, <span class='object_link'><a href="FTP.html" title="Metasploit::Framework::LoginScanner::FTP (class)">FTP</a></span>, <span class='object_link'><a href="HTTP.html" title="Metasploit::Framework::LoginScanner::HTTP (class)">HTTP</a></span>, <span class='object_link'><a href="MQTT.html" title="Metasploit::Framework::LoginScanner::MQTT (class)">MQTT</a></span>, <span class='object_link'><a href="MSSQL.html" title="Metasploit::Framework::LoginScanner::MSSQL (class)">MSSQL</a></span>, <span class='object_link'><a href="MySQL.html" title="Metasploit::Framework::LoginScanner::MySQL (class)">MySQL</a></span>, <span class='object_link'><a href="POP3.html" title="Metasploit::Framework::LoginScanner::POP3 (class)">POP3</a></span>, <span class='object_link'><a href="Postgres.html" title="Metasploit::Framework::LoginScanner::Postgres (class)">Postgres</a></span>, <span class='object_link'><a href="Redis.html" title="Metasploit::Framework::LoginScanner::Redis (class)">Redis</a></span>, <span class='object_link'><a href="SMB.html" title="Metasploit::Framework::LoginScanner::SMB (class)">SMB</a></span>, <span class='object_link'><a href="SNMP.html" title="Metasploit::Framework::LoginScanner::SNMP (class)">SNMP</a></span>, <span class='object_link'><a href="SSH.html" title="Metasploit::Framework::LoginScanner::SSH (class)">SSH</a></span>, <span class='object_link'><a href="Telnet.html" title="Metasploit::Framework::LoginScanner::Telnet (class)">Telnet</a></span>, <span class='object_link'><a href="VMAUTHD.html" title="Metasploit::Framework::LoginScanner::VMAUTHD (class)">VMAUTHD</a></span>, <span class='object_link'><a href="VNC.html" title="Metasploit::Framework::LoginScanner::VNC (class)">VNC</a></span>, <span class='object_link'><a href="VarnishCLI.html" title="Metasploit::Framework::LoginScanner::VarnishCLI (class)">VarnishCLI</a></span></dd>
+  </dl>
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework/login_scanner/base.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This module provides the base behaviour for all of the LoginScanner classes. All of the LoginScanners should include this module to establish base behaviour</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+
+
+
+
+
+
+
+  
+  
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:32:16 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -1,0 +1,4019 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Sessions::Meterpreter
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Sessions::Meterpreter";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (M)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Sessions.html" title="Msf::Sessions (module)">Sessions</a></span></span>
+     &raquo; 
+    <span class="title">Meterpreter</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Sessions::Meterpreter
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></li>
+          
+            <li class="next">Msf::Sessions::Meterpreter</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span>, <span class='object_link'><a href="../Session/Comm.html" title="Msf::Session::Comm (module)">Msf::Session::Comm</a></span>, <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span>, <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/msf/base/sessions/meterpreter.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class represents a session compatible interface to a meterpreter server instance running on a remote machine.  It provides the means of interacting with the server instance both at an API level as well as at a console level.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Meterpreter_Java_Java.html" title="Msf::Sessions::Meterpreter_Java_Java (class)">Meterpreter_Java_Java</a></span>, <span class='object_link'><a href="Meterpreter_Multi.html" title="Msf::Sessions::Meterpreter_Multi (class)">Meterpreter_Multi</a></span>, <span class='object_link'><a href="Meterpreter_Php_Php.html" title="Msf::Sessions::Meterpreter_Php_Php (class)">Meterpreter_Php_Php</a></span>, <span class='object_link'><a href="Meterpreter_Python_Python.html" title="Msf::Sessions::Meterpreter_Python_Python (class)">Meterpreter_Python_Python</a></span>, <span class='object_link'><a href="Meterpreter_aarch64_Apple_iOS.html" title="Msf::Sessions::Meterpreter_aarch64_Apple_iOS (class)">Meterpreter_aarch64_Apple_iOS</a></span>, <span class='object_link'><a href="Meterpreter_aarch64_Linux.html" title="Msf::Sessions::Meterpreter_aarch64_Linux (class)">Meterpreter_aarch64_Linux</a></span>, <span class='object_link'><a href="Meterpreter_armbe_Linux.html" title="Msf::Sessions::Meterpreter_armbe_Linux (class)">Meterpreter_armbe_Linux</a></span>, <span class='object_link'><a href="Meterpreter_armle_Apple_iOS.html" title="Msf::Sessions::Meterpreter_armle_Apple_iOS (class)">Meterpreter_armle_Apple_iOS</a></span>, <span class='object_link'><a href="Meterpreter_armle_Linux.html" title="Msf::Sessions::Meterpreter_armle_Linux (class)">Meterpreter_armle_Linux</a></span>, <span class='object_link'><a href="Meterpreter_mips64_Linux.html" title="Msf::Sessions::Meterpreter_mips64_Linux (class)">Meterpreter_mips64_Linux</a></span>, <span class='object_link'><a href="Meterpreter_mipsbe_Linux.html" title="Msf::Sessions::Meterpreter_mipsbe_Linux (class)">Meterpreter_mipsbe_Linux</a></span>, <span class='object_link'><a href="Meterpreter_mipsle_Linux.html" title="Msf::Sessions::Meterpreter_mipsle_Linux (class)">Meterpreter_mipsle_Linux</a></span>, <span class='object_link'><a href="Meterpreter_ppc64le_Linux.html" title="Msf::Sessions::Meterpreter_ppc64le_Linux (class)">Meterpreter_ppc64le_Linux</a></span>, <span class='object_link'><a href="Meterpreter_ppc_Linux.html" title="Msf::Sessions::Meterpreter_ppc_Linux (class)">Meterpreter_ppc_Linux</a></span>, <span class='object_link'><a href="Meterpreter_ppce500v2_Linux.html" title="Msf::Sessions::Meterpreter_ppce500v2_Linux (class)">Meterpreter_ppce500v2_Linux</a></span>, <span class='object_link'><a href="Meterpreter_x64_Linux.html" title="Msf::Sessions::Meterpreter_x64_Linux (class)">Meterpreter_x64_Linux</a></span>, <span class='object_link'><a href="Meterpreter_x64_OSX.html" title="Msf::Sessions::Meterpreter_x64_OSX (class)">Meterpreter_x64_OSX</a></span>, <span class='object_link'><a href="Meterpreter_x64_Win.html" title="Msf::Sessions::Meterpreter_x64_Win (class)">Meterpreter_x64_Win</a></span>, <span class='object_link'><a href="Meterpreter_x86_BSD.html" title="Msf::Sessions::Meterpreter_x86_BSD (class)">Meterpreter_x86_BSD</a></span>, <span class='object_link'><a href="Meterpreter_x86_Linux.html" title="Msf::Sessions::Meterpreter_x86_Linux (class)">Meterpreter_x86_Linux</a></span>, <span class='object_link'><a href="Meterpreter_x86_OSX.html" title="Msf::Sessions::Meterpreter_x86_OSX (class)">Meterpreter_x86_OSX</a></span>, <span class='object_link'><a href="Meterpreter_x86_Win.html" title="Msf::Sessions::Meterpreter_x86_Win (class)">Meterpreter_x86_Win</a></span>, <span class='object_link'><a href="Meterpreter_zarch_Linux.html" title="Msf::Sessions::Meterpreter_zarch_Linux (class)">Meterpreter_zarch_Linux</a></span></p>
+</div>
+
+
+
+  <h2>Constant Summary</h2>
+  
+  <h3 class="inherited">Constants included
+     from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#PACKET_TIMEOUT-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PACKET_TIMEOUT (constant)">Rex::Post::Meterpreter::PacketDispatcher::PACKET_TIMEOUT</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#PING_TIME-constant" title="Rex::Post::Meterpreter::PacketDispatcher::PING_TIME (constant)">Rex::Post::Meterpreter::PacketDispatcher::PING_TIME</a></span></p>
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#base_arch-instance_method" title="#base_arch (instance method)">#<strong>base_arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>These are the base arch/platform for the original payload, required for when the session is first created thanks to the fact that the DB session recording happens before the session is even established.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#base_platform-instance_method" title="#base_platform (instance method)">#<strong>base_platform</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute base_platform.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#console-instance_method" title="#console (instance method)">#<strong>console</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#max_threads-instance_method" title="#max_threads (instance method)">#<strong>max_threads</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute max_threads.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#rstream-instance_method" title="#rstream (instance method)">#<strong>rstream</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip_cleanup-instance_method" title="#skip_cleanup (instance method)">#<strong>skip_cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute skip_cleanup.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#skip_ssl-instance_method" title="#skip_ssl (instance method)">#<strong>skip_ssl</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute skip_ssl.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#target_id-instance_method" title="#target_id (instance method)">#<strong>target_id</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the value of attribute target_id.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#completed-instance_method" title="Rex::Ui::Interactive#completed (method)">#completed</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interacting-instance_method" title="Rex::Ui::Interactive#interacting (method)">#interacting</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#next_session-instance_method" title="Rex::Ui::Interactive#next_session (method)">#next_session</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_command_proc-instance_method" title="Rex::Ui::Interactive#on_command_proc (method)">#on_command_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#on_print_proc-instance_method" title="Rex::Ui::Interactive#on_print_proc (method)">#on_print_proc</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_suspend-instance_method" title="Rex::Ui::Interactive#orig_suspend (method)">#orig_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#orig_usr1-instance_method" title="Rex::Ui::Interactive#orig_usr1 (method)">#orig_usr1</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#user_input-instance_method" title="Rex::Ui::Subscriber::Input#user_input (method)">#user_input</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#user_output-instance_method" title="Rex::Ui::Subscriber::Output#user_output (method)">#user_output</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive-instance_method" title="Msf::Session#alive (method)">#alive</a></span>, <span class='object_link'><a href="../Session.html#db_record-instance_method" title="Msf::Session#db_record (method)">#db_record</a></span>, <span class='object_link'><a href="../Session.html#exploit-instance_method" title="Msf::Session#exploit (method)">#exploit</a></span>, <span class='object_link'><a href="../Session.html#exploit_datastore-instance_method" title="Msf::Session#exploit_datastore (method)">#exploit_datastore</a></span>, <span class='object_link'><a href="../Session.html#exploit_task-instance_method" title="Msf::Session#exploit_task (method)">#exploit_task</a></span>, <span class='object_link'><a href="../Session.html#exploit_uuid-instance_method" title="Msf::Session#exploit_uuid (method)">#exploit_uuid</a></span>, <span class='object_link'><a href="../Session.html#framework-instance_method" title="Msf::Session#framework (method)">#framework</a></span>, <span class='object_link'><a href="../Session.html#info-instance_method" title="Msf::Session#info (method)">#info</a></span>, <span class='object_link'><a href="../Session.html#machine_id-instance_method" title="Msf::Session#machine_id (method)">#machine_id</a></span>, <span class='object_link'><a href="../Session.html#payload_uuid-instance_method" title="Msf::Session#payload_uuid (method)">#payload_uuid</a></span>, <span class='object_link'><a href="../Session.html#routes-instance_method" title="Msf::Session#routes (method)">#routes</a></span>, <span class='object_link'><a href="../Session.html#sid-instance_method" title="Msf::Session#sid (method)">#sid</a></span>, <span class='object_link'><a href="../Session.html#sname-instance_method" title="Msf::Session#sname (method)">#sname</a></span>, <span class='object_link'><a href="../Session.html#target_host-instance_method" title="Msf::Session#target_host (method)">#target_host</a></span>, <span class='object_link'><a href="../Session.html#target_port-instance_method" title="Msf::Session#target_port (method)">#target_port</a></span>, <span class='object_link'><a href="../Session.html#username-instance_method" title="Msf::Session#username (method)">#username</a></span>, <span class='object_link'><a href="../Session.html#uuid-instance_method" title="Msf::Session#uuid (method)">#uuid</a></span>, <span class='object_link'><a href="../Session.html#via-instance_method" title="Msf::Session#via (method)">#via</a></span>, <span class='object_link'><a href="../Session.html#workspace-instance_method" title="Msf::Session#workspace (method)">#workspace</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#alive-instance_method" title="Rex::Post::Meterpreter::Client#alive (method)">#alive</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#capabilities-instance_method" title="Rex::Post::Meterpreter::Client#capabilities (method)">#capabilities</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#comm_timeout-instance_method" title="Rex::Post::Meterpreter::Client#comm_timeout (method)">#comm_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#commands-instance_method" title="Rex::Post::Meterpreter::Client#commands (method)">#commands</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#conn_id-instance_method" title="Rex::Post::Meterpreter::Client#conn_id (method)">#conn_id</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#encode_unicode-instance_method" title="Rex::Post::Meterpreter::Client#encode_unicode (method)">#encode_unicode</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#expiration-instance_method" title="Rex::Post::Meterpreter::Client#expiration (method)">#expiration</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ext-instance_method" title="Rex::Post::Meterpreter::Client#ext (method)">#ext</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ext_aliases-instance_method" title="Rex::Post::Meterpreter::Client#ext_aliases (method)">#ext_aliases</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#last_checkin-instance_method" title="Rex::Post::Meterpreter::Client#last_checkin (method)">#last_checkin</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#parser-instance_method" title="Rex::Post::Meterpreter::Client#parser (method)">#parser</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::Client#passive_dispatcher (method)">#passive_dispatcher</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#pivot_session-instance_method" title="Rex::Post::Meterpreter::Client#pivot_session (method)">#pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#response_timeout-instance_method" title="Rex::Post::Meterpreter::Client#response_timeout (method)">#response_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#retry_total-instance_method" title="Rex::Post::Meterpreter::Client#retry_total (method)">#retry_total</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#retry_wait-instance_method" title="Rex::Post::Meterpreter::Client#retry_wait (method)">#retry_wait</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#send_keepalives-instance_method" title="Rex::Post::Meterpreter::Client#send_keepalives (method)">#send_keepalives</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#sock-instance_method" title="Rex::Post::Meterpreter::Client#sock (method)">#sock</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ssl-instance_method" title="Rex::Post::Meterpreter::Client#ssl (method)">#ssl</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#ssl_cert-instance_method" title="Rex::Post::Meterpreter::Client#ssl_cert (method)">#ssl_cert</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#url-instance_method" title="Rex::Post::Meterpreter::Client#url (method)">#url</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">Rex::Post::Meterpreter::PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#pivot_listeners-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_listeners (method)">#pivot_listeners</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#pivot_sessions-instance_method" title="Rex::Post::Meterpreter::PivotContainer#pivot_sessions (method)">#pivot_sessions</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">Rex::Post::Meterpreter::ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#channels (method)">#channels</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#comm_mutex-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#comm_mutex (method)">#comm_mutex</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#dispatcher_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatcher_thread (method)">#dispatcher_thread</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#passive_service-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#passive_service (method)">#passive_service</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#receiver_thread-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receiver_thread (method)">#receiver_thread</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#recv_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#recv_queue (method)">#recv_queue</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_queue-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_queue (method)">#send_queue</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#session_guid-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#session_guid (method)">#session_guid</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#tlv_enc_key-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#tlv_enc_key (method)">#tlv_enc_key</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#waiters-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#waiters (method)">#waiters</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-class_method" title="type (class method)">.<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the session type as being &#39;meterpreter&#39;.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#_interact-instance_method" title="#_interact (instance method)">#<strong>_interact</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#arch-instance_method" title="#arch (instance method)">#<strong>arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get a string representation of the current session architecture.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#binary_suffix-instance_method" title="#binary_suffix (instance method)">#<strong>binary_suffix</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Generate a binary suffix based on arch.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#bootstrap-instance_method" title="#bootstrap (instance method)">#<strong>bootstrap</strong>(datastore = {}, handler = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session overrides.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#create-instance_method" title="#create (instance method)">#<strong>create</strong>(param)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Comm implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session overrides.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#execute_file-instance_method" title="#execute_file (instance method)">#<strong>execute_file</strong>(full_path, args)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Scriptable implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#find_internet_connected_address-instance_method" title="#find_internet_connected_address (instance method)">#<strong>find_internet_connected_address</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Rummage through this host&#39;s routes and interfaces looking for an address that it uses to talk to the internet.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#guess_target_platform-instance_method" title="#guess_target_platform (instance method)">#<strong>guess_target_platform</strong>(os)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#init_ui-instance_method" title="#init_ui (instance method)">#<strong>init_ui</strong>(input, output)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(rstream, opts = {})  &#x21d2; Meterpreter </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Initializes a meterpreter session instance using the supplied rstream that is to be used as the client&#39;s connection to the server.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#kill-instance_method" title="#kill (instance method)">#<strong>kill</strong>(reason = &#39;&#39;)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Terminates the session.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_priv-instance_method" title="#load_priv (instance method)">#<strong>load_priv</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load the priv extension.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_session_info-instance_method" title="#load_session_info (instance method)">#<strong>load_session_info</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Populate the session information.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#load_stdapi-instance_method" title="#load_stdapi (instance method)">#<strong>load_stdapi</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Load the stdapi extension.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#lookup_error-instance_method" title="#lookup_error (instance method)">#<strong>lookup_error</strong>(code)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Called by PacketDispatcher to resolve error codes to names.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#native_arch-instance_method" title="#native_arch (instance method)">#<strong>native_arch</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get a string representation of the architecture of the process in which the current session is running.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#platform-instance_method" title="#platform (instance method)">#<strong>platform</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Get a string representation of the current session platform.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#queue_cmd-instance_method" title="#queue_cmd (instance method)">#<strong>queue_cmd</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Run the supplied command as if it came from suer input.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#reset_ui-instance_method" title="#reset_ui (instance method)">#<strong>reset_ui</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#run_cmd-instance_method" title="#run_cmd (instance method)">#<strong>run_cmd</strong>(cmd, output_object = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Interactive implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_close-instance_method" title="#shell_close (instance method)">#<strong>shell_close</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_command-instance_method" title="#shell_command (instance method)">#<strong>shell_command</strong>(cmd)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_init-instance_method" title="#shell_init (instance method)">#<strong>shell_init</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_read-instance_method" title="#shell_read (instance method)">#<strong>shell_read</strong>(length = nil, timeout = 1)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#shell_write-instance_method" title="#shell_write (instance method)">#<strong>shell_write</strong>(buf)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_ssl%3F-instance_method" title="#supports_ssl? (instance method)">#<strong>supports_ssl?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Override for server implementations that can&#39;t do SSL.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#supports_zlib%3F-instance_method" title="#supports_zlib? (instance method)">#<strong>supports_zlib?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Override for server implementations that can&#39;t do zlib.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tunnel_to_s-instance_method" title="#tunnel_to_s (instance method)">#<strong>tunnel_to_s</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#type-instance_method" title="#type (instance method)">#<strong>type</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Calls the class method.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#update_session_info-instance_method" title="#update_session_info (instance method)">#<strong>update_session_info</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="Scriptable.html" title="Msf::Sessions::Scriptable (module)">Scriptable</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="Scriptable.html#execute_script-instance_method" title="Msf::Sessions::Scriptable#execute_script (method)">#execute_script</a></span>, <span class='object_link'><a href="Scriptable.html#included-class_method" title="Msf::Sessions::Scriptable.included (method)">included</a></span>, <span class='object_link'><a href="Scriptable.html#legacy_script_to_post_module-instance_method" title="Msf::Sessions::Scriptable#legacy_script_to_post_module (method)">#legacy_script_to_post_module</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html" title="Msf::Session::Provider::SingleCommandShell (module)">Msf::Session::Provider::SingleCommandShell</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#set_shell_token_index-instance_method" title="Msf::Session::Provider::SingleCommandShell#set_shell_token_index (method)">#set_shell_token_index</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token (method)">#shell_command_token</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_unix-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_unix (method)">#shell_command_token_unix</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_command_token_win32-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_command_token_win32 (method)">#shell_command_token_win32</a></span>, <span class='object_link'><a href="../Session/Provider/SingleCommandShell.html#shell_read_until_token-instance_method" title="Msf::Session::Provider::SingleCommandShell#shell_read_until_token (method)">#shell_read_until_token</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session/Interactive.html" title="Msf::Session::Interactive (module)">Msf::Session::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session/Interactive.html#_interact_complete-instance_method" title="Msf::Session::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_interrupt-instance_method" title="Msf::Session::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_suspend-instance_method" title="Msf::Session::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../Session/Interactive.html#_usr1-instance_method" title="Msf::Session::Interactive#_usr1 (method)">#_usr1</a></span>, <span class='object_link'><a href="../Session/Interactive.html#interactive%3F-instance_method" title="Msf::Session::Interactive#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_local-instance_method" title="Msf::Session::Interactive#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session/Interactive.html#tunnel_peer-instance_method" title="Msf::Session::Interactive#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session/Interactive.html#user_want_abort%3F-instance_method" title="Msf::Session::Interactive#user_want_abort? (method)">#user_want_abort?</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Interactive.html" title="Rex::Ui::Interactive (module)">Rex::Ui::Interactive</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interact_complete-instance_method" title="Rex::Ui::Interactive#_interact_complete (method)">#_interact_complete</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_interrupt-instance_method" title="Rex::Ui::Interactive#_interrupt (method)">#_interrupt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_local_fd-instance_method" title="Rex::Ui::Interactive#_local_fd (method)">#_local_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_remote_fd-instance_method" title="Rex::Ui::Interactive#_remote_fd (method)">#_remote_fd</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_local_write_remote-instance_method" title="Rex::Ui::Interactive#_stream_read_local_write_remote (method)">#_stream_read_local_write_remote</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_stream_read_remote_write_local-instance_method" title="Rex::Ui::Interactive#_stream_read_remote_write_local (method)">#_stream_read_remote_write_local</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#_suspend-instance_method" title="Rex::Ui::Interactive#_suspend (method)">#_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#detach-instance_method" title="Rex::Ui::Interactive#detach (method)">#detach</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_suspend-instance_method" title="Rex::Ui::Interactive#handle_suspend (method)">#handle_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#handle_usr1-instance_method" title="Rex::Ui::Interactive#handle_usr1 (method)">#handle_usr1</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact-instance_method" title="Rex::Ui::Interactive#interact (method)">#interact</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#interact_stream-instance_method" title="Rex::Ui::Interactive#interact_stream (method)">#interact_stream</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt-instance_method" title="Rex::Ui::Interactive#prompt (method)">#prompt</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#prompt_yesno-instance_method" title="Rex::Ui::Interactive#prompt_yesno (method)">#prompt_yesno</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_suspend-instance_method" title="Rex::Ui::Interactive#restore_suspend (method)">#restore_suspend</a></span>, <span class='object_link'><a href="../../Rex/Ui/Interactive.html#restore_usr1-instance_method" title="Rex::Ui::Interactive#restore_usr1 (method)">#restore_usr1</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber.html" title="Rex::Ui::Subscriber (module)">Rex::Ui::Subscriber</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber.html#copy_ui-instance_method" title="Rex::Ui::Subscriber#copy_ui (method)">#copy_ui</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html" title="Rex::Ui::Subscriber::Input (module)">Rex::Ui::Subscriber::Input</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Input.html#gets-instance_method" title="Rex::Ui::Subscriber::Input#gets (method)">#gets</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html" title="Rex::Ui::Subscriber::Output (module)">Rex::Ui::Subscriber::Output</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#flush-instance_method" title="Rex::Ui::Subscriber::Output#flush (method)">#flush</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print-instance_method" title="Rex::Ui::Subscriber::Output#print (method)">#print</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_blank_line-instance_method" title="Rex::Ui::Subscriber::Output#print_blank_line (method)">#print_blank_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_error-instance_method" title="Rex::Ui::Subscriber::Output#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_good-instance_method" title="Rex::Ui::Subscriber::Output#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_line-instance_method" title="Rex::Ui::Subscriber::Output#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_status-instance_method" title="Rex::Ui::Subscriber::Output#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../../Rex/Ui/Subscriber/Output.html#print_warning-instance_method" title="Rex::Ui::Subscriber::Output#print_warning (method)">#print_warning</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../Session.html" title="Msf::Session (module)">Msf::Session</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Session.html#alive%3F-instance_method" title="Msf::Session#alive? (method)">#alive?</a></span>, <span class='object_link'><a href="../Session.html#dead%3F-instance_method" title="Msf::Session#dead? (method)">#dead?</a></span>, <span class='object_link'><a href="../Session.html#inspect-instance_method" title="Msf::Session#inspect (method)">#inspect</a></span>, <span class='object_link'><a href="../Session.html#interactive%3F-instance_method" title="Msf::Session#interactive? (method)">#interactive?</a></span>, <span class='object_link'><a href="../Session.html#log_file_name-instance_method" title="Msf::Session#log_file_name (method)">#log_file_name</a></span>, <span class='object_link'><a href="../Session.html#log_source-instance_method" title="Msf::Session#log_source (method)">#log_source</a></span>, <span class='object_link'><a href="../Session.html#name-instance_method" title="Msf::Session#name (method)">#name</a></span>, <span class='object_link'><a href="../Session.html#name=-instance_method" title="Msf::Session#name= (method)">#name=</a></span>, <span class='object_link'><a href="../Session.html#register%3F-instance_method" title="Msf::Session#register? (method)">#register?</a></span>, <span class='object_link'><a href="../Session.html#session_host-instance_method" title="Msf::Session#session_host (method)">#session_host</a></span>, <span class='object_link'><a href="../Session.html#session_host=-instance_method" title="Msf::Session#session_host= (method)">#session_host=</a></span>, <span class='object_link'><a href="../Session.html#session_port-instance_method" title="Msf::Session#session_port (method)">#session_port</a></span>, <span class='object_link'><a href="../Session.html#session_port=-instance_method" title="Msf::Session#session_port= (method)">#session_port=</a></span>, <span class='object_link'><a href="../Session.html#session_type-instance_method" title="Msf::Session#session_type (method)">#session_type</a></span>, <span class='object_link'><a href="../Session.html#set_from_exploit-instance_method" title="Msf::Session#set_from_exploit (method)">#set_from_exploit</a></span>, <span class='object_link'><a href="../Session.html#set_via-instance_method" title="Msf::Session#set_via (method)">#set_via</a></span>, <span class='object_link'><a href="../Session.html#tunnel_local-instance_method" title="Msf::Session#tunnel_local (method)">#tunnel_local</a></span>, <span class='object_link'><a href="../Session.html#tunnel_peer-instance_method" title="Msf::Session#tunnel_peer (method)">#tunnel_peer</a></span>, <span class='object_link'><a href="../Session.html#via_exploit-instance_method" title="Msf::Session#via_exploit (method)">#via_exploit</a></span>, <span class='object_link'><a href="../Session.html#via_payload-instance_method" title="Msf::Session#via_payload (method)">#via_payload</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html" title="Rex::Post::Meterpreter::Client (class)">Rex::Post::Meterpreter::Client</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#add_extension-instance_method" title="Rex::Post::Meterpreter::Client#add_extension (method)">#add_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#check_ext_hash-class_method" title="Rex::Post::Meterpreter::Client.check_ext_hash (method)">check_ext_hash</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#cleanup_meterpreter-instance_method" title="Rex::Post::Meterpreter::Client#cleanup_meterpreter (method)">#cleanup_meterpreter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#default_timeout-class_method" title="Rex::Post::Meterpreter::Client.default_timeout (method)">default_timeout</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#deregister_extension-instance_method" title="Rex::Post::Meterpreter::Client#deregister_extension (method)">#deregister_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#deregister_extension_alias-instance_method" title="Rex::Post::Meterpreter::Client#deregister_extension_alias (method)">#deregister_extension_alias</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#dump_extension_tree-instance_method" title="Rex::Post::Meterpreter::Client#dump_extension_tree (method)">#dump_extension_tree</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#each_extension-instance_method" title="Rex::Post::Meterpreter::Client#each_extension (method)">#each_extension</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#generate_ssl_context-instance_method" title="Rex::Post::Meterpreter::Client#generate_ssl_context (method)">#generate_ssl_context</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#init_meterpreter-instance_method" title="Rex::Post::Meterpreter::Client#init_meterpreter (method)">#init_meterpreter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#lookup_error-class_method" title="Rex::Post::Meterpreter::Client.lookup_error (method)">lookup_error</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#method_missing-instance_method" title="Rex::Post::Meterpreter::Client#method_missing (method)">#method_missing</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#register_extension_alias-instance_method" title="Rex::Post::Meterpreter::Client#register_extension_alias (method)">#register_extension_alias</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#register_extension_aliases-instance_method" title="Rex::Post::Meterpreter::Client#register_extension_aliases (method)">#register_extension_aliases</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#set_ext_hash-class_method" title="Rex::Post::Meterpreter::Client.set_ext_hash (method)">set_ext_hash</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#swap_sock_plain_to_ssl-instance_method" title="Rex::Post::Meterpreter::Client#swap_sock_plain_to_ssl (method)">#swap_sock_plain_to_ssl</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#swap_sock_ssl_to_plain-instance_method" title="Rex::Post::Meterpreter::Client#swap_sock_ssl_to_plain (method)">#swap_sock_ssl_to_plain</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#unicode_filter_decode-instance_method" title="Rex::Post::Meterpreter::Client#unicode_filter_decode (method)">#unicode_filter_decode</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#unicode_filter_encode-instance_method" title="Rex::Post::Meterpreter::Client#unicode_filter_encode (method)">#unicode_filter_encode</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html" title="Rex::Post::Meterpreter::PivotContainer (module)">Rex::Post::Meterpreter::PivotContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#add_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_listener (method)">#add_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#add_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#add_pivot_session (method)">#add_pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#find_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_listener (method)">#find_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#find_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#find_pivot_session (method)">#find_pivot_session</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#initialize_pivots-instance_method" title="Rex::Post::Meterpreter::PivotContainer#initialize_pivots (method)">#initialize_pivots</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#remove_pivot_listener-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_listener (method)">#remove_pivot_listener</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PivotContainer.html#remove_pivot_session-instance_method" title="Rex::Post::Meterpreter::PivotContainer#remove_pivot_session (method)">#remove_pivot_session</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html" title="Rex::Post::Meterpreter::ChannelContainer (module)">Rex::Post::Meterpreter::ChannelContainer</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#add_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#add_channel (method)">#add_channel</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#find_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#find_channel (method)">#find_channel</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#initialize_channels-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#initialize_channels (method)">#initialize_channels</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/ChannelContainer.html#remove_channel-instance_method" title="Rex::Post::Meterpreter::ChannelContainer#remove_channel (method)">#remove_channel</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html" title="Rex::Post::Meterpreter::PacketDispatcher (module)">Rex::Post::Meterpreter::PacketDispatcher</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#add_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#add_response_waiter (method)">#add_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#decrypt_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#decrypt_inbound_packet (method)">#decrypt_inbound_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#deregister_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#deregister_inbound_handler (method)">#deregister_inbound_handler</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#dispatch_inbound_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#dispatch_inbound_packet (method)">#dispatch_inbound_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#initialize_inbound_handlers-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_inbound_handlers (method)">#initialize_inbound_handlers</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#initialize_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#initialize_passive_dispatcher (method)">#initialize_passive_dispatcher</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#keepalive-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#keepalive (method)">#keepalive</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#monitor_socket-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_socket (method)">#monitor_socket</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#monitor_stop-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#monitor_stop (method)">#monitor_stop</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#notify_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#notify_response_waiter (method)">#notify_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#on_passive_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#on_passive_request (method)">#on_passive_request</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#pivot_keepalive_start-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#pivot_keepalive_start (method)">#pivot_keepalive_start</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#receive_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#receive_packet (method)">#receive_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#register_inbound_handler-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#register_inbound_handler (method)">#register_inbound_handler</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#remove_response_waiter-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#remove_response_waiter (method)">#remove_response_waiter</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_packet-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet (method)">#send_packet</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_packet_wait_response-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_packet_wait_response (method)">#send_packet_wait_response</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#send_request-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#send_request (method)">#send_request</a></span>, <span class='object_link'><a href="../../Rex/Post/Meterpreter/PacketDispatcher.html#shutdown_passive_dispatcher-instance_method" title="Rex::Post::Meterpreter::PacketDispatcher#shutdown_passive_dispatcher (method)">#shutdown_passive_dispatcher</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(rstream, opts = {})  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Sessions::Meterpreter (class)">Meterpreter</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Initializes a meterpreter session instance using the supplied rstream that is to be used as the client&#39;s connection to the server.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 54</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_rstream'>rstream</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='op'>=</span><span class='lbrace'>{</span><span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:capabilities</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+    <span class='symbol'>:ssl</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span><span class='comma'>,</span>
+    <span class='symbol'>:zlib</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_supports_zlib?'>supports_zlib?</span>
+  <span class='rbrace'>}</span>
+
+  <span class='comment'># The caller didn&#39;t request to skip ssl, so make sure we support it
+</span>  <span class='kw'>if</span> <span class='kw'>not</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:skip_ssl</span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_merge!'>merge!</span><span class='lparen'>(</span><span class='symbol'>:skip_ssl</span> <span class='op'>=&gt;</span> <span class='lparen'>(</span><span class='kw'>not</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span><span class='rparen'>)</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Parse options passed in via the datastore
+</span>  <span class='comment'>#
+</span>
+  <span class='comment'># Extract the HandlerSSLCert option if specified by the user
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span> <span class='kw'>and</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HandlerSSLCert</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:ssl_cert</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='lbracket'>[</span><span class='symbol'>:datastore</span><span class='rbracket'>]</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>HandlerSSLCert</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Don&#39;t pass the datastore into the init_meterpreter method
+</span>  <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='symbol'>:datastore</span><span class='rparen'>)</span>
+
+  <span class='comment'># Assume by default that 10 threads is a safe number for this session
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_max_threads'>max_threads</span> <span class='op'>||=</span> <span class='int'>10</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Initialize the meterpreter client
+</span>  <span class='comment'>#
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_init_meterpreter'>init_meterpreter</span><span class='lparen'>(</span><span class='id identifier rubyid_rstream'>rstream</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+
+  <span class='comment'>#
+</span>  <span class='comment'># Create the console instance
+</span>  <span class='comment'>#
+</span>  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_console'>console</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Post.html" title="Rex::Post (module)">Post</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Post/Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Post/Meterpreter/Ui.html" title="Rex::Post::Meterpreter::Ui (module)">Ui</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Post/Meterpreter/Ui/Console.html" title="Rex::Post::Meterpreter::Ui::Console (class)">Console</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Post/Meterpreter/Ui/Console.html#initialize-instance_method" title="Rex::Post::Meterpreter::Ui::Console#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+<div id="method_missing_details" class="method_details_list">
+  <h2>Dynamic Method Handling</h2>
+  <p class="notice super">
+    This class handles dynamic methods through the <tt>method_missing</tt> method
+    
+      in the class <span class='object_link'><a href="../../Rex/Post/Meterpreter/Client.html#method_missing-instance_method" title="Rex::Post::Meterpreter::Client#method_missing (method)">Rex::Post::Meterpreter::Client</a></span>
+    
+  </p>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="base_arch=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="base_arch-instance_method">
+  
+    #<strong>base_arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>These are the base arch/platform for the original payload, required for when the session is first created thanks to the fact that the DB session recording happens before the session is even established.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+668
+669
+670</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 668</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_base_arch'>base_arch</span>
+  <span class='ivar'>@base_arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="base_platform=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="base_platform-instance_method">
+  
+    #<strong>base_platform</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute base_platform.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+669
+670
+671</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 669</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_base_platform'>base_platform</span>
+  <span class='ivar'>@base_platform</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="console=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="console-instance_method">
+  
+    #<strong>console</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+671
+672
+673</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 671</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_console'>console</span>
+  <span class='ivar'>@console</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="max_threads=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="max_threads-instance_method">
+  
+    #<strong>max_threads</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute max_threads.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+675
+676
+677</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 675</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_max_threads'>max_threads</span>
+  <span class='ivar'>@max_threads</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="rstream=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="rstream-instance_method">
+  
+    #<strong>rstream</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+679
+680
+681</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 679</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_rstream'>rstream</span>
+  <span class='ivar'>@rstream</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="skip_cleanup=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="skip_cleanup-instance_method">
+  
+    #<strong>skip_cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute skip_cleanup.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+673
+674
+675</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 673</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_skip_cleanup'>skip_cleanup</span>
+  <span class='ivar'>@skip_cleanup</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="skip_ssl=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="skip_ssl-instance_method">
+  
+    #<strong>skip_ssl</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute skip_ssl.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+672
+673
+674</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 672</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_skip_ssl'>skip_ssl</span>
+  <span class='ivar'>@skip_ssl</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id="target_id=-instance_method"></span>
+      <div class="method_details ">
+  <h3 class="signature " id="target_id-instance_method">
+  
+    #<strong>target_id</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the value of attribute target_id.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+674
+675
+676</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 674</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_target_id'>target_id</span>
+  <span class='ivar'>@target_id</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="type-class_method">
+  
+    .<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the session type as being &#39;meterpreter&#39;.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+96
+97
+98</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 96</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>meterpreter</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="_interact-instance_method">
+  
+    #<strong>_interact</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+<p>Interacts with the meterpreter client at a user interface level.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Raises:</p>
+<ul class="raise">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>EOFError</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 552</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__interact'>_interact</span>
+  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_interact'>on_session_interact</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MeterpreterPrompt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_update_prompt'>update_prompt</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>MeterpreterPrompt</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='comment'># Call the console interaction subsystem of the meterpreter client and
+</span>  <span class='comment'># pass it a block that returns whether or not we should still be
+</span>  <span class='comment'># interacting.  This will allow the shell to abort if interaction is
+</span>  <span class='comment'># canceled.
+</span>  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_interact'>interact</span> <span class='lbrace'>{</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_interacting'>interacting</span> <span class='op'>!=</span> <span class='kw'>true</span> <span class='rbrace'>}</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_framework'>framework</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># If the stop flag has been set, then that means the user exited.  Raise
+</span>  <span class='comment'># the EOFError so we can drop this handle like a bad habit.
+</span>  <span class='id identifier rubyid_raise'>raise</span> <span class='const'>EOFError</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_stopped?'>stopped?</span> <span class='op'>==</span> <span class='kw'>true</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="arch-instance_method">
+  
+    #<strong>arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get a string representation of the current session architecture</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+611
+612
+613
+614
+615
+616
+617
+618
+619
+620</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 611</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span>
+    <span class='comment'># return the actual arch of the current session if it&#39;s there
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>else</span>
+    <span class='comment'># otherwise just use the base for the session type tied to this handler.
+</span>    <span class='comment'># If we don&#39;t do this, storage of sessions in the DB dies
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base_arch'>base_arch</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="binary_suffix-instance_method">
+  
+    #<strong>binary_suffix</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Generate a binary suffix based on arch</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+634
+635
+636
+637
+638
+639
+640
+641
+642
+643
+644
+645
+646
+647
+648
+649
+650
+651
+652
+653
+654
+655
+656
+657
+658
+659
+660
+661
+662
+663</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 634</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_binary_suffix'>binary_suffix</span>
+  <span class='comment'># generate a file/binary suffix based on the current arch and platform.
+</span>  <span class='comment'># Platform-agnostic archs go first
+</span>  <span class='kw'>case</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>java</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>jar</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>python</span><span class='tstring_end'>&#39;</span></span>
+    <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>py</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='comment'># otherwise we fall back to the platform
+</span>    <span class='kw'>case</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='embexpr_end'>}</span><span class='tstring_content'>.dll</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>linux</span><span class='tstring_end'>&#39;</span></span> <span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>aix</span><span class='tstring_end'>&#39;</span></span> <span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>hpux</span><span class='tstring_end'>&#39;</span></span> <span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>irix</span><span class='tstring_end'>&#39;</span></span> <span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unix</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>bin</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>elf</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>osx</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>elf</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>java</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>jar</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>python</span><span class='tstring_end'>&#39;</span></span>
+      <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>py</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+    <span class='kw'>else</span>
+      <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="bootstrap-instance_method">
+  
+    #<strong>bootstrap</strong>(datastore = {}, handler = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 122</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_bootstrap'>bootstrap</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='id identifier rubyid_handler'>handler</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_session'>session</span> <span class='op'>=</span> <span class='kw'>self</span>
+
+  <span class='comment'># Configure unicode encoding before loading stdapi
+</span>  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_encode_unicode'>encode_unicode</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>EnableUnicodeEncoding</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_verification_timeout'>verification_timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoVerifySessionTimeout</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='op'>&amp;.</span><span class='id identifier rubyid_to_i'>to_i</span> <span class='op'>||</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_comm_timeout'>comm_timeout</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_tlv_enc_key'>tlv_enc_key</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_negotiate_tlv_encryption'>negotiate_tlv_encryption</span><span class='lparen'>(</span><span class='label'>timeout:</span> <span class='id identifier rubyid_verification_timeout'>verification_timeout</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>TimeoutError</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_tlv_enc_key'>tlv_enc_key</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='comment'># Fail-closed if TLV encryption can&#39;t be negotiated (close the session as invalid)
+</span>    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> failed to negotiate TLV encryption</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_error'><span class='object_link'><a href="../../top-level-namespace.html#print_error-instance_method" title="#print_error (method)">print_error</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Meterpreter session </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> is not valid and will be closed</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='comment'># Terminate the session without cleanup if it did not validate
+</span>    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_skip_cleanup'>skip_cleanup</span> <span class='op'>=</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_kill'>kill</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># always make sure that the new session has a new guid if it&#39;s not already known
+</span>  <span class='id identifier rubyid_guid'>guid</span> <span class='op'>=</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_guid'>session_guid</span>
+  <span class='kw'>if</span> <span class='id identifier rubyid_guid'>guid</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\x00</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='int'>16</span>
+    <span class='id identifier rubyid_guid'>guid</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='const'>SecureRandom</span><span class='period'>.</span><span class='id identifier rubyid_uuid'>uuid</span><span class='period'>.</span><span class='id identifier rubyid_gsub'>gsub</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>-</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_pack'>pack</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>H*</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_set_session_guid'>set_session_guid</span><span class='lparen'>(</span><span class='id identifier rubyid_guid'>guid</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_session_guid'>session_guid</span> <span class='op'>=</span> <span class='id identifier rubyid_guid'>guid</span>
+    <span class='comment'># TODO: New stageless session, do some account in the DB so we can track it later.
+</span>  <span class='kw'>else</span>
+    <span class='comment'># TODO: This session was either staged or previously known, and so we should do some accounting here!
+</span>  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_commands'>commands</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_get_loaded_extension_commands'>get_loaded_extension_commands</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>core</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+
+  <span class='comment'># Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoUnhookProcess</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>true</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load unhook</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>unhook_pe</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>unless</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoLoadStdapi</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>false</span>
+
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_load_stdapi'>load_stdapi</span>
+
+    <span class='kw'>unless</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoSystemInfo</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='kw'>false</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_load_session_info'>load_session_info</span>
+    <span class='kw'>end</span>
+
+    <span class='comment'># only load priv on native windows
+</span>    <span class='comment'># TODO: abstract this too, to remove windows stuff
+</span>    <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>windows</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&amp;&amp;</span> <span class='lbracket'>[</span><span class='const'>ARCH_X86</span><span class='comma'>,</span> <span class='const'>ARCH_X64</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_arch'>arch</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_load_priv'>load_priv</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># TODO: abstract this a little, perhaps a &quot;post load&quot; function that removes
+</span>  <span class='comment'># platform-specific stuff?
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>android</span><span class='tstring_end'>&#39;</span></span>
+    <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_load_android'>load_android</span>
+  <span class='kw'>end</span>
+
+  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>InitialAutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>AutoRunScript</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_key'>key</span><span class='op'>|</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='op'>||</span> <span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>
+      <span class='id identifier rubyid_args'>args</span> <span class='op'>=</span> <span class='const'>Shellwords</span><span class='period'>.</span><span class='id identifier rubyid_shellwords'>shellwords</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_print_status'>print_status</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Session ID </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_sid'>sid</span><span class='embexpr_end'>}</span><span class='tstring_content'> (</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>) processing </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'> &#39;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_datastore'>datastore</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_session'>session</span><span class='period'>.</span><span class='id identifier rubyid_execute_script'>execute_script</span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span><span class='comma'>,</span> <span class='op'>*</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Process the auto-run scripts for this session
+</span>  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:process_autoruns</span><span class='rparen'>)</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_process_autoruns'>process_autoruns</span><span class='lparen'>(</span><span class='id identifier rubyid_datastore'>datastore</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Tell the handler that we have a session
+</span>  <span class='id identifier rubyid_handler'>handler</span><span class='period'>.</span><span class='id identifier rubyid_on_session'>on_session</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_handler'>handler</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session overrides</p>
+
+<p>Cleans up the meterpreter client session.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+292
+293
+294
+295
+296</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 292</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='id identifier rubyid_cleanup_meterpreter'>cleanup_meterpreter</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="create-instance_method">
+  
+    #<strong>create</strong>(param)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Comm implementors</p>
+
+<p>Creates a connection based on the supplied parameters and returns it to the caller.  The connection is created relative to the remote machine on which the meterpreter server instance is running.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+591
+592</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 579</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># Notify handlers before we create the socket
+</span>  <span class='id identifier rubyid_notify_before_socket_create'>notify_before_socket_create</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_sock'>sock</span> <span class='op'>=</span> <span class='id identifier rubyid_net'>net</span><span class='period'>.</span><span class='id identifier rubyid_socket'>socket</span><span class='period'>.</span><span class='id identifier rubyid_create'>create</span><span class='lparen'>(</span><span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+
+  <span class='comment'># Notify now that we&#39;ve created the socket
+</span>  <span class='id identifier rubyid_notify_socket_created'>notify_socket_created</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_sock'>sock</span><span class='comma'>,</span> <span class='id identifier rubyid_param'>param</span><span class='rparen'>)</span>
+
+  <span class='comment'># Return the socket to the caller
+</span>  <span class='id identifier rubyid_sock'>sock</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session overrides</p>
+
+<p>Returns the session description.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+303
+304
+305</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 303</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Meterpreter</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="execute_file-instance_method">
+  
+    #<strong>execute_file</strong>(full_path, args)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Scriptable implementors</p>
+
+<p>Runs the Meterpreter script or resource file.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+313
+314
+315
+316
+317
+318
+319
+320</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 313</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_execute_file'>execute_file</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='comma'>,</span> <span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='comment'># Infer a Meterpreter script by .rb extension
+</span>  <span class='kw'>if</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_extname'>extname</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>.rb</span><span class='tstring_end'>&#39;</span></span>
+    <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Script.html" title="Rex::Script (module)">Script</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../../Rex/Script/Meterpreter.html" title="Rex::Script::Meterpreter (class)">Meterpreter</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="../../Rex/Script/Base.html#initialize-instance_method" title="Rex::Script::Base#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_run'><span class='object_link'><a href="../../Rex/Script/Base.html#run-instance_method" title="Rex::Script::Base#run (method)">run</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_args'>args</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_load_resource'>load_resource</span><span class='lparen'>(</span><span class='id identifier rubyid_full_path'>full_path</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="find_internet_connected_address-instance_method">
+  
+    #<strong>find_internet_connected_address</strong>  &#x21d2; <tt>String</tt><sup>?</sup>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Rummage through this host&#39;s routes and interfaces looking for an address that it uses to talk to the internet.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The address from which this host reaches the internet, as ASCII. e.g.: "192.168.100.156"</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>nil</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>If there is an interface with an address that matches <span class='object_link'><a href="../Session.html#session_host-instance_method" title="Msf::Session#session_host (method)">Msf::Session#session_host</a></span></p>
+</div>
+      
+    </li>
+  
+</ul>
+
+  <p class="tag_title">See Also:</p>
+  <ul class="see">
+    
+      <li><span class='object_link'><a href="../../Rex/Post/Meterpreter/Extensions/Stdapi/Net/Config.html#get_interfaces-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_interfaces (method)">Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_interfaces</a></span></li>
+    
+      <li><span class='object_link'><a href="../../Rex/Post/Meterpreter/Extensions/Stdapi/Net/Config.html#get_routes-instance_method" title="Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes (method)">Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config#get_routes</a></span></li>
+    
+  </ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+690
+691
+692
+693
+694
+695
+696
+697
+698
+699
+700
+701
+702
+703
+704
+705
+706
+707
+708
+709
+710
+711
+712
+713
+714
+715
+716
+717
+718
+719
+720
+721
+722
+723
+724
+725
+726
+727
+728
+729
+730
+731
+732
+733
+734
+735
+736
+737</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 690</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_find_internet_connected_address'>find_internet_connected_address</span>
+
+  <span class='id identifier rubyid_ifaces'>ifaces</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_net'>net</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_get_interfaces'>get_interfaces</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span> <span class='kw'>rescue</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_routes'>routes</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_net'>net</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_get_routes'>get_routes</span><span class='lparen'>(</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_flatten'>flatten</span> <span class='kw'>rescue</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+
+  <span class='comment'># Try to match our visible IP to a real interface
+</span>  <span class='id identifier rubyid_found'>found</span> <span class='op'>=</span> <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_ifaces'>ifaces</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span> <span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_a'>a</span><span class='op'>|</span> <span class='id identifier rubyid_a'>a</span> <span class='op'>==</span> <span class='id identifier rubyid_session_host'>session_host</span> <span class='rbrace'>}</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_nhost'>nhost</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+  <span class='comment'># If the host has no address that matches what we see, then one of
+</span>  <span class='comment'># us is behind NAT so we have to look harder.
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_found'>found</span>
+    <span class='comment'># Grab all routes to the internet
+</span>    <span class='id identifier rubyid_default_routes'>default_routes</span> <span class='op'>=</span> <span class='id identifier rubyid_routes'>routes</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_r'>r</span><span class='op'>|</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_subnet'>subnet</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0.0.0.0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_subnet'>subnet</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+
+    <span class='id identifier rubyid_default_routes'>default_routes</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_route'>route</span><span class='op'>|</span>
+      <span class='comment'># Now try to find an interface whose network includes this
+</span>      <span class='comment'># Route&#39;s gateway, which means it&#39;s the one the host uses to get
+</span>      <span class='comment'># to the interweb.
+</span>      <span class='id identifier rubyid_ifaces'>ifaces</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span>
+        <span class='comment'># Try all the addresses this interface has configured
+</span>        <span class='id identifier rubyid_addr_and_mask'>addr_and_mask</span> <span class='op'>=</span> <span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_addrs'>addrs</span><span class='period'>.</span><span class='id identifier rubyid_zip'>zip</span><span class='lparen'>(</span><span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_netmasks'>netmasks</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_addr'>addr</span><span class='comma'>,</span> <span class='id identifier rubyid_netmask'>netmask</span><span class='op'>|</span>
+          <span class='id identifier rubyid_bits'>bits</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='period'>.</span><span class='id identifier rubyid_net2bitmask'>net2bitmask</span><span class='lparen'>(</span> <span class='id identifier rubyid_netmask'>netmask</span> <span class='rparen'>)</span>
+          <span class='id identifier rubyid_range'>range</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Socket</span><span class='op'>::</span><span class='const'>RangeWalker</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_addr'>addr</span><span class='embexpr_end'>}</span><span class='tstring_content'>/</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_bits'>bits</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>rescue</span> <span class='kw'>nil</span>
+
+          <span class='op'>!</span><span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_range'>range</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_range'>range</span><span class='period'>.</span><span class='id identifier rubyid_valid?'>valid?</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_range'>range</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='id identifier rubyid_route'>route</span><span class='period'>.</span><span class='id identifier rubyid_gateway'>gateway</span><span class='rparen'>)</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_addr_and_mask'>addr_and_mask</span>
+          <span class='id identifier rubyid_nhost'>nhost</span> <span class='op'>=</span> <span class='id identifier rubyid_addr_and_mask'>addr_and_mask</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span>
+          <span class='kw'>break</span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='kw'>break</span> <span class='kw'>if</span> <span class='id identifier rubyid_nhost'>nhost</span>
+    <span class='kw'>end</span>
+
+    <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_nhost'>nhost</span>
+      <span class='comment'># No internal address matches what we see externally and no
+</span>      <span class='comment'># interface has a default route. Fall back to the first
+</span>      <span class='comment'># non-loopback address
+</span>      <span class='id identifier rubyid_non_loopback'>non_loopback</span> <span class='op'>=</span> <span class='id identifier rubyid_ifaces'>ifaces</span><span class='period'>.</span><span class='id identifier rubyid_find'>find</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_i'>i</span><span class='op'>|</span> <span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_ip'>ip</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>127.0.0.1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_i'>i</span><span class='period'>.</span><span class='id identifier rubyid_ip'>ip</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>::1</span><span class='tstring_end'>&quot;</span></span> <span class='rbrace'>}</span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_non_loopback'>non_loopback</span>
+        <span class='id identifier rubyid_nhost'>nhost</span> <span class='op'>=</span> <span class='id identifier rubyid_non_loopback'>non_loopback</span><span class='period'>.</span><span class='id identifier rubyid_ip'>ip</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_nhost'>nhost</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="guess_target_platform-instance_method">
+  
+    #<strong>guess_target_platform</strong>(os)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 437</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_guess_target_platform'>guess_target_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_os'>os</span><span class='rparen'>)</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_os'>os</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>windows</span><span class='regexp_end'>/i</span></span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/Windows.html" title="Msf::Module::Platform::Windows (class)">Windows</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>darwin</span><span class='regexp_end'>/i</span></span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/OSX.html" title="Msf::Module::Platform::OSX (class)">OSX</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>mac os ?x</span><span class='regexp_end'>/i</span></span>
+    <span class='comment'># this happens with java on OSX (for real!)
+</span>    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/OSX.html" title="Msf::Module::Platform::OSX (class)">OSX</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>freebsd</span><span class='regexp_end'>/i</span></span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/FreeBSD.html" title="Msf::Module::Platform::FreeBSD (class)">FreeBSD</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>openbsd</span><span class='regexp_end'>/i</span></span><span class='comma'>,</span> <span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>netbsd</span><span class='regexp_end'>/i</span></span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/BSD.html" title="Msf::Module::Platform::BSD (class)">BSD</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>else</span>
+    <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module.html" title="Msf::Module (class)">Module</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform.html" title="Msf::Module::Platform (class)">Platform</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Module/Platform/Linux.html" title="Msf::Module::Platform::Linux (class)">Linux</a></span></span><span class='period'>.</span><span class='id identifier rubyid_realname'><span class='object_link'><a href="../Module/Platform.html#realname-class_method" title="Msf::Module::Platform.realname (method)">realname</a></span></span><span class='period'>.</span><span class='id identifier rubyid_downcase'>downcase</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="init_ui-instance_method">
+  
+    #<strong>init_ui</strong>(input, output)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+<p>Initializes the console&#39;s I/O handles.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+328
+329
+330
+331
+332
+333
+334
+335</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 328</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span> <span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_input'>user_input</span> <span class='op'>=</span> <span class='id identifier rubyid_input'>input</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_user_output'>user_output</span> <span class='op'>=</span> <span class='id identifier rubyid_output'>output</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_init_ui'>init_ui</span><span class='lparen'>(</span><span class='id identifier rubyid_input'>input</span><span class='comma'>,</span> <span class='id identifier rubyid_output'>output</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_set_log_source'>set_log_source</span><span class='lparen'>(</span><span class='id identifier rubyid_log_source'>log_source</span><span class='rparen'>)</span>
+
+  <span class='kw'>super</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="kill-instance_method">
+  
+    #<strong>kill</strong>(reason = &#39;&#39;)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Terminates the session</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+350
+351
+352
+353
+354
+355
+356
+357
+358</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 350</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_kill'>kill</span><span class='lparen'>(</span><span class='id identifier rubyid_reason'>reason</span><span class='op'>=</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_cleanup_meterpreter'>cleanup_meterpreter</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span> <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sock'>sock</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span>
+  <span class='kw'>end</span>
+  <span class='comment'># deregister will actually trigger another cleanup
+</span>  <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_sessions'>sessions</span><span class='period'>.</span><span class='id identifier rubyid_deregister'>deregister</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_reason'>reason</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_priv-instance_method">
+  
+    #<strong>load_priv</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load the priv extension.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+404
+405
+406
+407
+408
+409</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 404</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_priv'>load_priv</span>
+  <span class='id identifier rubyid_original'>original</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load priv</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_session_info-instance_method">
+  
+    #<strong>load_session_info</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Populate the session information.</p>
+
+<p>Also reports a session_fingerprint note for host os normalization.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+472
+473
+474
+475
+476
+477
+478
+479
+480
+481
+482
+483
+484
+485
+486
+487
+488
+489
+490
+491
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518
+519
+520
+521
+522
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 460</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_session_info'>load_session_info</span>
+  <span class='kw'>begin</span>
+    <span class='op'>::</span><span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='int'>60</span><span class='rparen'>)</span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_update_session_info'>update_session_info</span>
+
+      <span class='id identifier rubyid_hobj'>hobj</span> <span class='op'>=</span> <span class='kw'>nil</span>
+
+      <span class='id identifier rubyid_nhost'>nhost</span> <span class='op'>=</span> <span class='id identifier rubyid_find_internet_connected_address'>find_internet_connected_address</span>
+
+      <span class='id identifier rubyid_original_session_host'>original_session_host</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span>
+      <span class='comment'># If we found a better IP address for this session, change it
+</span>      <span class='comment'># up.  Only handle cases where the DB is not connected here
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_nhost'>nhost</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span><span class='rparen'>)</span>
+        <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span> <span class='op'>=</span> <span class='id identifier rubyid_nhost'>nhost</span>
+      <span class='kw'>end</span>
+
+      <span class='comment'># The rest of this requires a database, so bail if it&#39;s not
+</span>      <span class='comment'># there
+</span>      <span class='kw'>return</span> <span class='kw'>if</span> <span class='op'>!</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_active'>active</span><span class='rparen'>)</span>
+
+      <span class='op'>::</span><span class='const'><span class='object_link'><a href="../../ApplicationRecord.html" title="ApplicationRecord (class)">ApplicationRecord</a></span></span><span class='period'>.</span><span class='id identifier rubyid_connection_pool'>connection_pool</span><span class='period'>.</span><span class='id identifier rubyid_with_connection'>with_connection</span> <span class='lbrace'>{</span>
+        <span class='id identifier rubyid_wspace'>wspace</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_find_workspace'>find_workspace</span><span class='lparen'>(</span><span class='id identifier rubyid_workspace'>workspace</span><span class='rparen'>)</span>
+
+        <span class='comment'># Account for finding ourselves on a different host
+</span>        <span class='kw'>if</span> <span class='id identifier rubyid_nhost'>nhost</span> <span class='kw'>and</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_db_record'>db_record</span>
+          <span class='comment'># Create or switch to a new host in the database
+</span>          <span class='id identifier rubyid_hobj'>hobj</span> <span class='op'>=</span> <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span> <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_nhost'>nhost</span><span class='rparen'>)</span>
+          <span class='kw'>if</span> <span class='id identifier rubyid_hobj'>hobj</span>
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_session_host'>session_host</span> <span class='op'>=</span> <span class='id identifier rubyid_nhost'>nhost</span>
+            <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_db_record'>db_record</span><span class='period'>.</span><span class='id identifier rubyid_host_id'>host_id</span> <span class='op'>=</span> <span class='id identifier rubyid_hobj'>hobj</span><span class='lbracket'>[</span><span class='symbol'>:id</span><span class='rbracket'>]</span>
+          <span class='kw'>end</span>
+        <span class='kw'>end</span>
+
+        <span class='id identifier rubyid_sysinfo'>sysinfo</span> <span class='op'>=</span> <span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span>
+        <span class='id identifier rubyid_host'>host</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util.html" title="Msf::Util (module)">Util</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="../Util/Host.html" title="Msf::Util::Host (module)">Host</a></span></span><span class='period'>.</span><span class='id identifier rubyid_normalize_host'><span class='object_link'><a href="../Util/Host.html#normalize_host-class_method" title="Msf::Util::Host.normalize_host (method)">normalize_host</a></span></span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+
+        <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+          <span class='symbol'>:type</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host.os.session_fingerprint</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+          <span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_host'>host</span><span class='comma'>,</span>
+          <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+          <span class='symbol'>:data</span> <span class='op'>=&gt;</span> <span class='lbrace'>{</span>
+            <span class='symbol'>:name</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Computer</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='symbol'>:os</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+            <span class='symbol'>:arch</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Architecture</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='comma'>,</span>
+          <span class='rbrace'>}</span>
+        <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+        <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_db_record'>db_record</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_update_session'>update_session</span><span class='lparen'>(</span><span class='kw'>self</span><span class='rparen'>)</span>
+        <span class='kw'>end</span>
+
+        <span class='comment'># XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
+</span>        <span class='comment'># framework.db.update_host_via_sysinfo(:host =&gt; self, :workspace =&gt; wspace, :info =&gt; sysinfo)
+</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_nhost'>nhost</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+            <span class='symbol'>:type</span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host.nat.server</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='symbol'>:host</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_original_session_host'>original_session_host</span><span class='comma'>,</span>
+            <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+            <span class='symbol'>:data</span>      <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:info</span>   <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This device is acting as a NAT gateway for </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_nhost'>nhost</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:client</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_nhost'>nhost</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+            <span class='symbol'>:update</span>    <span class='op'>=&gt;</span> <span class='symbol'>:unique_data</span>
+          <span class='rbrace'>}</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_original_session_host'>original_session_host</span><span class='comma'>,</span> <span class='symbol'>:purpose</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>firewall</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_note'>report_note</span><span class='lparen'>(</span><span class='lbrace'>{</span>
+            <span class='symbol'>:type</span>      <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>host.nat.client</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+            <span class='symbol'>:host</span>      <span class='op'>=&gt;</span> <span class='id identifier rubyid_nhost'>nhost</span><span class='comma'>,</span>
+            <span class='symbol'>:workspace</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_wspace'>wspace</span><span class='comma'>,</span>
+            <span class='symbol'>:data</span>      <span class='op'>=&gt;</span> <span class='lbrace'>{</span> <span class='symbol'>:info</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>This device is traversing NAT gateway </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_original_session_host'>original_session_host</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='symbol'>:server</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_original_session_host'>original_session_host</span> <span class='rbrace'>}</span><span class='comma'>,</span>
+            <span class='symbol'>:update</span>    <span class='op'>=&gt;</span> <span class='symbol'>:unique_data</span>
+          <span class='rbrace'>}</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_db'>db</span><span class='period'>.</span><span class='id identifier rubyid_report_host'>report_host</span><span class='lparen'>(</span><span class='symbol'>:host</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_nhost'>nhost</span><span class='comma'>,</span> <span class='symbol'>:purpose</span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>client</span><span class='tstring_end'>&#39;</span></span> <span class='rparen'>)</span>
+        <span class='kw'>end</span>
+      <span class='rbrace'>}</span>
+
+    <span class='kw'>end</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Interrupt</span>
+    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Interrupt while loading sysinfo: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='embexpr_end'>}</span><span class='tstring_content'>: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='gvar'>$!</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='comment'># Log the error but otherwise ignore it so we don&#39;t kill the
+</span>    <span class='comment'># session if reporting failed for some reason
+</span>    <span class='id identifier rubyid_elog'><span class='object_link'><a href="../../top-level-namespace.html#elog-instance_method" title="#elog (method)">elog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Error loading sysinfo</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='label'>error:</span> <span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dlog'><span class='object_link'><a href="../../top-level-namespace.html#dlog-instance_method" title="#dlog (method)">dlog</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Call stack:\n</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_backtrace'>backtrace</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="load_stdapi-instance_method">
+  
+    #<strong>load_stdapi</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Load the stdapi extension.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+394
+395
+396
+397
+398
+399</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 394</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_load_stdapi'>load_stdapi</span>
+  <span class='id identifier rubyid_original'>original</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>load stdapi</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_disable_output'>disable_output</span> <span class='op'>=</span> <span class='id identifier rubyid_original'>original</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="lookup_error-instance_method">
+  
+    #<strong>lookup_error</strong>(code)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Called by PacketDispatcher to resolve error codes to names. This is the default version (return the number itself)</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+283
+284
+285</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 283</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_lookup_error'>lookup_error</span><span class='lparen'>(</span><span class='id identifier rubyid_code'>code</span><span class='rparen'>)</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_code'>code</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="native_arch-instance_method">
+  
+    #<strong>native_arch</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get a string representation of the architecture of the process in which the current session is running. This defaults to the same value of arch but can be overridden by specific meterpreter implementations to add support.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+627
+628
+629</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 627</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_native_arch'>native_arch</span>
+  <span class='id identifier rubyid_arch'>arch</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="platform-instance_method">
+  
+    #<strong>platform</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Get a string representation of the current session platform</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+597
+598
+599
+600
+601
+602
+603
+604
+605
+606</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 597</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span>
+    <span class='comment'># return the actual platform of the current session if it&#39;s there
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span>
+  <span class='kw'>else</span>
+    <span class='comment'># otherwise just use the base for the session type tied to this handler.
+</span>    <span class='comment'># If we don&#39;t do this, storage of sessions in the DB dies
+</span>    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_base_platform'>base_platform</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="queue_cmd-instance_method">
+  
+    #<strong>queue_cmd</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Run the supplied command as if it came from suer input.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+363
+364
+365</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 363</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_queue_cmd'>queue_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_queue_cmd'>queue_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="reset_ui-instance_method">
+  
+    #<strong>reset_ui</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+<p>Resets the console&#39;s I/O handles.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+342
+343
+344
+345</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 342</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_reset_ui'>reset_ui</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_unset_log_source'>unset_log_source</span>
+  <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_reset_ui'>reset_ui</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="run_cmd-instance_method">
+  
+    #<strong>run_cmd</strong>(cmd, output_object = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Interactive implementors</p>
+
+<p>Explicitly runs a command in the meterpreter console.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 372</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_run_cmd'>run_cmd</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='comma'>,</span><span class='id identifier rubyid_output_object'>output_object</span><span class='op'>=</span><span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stored_output_state'>stored_output_state</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='comment'># If the user supplied an Output IO object, then we tell
+</span>  <span class='comment'># the console to use that, while saving it&#39;s previous output/
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_output_object'>output_object</span>
+    <span class='id identifier rubyid_stored_output_state'>stored_output_state</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_output'>output</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:output=</span><span class='comma'>,</span> <span class='id identifier rubyid_output_object'>output_object</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_success'>success</span> <span class='op'>=</span> <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_run_single'>run_single</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='comment'># If we stored the previous output object of the channel
+</span>  <span class='comment'># we restore it here to put everything back the way we found it
+</span>  <span class='comment'># We re-use the conditional above, because we expect in many cases for
+</span>  <span class='comment'># the stored state to actually be nil here.
+</span>  <span class='kw'>if</span> <span class='id identifier rubyid_output_object'>output_object</span>
+    <span class='id identifier rubyid_console'>console</span><span class='period'>.</span><span class='id identifier rubyid_send'>send</span><span class='lparen'>(</span><span class='symbol'>:output=</span><span class='comma'>,</span><span class='id identifier rubyid_stored_output_state'>stored_output_state</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_success'>success</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_close-instance_method">
+  
+    #<strong>shell_close</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Terminate the shell channel</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+254
+255
+256
+257</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 254</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_close'>shell_close</span>
+  <span class='ivar'>@shell</span><span class='period'>.</span><span class='id identifier rubyid_close'>close</span>
+  <span class='ivar'>@shell</span> <span class='op'>=</span> <span class='kw'>nil</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_command-instance_method">
+  
+    #<strong>shell_command</strong>(cmd)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 259</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_command'>shell_command</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span><span class='rparen'>)</span>
+  <span class='comment'># Send the shell channel&#39;s stdin.
+</span>  <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_cmd'>cmd</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='int'>5</span>
+  <span class='id identifier rubyid_etime'>etime</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>+</span> <span class='id identifier rubyid_timeout'>timeout</span>
+  <span class='id identifier rubyid_buff'>buff</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+
+  <span class='comment'># Keep reading data until no more data is available or the timeout is
+</span>  <span class='comment'># reached.
+</span>  <span class='kw'>while</span> <span class='lparen'>(</span><span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span> <span class='op'>&lt;</span> <span class='id identifier rubyid_etime'>etime</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_res'>res</span> <span class='op'>=</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span>
+    <span class='kw'>break</span> <span class='kw'>unless</span> <span class='id identifier rubyid_res'>res</span>
+    <span class='id identifier rubyid_timeout'>timeout</span> <span class='op'>=</span> <span class='id identifier rubyid_etime'>etime</span> <span class='op'>-</span> <span class='op'>::</span><span class='const'>Time</span><span class='period'>.</span><span class='id identifier rubyid_now'>now</span><span class='period'>.</span><span class='id identifier rubyid_to_f'>to_f</span>
+    <span class='id identifier rubyid_buff'>buff</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_res'>res</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_buff'>buff</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_init-instance_method">
+  
+    #<strong>shell_init</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Create a channelized shell process on the target</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+112
+113
+114
+115
+116
+117
+118
+119
+120</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 112</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_init'>shell_init</span>
+  <span class='kw'>return</span> <span class='kw'>true</span> <span class='kw'>if</span> <span class='ivar'>@shell</span>
+
+  <span class='comment'># COMSPEC is special-cased on all meterpreters to return a viable
+</span>  <span class='comment'># shell.
+</span>  <span class='id identifier rubyid_sh'>sh</span> <span class='op'>=</span> <span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getenv'>getenv</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>COMSPEC</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+  <span class='ivar'>@shell</span> <span class='op'>=</span> <span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_process'>process</span><span class='period'>.</span><span class='id identifier rubyid_execute'>execute</span><span class='lparen'>(</span><span class='id identifier rubyid_sh'>sh</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='lbrace'>{</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hidden</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Channelized</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='kw'>true</span> <span class='rbrace'>}</span><span class='rparen'>)</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_read-instance_method">
+  
+    #<strong>shell_read</strong>(length = nil, timeout = 1)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Read from the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 208</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_read'>shell_read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='op'>=</span><span class='kw'>nil</span><span class='comma'>,</span> <span class='id identifier rubyid_timeout'>timeout</span><span class='op'>=</span><span class='int'>1</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_init'>shell_init</span>
+
+  <span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='kw'>nil</span> <span class='kw'>if</span> <span class='id identifier rubyid_length'>length</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span> <span class='kw'>or</span> <span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>0</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='kw'>nil</span>
+    <span class='comment'># Meterpreter doesn&#39;t offer a way to timeout on the victim side, so
+</span>    <span class='comment'># we have to do it here.  I&#39;m concerned that this will cause loss
+</span>    <span class='comment'># of data.
+</span>    <span class='const'>Timeout</span><span class='period'>.</span><span class='id identifier rubyid_timeout'>timeout</span><span class='lparen'>(</span><span class='id identifier rubyid_timeout'>timeout</span><span class='rparen'>)</span> <span class='lbrace'>{</span>
+      <span class='id identifier rubyid_rv'>rv</span> <span class='op'>=</span> <span class='ivar'>@shell</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+    <span class='rbrace'>}</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_output'>on_session_output</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_rv'>rv</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_rv'>rv</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_rv'>rv</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Timeout</span><span class='op'>::</span><span class='const'>Error</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_shell_close'>shell_close</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="shell_write-instance_method">
+  
+    #<strong>shell_write</strong>(buf)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:category: Msf::Session::Provider::SingleCommandShell implementors</p>
+
+<p>Write to the command shell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 235</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_shell_write'>shell_write</span><span class='lparen'>(</span><span class='id identifier rubyid_buf'>buf</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_shell_init'>shell_init</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_framework'>framework</span><span class='period'>.</span><span class='id identifier rubyid_events'>events</span><span class='period'>.</span><span class='id identifier rubyid_on_session_command'>on_session_command</span><span class='lparen'>(</span><span class='kw'>self</span><span class='comma'>,</span> <span class='id identifier rubyid_buf'>buf</span><span class='period'>.</span><span class='id identifier rubyid_strip'>strip</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_len'>len</span> <span class='op'>=</span> <span class='ivar'>@shell</span><span class='period'>.</span><span class='id identifier rubyid_channel'>channel</span><span class='period'>.</span><span class='id identifier rubyid_write'>write</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_buf'>buf</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>Exception</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='id identifier rubyid_shell_close'>shell_close</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='id identifier rubyid_e'>e</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_len'>len</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_ssl?-instance_method">
+  
+    #<strong>supports_ssl?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Override for server implementations that can&#39;t do SSL</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 33</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_ssl?'>supports_ssl?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="supports_zlib?-instance_method">
+  
+    #<strong>supports_zlib?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Override for server implementations that can&#39;t do zlib</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+38
+39
+40</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 38</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_supports_zlib?'>supports_zlib?</span>
+  <span class='kw'>true</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tunnel_to_s-instance_method">
+  
+    #<strong>tunnel_to_s</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span>
+  <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Pivot via [</span><span class='embexpr_beg'>#{</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_pivot_session'>pivot_session</span><span class='period'>.</span><span class='id identifier rubyid_tunnel_to_s'>tunnel_to_s</span><span class='embexpr_end'>}</span><span class='tstring_content'>]</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>else</span>
+    <span class='kw'>super</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="type-instance_method">
+  
+    #<strong>type</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Calls the class method</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+103
+104
+105</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 103</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_class'>class</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="update_session_info-instance_method">
+  
+    #<strong>update_session_info</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/msf/base/sessions/meterpreter.rb', line 411</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_update_session_info'>update_session_info</span>
+  <span class='comment'># sys.config.getuid, and fs.dir.getwd cache their results, so update them
+</span>  <span class='id identifier rubyid_fs'>fs</span><span class='period'>.</span><span class='id identifier rubyid_dir'>dir</span><span class='period'>.</span><span class='id identifier rubyid_getwd'>getwd</span>
+  <span class='id identifier rubyid_username'>username</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_getuid'>getuid</span>
+  <span class='id identifier rubyid_sysinfo'>sysinfo</span>  <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_sys'>sys</span><span class='period'>.</span><span class='id identifier rubyid_config'>config</span><span class='period'>.</span><span class='id identifier rubyid_sysinfo'>sysinfo</span>
+
+  <span class='comment'># when updating session information, we need to make sure we update the platform
+</span>  <span class='comment'># in the UUID to match what the target is actually running on, but only for a
+</span>  <span class='comment'># subset of platforms.
+</span>  <span class='kw'>if</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>java</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>python</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>php</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_new_platform'>new_platform</span> <span class='op'>=</span> <span class='id identifier rubyid_guess_target_platform'>guess_target_platform</span><span class='lparen'>(</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>OS</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>!=</span> <span class='id identifier rubyid_new_platform'>new_platform</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='period'>.</span><span class='id identifier rubyid_platform'>platform</span> <span class='op'>=</span> <span class='id identifier rubyid_new_platform'>new_platform</span>
+      <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_core'>core</span><span class='period'>.</span><span class='id identifier rubyid_set_uuid'>set_uuid</span><span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_payload_uuid'>payload_uuid</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_safe_info'>safe_info</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_username'>username</span><span class='embexpr_end'>}</span><span class='tstring_content'> @ </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_sysinfo'>sysinfo</span><span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Computer</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_safe_info'>safe_info</span><span class='period'>.</span><span class='id identifier rubyid_force_encoding'>force_encoding</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ASCII-8BIT</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='id identifier rubyid_safe_info'>safe_info</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span><span class='lparen'>(</span><span class='symbol'>:force_encoding</span><span class='rparen'>)</span>
+  <span class='comment'># Should probably be using Rex::Text.ascii_safe_hex but leave
+</span>  <span class='comment'># this as is for now since &quot;\xNN&quot; is arguably uglier than &quot;_&quot;
+</span>  <span class='comment'># showing up in various places in the UI.
+</span>  <span class='id identifier rubyid_safe_info'>safe_info</span><span class='period'>.</span><span class='id identifier rubyid_gsub!'>gsub!</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+</span><span class='regexp_end'>/n</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>_</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='op'>=</span> <span class='id identifier rubyid_safe_info'>safe_info</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:04 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

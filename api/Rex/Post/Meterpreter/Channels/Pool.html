@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Rex::Post::Meterpreter::Channels::Pool
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Rex::Post::Meterpreter::Channels::Pool";
+  relpath = '../../../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../../../_index.html">Index (P)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../../../Rex.html" title="Rex (module)">Rex</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../../Post.html" title="Rex::Post (module)">Post</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../../Meterpreter.html" title="Rex::Post::Meterpreter (module)">Meterpreter</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Channels.html" title="Rex::Post::Meterpreter::Channels (module)">Channels</a></span></span>
+     &raquo; 
+    <span class="title">Pool</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Rex::Post::Meterpreter::Channels::Pool
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Rex::Post::Meterpreter::Channel</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Rex::Post::Meterpreter::Channel</a></span></li>
+          
+            <li class="next">Rex::Post::Meterpreter::Channels::Pool</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/rex/post/meterpreter/channels/pool.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This class acts as a base class for all channels that are classified as &#39;pools&#39;.  This means that only one side of the channel, typically the client half, acts on the other half of the channel.  Examples of pools come in the form of files where the remote side never sends any unrequested data.</p>
+
+<p>Another key distinction of Pools is that they, in general, support the DIO mode &#39;seek&#39; which allows for changing the position, or offset, into the channel.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><div id="subclasses">
+  <h2>Direct Known Subclasses</h2>
+  <p class="children"><span class='object_link'><a href="Pools/File.html" title="Rex::Post::Meterpreter::Channels::Pools::File (class)">Rex::Post::Meterpreter::Channels::Pools::File</a></span>, <span class='object_link'><a href="Pools/StreamPool.html" title="Rex::Post::Meterpreter::Channels::Pools::StreamPool (class)">Rex::Post::Meterpreter::Channels::Pools::StreamPool</a></span></p>
+</div>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="protected ">
+  <span class="summary_signature">
+    
+      <a href="#_eof-instance_method" title="#_eof (instance method)">#<strong>_eof</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+    
+  
+  <span class="note title protected">protected</span>
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>:nodoc:.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+  
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Rex::Post::Meterpreter::Channel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Channel.html#cid-instance_method" title="Rex::Post::Meterpreter::Channel#cid (method)">#cid</a></span>, <span class='object_link'><a href="../Channel.html#client-instance_method" title="Rex::Post::Meterpreter::Channel#client (method)">#client</a></span>, <span class='object_link'><a href="../Channel.html#cls-instance_method" title="Rex::Post::Meterpreter::Channel#cls (method)">#cls</a></span>, <span class='object_link'><a href="../Channel.html#flags-instance_method" title="Rex::Post::Meterpreter::Channel#flags (method)">#flags</a></span>, <span class='object_link'><a href="../Channel.html#params-instance_method" title="Rex::Post::Meterpreter::Channel#params (method)">#params</a></span>, <span class='object_link'><a href="../Channel.html#type-instance_method" title="Rex::Post::Meterpreter::Channel#type (method)">#type</a></span></p>
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cls-class_method" title="cls (class method)">.<strong>cls</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+    </ul>
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#eof-instance_method" title="#eof (instance method)">#<strong>eof</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Checks to see if the EOF flag has been set on the pool.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(client, cid, type, flags, packet, **_)  &#x21d2; Pool </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Passes the initialization information up to the base class.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pos-instance_method" title="#pos (instance method)">#<strong>pos</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Synonym for tell.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#read-instance_method" title="#read (instance method)">#<strong>read</strong>(length = nil)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Reads data from the remote side of the pool and raises EOFError if the pool has been reached EOF.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#seek-instance_method" title="#seek (instance method)">#<strong>seek</strong>(offset, whence = SEEK_SET)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method seeks to an offset within the remote side of the pool using the standard seek whence clauses.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#tell-instance_method" title="#tell (instance method)">#<strong>tell</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns the current file pointer position to the caller.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Channel.html" title="Rex::Post::Meterpreter::Channel (class)">Rex::Post::Meterpreter::Channel</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Channel.html#_close-class_method" title="Rex::Post::Meterpreter::Channel._close (method)">_close</a></span>, <span class='object_link'><a href="../Channel.html#_close-instance_method" title="Rex::Post::Meterpreter::Channel#_close (method)">#_close</a></span>, <span class='object_link'><a href="../Channel.html#_read-instance_method" title="Rex::Post::Meterpreter::Channel#_read (method)">#_read</a></span>, <span class='object_link'><a href="../Channel.html#_write-instance_method" title="Rex::Post::Meterpreter::Channel#_write (method)">#_write</a></span>, <span class='object_link'><a href="../Channel.html#cleanup-instance_method" title="Rex::Post::Meterpreter::Channel#cleanup (method)">#cleanup</a></span>, <span class='object_link'><a href="../Channel.html#close-instance_method" title="Rex::Post::Meterpreter::Channel#close (method)">#close</a></span>, <span class='object_link'><a href="../Channel.html#close_read-instance_method" title="Rex::Post::Meterpreter::Channel#close_read (method)">#close_read</a></span>, <span class='object_link'><a href="../Channel.html#close_write-instance_method" title="Rex::Post::Meterpreter::Channel#close_write (method)">#close_write</a></span>, <span class='object_link'><a href="../Channel.html#closed%3F-instance_method" title="Rex::Post::Meterpreter::Channel#closed? (method)">#closed?</a></span>, <span class='object_link'><a href="../Channel.html#create-class_method" title="Rex::Post::Meterpreter::Channel.create (method)">create</a></span>, <span class='object_link'><a href="../Channel.html#dio_close_handler-instance_method" title="Rex::Post::Meterpreter::Channel#dio_close_handler (method)">#dio_close_handler</a></span>, <span class='object_link'><a href="../Channel.html#dio_handler-instance_method" title="Rex::Post::Meterpreter::Channel#dio_handler (method)">#dio_handler</a></span>, <span class='object_link'><a href="../Channel.html#dio_map-instance_method" title="Rex::Post::Meterpreter::Channel#dio_map (method)">#dio_map</a></span>, <span class='object_link'><a href="../Channel.html#dio_read_handler-instance_method" title="Rex::Post::Meterpreter::Channel#dio_read_handler (method)">#dio_read_handler</a></span>, <span class='object_link'><a href="../Channel.html#dio_write_handler-instance_method" title="Rex::Post::Meterpreter::Channel#dio_write_handler (method)">#dio_write_handler</a></span>, <span class='object_link'><a href="../Channel.html#finalize-class_method" title="Rex::Post::Meterpreter::Channel.finalize (method)">finalize</a></span>, <span class='object_link'><a href="../Channel.html#flag%3F-instance_method" title="Rex::Post::Meterpreter::Channel#flag? (method)">#flag?</a></span>, <span class='object_link'><a href="../Channel.html#interactive-instance_method" title="Rex::Post::Meterpreter::Channel#interactive (method)">#interactive</a></span>, <span class='object_link'><a href="../Channel.html#request_handler-class_method" title="Rex::Post::Meterpreter::Channel.request_handler (method)">request_handler</a></span>, <span class='object_link'><a href="../Channel.html#synchronous%3F-instance_method" title="Rex::Post::Meterpreter::Channel#synchronous? (method)">#synchronous?</a></span>, <span class='object_link'><a href="../Channel.html#write-instance_method" title="Rex::Post::Meterpreter::Channel#write (method)">#write</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods included from <span class='object_link'><a href="../InboundPacketHandler.html" title="Rex::Post::Meterpreter::InboundPacketHandler (module)">InboundPacketHandler</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../InboundPacketHandler.html#request_handler-instance_method" title="Rex::Post::Meterpreter::InboundPacketHandler#request_handler (method)">#request_handler</a></span>, <span class='object_link'><a href="../InboundPacketHandler.html#response_handler-instance_method" title="Rex::Post::Meterpreter::InboundPacketHandler#response_handler (method)">#response_handler</a></span></p>
+<div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(client, cid, type, flags, packet, **_)  &#x21d2; <tt><span class='object_link'><a href="" title="Rex::Post::Meterpreter::Channels::Pool (class)">Pool</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Passes the initialization information up to the base class</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 40</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span> <span class='id identifier rubyid_packet'>packet</span><span class='comma'>,</span> <span class='op'>**</span><span class='id identifier rubyid__'>_</span><span class='rparen'>)</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_client'>client</span><span class='comma'>,</span> <span class='id identifier rubyid_cid'>cid</span><span class='comma'>,</span> <span class='id identifier rubyid_type'>type</span><span class='comma'>,</span> <span class='id identifier rubyid_flags'>flags</span><span class='comma'>,</span> <span class='id identifier rubyid_packet'>packet</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id="_eof=-instance_method"></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="_eof-instance_method">
+  
+    #<strong>_eof</strong>  &#x21d2; <tt>Object</tt>  <span class="extras">(protected)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>:nodoc:</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+154
+155
+156</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 154</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid__eof'>_eof</span>
+  <span class='ivar'>@_eof</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="cls-class_method">
+  
+    .<strong>cls</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+26
+27
+28</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 26</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cls'>cls</span>
+  <span class='kw'>return</span> <span class='const'><span class='object_link'><a href="../../Meterpreter.html#CHANNEL_CLASS_POOL-constant" title="Rex::Post::Meterpreter::CHANNEL_CLASS_POOL (constant)">CHANNEL_CLASS_POOL</a></span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="eof-instance_method">
+  
+    #<strong>eof</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Checks to see if the EOF flag has been set on the pool.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 53</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_eof'>eof</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#COMMAND_ID_CORE_CHANNEL_EOF-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_CHANNEL_EOF (constant)">COMMAND_ID_CORE_CHANNEL_EOF</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_CHANNEL_ID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_ID (constant)">TLV_TYPE_CHANNEL_ID</a></span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_has_tlv?'>has_tlv?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_BOOL-constant" title="Rex::Post::Meterpreter::TLV_TYPE_BOOL (constant)">TLV_TYPE_BOOL</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pos-instance_method">
+  
+    #<strong>pos</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Synonym for tell.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+126
+127
+128</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 126</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pos'>pos</span>
+  <span class='id identifier rubyid_tell'>tell</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="read-instance_method">
+  
+    #<strong>read</strong>(length = nil)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Reads data from the remote side of the pool and raises EOFError if the pool has been reached EOF.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 75</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_read'>read</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span> <span class='op'>=</span> <span class='kw'>nil</span><span class='rparen'>)</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>super</span><span class='lparen'>(</span><span class='id identifier rubyid_length'>length</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='id identifier rubyid_data'>data</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span> <span class='op'>==</span> <span class='kw'>nil</span><span class='rparen'>)</span> <span class='op'>||</span> <span class='lparen'>(</span><span class='id identifier rubyid_data'>data</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span>
+      <span class='lparen'>(</span><span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_eof'>eof</span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>EOFError</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_data'>data</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="seek-instance_method">
+  
+    #<strong>seek</strong>(offset, whence = SEEK_SET)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method seeks to an offset within the remote side of the pool using the standard seek whence clauses.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 94</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_seek'>seek</span><span class='lparen'>(</span><span class='id identifier rubyid_offset'>offset</span><span class='comma'>,</span> <span class='id identifier rubyid_whence'>whence</span> <span class='op'>=</span> <span class='const'>SEEK_SET</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_sane'>sane</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='comment'># Just in case...
+</span>  <span class='kw'>case</span> <span class='id identifier rubyid_whence'>whence</span>
+    <span class='kw'>when</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_SET</span>
+      <span class='id identifier rubyid_sane'>sane</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='kw'>when</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_CUR</span>
+      <span class='id identifier rubyid_sane'>sane</span> <span class='op'>=</span> <span class='int'>1</span>
+    <span class='kw'>when</span> <span class='op'>::</span><span class='const'>IO</span><span class='op'>::</span><span class='const'>SEEK_END</span>
+      <span class='id identifier rubyid_sane'>sane</span> <span class='op'>=</span> <span class='int'>2</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='const'>RuntimeError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Invalid seek whence </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_whence'>whence</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_caller'>caller</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#COMMAND_ID_CORE_CHANNEL_SEEK-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_CHANNEL_SEEK (constant)">COMMAND_ID_CORE_CHANNEL_SEEK</a></span></span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_CHANNEL_ID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_ID (constant)">TLV_TYPE_CHANNEL_ID</a></span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_SEEK_OFFSET-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SEEK_OFFSET (constant)">TLV_TYPE_SEEK_OFFSET</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_offset'>offset</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_SEEK_WHENCE-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SEEK_WHENCE (constant)">TLV_TYPE_SEEK_WHENCE</a></span></span><span class='comma'>,</span> <span class='id identifier rubyid_sane'>sane</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_tell'>tell</span>
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span> <span class='op'>-</span><span class='int'>1</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="tell-instance_method">
+  
+    #<strong>tell</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns the current file pointer position to the caller.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/rex/post/meterpreter/channels/pool.rb', line 133</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_tell'>tell</span>
+  <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../Packet.html" title="Rex::Post::Meterpreter::Packet (class)">Packet</a></span></span><span class='period'>.</span><span class='id identifier rubyid_create_request'><span class='object_link'><a href="../Packet.html#create_request-class_method" title="Rex::Post::Meterpreter::Packet.create_request (method)">create_request</a></span></span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#COMMAND_ID_CORE_CHANNEL_TELL-constant" title="Rex::Post::Meterpreter::COMMAND_ID_CORE_CHANNEL_TELL (constant)">COMMAND_ID_CORE_CHANNEL_TELL</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_pos'>pos</span>     <span class='op'>=</span> <span class='op'>-</span><span class='int'>1</span>
+
+  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_add_tlv'>add_tlv</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_CHANNEL_ID-constant" title="Rex::Post::Meterpreter::TLV_TYPE_CHANNEL_ID (constant)">TLV_TYPE_CHANNEL_ID</a></span></span><span class='comma'>,</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_cid'>cid</span><span class='rparen'>)</span>
+
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_client'>client</span><span class='period'>.</span><span class='id identifier rubyid_send_request'>send_request</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span>
+  <span class='kw'>rescue</span>
+    <span class='kw'>return</span> <span class='id identifier rubyid_pos'>pos</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># Set the return value to the position that we&#39;re at
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_has_tlv?'>has_tlv?</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_SEEK_POS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SEEK_POS (constant)">TLV_TYPE_SEEK_POS</a></span></span><span class='rparen'>)</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_pos'>pos</span> <span class='op'>=</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_get_tlv_value'>get_tlv_value</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="../../Meterpreter.html#TLV_TYPE_SEEK_POS-constant" title="Rex::Post::Meterpreter::TLV_TYPE_SEEK_POS (constant)">TLV_TYPE_SEEK_POS</a></span></span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>return</span> <span class='id identifier rubyid_pos'>pos</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:33:55 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

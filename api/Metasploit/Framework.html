@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Module: Metasploit::Framework
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Metasploit::Framework";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (F)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../Metasploit.html" title="Metasploit (module)">Metasploit</a></span></span>
+     &raquo; 
+    <span class="title">Framework</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Module: Metasploit::Framework
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+
+  
+  
+  <dl>
+      <dt>Extended by:</dt>
+      <dd>ActiveSupport::Autoload</dd>
+  </dl>
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/metasploit/framework.rb<span class="defines">,<br />
+  app/validators/metasploit/framework/file_path_validator.rb,<br /> app/validators/metasploit/framework/executable_path_validator.rb,<br /> lib/metasploit/framework/api.rb,<br /> lib/metasploit/framework/core.rb,<br /> lib/metasploit/framework/engine.rb,<br /> lib/metasploit/framework/command.rb,<br /> lib/metasploit/framework/require.rb,<br /> lib/metasploit/framework/version.rb,<br /> lib/metasploit/framework/database.rb,<br /> lib/metasploit/framework/profiler.rb,<br /> lib/metasploit/framework/afp/client.rb,<br /> lib/metasploit/framework/aws/client.rb,<br /> lib/metasploit/framework/credential.rb,<br /> lib/metasploit/framework/ftp/client.rb,<br /> lib/metasploit/framework/tcp/client.rb,<br /> lib/metasploit/framework/api/version.rb,<br /> lib/metasploit/framework/ntds/parser.rb,<br /> lib/metasploit/framework/core/version.rb,<br /> lib/metasploit/framework/data_service.rb,<br /> lib/metasploit/framework/mssql/client.rb,<br /> lib/metasploit/framework/ntds/account.rb,<br /> lib/metasploit/framework/login_scanner.rb,<br /> lib/metasploit/framework/telnet/client.rb,<br /> lib/metasploit/framework/compiler/mingw.rb,<br /> lib/metasploit/framework/compiler/utils.rb,<br /> lib/metasploit/framework/parsed_options.rb,<br /> lib/metasploit/framework/varnish/client.rb,<br /> lib/metasploit/framework/compiler/windows.rb,<br /> lib/metasploit/framework/login_scanner/afp.rb,<br /> lib/metasploit/framework/login_scanner/db2.rb,<br /> lib/metasploit/framework/login_scanner/ftp.rb,<br /> lib/metasploit/framework/login_scanner/smb.rb,<br /> lib/metasploit/framework/login_scanner/smh.rb,<br /> lib/metasploit/framework/login_scanner/ssh.rb,<br /> lib/metasploit/framework/login_scanner/vnc.rb,<br /> lib/metasploit/framework/login_scanner/acpp.rb,<br /> lib/metasploit/framework/login_scanner/base.rb,<br /> lib/metasploit/framework/login_scanner/http.rb,<br /> lib/metasploit/framework/login_scanner/mqtt.rb,<br /> lib/metasploit/framework/login_scanner/ntlm.rb,<br /> lib/metasploit/framework/login_scanner/pop3.rb,<br /> lib/metasploit/framework/login_scanner/snmp.rb,<br /> lib/metasploit/framework/spec/threads/suite.rb,<br /> lib/metasploit/framework/login_scanner/axis2.rb,<br /> lib/metasploit/framework/login_scanner/mssql.rb,<br /> lib/metasploit/framework/login_scanner/mysql.rb,<br /> lib/metasploit/framework/login_scanner/redis.rb,<br /> lib/metasploit/framework/login_scanner/winrm.rb,<br /> lib/metasploit/framework/login_scanner/caidao.rb,<br /> lib/metasploit/framework/login_scanner/gitlab.rb,<br /> lib/metasploit/framework/login_scanner/nessus.rb,<br /> lib/metasploit/framework/login_scanner/result.rb,<br /> lib/metasploit/framework/login_scanner/telnet.rb,<br /> lib/metasploit/framework/login_scanner/tomcat.rb,<br /> lib/metasploit/framework/login_scanner/zabbix.rb,<br /> lib/metasploit/framework/compiler/headers/base.rb,<br /> lib/metasploit/framework/credential_collection.rb,<br /> lib/metasploit/framework/login_scanner/buffalo.rb,<br /> lib/metasploit/framework/login_scanner/invalid.rb,<br /> lib/metasploit/framework/login_scanner/ipboard.rb,<br /> lib/metasploit/framework/login_scanner/jenkins.rb,<br /> lib/metasploit/framework/login_scanner/jupyter.rb,<br /> lib/metasploit/framework/login_scanner/varnish.rb,<br /> lib/metasploit/framework/login_scanner/vmauthd.rb,<br /> lib/metasploit/framework/login_scanner/postgres.rb,<br /> lib/metasploit/framework/spec/untested_payloads.rb,<br /> lib/metasploit/framework/data_service/proxy/core.rb,<br /> lib/metasploit/framework/login_scanner/glassfish.rb,<br /> lib/metasploit/framework/compiler/headers/windows.rb,<br /> lib/metasploit/framework/login_scanner/chef_webui.rb,<br /> lib/metasploit/framework/login_scanner/phpmyadmin.rb,<br /> lib/metasploit/framework/login_scanner/rex_socket.rb,<br /> lib/metasploit/framework/rails_version_constraint.rb,<br /> lib/metasploit/framework/login_scanner/directadmin.rb,<br /> lib/metasploit/framework/login_scanner/mybook_live.rb,<br /> lib/metasploit/framework/password_crackers/cracker.rb,<br /> lib/metasploit/framework/password_crackers/wordlist.rb,<br /> lib/metasploit/framework/community_string_collection.rb,<br /> lib/metasploit/framework/login_scanner/octopusdeploy.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_rpc.rb,<br /> lib/metasploit/framework/data_service/remote/http/core.rb,<br /> lib/metasploit/framework/login_scanner/cisco_firepower.rb,<br /> lib/metasploit/framework/login_scanner/bavision_cameras.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/parser.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/utility.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/modifier.rb,<br /> lib/metasploit/framework/login_scanner/advantech_webaccess.rb,<br /> lib/metasploit/framework/login_scanner/wordpress_multicall.rb,<br /> lib/metasploit/framework/login_scanner/symantec_web_gateway.rb,<br /> lib/metasploit/framework/password_crackers/invalid_wordlist.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/if.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/base.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/random_statements.rb,<br /> lib/metasploit/framework/login_scanner/manageengine_desktop_central.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/malloc.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/printf.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/switch.rb,<br /> lib/metasploit/framework/data_service/remote/managed_remote_data_service.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/gettickcount.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/fake_function.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/int_assignments.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/uninit_variables.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/outputdebugstring.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/string_assignments.rb,<br /> lib/metasploit/framework/obfuscation/crandomizer/code_factory/fake_function_collection.rb</span>
+</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>Supports Rails and Rails::Engine like access to metasploit-framework so it works in compatible manner with activerecord&#39;s rake tasks and other railties.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+      <strong class="modules">Modules:</strong> <span class='object_link'><a href="Framework/AFP.html" title="Metasploit::Framework::AFP (module)">AFP</a></span>, <span class='object_link'><a href="Framework/API.html" title="Metasploit::Framework::API (module)">API</a></span>, <span class='object_link'><a href="Framework/Aws.html" title="Metasploit::Framework::Aws (module)">Aws</a></span>, <span class='object_link'><a href="Framework/Command.html" title="Metasploit::Framework::Command (module)">Command</a></span>, <span class='object_link'><a href="Framework/CommonEngine.html" title="Metasploit::Framework::CommonEngine (module)">CommonEngine</a></span>, <span class='object_link'><a href="Framework/Compiler.html" title="Metasploit::Framework::Compiler (module)">Compiler</a></span>, <span class='object_link'><a href="Framework/Core.html" title="Metasploit::Framework::Core (module)">Core</a></span>, <span class='object_link'><a href="Framework/DataService.html" title="Metasploit::Framework::DataService (module)">DataService</a></span>, <span class='object_link'><a href="Framework/Database.html" title="Metasploit::Framework::Database (module)">Database</a></span>, <span class='object_link'><a href="Framework/Ftp.html" title="Metasploit::Framework::Ftp (module)">Ftp</a></span>, <span class='object_link'><a href="Framework/LoginScanner.html" title="Metasploit::Framework::LoginScanner (module)">LoginScanner</a></span>, <span class='object_link'><a href="Framework/MSSQL.html" title="Metasploit::Framework::MSSQL (module)">MSSQL</a></span>, <span class='object_link'><a href="Framework/NTDS.html" title="Metasploit::Framework::NTDS (module)">NTDS</a></span>, <span class='object_link'><a href="Framework/Obfuscation.html" title="Metasploit::Framework::Obfuscation (module)">Obfuscation</a></span>, <span class='object_link'><a href="Framework/ParsedOptions.html" title="Metasploit::Framework::ParsedOptions (module)">ParsedOptions</a></span>, <span class='object_link'><a href="Framework/PasswordCracker.html" title="Metasploit::Framework::PasswordCracker (module)">PasswordCracker</a></span>, <span class='object_link'><a href="Framework/Profiler.html" title="Metasploit::Framework::Profiler (module)">Profiler</a></span>, <span class='object_link'><a href="Framework/RailsVersionConstraint.html" title="Metasploit::Framework::RailsVersionConstraint (module)">RailsVersionConstraint</a></span>, <span class='object_link'><a href="Framework/Require.html" title="Metasploit::Framework::Require (module)">Require</a></span>, <span class='object_link'><a href="Framework/Spec.html" title="Metasploit::Framework::Spec (module)">Spec</a></span>, <span class='object_link'><a href="Framework/Tcp.html" title="Metasploit::Framework::Tcp (module)">Tcp</a></span>, <span class='object_link'><a href="Framework/Telnet.html" title="Metasploit::Framework::Telnet (module)">Telnet</a></span>, <span class='object_link'><a href="Framework/Varnish.html" title="Metasploit::Framework::Varnish (module)">Varnish</a></span>, <span class='object_link'><a href="Framework/Version.html" title="Metasploit::Framework::Version (module)">Version</a></span>
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Framework/CommunityStringCollection.html" title="Metasploit::Framework::CommunityStringCollection (class)">CommunityStringCollection</a></span>, <span class='object_link'><a href="Framework/Credential.html" title="Metasploit::Framework::Credential (class)">Credential</a></span>, <span class='object_link'><a href="Framework/CredentialCollection.html" title="Metasploit::Framework::CredentialCollection (class)">CredentialCollection</a></span>, <span class='object_link'><a href="Framework/Engine.html" title="Metasploit::Framework::Engine (class)">Engine</a></span>, <span class='object_link'><a href="Framework/ExecutablePathValidator.html" title="Metasploit::Framework::ExecutablePathValidator (class)">ExecutablePathValidator</a></span>, <span class='object_link'><a href="Framework/FilePathValidator.html" title="Metasploit::Framework::FilePathValidator (class)">FilePathValidator</a></span>, <span class='object_link'><a href="Framework/PrivateCredentialCollection.html" title="Metasploit::Framework::PrivateCredentialCollection (class)">PrivateCredentialCollection</a></span>, <span class='object_link'><a href="Framework/ThreadFactoryProvider.html" title="Metasploit::Framework::ThreadFactoryProvider (class)">ThreadFactoryProvider</a></span>
+    
+  
+</p>
+
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="VERSION-constant" class="">VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="Framework/Version.html" title="Metasploit::Framework::Version (module)">Version</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Framework/Version.html#VERSION-constant" title="Metasploit::Framework::Version::VERSION (constant)">VERSION</a></span></span><span class='embexpr_end'>}</span><span class='tstring_content'>-</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="Framework/Version.html" title="Metasploit::Framework::Version (module)">Version</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Framework/Version.html#PRERELEASE-constant" title="Metasploit::Framework::Version::PRERELEASE (constant)">PRERELEASE</a></span></span><span class='embexpr_end'>}</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="Framework/Version.html" title="Metasploit::Framework::Version (module)">Version</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Framework/Version.html#HASH-constant" title="Metasploit::Framework::Version::HASH (constant)">HASH</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+        <dt id="GEM_VERSION-constant" class="">GEM_VERSION =
+          
+        </dt>
+        <dd><pre class="code"><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='const'><span class='object_link'><a href="Framework/Version.html" title="Metasploit::Framework::Version (module)">Version</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="Framework/Version.html#VERSION-constant" title="Metasploit::Framework::Version::VERSION (constant)">VERSION</a></span></span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Class Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#root-class_method" title="root (class method)">.<strong>root</strong>  &#x21d2; Pathname </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the root of the metasploit-framework project.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+
+  <div id="class_method_details" class="method_details_list">
+    <h2>Class Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="root-class_method">
+  
+    .<strong>root</strong>  &#x21d2; <tt>Pathname</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the root of the metasploit-framework project.  Use in place of `Rails.root`.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Pathname</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+42
+43
+44
+45
+46
+47
+48
+49</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/metasploit/framework.rb', line 42</span>
+
+<span class='kw'>def</span> <span class='kw'>self</span><span class='period'>.</span><span class='id identifier rubyid_root'><span class='object_link'><a href="../top-level-namespace.html" title="Top Level Namespace (root)">root</a></span></span>
+  <span class='kw'>unless</span> <span class='id identifier rubyid_instance_variable_defined?'>instance_variable_defined?</span> <span class='symbol'>:@root</span>
+    <span class='id identifier rubyid_pathname'>pathname</span> <span class='op'>=</span> <span class='const'>Pathname</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='kw'>__FILE__</span><span class='rparen'>)</span>
+    <span class='ivar'>@root</span> <span class='op'>=</span> <span class='id identifier rubyid_pathname'>pathname</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span><span class='period'>.</span><span class='id identifier rubyid_parent'>parent</span>
+  <span class='kw'>end</span>
+
+  <span class='ivar'>@root</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:30:10 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>

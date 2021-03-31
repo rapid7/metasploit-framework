@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Msf::Plugin::Wiki
+  
+    &mdash; Documentation by YARD 0.9.26
+  
+</title>
+
+  <link rel="stylesheet" href="../../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "Msf::Plugin::Wiki";
+  relpath = '../../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../../_index.html">Index (W)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../../Msf.html" title="Msf (module)">Msf</a></span></span> &raquo; <span class='title'><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Plugin</a></span></span>
+     &raquo; 
+    <span class="title">Wiki</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Msf::Plugin::Wiki
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next"><span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></li>
+          
+            <li class="next">Msf::Plugin::Wiki</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>plugins/wiki.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>This plugin extends the Rex::Text::Table class and provides commands that output database information for the current workspace in a wiki friendly format</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Author:</p>
+<ul class="author">
+  
+    <li>
+      
+      
+      
+      
+        
+        <div class='inline'>
+<p>Trenton Ivey</p>
+<ul><li>
+<p><strong>email:</strong> (“trenton.ivey@example.com”).gsub(/example/,“gmail”)</p>
+</li><li>
+<p><strong>github:</strong> kn0</p>
+</li><li>
+<p><strong>twitter:</strong> trentonivey</p>
+</li></ul>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Wiki/WikiCommandDispatcher.html" title="Msf::Plugin::Wiki::WikiCommandDispatcher (class)">WikiCommandDispatcher</a></span>
+    
+  
+</p>
+
+
+
+
+
+
+  <h2>Instance Attribute Summary</h2>
+  
+  <h3 class="inherited">Attributes inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#opts-instance_method" title="Msf::Plugin#opts (method)">#opts</a></span></p>
+
+  
+  
+  <h3 class="inherited">Attributes included from <span class='object_link'><a href="../Framework/Offspring.html" title="Msf::Framework::Offspring (module)">Framework::Offspring</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Framework/Offspring.html#framework-instance_method" title="Msf::Framework::Offspring#framework (method)">#framework</a></span></p>
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_dokuwiki_to_rex-instance_method" title="#add_dokuwiki_to_rex (instance method)">#<strong>add_dokuwiki_to_rex</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Extends Rex tables to be able to create Dokuwiki tables.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#add_mediawiki_to_rex-instance_method" title="#add_mediawiki_to_rex (instance method)">#<strong>add_mediawiki_to_rex</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Extends Rex tables to be able to create Mediawiki tables.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#cleanup-instance_method" title="#cleanup (instance method)">#<strong>cleanup</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>The cleanup routine removes the methods added to Rex by the plugin initialization and then removes the console dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#desc-instance_method" title="#desc (instance method)">#<strong>desc</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>This method returns a brief description of the plugin.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(framework, opts)  &#x21d2; Wiki </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Constructs a new instance of the plugin and registers the console dispatcher.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#name-instance_method" title="#name (instance method)">#<strong>name</strong>  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Returns the plugin&#39;s name.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  <h3 class="inherited">Methods inherited from <span class='object_link'><a href="../Plugin.html" title="Msf::Plugin (class)">Msf::Plugin</a></span></h3>
+  <p class="inherited"><span class='object_link'><a href="../Plugin.html#add_console_dispatcher-instance_method" title="Msf::Plugin#add_console_dispatcher (method)">#add_console_dispatcher</a></span>, <span class='object_link'><a href="../Plugin.html#create-class_method" title="Msf::Plugin.create (method)">create</a></span>, <span class='object_link'><a href="../Plugin.html#flush-instance_method" title="Msf::Plugin#flush (method)">#flush</a></span>, <span class='object_link'><a href="../Plugin.html#input-instance_method" title="Msf::Plugin#input (method)">#input</a></span>, <span class='object_link'><a href="../Plugin.html#output-instance_method" title="Msf::Plugin#output (method)">#output</a></span>, <span class='object_link'><a href="../Plugin.html#print-instance_method" title="Msf::Plugin#print (method)">#print</a></span>, <span class='object_link'><a href="../Plugin.html#print_error-instance_method" title="Msf::Plugin#print_error (method)">#print_error</a></span>, <span class='object_link'><a href="../Plugin.html#print_good-instance_method" title="Msf::Plugin#print_good (method)">#print_good</a></span>, <span class='object_link'><a href="../Plugin.html#print_line-instance_method" title="Msf::Plugin#print_line (method)">#print_line</a></span>, <span class='object_link'><a href="../Plugin.html#print_status-instance_method" title="Msf::Plugin#print_status (method)">#print_status</a></span>, <span class='object_link'><a href="../Plugin.html#print_warning-instance_method" title="Msf::Plugin#print_warning (method)">#print_warning</a></span>, <span class='object_link'><a href="../Plugin.html#remove_console_dispatcher-instance_method" title="Msf::Plugin#remove_console_dispatcher (method)">#remove_console_dispatcher</a></span></p>
+
+  
+  
+  
+  
+  
+  
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(framework, opts)  &#x21d2; <tt><span class='object_link'><a href="" title="Msf::Plugin::Wiki (class)">Wiki</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Constructs a new instance of the plugin and registers the console dispatcher. It also extends Rex by adding the following methods:</p>
+
+<pre class="code ruby"><code class="ruby">* Rex::Text::Table.to_dokuwiki
+* Rex::Text::Table.to_mediawiki
+</code></pre>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 444</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_framework'>framework</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span><span class='rparen'>)</span>
+  <span class='kw'>super</span>
+
+  <span class='comment'># Extend Rex::Text::Table class so it can output wiki formats
+</span>  <span class='id identifier rubyid_add_dokuwiki_to_rex'>add_dokuwiki_to_rex</span>
+  <span class='id identifier rubyid_add_mediawiki_to_rex'>add_mediawiki_to_rex</span>
+
+  <span class='comment'># Add the console dispatcher
+</span>  <span class='id identifier rubyid_add_console_dispatcher'>add_console_dispatcher</span><span class='lparen'>(</span><span class='const'><span class='object_link'><a href="Wiki/WikiCommandDispatcher.html" title="Msf::Plugin::Wiki::WikiCommandDispatcher (class)">WikiCommandDispatcher</a></span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="add_dokuwiki_to_rex-instance_method">
+  
+    #<strong>add_dokuwiki_to_rex</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Extends Rex tables to be able to create Dokuwiki tables</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+492
+493
+494
+495
+496
+497
+498
+499
+500
+501
+502
+503
+504
+505
+506
+507
+508
+509
+510
+511
+512
+513
+514
+515
+516
+517
+518</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 492</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_dokuwiki_to_rex'>add_dokuwiki_to_rex</span>
+  <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_class_eval'>class_eval</span> <span class='kw'>do</span>
+    <span class='kw'>def</span> <span class='id identifier rubyid_to_dokuwiki'>to_dokuwiki</span>
+      <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_prefix'>prefix</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='comment'># Print the header if there is one. Use headeri to determine wiki paragraph level
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_header'>header</span>
+        <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='id identifier rubyid_headeri'>headeri</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_level'>level</span> <span class='op'>+</span> <span class='id identifier rubyid_header'>header</span> <span class='op'>+</span> <span class='id identifier rubyid_level'>level</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='comment'># Add the column names to the top of the table
+</span>      <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_col'>col</span><span class='op'>|</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>^ </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_col'>col</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>^\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span> <span class='int'>0</span>
+      <span class='comment'># Fill out the rest of the table with rows
+</span>      <span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
+        <span class='id identifier rubyid_row'>row</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_val'>val</span><span class='op'>|</span>
+          <span class='id identifier rubyid_cell'>cell</span> <span class='op'>=</span> <span class='id identifier rubyid_val'>val</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+          <span class='id identifier rubyid_cell'>cell</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&lt;nowiki&gt;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_cell'>cell</span><span class='embexpr_end'>}</span><span class='tstring_content'>&lt;/nowiki&gt;</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='id identifier rubyid_cell'>cell</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|</span><span class='tstring_end'>&quot;</span></span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>| </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='id identifier rubyid_cell'>cell</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|\n</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span> <span class='int'>0</span>
+      <span class='kw'>end</span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="add_mediawiki_to_rex-instance_method">
+  
+    #<strong>add_mediawiki_to_rex</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Extends Rex tables to be able to create Mediawiki tables</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+523
+524
+525
+526
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 523</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_add_mediawiki_to_rex'>add_mediawiki_to_rex</span>
+  <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_class_eval'>class_eval</span> <span class='kw'>do</span>
+    <span class='kw'>def</span> <span class='id identifier rubyid_to_mediawiki'>to_mediawiki</span>
+      <span class='id identifier rubyid_str'>str</span> <span class='op'>=</span> <span class='id identifier rubyid_prefix'>prefix</span><span class='period'>.</span><span class='id identifier rubyid_dup'>dup</span>
+      <span class='comment'># Print the header if there is one. Use headeri to determine wiki
+</span>      <span class='comment'># headline level. Mediawiki does headlines a bit backwards so that
+</span>      <span class='comment'># the header level isn&#39;t limited. This results in the need to &#39;flip&#39;
+</span>      <span class='comment'># the headline length to standardize it.
+</span>      <span class='kw'>if</span> <span class='id identifier rubyid_header'>header</span>
+        <span class='kw'>if</span> <span class='id identifier rubyid_headeri'>headeri</span> <span class='op'>&lt;=</span> <span class='int'>6</span>
+          <span class='id identifier rubyid_level'>level</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>=</span><span class='tstring_end'>&quot;</span></span> <span class='op'>*</span> <span class='lparen'>(</span><span class='op'>-</span><span class='id identifier rubyid_headeri'>headeri</span> <span class='op'>+</span> <span class='int'>7</span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_header'>header</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_level'>level</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+         <span class='kw'>else</span>
+           <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_header'>header</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='comment'># Setup the table with some standard formatting options
+</span>      <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>{|class=\&quot;wikitable\&quot;\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># Output formated column names as the first row
+</span>      <span class='kw'>unless</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_columns'>columns</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>!!</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+        <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>end</span>
+      <span class='comment'># Add the rows to the table
+</span>      <span class='kw'>unless</span> <span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_count'>count</span><span class='period'>.</span><span class='id identifier rubyid_eql?'>eql?</span> <span class='int'>0</span>
+        <span class='id identifier rubyid_rows'>rows</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_row'>row</span><span class='op'>|</span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|-\n|</span><span class='tstring_end'>&quot;</span></span>
+          <span class='comment'># Try and prevent formatting tags from causing problems
+</span>          <span class='id identifier rubyid_bad'>bad</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&amp;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&lt;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&gt;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>&quot;</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>&#39;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>/</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span>
+          <span class='id identifier rubyid_r'>r</span> <span class='op'>=</span> <span class='id identifier rubyid_row'>row</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|| </span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+          <span class='id identifier rubyid_r'>r</span><span class='period'>.</span><span class='id identifier rubyid_each_char'>each_char</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_c'>c</span><span class='op'>|</span>
+            <span class='kw'>if</span> <span class='id identifier rubyid_bad'>bad</span><span class='period'>.</span><span class='id identifier rubyid_include?'>include?</span> <span class='id identifier rubyid_c'>c</span>
+              <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='period'>.</span><span class='id identifier rubyid_html_encode'>html_encode</span><span class='lparen'>(</span><span class='id identifier rubyid_c'>c</span><span class='rparen'>)</span>
+            <span class='kw'>else</span>
+              <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='id identifier rubyid_c'>c</span>
+            <span class='kw'>end</span>
+          <span class='kw'>end</span>
+          <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+        <span class='kw'>end</span>
+      <span class='kw'>end</span>
+      <span class='comment'># Finish up the table
+</span>      <span class='id identifier rubyid_str'>str</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>|}</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>return</span> <span class='id identifier rubyid_str'>str</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="cleanup-instance_method">
+  
+    #<strong>cleanup</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>The cleanup routine removes the methods added to Rex by the plugin initialization and then removes the console dispatcher</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+459
+460
+461
+462
+463
+464
+465</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 459</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_cleanup'>cleanup</span>
+  <span class='comment'># Cleanup methods added to Rex::Text::Table
+</span>  <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_class_eval'>class_eval</span> <span class='lbrace'>{</span> <span class='kw'>undef</span> <span class='symbol'>:to_dokuwiki</span> <span class='rbrace'>}</span>
+  <span class='const'><span class='object_link'><a href="../../Rex.html" title="Rex (module)">Rex</a></span></span><span class='op'>::</span><span class='const'>Text</span><span class='op'>::</span><span class='const'>Table</span><span class='period'>.</span><span class='id identifier rubyid_class_eval'>class_eval</span> <span class='lbrace'>{</span> <span class='kw'>undef</span> <span class='symbol'>:to_mediawiki</span> <span class='rbrace'>}</span>
+  <span class='comment'># Deregister the console dispatcher
+</span>  <span class='id identifier rubyid_remove_console_dispatcher'>remove_console_dispatcher</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Wiki</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="desc-instance_method">
+  
+    #<strong>desc</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>This method returns a brief description of the plugin.  It should be no more than 60 characters, but there are no hard limits.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+478
+479
+480</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 478</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_desc'>desc</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Adds output to wikitext</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="name-instance_method">
+  
+    #<strong>name</strong>  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Returns the plugin&#39;s name.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+470
+471
+472</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'plugins/wiki.rb', line 470</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_name'>name</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>wiki</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Wed Mar 31 00:34:51 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.2).
+</div>
+
+    </div>
+  </body>
+</html>
