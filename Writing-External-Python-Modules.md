@@ -1,6 +1,6 @@
 # Writing Python Modules for Metasploit
 
-This is an example of how to write a Python module for Metasploit Framework that uses a Python metasploit library to communicate with framework via JSON-RPC over stdin/stdout.
+This is an example of how to write a Python module for Metasploit Framework that uses a Python metasploit library to communicate with framework via JSON-RPC over stdin/stdout. External Python modules should support Python versions 3.5 and newer. Python 2.7 is no longer used for external modules.
 
 #### Execution
 
