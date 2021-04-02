@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Post
       if !sld_protocol.nil? || !sld_hostname.nil? || !sld_port.nil? || !sld_username.nil? || !sld_password.nil?
         print_line
         print_status('SLD properties:')
-        unless sld_protocol.nil? then print_status("SLD protocol: #{sld_protocol}") end
+        print_status("SLD protocol: #{sld_protocol}") unless sld_protocol.nil?
         unless sld_hostname.nil?
           print_status("SLD hostname: #{sld_hostname}")
           if meterpreter
