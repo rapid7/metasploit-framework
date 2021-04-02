@@ -7,7 +7,7 @@ send HTTP request (SSRF), and execute OS commands on connected SMDAgent. Works s
 Successful exploitation of the vulnerability enables unauthenticated remote attackers to achieve SSRF and execute OS commands from the agent connected
 to SolMan as a user from which the SMDAgent service starts, usually the daaadm.
 
-If a connected SMDAgent has CVE-2019-0307 vulnerability, unauthenticated remote attackers can obtain its
+If a connected SMDAgent is also vulnerable to CVE-2019-0307, unauthenticated remote attackers can obtain its
 secstore.properties file, which contains the credentials for the SAP Solution Manager server to which this SMDAgent is connected.
 
 CVE-2019-0307 vulnerability paper: [The Agent Who Spoke Too Much][1]
