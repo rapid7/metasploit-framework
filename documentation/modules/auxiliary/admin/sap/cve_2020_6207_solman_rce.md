@@ -4,10 +4,10 @@ SAP Solution Manager (SolMan) running version 7.2. The vulnerability occurs due 
 checks when submitting SOAP requests to the /EemAdminService/EemAdmin page to get information about connected SMDAgents,
 send HTTP request (SSRF), and execute OS commands on connected SMDAgent. Works stable in connected SMDAgent with Java version 1.8.
 
-Successful exploitation of the vulnerability enables unauthenticated remote attackers to achieve SSRF and execute OS commands from the agent connected
-to SolMan as a user from which the SMDAgent service starts, usually the daaadm.
+Successful exploitation of the vulnerability enables unauthenticated remote attackers to achieve SSRF and execute
+OS commands from the agent connected to SolMan as a user from which the SMDAgent service starts, usually the daaadm.
 
-If a connected SMDAgent has CVE-2019-0307 vulnerability, unauthenticated remote attackers can obtain its
+If a connected SMDAgent is also vulnerable to CVE-2019-0307, unauthenticated remote attackers can obtain its
 secstore.properties file, which contains the credentials for the SAP Solution Manager server to which this SMDAgent is connected.
 
 CVE-2019-0307 vulnerability paper: [The Agent Who Spoke Too Much][1]
@@ -81,16 +81,6 @@ Example: `http://1.1.1.1/test.html`
 
 OS command for executing in connected agent, the server name of which is specified in the `AGENT` option.
 Example: `ping -c 4 1.1.1.1`
-
-### SRVHOST
-
-The local IP address to listen HTTP requests from agent, the server name of which is specified in the `AGENT` option.
-Example: `192.168.1.1`
-
-### SRVPORT
-
-The local port to listen HTTP requests from agent, the server name of which is specified in the `AGENT` option.
-Example: `8000`
 
 ## Actions
 ```
