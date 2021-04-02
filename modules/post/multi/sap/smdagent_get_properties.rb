@@ -52,10 +52,10 @@ class MetasploitModule < Msf::Post
     case session.platform
     when 'windows'
       windows = true
-      instances = list_dir(WIN_PREFIX, windows, meterpreter)
+      instances = dir(WIN_PREFIX)
     else
       windows = false
-      instances = list_dir(UNIX_PREFIX, windows, meterpreter)
+      instances = dir(UNIX_PREFIX)
     end
 
     if instances.nil? || instances.empty?
@@ -79,8 +79,8 @@ class MetasploitModule < Msf::Post
         secstore_properties_file_name = "#{UNIX_PREFIX}#{instance}#{UNIX_SUFFIX}#{SECSTORE_FILE}"
       end
 
-      runtime_properties = parse_properties_file(runtime_properties_file_name, windows, meterpreter)
-      secstore_properties = parse_properties_file(secstore_properties_file_name, windows, meterpreter)
+      runtime_properties = parse_properties_file(runtime_properties_file_name, meterpreter)
+      secstore_properties = parse_properties_file(secstore_properties_file_name, meterpreter)
 
       next if runtime_properties.empty?
 
@@ -219,57 +219,10 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def list_dir(directory, is_windows, is_meterpreter)
-    if is_meterpreter
-      directories = session.fs.dir.foreach(directory).to_a
-    else
-      if is_windows
-        command = "dir #{directory}"
-      else
-        command = "ls #{directory}"
-      end
-      directories = session.shell_command(command).split("\n")
-    end
-    directories
-  end
-
-  def read_file(filename, is_windows, is_meterpreter)
-    if is_meterpreter
-      file_content = session.fs.file.open(filename).read
-    else
-      if is_windows
-        command = "more #{filename}"
-      else
-        command = "cat #{filename}"
-      end
-      file_content = session.shell_command(command)
-    end
-    file_content
-  end
-
-  def file_exist(filename, is_windows, is_meterpreter)
-    if is_meterpreter
-      exist = session.fs.file.exist?(filename)
-    else
-      if is_windows
-        command = "more #{filename}"
-      else
-        command = "stat #{filename}"
-      end
-      stat = session.shell_command(command)
-      if stat =~ /(no such file|cannot access file)/
-        exist = false
-      else
-        exist = true
-      end
-    end
-    exist
-  end
-
-  def parse_properties_file(filename, is_windows, is_meterpreter)
+  def parse_properties_file(filename, is_meterpreter)
     properties = []
-    if file_exist(filename, is_windows, is_meterpreter)
-      properties_content = read_file(filename, is_windows, is_meterpreter)
+    if file_exist?(filename)
+      properties_content = read_file(filename)
       if properties_content.nil?
         print_error("Failed to read properties file: #{filename}")
       else
