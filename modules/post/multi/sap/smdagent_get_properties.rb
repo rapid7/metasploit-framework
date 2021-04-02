@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Post
       instances = list_dir(UNIX_PREFIX, windows, meterpreter)
     end
 
-    if (instances == '') || instances.nil? || instances.empty?
+    if instances.nil? || instances.empty?
       fail_with(Failure::NotFound, 'SAP root directory not found')
     end
 
