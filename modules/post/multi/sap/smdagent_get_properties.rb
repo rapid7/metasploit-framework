@@ -158,9 +158,9 @@ class MetasploitModule < Msf::Post
             end
           end
         end
-        unless sld_port.nil? then print_status("SLD port: #{sld_port}") end
-        unless sld_username.nil? then print_good("SLD username: #{sld_username}") end
-        unless sld_password.nil? then print_good("SLD password: #{sld_password}") end
+        print_status("SLD port: #{sld_port}") unless sld_port.nil?
+        print_good("SLD username: #{sld_username}") unless sld_username.nil?
+        print_good("SLD password: #{sld_password}") unless sld_password.nil?
       end
 
       # Print SMD properties
