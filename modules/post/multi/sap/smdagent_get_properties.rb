@@ -111,7 +111,7 @@ class MetasploitModule < Msf::Post
           when /hostport/
             sld_port = property[:value]
           end
-        elsif property[:name] =~ /smd\./
+        elsif property[:name].include?('smd.')
           case property[:name]
           when /url/
             smd_url = property[:value].gsub(/\\:/, ':')
