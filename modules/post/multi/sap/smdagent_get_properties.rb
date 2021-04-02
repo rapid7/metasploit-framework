@@ -102,7 +102,7 @@ class MetasploitModule < Msf::Post
 
       # Parse runtime.properties file
       runtime_properties.each do |property|
-        if property[:name] =~ /sld\./
+        if property[:name].include?('sld.')
           case property[:name]
           when /hostprotocol/
             sld_protocol = property[:value]
