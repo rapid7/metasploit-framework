@@ -121,7 +121,7 @@ class MetasploitModule < Msf::Post
 
       # Parse secstore.properties file
       secstore_properties.each do |property|
-        if property[:name] =~ %r{sld/}
+        if property[:name].include?('sld/')
           case property[:name]
           when /usr/
             sld_username = property[:value]
