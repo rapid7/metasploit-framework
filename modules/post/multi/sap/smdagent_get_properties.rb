@@ -128,7 +128,7 @@ class MetasploitModule < Msf::Post
           when /pwd/
             sld_password = property[:value]
           end
-        elsif property[:name] =~ %r{smd/}
+        elsif property[:name].include?('smd/')
           case property[:name]
           when /User/
             smd_username = property[:value]
