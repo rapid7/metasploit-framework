@@ -127,8 +127,8 @@ class MetasploitModule < Msf::Auxiliary
 
     # Loot secstore.properties file
     loot = store_loot('smdagent.secstore.properties', 'text/plain', agent_host, secstore_content, secstore_filename, 'SMD Agent secstore.properties file')
-    vprint_good("Successfully retrieved file #{secstore_filename} from agent: #{@agent_name} file content:\n#{secstore_content}")
     print_good("Successfully retrieved file #{secstore_filename} from agent: #{@agent_name} saved in: #{loot}")
+    vprint_good("File content:\n#{secstore_content}")
 
     # Analyze secstore.properties file
     properties = parse_properties(secstore_content)
