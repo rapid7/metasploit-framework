@@ -167,9 +167,9 @@ class MetasploitModule < Msf::Post
       if !smd_url.nil? || !smd_username.nil? || !smd_password.nil?
         print_line
         print_status('SMD properties:')
-        unless smd_url.nil? then print_status("SMD url: #{smd_url}") end
-        unless smd_username.nil? then print_good("SMD username: #{smd_username}") end
-        unless smd_password.nil? then print_good("SMD password: #{smd_password}") end
+        print_status("SMD url: #{smd_url}") unless smd_url.nil?
+        print_good("SMD username: #{smd_username}") unless smd_username.nil?
+        print_good("SMD password: #{smd_password}") unless smd_password.nil?
       end
 
       # Store decoded credentials, report service and vuln
