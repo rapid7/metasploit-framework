@@ -24,8 +24,8 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Diagnostics Agent in Solution Manager, stores unencrypted credentials for Solution Manager server',
         'Description' => %q{
-          If a SMDAgent has CVE-2019-0307 vulnerability, attackers can obtain its secstore.properties configuration file,
-          which contains the credentials for the SAP Solution Manager server to which this SMDAgent is connected.
+          This module retrieves the `secstore.properties` file on a SMDAgent. This file contains the credentials
+          used by the SMDAgent to connect to the SAP Solution Manager server.
         },
         'License' => MSF_LICENSE,
         'Author' => [
