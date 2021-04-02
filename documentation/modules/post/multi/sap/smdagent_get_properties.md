@@ -1,7 +1,6 @@
 ## Vulnerable Application
 
-Any SMDAgent system with a `shell` or `meterpreter` session. Attackers can obtain secstore.properties file, 
-which contains the credentials for the SAP Solution Manager server to which this SMDAgent is connected.
+This module retrieves the `secstore.properties` file on a SMDAgent. This file contains the credentials used by the SMDAgent to connect to the SAP Solution Manager server.
 
 ## Verification Steps
 
