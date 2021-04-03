@@ -114,8 +114,6 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://wpscan.com/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'PACKETSTORM'
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
-    elsif in_ctx_id == 'AKB'
-      self.site = "https://attackerkb.com/assessments/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'LOGO'
