@@ -95,7 +95,7 @@ class Msf::Module::SiteReference < Msf::Module::Reference
     self.ctx_val = in_ctx_val
 
     if in_ctx_id == 'CVE'
-      self.site = "https://cvedetails.com/cve/CVE-#{in_ctx_val}/"
+      self.site = "https://nvd.nist.gov/vuln/detail/CVE-#{in_ctx_val}"
     elsif in_ctx_id == 'CWE'
       self.site = "https://cwe.mitre.org/data/definitions/#{in_ctx_val}.html"
     elsif in_ctx_id == 'BID'
@@ -114,6 +114,8 @@ class Msf::Module::SiteReference < Msf::Module::Reference
       self.site = "https://wpscan.com/vulnerability/#{in_ctx_val}"
     elsif in_ctx_id == 'PACKETSTORM'
       self.site = "https://packetstormsecurity.com/files/#{in_ctx_val}"
+    elsif in_ctx_id == 'AKB'
+      self.site = "https://attackerkb.com/assessments/#{in_ctx_val}"
     elsif in_ctx_id == 'URL'
       self.site = in_ctx_val.to_s
     elsif in_ctx_id == 'LOGO'

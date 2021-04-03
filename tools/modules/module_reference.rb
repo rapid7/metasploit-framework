@@ -28,7 +28,7 @@ require 'uri'
 def types
   {
     'ALL'         => '',
-    'CVE'         => 'http://cvedetails.com/cve/#{in_ctx_val}/',
+    'CVE'         => 'https://nvd.nist.gov/vuln/detail/CVE-#{in_ctx_val}',
     'CWE'         => 'http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html',
     'BID'         => 'http://www.securityfocus.com/bid/#{in_ctx_val}',
     'MSB'         => 'http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}',
@@ -37,6 +37,7 @@ def types
     'ZDI'         => 'http://www.zerodayinitiative.com/advisories/ZDI-#{in_ctx_val}',
     'WPVDB'       => 'https://wpscan.com/vulnerability/#{in_ctx_val}',
     'PACKETSTORM' => 'https://packetstormsecurity.com/files/#{in_ctx_val}',
+    'AKB'         => 'https://attackerkb.com/assessments/#{in_ctx_val}',
     'URL'         => '#{in_ctx_val}'
   }
 end
