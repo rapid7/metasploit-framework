@@ -316,9 +316,9 @@ class CommandShell
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-    binary_path = shell_command_token("which #{binary}").to_s.strip
-    if binary_path.eql?("#{binary} not found") || binary_path == ""
-      print_error(binary_path)
+    binary_path = shell_command_token("command -v \"#{binary}\" || echo 'false'")
+    if binary_path.eql?("false")
+      print_error("#{binary} not found")
       return nil
     else
       print_status("Found #{binary} at #{binary_path}")
