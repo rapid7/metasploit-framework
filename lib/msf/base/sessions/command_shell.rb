@@ -321,8 +321,8 @@ class CommandShell
       print_error("#{binary} not found")
       return nil
     end
-      print_status("Found #{binary} at #{binary_path}")
-      return binary_path
+    print_status("Found #{binary} at #{binary_path}")
+    return binary_path
   end
 
   #
