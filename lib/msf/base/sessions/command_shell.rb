@@ -321,7 +321,7 @@ class CommandShell
       print_error("#{binary} not found")
       return nil
     end
-    binary_path=binary_path.split[0].chomp
+    binary_path=binary_path.split("\n")[0].chomp
     print_status("Found #{binary} at #{binary_path}")
     return binary_path
   end
