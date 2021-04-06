@@ -25,11 +25,11 @@ PATH
       jsobfu
       json
       metasm
-      metasploit-concern
-      metasploit-credential
-      metasploit-model
+      metasploit-concern (~> 3.0.0)
+      metasploit-credential (~> 4.0.0)
+      metasploit-model (~> 3.1.0)
       metasploit-payloads (= 2.0.41)
-      metasploit_data_models
+      metasploit_data_models (~> 4.1.0)
       metasploit_payloads-mettle (= 1.0.8)
       mqtt
       msgpack
