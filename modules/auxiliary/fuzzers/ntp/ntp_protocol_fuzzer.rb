@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
     @versions.each do |version|
       print_status("#{host}:#{rport} fuzzing version #{version} control messages (mode 6)")
       @mode_6_operations.each do |op|
-        request = Rex::Proto::NTP.ntp_control(version, op).to_binary_s
+        request = Rex::Proto::NTP::Modes.ntp_control(version, op).to_binary_s
         what = "#{request.size}-byte version #{version} mode 6 op #{op} message"
         vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
         responses = probe(host, datastore['RPORT'].to_i, request)
@@ -113,7 +113,7 @@ class MetasploitModule < Msf::Auxiliary
       print_status("#{host}:#{rport} fuzzing version #{version} private messages (mode 7)")
       @mode_7_implementations.each do |implementation|
         @mode_7_request_codes.each do |request_code|
-          request = Rex::Proto::NTP.ntp_private(version, implementation, request_code, "\0" * 188).to_binary_s
+          request = Rex::Proto::NTP::Modes.ntp_private(version, implementation, request_code, "\0" * 188).to_binary_s
           what = "#{request.size}-byte version #{version} mode 7 imp #{implementation} req #{request_code} message"
           vprint_status("#{host}:#{rport} probing with #{request.size}-byte #{what}")
           responses = probe(host, datastore['RPORT'].to_i, request)
@@ -198,7 +198,7 @@ class MetasploitModule < Msf::Auxiliary
     return if responses.empty?
     responses.each do |response|
       data = response[0]
-      descriptions << Rex::Proto::NTP.describe(data)
+      descriptions << Rex::Proto::NTP::Modes.describe(data)
       problems << 'large response' if request.size < data.size
       ntp_req = Rex::Proto::NTP::NTPGeneric.new.read(request)
       ntp_resp = Rex::Proto::NTP::NTPGeneric.new.read(data)
