@@ -343,12 +343,17 @@ module Msf
     def default_cred?
       return false unless post_auth?
 
-      cred_opts_with_default = required_cred_options.select { |name, opt|
-        case opt.type
-        when 'string'
-          return true unless opt.default.blank?
+      required_cred_options.all? do |name, opt|
+        if opt.type == 'string'
+          if !opt.default.blank?
+            true
+          else
+            false
+          end
+        else
+          true
         end
-      }
+      end
 
       false
     end

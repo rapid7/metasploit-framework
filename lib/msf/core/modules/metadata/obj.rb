@@ -48,8 +48,10 @@ class Obj
   attr_reader :check
   # @return [Boolean]
   attr_reader :post_auth
+  alias :post_auth? :post_auth # Mirror the Module class
   # @return [Boolean]
   attr_reader :default_credential
+  alias :default_cred? :default_credential # Mirror the Module class
   # @return [Hash]
   attr_reader :notes
   # @return [Array<String>]

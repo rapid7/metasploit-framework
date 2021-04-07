@@ -52,9 +52,9 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
 
         reported_module = false
         host_result = framework.analyze.host(eval_host)
-        found_modules = host_result[:modules]
-        found_modules.each do |fnd_mod, status|
-          print_status(fnd_mod.fullname + " - " + status.to_s.gsub('_', ' '))
+        found_modules = host_result[:results]
+        found_modules.each do |res|
+          print_status(res.mod.fullname + " - " + res.to_s)
           reported_module = true
         end
 
