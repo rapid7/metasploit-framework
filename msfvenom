@@ -346,7 +346,13 @@ def dump_payloads(platform = nil, arch = nil)
   framework.payloads.each_module(
     'Platform' => platform ? Msf::Module::PlatformList.transform(platform.split(',')) : nil,
     'Arch'     => arch ? arch.split(',') : nil) do |name, mod|
-      tbl << [ name, mod.new.description.split.join(' ') ]
+      begin
+        mod_info = mod.new.description.split.join(' ')
+      rescue ::Exception, ::LoadError => e
+        wlog("Module #{name} failed to initialize: #{e}", 'core', LEV_0)
+        next
+      end
+      tbl << [ name, mod_info ]
   end
 
   "\n" + tbl.to_s + "\n"
