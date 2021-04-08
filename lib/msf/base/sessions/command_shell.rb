@@ -316,12 +316,14 @@ class CommandShell
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-    binary_path = shell_command_token("command -v '#{binary}' && echo true")
-    if binary_path.to_s.eql?("")
-      print_error("#{binary} not found")
-      return nil
+    binary_path = shell_command_token("command -v '#{binary}'").to_s.strip
+    if binary_path.eql?("")
+      binary_path = shell_command_token("which #{binary}").to_s.strip
+      if binary_path.eql?("#{binary} not found") || binary_path == ""
+        print_error("#{binary} not found")
+        return nil
+      end
     end
-    binary_path = binary_path.split("\n")[0].chomp
     print_status("Found #{binary} at #{binary_path}")
     return binary_path
   end
