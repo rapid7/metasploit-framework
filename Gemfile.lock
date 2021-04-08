@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.0.39)
+    metasploit-framework (6.0.40)
       actionpack (~> 5.2.2)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
@@ -122,13 +122,13 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.439.0)
+    aws-partitions (1.442.0)
     aws-sdk-core (3.113.1)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-ec2 (1.231.0)
+    aws-sdk-ec2 (1.233.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
     aws-sdk-iam (1.52.0)
@@ -193,13 +193,13 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     io-console (0.5.9)
-    irb (1.3.4)
+    irb (1.3.5)
       reline (>= 0.1.5)
     jmespath (1.4.0)
     jsobfu (0.4.2)
       rkelly-remix
     json (2.5.1)
-    loofah (2.9.0)
+    loofah (2.9.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     memory_profiler (1.0.0)
@@ -223,7 +223,7 @@ GEM
       activesupport (~> 5.2.2)
       railties (~> 5.2.2)
     metasploit-payloads (2.0.41)
-    metasploit_data_models (4.1.2)
+    metasploit_data_models (4.1.3)
       activerecord (~> 5.2.2)
       activesupport (~> 5.2.2)
       arel-helpers
@@ -246,9 +246,9 @@ GEM
     net-ldap (0.17.0)
     net-ssh (6.1.0)
     network_interface (0.0.2)
-    nexpose (7.2.1)
+    nexpose (7.3.0)
     nio4r (2.5.7)
-    nokogiri (1.11.2)
+    nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     octokit (4.20.0)
@@ -260,7 +260,7 @@ GEM
     packetfu (1.1.13)
       pcaprub
     parallel (1.20.1)
-    parser (3.0.0.0)
+    parser (3.0.1.0)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
     pcaprub (0.13.0)
@@ -304,7 +304,7 @@ GEM
       nokogiri
     redcarpet (3.5.1)
     regexp_parser (2.1.1)
-    reline (0.2.4)
+    reline (0.2.5)
       io-console (~> 0.5)
     rex-arch (0.1.14)
       rex-text
@@ -351,10 +351,10 @@ GEM
       rex-socket
       rex-text
     rex-struct2 (0.1.3)
-    rex-text (0.2.33)
+    rex-text (0.2.34)
     rex-zip (0.1.4)
       rex-text
-    rexml (3.2.4)
+    rexml (3.2.5)
     rkelly-remix (0.0.7)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -379,7 +379,7 @@ GEM
     rspec-rerun (1.1.0)
       rspec (~> 3.0)
     rspec-support (3.10.2)
-    rubocop (1.12.0)
+    rubocop (1.12.1)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
