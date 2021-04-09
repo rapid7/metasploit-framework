@@ -43,7 +43,6 @@ Module options (post/linux/gather/haserl_read):
 
    Name     Current Setting         Required  Description
    ----     ---------------         --------  -----------
-   BIN      /usr/bin/haserl-lua5.1  yes       Haserl binary
    RFILE    /etc/shadow             yes       File to read
    SESSION  1                       yes       The session to run this module on.
 
