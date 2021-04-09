@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'Haserl Arbitrary File Reader',
         'Description' => %q{
-          This module exploits haserl to read arbitrary files.
+          This module exploits haserl prior to 0.9.36 to read arbitrary files.
           The most widely accepted exploitation vector is reading /etc/shadow,
           which will reveal root's hash for cracking.
         },
@@ -26,6 +26,8 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'shell', 'meterpreter' ],
         'References' => [
           ['URL', 'https://twitter.com/steaIth/status/1364940271054712842'],
+          ['URL', 'https://gitlab.alpinelinux.org/alpine/aports/-/issues/12539'],
+          ['CVE', '2021-29133']
         ]
       )
     )

@@ -12,6 +12,8 @@ which is commonly used on this distribution.
 This module exploits the fact that calling haserl on a file will make it not only change the effective UID,
 but also display the content of the file.
 
+This has been fixed in version 0.9.36.
+
 ### Prerequisites
 
 1. Install Alpine Linux
