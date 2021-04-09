@@ -395,7 +395,7 @@ GEM
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.4)
-    ruby_smb (2.0.7)
+    ruby_smb (2.0.8)
       bindata
       openssl-ccm
       openssl-cmac
