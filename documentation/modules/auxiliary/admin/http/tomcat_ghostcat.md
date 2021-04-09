@@ -18,7 +18,7 @@ docker run --name tomcat --rm -p 8080:8080 -p 8009:8009 tomcat:8.5.32
 
 1. Install the application and start it
 2. Start msfconsole
-3. Do: `auxiliary/admin/http/tomcat_ghostcat`
+3. Do: `use auxiliary/admin/http/tomcat_ghostcat`
 4. Do: `set RHOSTS [ip]`
 5. Do: `set RPORT [port]`
 6. Do: `set FILENAME [filename]`
