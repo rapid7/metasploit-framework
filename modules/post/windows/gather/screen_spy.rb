@@ -119,7 +119,7 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status("Screen Spying Complete")
-    if record? && file_locations and not file_locations.empty?
+    if record? && framework.db.active && file_locations and not file_locations.empty?
       print_status "run loot -t screenspy.screenshot to see file locations of your newly acquired loot"
     end
 
