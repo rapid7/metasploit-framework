@@ -14,14 +14,11 @@ be viewed from the Metasploit interface.
 
   1. Start msfconsole
   2. Get meterpreter session
-  3. Do: ```use post/windows/gather/screen_spy```
-  4. Do: ```set SESSION <session id>```
-  5. Do: ```run```
+  3. Do: `use post/windows/gather/screen_spy`
+  4. Do: `set SESSION <session id>`
+  5. Do: `run`
 
 ## Options
-
-### SESSION
-The session to run the module on.
 
 ### RECORD
 If set to true, record all screenshots to disk by saving them to loot.
