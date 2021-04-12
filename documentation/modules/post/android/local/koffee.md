@@ -1,7 +1,9 @@
 ## Vulnerable Application
 
-KOFFEE exploits the CVE-2020-8539, which is an Arbitrary Code Execution vulnerabilty that allows a user to execute the micomd binary with valid payloads on Kia Motors Head Units. 
-By using KOFFEE an attacker can send crafted micomd commands to control the head unit and send CAN bus frames into the Multimedia CAN (M-Can) of the vehicle.
+KOFFEE exploits the CVE-2020-8539, which is an Arbitrary Code Execution vulnerabilty that allows a user
+to execute the micomd binary with valid payloads on Kia Motors Head Units.
+By using KOFFEE an attacker can send crafted micomd commands to control the head unit and send CAN bus frames
+into the Multimedia CAN (M-Can) of the vehicle.
 
 ### Vulnerable Head Unit software versions
 - SOP.003.30.180703
@@ -25,8 +27,11 @@ By using KOFFEE an attacker can send crafted micomd commands to control the head
 - SESSION: it referes to the metasploit session number on which this module is run.
 
 ## Scenarios
-KOFFEE can be run as post-exploitation module when an active session is available with the Head Unit (HU). First, an attacker may create a malicious apk to generate a remote connection with the HU. For instace, using msfvenom or other tools, an attacker can create the malicious apk that, once installed in the HU, starts an active session. 
-At this point, the attacker is able to use the KOFFEE exploit to take control of the HU and inject CAN bus frames into the M-CAN bus of the vehicle.
+KOFFEE can be run as post-exploitation module when an active session is available with the Head Unit (HU).
+First, an attacker may create a malicious apk to generate a remote connection with the HU.
+For instace, using msfvenom or other tools, an attacker can create the malicious apk that, once installed in the HU,
+starts an active session. Now, the attacker is able to use the KOFFEE exploit to take control of the HU and
+inject CAN bus frames into the M-CAN bus of the vehicle.
 
 
 ### Usage
