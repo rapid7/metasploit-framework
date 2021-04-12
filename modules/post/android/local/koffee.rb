@@ -15,8 +15,9 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'KOFFEE - Kia OFFensivE Exploit',
         'Description' => %q{
-          This module exploits CVE-2020-8539, which is an Arbitrary Code Execution  vulnerabilty that allows a user to execute the micomd binary file of a Kia Motors vehicle. This module has been tested on SOP.003.30.18.0703, SOP.005.7.181019 and SOP.007.1.191209 head unit software version.
-          This module allows an attacker to send crafted micomd commands that allow the attacker
+          This module exploits the CVE-2020-8539, which is an Arbitrary Code Execution vulnerabilty that allows an to attacker execute the micomd binary file Kia Motors of Head Unit.
+          This module has been tested on SOP.003.30.18.0703, SOP.005.7.181019 and SOP.007.1.191209 head unit software version.
+          This module, run on an active session, allows an attacker to send crafted micomd commands that allow the attacker
           to control the head unit and send CAN bus frames into the Multimedia CAN (M-Can) of the vehicle.
         },
         'Author' =>
