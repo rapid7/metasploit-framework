@@ -51,12 +51,12 @@ module Msf::DBManager::Service
   def report_service(opts)
     return if !active
   ::ApplicationRecord.connection_pool.with_connection { |conn|
+    opts = opts.clone() # protect the original caller's opts
     addr  = opts.delete(:host) || return
     hname = opts.delete(:host_name)
     hmac  = opts.delete(:mac)
     host  = nil
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-    opts = opts.clone()
     opts.delete(:workspace) # this may not be needed however the service creation below might complain if missing
     hopts = {:workspace => wspace, :host => addr}
     hopts[:name] = hname if hname
@@ -149,6 +149,7 @@ module Msf::DBManager::Service
       return Array.wrap(Mdm::Service.find(opts[:id]))
     end
 
+    opts = opts.clone() # protect the original caller's opts
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     opts.delete(:workspace)
 
