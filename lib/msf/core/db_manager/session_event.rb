@@ -25,6 +25,7 @@ module Msf::DBManager::SessionEvent
         return Array.wrap(Mdm::SessionEvent.find(opts[:id]))
       end
 
+      opts = opts.clone() # protect the original caller's opts
       # Passing workspace keys to the search will cause exceptions, so remove them if they were accidentally included.
       opts.delete(:workspace)
 

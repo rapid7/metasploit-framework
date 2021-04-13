@@ -29,6 +29,7 @@ module Msf::DBManager::Payload
 
   def update_payload(opts)
     ::ApplicationRecord.connection_pool.with_connection do
+      opts = opts.clone() # protect the original caller's opts
       id = opts.delete(:id)
       Mdm::Payload.update(id, opts)
     end
