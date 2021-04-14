@@ -10,6 +10,8 @@ module Msf
     include Auxiliary::Scanner
     include Auxiliary::Report
 
+    REDIS_UNAUTHORIZED_RESPONSE = /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i
+
     #
     # Initializes an instance of an auxiliary module that interacts with Redis
     #
@@ -50,7 +52,7 @@ module Msf
         vprint_error("No response to '#{command_string}'")
         return
       end
-      if /(?<auth_response>ERR operation not permitted|NOAUTH Authentication required)/i =~ command_response
+      if REDIS_UNAUTHORIZED_RESPONSE =~ command_response
         fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
         vprint_status("Requires authentication (#{printable_redis_response(auth_response, false)})")
         if (auth_response = send_redis_command('AUTH', datastore['PASSWORD']))
