@@ -30,22 +30,15 @@ class Msf::Analyze::Result
   def to_s
     if ready_for_test?
       "ready for testing"
-    elsif @missing.empty?
+    elsif @missing.empty? && @invalid.empty?
       # TODO? confirm vuln match in this class
       "has matching reference"
     else
-      missing.map do |m|
-        case m
-        when :os_match
-          "operating system does not match"
-        when :session, "SESSION"
-          "open #{required_sessions_list} session required"
-        when :credential
-          "credentials are required"
-        when String
-          "option #{m.inspect} needs to be set"
-        end
-      end.uniq.join(', ')
+      if missing_message.empty? || invalid_message.empty?
+        missing_message + invalid_message
+      else
+        [missing_message, invalid_message].join(', ')
+      end
     end
   end
 
@@ -54,7 +47,7 @@ class Msf::Analyze::Result
   end
 
   def ready_for_test?
-    @prerequisites_evaluated && missing.empty?
+    @prerequisites_evaluated && @missing.empty? && @invalid.empty?
   end
 
   private
@@ -165,6 +158,30 @@ class Msf::Analyze::Result
     end
 
     false
+  end
+
+  def missing_message
+    @missing.map do |m|
+      case m
+      when :os_match
+        "operating system does not match"
+      when :session, "SESSION"
+        "open #{required_sessions_list} session required"
+      when :credential
+        "credentials are required"
+      when String
+        "option #{m.inspect} needs to be set"
+      end
+    end.uniq.join(', ')
+  end
+
+  def invalid_message
+    @invalid.map do |o|
+      case o
+      when String
+        "option #{o.inspect} is currently invalid"
+      end
+    end.join(', ')
   end
 
 =begin
