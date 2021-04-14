@@ -30,9 +30,13 @@ class MetasploitModule < Msf::Post
         print_good(ignore.to_s)
       end
     elsif mode == 2
-      gitignore = cmd_exec("cat #{file}").chomp
-      print_good(file.to_s)
-      print_good(gitignore.to_s)
+      if !file.to_s.empty?
+        gitignore = cmd_exec("cat #{file}").chomp
+        print_good(file.to_s)
+        print_good(gitignore.to_s)
+      else
+        print_error('Please set the FILE path!')
+      end
     end
   end
 end
