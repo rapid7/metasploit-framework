@@ -67,11 +67,11 @@ class Msf::Analyze::Result
   end
 
   def matches_session?(session)
-    !!@mod.session_types&.include?(session.type)
+    session.stype == 'meterpreter' || !!@mod.session_types&.include?(session.type)
   end
 
   def required_sessions_list
-    return "" unless @mod.session_types
+    return "meterpreter" unless @mod.session_types&.any?
 
     @mod.session_types.join(' or ')
   end
