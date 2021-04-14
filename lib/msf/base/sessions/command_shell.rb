@@ -88,6 +88,26 @@ class CommandShell
     return true
   end
 
+  def bootstrap(datastore = {}, handler = nil)
+    session = self
+
+    token = Rex::Text.rand_text_alphanumeric(16)
+    response = shell_command("echo #{token}")
+    unless response&.include?(token)
+      dlog("Session #{session.sid} failed to respond to an echo command")
+      print_error("Command shell session #{session.sid} is not valid and will be closed")
+      session.kill
+      return nil
+    end
+
+    # Process the auto-run scripts for this session
+    if self.respond_to?(:process_autoruns)
+      self.process_autoruns(datastore)
+    end
+
+    handler.on_session(self) if handler
+  end
+
   #
   # Return the subdir of the `documentation/` directory that should be used
   # to find usage documentation

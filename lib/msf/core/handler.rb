@@ -277,6 +277,8 @@ protected
       on_session(session)
     end
 
+    return unless session.alive
+
     # Notify the framework that we have a new session opening up...
     # Don't let errant event handlers kill our session
     begin
