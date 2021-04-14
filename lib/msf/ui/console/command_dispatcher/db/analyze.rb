@@ -1,7 +1,7 @@
 module Msf::Ui::Console::CommandDispatcher::Analyze
 
   def cmd_analyze_help
-    print_line "Usage: analyze [addr1 addr2 ...]"
+    print_line "Usage: analyze [OPTIONS] [addr1 addr2 ...]"
     print_line
   end
 
@@ -12,12 +12,15 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     end
 
     host_ranges = []
+    print_empty = false
 
     while (arg = args.shift)
       case arg
         when '-h','help'
           cmd_analyze_help
           return
+        when '-a', '-v'
+          print_empty = true
         else
           (arg_host_range(arg, host_ranges))
       end
@@ -44,23 +47,23 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
       host_ids.each do |id|
         eval_host = framework.db.hosts(id: id).first
         next unless eval_host
-        print_status("Analyzing #{eval_host.address}...")
         unless eval_host.vulns
-          print_status("No suggestions for #{eval_host.address}.")
+          print_status("No suggestions for #{eval_host.address}.") if  print_empty
           next
         end
 
-        reported_module = false
         host_result = framework.analyze.host(eval_host)
         found_modules = host_result[:results]
-        found_modules.each do |res|
-          print_status(res.mod.fullname + " - " + res.to_s)
-          reported_module = true
+        if found_modules.any?
+          print_status("Analysis for #{eval_host.address} ->")
+          found_modules.each do |res|
+            print_status("  " + res.mod.fullname + " - " + res.to_s)
+          end
+
+          suggested_modules[eval_host.address] = found_modules
+        elsif print_empty
+          print_status("No suggestions for #{eval_host.address}.")
         end
-
-        suggested_modules[eval_host.address] = found_modules
-
-        print_status("No suggestions for #{eval_host.address}.") unless reported_module
       end
     end
     suggested_modules
