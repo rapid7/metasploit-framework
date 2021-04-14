@@ -77,9 +77,9 @@ class Msf::Analyze
             next if evaluated_module_targets.include?([fnd_mod, port])
 
             creds = @framework.db.creds(svcs: [svc.name])
-            r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds)
+            r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
             if r.match?
-              suggested_modules << r
+              suggested_modules << r.evaluate
             end
             evaluated_module_targets << [fnd_mod, port]
           end
@@ -97,10 +97,10 @@ class Msf::Analyze
       next if evaluated_module_targets.include?([fnd_mod, port])
 
       creds = @framework.db.creds(port: port) if port
-      r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds)
+      r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
 
       if r.match?
-        suggested_modules << r
+        suggested_modules << r.evaluate
       end
       evaluated_module_targets << [fnd_mod, port]
     end

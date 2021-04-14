@@ -2,44 +2,59 @@ class Msf::Analyze::Result
 
   attr_reader :datastore
   attr_reader :host
+  attr_reader :invalid
   attr_reader :missing
   attr_reader :mod
   attr_reader :required
 
-  def initialize(host:, mod:, available_creds: nil, datastore: nil)
+  def initialize(host:, mod:, framework:, available_creds: nil, datastore: nil)
     @host = host
     @mod = mod
     @required = []
     @missing = []
+    @invalid = []
     @datastore = datastore&.transform_keys(&:downcase) || Hash.new
     @available_creds = available_creds
+    @framework = framework
 
     determine_likely_compatibility
+  end
+
+  def evaluate(with: @datastore)
+    @datastore = with
+
+    determine_prerequisites
+    self
   end
 
   def to_s
     if ready_for_test?
       "ready for testing"
+    elsif @missing.empty?
+      # TODO? confirm vuln match in this class
+      "has matching reference"
     else
       missing.map do |m|
         case m
         when :os_match
           "operating system does not match"
-        when :session
+        when :session, "SESSION"
           "open #{required_sessions_list} session required"
         when :credential
           "credentials are required"
+        when String
+          "option #{m.inspect} needs to be set"
         end
-      end.join(', ')
+      end.uniq.join(', ')
     end
   end
 
   def match?
-    !missing.include? :os_match
+    !@missing.include? :os_match
   end
 
   def ready_for_test?
-    missing.empty?
+    @prerequisites_evaluated && missing.empty?
   end
 
   private
@@ -51,19 +66,51 @@ class Msf::Analyze::Result
       @missing << :os_match
     end
 
-    if @mod.session_types
+    if @mod.post_auth?
+      unless @mod.default_cred? || have_service_cred? || have_datastore_cred?
+        @missing << :credential
+      end
+    end
+  end
+
+  def determine_prerequisites
+    @mod = @framework.modules.create(@mod.fullname)
+
+    if @mod.respond_to?(:session_types) && @mod.session_types
       @required << :session
 
-      if @host.sessions.alive.none? { |sess| matches_session?(sess) }
+      if s = @host.sessions.alive.detect { |sess| matches_session?(sess) }
+        @datastore['session'] = s.local_id.to_s
+      else
         @missing << :session
       end
     end
 
-    if @mod.post_auth?
-      unless @mod.default_cred? || have_service_cred? || have_datastore_cred?
-        missing << :credential
+    @mod.options.each_pair do |name, opt|
+      @required << name if opt.required? && !opt.default.nil?
+    end
+
+    @datastore.each_pair do |k, v|
+      @mod.datastore[k] = v
+    end
+
+    @mod.validate
+  rescue Msf::OptionValidateError => e
+    unset_options = []
+    bad_options = []
+
+    e.options.each do |opt|
+      if @mod.datastore[opt].nil?
+        unset_options << opt
+      else
+        bad_options << opt
       end
     end
+
+    @missing.concat unset_options
+    @invalid.concat bad_options
+  ensure
+    @prerequisites_evaluated = true
   end
 
   def matches_session?(session)
