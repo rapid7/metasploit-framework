@@ -24,29 +24,17 @@ run Msf::WebServices::JsonRpcApp
 #
 warmup do |app|
   client = Rack::MockRequest.new(app)
-  response = client.post(
-    '/api/v1/json-rpc',
-    input: {
-      jsonrpc: '2.0',
-      method: 'core.version',
-      id: 1,
-      params: []
-    }.to_json
-  )
+  response = client.get('/api/v1/health')
 
-  warmup_error_message = "Metasploit JSON RPC did not successfully start up. Unexpected response returned: #{response.body}"
+  warmup_error_message = "Metasploit JSON RPC did not successfully start up. Unexpected response returned: '#{response.body}'"
   begin
     parsed_response = JSON.parse(response.body)
   rescue JSON::ParserError => e
     raise warmup_error_message, e
   end
 
-  is_valid_response = (
-    parsed_response['jsonrpc'] == '2.0' &&
-      parsed_response['id'] == 1 &&
-      !parsed_response.dig('result', 'version').to_s.empty? &&
-      !parsed_response.dig('result', 'ruby').to_s.empty?
-  )
+  expected_response = { 'data' => { 'status' => 'UP' } }
+  is_valid_response = parsed_response == expected_response
 
   unless is_valid_response
     raise warmup_error_message

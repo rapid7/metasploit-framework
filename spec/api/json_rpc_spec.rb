@@ -13,7 +13,8 @@ RSpec.describe "Metasploit's json-rpc" do
   include_context 'Msf::Framework#threads cleaner'
 
   let(:app) { subject }
-  let(:api_url) { '/api/v1/json-rpc' }
+  let(:health_check_url) { '/api/v1/health' }
+  let(:rpc_url) { '/api/v1/json-rpc' }
   let(:framework) { app.settings.framework }
   let(:module_name) { 'scanner/ssl/openssl_heartbleed' }
   let(:a_valid_result_uuid) { { 'result' => hash_including({ 'uuid' => match(/\w+/) }) } }
@@ -27,7 +28,7 @@ RSpec.describe "Metasploit's json-rpc" do
   end
 
   def create_job
-    post api_url, {
+    post rpc_url, {
       'jsonrpc': '2.0',
       'method': 'module.check',
       'id': 1,
@@ -42,7 +43,7 @@ RSpec.describe "Metasploit's json-rpc" do
   end
 
   def get_job_results(uuid)
-    post api_url, {
+    post rpc_url, {
       'jsonrpc': '2.0',
       'method': 'module.results',
       'id': 1,
@@ -50,6 +51,19 @@ RSpec.describe "Metasploit's json-rpc" do
         uuid
       ]
     }.to_json
+  end
+
+  def get_rpc_health_check
+    post rpc_url, {
+      'jsonrpc': '2.0',
+      'method': 'health.check',
+      'id': 1,
+      'params': []
+    }.to_json
+  end
+
+  def get_rest_health_check
+    get health_check_url
   end
 
   def last_json_response
@@ -92,6 +106,80 @@ RSpec.describe "Metasploit's json-rpc" do
         retry
       else
         raise
+      end
+    end
+  end
+
+  describe 'health status' do
+    context 'when using the REST health check functionality' do
+      it 'passes the health check' do
+        expected_response = {
+          "data" => {
+            "status"=>"UP"
+          }
+        }
+
+        get_rest_health_check
+        expect(last_response).to be_ok
+        expect(last_json_response).to eq(expected_response)
+      end
+    end
+
+    context 'when there is an issue' do
+      before(:each) do
+        allow(framework).to receive(:version).and_raise 'Mock error'
+      end
+
+      it 'fails the health check' do
+        expected_response = {
+          "data" => {
+            "status"=>"DOWN"
+          }
+        }
+
+        get_rest_health_check
+
+        expect(last_response.status).to be 503
+        expect(last_json_response).to eq(expected_response)
+      end
+    end
+
+    context 'when using the RPC health check functionality' do
+      context 'when the service is healthy' do
+        it 'passes the health check' do
+          expected_response = {
+            "id"=>1,
+            "jsonrpc"=>"2.0",
+            "result"=> {
+              "status"=>"UP"
+            }
+          }
+
+          get_rpc_health_check
+          expect(last_response).to be_ok
+          expect(last_json_response).to eq(expected_response)
+        end
+      end
+
+      context 'when there is an issue' do
+        before(:each) do
+          allow(framework).to receive(:version).and_raise 'Mock error'
+        end
+
+        it 'fails the health check' do
+          expected_response = {
+            "id"=>1,
+            "jsonrpc"=>"2.0",
+            "result"=> {
+              "status"=>"DOWN"
+            }
+          }
+
+          get_rpc_health_check
+
+          expect(last_response).to be_ok
+          expect(last_json_response).to eq(expected_response)
+        end
       end
     end
   end
