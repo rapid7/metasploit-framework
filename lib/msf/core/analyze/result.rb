@@ -77,7 +77,7 @@ class Msf::Analyze::Result
   end
 
   def have_service_cred?
-    @available_creds.any?
+    @available_creds&.any?
   end
 
   def have_datastore_cred?
