@@ -59,7 +59,10 @@ module Msf::PostMixin
       select(nil,nil,nil,back_off_period)
     end
     session_ready = !!session.sys
-    raise "Could not get a hold of the session." unless session_ready
+    unless session_ready
+      raise "The stdapi extension has not been loaded yet." unless session.tlv_enc_key.nil?
+      raise "Could not get a hold of the session."
+    end
     return session_ready
   end
 

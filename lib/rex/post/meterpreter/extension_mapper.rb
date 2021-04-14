@@ -26,6 +26,8 @@ class ExtensionMapper
   end
 
   def self.get_extension_name(id)
+    id = id - (id % COMMAND_ID_RANGE)
+
     self.get_extension_names.find do |name|
       begin
         klass = self.get_extension_klass(name)

@@ -14,7 +14,7 @@ module Meterpreter
 ###
 class RequestError < ArgumentError
   def initialize(command_id, einfo, ecode=nil)
-    extension_id = command_id - (command_id % 1000)
+    extension_id = command_id - (command_id % COMMAND_ID_RANGE)
     if extension_id == 0  # this is the meterpreter core
       mod = Rex::Post::Meterpreter
     else
@@ -208,6 +208,17 @@ module PacketDispatcher
   # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
+    if packet.type == PACKET_TYPE_REQUEST && commands.present?
+      unless commands.include?(packet.method)
+        if (ext_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(packet.method))
+          unless ext.aliases.include?(ext_name)
+            raise RequestError.new(packet.method, "The command requires the #{ext_name} extension to be loaded")
+          end
+        end
+        raise RequestError.new(packet.method, "The command is not supported by this Meterpreter type (#{session_type})")
+      end
+    end
+
     # First, add the waiter association for the supplied packet
     waiter = add_response_waiter(packet)
 
