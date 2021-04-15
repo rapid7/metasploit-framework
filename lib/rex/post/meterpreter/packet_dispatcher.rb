@@ -209,7 +209,12 @@ module PacketDispatcher
   #   forever
   def send_packet_wait_response(packet, timeout)
     if packet.type == PACKET_TYPE_REQUEST && commands.present?
-      unless commands.include?(packet.method)
+      # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
+      # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+      # proactive validation of Windows core commands.
+      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == COMMAND_ID_START_CORE
+
+      unless windows_core || commands.include?(packet.method)
         if (ext_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(packet.method))
           unless ext.aliases.include?(ext_name)
             raise RequestError.new(packet.method, "The command requires the #{ext_name} extension to be loaded")
