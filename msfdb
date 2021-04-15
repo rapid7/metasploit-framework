@@ -58,6 +58,7 @@ require 'msfenv'
     db_pool: 200,
     address: 'localhost',
     port: 5443,
+    daemon: true,
     ssl: true,
     ssl_cert: @ws_ssl_cert_default,
     ssl_key: @ws_ssl_key_default,
@@ -121,12 +122,10 @@ def run_cmd(cmd, input: nil, env: {})
     exitstatus = wait_thr.value.exitstatus
   end
 
-  if exitstatus != 0
-    if @options[:debug]
-      puts "'#{cmd}' returned #{exitstatus}"
-      puts out
-      puts err
-    end
+  if @options[:debug]
+    puts "'#{cmd}' returned #{exitstatus}"
+    puts out
+    puts err
   end
 
   exitstatus
@@ -497,6 +496,44 @@ def init_web_service
   end
 end
 
+def start_web_service_daemon(expect_auth:)
+  if run_cmd("#{thin_cmd} start") == 0
+    # wait until web service is online
+    retry_count = 0
+    response_data = web_service_online_check(expect_auth: expect_auth)
+    is_online = response_data[:state] != :offline
+    while !is_online && retry_count < @options[:retry_max]
+      retry_count += 1
+      if @options[:debug]
+        puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
+      end
+      sleep(@options[:retry_delay])
+      response_data = web_service_online_check(expect_auth: expect_auth)
+      is_online = response_data[:state] != :offline
+    end
+
+    if response_data[:state] == :online
+      puts "#{'success'.green.bold}"
+      puts 'MSF web service started and online'
+      return true
+    elsif response_data[:state] == :error
+      puts "#{'failed'.red.bold}"
+      print_error 'MSF web service failed and returned the following message:'
+      puts "#{response_data[:message].nil? || response_data[:message].empty? ? "No message returned." : response_data[:message]}"
+    elsif response_data[:state] == :offline
+      puts "#{'failed'.red.bold}"
+      print_error 'A connection with the web service was refused.'
+    end
+
+    puts "Please see #{@ws_log} for additional webservice details."
+    return false
+  else
+    puts "#{'failed'.red.bold}"
+    puts 'Failed to start MSF web service'
+    return false
+  end
+end
+
 def start_web_service(expect_auth: true)
   unless File.file?(@ws_conf)
     puts "No MSF web service configuration found at #{@ws_conf}, not starting"
@@ -515,7 +552,6 @@ def start_web_service(expect_auth: true)
     File.delete(@ws_pid)
   end
 
-  # daemonize MSF web service
   print 'Attempting to start MSF web service...'
 
   unless File.file?(@ws_ssl_key_default)
@@ -525,40 +561,11 @@ def start_web_service(expect_auth: true)
     return false
   end
 
-  if run_cmd("#{thin_cmd} start") == 0
-    # wait until web service is online
-    retry_count = 0
-    response_data = web_service_online_check(expect_auth: expect_auth)
-    is_online = response_data[:state] != :offline
-    while !is_online && retry_count < @options[:retry_max]
-      retry_count += 1
-      if @options[:debug]
-        puts "MSF web service doesn't appear to be online. Sleeping #{@options[:retry_delay]}s until check #{retry_count}/#{@options[:retry_max]}"
-      end
-      sleep(@options[:retry_delay])
-      response_data = web_service_online_check(expect_auth: expect_auth)
-      is_online = response_data[:state] != :offline
-    end
-
-      if response_data[:state] == :online
-        puts "#{'success'.green.bold}"
-        puts 'MSF web service started and online'
-        return true
-      elsif response_data[:state] == :error
-        puts "#{'failed'.red.bold}"
-        print_error 'MSF web service failed and returned the following message:'
-        puts "#{response_data[:message].nil? || response_data[:message].empty? ? "No message returned." : response_data[:message]}"
-      elsif response_data[:state] == :offline
-        puts "#{'failed'.red.bold}"
-        print_error 'A connection with the web service was refused.'
-      end
-
-    puts "Please see #{@ws_log} for additional webservice details."
-    return false
+  if @options[:daemon]
+    start_web_service_daemon(expect_auth: expect_auth)
   else
-    puts "#{'failed'.red.bold}"
-    puts 'Failed to start MSF web service'
-    return false
+    puts thin_cmd
+    system "#{thin_cmd} start"
   end
 end
 
@@ -719,33 +726,31 @@ def output_web_service_information
   puts "#{get_web_service_uri(path: '/api/v1/auth/account')}"
   puts ''
 
-  persist_data_service
+  if @options[:add_data_service]
+    persist_data_service
+  end
 end
 
 def persist_data_service
-  data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
-  if !@options[:add_data_service]
-    return
-  elsif !@options[:data_service_name].nil?
-    data_service_name = @options[:data_service_name]
-  end
-
   # execute msfconsole commands to add and persist the data service connection
-  connect_cmd = get_db_connect_command(name: data_service_name)
-  cmd = "msfconsole -qx \"#{connect_cmd}; db_save; exit\""
+  cmd = "./msfconsole -qx \"#{get_db_connect_command}; db_save; exit\""
   if run_cmd(cmd) != 0
     # attempt to execute msfconsole in the current working directory
     if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
       puts 'Failed to run msfconsole and persist the data service connection'
     end
   end
-
 end
 
-def get_db_connect_command(name: nil)
-  # build db_connect command based on install options
+def get_db_connect_command
+  data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
+  if !@options[:data_service_name].nil?
+    data_service_name = @options[:data_service_name]
+  end
+
+  # build db_remove and db_connect command based on install options
   connect_cmd = "db_connect"
-  connect_cmd << " --name #{name}" unless name.nil?
+  connect_cmd << " --name #{data_service_name}"
   connect_cmd << " --token #{@ws_api_token}"
   connect_cmd << " --cert #{@options[:ssl_cert]}" if @options[:ssl]
   connect_cmd << " --skip-verify" if skip_ssl_verify?
@@ -771,13 +776,14 @@ def get_ssl_cert
   @options[:ssl] ? @options[:ssl_cert] : nil
 end
 
+# TODO: In the future this can be replaced by Msf::WebServices::HttpDBManagerService
 def thin_cmd
   server_opts = "--rackup #{@ws_conf} --address #{@options[:address]} --port #{@options[:port]}"
   ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key]} --ssl-cert-file #{@options[:ssl_cert]}" : ''
   ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify?
   adapter_opts = "--environment #{@options[:ws_env]}"
-  daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}"
-  all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:empty?).join(' ')
+  daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}" if @options[:daemon]
+  all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:blank?).join(' ')
 
   "thin #{all_opts}"
 end
@@ -924,6 +930,10 @@ def parse_args(args)
     opts.on('-p', '--port PORT', Integer,
             "Web service port (default: #{@options[:port]})") { |p|
       @options[:port] = p
+    }
+
+    opts.on('--[no-]daemon', 'Enable daemon') { |d|
+      @options[:daemon] = d
     }
 
     opts.on('--[no-]ssl', "Enable SSL (default: #{@options[:ssl]})") { |s| @options[:ssl] = s }

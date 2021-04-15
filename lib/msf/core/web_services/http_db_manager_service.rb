@@ -1,6 +1,7 @@
 require 'rack'
 require 'metasploit/framework/parsed_options/remote_db'
 
+# TODO: This functionality isn't fully used currently, it should be integrated and called from the top level msfdb.rb file
 class Msf::WebServices::HttpDBManagerService
 
   def start(opts)

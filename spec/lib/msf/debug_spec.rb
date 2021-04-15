@@ -337,7 +337,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses an empty config file and datastore' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'empty.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
@@ -372,7 +372,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses a populated global datastore' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'empty.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
@@ -414,7 +414,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses a populated global datastore and current module' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'empty.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
@@ -465,7 +465,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses active module variables' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'empty.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'empty.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
@@ -513,7 +513,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'preferences the framework datastore values over config stored values' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'module.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'module.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
@@ -564,7 +564,7 @@ RSpec.describe Msf::Ui::Debug do
   end
 
   it 'correctly retrieves and parses Database information' do
-    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'debug', 'config_files', 'db.ini'))
+    allow(::Msf::Config).to receive(:config_file).and_return(File.join(file_fixtures_path, 'config_files', 'db.ini'))
 
     framework = instance_double(
       ::Msf::Framework,
