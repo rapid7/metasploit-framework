@@ -91,13 +91,15 @@ class CommandShell
   def bootstrap(datastore = {}, handler = nil)
     session = self
 
-    token = Rex::Text.rand_text_alphanumeric(16)
-    response = shell_command("echo #{token}")
-    unless response&.include?(token)
-      dlog("Session #{session.sid} failed to respond to an echo command")
-      print_error("Command shell session #{session.sid} is not valid and will be closed")
-      session.kill
-      return nil
+    if datastore['AutoVerifySession']
+      token = Rex::Text.rand_text_alphanumeric(8..24)
+      response = shell_command("echo #{token}")
+      unless response&.include?(token)
+        dlog("Session #{session.sid} failed to respond to an echo command")
+        print_error("Command shell session #{session.sid} is not valid and will be closed")
+        session.kill
+        return nil
+      end
     end
   end
 
