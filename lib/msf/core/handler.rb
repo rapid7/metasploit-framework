@@ -269,15 +269,17 @@ protected
     # Call the handler's on_session() method
     if session.respond_to?(:bootstrap)
       session.bootstrap(datastore, self)
-    else
-      # Process the auto-run scripts for this session
-      if session.respond_to?(:process_autoruns)
-        session.process_autoruns(datastore)
-      end
-      on_session(session)
+
+      return unless session.alive
     end
 
-    return unless session.alive
+    # Process the auto-run scripts for this session
+    if session.respond_to?(:process_autoruns)
+      session.process_autoruns(datastore)
+    end
+
+    # Tell the handler that we have a session
+    on_session(session)
 
     # Notify the framework that we have a new session opening up...
     # Don't let errant event handlers kill our session

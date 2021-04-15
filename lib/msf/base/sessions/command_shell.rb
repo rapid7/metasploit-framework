@@ -99,13 +99,6 @@ class CommandShell
       session.kill
       return nil
     end
-
-    # Process the auto-run scripts for this session
-    if self.respond_to?(:process_autoruns)
-      self.process_autoruns(datastore)
-    end
-
-    handler.on_session(self) if handler
   end
 
   #

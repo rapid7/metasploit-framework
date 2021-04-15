@@ -190,14 +190,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         session.execute_script(args.shift, *args)
       end
     end
-
-    # Process the auto-run scripts for this session
-    if self.respond_to?(:process_autoruns)
-      self.process_autoruns(datastore)
-    end
-
-    # Tell the handler that we have a session
-    handler.on_session(self) if handler
   end
 
   ##
