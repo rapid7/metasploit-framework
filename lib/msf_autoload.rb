@@ -181,6 +181,7 @@ class MsfAutoload
       'rpc_auth' => 'RPC_Auth',
       'rpc_job' => 'RPC_Job',
       'rpc_core' => 'RPC_Core',
+      'rpc_health' => 'RPC_Health',
       'rpc_module' => 'RPC_Module',
       'cli' => 'CLI',
       'sqlitei' => 'SQLitei',

@@ -36,6 +36,7 @@ class Service
     self.users              = self.options[:users] || []
     self.job_status_tracker = Msf::RPC::RpcJobStatusTracker.new
 
+    add_handler("health",  Msf::RPC::RPC_Health.new(self))
     add_handler("core",    Msf::RPC::RPC_Core.new(self))
     add_handler("auth",    Msf::RPC::RPC_Auth.new(self))
     add_handler("console", Msf::RPC::RPC_Console.new(self))
