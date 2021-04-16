@@ -12,6 +12,10 @@ require 'rex/text'
 require 'securerandom'
 require 'uri'
 require 'yaml'
+require 'pg'
+require_relative 'msfdb_helpers/pg_ctlcluster'
+require_relative 'msfdb_helpers/pg_ctl'
+
 
 include Rex::Text::Color
 
@@ -31,6 +35,8 @@ require 'msfenv'
 @localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
+@pg_cluster_conf_root = "#{@localconf}/.local/etc/postgresql"
+@db_driver = nil
 
 @ws_tag = 'msf-ws'
 @ws_conf = File.join(@framework, "#{@ws_tag}.ru")
@@ -153,34 +159,11 @@ end
 
 def status_db
   update_db_port
-
-  if Dir.exist?(@db)
-    if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-      puts "Database started at #{@db}"
-    else
-      puts "Database is not running at #{@db}"
-    end
-  else
-    puts "No database found at #{@db}"
-  end
+  @db_driver.status_db
 end
 
 def started_db
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-    puts "Database already started at #{@db}"
-    return true
-  end
-
-  print "Starting database at #{@db}..."
-  run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
-  sleep(2)
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
-    puts "#{'failed'.red.bold}"
-    false
-  else
-    puts "#{'success'.green.bold}"
-    true
-  end
+  @db_driver.start_db
 end
 
 def start_db
@@ -204,28 +187,30 @@ end
 
 def stop_db
   update_db_port
-
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-    puts "Stopping database at #{@db}"
-    run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} stop")
-  else
-    puts "Database is no longer running at #{@db}"
-  end
+  @db_driver.stop_db
 end
 
 def restart_db
-  stop_db
-  start_db
+  @db_driver.restart_db
 end
 
 def create_db
-  puts "Creating database at #{@db}"
-  Dir.mkdir(@db)
-  run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
+  @db_driver.init_db
+end
 
-  File.open("#{@db}/postgresql.conf", 'a') do |f|
-    f.puts "port = #{@options[:db_port]}"
-  end
+def create_db_users
+  puts 'Creating database users'
+  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+  run_psql("alter role #{@options[:msf_db_user]} createdb")
+  run_psql("alter role #{@options[:msftest_db_user]} createdb")
+  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
+  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
+
+  conn = PG.connect(host: '127.0.0.1', dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: @msf_pass)
+  conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
+  conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
+  conn.finish
 end
 
 def init_db
@@ -247,20 +232,10 @@ def init_db
   create_db
   start_db
 
-  puts 'Creating database users'
-  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-  run_psql("alter role #{@options[:msf_db_user]} createdb")
-  run_psql("alter role #{@options[:msftest_db_user]} createdb")
-  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-          input: "#{@msf_pass}\n#{@msf_pass}\n")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-          input: "#{@msftest_pass}\n#{@msftest_pass}\n")
+  create_db_users
 
-  write_db_client_auth_config
-  restart_db
+  @db_driver.write_db_client_auth_config
+  @db_driver.restart_db
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
@@ -334,7 +309,7 @@ def write_db_config
 end
 
 def write_db_client_auth_config
-  client_auth_config = "#{@db}/pg_hba.conf"
+  client_auth_config = "#{@pg_cluster_conf_root}/#{get_postgres_version}/#{@options[:msf_db_name]}/pg_hba.conf"
   puts "Writing client authentication configuration file #{client_auth_config}"
   File.open(client_auth_config, 'w') do |f|
     f.puts "host    \"#{@options[:msf_db_name]}\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
@@ -404,20 +379,7 @@ def print_error(error)
 end
 
 def delete_db
-  if Dir.exist?(@db)
-    stop_db
-
-    if @options[:delete_existing_data]
-      puts "Deleting all data at #{@db}"
-      FileUtils.rm_rf(@db)
-    end
-
-    if @options[:delete_existing_data]
-      File.delete(@db_conf)
-    end
-  else
-    puts "No data at #{@db}, doing nothing"
-  end
+  @db_driver.delete_db
 end
 
 def reinit_db
@@ -1006,6 +968,10 @@ def invoke_command(commands, component, command)
   end
 end
 
+def installed(cmd)
+  !Msf::Util::Helper.which(cmd).nil?
+end
+
 def has_requirements
   ret_val = true
   postgresql_cmds = %w(psql pg_ctl initdb createdb)
@@ -1069,7 +1035,12 @@ if $PROGRAM_NAME == __FILE__
     abort
   end
 
-  unless has_requirements
+  if installed("pg_ctl")
+    abort unless has_requirements
+    @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  elsif installed("pg_ctlcluster")
+    @db_driver = PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  else
     abort
   end
 
