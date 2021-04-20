@@ -132,18 +132,6 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # Check using lscpu
-    if not vm
-      case cmd_exec("lscpu")
-      when /Xen/i
-        vm = "Xen"
-      when /KVM/i
-        vm = "KVM"
-      when /Microsoft/i
-        vm = "MS Hyper-V"
-      end
-    end
-
     # Check dmesg Output
     if not vm
       dmesg = cmd_exec("dmesg")
