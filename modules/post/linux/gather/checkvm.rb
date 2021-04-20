@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Post
     print_status('Gathering System info ....')
     vm = nil
     dmi_info = nil
-    ls_pci_data = nil
 
     if is_root?
       dmi_info = cmd_exec('/usr/sbin/dmidecode')
