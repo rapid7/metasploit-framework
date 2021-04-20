@@ -13,8 +13,6 @@ require 'securerandom'
 require 'uri'
 require 'yaml'
 require 'pg'
-require_relative 'msfdb_helpers/pg_ctlcluster'
-require_relative 'msfdb_helpers/pg_ctl'
 
 
 include Rex::Text::Color
@@ -26,6 +24,9 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+require 'msfdb_helpers/pg_ctlcluster'
+require 'msfdb_helpers/pg_ctl'
 
 require 'msfenv'
 

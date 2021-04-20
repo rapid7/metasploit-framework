@@ -1,4 +1,4 @@
-require_relative 'db_interface'
+require 'msfdb_helpers/db_interface'
 
 class PgCtl < DbInterface
 
