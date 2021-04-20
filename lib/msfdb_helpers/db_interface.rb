@@ -32,4 +32,8 @@ class DbInterface
     raise NotImplementedError
   end
 
+  def self.requirements
+    Array.new
+  end
+
 end

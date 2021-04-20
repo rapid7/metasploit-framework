@@ -97,6 +97,10 @@ class PgCtlcluster < DbInterface
     end
   end
 
+  def self.requirements
+    %w(psql pg_ctlcluster pg_dropcluster pg_createcluster pg_config)
+  end
+
   private
 
   def get_postgres_version

@@ -102,4 +102,8 @@ class PgCtl < DbInterface
       end
     end
   end
+
+  def self.requirements
+    %w(psql pg_ctl initdb createdb)
+  end
 end
