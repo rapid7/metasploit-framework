@@ -114,10 +114,21 @@ class MetasploitModule < Msf::Post
       end
     end
 
-    # Xen bus check
     if not vm
-      if cmd_exec("ls -1 /sys/bus").to_s.split("\n").include?("xen")
-        vm = "Xen"
+      product_name = read_file('/sys/class/dmi/id/product_name')
+      if product_name
+        case product_name.gsub("\n", " ")
+      	when /vmware/i
+      	  vm = "VMware"
+      	when /virtualbox/i
+      	  vm = "VirtualBox"
+      	when /xen/i
+      	  vm = "Xen"
+      	when /KVM/i
+      	  vm = "KVM"
+      	when /oracle/i
+      	  vm = "Oracle Corporation"
+      	end
       end
     end
 
