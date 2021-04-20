@@ -70,12 +70,14 @@ class MetasploitModule < Msf::Post
 
     # Check SCSI Driver
     if not vm
-      proc_scsi = read_file("/proc/scsi/scsi") rescue ""
-      case proc_scsi.gsub("\n", " ")
-      when /vmware/i
-        vm = "VMware"
-      when /vbox/i
-        vm = "VirtualBox"
+      if readable? ("/proc/scsi/scsi")
+        proc_scsi = read_file("/proc/scsi/scsi")
+        case proc_scsi.gsub("\n", " ")
+        when /vmware/i
+          vm = "VMware"
+        when /vbox/i
+          vm = "VirtualBox"
+        end
       end
     end
 
