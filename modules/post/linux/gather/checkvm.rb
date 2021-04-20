@@ -118,17 +118,17 @@ class MetasploitModule < Msf::Post
       product_name = read_file('/sys/class/dmi/id/product_name')
       if product_name
         case product_name.gsub("\n", " ")
-      	when /vmware/i
-      	  vm = "VMware"
-      	when /virtualbox/i
-      	  vm = "VirtualBox"
-      	when /xen/i
-      	  vm = "Xen"
-      	when /KVM/i
-      	  vm = "KVM"
-      	when /oracle/i
-      	  vm = "Oracle Corporation"
-      	end
+        when /vmware/i
+          vm = "VMware"
+        when /virtualbox/i
+          vm = "VirtualBox"
+        when /xen/i
+          vm = "Xen"
+        when /KVM/i
+          vm = "KVM"
+        when /oracle/i
+          vm = "Oracle Corporation"
+        end
       end
     end
 
