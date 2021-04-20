@@ -13,7 +13,7 @@ class PgCtlcluster < DbInterface
     super()
   end
 
-  def init_db
+  def init
     puts "Creating database at #{@db}"
     Dir.mkdir(@db)
     FileUtils.mkdir_p(@pg_cluster_conf_root)
@@ -23,9 +23,9 @@ class PgCtlcluster < DbInterface
     end
   end
 
-  def delete_db
+  def delete
     if Dir.exist?(@db)
-      stop_db
+      stop
 
       if @options[:delete_existing_data]
         puts "Deleting all data at #{@db}"
@@ -39,12 +39,12 @@ class PgCtlcluster < DbInterface
     end
   end
 
-  def reinit_db
-    delete_db
-    init_db
+  def reinit
+    delete
+    init
   end
 
-  def start_db
+  def start
     print "Starting database at #{@db}..."
     status = run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} start -- -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log")
     case status
@@ -60,15 +60,15 @@ class PgCtlcluster < DbInterface
     end
   end
 
-  def stop_db
+  def stop
     run_cmd("pg_ctlcluster #{get_postgres_version} #{@options[:msf_db_name]} stop -- -o \"-p #{@options[:db_port]}\" -D #{@db}")
   end
 
-  def restart_db
+  def restart
     run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} reload -- -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log")
   end
 
-  def status_db
+  def status
     if Dir.exist?(@db)
       if run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} status -- -o \"-p #{@options[:db_port]}\" -D #{@db}") == 0
         puts "Database started at #{@db}"

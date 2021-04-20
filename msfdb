@@ -160,11 +160,11 @@ end
 
 def status_db
   update_db_port
-  @db_driver.status_db
+  @db_driver.status
 end
 
 def started_db
-  @db_driver.start_db
+  @db_driver.start
 end
 
 def start_db
@@ -188,15 +188,15 @@ end
 
 def stop_db
   update_db_port
-  @db_driver.stop_db
+  @db_driver.stop
 end
 
 def restart_db
-  @db_driver.restart_db
+  @db_driver.restart
 end
 
 def create_db
-  @db_driver.init_db
+  @db_driver.init
 end
 
 def create_db_users
@@ -236,7 +236,7 @@ def init_db
   create_db_users
 
   @db_driver.write_db_client_auth_config
-  @db_driver.restart_db
+  @db_driver.restart
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
@@ -363,7 +363,7 @@ def print_error(error)
 end
 
 def delete_db
-  @db_driver.delete_db
+  @db_driver.delete
 end
 
 def reinit_db
@@ -1019,8 +1019,10 @@ if $PROGRAM_NAME == __FILE__
   end
 
   if installed?("pg_ctl") && has_requirements(PgCtl.requirements)
+    puts "herehere"
     @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
   elsif installed?("pg_ctlcluster") && has_requirements(PgCtlcluster.requirements)
+    puts "herehere2222"
     @db_driver = PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
   else
     abort

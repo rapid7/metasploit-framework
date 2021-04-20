@@ -1,30 +1,30 @@
 class DbInterface
 
-  def init_db
+  def init
     raise NotImplementedError
   end
 
-  def delete_db
+  def delete
     raise NotImplementedError
   end
 
-  def reinit_db
+  def reinit
     raise NotImplementedError
   end
 
-  def start_db
+  def start
     raise NotImplementedError
   end
 
-  def stop_db
+  def stop
     raise NotImplementedError
   end
 
-  def restart_db
+  def restart
     raise NotImplementedError
   end
 
-  def status_db
+  def status
     raise NotImplementedError
   end
 

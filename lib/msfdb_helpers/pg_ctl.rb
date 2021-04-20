@@ -10,7 +10,7 @@ class PgCtl < DbInterface
     super()
   end
 
-  def init_db
+  def init
     puts "Creating database at #{@db}"
     Dir.mkdir(@db)
     run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
@@ -20,9 +20,9 @@ class PgCtl < DbInterface
     end
   end
 
-  def delete_db
+  def delete
     if Dir.exist?(@db)
-      stop_db
+      stop
 
       if @options[:delete_existing_data]
         puts "Deleting all data at #{@db}"
@@ -37,12 +37,12 @@ class PgCtl < DbInterface
     end
   end
 
-  def reinit_db
-    delete_db
-    init_db
+  def reinit
+    delete
+    init
   end
 
-  def start_db
+  def start
     if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
       puts "Database already started at #{@db}"
       return true
@@ -60,7 +60,7 @@ class PgCtl < DbInterface
     end
   end
 
-  def stop_db
+  def stop
     if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
       puts "Stopping database at #{@db}"
       run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} stop")
@@ -69,12 +69,12 @@ class PgCtl < DbInterface
     end
   end
 
-  def restart_db
-    stop_db
-    start_db
+  def restart
+    stop
+    start
   end
 
-  def status_db
+  def status
     if Dir.exist?(@db)
       if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
         puts "Database started at #{@db}"
