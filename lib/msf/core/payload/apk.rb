@@ -198,7 +198,7 @@ class Msf::Payload::Apk
     end
 
     print_status "Decompiling original APK..\n"
-    run_cmd(['apktool', 'd', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
+    run_cmd(['apktool', 'd', '--force-manifest', '--no-res', "#{tempdir}/original.apk", '-o', "#{tempdir}/original"])
     print_status "Decompiling payload APK..\n"
     run_cmd(['apktool', 'd', "#{tempdir}/payload.apk", '-o', "#{tempdir}/payload"])
 
