@@ -191,6 +191,7 @@ jobs:
               }
             };
 
+            console.log("hello world");
             const issueType = context.eventName === 'issues' ? 'issues' : 'pullRequests';
             const config = allConfig[issueType][context.payload.label.name];
             if (!config) {
