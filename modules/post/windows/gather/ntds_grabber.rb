@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Post
       'Platform' => [ 'win' ],
       'Arch' => [ 'x86', 'x64' ],
       'SessionTypes' => [ 'meterpreter' ],
-      'Compat' => { 'Meterpreter' => { 'Commands' => [ 'stdapi_sys_railgun*' ] } }
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ core_migrate stdapi_railgun* } } }
     )
   )
 

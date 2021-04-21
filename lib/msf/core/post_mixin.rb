@@ -186,6 +186,16 @@ module Msf::PostMixin
       return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
+    # Check all specified meterpreter commands are included
+    if s.type == 'meterpreter'
+      # get a list of required command names
+      cmd_names = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
+      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select { |name| cmd_names.any? { |cmd_name| File.fnmatch(cmd_name, name) } }
+      cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }
+      # this may return false if an extension hasn't been loaded yet
+      return false unless (cmd_ids - session.commands).empty?
+    end
+
     # If we got here, we haven't found anything that definitely
     # disqualifies this session.  Assume that means we can use it.
     true

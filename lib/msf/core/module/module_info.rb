@@ -83,7 +83,7 @@ module Msf::Module::ModuleInfo
   #
   def merge_check_key(info, name, val)
     if (self.respond_to?("merge_info_#{name.downcase}", true))
-      return eval("merge_info_#{name.downcase}(info, val)")
+      eval("merge_info_#{name.downcase}(info, val)")
     else
       # If the info hash already has an entry for this name
       if (info[name])
