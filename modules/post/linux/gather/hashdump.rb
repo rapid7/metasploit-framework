@@ -22,8 +22,8 @@ class MetasploitModule < Msf::Post
 
   # Run Method for when run command is issued
   def run
-    unless is_root?
-      fail_with Failure::NoAccess, 'You must run this module as root!'
+    unless readable?('/etc/shadow')
+      fail_with Failure::NoAccess, 'Shadow file must be readable in order to dump hashes'
     end
 
     passwd_file = read_file('/etc/passwd')
