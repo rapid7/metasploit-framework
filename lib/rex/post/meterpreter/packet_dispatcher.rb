@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/exceptions'
 
@@ -14,18 +15,7 @@ module Meterpreter
 ###
 class RequestError < ArgumentError
   def initialize(command_id, einfo, ecode=nil)
-    extension_id = command_id - (command_id % COMMAND_ID_RANGE)
-    if extension_id == 0  # this is the meterpreter core
-      mod = Rex::Post::Meterpreter
-    else
-      mod_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(extension_id)
-      mod = Rex::Post::Meterpreter::ExtensionMapper.get_extension_module(mod_name)
-    end
-
-    if mod
-      command_name = mod.constants.select { |c| c.to_s.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
-      command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
-    end
+    command_name = Rex::Post::Meterpreter::CommandMapper.get_command_name(command_id)
 
     @method = command_name || "##{command_id}"
     @result = einfo
