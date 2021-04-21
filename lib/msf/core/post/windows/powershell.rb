@@ -10,7 +10,11 @@ module Msf
         include ::Msf::Post::Common
 
         def initialize(info = {})
-          super
+          super(update_info(
+            info,
+            'Compat' => { 'Meterpreter' => { 'Commands' => [ 'stdapi_sys_process*' ] } }
+          ))
+
           register_advanced_options(
             [
               OptInt.new('Powershell::Post::timeout',

@@ -83,13 +83,20 @@ module Msf::Module::ModuleInfo
   #
   def merge_check_key(info, name, val)
     if (self.respond_to?("merge_info_#{name.downcase}", true))
-      eval("merge_info_#{name.downcase}(info, val)")
+      return eval("merge_info_#{name.downcase}(info, val)")
     else
       # If the info hash already has an entry for this name
       if (info[name])
         # If it's not an array, convert it to an array and merge the
         # two
-        if (info[name].kind_of?(Array) == false)
+        if (info[name].kind_of?(Hash))
+          raise TypeError, 'can only merge a hash into a hash' unless val.kind_of?(Hash)
+          val.each_pair do |val_key, val_val|
+            merge_check_key(info[name], val_key, val_val)
+          end
+
+          return
+        elsif (info[name].kind_of?(Array) == false)
           curr       = info[name]
           info[name] = [ curr ]
         end
