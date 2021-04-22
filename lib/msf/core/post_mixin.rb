@@ -189,9 +189,14 @@ module Msf::PostMixin
     # Check all specified meterpreter commands are included
     if s.type == 'meterpreter'
       # get a list of required command names
-      cmd_names = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
-      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |name|
-        cmd_names.any? { |cmd_name| File.fnmatch(cmd_name, name) }
+      cmd_name_wildcards = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
+      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |cmd_name|
+        cmd_name_wildcards.any? { |cmd_name_wildcard| File.fnmatch(cmd_name_wildcard, cmd_name) }
+      end
+
+      if cmd_name_wildcards.any? { |cmd_name_wildcard| cmd_names.none? { |cmd_name| File.fnmatch(cmd_name_wildcard, cmd_name) } }
+        # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
+        raise RuntimeError, 'one or more of the specified meterpreter command wildcards did not match anything'
       end
 
       cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }

@@ -31,7 +31,7 @@ module Compile
     write_file "#{path}.c", strip_comments(data)
 
     gcc_cmd = "gcc -o '#{path}' '#{path}.c'"
-    if session.type.eql? 'shell'
+    if session.type == 'shell'
       gcc_cmd = "PATH=\"$PATH:/usr/bin/\" #{gcc_cmd}"
     end
 
