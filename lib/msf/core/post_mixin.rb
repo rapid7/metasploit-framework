@@ -190,10 +190,26 @@ module Msf::PostMixin
     if s.type == 'meterpreter'
       # get a list of required command names
       cmd_names = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
-      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select { |name| cmd_names.any? { |cmd_name| File.fnmatch(cmd_name, name) } }
+      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |name|
+        cmd_names.any? { |cmd_name| File.fnmatch(cmd_name, name) }
+      end
+
       cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }
+
+      # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
+      # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+      # proactive validation of Windows core commands. This is not the only instance of this workaround.
+      if s.base_platform == 'windows'
+        cmd_ids = cmd_ids.select do |cmd_id|
+          !cmd_id.between?(
+            Rex::Post::Meterpreter::COMMAND_ID_START_CORE,
+            Rex::Post::Meterpreter::COMMAND_ID_START_CORE + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
+          )
+        end
+      end
+
       # this may return false if an extension hasn't been loaded yet
-      return false unless (cmd_ids - session.commands).empty?
+      return false unless (cmd_ids - s.commands).empty?
     end
 
     # If we got here, we haven't found anything that definitely
