@@ -84,6 +84,8 @@ module Auxiliary
     else
       result = self.job_run_proc(ctx, &:run)
       self.job_cleanup_proc(ctx)
+      # the original mod was cloned, additionally copy any potential errors on to the original instance
+      omod.error = mod.error
 
       return result
     end
