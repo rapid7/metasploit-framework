@@ -46,6 +46,13 @@ module Msf
           ['grpi0_name', :LPWSTR],
         ].freeze
 
+        def initialize(info = {})
+          super(update_info(
+            info,
+            'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_process_* stdapi_railgun_* } } }
+          ))
+        end
+
         ##
         # get_domain(info_key, server_name = nil)
         #

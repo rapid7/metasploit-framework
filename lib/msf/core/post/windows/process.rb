@@ -9,6 +9,13 @@ module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ core_channel_* stdapi_sys_process_* } } }
+    ))
+  end
+
   # Checks the architecture of a payload and PID are compatible
   # Returns true if they are false if they are not
   def arch_check(test_arch, pid)

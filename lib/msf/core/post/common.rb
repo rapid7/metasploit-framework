@@ -2,6 +2,15 @@
 
 module Msf::Post::Common
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
+        stdapi_sys_config_getenv stdapi_sys_process_close stdapi_sys_process_execute stdapi_sys_process_get_processes
+      } } }
+    ))
+  end
+
   def clear_screen
     Gem.win_platform? ? (system "cls") : (system "clear")
   end

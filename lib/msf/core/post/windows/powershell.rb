@@ -12,7 +12,7 @@ module Msf
         def initialize(info = {})
           super(update_info(
             info,
-            'Compat' => { 'Meterpreter' => { 'Commands' => [ 'stdapi_sys_process*' ] } }
+            'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_config_sysinfo stdapi_sys_process_* } } }
           ))
 
           register_advanced_options(

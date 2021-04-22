@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Post
       'License'       => MSF_LICENSE,
       'Platform'      => [ 'linux' ],
       'SessionTypes'  => [ 'meterpreter' ],
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun* } } }
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun_* } } }
     ))
   end
 
