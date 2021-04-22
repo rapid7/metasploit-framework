@@ -8,6 +8,11 @@ module Meterpreter
 
 class CommandMapper
 
+  # Get the numeric command ID for the specified command name.
+  #
+  # @param [String] name The name of the command to retrieve the ID for. This
+  #   parameter is case insensitive.
+  # @return [Integer, nil] The command ID or nil if the name does not exist.
   def self.get_command_id(name)
     name.downcase!
 
@@ -28,9 +33,13 @@ class CommandMapper
     mod.const_get(const_name)
   end
 
+  # Get the string command name for the specified command ID.
+  #
+  # @param [Integer] id The ID of the command to retrieve the name for.
+  # @return [String, nil] The command name or nil if the ID does not exist.
   def self.get_command_name(id)
     extension_id = id - (id % COMMAND_ID_RANGE)
-    if extension_id == 0  # this is the meterpreter core
+    if extension_id == COMMAND_ID_START_CORE  # this is the meterpreter core which is not exactly an extension.
       mod = Rex::Post::Meterpreter
     else
       mod_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(extension_id)
@@ -46,6 +55,12 @@ class CommandMapper
     command_name.to_s.delete_prefix('COMMAND_ID_').downcase
   end
 
+  # Get all of the string command names for the specified extensions.
+  #
+  # @param [Array<String>] extensions The names of the extensions to retrieve
+  #   all of the command names for. The extension names are case insensitive. If
+  #   no extensions are specified, all extensions will be enumerated.
+  # @return [Array<String>] An array of all of the enumerated command names.
   def self.get_command_names(*extensions)
     extensions = Rex::Post::Meterpreter::ExtensionMapper.get_extension_names if extensions.empty?
 

@@ -8,6 +8,9 @@ class ExtensionMapper
 
   @@klasses = {}
 
+  # Get the names of all of the extensions.
+  #
+  # @return [Array<String>] An array of all of the extension names.
   def self.get_extension_names
     base = ::File.join(File.dirname(__dir__), 'meterpreter/extensions')
     ::Dir.entries(base).select do |e|
@@ -15,6 +18,11 @@ class ExtensionMapper
     end
   end
 
+  # Get the numeric ID for the specified extension name.
+  #
+  # @param [String] name The name of the extension to retrieve the ID for. This
+  #   parameter is case insensitive.
+  # @return [Integer, nil] The extension ID or nil if the name does not exist.
   def self.get_extension_id(name)
     begin
       k = self.get_extension_klass(name)
@@ -25,6 +33,10 @@ class ExtensionMapper
     k.extension_id
   end
 
+  # Get the string extension name for the specified extension ID.
+  #
+  # @param [Integer] id The ID of the extension to retrieve the name for.
+  # @return [String, nil] The extension name or nil if the ID does not exist.
   def self.get_extension_name(id)
     id = id - (id % COMMAND_ID_RANGE)
 
@@ -39,6 +51,13 @@ class ExtensionMapper
     end
   end
 
+  # Get the module for the specified extension name.
+  #
+  # @param [String] name The name of the extension to retrieve the module for.
+  #   This parameter is case insensitive.
+  # @raise [RuntimeError] A RuntimeError is raised if the specified module can
+  #   not be loaded.
+  # @return [Module] The extension module.
   def self.get_extension_module(name)
     name.downcase!
 
@@ -52,6 +71,13 @@ class ExtensionMapper
     Rex::Post::Meterpreter::Extensions.const_get(s)
   end
 
+  # Get the class for the specified extension name.
+  #
+  # @param [String] name The name of the extension to retrieve the class for.
+  #   This parameter is case insensitive.
+  # @raise [RuntimeError] A RuntimeError is raised if the specified module can
+  #   not be loaded.
+  # @return [Class] The extension class.
   def self.get_extension_klass(name)
     name.downcase!
 
