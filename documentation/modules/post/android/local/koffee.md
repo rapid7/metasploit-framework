@@ -35,7 +35,11 @@ metasploit input console the action name in lowercase, e.g., camera_reverse_off.
 
 - CAMERA_REVERSE_OFF:       It hides the parking camera video stream
 - CAMERA_REVERSE_ON:       It shows the parking camera video stream
-- CHANGE_CLUSTER_LANGUAGE:  It changes the cluster language
+- CLUSTER_CHANGE_LANGUAGE:  It changes the cluster language
+- CLUSTER_RADIO_INFO:          It shows radio info in the instrument cluster
+- CLUSTER_RANDOM_NAVIGATION:   It shows navigation signals in the instrument cluster
+- CLUSTER_ROUNDABOUT_FARAWAY:  It shows a round about signal with variable distance in the instrument cluster
+- CLUSTER_SPEED_LIMIT:         It changes the speed limit shown in the instrument cluster
 - HIGH_SCREEN_BRIGHTNESS:  It increases the head unit screen brightness
 - INJECT_CUSTOM:            It injects custom micom payloads
 - LOW_FUEL_WARNING:         It pops up a low fuel message on the head unit
