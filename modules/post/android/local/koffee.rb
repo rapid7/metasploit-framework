@@ -4,7 +4,6 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
-require 'readline'
 
 class MetasploitModule < Msf::Post
 
