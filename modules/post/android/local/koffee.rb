@@ -13,10 +13,11 @@ class MetasploitModule < Msf::Post
         info,
         'Name' => 'KOFFEE - Kia OFFensivE Exploit',
         'Description' => %q{
-          This module exploits CVE-2020-8539, which is an arbitrary code execution vulnerability that allows an to attacker execute the micomd binary file on the head unit of Kia Motors.
-          This module has been tested on SOP.003.30.18.0703, SOP.005.7.181019 and SOP.007.1.191209 head unit software version.
-          This module, run on an active session, allows an attacker to send crafted micomd commands that allow the attacker
-          to control the head unit and send CAN bus frames into the Multimedia CAN (M-Can) of the vehicle.
+          This module exploits CVE-2020-8539, which is an arbitrary code execution vulnerability that allows an to
+          attacker execute the micomd binary file on the head unit of Kia Motors. This module has been tested on
+          SOP.003.30.18.0703, SOP.005.7.181019 and SOP.007.1.191209 head unit software versions. This module, run on an
+          active session, allows an attacker to send crafted micomd commands that allow the attacker to control the head
+          unit and send CAN bus frames into the Multimedia CAN (M-Can) of the vehicle.
         },
         'SessionTypes' => ['meterpreter'],
         'Author' =>
@@ -31,9 +32,9 @@ class MetasploitModule < Msf::Post
           ],
         'Actions' => [
           [ 'TOGGLE_RADIO_MUTE', { 'Description' => 'It mutes/umutes the radio' } ],
-          [ 'REDUCE_RADIO_VOLUME', { 'Description' => 'It decreses the radio volume' } ],
+          [ 'REDUCE_RADIO_VOLUME', { 'Description' => 'It decreases the radio volume' } ],
           [ 'MAX_RADIO_VOLUME', { 'Description' => 'It sets the radio volume to the max' } ],
-          [ 'LOW_SCREEN_BRIGHTNESS', { 'Description' => 'It decreses the head unit screen brightness' } ],
+          [ 'LOW_SCREEN_BRIGHTNESS', { 'Description' => 'It decreases the head unit screen brightness' } ],
           [ 'HIGH_SCREEN_BRIGHTNESS', { 'Description' => 'It increases the head unit screen brightness' } ],
           [ 'LOW_FUEL_WARNING', { 'Description' => 'It pops up a low fuel message on the head unit' } ],
           [ 'NAVIGATION_FULL_SCREEN', { 'Description' => 'It pops up the navigation app window' } ],
