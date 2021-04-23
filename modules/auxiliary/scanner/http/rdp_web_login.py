@@ -65,7 +65,7 @@ metadata = {
 
 def verify_service(rhost, rport, targeturi, timeout, user_agent):
     """Verify the service is up at the target URI within the specified timeout"""
-    url = f'https://{rhost}:{rport}/{targeturi}'
+    url = 'https://{}:{}/{}'.format(rhost, rport, targeturi)
     headers = {'Host':rhost,
                'User-Agent': user_agent}
     try:
@@ -88,7 +88,7 @@ def get_ad_domain(rhost, rport, user_agent):
                'Host': rhost}
     session = requests.Session()
     for url in domain_urls:
-        target_url = f"https://{rhost}:{rport}/{url}"
+        target_url = 'https://{}:{}/{}'.format(rhost, rport, url)
         request = session.get(target_url, headers=headers, verify=False)
         # Decode the provided NTLM Response to strip out the domain name
         if request.status_code == 401 and 'WWW-Authenticate' in request.headers and \
@@ -97,7 +97,7 @@ def get_ad_domain(rhost, rport, user_agent):
             domain = base64.b64decode(bytes(domain_hash,
                                             'utf-8')).replace(b'\x00',b'').split(b'\n')[1]
             domain = domain[domain.index(b'\x0f') + 1:domain.index(b'\x02')].decode('utf-8')
-            module.log(f'Found Domain: {domain}', level='good')
+            module.log('Found Domain: {}'.format(domain), level='good')
             return domain
     module.log('Failed to find Domain', level='error')
     return None
@@ -108,13 +108,13 @@ def check_login(rhost, rport, targeturi, domain, username, password, timeout, us
     The timeout is used to specify the amount of milliseconds where a
     response should consider the username invalid."""
 
-    url = f'https://{rhost}:{rport}/{targeturi}'
-    body = f'DomainUserName={domain}%5C{username}&UserPass={password}'
+    url = 'https://{}:{}/{}'.format(rhost, rport, targeturi)
+    body = 'DomainUserName={}%5C{}&UserPass={}'.format(domain, username, password)
     headers = {'Host':rhost,
                'User-Agent': user_agent,
                'Content-Type': 'application/x-www-form-urlencoded',
-               'Content-Length': f'{len(body)}',
-               'Origin': f'https://{rhost}'}
+               'Content-Length': str(len(body)),
+               'Origin': 'https://{}'.format(rhost)}
     session = requests.Session()
     report_data = {'domain':domain, 'address': rhost, 'port': rport,
                    'protocol': 'tcp', 'service_name':'RDWeb'}
@@ -122,16 +122,16 @@ def check_login(rhost, rport, targeturi, domain, username, password, timeout, us
         request = session.post(url, data=body, headers=headers,
                                timeout=(timeout / 1000), verify=False, allow_redirects=False)
         if request.status_code == 302:
-            module.log(f'Login {domain}\\{username}:{password} is valid!', level='good')
+            module.log('Login {}\\{}:{} is valid!'.format(domain, username, password), level='good')
             module.report_correct_password(username, password, **report_data)
         elif request.status_code == 200:
-            module.log(f'Password {password} is invalid but {domain}\\{username} is valid! Response received in {request.elapsed.microseconds / 1000} milliseconds',
+            module.log('Password {} is invalid but {}\\{} is valid! Response received in {} milliseconds'.format(password, domain, username, request.elapsed.microseconds / 1000),
                        level='good')
             module.report_valid_username(username, **report_data)
         else:
-            module.log(f'Received unknown response with status code: {request.status_code}')
+            module.log('Received unknown response with status code: {}'.format(request.status_code))
     except requests.exceptions.Timeout:
-        module.log(f'Login {domain}\\{username}:{password} is invalid! No response received in {timeout} milliseconds',
+        module.log('Login {}\\{}:{} is invalid! No response received in {} milliseconds'.format(domain, username, password, timeout),
                    level='error')
     except requests.exceptions.RequestException as exc:
         module.log('{}'.format(exc), level='error')
@@ -159,7 +159,7 @@ def run(args):
         if service_verified:
             module.log('Service is up, beginning scan...', level='good')
         else:
-            module.log(f'Service appears to be down, no response in {args["timeout"]} milliseconds',
+            module.log('Service appears to be down, no response in {} milliseconds'.format(args["timeout"]),
                        level='error')
             return
 
