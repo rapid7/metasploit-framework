@@ -36,7 +36,7 @@
 
   **PRIVATE_KEY**
 
-  A string of the private key to attempt. For MSFConsole users the option should be set to `file:PRIVATE_KEY_PATH` and it will read in the string value of the private key. Currently OpenSSH, RSA, DSA, and EC private keys are supported. 
+  A string of the private key to attempt. For MSFConsole users the option should be set to `file:PRIVATE_KEY_PATH` and it will read in the string value of the private key. Currently OpenSSH, RSA, DSA, and ECDSA private keys are supported. 
   
   **RHOSTS**
   
