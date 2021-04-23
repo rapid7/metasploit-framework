@@ -239,7 +239,7 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       if @private_key.present?
-        data = Net::SSH::KeyFactory.load_data_private_key(@private_key).to_s
+        data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
         if valid_key?(data)
           @key_data << data
         else
