@@ -194,8 +194,10 @@ module Msf::PostMixin
         cmd_name_wildcards.any? { |cmd_name_wildcard| File.fnmatch(cmd_name_wildcard, cmd_name) }
       end
 
-      if cmd_name_wildcards.any? { |cmd_name_wildcard| cmd_names.none? { |cmd_name| File.fnmatch(cmd_name_wildcard, cmd_name) } }
+      unmatched_wildcards = cmd_name_wildcards.select { |cmd_name_wildcard| cmd_names.none? { |cmd_name| File.fnmatch(cmd_name_wildcard, cmd_name) } }
+      unless unmatched_wildcards.empty?
         # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
+        wlog("The #{fullname} module specified the following Meterpreter command wildcards that did not match anything: #{ unmatched_wildcards.join(', ') }")
         raise RuntimeError, 'one or more of the specified meterpreter command wildcards did not match anything'
       end
 
