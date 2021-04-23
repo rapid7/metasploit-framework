@@ -4,7 +4,7 @@ require 'bindata'
 
 module Rex
 module Proto
-module NTP
+module NTP::Modes
 
   # A very generic NTP message
   #
@@ -117,7 +117,7 @@ module NTP
     rest   :payload
   end
 
-  def self.ntp_control(version, operation, payload = nil)
+  def ntp_control(version, operation, payload = nil)
     n = NTPControl.new
     n.version = version
     n.operation = operation
@@ -129,7 +129,7 @@ module NTP
     n
   end
 
-  def self.ntp_private(version, implementation, request_code, payload = nil)
+  def ntp_private(version, implementation, request_code, payload = nil)
     n = NTPPrivate.new
     n.version = version
     n.implementation = implementation
@@ -138,7 +138,7 @@ module NTP
     n
   end
 
-  def self.ntp_generic(version, mode)
+  def ntp_generic(version, mode)
     n = NTPGeneric.new
     n.version = version
     n.mode = mode
@@ -146,7 +146,7 @@ module NTP
   end
 
   # Parses the given message and provides a description about the NTP message inside
-  def self.describe(message)
+  def describe(message)
     ntp = NTPGeneric.new.read(message)
     "#{message.size}-byte version #{ntp.version} mode #{ntp.mode} reply"
   end

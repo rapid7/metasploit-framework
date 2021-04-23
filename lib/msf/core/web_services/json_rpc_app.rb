@@ -14,6 +14,7 @@ module Msf::WebServices
 
     # Servlet registration
     register AuthServlet
+    register HealthServlet
     register JsonRpcServlet
 
     # Custom error handling

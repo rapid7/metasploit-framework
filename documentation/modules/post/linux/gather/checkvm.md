@@ -7,9 +7,8 @@ There are many locations that are checked for having evidence of being a virtual
 3. `/proc/scsi/scsi`
 4. `cat /proc/ide/hd*/model`
 5. `lspci`
-6. `ls -1 /sys/bus`
-7. `lscpu`
-8. `dmesg`
+6. `dmesg`
+7. `/sys/class/dmi/id/product_name`
 
 ## Verification Steps
 

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'open3'
 require 'fileutils'
-require 'rex/proto/ntlm/crypt'
 require 'metasploit/framework/password_crackers/cracker'
 require 'metasploit/framework/password_crackers/wordlist'
 require 'metasploit/framework/password_crackers/jtr/formatter'
@@ -91,11 +90,12 @@ module Auxiliary::PasswordCracker
     rescue Metasploit::Framework::PasswordCracker::PasswordCrackerNotFoundError => e
       fail_with(Msf::Module::Failure::BadConfig, e.message)
     end
+    # throw this to a local variable since it causes a shell out to pull the version
     cracker_version = cracker.cracker_version
-    if cracking_application == 'john' && cracker_version.nil? || !cracker_version.include?('jumbo')
+    if cracker.cracker == 'john' && (cracker_version.nil? || !cracker_version.include?('jumbo'))
       fail_with(Msf::Module::Failure::BadConfig, 'John the Ripper JUMBO patch version required.  See https://github.com/magnumripper/JohnTheRipper')
     end
-    print_good("#{cracking_application} Version Detected: #{cracker_version}")
+    print_good("#{cracker.cracker} Version Detected: #{cracker_version}")
     cracker
   end
 

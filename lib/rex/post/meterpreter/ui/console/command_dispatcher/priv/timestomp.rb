@@ -156,7 +156,7 @@ class Console::CommandDispatcher::Priv::Timestomp
       raise ArgumentError, "Invalid date format, expected MM/DD/YYYY HH24:MI:SS (got #{str})"
     end
 
-    Time.mktime(year, mon, day, hour, min, sec, 0)
+    ::Time.mktime(year, mon, day, hour, min, sec, 0)
   end
 end
 end

@@ -2,7 +2,6 @@
 require 'shellwords'
 require 'rex/text/table'
 require "base64"
-require 'rex/parser/arguments'
 module Msf
 module Sessions
 
@@ -87,6 +86,21 @@ class CommandShell
   #
   def shell_init
     return true
+  end
+
+  def bootstrap(datastore = {}, handler = nil)
+    session = self
+
+    if datastore['AutoVerifySession']
+      token = Rex::Text.rand_text_alphanumeric(8..24)
+      response = shell_command("echo #{token}", 3)
+      unless response&.include?(token)
+        dlog("Session #{session.sid} failed to respond to an echo command")
+        print_error("Command shell session #{session.sid} is not valid and will be closed")
+        session.kill
+        return nil
+      end
+    end
   end
 
   #
@@ -603,20 +617,19 @@ class CommandShell
   #
   # Explicitly run a single command, return the output.
   #
-  def shell_command(cmd)
+  def shell_command(cmd, timeout=5)
     # Send the command to the session's stdin.
     shell_write(cmd + "\n")
 
-    timeo = 5
-    etime = ::Time.now.to_f + timeo
+    etime = ::Time.now.to_f + timeout
     buff = ""
 
     # Keep reading data until no more data is available or the timeout is
     # reached.
-    while (::Time.now.to_f < etime and (self.respond_to?(:ring) or ::IO.select([rstream], nil, nil, timeo)))
+    while (::Time.now.to_f < etime and (self.respond_to?(:ring) or ::IO.select([rstream], nil, nil, timeout)))
       res = shell_read(-1, 0.01)
       buff << res if res
-      timeo = etime - ::Time.now.to_f
+      timeout = etime - ::Time.now.to_f
     end
 
     buff

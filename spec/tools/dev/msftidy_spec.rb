@@ -1,50 +1,34 @@
 require 'spec_helper'
 
-load Metasploit::Framework.root.join('tools/dev/msftidy.rb').to_path
+require Metasploit::Framework.root.join('tools/dev/msftidy.rb').to_path
 
 RSpec.describe Msftidy do
-  context "with a tidy auxiliary module" do
-    let(:auxiliary_tidy) { File.expand_path('modules/auxiliary/auxiliary_tidy.rb', FILE_FIXTURES_PATH) }
-    let(:msftidy) { Msftidy.new(auxiliary_tidy) }
+  let(:file) { File.expand_path('modules/auxiliary/auxiliary_rubocopped.rb', FILE_FIXTURES_PATH) }
 
-    before(:each) do
-      msftidy.run_checks
-      @msftidy_status = msftidy.status
-    end
-
-    it "returns zero (no warnings or errors)" do
-      expect(@msftidy_status).to be_zero
-    end
+  before(:each) do
+    allow_any_instance_of(MsftidyRunner).to receive(:run_checks)
+    allow_any_instance_of(MsftidyRunner).to receive(:status).and_return(msftidy_runner_status_code)
+    allow_any_instance_of(RuboCopRunner).to receive(:run).and_return(rubocop_runner_status_code)
   end
 
-  context "with an untidy auxiliary module" do
-    let(:auxiliary_untidy) { File.expand_path('modules/auxiliary/auxiliary_untidy.rb', FILE_FIXTURES_PATH) }
-    let(:msftidy) { Msftidy.new(auxiliary_untidy) }
+  context 'when there are no errors' do
+    let(:msftidy_runner_status_code) { MsftidyRunner::OK }
+    let(:rubocop_runner_status_code) { RuboCop::CLI::STATUS_SUCCESS }
 
-    before(:each) do
-      @msftidy_stdout = get_stdout { msftidy.run_checks }
-    end
-
-    it "ERRORs when invalid superclass" do
-      expect(@msftidy_stdout).to match(/ERROR.*Invalid super class for auxiliary module/)
-    end
-
-    it "WARNINGs when specifying Rank" do
-      expect(@msftidy_stdout).to match(/WARNING.*Rank/)
-    end
+    it { expect(subject.run([file])).to eql MsftidyRunner::OK }
   end
 
-  context "with a tidy payload module" do
-    let(:payload_tidy) { File.expand_path('modules/payloads/payload_tidy.rb', FILE_FIXTURES_PATH) }
-    let(:msftidy) { Msftidy.new(payload_tidy) }
+  context 'when there are msftidy errors' do
+    let(:msftidy_runner_status_code) { MsftidyRunner::WARNING }
+    let(:rubocop_runner_status_code) { RuboCop::CLI::STATUS_SUCCESS }
 
-    before(:each) do
-      msftidy.run_checks
-      @msftidy_status = msftidy.status
-    end
+    it { expect(subject.run([file])).to eql MsftidyRunner::WARNING }
+  end
 
-    it "returns zero (no warnings or errors)" do
-      expect(@msftidy_status).to be_zero
-    end
+  context 'when there are rubcop errors' do
+    let(:msftidy_runner_status_code) { MsftidyRunner::WARNING }
+    let(:rubocop_runner_status_code) { RuboCop::CLI::STATUS_ERROR }
+
+    it { expect(subject.run([file])).to eql MsftidyRunner::ERROR }
   end
 end

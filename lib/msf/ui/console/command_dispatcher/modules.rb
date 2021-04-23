@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/ui/text/output/buffer/stdout'
-require 'rex/parser/arguments'
 
 module Msf
   module Ui
@@ -23,7 +21,15 @@ module Msf
             '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Regex pattern used to filter search results'],
-            '-u' => [false, 'Use module if there is one result']
+            '-u' => [false, 'Use module if there is one result'],
+            '-s' => [true, 'Sort search results by the specified column in ascending order'],
+            '-r' => [true, 'Reverse the order of search results to descending order']
+          )
+
+          @@favorite_opts = Rex::Parser::Arguments.new(
+            '-h' => [false, 'Help banner'],
+            '-c' => [false, 'Clear the contents of the favorite modules file'],
+            '-d' => [false, 'Delete module(s) or the current active module from the favorite modules file']
           )
 
           def commands
@@ -42,6 +48,7 @@ module Msf
               "search"     => "Searches module names and descriptions",
               "show"       => "Displays modules of a given type, or all modules",
               "use"        => "Interact with a module by name or search term/index",
+              "favorite"   => "Add module(s) to the list of favorite modules",
             }
           end
 
@@ -337,10 +344,12 @@ module Msf
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
-            print_line "  -h                Show this help information"
-            print_line "  -o <file>         Send output to a file in csv format"
-            print_line "  -S <string>       Regex pattern used to filter search results"
-            print_line "  -u                Use module if there is one result"
+            print_line "  -h                   Show this help information"
+            print_line "  -o <file>            Send output to a file in csv format"
+            print_line "  -S <string>          Regex pattern used to filter search results"
+            print_line "  -u                   Use module if there is one result"
+            print_line "  -s <search_column>   Sort the research results based on <search_column> in ascending order"
+            print_line "  -r                   Reverse the search results order to descending order"
             print_line
             print_line "Keywords:"
             {
@@ -365,12 +374,26 @@ module Msf
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
-              print_line "  #{keyword.ljust 12}:  #{description}"
+              print_line "  #{keyword.ljust 17}:  #{description}"
+            end
+            print_line
+            print_line "Supported search columns:"
+            {
+              'rank'                 => 'Sort modules by their exploitabilty rank',
+              'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
+              'disclosure_date'      => 'Sort modules by their disclosure date',
+              'name'                 => 'Sort modules by their name',
+              'type'                 => 'Sort modules by their type',
+              'check'                => 'Sort modules by whether or not they have a check method',
+            }.each_pair do |keyword, description|
+              print_line "  #{keyword.ljust 17}:  #{description}"
             end
             print_line
             print_line "Examples:"
             print_line "  search cve:2009 type:exploit"
             print_line "  search cve:2009 type:exploit platform:-linux"
+            print_line "  search cve:2009 -s name"
+            print_line "  search type:exploit -s type -r"
             print_line
           end
 
@@ -385,7 +408,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-
+            sort         = 'name'
+            sort_options = ['rank','disclosure_date','name','date','type','check']
+            desc         = false
             ignore_use_exact_match = false
 
             @@search_opts.parse(args) do |opt, idx, val|
@@ -401,6 +426,10 @@ module Msf
                 use = true
               when '-I'
                 ignore_use_exact_match = true
+              when '-s'
+                sort = val
+              when '-r'
+                desc = true
               else
                 match += val + ' '
               end
@@ -421,6 +450,24 @@ module Msf
               else
                 search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+                if sort and sort_options.include?(sort)
+                  if sort == 'date'
+                    sort = 'disclosure_date'
+                  end
+                  if sort != 'check'
+                    @module_search_results.sort_by! { |meta| meta.send(sort) }
+                  else
+                    @module_search_results.sort_by! { |meta| meta.send(sort) ? 0 : 1} # Taken from https://stackoverflow.com/questions/14814966/is-it-possible-to-sort-a-list-of-objects-depending-on-the-individual-objects-re
+                  end
+                elsif sort
+                  print_error("Supported options for the -s flag are: #{sort_options}")
+                  return false
+                end
+
+                if desc
+                  @module_search_results.reverse!
+                end
               end
 
               if @module_search_results.empty?
@@ -498,7 +545,7 @@ module Msf
           end
 
           def cmd_show_help
-            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options}
+            global_opts = %w{all encoders nops exploits payloads auxiliary post plugins info options favorites}
             print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
 
             module_opts = %w{ missing advanced evasion targets actions }
@@ -542,6 +589,8 @@ module Msf
                   show_auxiliary
                 when 'post'
                   show_post
+                when 'favorites'
+                  show_favorites
                 when 'info'
                   cmd_info(*args[1, args.length])
                 when 'options'
@@ -608,7 +657,7 @@ module Msf
           def cmd_show_tabs(str, words)
             return [] if words.length > 1
 
-            res = %w{all encoders nops exploits payloads auxiliary post plugins options}
+            res = %w{all encoders nops exploits payloads auxiliary post plugins options favorites}
             if (active_module)
               res.concat %w{missing advanced evasion targets actions info}
               if (active_module.respond_to? :compatible_sessions)
@@ -979,6 +1028,211 @@ module Msf
             end
           end
 
+          def cmd_favorite_help
+            print_line 'Usage: favorite [mod1 mod2 ...]'
+            print_line
+            print_line "Add one or multiple modules to the list of favorite modules stored in #{Msf::Config.fav_modules_file}"
+            print_line 'If no module name is specified, the command will add the active module if there is one'
+            print @@favorite_opts.usage
+          end
+
+          #
+          # Helper method for cmd_favorite that writes modules to the fav_modules_file
+          #
+          def favorite_add(modules, favs_file)
+            fav_limit = 50
+            # obtain useful info about the fav_modules file
+            exists, writable, readable, contents = favorite_check_fav_modules(favs_file)
+
+            # if the fav_modules file exists, check the file permissions
+            if exists
+              case
+              when !writable
+                print_error("Unable to save module(s) to the favorite modules file because it is not writable")
+                return
+              when !readable
+                print_error("Unable to save module(s) to the favorite modules file because it is not readable")
+                return
+              end
+            end
+
+            fav_count = 0
+            if contents
+              fav_count = contents.split.size
+            end
+
+            modules = modules.uniq # prevent modules from being added more than once
+            modules.each do |name|
+              mod = framework.modules.create(name)
+              if (mod == nil)
+                print_error("Invalid module: #{name}")
+                next
+              end
+
+              if contents && contents.include?(mod.fullname)
+                print_warning("Module #{mod.fullname} has already been favorited and will not be added to the favorite modules file")
+                next
+              end
+
+              if fav_count >= fav_limit
+                print_error("Favorite module limit (#{fav_limit}) exceeded. No more modules will be added.")
+                return
+              end
+
+              File.open(favs_file, 'a+') { |file| file.puts(mod.fullname) }
+              print_good("Added #{mod.fullname} to the favorite modules file")
+              fav_count += 1
+            end
+            return
+          end
+
+          #
+          # Helper method for cmd_favorite that deletes modules from the fav_modules_file
+          #
+          def favorite_del(modules, delete_all, favs_file)
+            # obtain useful info about the fav_modules file
+            exists, writable, readable, contents = favorite_check_fav_modules(favs_file)
+
+            if delete_all
+              custom_message = 'clear the contents of'
+            else
+              custom_message = 'delete module(s) from'
+            end
+
+            case # error handling based on the existence / permissions of the fav_modules file
+            when !exists
+              print_warning("Unable to #{custom_message} the favorite modules file because it does not exist")
+              return
+            when !writable
+              print_error("Unable to #{custom_message} the favorite modules file because it is not writable")
+              return
+            when !readable
+              unless delete_all
+                print_error("Unable to #{custom_message} the favorite modules file because it is not readable")
+                return
+              end
+            when contents.empty?
+              print_warning("Unable to #{custom_message} the favorite modules file because it is already empty")
+              return
+            end
+
+            if delete_all
+              File.write(favs_file, '')
+              print_good("Favorite modules file cleared")
+              return
+            end
+
+            modules = modules.uniq # prevent modules from being deleted more than once
+            contents = contents.split
+            modules.each do |name|
+              mod = framework.modules.create(name)
+              if (mod == nil)
+                print_error("Invalid module: #{name}")
+                next
+              end
+
+              unless contents.include?(mod.fullname)
+                print_warning("Module #{mod.fullname} cannot be deleted because it is not in the favorite modules file")
+                next
+              end
+
+              contents.delete(mod.fullname)
+              print_status("Removing #{mod.fullname} from the favorite modules file")
+            end
+
+            # clear the contents of the fav_modules file if removing the module(s) makes it empty
+            if contents.length == 0
+              File.write(favs_file, '')
+              return
+            end
+
+            File.open(favs_file, 'w') { |file| file.puts(contents.join("\n")) }
+          end
+
+          #
+          # Helper method for cmd_favorite that checks if the fav_modules file exists and is readable / writable
+          #
+          def favorite_check_fav_modules(favs_file)
+            exists = false
+            writable = false
+            readable = false
+            contents = ''
+
+            if File.exists?(favs_file)
+              exists = true
+            end
+
+            if File.writable?(favs_file)
+              writable = true
+            end
+
+            if File.readable?(favs_file)
+              readable = true
+              contents = File.read(favs_file)
+            end
+
+            return exists, writable, readable, contents
+          end
+
+          #
+          # Add modules to or delete modules from the fav_modules file
+          #
+          def cmd_favorite(*args)
+            favs_file = Msf::Config.fav_modules_file
+
+            # always display the help banner if -h is provided or if multiple options are provided
+            if args.include?('-h') || (args.include?('-c') && args.include?('-d'))
+              cmd_favorite_help
+              return
+            end
+
+            # if no arguments were provided, check if there is an active module to add
+            if args.empty?
+              unless active_module
+                print_error('No module has been provided to favorite.')
+                cmd_favorite_help
+                return
+              end
+
+              args = [active_module.fullname]
+              favorite_add(args, favs_file)
+              return
+            end
+
+            case args[0]
+            when '-c'
+              args.delete('-c')
+              unless args.empty?
+                print_error('Option `-c` does not support arguments.')
+                cmd_favorite_help
+                return
+              end
+
+              favorite_del(args, true, favs_file)
+            when '-d'
+              args.delete('-d')
+              if args.empty?
+                unless active_module
+                  print_error('No module has been provided to delete.')
+                  cmd_favorite_help
+                  return
+                end
+
+                args = [active_module.fullname]
+              end
+
+              favorite_del(args, false, favs_file)
+            else # no valid options, but there are arguments
+              if args[0].start_with?('-')
+                print_error('Invalid option provided')
+                cmd_favorite_help
+                return
+              end
+
+              favorite_add(args, favs_file)
+            end
+          end
+
           #
           # Tab complete module names
           #
@@ -1075,42 +1329,75 @@ module Msf
           # Module list enumeration
           #
 
-          def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
+          def show_encoders # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible encoders and display them
             if (active_module and active_module.exploit? == true)
-              show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank, opts)
+              show_module_metadata('Compatible Encoders', active_module.compatible_encoders)
             else
-              show_module_set("Encoders", framework.encoders, regex, minrank, opts)
+              show_module_metadata('Encoders', 'encoder')
             end
           end
 
-          def show_nops(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("NOP Generators", framework.nops, regex, minrank, opts)
+          def show_nops # :nodoc:
+            show_module_metadata('NOP Generators', 'nop')
           end
 
-          def show_exploits(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Exploits", framework.exploits, regex, minrank, opts)
+          def show_exploits # :nodoc:
+            show_module_metadata('Exploits', 'exploit')
           end
 
-          def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
+          def show_payloads # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
             if active_module && (active_module.exploit? || active_module.evasion?)
               @@payload_show_results = active_module.compatible_payloads
 
-              show_module_set('Compatible Payloads', @@payload_show_results, regex, minrank, opts)
+              show_module_metadata('Compatible Payloads', @@payload_show_results)
             else
-              show_module_set('Payloads', framework.payloads, regex, minrank, opts)
+              # show_module_set(‘Payloads’, framework.payloads, regex, minrank, opts)
+              show_module_metadata('Payloads', 'payload')
             end
           end
 
-          def show_auxiliary(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts)
+          def show_auxiliary # :nodoc:
+            show_module_metadata('Auxiliary','auxiliary')
           end
 
-          def show_post(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Post", framework.post, regex, minrank, opts)
+          def show_post # :nodoc:
+            show_module_metadata('Post','post')
+          end
+
+          def show_evasion # :nodoc:
+            show_module_metadata('Evasion','evasion')
+          end
+
+          def show_favorites # :nodoc:
+            favs_file = Msf::Config.fav_modules_file
+
+            unless File.exists?(favs_file)
+              print_error("The favorite modules file does not exist")
+              return
+            end
+
+            if File.zero?(favs_file)
+              print_warning("The favorite modules file is empty")
+              return
+            end
+
+            unless File.readable?(favs_file)
+              print_error("Unable to read from #{favs_file}")
+              return
+            end
+
+            # create module set using the saved modules
+            fav_modules = {}
+            saved_favs = File.readlines(favs_file)
+            saved_favs.each do |mod|
+              module_name = mod.strip
+              fav_modules[module_name] = framework.modules[module_name]
+            end
+            show_module_metadata('Favorites', fav_modules)
           end
 
           def show_missing(mod) # :nodoc:
@@ -1134,10 +1421,6 @@ module Msf
                 print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
-          end
-
-          def show_evasion(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set('evasion', framework.evasion, regex, minrank, opts)
           end
 
           def show_global_options
@@ -1245,55 +1528,64 @@ module Msf
             print(tbl.to_s)
           end
 
-          def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
+          # @param [table_name] used to name table
+          # @param [module_filter] this will either be a modules fullname, or it will be an Array(show payloads/encoders)
+          # or a Hash(show favorites) containing fullname
+          # @param [compatible_mod] handles logic for if there is an active module when the
+          # `show` command is run
+          #
+          # Handles the filtering of modules that will be generated into a table
+          def show_module_metadata(table_name, module_filter)
             count = -1
+            tbl = generate_module_table(table_name)
 
-            tbl = generate_module_table(type)
+            if module_filter.is_a?(Array) || module_filter.is_a?(Hash)
+              module_filter.sort.each do |_mod_fullname, mod_obj|
+                mod = nil
 
-            module_set.sort.each { |refname, mod|
-              o = nil
-
-              begin
-                o = mod.new
-              rescue ::Exception
-              end
-              next if not o
-
-              # handle a search string, search deep
-              if (
-              not regex or
-                o.name.match(regex) or
-                o.description.match(regex) or
-                o.refname.match(regex) or
-                o.references.map{|x| [x.ctx_id + '-' + x.ctx_val, x.to_s]}.join(' ').match(regex) or
-                o.author.to_s.match(regex)
-              )
-                if (not minrank or minrank <= o.rank)
-                  show = true
-                  if opts
-                    mod_opt_keys = o.options.keys.map { |x| x.downcase }
-
-                    opts.each do |opt,val|
-                      if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
-                        show = false
-                      end
-                    end
-                  end
-                  if (opts == nil or show == true)
-                    tbl << [
-                      count += 1,
-                      refname,
-                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
-                      o.rank,
-                      o.has_check? ? 'Yes' : 'No',
-                      o.name
-                    ]
-                  end
+                begin
+                  mod = mod_obj.new
+                rescue ::Exception
                 end
-              end
-            }
+                next unless mod
 
+                count += 1
+                tbl << add_record(mod, count, true)
+              end
+            else
+              results = Msf::Modules::Metadata::Cache.instance.find(
+                'type' => [[module_filter], []]
+              )
+              # Loop over each module and gather data
+              results.each do |mod, _value|
+                count += 1
+                tbl << add_record(mod, count, false)
+              end
+            end
             print(tbl.to_s)
+          end
+
+          # @param [mod] current module being passed in
+          # @param [count] passes the count for each record
+          # @param [compatible_mod] handles logic for if there is an active module when the
+          # `show` command is run
+          #
+          # Adds a record for a table, also handle logic for whether the module is currently
+          # handling compatible payloads/encoders
+          def add_record(mod, count, compatible_mod)
+            if compatible_mod
+              check = mod.has_check? ? 'Yes' : 'No'
+            else
+              check = mod.check ? 'Yes' : 'No'
+            end
+            [
+              count,
+              mod.fullname,
+              mod.disclosure_date.nil? ? '' : mod.disclosure_date.strftime('%Y-%m-%d'),
+              mod.rank,
+              check,
+              mod.name
+            ]
           end
 
           def generate_module_table(type, search_terms = [], row_filter = nil) # :nodoc:
@@ -1303,6 +1595,9 @@ module Msf
                 'Prefix'     => "\n",
                 'Postfix'    => "\n",
                 'SearchTerm' => row_filter,
+                # For now, don't perform any word wrapping on the search table as it breaks the workflow of
+                # copying module names in conjunction with the `use <paste-buffer>` command
+                'WordWrap' => false,
                 'Columns' => [
                   '#',
                   'Name',

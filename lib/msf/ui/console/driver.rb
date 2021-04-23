@@ -16,7 +16,6 @@ class Driver < Msf::Ui::Driver
 
   ConfigCore  = "framework/core"
   ConfigGroup = "framework/ui/console"
-  DbConfigGroup = "framework/database"
 
   DefaultPrompt     = "%undmsf#{Metasploit::Framework::Version::MAJOR}%clr"
   DefaultPromptChar = "%clr>"
@@ -118,11 +117,10 @@ class Driver < Msf::Ui::Driver
     end
 
     # Load the other "core" command dispatchers
-    CommandDispatchers.each do |dispatcher|
-      enstack_dispatcher(dispatcher)
+    CommandDispatchers.each do |dispatcher_class|
+      dispatcher = enstack_dispatcher(dispatcher_class)
+      dispatcher.load_config(opts['Config'])
     end
-
-    load_db_config(opts['Config'])
 
     begin
       FeatureManager.instance.load_config
@@ -220,38 +218,6 @@ class Driver < Msf::Ui::Driver
       conf[ConfigCore].each_pair { |k, v|
         on_variable_set(true, k, v)
       }
-    end
-  end
-
-  def load_db_config(path=nil)
-    begin
-      conf = Msf::Config.load(path)
-    rescue
-      wlog("Failed to load configuration: #{$!}")
-      return
-    end
-
-    if conf.group?(DbConfigGroup)
-      conf[DbConfigGroup].each_pair do |k, v|
-        if k.downcase == 'default_db'
-          ilog "Default data service found. Attempting to connect..."
-          default_db_config_path = "#{DbConfigGroup}/#{v}"
-          default_db = conf[default_db_config_path]
-          if default_db
-            connect_string = "db_connect #{v}"
-
-            if framework.db.active && default_db['url'] !~ /http/
-              ilog "Existing local data connection found. Disconnecting first."
-              run_single("db_disconnect")
-            end
-
-            run_single(connect_string)
-          else
-            elog "Config entry for '#{default_db_config_path}' could not be found. Config file might be corrupt."
-            return
-          end
-        end
-      end
     end
   end
 

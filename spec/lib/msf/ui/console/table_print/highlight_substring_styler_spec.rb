@@ -23,5 +23,12 @@ RSpec.describe Msf::Ui::Console::TablePrint::HighlightSubstringStyler do
 
       expect(styler.style(str)).to eql "AAAAA%bgmagBBB%clrAAAAA%bgmagCCC%clr"
     end
+
+    it 'should highlight single characters' do
+      str = 'ABCABC'
+      styler = described_class.new(%w(a b c))
+
+      expect(styler.style(str)).to eql "%bgmagA%clr%bgmagB%clr%bgmagC%clr%bgmagA%clr%bgmagB%clr%bgmagC%clr"
+    end
   end
 end

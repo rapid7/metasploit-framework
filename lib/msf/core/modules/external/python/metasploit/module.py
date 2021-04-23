@@ -69,6 +69,12 @@ def report_vuln(ip, name, **opts):
     report('vuln', vuln)
 
 
+def report_valid_username(username, **opts):
+    info = opts.copy()
+    info.update({'username': username})
+    report('credential_login', info)
+
+
 def report_correct_password(username, password, **opts):
     info = opts.copy()
     info.update({'username': username, 'password': password})

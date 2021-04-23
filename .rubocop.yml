@@ -4,18 +4,145 @@
 # new modules.
 #
 # Updates to this file should include a 'Description' parameter for any
-# explaination needed.
+# explanation needed.
 
 # inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
+  SuggestExtensions: false
+  NewCops: disable
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
+  - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
+  - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
+
+Layout/SpaceBeforeBrackets:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9499
+  Enabled: false
+
+Lint/AmbiguousAssignment:
+  Enabled: true
+
+Lint/DeprecatedConstants:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Description: >-
+    Disabled as it causes a lot of noise around our current exception/error handling
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: false
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/LambdaWithoutLiteralBlock:
+  Enabled: true
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
+Lint/NumberedParameterAssignment:
+  Enabled: true
+
+Lint/OrAssignmentToConstant:
+  Enabled: true
+
+Lint/RedundantDirGlobSort:
+  Enabled: true
+
+Lint/SymbolConversion:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/TripleQuotes:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: true
+
+Lint/UnmodifiedReduceAccumulator:
+  Enabled: true
+
+Style/ArgumentsForwarding:
+  Enabled: true
+
+Style/BlockComments:
+  Description: >-
+    Disabled as multiline comments are great for embedded code snippets/payloads that can
+    be copy/pasted directly into a terminal etc.
+  Enabled: false
+
+Style/CaseLikeIf:
+  Description: >-
+    This would cause a lot of noise, and potentially introduce subtly different code when
+    being auto fixed. Could potentially be enabled in isolation, but would require more
+    consideration.
+  Enabled: false
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: false
+
+Style/EndlessMethod:
+  Enabled: true
+
+Style/HashExcept:
+  Enabled: true
+
+Style/IfWithBooleanLiteralBranches:
+  Description: >-
+    Most of the time this is a valid replacement. Although it can generate subtly different
+    rewrites that might break code:
+      2.7.2 :001 > foo = nil
+      => nil
+      2.7.2 :002 > (foo && foo['key'] == 'foo') ? true : false
+      => false
+      2.7.2 :003 > foo && foo['key'] == 'foo'
+      => nil
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/MultipleComparison:
+  Description: >-
+    Disabled as it generates invalid code:
+      https://github.com/rubocop-hq/rubocop/issues/9520
+    It may also introduce subtle semantic issues if automatically applied to the
+    entire codebase without rigorous testing.
+  Enabled: false
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/RedundantAssignment:
+  Description: >-
+    Disabled as it sometimes improves the readability of code having an explicitly named
+    response object, it also makes it easier to put a breakpoint between the assignment
+    and return expression
+  Enabled: false
+
+Style/SwapValues:
+  Enabled: false
 
 Layout/ModuleHashOnNewLine:
   Enabled: true
@@ -30,6 +157,11 @@ Lint/ModuleDisclosureDatePresent:
   Include:
     # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
     - 'modules/exploits/**/*'
+
+Lint/DeprecatedGemVersion:
+  Enabled: true
+  Exclude:
+    - 'metasploit-framework.gemspec'
 
 Metrics/ClassLength:
   Description: 'Most Metasploit modules are quite large. This is ok.'
@@ -53,6 +185,17 @@ Metrics/PerceivedComplexity:
   Enabled: false
   Description: 'This is often a red-herring'
 
+Metrics/BlockNesting:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+  Enabled: false
+
+Metrics/ParameterLists:
+  Description: >-
+    This is a good rule to follow, but will cause a lot of overhead introducing this rule.
+    Increasing the max count for now
+  Max: 8
+
 Style/TernaryParentheses:
   Enabled: false
   Description: 'This outright produces bugs'
@@ -63,6 +206,30 @@ Style/FrozenStringLiteralComment:
 
 Style/RedundantReturn:
   Description: 'This often looks weird when mixed with actual returns, and hurts nothing'
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Description: >-
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Description: >-
+    Disabled for now, as this naming convention is used in a lot of core library files.
+    Could be enabled in isolation with additional effort.
+  Enabled: false
+
+Naming/ConstantName:
+  Description: >-
+    Disabled for now, Metasploit is unfortunately too inconsistent with its naming to introduce
+    this. Definitely possible to enforce this in the future if need be.
+
+    Examples:
+        ManualRanking, LowRanking, etc.
+        NERR_ClientNameNotFound
+        HttpFingerprint
+        CachedSize
+        ErrUnknownTransferId
   Enabled: false
 
 Naming/VariableNumber:
@@ -78,6 +245,7 @@ Style/Documentation:
   Description: 'Most Metasploit modules do not have class documentation.'
   Exclude:
     - 'modules/**/*'
+    - 'spec/file_fixtures/modules/**/*'
 
 Layout/FirstArgumentIndentation:
   Enabled: true
@@ -126,16 +294,28 @@ Style/ParenthesesAroundCondition:
   Enabled: false
   Description: 'This is used in too many places to discount, especially in ported code. Has little effect'
 
+Style/StringConcatenation:
+  Enabled: false
+  Description: >-
+    Disabled for now as it changes escape sequences when auto corrected:
+      https://github.com/rubocop/rubocop/issues/9543
+
+    Additionally seems to break with multiline string concatenation with trailing comments, example:
+      payload = "\x12" + # Size
+                "\x34" + # eip
+                "\x56"   # etc
+    With `rubocop -A` this will become:
+      payload = "\u00124V"    # etc
+
 Style/TrailingCommaInArrayLiteral:
   Enabled: false
   Description: 'This is often a useful pattern, and is actually required by other languages. It does not hurt.'
 
-Metrics/LineLength:
+Layout/LineLength:
   Description: >-
     Metasploit modules often pattern match against very
     long strings when identifying targets.
-  Enabled: true
-  Max: 180
+  Enabled: false
 
 Metrics/BlockLength:
   Enabled: true
@@ -182,7 +362,7 @@ Layout/EmptyLinesAroundMethodBody:
   Enabled: false
   Description: 'these are used to increase readability'
 
-Layout/ExtraSpacing:
+Layout/ExtraSpacingWithBinDataIgnored:
   Description: 'Do not use unnecessary spacing.'
   Enabled: true
   # When true, allows most uses of extra spacing if the intent is to align
@@ -248,6 +428,8 @@ Style/SafeNavigation:
     configuration.
   Enabled: false
 
-Documentation:
-  Exclude:
-    - 'modules/**/*'
+Style/UnpackFirst:
+  Description: >-
+    Disabling to make it easier to copy/paste `unpack('h*')` expressions from code
+    into a debugging REPL.
+  Enabled: false

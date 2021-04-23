@@ -35,7 +35,7 @@ RSpec.describe Msf::Util::JavaDeserialization do
 
     context 'when payload status is unsupported' do
       it 'raises a unsupported error' do
-        json_data = %Q|{"original":{"BeanShell1":{"status":"unsupported","bytes":"AAAA"}}}|
+        json_data = %Q|{"none":{"BeanShell1":{"status":"unsupported","bytes":"AAAA"}}}|
         allow(File).to receive(:read).and_return(json_data)
         expect{Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)}.to raise_error(ArgumentError)
       end
@@ -49,7 +49,7 @@ RSpec.describe Msf::Util::JavaDeserialization do
       it 'returns a Base64 string' do
         original_bytes = 'AAAA'
         b64 = Rex::Text.encode_base64(original_bytes)
-        json_data = %Q|{"original":{"BeanShell1":{"status":"static","bytes":"#{b64}"}}}|
+        json_data = %Q|{"none":{"BeanShell1":{"status":"static","bytes":"#{b64}"}}}|
         allow(File).to receive(:read).and_return(json_data)
         p = Msf::Util::JavaDeserialization::ysoserial_payload(payload_name, default_command)
         expect(p).to eq(original_bytes)

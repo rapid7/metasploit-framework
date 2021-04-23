@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 

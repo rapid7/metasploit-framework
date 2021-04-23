@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -14,10 +13,6 @@ module Text
 ###
 class Input
 
-  require 'rex/ui/text/input/stdio'
-  require 'rex/ui/text/input/readline'
-  require 'rex/ui/text/input/socket'
-  require 'rex/ui/text/input/buffer'
   require 'rex/text/color'
 
   include Rex::Text::Color

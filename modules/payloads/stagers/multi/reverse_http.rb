@@ -13,7 +13,7 @@ module MetasploitModule
 
   def initialize(info = {})
     super(merge_info(info,
-      'Name'        => 'Reverse HTTP Stager (Mulitple Architectures)',
+      'Name'        => 'Reverse HTTP Stager (Multiple Architectures)',
       'Description' => 'Tunnel communication over HTTP',
       'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,

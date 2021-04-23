@@ -36,10 +36,10 @@ class Fs
     # Return the hash of times associated with the MACE values
     begin
       return {
-        'Modified'       => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_MODIFIED)),
-        'Accessed'       => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_ACCESSED)),
-        'Created'        => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_CREATED)),
-        'Entry Modified' => Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_EMODIFIED))
+        'Modified'       => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_MODIFIED)),
+        'Accessed'       => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_ACCESSED)),
+        'Created'        => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_CREATED)),
+        'Entry Modified' => ::Time.at(response.get_tlv_value(TLV_TYPE_FS_FILE_EMODIFIED))
       }
     rescue RangeError
       raise RangeError, 'Invalid MACE values'

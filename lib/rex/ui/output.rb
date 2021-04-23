@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -13,10 +12,8 @@ module Ui
 class Output
 
   # General output
-  require 'rex/ui/output/none'
 
   # Text-based output
-  require 'rex/ui/text/output'
 
   #
   # Prints an error message.

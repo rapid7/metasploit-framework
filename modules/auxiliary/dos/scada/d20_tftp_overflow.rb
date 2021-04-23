@@ -13,8 +13,6 @@
 ##
 
 
-require 'rex/ui/text/shell'
-require 'rex/proto/tftp'
 
 class MetasploitModule < Msf::Auxiliary
   include Rex::Ui::Text

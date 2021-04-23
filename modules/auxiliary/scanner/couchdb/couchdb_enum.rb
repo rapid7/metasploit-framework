@@ -88,11 +88,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def check
     return Exploit::CheckCode::Unknown unless get_version
-    version = Gem::Version.new(@version)
+    version = Rex::Version.new(@version)
     return Exploit::CheckCode::Unknown if version.version.empty?
     vprint_good("#{peer} - Found CouchDB version #{version}")
 
-    return Exploit::CheckCode::Appears if version < Gem::Version.new('1.7.0') || version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
+    return Exploit::CheckCode::Appears if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
 
     Exploit::CheckCode::Safe
   end
@@ -216,9 +216,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if datastore['CREATEUSER']
       fail_with(Failure::Unknown, 'get_version failed in run') unless get_version
-      version = Gem::Version.new(@version)
+      version = Rex::Version.new(@version)
       print_good("#{peer} - Found CouchDB version #{version}")
-      create_user if version < Gem::Version.new('1.7.0') || version.between?(Gem::Version.new('2.0.0'), Gem::Version.new('2.1.0'))
+      create_user if version < Rex::Version.new('1.7.0') || version.between?(Rex::Version.new('2.0.0'), Rex::Version.new('2.1.0'))
     end
     auth = basic_auth(username, password) if username && password
     get_server_info(auth) if datastore['SERVERINFO']

@@ -66,7 +66,7 @@ module Framework
   #
   # @param opts [Hash{String => Object}]
   # @option opts (see simplify)
-  # @return [Msf::Simple::Frameworkt s]
+  # @return [Msf::Simple::Framework]
   def self.create(opts = {})
     framework = Msf::Framework.new(opts)
     return simplify(framework, opts)

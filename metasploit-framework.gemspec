@@ -61,18 +61,18 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 3.0.0'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 4.0.0'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models'
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 4.1.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  spec.add_runtime_dependency 'metasploit-model', '~> 3.1.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.28'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.43'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.6'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.9'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -111,8 +111,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'tzinfo-data'
   # Gem for dealing with SSHKeys
   spec.add_runtime_dependency 'sshkey'
-  # BitStruct Library used for handling certain Protocol Header/Packet construction
-  spec.add_runtime_dependency 'bit-struct'
   # Library for interpreting Windows error codes and strings
   spec.add_runtime_dependency 'windows_error'
   # This used to be depended on by nokogiri, depended on by wmap

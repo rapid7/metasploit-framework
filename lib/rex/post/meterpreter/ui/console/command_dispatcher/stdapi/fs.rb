@@ -148,7 +148,7 @@ class Console::CommandDispatcher::Stdapi::Fs
       "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
-      "-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
+      "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ]
     )
 
     opts.parse(args) { | opt, idx, val |
@@ -459,7 +459,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         opts['tries'] = true
         opts['tries_no'] = tries_no
       when "-t"
-        opts['timestamp'] = '_' + Time.now.iso8601
+        opts['timestamp'] = '_' + ::Time.now.iso8601
       when nil
         src_items << last if (last)
         last = val
@@ -619,7 +619,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     tbl = Rex::Text::Table.new(
-      'Header'  => "Listing: #{path}",
+      'Header'  => "Listing: #{path}".force_encoding('UTF-8'),
       'SortIndex' => columns.index(sort),
       'SortOrder' => order,
       'Columns' => columns,
@@ -639,7 +639,7 @@ class Console::CommandDispatcher::Stdapi::Fs
           ffstat ? ffstat.size       : '',
           ffstat ? ffstat.ftype[0,3] : '',
           ffstat ? ffstat.mtime      : '',
-          fname
+          fname.force_encoding('UTF-8')
         ]
       row.insert(4, p['FileShortName'] || '') if short
 

@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/text/color'
-require 'rex/ui'
 
 module Rex
 module Ui
@@ -417,9 +416,9 @@ module Shell
         if framework.datastore['PromptTimeFormat']
           strftime_format = framework.datastore['PromptTimeFormat']
         else
-          strftime_format = Time::DATE_FORMATS[:db].to_s
+          strftime_format = ::Time::DATE_FORMATS[:db].to_s
         end
-        formatted << Time.now.strftime(strftime_format).to_s
+        formatted << ::Time.now.strftime(strftime_format).to_s
       elsif spec == 'W' && framework.db.active
         formatted << framework.db.workspace.name
       elsif session
@@ -494,16 +493,6 @@ private
   attr_writer   :cont_flag # :nodoc:
 
 end
-
-###
-#
-# Pseudo-shell interface that simply includes the Shell mixin.
-#
-###
-class PseudoShell
-  include Shell
-end
-
 
 end end end
 

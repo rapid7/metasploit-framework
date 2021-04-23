@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/proto/iax2/constants'
-require 'rex/proto/iax2/codecs'
-require 'rex/proto/iax2/call'
 
 require 'rex/socket'
 require 'thread'
@@ -117,7 +114,7 @@ class Client
 
   def dprint(msg)
     return if not self.debugging
-    $stderr.puts "[#{Time.now.to_s}] #{msg}"
+    $stderr.puts "[#{::Time.now.to_s}] #{msg}"
   end
 
   def send_data(call, data, inc_seq = true )
@@ -129,72 +126,72 @@ class Client
   end
 
   def send_ack(call)
-    data =	[ IAX_SUBTYPE_ACK ].pack('C')
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ), false )
+    data =	[ Constants::IAX_SUBTYPE_ACK ].pack('C')
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ), false )
   end
 
   def send_pong(call, stamp)
-    data =	[ IAX_SUBTYPE_PONG ].pack('C')
-    send_data( call, create_pkt( call.scall, call.dcall, stamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    data =	[ Constants::IAX_SUBTYPE_PONG ].pack('C')
+    send_data( call, create_pkt( call.scall, call.dcall, stamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_lagrp(call, stamp)
-    data =	[ IAX_SUBTYPE_LAGRP ].pack('C')
-    send_data( call, create_pkt( call.scall, call.dcall, stamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    data =	[ Constants::IAX_SUBTYPE_LAGRP ].pack('C')
+    send_data( call, create_pkt( call.scall, call.dcall, stamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
 
   def send_invalid(call)
-    data =	[ IAX_SUBTYPE_INVAL ].pack('C')
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    data =	[ Constants::IAX_SUBTYPE_INVAL ].pack('C')
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_hangup(call)
-    data =	[ IAX_SUBTYPE_HANGUP ].pack('C')
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    data =	[ Constants::IAX_SUBTYPE_HANGUP ].pack('C')
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_new(call, number)
-    data = [ IAX_SUBTYPE_NEW ].pack('C')
+    data = [ Constants::IAX_SUBTYPE_NEW ].pack('C')
 
     cid = call.caller_number || self.caller_number
     cid = number if cid == 'SELF'
 
-    data << create_ie(IAX_IE_CALLING_NUMBER, cid )
-    data << create_ie(IAX_IE_CALLING_NAME, call.caller_name || self.caller_name)
-    data << create_ie(IAX_IE_DESIRED_CODEC, [IAX_SUPPORTED_CODECS].pack("N") )
-    data << create_ie(IAX_IE_ACTUAL_CODECS, [IAX_SUPPORTED_CODECS].pack("N") )
-    data << create_ie(IAX_IE_USERNAME, self.username) if self.username
-    data << create_ie(IAX_IE_CALLED_NUMBER, number)
-    data << create_ie(IAX_IE_ORIGINAL_DID, number)
+    data << create_ie(Constants::IAX_IE_CALLING_NUMBER, cid )
+    data << create_ie(Constants::IAX_IE_CALLING_NAME, call.caller_name || self.caller_name)
+    data << create_ie(Constants::IAX_IE_DESIRED_CODEC, [Constants::IAX_SUPPORTED_CODECS].pack("N") )
+    data << create_ie(Constants::IAX_IE_ACTUAL_CODECS, [Constants::IAX_SUPPORTED_CODECS].pack("N") )
+    data << create_ie(Constants::IAX_IE_USERNAME, self.username) if self.username
+    data << create_ie(Constants::IAX_IE_CALLED_NUMBER, number)
+    data << create_ie(Constants::IAX_IE_ORIGINAL_DID, number)
 
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_authrep_chall_response(call, chall)
     data =
-      [ IAX_SUBTYPE_AUTHREP ].pack('C') +
-      create_ie(IAX_IE_CHALLENGE_RESP, ::Digest::MD5.hexdigest( chall + self.password ))
+      [ Constants::IAX_SUBTYPE_AUTHREP ].pack('C') +
+      create_ie(Constants::IAX_IE_CHALLENGE_RESP, ::Digest::MD5.hexdigest( chall + self.password ))
 
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_regreq(call)
-    data = [ IAX_SUBTYPE_REGREQ ].pack('C')
-    data << create_ie(IAX_IE_USERNAME, self.username) if self.username
-    data << create_ie(IAX_IE_REG_REFRESH, [IAX_DEFAULT_REG_REFRESH].pack('n'))
+    data = [ Constants::IAX_SUBTYPE_REGREQ ].pack('C')
+    data << create_ie(Constants::IAX_IE_USERNAME, self.username) if self.username
+    data << create_ie(Constants::IAX_IE_REG_REFRESH, [Constants::IAX_DEFAULT_REG_REFRESH].pack('n'))
 
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def send_regreq_chall_response(call, chall)
     data =
-      [ IAX_SUBTYPE_REGREQ ].pack('C') +
-      create_ie(IAX_IE_USERNAME, self.username) +
-      create_ie(IAX_IE_CHALLENGE_RESP, ::Digest::MD5.hexdigest( chall + self.password )) +
-      create_ie(IAX_IE_REG_REFRESH, [IAX_DEFAULT_REG_REFRESH].pack('n'))
+      [ Constants::IAX_SUBTYPE_REGREQ ].pack('C') +
+      create_ie(Constants::IAX_IE_USERNAME, self.username) +
+      create_ie(Constants::IAX_IE_CHALLENGE_RESP, ::Digest::MD5.hexdigest( chall + self.password )) +
+      create_ie(Constants::IAX_IE_REG_REFRESH, [Constants::IAX_DEFAULT_REG_REFRESH].pack('n'))
 
-    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, IAX_TYPE_IAX, data ) )
+    send_data( call, create_pkt( call.scall, call.dcall, call.timestamp, call.oseq, call.iseq, Constants::IAX_TYPE_IAX, data ) )
   end
 
   def create_ie(ie_type, ie_data)

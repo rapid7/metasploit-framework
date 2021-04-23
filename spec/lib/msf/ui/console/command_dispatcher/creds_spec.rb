@@ -34,7 +34,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         let(:nonblank_password)   { 'nonblank_pass' }
 
         let!(:origin) { FactoryBot.create(:metasploit_credential_origin_import) }
-        
+
         let!(:priv) { FactoryBot.create(:metasploit_credential_password, data: password) }
         let!(:pub) { FactoryBot.create(:metasploit_credential_username, username: username) }
         let!(:blank_pub) { blank_pub = FactoryBot.create(:metasploit_credential_blank_username) }
@@ -48,14 +48,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
             public: pub,
             realm: nil,
             workspace: framework.db.workspace)
-          
+
           FactoryBot.create(:metasploit_credential_core,
             origin: origin,
             private: nonblank_priv,
             public: blank_pub,
             realm: nil,
             workspace: framework.db.workspace)
-            
+
           FactoryBot.create(:metasploit_credential_core,
             origin: origin,
             private: blank_priv,

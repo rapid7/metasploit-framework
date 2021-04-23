@@ -1,4 +1,3 @@
-require 'rex/parser/foundstone_nokogiri'
 
 module Msf::DBManager::Import::Foundstone
   def import_foundstone_noko_stream(args={},&block)

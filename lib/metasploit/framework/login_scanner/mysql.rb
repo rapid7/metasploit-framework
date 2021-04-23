@@ -35,16 +35,7 @@ module Metasploit
             disconnect if self.sock
             connect
 
-            ::RbMysql.connect({
-              :host          => host,
-              :port          => port,
-              :read_timeout  => 300,
-              :write_timeout => 300,
-              :socket        => sock,
-              :user          => credential.public,
-              :password      => credential.private,
-              :db            => ''
-            })
+            ::RbMysql.connect(host, credential.public, credential.private, '', port, sock)
 
           rescue ::SystemCallError, Rex::ConnectionError => e
             result_options.merge!({

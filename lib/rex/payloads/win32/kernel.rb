@@ -3,10 +3,6 @@ module Rex
 module Payloads
 module Win32
 
-require 'rex/payloads/win32/kernel/common'
-require 'rex/payloads/win32/kernel/recovery'
-require 'rex/payloads/win32/kernel/stager'
-require 'rex/payloads/win32/kernel/migration'
 
 module Kernel
 

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'spec_helper'
-require 'rex/proto/kademlia/pong'
 
 RSpec.describe Rex::Proto::Kademlia::Pong do
   let(:port) { 12345 }

@@ -57,12 +57,12 @@ RSpec.describe Metasploit::Framework::LoginScanner::MySQL do
 
       context 'due to connection timeout' do
         it 'returns a result with a status of Metasploit::Model::Login::Status::UNABLE_TO_CONNECT' do
-          expect(::RbMysql).to receive(:connect).and_raise RbMysql::ClientError
+          expect(::RbMysql).to receive(:connect).and_raise RbMysql::ClientError, "Client Error"
           expect(login_scanner.attempt_login(pub_pub).status).to eq Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         end
 
         it 'returns a result with the proof containing an appropriate error message' do
-          expect(::RbMysql).to receive(:connect).and_raise RbMysql::ClientError
+          expect(::RbMysql).to receive(:connect).and_raise RbMysql::ClientError, "Client Error"
           expect(login_scanner.attempt_login(pub_pub).proof).to be_a(RbMysql::ClientError)
         end
       end

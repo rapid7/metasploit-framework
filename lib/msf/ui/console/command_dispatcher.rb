@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'rex/ui'
 
 module Msf
 module Ui
@@ -74,6 +73,14 @@ module CommandDispatcher
 
     # If it's a syntax error, log the call stack that it originated from.
     dlog("Call stack:\n#{$@.join("\n")}", 'core', LEV_1)
+  end
+
+  #
+  # Load the configuration required for this CommandDispatcher, configuring
+  # any internal state as required.
+  #
+  def load_config(_path = nil)
+    # noop
   end
 
   #

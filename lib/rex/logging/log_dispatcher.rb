@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 require 'rex/sync'
-require 'rex/logging'
-require 'rex/logging/log_sink'
-require 'rex/logging/log_sink_factory'
 
 module Rex
 module Logging

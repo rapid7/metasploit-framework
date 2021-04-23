@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    version = Gem::Version.new($1.split(".").map(&:to_i).join('.'))
-    unless version.between?(Gem::Version.new('3.2.3'), Gem::Version.new('3.2.4'))
+    version = Rex::Version.new($1.split(".").map(&:to_i).join('.'))
+    unless version.between?(Rex::Version.new('3.2.3'), Rex::Version.new('3.2.4'))
       print_error "#{version} is not vulnerable"
       return false
     end

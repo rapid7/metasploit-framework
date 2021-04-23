@@ -115,7 +115,7 @@ module ResponseDataHelper
 
       case association.macro
         when :belongs_to
-          data.delete("#{k}_id")
+          data.delete(:"#{k}_id")
           # Polymorphic associations do not auto-create the 'build_model' method
           next if association.options[:polymorphic]
           to_ar(association.klass, v, obj.send("build_#{k}"))

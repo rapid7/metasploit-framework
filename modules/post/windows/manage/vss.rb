@@ -86,10 +86,10 @@ class MetasploitModule < Msf::Post
   def action_vss_mount
     print_status('Creating the symlink...')
     device = datastore['DEVICE']
-    unless device =~ /^([\/\\])\1\?\1GLOBALROOT\1Device\1([\w\- ]+)\1?$/
+    unless device =~ %r{^([/\\])\1\?\1GLOBALROOT\1Device\1([\w\- ]+)\1?$}
       fail_with(Failure::BadConfig, 'The DEVICE parameter is incorrect, it should begin with \\\\?\\GLOBALROOT\\Device\\')
     end
-    device << $1 unless device.end_with?($1) # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
+    device << Regexp.last_match(1) unless device.end_with?(Regexp.last_match(1)) # the DEVICE parameter needs to end with / or the link will be created successfully but will not work
 
     if create_symlink(datastore['PATH'], device, directory: true)
       print_good('Mounted successfully')

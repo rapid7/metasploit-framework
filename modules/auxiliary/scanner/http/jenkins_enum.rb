@@ -7,7 +7,7 @@
 # Some of this code was taken from the "jboss_vulnscan" module by: Tyler Krpata
 ##
 
-require 'rex/proto/http'
+
 require 'rexml/document'
 
 class MetasploitModule < Msf::Auxiliary

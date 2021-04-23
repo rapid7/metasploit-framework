@@ -44,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
         'DisclosureDate' => '2020-04-30', # F-Secure advisory
         'License' => MSF_LICENSE,
         'Actions' => [
-          ['Dump', 'Description' => 'Dump root key from Salt master']
+          ['Dump', { 'Description' => 'Dump root key from Salt master' }]
         ],
         'DefaultAction' => 'Dump',
         'Notes' => {

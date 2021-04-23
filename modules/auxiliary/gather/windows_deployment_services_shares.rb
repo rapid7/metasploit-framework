@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/dcerpc'
-require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client

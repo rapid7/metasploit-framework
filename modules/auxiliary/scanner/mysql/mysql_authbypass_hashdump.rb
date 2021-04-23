@@ -50,15 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       socket = connect(false)
-      x = ::RbMysql.connect({
-        :host           => rhost,
-        :port           => rport,
-        :user           => username,
-        :password       => password,
-        :read_timeout   => 300,
-        :write_timeout  => 300,
-        :socket         => socket
-        })
+      x = ::RbMysql.connect(rhost, username, password, nil, rport, socket)
       x.connect
       results << x
 
@@ -111,16 +103,7 @@ class MetasploitModule < Msf::Auxiliary
           begin
             # Create our socket and make the connection
             s = connect(false)
-            x = ::RbMysql.connect({
-              :host           => rhost,
-              :port           => rport,
-              :user           => username,
-              :password       => password,
-              :read_timeout   => 300,
-              :write_timeout  => 300,
-              :socket         => s,
-              :db             => nil
-              })
+            x = ::RbMysql.connect(rhost, username, password, rport, s)
             print_good "#{rhost}:#{rport} Successfully bypassed authentication after #{count} attempts. URI: mysql://#{username}:#{password}@#{rhost}:#{rport}"
             results << x
           rescue RbMysql::AccessDeniedError

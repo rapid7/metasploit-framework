@@ -1,6 +1,5 @@
 
 require 'spec_helper'
-require 'rex/proto/http/packet/header'
 
 RSpec.describe Rex::Proto::Http::Packet::Header do
 

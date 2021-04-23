@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 require 'spec_helper'
-require 'rex/proto/mms/model'
 
 RSpec.describe Rex::Proto::Mms::Client do
 

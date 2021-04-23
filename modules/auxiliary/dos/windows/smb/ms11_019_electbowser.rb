@@ -56,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
     @client = Rex::Proto::SMB::Client.new(udp_sock)
 
     ip = Rex::Socket.source_address(datastore['RHOST'])
-    ip_src = Rex::Socket.gethostbyname(ip)[3]
+    ip_src = Rex::Socket.resolv_nbo(ip, false)
 
     svc_src = "\x41\x41\x00"   # pre-encoded?
     name_src = Rex::Text.rand_text_alphanumeric(15) # 4+rand(10))

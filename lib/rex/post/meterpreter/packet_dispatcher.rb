@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/packet_response_waiter'
-require 'rex/logging'
 require 'rex/exceptions'
 
 module Rex
@@ -15,7 +14,7 @@ module Meterpreter
 ###
 class RequestError < ArgumentError
   def initialize(command_id, einfo, ecode=nil)
-    extension_id = command_id - (command_id % 1000)
+    extension_id = command_id - (command_id % COMMAND_ID_RANGE)
     if extension_id == 0  # this is the meterpreter core
       mod = Rex::Post::Meterpreter
     else
@@ -24,7 +23,7 @@ class RequestError < ArgumentError
     end
 
     if mod
-      command_name = mod.constants.select { |c| c.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
+      command_name = mod.constants.select { |c| c.to_s.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
       command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
     end
 
@@ -103,7 +102,7 @@ module PacketDispatcher
 
   def on_passive_request(cli, req)
     begin
-      self.last_checkin = Time.now
+      self.last_checkin = ::Time.now
       resp = send_queue.shift
       cli.send_response(resp)
     rescue => e
@@ -209,6 +208,22 @@ module PacketDispatcher
   # @param timeout [Integer,nil] number of seconds to wait, or nil to wait
   #   forever
   def send_packet_wait_response(packet, timeout)
+    if packet.type == PACKET_TYPE_REQUEST && commands.present?
+      # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
+      # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+      # proactive validation of Windows core commands.
+      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == COMMAND_ID_START_CORE
+
+      unless windows_core || commands.include?(packet.method)
+        if (ext_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(packet.method))
+          unless ext.aliases.include?(ext_name)
+            raise RequestError.new(packet.method, "The command requires the #{ext_name} extension to be loaded")
+          end
+        end
+        raise RequestError.new(packet.method, "The command is not supported by this Meterpreter type (#{session_type})")
+      end
+    end
+
     # First, add the waiter association for the supplied packet
     waiter = add_response_waiter(packet)
 
@@ -253,7 +268,7 @@ module PacketDispatcher
   # @return [void]
   def keepalive
     if @ping_sent
-      if Time.now.to_i - last_checkin.to_i > PING_TIME*2
+      if ::Time.now.to_i - last_checkin.to_i > PING_TIME*2
         dlog("No response to ping, session #{self.sid} is dead", LEV_3)
         self.alive = false
       end
@@ -578,7 +593,7 @@ module PacketDispatcher
     #STDERR.puts("RECV: #{packet.inspect}\n")
 
     # Update our last reply time
-    self.last_checkin = Time.now
+    self.last_checkin = ::Time.now
 
     pivot_session = self.find_pivot_session(packet.session_guid)
     pivot_session.pivoted_session.last_checkin = self.last_checkin if pivot_session
@@ -672,7 +687,7 @@ module HttpPacketDispatcher
     resp['Content-Type'] = 'application/octet-stream'
     resp['Connection']   = 'close'
 
-    self.last_checkin = Time.now
+    self.last_checkin = ::Time.now
 
     if req.method == 'GET'
       rpkt = send_queue.shift

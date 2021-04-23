@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rexml/document'
-require 'rex/parser/nmap_xml'
 require 'metasploit/framework/password_crackers/hashcat/formatter'
 require 'metasploit/framework/password_crackers/jtr/formatter'
 
@@ -56,35 +55,6 @@ class Creds
   #
   # Miscellaneous option helpers
   #
-
-  # Parse +arg+ into a {Rex::Socket::RangeWalker} and append the result into +host_ranges+
-  #
-  # @note This modifies +host_ranges+ in place
-  #
-  # @param arg [String] The thing to turn into a RangeWalker
-  # @param host_ranges [Array] The array of ranges to append
-  # @param required [Boolean] Whether an empty +arg+ should be an error
-  # @return [Boolean] true if parsing was successful or false otherwise
-  def arg_host_range(arg, host_ranges, required=false)
-    if (!arg and required)
-      print_error("Missing required host argument")
-      return false
-    end
-    begin
-      rw = Rex::Socket::RangeWalker.new(arg)
-    rescue
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-
-    if rw.valid?
-      host_ranges << rw
-    else
-      print_error("Invalid host parameter, #{arg}.")
-      return false
-    end
-    return true
-  end
 
   #
   # Can return return active or all, on a certain host or range, on a
@@ -433,6 +403,9 @@ class Creds
     svcs.flatten!
     tbl_opts = {
       'Header'  => "Credentials",
+      # For now, don't perform any word wrapping on the cred table as it breaks the workflow of
+      # copying credentials and pasting them into applications
+      'WordWrap' => false,
       'Columns' => cred_table_columns,
       'SearchTerm' => search_term
     }
@@ -484,7 +457,7 @@ class Creds
           "", # host
           origin, # origin
           "", # service
-          public_val, 
+          public_val,
           private_val,
           realm_val,
           human_val, #private type

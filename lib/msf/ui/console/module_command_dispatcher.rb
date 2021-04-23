@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/parser/arguments'
 
 module Msf
 module Ui
@@ -79,16 +78,17 @@ module ModuleCommandDispatcher
 
     loop do
       while (@tl.length < threads_max)
-        ip = hosts.next_ip
-        break unless ip
+        host = hosts.next_host
+        break unless host
 
-        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) { |tip|
+        @tl << framework.threads.spawn("CheckHost-#{host[:address]}", false, host.dup) { |thr_host|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
-          instance = mod.replicant
-          instance.datastore['RHOST'] = tip.dup
-          Msf::Simple::Framework.simplify_module(instance, false)
-          check_simple(instance)
+          nmod = mod.replicant
+          nmod.datastore['RHOST'] = thr_host[:address].dup
+          nmod.datastore['VHOST'] = thr_host[:hostname].dup if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
+          Msf::Simple::Framework.simplify_module(nmod, false)
+          check_simple(nmod)
         }
       end
 
