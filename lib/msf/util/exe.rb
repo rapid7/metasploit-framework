@@ -1481,6 +1481,8 @@ require 'digest/sha1'
   end
 
   def self.to_win32pe_psh_rc4(framework, code, opts = {})
+    # unlike other to_win32pe_psh_* methods, this expects powershell code, not asm
+    # this method should be called after other to_win32pe_psh_* methods to wrap the output
     Rex::Powershell::Payload.to_win32pe_psh_rc4(Rex::Powershell::Templates::TEMPLATE_DIR, code)
   end
 
