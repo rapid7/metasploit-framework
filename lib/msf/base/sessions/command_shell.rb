@@ -316,18 +316,18 @@ class CommandShell
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-  if shell_command_token('command -v command').to_s.strip == 'command'
-    binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
-  else
-    binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
-  end
-  unless binary_path.include?("true")
-    print_error("#{binary} not found")
-    return nil
-  end
-  binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
-  print_status("Found #{binary} at #{binary_path}")
-  return binary_path
+    if shell_command_token('command -v command').to_s.strip == 'command'
+      binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
+    else
+      binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
+    end
+    unless binary_path.include?("true")
+      print_error("#{binary} not found")
+      return nil
+    end
+    binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
+    print_status("Found #{binary} at #{binary_path}")
+    return binary_path
   end
 
   #
