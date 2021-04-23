@@ -1476,6 +1476,16 @@ require 'digest/sha1'
     "exec(__import__('base64').b64decode(__import__('codecs').getencoder('utf-8')('#{Rex::Text.encode_base64(python_code)}')[0]))"
   end
 
+  def self.to_win32pe_psh_msil(framework, code, opts = {})
+    Rex::Powershell::Payload.to_win32pe_psh_msil(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+  end
+
+  def self.to_win32pe_psh_rc4(framework, code, opts = {})
+    # unlike other to_win32pe_psh_* methods, this expects powershell code, not asm
+    # this method should be called after other to_win32pe_psh_* methods to wrap the output
+    Rex::Powershell::Payload.to_win32pe_psh_rc4(Rex::Powershell::Templates::TEMPLATE_DIR, code)
+  end
+
   def self.to_jsp(exe)
     hash_sub = {}
     hash_sub[:var_payload]       = Rex::Text.rand_text_alpha(rand(8)+8)
