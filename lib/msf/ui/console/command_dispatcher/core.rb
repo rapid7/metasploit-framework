@@ -1431,6 +1431,7 @@ class Core
                 process = session.sys.process.execute(c, c_args,
                   {
                     'Channelized' => true,
+                    'Subshell'    => true,
                     'Hidden'      => true
                   })
                 if process && process.channel
