@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(22),
         OptPath.new('KEY_PATH', [false, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
         OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
-        OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and EC private keys are supported.'])
+        OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and ECDSA private keys are supported.'])
       ], self.class
     )
 
@@ -134,7 +134,18 @@ class MetasploitModule < Msf::Auxiliary
 
     keys = prepend_db_keys(keys)
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
+    key_count = keys.key_data.count
+    key_sources = []
+    unless datastore['KEY_PATH'].blank?
+      key_sources.append(datastore['KEY_PATH'])
+    end
+
+    unless datastore['PRIVATE_KEY'].blank?
+      key_sources.append('PRIVATE_KEY')
+    end
+
+
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
