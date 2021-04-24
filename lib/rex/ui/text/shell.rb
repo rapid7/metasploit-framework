@@ -154,7 +154,12 @@ module Shell
         # Otherwise, call what should be an overriden instance method to
         # process the line.
         else
+          hist_length = Readline::HISTORY.length
           ret = run_single(line)
+          if line.start_with?("pry")
+            hist_diff = Readline::HISTORY.length - hist_length
+            hist_diff.times { Readline::HISTORY.pop() }
+          end
           # don't bother saving lines that couldn't be found as a
           # command, create the file if it doesn't exist, don't save dupes
           if ret && self.histfile && line != @last_line
