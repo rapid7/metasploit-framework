@@ -158,7 +158,7 @@ begin
         RbReadline.rl_outstream = output
 
         begin
-          line = RbReadline.readline(reset_sequence + prompt).to_s.strip
+          line = RbReadline.readline(reset_sequence + prompt)
         rescue ::Exception => exception
           RbReadline.rl_cleanup_after_signal()
           RbReadline.rl_deprep_terminal()
@@ -166,10 +166,10 @@ begin
           raise exception
         end
 
-        if add_history && line != ""
+        if add_history && line && !line.start_with?(' ')
           # Don't add duplicate lines to history
-          if ::Readline::HISTORY.empty? || line != ::Readline::HISTORY[-1]
-            RbReadline.add_history(line)
+          if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
+            RbReadline.add_history(line.strip)
           end
         end
 
