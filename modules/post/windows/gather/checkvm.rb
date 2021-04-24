@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
@@ -25,7 +24,7 @@ class MetasploitModule < Msf::Post
           'Aaron Soto <aaron_soto[at]rapid7.com>'
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
     )
   end
@@ -75,7 +74,7 @@ class MetasploitModule < Msf::Post
 
     key_path = 'HKLM\HARDWARE\DESCRIPTION\System'
     system_bios_version = registry_getvaldata(key_path, 'SystemBiosVersion')
-    return true if system_bios_version && system_bios_version.unpack('s<*').reduce('', :<<).include?('Hyper-V')
+    return true if system_bios_version && system_bios_version.include?('Hyper-V')
 
     key_path = 'HKLM\HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0'
     return true if registry_getvaldata(key_path, 'Identifier') =~ /Msft    Virtual Disk    1.0/i
@@ -95,9 +94,11 @@ class MetasploitModule < Msf::Post
       'vmwareuser.exe',
       'vmwaretray.exe'
     ]
-    get_processes.each do |x|
-      vmwareprocs.each do |p|
-        return true if p == x['name'].downcase
+    if session.type == 'meterpreter'
+      get_processes.each do |x|
+        vmwareprocs.each do |p|
+          return true if p == x['name'].downcase
+        end
       end
     end
 
@@ -113,9 +114,11 @@ class MetasploitModule < Msf::Post
       'vmusrvc.exe',
       'vmsrvc.exe'
     ]
-    get_processes.each do |x|
-      vpcprocs.each do |p|
-        return true if p == x['name'].downcase
+    if session.type == 'meterpreter'
+      get_processes.each do |x|
+        vpcprocs.each do |p|
+          return true if p == x['name'].downcase
+        end
       end
     end
 
@@ -127,9 +130,11 @@ class MetasploitModule < Msf::Post
       'vboxservice.exe',
       'vboxtray.exe'
     ]
-    get_processes.each do |x|
-      vboxprocs.each do |p|
-        return true if p == x['name'].downcase
+    if session.type == 'meterpreter'
+      get_processes.each do |x|
+        vboxprocs.each do |p|
+          return true if p == x['name'].downcase
+        end
       end
     end
 
@@ -158,9 +163,11 @@ class MetasploitModule < Msf::Post
     xenprocs = [
       'xenservice.exe'
     ]
-    get_processes.each do |x|
-      xenprocs.each do |p|
-        return true if p == x['name'].downcase
+    if session.type == 'meterpreter'
+      get_processes.each do |x|
+        xenprocs.each do |p|
+          return true if p == x['name'].downcase
+        end
       end
     end
 
@@ -202,7 +209,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    print_status("Checking if #{sysinfo['Computer']} is a Virtual Machine ...")
+    print_status('Checking if the target is a Virtual Machine ...')
 
     if hyperv?
       report_vm('Hyper-V')
@@ -217,7 +224,7 @@ class MetasploitModule < Msf::Post
     elsif qemu?
       report_vm('Qemu')
     else
-      print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
+      print_status('The target appears to be a Physical Machine')
     end
   end
 end
