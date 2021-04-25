@@ -27,7 +27,7 @@ class Console
     if (Rex::Compat.is_windows())
       super("meterpreter")
     else
-      super("%undmeterpreter%clr")
+      super("%undmeterpreter%clr", '>', Msf::Config.met_history)
     end
 
     # The meterpreter client context

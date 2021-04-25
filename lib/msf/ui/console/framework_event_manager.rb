@@ -38,12 +38,14 @@ module FrameworkEventManager
   end
 
   def on_session_fail(reason='')
+    Readline::HISTORY.length.times {Readline::HISTORY.pop}
   end
 
   #
   # Called when a session is closed and removed from the framework.
   #
   def on_session_close(session, reason='')
+    Readline::HISTORY.length.times {Readline::HISTORY.pop}
     if (session.interacting == true)
       output.print_line
     end

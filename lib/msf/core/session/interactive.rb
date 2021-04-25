@@ -142,6 +142,9 @@ protected
   def _suspend
     # Ask the user if they would like to background the session
     intent = prompt_yesno("Background session #{name}?")
+    if intent
+    Readline::HISTORY.length.times {Readline::HISTORY.pop}
+    end
     if !intent
       # User does not want to background the current session
       # Assuming the target is *nix, we'll forward CTRL-Z to the foreground process on the target

@@ -46,7 +46,7 @@ module Console::InteractiveChannel
     # Ask the user if they would like to background the session
     if (prompt_yesno("Background channel #{self.cid}?") == true)
       self.interactive(false)
-
+      Readline::HISTORY.length.times {Readline::HISTORY.pop}
       self.interacting = false
     end
   end

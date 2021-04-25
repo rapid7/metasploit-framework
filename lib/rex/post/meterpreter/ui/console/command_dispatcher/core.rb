@@ -337,6 +337,7 @@ class Console::CommandDispatcher::Core
 
   def cmd_background
     print_status("Backgrounding session #{client.name}...")
+    Readline::HISTORY.length.times {Readline::HISTORY.pop}
     client.interacting = false
   end
 
