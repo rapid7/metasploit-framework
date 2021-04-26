@@ -715,6 +715,7 @@ class Core
     print_line
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
     print_line 'If -c is specified, the command history and history file will be cleared.'
+    print_line 'Start commands with a space to avoid saving them to history.'
     print @@history_opts.usage
   end
 
