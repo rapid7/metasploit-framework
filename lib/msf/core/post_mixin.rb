@@ -34,14 +34,16 @@ module Msf::PostMixin
       raise Msf::OptionValidateError.new(['SESSION'])
     end
 
+    # Check session readiness before compatibility so the session can be queried
+    # for its platform, capabilities, etc.
+    check_for_session_readiness if session.type == "meterpreter"
+
     unless session_compatible?(session)
       print_warning('SESSION may not be compatible with this module.')
     end
 
     # Msf::Exploit#setup for exploits, NoMethodError for post modules
     super rescue NoMethodError
-
-    check_for_session_readiness() if session.type == "meterpreter"
 
     @session.init_ui(self.user_input, self.user_output)
     @sysinfo = nil
@@ -186,15 +188,14 @@ module Msf::PostMixin
       return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
-    # Check all specified meterpreter commands are included
+    # Check all specified meterpreter commands are provided by the remote session
     if s.type == 'meterpreter'
-      # get a list of required command names
       cmd_name_wildcards = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
       cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |cmd_name|
-        cmd_name_wildcards.any? { |cmd_name_wildcard| File.fnmatch(cmd_name_wildcard, cmd_name) }
+        cmd_name_wildcards.any? { |cmd_name_wildcard| ::File.fnmatch(cmd_name_wildcard, cmd_name) }
       end
 
-      unmatched_wildcards = cmd_name_wildcards.select { |cmd_name_wildcard| cmd_names.none? { |cmd_name| File.fnmatch(cmd_name_wildcard, cmd_name) } }
+      unmatched_wildcards = cmd_name_wildcards.select { |cmd_name_wildcard| cmd_names.none? { |cmd_name| ::File.fnmatch(cmd_name_wildcard, cmd_name) } }
       unless unmatched_wildcards.empty?
         # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
         wlog("The #{fullname} module specified the following Meterpreter command wildcards that did not match anything: #{ unmatched_wildcards.join(', ') }")
@@ -215,8 +216,25 @@ module Msf::PostMixin
         end
       end
 
-      # this may return false if an extension hasn't been loaded yet
-      return false unless (cmd_ids - s.commands).empty?
+      missing_cmd_ids = (cmd_ids - s.commands)
+      unless missing_cmd_ids.empty?
+        # If there are missing commands, try to load the necessary extension.
+        return false unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
+
+        missing_extensions = missing_cmd_ids.map { |cmd_id| Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(cmd_id) }.uniq
+        missing_extensions.each do |ext_name|
+          return false if s.ext.aliases.include?(ext_name)
+
+          begin
+            s.core.use(ext_name)
+          rescue RuntimeError
+            return false
+          end
+        end
+      end
+      missing_cmd_ids -= s.commands
+
+      return false unless missing_cmd_ids.empty?
     end
 
     # If we got here, we haven't found anything that definitely
