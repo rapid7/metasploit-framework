@@ -187,9 +187,8 @@ module Msf::PostMixin
     mod_arch = self.module_info['Arch']
     if mod_arch
       mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      # Assume ARCH_CMD modules can work on supported SessionTypes
-      return true if mod_arch.include?(ARCH_CMD)
-      return "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch)
+      # Assume ARCH_CMD modules can work on supported SessionTypes since both shell and meterpreter types can execute commands
+      return "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch) || mod_arch.include?(ARCH_CMD)
     end
 
     # Arch is okay, now check the platform.
