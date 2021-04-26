@@ -35,6 +35,7 @@ module Msf
         "Adapter names can be used for IP params #{highlight('set LHOST eth0')}",
         "Use #{highlight('sessions -1')} to interact with the last opened session",
         "View missing module options with #{highlight('show missing')}",
+        "Start commands with a space to avoid saving them to history",
       ].freeze
       private_constant :COMMON_TIPS
 
