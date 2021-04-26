@@ -10,10 +10,25 @@ class PgCtlcluster < DbInterface
     @db_conf = db_conf
     @pg_cluster_conf_root = "#{@localconf}/.local/etc/postgresql"
     ENV['PG_CLUSTER_CONF_ROOT'] = @pg_cluster_conf_root
-    super()
+    super(options)
   end
 
-  def init
+  def init(msf_pass, msftest_pass)
+    if Dir.exist?(@db)
+      puts "Found a database at #{@db}, checking to see if it is started"
+      start
+      return
+    end
+
+    if File.exist?(@db_conf) && !@options[:delete_existing_data]
+      if !load_db_config
+        puts "Failed to load existing database config. Please reinit and overwrite the file."
+        return
+      end
+    else
+      write_db_config
+    end
+
     puts "Creating database at #{@db}"
     Dir.mkdir(@db)
     FileUtils.mkdir_p(@pg_cluster_conf_root)
@@ -21,6 +36,13 @@ class PgCtlcluster < DbInterface
     File.open("#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/postgresql.conf", 'a') do |f|
       f.puts "port = #{@options[:db_port]}"
     end
+
+    start
+
+    create_db_users(msf_pass, msftest_pass)
+
+    write_db_client_auth_config
+    restart
   end
 
   def delete
@@ -39,9 +61,9 @@ class PgCtlcluster < DbInterface
     end
   end
 
-  def reinit
+  def reinit(msf_pass, msftest_pass)
     delete
-    init
+    init(msf_pass, msftest_pass)
   end
 
   def start
@@ -82,19 +104,7 @@ class PgCtlcluster < DbInterface
 
   def write_db_client_auth_config
     client_auth_config = "#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/pg_hba.conf"
-    puts "Writing client authentication configuration file #{client_auth_config}"
-    File.open(client_auth_config, 'w') do |f|
-      f.puts "host    \"#{@options[:msf_db_name]}\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
-      f.puts "host    \"#{@options[:msftest_db_name]}\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-      f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-      f.puts 'host    "template1"   all                127.0.0.1/32           trust'
-      if Gem.win_platform?
-        f.puts 'host    all             all                127.0.0.1/32           trust'
-        f.puts 'host    all             all                ::1/128                trust'
-      else
-        f.puts 'local   all             all                                       trust'
-      end
-    end
+    super(client_auth_config)
   end
 
   def self.requirements
@@ -104,37 +114,27 @@ class PgCtlcluster < DbInterface
   private
 
   def get_postgres_version
-    _stdin, stdout, _stderr, _wait_thr = Open3.popen3('pg_config --version')
-    # Example outputs
+    output, _status = Open3.capture2('pg_config --version')    # Example outputs
     # PostgreSQL 12.6 (Ubuntu 12.6-0ubuntu0.20.04.1)
     # PostgreSQL 13.2 (Debian 13.2-1)
     # PostgreSQL 11.11
-    /PostgreSQL\s(?<version>\d+)\.\d+/ =~ stdout.gets
+    /PostgreSQL\s(?<version>\d+)\.\d+/ =~ output
     version
   end
 
-  def run_cmd(cmd, input: nil, env: {})
-    exitstatus = 0
-    err = out = ''
+  def create_db_users(msf_pass, msftest_pass)
+    puts 'Creating database users'
+    run_psql("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
+    run_psql("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
+    run_psql("alter role #{@options[:msf_db_user]} createdb")
+    run_psql("alter role #{@options[:msftest_db_user]} createdb")
+    run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
+    run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
 
-    puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
-
-    Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
-      stdin.puts(input) if input
-      if @options[:debug]
-        err = stderr.read
-        out = stdout.read
-      end
-      exitstatus = wait_thr.value.exitstatus
-    end
-
-    if @options[:debug]
-      puts "'#{cmd}' returned #{exitstatus}"
-      puts out
-      puts err
-    end
-
-    exitstatus
+    conn = PG.connect(host: '127.0.0.1', dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
+    conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
+    conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
+    conn.finish
   end
 
 end

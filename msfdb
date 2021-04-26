@@ -27,6 +27,7 @@ $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'msfdb_helpers/pg_ctlcluster'
 require 'msfdb_helpers/pg_ctl'
+require 'msfdb_helpers/standalone'
 
 require 'msfenv'
 
@@ -57,6 +58,8 @@ require 'msfenv'
 @options = {
     component: :all,
     debug: false,
+    msf_db_admin_pass: '',
+    msf_db_admin_username: 'postgres',
     msf_db_name: 'msf',
     msf_db_user: 'msf',
     msftest_db_name: 'msftest',
@@ -113,39 +116,6 @@ class String
 
 end
 
-
-def run_cmd(cmd, input: nil, env: {})
-  exitstatus = 0
-  err = out = ""
-
-  puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
-
-  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
-    stdin.puts(input) if input
-    if @options[:debug]
-      err = stderr.read
-      out = stdout.read
-    end
-    exitstatus = wait_thr.value.exitstatus
-  end
-
-  if @options[:debug]
-    puts "'#{cmd}' returned #{exitstatus}"
-    puts out
-    puts err
-  end
-
-  exitstatus
-end
-
-def run_psql(cmd, db_name: 'postgres')
-  if @options[:debug]
-    puts "psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
-  end
-
-  run_cmd("psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
-end
-
 def pw_gen
   SecureRandom.base64(32)
 end
@@ -195,52 +165,18 @@ def restart_db
   @db_driver.restart
 end
 
-def create_db
-  @db_driver.init
-end
-
-def create_db_users
-  puts 'Creating database users'
-  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-  run_psql("alter role #{@options[:msf_db_user]} createdb")
-  run_psql("alter role #{@options[:msftest_db_user]} createdb")
-  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-
-  conn = PG.connect(host: '127.0.0.1', dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: @msf_pass)
-  conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
-  conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
-  conn.finish
-end
-
 def init_db
-  if Dir.exist?(@db)
-    puts "Found a database at #{@db}, checking to see if it is started"
-    start_db
-    return
-  end
+  # Generate new database passwords if not already assigned
+  @msf_pass ||= pw_gen
+  @msftest_pass ||= pw_gen
 
-  if File.exist?(@db_conf) && !@options[:delete_existing_data]
-    if !load_db_config
-      puts "Failed to load existing database config. Please reinit and overwrite the file."
-      return
-    end
-  else
-    write_db_config
-  end
+  @db_driver.init(@msf_pass, @msftest_pass)
+  write_db_config
 
-  create_db
-  start_db
-
-  create_db_users
-
-  @db_driver.write_db_client_auth_config
-  @db_driver.restart
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
-    run_cmd('bundle exec rake db:migrate')
+    @db_driver.run_cmd('bundle exec rake db:migrate')
   end
 end
 
@@ -278,10 +214,6 @@ def load_db_config
 end
 
 def write_db_config
-  # Generate new database passwords if not already assigned
-  @msf_pass ||= pw_gen
-  @msftest_pass ||= pw_gen
-
   # Write a default database config file
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
   File.open(@db_conf, 'w') do |f|
@@ -363,6 +295,7 @@ def print_error(error)
 end
 
 def delete_db
+  stop_web_service
   @db_driver.delete
 end
 
@@ -443,7 +376,7 @@ def init_web_service
 end
 
 def start_web_service_daemon(expect_auth:)
-  if run_cmd("#{thin_cmd} start") == 0
+  if @db_driver.run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
     response_data = web_service_online_check(expect_auth: expect_auth)
@@ -520,7 +453,7 @@ def stop_web_service
   status = web_service_pid_status
   if status == WebServicePIDStatus::RUNNING
     puts "Stopping MSF web service PID #{ws_pid}"
-    run_cmd("#{thin_cmd} stop")
+    @db_driver.run_cmd("#{thin_cmd} stop")
   else
     puts 'MSF web service is no longer running'
     if status == WebServicePIDStatus::INACTIVE
@@ -680,9 +613,9 @@ end
 def persist_data_service
   # execute msfconsole commands to add and persist the data service connection
   cmd = "./msfconsole -qx \"#{get_db_connect_command}; db_save; exit\""
-  if run_cmd(cmd) != 0
+  if @db_driver.run_cmd(cmd) != 0
     # attempt to execute msfconsole in the current working directory
-    if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+    if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
       puts 'Failed to run msfconsole and persist the data service connection'
     end
   end
@@ -866,6 +799,18 @@ def parse_args(args)
       @options[:db_pool] = m
     }
 
+    opts.on('--db-admin-pass PASS', "Database admin password (default: #{@options[:msf_db_admin_pass]})") { |p|
+      @options[:msf_db_admin_pass] = p
+    }
+
+    opts.on('--db-admin-username NAME', "Database admin username (default: #{@options[:msf_db_admin_username]}") { |p|
+      @options[:msf_db_admin_username] = p
+    }
+
+    opts.on('--standalone', 'Use a pre-existing database cluster for initialization') {
+      @standalone = true
+    }
+
     opts.separator('')
     opts.separator('Web Service Options:')
     opts.on('-a', '--address ADDRESS',
@@ -1018,16 +963,6 @@ if $PROGRAM_NAME == __FILE__
     abort
   end
 
-  if installed?("pg_ctl") && has_requirements(PgCtl.requirements)
-    puts "herehere"
-    @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
-  elsif installed?("pg_ctlcluster") && has_requirements(PgCtlcluster.requirements)
-    puts "herehere2222"
-    @db_driver = PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
-  else
-    abort
-  end
-
   # map component commands to methods
   commands = {
       database: {
@@ -1051,6 +986,19 @@ if $PROGRAM_NAME == __FILE__
   }
 
   parse_args(ARGV)
+
+  update_db_port
+
+  if @standalone
+    @db_driver = Standalone.new(options: @options, msf_pass: @msf_pass, msftest_pass: @msftest_pass, db_conf: @db_conf)
+  elsif installed?("pg_ctl") && has_requirements(PgCtl.requirements)
+    @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  elsif installed?("pg_ctlcluster") && has_requirements(PgCtlcluster.requirements)
+    @db_driver = PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  else
+    abort
+  end
+
 
   command = ARGV[0].to_sym
   prompt_for_deletion(command)
