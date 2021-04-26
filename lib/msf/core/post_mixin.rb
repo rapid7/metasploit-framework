@@ -38,8 +38,9 @@ module Msf::PostMixin
     # for its platform, capabilities, etc.
     check_for_session_readiness if session.type == "meterpreter"
 
-    unless session_compatible?(session)
-      print_warning('SESSION may not be compatible with this module.')
+    incompatibility = session_incompatibility(session)
+    unless incompatibility.nil?
+      print_warning("SESSION may not be compatible with this module (#{incompatibility})")
     end
 
     # Msf::Exploit#setup for exploits, NoMethodError for post modules
@@ -158,6 +159,14 @@ module Msf::PostMixin
   #   compatibility.
   #
   def session_compatible?(sess_or_sid)
+    session_incompatibility(sess_or_sid).nil?
+  end
+
+  #
+  # Return a reason the session is incompatible or nil if it is compatible.
+  #
+  # @return [String,nil]
+  def session_incompatibility(sess_or_sid)
     # Normalize the argument to an actual Session
     case sess_or_sid
     when ::Integer, ::String
@@ -167,11 +176,11 @@ module Msf::PostMixin
     end
 
     # Can't do anything without a session
-    return false unless s
+    return 'invalid session' unless s
 
     # Can't be compatible if it's the wrong type
     if session_types
-      return false unless session_types.include?(s.type)
+      return "incompatible session type: #{s.type}" unless session_types.include?(s.type)
     end
 
     # Check to make sure architectures match
@@ -180,12 +189,12 @@ module Msf::PostMixin
       mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
       # Assume ARCH_CMD modules can work on supported SessionTypes
       return true if mod_arch.include?(ARCH_CMD)
-      return false unless mod_arch.include?(s.arch)
+      return "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch)
     end
 
     # Arch is okay, now check the platform.
     if self.platform && self.platform.kind_of?(Msf::Module::PlatformList)
-      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+      return "incompatible session platform: #{s.platform}" unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
     end
 
     # Check all specified meterpreter commands are provided by the remote session
@@ -199,7 +208,7 @@ module Msf::PostMixin
       unless unmatched_wildcards.empty?
         # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
         wlog("The #{fullname} module specified the following Meterpreter command wildcards that did not match anything: #{ unmatched_wildcards.join(', ') }")
-        raise RuntimeError, 'one or more of the specified meterpreter command wildcards did not match anything'
+        raise RuntimeError, 'one or more of the specified Meterpreter command wildcards did not match anything'
       end
 
       cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }
@@ -219,27 +228,27 @@ module Msf::PostMixin
       missing_cmd_ids = (cmd_ids - s.commands)
       unless missing_cmd_ids.empty?
         # If there are missing commands, try to load the necessary extension.
-        return false unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
+        return 'missing Meterpreter features' unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
 
         missing_extensions = missing_cmd_ids.map { |cmd_id| Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(cmd_id) }.uniq
         missing_extensions.each do |ext_name|
-          return false if s.ext.aliases.include?(ext_name)
+          return 'missing Meterpreter features' if s.ext.aliases.include?(ext_name)
 
           begin
             s.core.use(ext_name)
           rescue RuntimeError
-            return false
+            return "unloadable Meterpreter extension: #{ext_name}"
           end
         end
       end
       missing_cmd_ids -= s.commands
 
-      return false unless missing_cmd_ids.empty?
+      return 'missing Meterpreter features' unless missing_cmd_ids.empty?
     end
 
     # If we got here, we haven't found anything that definitely
     # disqualifies this session.  Assume that means we can use it.
-    true
+    nil
   end
 
   #
