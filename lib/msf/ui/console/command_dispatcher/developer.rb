@@ -167,12 +167,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       print_error('Failed to load Pry, try "gem install pry"')
       return
     end
-
+    histfile = Msf::Config.pry_history
+    Pry.config.history_load = false
     print_status('Starting Pry shell...')
 
     unless active_module
       print_status("You are in the \"framework\" object\n")
+      Msf::Ui::Console::HistoryManager.push_context(histfile)
       framework.pry
+      Msf::Ui::Console::HistoryManager.pop_context
       return
     end
 

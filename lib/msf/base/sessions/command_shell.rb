@@ -581,8 +581,11 @@ class CommandShell
 
     print_status('Starting Pry shell...')
     print_status("You are in the \"self\" (session) object\n")
-
+    histfile = Msf::Config.pry_history
+    Pry.config.history_load = false
+    Msf::Ui::Console::HistoryManager.push_context(histfile)
     self.pry
+    Msf::Ui::Console::HistoryManager.pop_context
   end
 
   #

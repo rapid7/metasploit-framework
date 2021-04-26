@@ -202,10 +202,13 @@ class Config < Hash
     self.new.history_file
   end
 
-  def self.met_history
-    self.new.met_history
+  def self.meterpreter_history
+    self.new.meterpreter_history
   end
 
+  def self.pry_history
+    self.new.pry_history
+  end
   # Returns the full path to the fav_modules file.
   #
   # @return [String] path the fav_modules file.
@@ -304,8 +307,12 @@ class Config < Hash
     config_directory + FileSep + "history"
   end
 
-  def met_history
-    config_directory + FileSep + "met_history"
+  def meterpreter_history
+    config_directory + FileSep + "meterpreter_history"
+  end
+
+  def pry_history
+    config_directory + FileSep + "pry_history"
   end
 
   # Returns the full path to the fav_modules file.
