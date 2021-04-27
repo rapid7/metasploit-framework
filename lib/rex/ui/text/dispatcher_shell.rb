@@ -28,6 +28,20 @@ module DispatcherShell
   ###
   module CommandDispatcher
 
+    module ClassMethods
+      def has_command?(name)
+        self.method_defined?("cmd_#{name}")
+      end
+
+      def included(base)
+        CommandDispatcher.included(base)
+      end
+    end
+
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+
     #
     # Initializes the command dispatcher mixin.
     #
@@ -539,7 +553,7 @@ module DispatcherShell
   # If the command is unknown...
   #
   def unknown_command(method, line)
-    print_error("Unknown command: #{method}.")
+    print_error("Unknown command: #{method}")
   end
 
   #
