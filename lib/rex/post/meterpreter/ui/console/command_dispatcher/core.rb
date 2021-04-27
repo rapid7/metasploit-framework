@@ -1320,9 +1320,40 @@ class Console::CommandDispatcher::Core
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
         end
-      rescue
+      rescue => ex
         print_line
-        log_error("Failed to load extension: #{$!}")
+        log_error("Failed to load extension: #{ex.message}")
+        if ex.kind_of?(ExtensionLoadError) && ex.name
+          # MetasploitPayloads and MetasploitPayloads::Mettle do things completely differently, build an array of
+          # suggestion keys (binary_suffixs and Mettle build-tuples)
+          suggestion_keys = MetasploitPayloads.list_meterpreter_extension_suffixs(ex.name) + MetasploitPayloads::Mettle.available_platforms(ex.name)
+          suggestion_map = {
+            'jar' => 'java',
+            'php' => 'php',
+            'py' => 'python',
+            'x64.dll' => 'windows/x64',
+            'x86.dll' => 'windows',
+            'mips64-linux-muslsf' => 'linux/mips64',
+            'mipsel-linux-muslsf' => 'linux/mipsle',
+            'powerpc64le-linux-musl' => 'linux/ppc64le',
+            'mips-linux-muslsf' => 'linux/mipsbe',
+            'powerpc-linux-muslsf' => 'linux/ppc',
+            's390x-linux-musl' => 'linux/zarch',
+            'x86_64-linux-musl' => 'linux/x64',
+            'i486-linux-musl' => 'linux/x86',
+            'armv5l-linux-musleabi' => 'linux/armle',
+            'aarch64-linux-musl' => 'linux/aarch64',
+            'armv5b-linux-musleabi' => 'linux/armbe',
+            'powerpc-e500v2-linux-musl' => 'linux/ppce500v2',
+          }
+          suggestions = suggestion_map.select { |k,_v| suggestion_keys.include?(k) }.values
+          unless suggestions.empty?
+            log_error("The \"#{ex.name}\" extension is supported by the following Meterpreter payloads:")
+            suggestions.each do |suggestion|
+              log_error("  - #{suggestion}/meterpreter*")
+            end
+          end
+        end
 
         next
       end

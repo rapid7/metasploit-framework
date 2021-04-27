@@ -4,6 +4,14 @@ module Rex
 module Post
 module Meterpreter
 
+class ExtensionLoadError < RuntimeError
+  attr_reader :name
+  def initialize(name:)
+    @name = name
+    super
+  end
+end
+
 ###
 #
 # Base class for all extensions that holds a reference to the

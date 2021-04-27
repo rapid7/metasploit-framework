@@ -364,10 +364,11 @@ class ClientCore < Extension
       end
 
       if path.nil? and image.nil?
+        error = Rex::Post::Meterpreter::ExtensionLoadError.new(name: mod.downcase)
         if Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.include?(mod.downcase)
-          raise RuntimeError, "The \"#{mod.downcase}\" extension is not supported by this Meterpreter type (#{client.session_type})", caller
+          raise error, "The \"#{mod.downcase}\" extension is not supported by this Meterpreter type (#{client.session_type})", caller
         else
-          raise RuntimeError, "No module of the name #{modnameprovided} found", caller
+          raise error, "No module of the name #{modnameprovided} found", caller
         end
       end
 
