@@ -39,8 +39,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(22),
-        OptPath.new('KEY_PATH', [true, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
+        OptPath.new('KEY_PATH', [false, 'Filename or directory of cleartext private keys. Filenames beginning with a dot, or ending in ".pub" will be skipped. Duplicate private keys will be ignored.']),
         OptString.new('KEY_PASS', [false, 'Passphrase for SSH private key(s)']),
+        OptString.new('PRIVATE_KEY', [false, 'The string value of the private key that will be used. If you are using MSFConsole, this value should be set as file:PRIVATE_KEY_PATH. OpenSSH, RSA, DSA, and ECDSA private keys are supported.'])
       ], self.class
     )
 
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RHOST']
   end
 
-  def session_setup(result, scanner, fingerprint)
+  def session_setup(result, scanner, fingerprint, cred_core_private_id)
     return unless scanner.ssh_socket
 
     # Create a new session from the socket
@@ -78,12 +79,13 @@ class MetasploitModule < Msf::Auxiliary
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
     merge_me = {
-      'USERPASS_FILE'  => nil,
-      'USER_FILE'      => nil,
-      'PASS_FILE'      => nil,
-      'USERNAME'       => result.credential.public,
-      'SSH_KEYFILE_B64' => [result.credential.private].pack("m*").gsub("\n",""),
-      'KEY_PATH'        => nil
+      'USERPASS_FILE'        => nil,
+      'USER_FILE'            => nil,
+      'PASS_FILE'            => nil,
+      'USERNAME'             => result.credential.public,
+      'CRED_CORE_PRIVATE_ID' => cred_core_private_id,
+      'SSH_KEYFILE_B64'      => [result.credential.private].pack("m*").gsub("\n",""),
+      'KEY_PATH'             => nil
     }
 
     info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
@@ -120,6 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['KEY_PASS'],
       user_file: datastore['USER_FILE'],
       username: datastore['USERNAME'],
+      private_key: datastore['PRIVATE_KEY']
     )
 
     unless keys.valid?
@@ -131,7 +134,18 @@ class MetasploitModule < Msf::Auxiliary
 
     keys = prepend_db_keys(keys)
 
-    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{keys.key_data.count} keys from #{datastore['KEY_PATH']}"
+    key_count = keys.key_data.count
+    key_sources = []
+    unless datastore['KEY_PATH'].blank?
+      key_sources.append(datastore['KEY_PATH'])
+    end
+
+    unless datastore['PRIVATE_KEY'].blank?
+      key_sources.append('PRIVATE_KEY')
+    end
+
+
+    print_brute :level => :vstatus, :ip => ip, :msg => "Testing #{key_count} #{'key'.pluralize(key_count)} from #{key_sources.join(' and ')}"
     scanner = Metasploit::Framework::LoginScanner::SSH.new(
       host: ip,
       port: rport,
@@ -161,7 +175,7 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner, ssh_key.fingerprint) if datastore['CreateSession']
+          session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id) if datastore['CreateSession']
           if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
             msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
             msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
@@ -187,12 +201,12 @@ class MetasploitModule < Msf::Auxiliary
           scanner.ssh_socket.close if scanner.ssh_socket && !scanner.ssh_socket.closed?
       end
     end
-
   end
 
   class KeyCollection < Metasploit::Framework::CredentialCollection
     attr_accessor :key_data
     attr_accessor :key_path
+    attr_accessor :private_key
     attr_accessor :error_list
 
     # Override CredentialCollection#has_privates?
@@ -207,26 +221,43 @@ class MetasploitModule < Msf::Auxiliary
     def valid?
       @error_list = []
       @key_data = Set.new
-      if File.directory?(@key_path)
-        @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
-        @key_files.each do |f|
+
+      unless @private_key.present? || @key_path.present?
+        raise RuntimeError, "No key path or key provided"
+      end
+
+      if @key_path.present?
+        if File.directory?(@key_path)
+          @key_files ||= Dir.entries(@key_path).reject { |f| f =~ /^\x2e|\x2epub$/ }
+          @key_files.each do |f|
+            begin
+              data = read_key(File.join(@key_path, f))
+              @key_data << data if valid_key?(data)
+            rescue StandardError => e
+              @error_list << "#{File.join(@key_path, f)}: #{e}"
+            end
+          end
+        elsif File.file?(@key_path)
           begin
-            data = read_key(File.join(@key_path, f))
+            data = read_key(@key_path)
             @key_data << data if valid_key?(data)
           rescue StandardError => e
-            @error_list << "#{File.join(@key_path, f)}: #{e}"
+            @error_list << "#{@key_path} could not be read, #{e}"
           end
+        else
+          raise RuntimeError, "Invalid key path"
         end
-      elsif File.file?(@key_path)
-        begin
-          data = read_key(@key_path)
-          @key_data << data if valid_key?(data)
-        rescue StandardError => e
-          @error_list << "#{@key_path} could not be read, #{e}"
-        end
-      else
-        raise RuntimeError, "No key path"
       end
+
+      if @private_key.present?
+        data = Net::SSH::KeyFactory.load_data_private_key(@private_key, @password, false).to_s
+        if valid_key?(data)
+          @key_data << data
+        else
+          raise RuntimeError, "Invalid private key"
+        end
+      end
+
       !@key_data.empty?
     end
 
