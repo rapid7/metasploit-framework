@@ -73,6 +73,11 @@ module Msf
       command_response
     end
 
+    def parse_redis_response(response)
+      parser = RESPParser.new(response)
+      parser.parse
+    end
+
     def printable_redis_response(response_data, convert_whitespace = true)
       Rex::Text.ascii_safe_hex(response_data, convert_whitespace)
     end
@@ -93,6 +98,77 @@ module Msf
       command_response = sock.get_once(-1, read_timeout)
       return unless command_response
       command_response.strip
+    end
+
+    class RESPParser
+      def initialize(data)
+        @raw_data = data
+        @counter = 0
+      end
+    
+      def parse
+        @counter = 0
+        return parse_next
+      end
+    
+      def data_at_counter
+        return @raw_data[@counter..]
+      end
+    
+      def parse_resp_array
+        # Read array length
+        unless /\A\*(?<arr_len>\d+)\r/ =~ data_at_counter
+          raise "RESP parsing error in array"
+        end
+        @counter += data_at_counter.index("\r\n") + 2
+    
+        arr_len = arr_len.to_i
+    
+        result = []
+        for index in 1..arr_len do
+          element = parse_next
+          result.append(element)
+        end
+        return result
+      end
+    
+      def parse_simple_string
+        str_end = data_at_counter.index("\r\n")
+        result = data_at_counter[1..str_end]
+        @counter += str_end
+        @counter += 2 # Skip over next CLRF
+        return result
+      end
+    
+      def parse_bulk_string
+        unless /\A\$(?<str_len>\d+)\r/ =~ data_at_counter
+          raise "RESP parsing error in bulk string"
+        end
+        str_len = str_len.to_i
+        @counter += data_at_counter.index("\r\n") + 2
+        result = data_at_counter[..str_len-1]
+        # Check for truncation
+        if result.length != str_len
+          raise "RESP parsing error in bulk string (2)"
+        end
+        @counter += str_len
+        @counter += 2 # Skip over next CLRF
+        return result
+      end
+    
+    
+      def parse_next
+        case data_at_counter[0]
+        when "*"
+          return parse_resp_array
+        when "+"
+          return parse_simple_string
+        when "$"
+          return parse_bulk_string
+        else
+          raise "RESP parsing error"
+        end
+      end
     end
   end
 end
