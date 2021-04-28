@@ -3,7 +3,7 @@ This scanner should work on any version of Emby Media Server. Data returned woul
 
 ## Description
 
-Generates an API request to the provided ip addresses in order to ascertain the Emby server version, if possible. Returns the server version, URI, and internal IP address (if provided). This is useful for rapidly identifying  vulnerable Emby servers that may be susceptible to CVE-2020-26948.
+Generates an API request to the provided IP addresses in order to ascertain the Emby server version, if possible. Returns the server version, URI, and internal IP address (if provided). This is useful for rapidly identifying  vulnerable Emby servers that may be susceptible to CVE-2020-26948.
 
 ## Verification Steps
 

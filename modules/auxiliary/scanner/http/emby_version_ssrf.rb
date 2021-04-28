@@ -1,14 +1,6 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
-# Current source: https://github.com/btnz-k/msf_emby
-# Exploit Title: Emby Version Checker
-# Date: 2021.03.01
-# Exploit Author: Btnz
-# Vendor Homepage: https://emby.media/
-# Software Link: https://emby.media/download.html
-# Version: Prior to 4.5
-# Tested on: Ubuntu, Windows
-# CVE: CVE-2020-26948
+# Current source: https://github.com/rapid7/metasploit-framework
 ##
 
 class MetasploitModule < Msf::Auxiliary
@@ -19,14 +11,15 @@ class MetasploitModule < Msf::Auxiliary
   def initialize
     super(
       'Name' => 'Emby Version Checker',
-      'Description' => '
-            This module attempts to identify the version of an Emby Media Server running on
-            a host. If you wish to see all the information available, set VERBOSE to true.
-            Based on the vulnerability CVE-2020-26948.
-          ',
+      'Description' => 'This module attempts to identify the version of an Emby Media Server running on a host. If you wish to see all the information available, set VERBOSE to true. Use in conjunction with emby_ssrf_scanner to locate devices vulnerable to CVE-2020-26948.',
       'Author' => 'Btnz',
-      'Version' => '1.0.2021.03.01.01',
-      'License' => MSF_LICENSE
+      'License' => MSF_LICENSE,
+      'Disclosure Date' => 'September 1 2020',
+      'References' =>
+              [
+                ['CVE', '2020-26948'],
+                ['URL', 'https://github.com/btnz-k/emby_ssrf']
+              ]              
     )
 
     register_options(
@@ -36,13 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('TIMEOUT', [true, 'Timeout for the version checker', 30])
       ]
     )
-    deregister_options('VHOST', 'FILTER', 'INTERFACE', 'PCAPFILE', 'SNAPLEN', 'SSL')
-  end
-
-  def to
-    return 30 if datastore['TIMEOUT'].to_i.zero?
-
-    datastore['TIMEOUT'].to_i
+    deregister_options('SSL')
   end
 
   def run_host(ip)
@@ -60,6 +47,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good("[Media Server] URI: http://#{ip}:#{rport}#{datastore['BASEPATH']}")
     print_good("[Media Server] Version: #{result['Version']}")
     print_good("[Media Server] Internal IP: #{result['LocalAddress']}")
+    print_good("*** Vulnerable to SSRF module auxiliary/scanner/emby_ssrf_scanner! ***") if Gem::Version.new("#{result['Version']}") < Gem::Version.new('4.5.0')
     report_service(
       host: rhost,
       port: rport,
