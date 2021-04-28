@@ -117,7 +117,7 @@ module Msf
       end
     
       def data_at_counter
-        @raw_data[@counter..]
+        @raw_data[@counter..-1]
       end
     
       def parse_resp_array
@@ -140,7 +140,7 @@ module Msf
       def parse_simple_string
         str_end = data_at_counter.index(LINE_BREAK)
         str_end = str_end.to_i
-        result = data_at_counter[1..str_end-1]
+        result = data_at_counter[1..str_end - 1]
         @counter += str_end
         @counter += 2 # Skip over next CLRF
         result
@@ -152,7 +152,7 @@ module Msf
         end
         str_len = str_len.to_i
         @counter += data_at_counter.index(LINE_BREAK) + 2
-        result = data_at_counter[..str_len-1]
+        result = data_at_counter[0..str_len - 1]
         @counter += str_len
         @counter += 2 # Skip over next CLRF
         result
