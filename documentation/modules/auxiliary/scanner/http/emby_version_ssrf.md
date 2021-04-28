@@ -21,7 +21,6 @@ Select which ports to check for Emby server API access. Defaults to 8096.
 ## Scenarios
 
 ### Scan network for Emby Servers
-This shows a successful scan of an Emby server using the API, and returns the URI, version, and Internal IP information.
 
   ```
 msf6 > use auxiliary/scanner/http/emby_version

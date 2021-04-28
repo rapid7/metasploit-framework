@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     res = send_request_cgi({
       'uri' => "#{datastore['BASEPATH']}System/Info/Public",
       'method' => 'GET'
-    })
+    }, datastore['TIMEOUT'])
     if res.nil? || res.code != 200
       vprint_error('[Emby Version] failed to connect')
       return
