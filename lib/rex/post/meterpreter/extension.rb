@@ -4,8 +4,15 @@ module Rex
 module Post
 module Meterpreter
 
+#
+# An error that is raised when a particular Meterpreter extension can not be
+# loaded for any reason.
+#
+# @attr_reader [String] name The name of the extension that could not be loaded.
 class ExtensionLoadError < RuntimeError
   attr_reader :name
+
+  # @param [String] name The name of the extension that could not be loaded.
   def initialize(name:)
     @name = name
     super

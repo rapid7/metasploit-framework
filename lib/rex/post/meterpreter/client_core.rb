@@ -309,15 +309,17 @@ class ClientCore < Extension
 
   #
   # Loads a meterpreter extension on the remote server instance and
-  # initializes the client-side extension handlers
+  # initializes the client-side extension handlers.
   #
-  #	Module
-  #		The module that should be loaded
+  # @param [String] mod The extension that should be loaded.
+  # @param [Hash] opts The options with which to load the extension.
+  # @option opts [String] LoadFromDisk Indicates that the library should be
+  #   loaded from disk, not from memory on the remote machine.
   #
-  #	LoadFromDisk
-  #		Indicates that the library should be loaded from disk, not from
-  #		memory on the remote machine
+  # @raise [RuntimeError] An exception is raised if the extension could not be
+  #   loaded.
   #
+  # @return [true] This always returns true or raises an exception.
   def use(mod, opts = { })
     if mod.nil?
       raise RuntimeError, "No modules were specified", caller
