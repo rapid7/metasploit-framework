@@ -422,19 +422,9 @@ module DispatcherShell
       end
     }
 
-    # Verify that our search string is a valid regex
-    begin
-      Regexp.compile(str,Regexp::IGNORECASE)
-    rescue RegexpError
-      str = Regexp.escape(str)
-    end
-
-    # @todo - This still doesn't fix some Regexp warnings:
-    # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
-
     # Match based on the partial word
     items.find_all { |word|
-      word.downcase.start_with?(str.downcase) || word =~ /^#{str}/i
+      word.downcase.start_with?(str.downcase)
     # Prepend the rest of the command (or it all gets replaced!)
     }.map { |word|
       word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word << quote.dup
@@ -646,11 +636,35 @@ module DispatcherShell
   # ArgumentError on unbalanced quotes return the remainder of the string as if
   # the last character were the closing quote.
   #
+  # This code was originally taken from https://github.com/ruby/ruby/blob/93420d34aaf8c30f11a66dd08eb186da922c831d/lib/shellwords.rb#L88
+  #
   def shellsplitex(line)
     quote = nil
     words = []
     field = String.new
-    line.scan(/\G\s*(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do
+    regexp = %r{
+      \G\s*(?>(?<word>[^\s\'\"]+)             # Words within str
+
+      |                                       # OR
+
+      '(?<sq>[^\']*)'                         # Text between single quotes
+
+      |                                       # OR
+
+      "(?<dq>(?:[^\"\\]|\\.)*)"               # Text between double quotes
+
+      |                                       # OR
+
+      (?<esc>\\.?)                            # Escapes used on special characters
+
+      |                                       # OR
+
+      (?<garbage>\S))                         # Anything that wasn't already matched, expect whitespace
+
+      (?<sep>\s|\z)?                          # Separators
+    }ix
+
+    line.scan(regexp) do
       |word, sq, dq, esc, garbage, sep|
       if garbage
         if quote.nil?
@@ -662,7 +676,7 @@ module DispatcherShell
       end
 
       field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
-      field << sep unless quote.nil?
+      field << sep unless quote.nil? || sep.nil?
       if quote.nil? && sep
         words << field
         field = String.new
