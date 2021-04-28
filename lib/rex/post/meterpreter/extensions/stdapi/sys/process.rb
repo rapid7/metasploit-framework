@@ -320,6 +320,35 @@ class Process < Rex::Post::Process
   end
 
   #
+  # Read data from the process channel
+  #
+  def read_data(time_out_start = 0, time_out = -1)
+    data = ""
+
+    # Wait up to time_out seconds for the first bytes to arrive
+    while (d = channel.read)
+      data << d
+      if d == ""
+        if Time.now.to_i - time_out_start < time_out
+          sleep 0.1
+        else
+          break
+        end
+      end
+    end
+    data.chomp! if data
+
+    begin
+      channel.close
+    rescue IOError => e
+      # Channel was already closed, but we got the cmd output, so let's soldier on.
+    end
+    close
+
+    return data
+  end
+
+  #
   # Closes the handle to the process that was opened.
   #
   def self.close(client, handle)

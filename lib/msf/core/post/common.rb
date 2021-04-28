@@ -112,27 +112,7 @@ module Msf::Post::Common
 
       session.response_timeout = time_out
       process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
-      o = ""
-      # Wait up to time_out seconds for the first bytes to arrive
-      while (d = process.channel.read)
-        o << d
-        if d == ""
-          if Time.now.to_i - start < time_out
-            sleep 0.1
-          else
-            break
-          end
-        end
-      end
-      o.chomp! if o
-
-      begin
-        process.channel.close
-      rescue IOError => e
-        # Channel was already closed, but we got the cmd output, so let's soldier on.
-      end
-
-      process.close
+      o = process.read_data(start, time_out)
     when /powershell/
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)

@@ -1428,6 +1428,7 @@ class Core
               end
               c, c_args = cmd.split(' ', 2)
               begin
+                start = Time.now.to_i
                 process = session.sys.process.execute(c, c_args,
                   {
                     'Channelized' => true,
@@ -1435,7 +1436,7 @@ class Core
                     'Hidden'      => true
                   })
                 if process && process.channel
-                  data = process.channel.read
+                  data = process.read_data(start, response_timeout)
                   print_line(data) if data
                 end
               rescue ::Rex::Post::Meterpreter::RequestError
