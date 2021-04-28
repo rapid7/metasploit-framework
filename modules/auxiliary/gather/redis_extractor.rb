@@ -38,44 +38,31 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def value_for_key(key)
-    keyType = redis_command('TYPE',key)
-    case keyType
-    when '+string'
-      return redis_command('get',key).split("\n")[1..-1].join("\n")
-    when '+list'
-      listContent = redis_command('LRANGE',key,'0','-1')
-      return decode_redis_array(listContent)
-    when '+set'
-      setContent = redis_command('SMEMBERS',key)
-      return decode_redis_array(setContent)
-    when '+zset'
-      setContent = redis_command('ZRANGE',key,'0','-1')
-      return decode_redis_array(setContent)
-    when '+hash'
-      hashContent = decode_redis_array(redis_command('HGETALL',key))
+    key_type = redis_command('TYPE',key)
+    key_type = parse_redis_response(key_type)
+    case key_type
+    when 'string'
+      string_content = redis_command('get',key)
+      return parse_redis_response(string_content)
+    when 'list'
+      list_content = redis_command('LRANGE',key,'0','-1')
+      return parse_redis_response(list_content)
+    when 'set'
+      set_content = redis_command('SMEMBERS',key)
+      return parse_redis_response(set_content)
+    when 'zset'
+      set_content = redis_command('ZRANGE',key,'0','-1')
+      return parse_redis_response(set_content)
+    when 'hash'
+      hash_content = parse_redis_response(redis_command('HGETALL',key))
       result = []
-      (0..hashContent.length-1).step(2) do |x|
-        result.append([hashContent[x],hashContent[x+1]])
+      (0..hash_content.length-1).step(2) do |x|
+        result.append([hash_content[x],hash_content[x+1]])
       end
       return result
     else
-      return 'unknown key type ' + keyType
+      return 'unknown key type ' + key_type
     end
-  end
-
-  def decode_redis_array(data)
-    decoded = []
-    x= /\*(?<elements>\S+)\r\n/ =~ data
-    data.slice! "*#{elements}\r\n"
-    while data
-      x = /\$(?<length>\S+)\r/ =~ data
-      data.slice! "$#{length}\r\n"
-      decoded.append(data[0..length.to_i-1])
-      data = data[(length.to_i+2)..-1]
-    end
-    print_error("Error decoding Redis array. Some data may be missing or invalid.") if elements.to_i != decoded.length
-    return decoded
-
   end
 
   # Connect to Redis and ensure compatibility.
@@ -141,7 +128,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def get_keyspace
     ks = redis_command('INFO','keyspace')
-    ks = ks.split("\r\n")[2..-1]
+    ks = parse_redis_response(ks)
+    ks = ks.split("\r\n")
     result = []
     ks.each do |k|
       if /db(?<db>\S+):/ =~ k && /keys=(?<keys>\S+),expires/ =~ k
