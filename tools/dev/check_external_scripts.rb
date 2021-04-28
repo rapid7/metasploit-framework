@@ -277,6 +277,12 @@ scripts << {
   dest: '/data/jtr/korelogic.conf',
   subs: []
 }
+scripts << {
+  name: 'JTR - unisubst.conf',
+  addr: 'https://raw.githubusercontent.com/magnumripper/JohnTheRipper/bleeding-jumbo/run/unisubst.conf',
+  dest: '/data/jtr/unisubst.conf',
+  subs: []
+}
 
 ###
 # SQLMap UDF files
