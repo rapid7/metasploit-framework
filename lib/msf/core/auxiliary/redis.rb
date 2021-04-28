@@ -108,11 +108,11 @@ module Msf
     
       def parse
         @counter = 0
-        return parse_next
+        parse_next
       end
     
       def data_at_counter
-        return @raw_data[@counter..]
+        @raw_data[@counter..]
       end
     
       def parse_resp_array
@@ -129,15 +129,16 @@ module Msf
           element = parse_next
           result.append(element)
         end
-        return result
+        result
       end
     
       def parse_simple_string
         str_end = data_at_counter.index("\r\n")
-        result = data_at_counter[1..str_end]
+        str_end = str_end.to_i
+        result = data_at_counter[1..str_end-1]
         @counter += str_end
         @counter += 2 # Skip over next CLRF
-        return result
+        result
       end
     
       def parse_bulk_string
@@ -147,24 +148,20 @@ module Msf
         str_len = str_len.to_i
         @counter += data_at_counter.index("\r\n") + 2
         result = data_at_counter[..str_len-1]
-        # Check for truncation
-        if result.length != str_len
-          raise "RESP parsing error in bulk string (2)"
-        end
         @counter += str_len
         @counter += 2 # Skip over next CLRF
-        return result
+        result
       end
     
     
       def parse_next
         case data_at_counter[0]
         when "*"
-          return parse_resp_array
+          parse_resp_array
         when "+"
-          return parse_simple_string
+          parse_simple_string
         when "$"
-          return parse_bulk_string
+          parse_bulk_string
         else
           raise "RESP parsing error"
         end
