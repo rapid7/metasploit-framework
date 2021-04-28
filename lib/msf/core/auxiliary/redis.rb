@@ -101,6 +101,9 @@ module Msf
     end
 
     class RESPParser
+
+      LINE_BREAK = "\r\n"
+
       def initialize(data)
         @raw_data = data
         @counter = 0
@@ -120,7 +123,7 @@ module Msf
         unless /\A\*(?<arr_len>\d+)\r/ =~ data_at_counter
           raise "RESP parsing error in array"
         end
-        @counter += data_at_counter.index("\r\n") + 2
+        @counter += data_at_counter.index(LINE_BREAK) + 2
     
         arr_len = arr_len.to_i
     
@@ -133,7 +136,7 @@ module Msf
       end
     
       def parse_simple_string
-        str_end = data_at_counter.index("\r\n")
+        str_end = data_at_counter.index(LINE_BREAK)
         str_end = str_end.to_i
         result = data_at_counter[1..str_end-1]
         @counter += str_end
@@ -146,7 +149,7 @@ module Msf
           raise "RESP parsing error in bulk string"
         end
         str_len = str_len.to_i
-        @counter += data_at_counter.index("\r\n") + 2
+        @counter += data_at_counter.index(LINE_BREAK) + 2
         result = data_at_counter[..str_len-1]
         @counter += str_len
         @counter += 2 # Skip over next CLRF
