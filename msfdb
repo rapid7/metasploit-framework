@@ -64,6 +64,7 @@ require 'msfenv'
     msf_db_user: 'msf',
     msftest_db_name: 'msftest',
     msftest_db_user: 'msftest',
+    db_host: '127.0.0.1',
     db_port: 5433,
     db_pool: 200,
     address: 'localhost',
@@ -223,7 +224,7 @@ def write_db_config
         database: #{@options[:msf_db_name]}
         username: #{@options[:msf_db_user]}
         password: #{@msf_pass}
-        host: 127.0.0.1
+        host: #{@options[:db_host]}
         port: #{@options[:db_port]}
         pool: #{@options[:db_pool]}
 
@@ -807,8 +808,8 @@ def parse_args(args)
       @options[:msf_db_admin_username] = p
     }
 
-    opts.on('--standalone', 'Use a pre-existing database cluster for initialization') {
-      @standalone = true
+    opts.on('--connection-string URI', 'Use a pre-existing database cluster for initialization') { |c|
+      @connection_string = c
     }
 
     opts.separator('')
@@ -989,8 +990,8 @@ if $PROGRAM_NAME == __FILE__
 
   update_db_port
 
-  if @standalone
-    @db_driver = Standalone.new(options: @options, msf_pass: @msf_pass, msftest_pass: @msftest_pass, db_conf: @db_conf)
+  if @connection_string
+    @db_driver = Standalone.new(options: @options, db_conf: @db_conf, connection_string: @connection_string)
   elsif installed?("pg_ctl") && has_requirements(PgCtl.requirements)
     @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
   elsif installed?("pg_ctlcluster") && has_requirements(PgCtlcluster.requirements)

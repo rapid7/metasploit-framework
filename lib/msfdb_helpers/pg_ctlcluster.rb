@@ -131,7 +131,7 @@ class PgCtlcluster < DbInterface
     run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
     run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
 
-    conn = PG.connect(host: '127.0.0.1', dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
+    conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
     conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
     conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
     conn.finish

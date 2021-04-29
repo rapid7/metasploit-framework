@@ -2,12 +2,13 @@ require 'msfdb_helpers/db_interface'
 
 class Standalone < DbInterface
 
-  def initialize(options:, msf_pass:, msftest_pass:, db_conf:)
+  def initialize(options:, db_conf:, connection_string:)
     @options = options
-    @msf_pass = msf_pass
-    @msftest_pass = msftest_pass
     @db_conf = db_conf
-    @conn = PG.connect(host: '127.0.0.1', dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_admin_username], password: @options[:msf_db_admin_pass])
+    @conn = PG.connect(connection_string)
+    conninfo = @conn.conninfo_hash
+    @options[:db_port] = conninfo[:port]
+    @options[:db_host] = conninfo[:host]
     super(options)
   end
 
