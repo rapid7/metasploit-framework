@@ -202,7 +202,7 @@ module PacketDispatcher
       # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
       # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
       # proactive validation of Windows core commands. This is not the only instance of this workaround.
-      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == COMMAND_ID_START_CORE
+      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == Rex::Post::Meterpreter::ClientCore.extension_id
 
       unless windows_core || commands.include?(packet.method)
         if (ext_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(packet.method))

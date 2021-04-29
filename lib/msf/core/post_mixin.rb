@@ -218,8 +218,8 @@ module Msf::PostMixin
       if s.base_platform == 'windows'
         cmd_ids = cmd_ids.select do |cmd_id|
           !cmd_id.between?(
-            Rex::Post::Meterpreter::COMMAND_ID_START_CORE,
-            Rex::Post::Meterpreter::COMMAND_ID_START_CORE + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
+            Rex::Post::Meterpreter::ClientCore.extension_id,
+            Rex::Post::Meterpreter::ClientCore.extension_id + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
           )
         end
       end
