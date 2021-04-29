@@ -7,25 +7,28 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Redis
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Redis Extractor',
-      'Description'    => %q{
-        This module connects to a Redis instance and retrieves keys and data stored.
-      },
-      'Author'     => ['Geoff Rainville noncenz[at]ultibits.com'],
-      'License'    => MSF_LICENSE,
-      'References' => [['URL', 'https://redis.io/topics/protocol']]
-
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Redis Extractor',
+        'Description' => %q{
+          This module connects to a Redis instance and retrieves keys and data stored.
+        },
+        'Author' => ['Geoff Rainville noncenz[at]ultibits.com'],
+        'License' => MSF_LICENSE,
+        'References' => [['URL', 'https://redis.io/topics/protocol']]
+      )
+    )
   end
 
-  MIN_REDIS_VERSION = '2.8.0'
+  MIN_REDIS_VERSION = '2.8.0'.freeze
 
   # Recurse to assemble the full list of keys
   def scan(offset)
     response = redis_command('scan', offset)
     parsed = parse_redis_response(response)
-    raise "Unexpected RESP response length" unless parsed.length == 2
+    raise 'Unexpected RESP response length' unless parsed.length == 2
+
     new_offset = parsed[0] # cursor position for next iteration or zero if we are done
     keys = parsed[1]
     results = []
@@ -54,8 +57,8 @@ class MetasploitModule < Msf::Auxiliary
     when 'hash'
       hash_content = parse_redis_response(redis_command('HGETALL', key))
       result = {}
-      (0..hash_content.length-1).step(2) do |x|
-        result[hash_content[x]] = hash_content[x+1]
+      (0..hash_content.length - 1).step(2) do |x|
+        result[hash_content[x]] = hash_content[x + 1]
       end
       return result
     else
@@ -67,45 +70,42 @@ class MetasploitModule < Msf::Auxiliary
   def redis_connect
     begin
       connect
-      # Note: Full INFO payload fails occasionally. Using server filter until Redis library can be fixed
+      # NOTE: Full INFO payload fails occasionally. Using server filter until Redis library can be fixed
       if (info_data = redis_command('INFO', 'server')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
         print_good("Connected to Redis version #{redis_version}")
       end
 
       # Some connection attempts such as incorrect password set fail silently in the Redis library.
       if !info_data
-        print_error("Unable to connect to Redis")
-        print_error("Set verbose true to troubleshoot") if !datastore["VERBOSE"]
+        print_error('Unable to connect to Redis')
+        print_error('Set verbose true to troubleshoot') if !datastore['VERBOSE']
         return
       end
 
       # Ensure version compatability
-      if (Gem::Version.new(redis_version) < Gem::Version.new(MIN_REDIS_VERSION))
+      if (Rex::Version.new(redis_version) < Rex::Version.new(MIN_REDIS_VERSION))
         print_status("Module supports Redis #{MIN_REDIS_VERSION} or higher.")
         return
       end
 
       # Connection was sucessful
       return info_data
-
     rescue Msf::Auxiliary::Failed => e
       # This error trips when auth is required but password not set
-      print_error("Unable to connect to Redis: " + e.message)
+      print_error('Unable to connect to Redis: ' + e.message)
       return
-
     rescue Rex::ConnectionTimeout
-      print_error("Timed out trying to connect to Redis")
+      print_error('Timed out trying to connect to Redis')
       return
-
-    rescue
-      print_error("Unknown error trying to connect to Redis")
+    rescue StandardError
+      print_error('Unknown error trying to connect to Redis')
       return
     end
   end
 
-  def check_host(ip)
+  def check_host(_ip)
     info_data = redis_connect
-    if(info_data)
+    if info_data
       if /os:(?<os_ver>.*)\r/ =~ info_data
         os_ver = os_ver.strip
         print_status("OS is #{os_ver} ")
@@ -137,8 +137,8 @@ class MetasploitModule < Msf::Auxiliary
     return result
   end
 
-  def run_host(ip)
-    if(!redis_connect)
+  def run_host(_ip)
+    if !redis_connect
       disconnect
       return
     end
@@ -147,28 +147,28 @@ class MetasploitModule < Msf::Auxiliary
     keyspace.each do |space|
       print_status("Extracting about #{space[1]} keys from database #{space[0]}")
       redis_command('SELECT', space[0])
-      new_offset = "0"
+      new_offset = '0'
       all_results = []
       loop do
         new_offset, results = scan(new_offset)
         all_results.concat(results)
-        break if new_offset == "0"
+        break if new_offset == '0'
       end
 
-      if(all_results.length == 0)
-        print_status("No keys returned")
+      if all_results.empty?
+        print_status('No keys returned')
         next
       end
 
       # Report data in terminal
       result_table = Rex::Text::Table.new(
-        'Header'  => "Data from #{peer} database #{space[0]}",
-        'Indent'  => 1,
+        'Header' => "Data from #{peer} database #{space[0]}",
+        'Indent' => 1,
         'Columns' => [ 'Key', 'Value' ]
       )
       all_results.each { |pair| result_table << pair }
       print_line
-      print_line("#{result_table}")
+      print_line(result_table.to_s)
 
       # Store data as loot
       csv = []
