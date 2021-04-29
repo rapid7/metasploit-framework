@@ -52,7 +52,8 @@ module Msf
         vprint_error("No response to '#{command_string}'")
         return
       end
-      if REDIS_UNAUTHORIZED_RESPONSE =~ command_response
+      if match = command_response.match(REDIS_UNAUTHORIZED_RESPONSE)
+        auth_response = match[:auth_response]
         fail_with(::Msf::Module::Failure::BadConfig, "#{peer} requires authentication but Password unset") unless datastore['Password']
         vprint_status("Requires authentication (#{printable_redis_response(auth_response, false)})")
         if (auth_response = send_redis_command('AUTH', datastore['PASSWORD']))
