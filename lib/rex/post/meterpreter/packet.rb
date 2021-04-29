@@ -150,7 +150,6 @@ def self.generate_command_id_map_c
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
 
   command_ids = id_map.map {|k, v| "#define COMMAND_ID_#{k.upcase} #{v}"}
@@ -234,7 +233,6 @@ def self.generate_command_id_map_python_extension
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
   command_ids = id_map.map {|k, v| "COMMAND_ID_#{k.upcase} = #{v}"}
   %Q^
@@ -263,7 +261,6 @@ def self.generate_command_id_map_csharp
     powershell
     lanattacks
     peinjector
-    mimikatz
   })
   command_ids = id_map.map {|k, v| "#{k.split('_').map(&:capitalize).join} = #{v},"}
   %Q^

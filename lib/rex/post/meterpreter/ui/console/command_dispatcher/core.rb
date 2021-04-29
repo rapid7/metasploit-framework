@@ -1805,7 +1805,7 @@ class Console::CommandDispatcher::Core
       # Check to see if we can find this command in another extension. This relies on the core extension being the last
       # in the dispatcher stack which it should be since it's the first loaded.
       Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |ext_name|
-        next if ext_name == 'mimikatz' || extensions.include?(ext_name)
+        next if extensions.include?(ext_name)
         ext_klass = get_extension_client_class(ext_name)
         next if ext_klass.nil?
 
