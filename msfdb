@@ -58,8 +58,6 @@ require 'msfenv'
 @options = {
     component: :all,
     debug: false,
-    msf_db_admin_pass: '',
-    msf_db_admin_username: 'postgres',
     msf_db_name: 'msf',
     msf_db_user: 'msf',
     msftest_db_name: 'msftest',
@@ -798,14 +796,6 @@ def parse_args(args)
 
     opts.on('--db-pool MAX', Integer, "Database connection pool size (default: #{@options[:db_pool]})") { |m|
       @options[:db_pool] = m
-    }
-
-    opts.on('--db-admin-pass PASS', "Database admin password (default: #{@options[:msf_db_admin_pass]})") { |p|
-      @options[:msf_db_admin_pass] = p
-    }
-
-    opts.on('--db-admin-username NAME', "Database admin username (default: #{@options[:msf_db_admin_username]}") { |p|
-      @options[:msf_db_admin_username] = p
     }
 
     opts.on('--connection-string URI', 'Use a pre-existing database cluster for initialization') { |c|
