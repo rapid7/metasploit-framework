@@ -798,7 +798,8 @@ def parse_args(args)
       @options[:db_pool] = m
     }
 
-    opts.on('--connection-string URI', 'Use a pre-existing database cluster for initialization') { |c|
+    opts.on('--connection-string URI', 'Use a pre-existing database cluster for initialization',
+            'Example: --connection-string=postgresql://postgres:mysecretpassword@localhost:5432/postgres') { |c|
       @connection_string = c
     }
 
