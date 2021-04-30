@@ -117,6 +117,8 @@ Gem::Specification.new do |spec|
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
     spec.add_runtime_dependency 'xmlrpc'
   end
+  # Gem for handling Cookies
+  spec.add_runtime_dependency 'http-cookie'
 
   #
   # File Parsing Libraries

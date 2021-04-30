@@ -84,6 +84,10 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 
+  # Implemented to avoid regression issue with code calling Faker not being deterministic
+  # https://github.com/faker-ruby/faker/issues/2281
+  Faker::Config.random = Random.new(config.seed)
+
   config.expect_with :rspec do |expectations|
     # Enable only the newer, non-monkey-patching expect syntax.
     expectations.syntax = :expect
