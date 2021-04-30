@@ -2,6 +2,7 @@ module Msf::DBManager::HostTag
   # This is only exercised by MSF3 XML importing for now. Needs the wait
   # conditions and return hash as well.
   def report_host_tag(opts)
+    opts = opts.clone() # protect the original caller's opts
     name = opts.delete(:name)
     raise Msf::DBImportError.new("Missing required option :name") unless name
     addr = opts.delete(:addr)

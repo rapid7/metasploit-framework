@@ -9,6 +9,7 @@ module Msf::DBManager::User
   def users(opts)
     ::ApplicationRecord.connection_pool.with_connection {
 
+      opts = opts.clone() # protect the original caller's opts
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::User, search_term)
@@ -74,6 +75,7 @@ module Msf::DBManager::User
   # @return [Mdm::User] The updated Mdm::User object.
   def update_user(opts)
     ::ApplicationRecord.connection_pool.with_connection {
+      opts = opts.clone() # protect the original caller's opts
       id = opts.delete(:id)
       user = Mdm::User.find(id)
       user.update!(opts)

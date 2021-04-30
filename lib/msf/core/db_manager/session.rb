@@ -189,6 +189,7 @@ module Msf::DBManager::Session
     return if not active
 
     ::ApplicationRecord.connection_pool.with_connection {
+      opts = opts.clone() # protect the original caller's opts
       id = opts.delete(:id)
       session = ::Mdm::Session.find(id)
       session.update!(opts)
