@@ -251,4 +251,24 @@ module Msf::Post::Common
     raise "Unable to check if command `#{cmd}' exists"
   end
 
+  def get_processes
+    if session.type == 'meterpreter'
+      return session.sys.process.get_processes
+    end
+    processes = []
+    if session.platform == 'windows'
+      tasklist = cmd_exec('tasklist').split("\n")
+      tasklist.each do |p|
+        properties = p.split
+        process = {}
+        process['name'] = properties[0].to_s
+        process['pid'] = properties[1].to_s
+        processes.push(process)
+      end
+      return processes
+    else
+      #ps aux
+    end
+  end
+
 end

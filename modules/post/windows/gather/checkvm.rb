@@ -34,11 +34,6 @@ class MetasploitModule < Msf::Post
     @services
   end
 
-  def get_processes
-    @processes ||= session.sys.process.get_processes
-    @processes
-  end
-
   def service_exists?(service)
     get_services && get_services.include?(service)
   end
@@ -94,11 +89,9 @@ class MetasploitModule < Msf::Post
       'vmwareuser.exe',
       'vmwaretray.exe'
     ]
-    if session.type == 'meterpreter'
-      get_processes.each do |x|
-        vmwareprocs.each do |p|
-          return true if p == x['name'].downcase
-        end
+    get_processes.each do |x|
+      vmwareprocs.each do |p|
+        return true if p == x['name'].downcase
       end
     end
 
@@ -114,11 +107,9 @@ class MetasploitModule < Msf::Post
       'vmusrvc.exe',
       'vmsrvc.exe'
     ]
-    if session.type == 'meterpreter'
-      get_processes.each do |x|
-        vpcprocs.each do |p|
-          return true if p == x['name'].downcase
-        end
+    get_processes.each do |x|
+      vpcprocs.each do |p|
+        return true if p == x['name'].downcase
       end
     end
 
@@ -130,11 +121,9 @@ class MetasploitModule < Msf::Post
       'vboxservice.exe',
       'vboxtray.exe'
     ]
-    if session.type == 'meterpreter'
-      get_processes.each do |x|
-        vboxprocs.each do |p|
-          return true if p == x['name'].downcase
-        end
+    get_processes.each do |x|
+      vboxprocs.each do |p|
+        return true if p == x['name'].downcase
       end
     end
 
@@ -163,11 +152,9 @@ class MetasploitModule < Msf::Post
     xenprocs = [
       'xenservice.exe'
     ]
-    if session.type == 'meterpreter'
-      get_processes.each do |x|
-        xenprocs.each do |p|
-          return true if p == x['name'].downcase
-        end
+    get_processes.each do |x|
+      xenprocs.each do |p|
+        return true if p == x['name'].downcase
       end
     end
 
