@@ -981,16 +981,15 @@ if $PROGRAM_NAME == __FILE__
   update_db_port
 
   if @connection_string
-    @db_driver = Standalone.new(options: @options, db_conf: @db_conf, connection_string: @connection_string)
-  elsif installed?('pg_ctl') && has_requirements(PgCtl.requirements)
-    @db_driver = PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
-  elsif installed?('pg_ctlcluster') && has_requirements(PgCtlcluster.requirements)
-    @db_driver = PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+    @db_driver = MsfdbHelpers::Standalone.new(options: @options, db_conf: @db_conf, connection_string: @connection_string)
+  elsif installed?('pg_ctl') && has_requirements(MsfdbHelpers::PgCtl.requirements)
+    @db_driver = MsfdbHelpers::PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  elsif installed?('pg_ctlcluster') && has_requirements(MsfdbHelpers::PgCtlcluster.requirements)
+    @db_driver = MsfdbHelpers::PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
   else
-    print_error('You must have pg_ctl or pgctl_cluster on your path, alternatively you can specify a database with `--connection-string`')
+    print_error('You need to have postgres installed or specify a database with --connection-string')
     abort
   end
-
 
   command = ARGV[0].to_sym
   prompt_for_deletion(command)
