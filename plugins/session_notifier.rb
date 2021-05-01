@@ -23,6 +23,7 @@ module Msf
       attr_reader :minimum_ip
       attr_reader :maximum_ip
       attr_reader :dingtalk_webhook
+      attr_reader :gotify_address
 
       def name
         'SessionNotifier'
@@ -40,6 +41,7 @@ module Msf
           'set_session_minimum_ip'         => 'Set the minimum session IP range you want to be notified for',
           'set_session_maximum_ip'         => 'Set the maximum session IP range you want to be notified for',
           'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier (keyword: session).',
+          'set_session_gotify_address'     => 'Set the Gotify address for the session notifier',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
           'start_session_notifier'         => 'Start notifying sessions',
           'stop_session_notifier'          => 'Stop notifying sessions',
@@ -122,6 +124,17 @@ module Msf
           print_error('Invalid webhook_url')
         end
       end
+      
+      def cmd_set_session_gotify_address(*args)
+        webhook_url = args[0]
+        if webhook_url.blank?
+          @gotify_address = nil
+        elsif !(webhook_url =~ URI::DEFAULT_PARSER.make_regexp).nil?
+          @gotify_address = webhook_url
+        else
+          print_error('Invalid gotify_address')
+        end
+      end
 
       def cmd_save_session_notifier_settings(*_args)
         save_settings_to_config
@@ -147,8 +160,12 @@ module Msf
             )
             @sms_client = Rex::Proto::Sms::Client.new(carrier: sms_carrier, smtp_server: smtp)
             print_status('Session notification started.')
-          elsif !dingtalk_webhook.nil?
+            end
+          if !dingtalk_webhook.nil?
             print_status('DingTalk notification started.')
+          end
+          if !gotify_address.nil?
+            print_status('Gotify notification started.')
           end
         rescue Msf::Plugin::SessionNotifier::Exception, Rex::Proto::Sms::Exception => e
           print_error(e.message)
@@ -187,6 +204,7 @@ module Msf
         ini[name]['minimum_ip']       = minimum_ip.to_s unless minimum_ip.blank?
         ini[name]['maximum_ip']       = maximum_ip.to_s unless maximum_ip.blank?
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?
+        ini[name]['gotify_address']   = gotify_address.to_s unless gotify_address.blank?
         ini.to_file(config_file)
       end
 
@@ -205,6 +223,7 @@ module Msf
           @minimum_ip       = IPAddr.new(group['minimum_ip']) if group['minimum_ip']
           @maximum_ip       = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
           @dingtalk_webhook = group['dingtalk_webhook']       if group['dingtalk_webhook']
+          @gotify_address   = group['gotify_address']         if group['gotify_address']
 
           print_status('Session Notifier settings loaded from config file.')
         end
@@ -236,6 +255,30 @@ module Msf
         body = JSON.parse(res.body)
         print_status((body['errcode'] == 0) ? 'Session notified to DingTalk.' : 'Failed to send notification.')
       end
+      
+      def send_text_to_gotify(session)
+        # https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/9e91d73c
+        uri_parser = URI.parse(gotify_address)
+        markdown_text =
+        "Platform : #{session.platform}\n\n" \
+        "Tunnel : #{session.tunnel_to_s}\n\n" \
+        "Arch : #{session.arch}\n\n" \
+        "Info : > #{session.info ? session.info.to_s : nil}"
+        json_post_data = JSON.pretty_generate({
+		      title: "#{session.platform}主机#{session.type}会话上线!",
+		      message: markdown_text,
+		      priority: 10
+        })
+        http = Net::HTTP.new(uri_parser.host, uri_parser.port)
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        request = Net::HTTP::Post.new(uri_parser.request_uri)
+        request.content_type = 'application/json'
+        request.body = json_post_data
+        res = http.request(request)
+        body = JSON.parse(res.body)
+        print_status((body['priority'] == 10) ? 'Session notified to Gotify.' : 'Failed to send notification.')
+      end
 
       def notify_session(session, subject, msg)
         if in_range?(session) && validate_sms_settings?
@@ -244,6 +287,9 @@ module Msf
         end
         if in_range?(session) && !dingtalk_webhook.nil?
           send_text_to_dingtalk(session)
+        end
+        if in_range?(session) && !gotify_address.nil?
+          send_text_to_gotify(session)
         end
       end
 
