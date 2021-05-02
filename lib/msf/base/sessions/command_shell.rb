@@ -327,18 +327,22 @@ class CommandShell
   end
 
   #
-  # Check if there is a binary in PATH env
+  # Returns path of a binary in PATH env.
   #
   def binary_exists(binary)
     print_status("Trying to find binary(#{binary}) on target machine")
-    binary_path = shell_command_token("which #{binary}").to_s.strip
-    if binary_path.eql?("#{binary} not found") || binary_path == ""
-      print_error(binary_path)
-      return nil
+    if shell_command_token('command -v command').to_s.strip == 'command'
+      binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
     else
-      print_status("Found #{binary} at #{binary_path}")
-      return binary_path
+      binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
     end
+    unless binary_path.include?("true")
+      print_error("#{binary} not found")
+      return nil
+    end
+    binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
+    print_status("Found #{binary} at #{binary_path}")
+    return binary_path
   end
 
   #

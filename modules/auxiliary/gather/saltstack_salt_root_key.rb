@@ -91,6 +91,7 @@ class MetasploitModule < Msf::Auxiliary
     Exploit::CheckCode::Vulnerable(root_key) # And the root key as the reason!
   rescue EOFError, Rex::ConnectionError => e
     print_error("#{e.class}: #{e.message}")
+    Exploit::CheckCode::Unknown
   ensure
     # This is from Msf::Exploit::Remote::ZeroMQ
     zmq_disconnect
