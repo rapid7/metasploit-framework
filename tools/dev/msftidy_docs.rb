@@ -12,6 +12,8 @@ require 'fileutils'
 require 'find'
 require 'time'
 
+SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
+
 class String
   def red
     "\e[1;31;40m#{self}\e[0m"
