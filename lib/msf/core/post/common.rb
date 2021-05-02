@@ -265,10 +265,18 @@ module Msf::Post::Common
         process['pid'] = properties[1].to_s
         processes.push(process)
       end
-      return processes
     else
-      #ps aux
+      ps_aux = cmd_exec('ps aux').split("\n")
+      ps_aux.each do |p|
+        properties = p.split
+        process = {}
+        process['name'] = properties[10].to_s.gsub(/\[|\]/,"")
+        process['pid'] = properties[1].to_s
+        process['user'] = properties[0].to_s
+        processes.push(process)
+      end
     end
+    return processes
   end
 
 end
