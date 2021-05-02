@@ -200,7 +200,7 @@ class MsftidyDoc
     end
   end
 
-  # This checks that the H2 headings are in the right order.
+  # This checks that the H2 headings are in the right order. Options are optional.
   def h2_order
     unless @source =~ /^## Vulnerable Application$.+^## Verification Steps$.+(?:^## Options$.+)?^## Scenarios$/m
       warn('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps, Options, Scenarios')
