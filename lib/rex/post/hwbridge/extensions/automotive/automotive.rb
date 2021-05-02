@@ -1,5 +1,3 @@
-#
-# -*- coding: binary -*-
 require 'rex/post/hwbridge/extensions/automotive/uds_errors'
 require 'rex/post/hwbridge/client'
 
@@ -139,11 +137,4 @@ class Automotive < Extension
   private
 
   attr_writer :buses, :active_bus
-
-end
-
-end
-end
-end
-end
 end
