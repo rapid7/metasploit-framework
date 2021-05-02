@@ -178,7 +178,8 @@ class MsftidyDoc
     end
 
     unless has_options
-      warn('Missing Section: ## Options')
+      # INFO because there may be no documentation-worthy options
+      info('Missing Section: ## Options')
     end
 
     if has_bad_description
