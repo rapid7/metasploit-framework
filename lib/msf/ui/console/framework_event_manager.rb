@@ -38,14 +38,15 @@ module FrameworkEventManager
   end
 
   def on_session_fail(reason='')
-    Readline::HISTORY.length.times {Readline::HISTORY.pop}
+    Msf::Ui::Console::HistoryManager.clear_readline
   end
 
   #
   # Called when a session is closed and removed from the framework.
   #
   def on_session_close(session, reason='')
-    Readline::HISTORY.length.times {Readline::HISTORY.pop}
+    Msf::Ui::Console::HistoryManager.clear_readline
+    Msf::Ui::Console::HistoryManager.pop_context
     if (session.interacting == true)
       output.print_line
     end

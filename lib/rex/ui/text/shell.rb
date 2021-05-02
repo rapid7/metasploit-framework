@@ -150,12 +150,11 @@ module Shell
         # break out of the shell loop.
         elsif block
           if self.histfile && line != @last_line
-          	File.open(self.histfile, "a+") { |f| f.puts(line) }
-          	@last_line = line
+            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            @last_line = line
           end
           self.stop_count = 0
           break if block.call(line)
-
 
         # Otherwise, call what should be an overriden instance method to
         # process the line.

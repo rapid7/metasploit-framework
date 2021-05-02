@@ -173,7 +173,7 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
     unless active_module
       print_status("You are in the \"framework\" object\n")
-      Msf::Ui::Console::HistoryManager.push_context(histfile)
+      Msf::Ui::Console::HistoryManager.push_context(histfile, true)
       framework.pry
       Msf::Ui::Console::HistoryManager.pop_context
       return

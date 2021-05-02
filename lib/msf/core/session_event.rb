@@ -22,7 +22,10 @@ module Msf::SessionEvent
   # Called when the user interacts with a session.
   #
   def on_session_interact(session)
-    Readline::HISTORY.length.times {Readline::HISTORY.pop}
+    if session.type == 'meterpreter'
+      Msf::Ui::Console::HistoryManager.clear_readline
+      Msf::Ui::Console::HistoryManager.push_context(Msf::Config.meterpreter_history, false)
+    end
   end
 
   #

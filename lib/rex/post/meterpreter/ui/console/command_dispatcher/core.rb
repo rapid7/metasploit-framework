@@ -337,7 +337,8 @@ class Console::CommandDispatcher::Core
 
   def cmd_background
     print_status("Backgrounding session #{client.name}...")
-    Readline::HISTORY.length.times {Readline::HISTORY.pop}
+    Msf::Ui::Console::HistoryManager.clear_readline
+    Msf::Ui::Console::HistoryManager.pop_context
     client.interacting = false
   end
 
@@ -622,7 +623,7 @@ class Console::CommandDispatcher::Core
     print_status("You are in the \"client\" (session) object\n")
     histfile = Msf::Config.pry_history
     Pry.config.history_load = false
-    Msf::Ui::Console::HistoryManager.push_context(histfile)
+    Msf::Ui::Console::HistoryManager.push_context(histfile, true)
     client.pry
     Msf::Ui::Console::HistoryManager.pop_context
   end

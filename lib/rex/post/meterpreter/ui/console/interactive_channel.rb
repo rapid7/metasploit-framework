@@ -46,7 +46,9 @@ module Console::InteractiveChannel
     # Ask the user if they would like to background the session
     if (prompt_yesno("Background channel #{self.cid}?") == true)
       self.interactive(false)
-      Readline::HISTORY.length.times {Readline::HISTORY.pop}
+
+      Msf::Ui::Console::HistoryManager.clear_readline
+      Msf::Ui::Console::HistoryManager.pop_context
       self.interacting = false
     end
   end
