@@ -29,10 +29,6 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
 
-    deregister_options('RHOST', 'SSL', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-      'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-      'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2')
-
     register_options(
       [
         OptString.new('TARGET', [true, 'The target to get the score of']),
@@ -46,6 +42,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    # check our API key is somewhat sane
+    unless /^[a-z\d]{32}$/i.match?(datastore['SHODAN_APIKEY'])
+      fail_with(Failure::BadConfig, 'Shodan API key should be 32 characters a-z,A-Z,0-9.')
+    end
+
     key = datastore['SHODAN_APIKEY']
 
     # Check the length of the key (should be 32 chars)

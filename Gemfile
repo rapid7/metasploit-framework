@@ -6,7 +6,7 @@ gemspec name: 'metasploit-framework'
 # separate from test as simplecov is not run on travis-ci
 group :coverage do
   # code coverage for tests
-  gem 'simplecov'
+  gem 'simplecov', '0.18.2'
 end
 
 group :development do
@@ -15,9 +15,13 @@ group :development do
   # generating documentation
   gem 'yard'
   # for development and testing purposes
-  gem 'pry'
+  gem 'pry-byebug'
   # module documentation
   gem 'octokit'
+  # memory profiling
+  gem 'memory_profiler'
+  # cpu profiling
+  gem 'ruby-prof', '1.4.2'
   # Metasploit::Aggregator external session proxy
   # disabled during 2.5 transition until aggregator is available
   #gem 'metasploit-aggregator'
@@ -34,6 +38,7 @@ group :development, :test do
   # environment is development
   gem 'rspec-rails'
   gem 'rspec-rerun'
+  gem 'rubocop'
   gem 'swagger-blocks'
 end
 

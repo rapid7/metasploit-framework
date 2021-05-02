@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'OSVDB', '54881' ],
         [ 'URL', 'http://www.aushack.com/200905-sonicwall.txt' ],
       ],
-      'DisclosureDate' => 'May 29 2009'))
+      'DisclosureDate' => '2009-05-29'))
 
     register_options([
       OptString.new('URI', [ true, 'URI to request', '/cgi-bin/welcome/VirtualOffice?err=' ]),

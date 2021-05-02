@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(80),
         OptString.new('URI', [false, 'URL of the Concrete5 root', '/'])
       ])
-    deregister_options('RHOST')
   end
 
   def run_host(rhost)

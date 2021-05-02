@@ -18,7 +18,14 @@ You require a valid licence, but there's a demo for 30 days.
   1. Optional: you can add the remote path of the installation, especially if the software is installed on a strange path and the module can't find it..
 4. Run the module and enjoy the loot.
 
-## Example Run
+## Options
+
+  **RPATH**
+  The remote path of the MDaemon installation.
+  If the machine runs on 64bits and the meterpreter is 32 bits, it won't be able to find the installation path in the registry, but it will search some default paths. If it is installed on a non-default path you can give the RPATH and it will work.
+
+## Scenarios
+
 **Normal mode**
 ```
 msf > use post/windows/gather/credentials/mdaemon_cred_collector 
@@ -81,13 +88,7 @@ Output:
 [*] Post module execution completed
 ```
 
-## Options
-
-  **RPATH**
-  The remote path of the MDaemon installation.
-  If the machine runs on 64bits and the meterpreter is 32 bits, it won't be able to find the installation path in the registry, but it will search some default paths. If it is installed on a non-default path you can give the RPATH and it will work.
-
-## Scenarios
+### Scenarios Extended
 **Run on all sessions**
 If you wish to run the post against all sessions from framework, here is how:
 
@@ -108,8 +109,3 @@ If you have a meterpreter running on a server that has MDaemon installed, run th
 
 Note: MDaemon can store the passwords on a database, in that case the module won't work, but you can search for the database location, username and password and still get them :)
 
-
-## References
-http://www.securityfocus.com/bid/4686
-
-https://github.com/AgoraSecurity/MdaemonCrack

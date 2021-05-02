@@ -72,7 +72,6 @@ end
 $0 = "msfrpc"
 
 require 'msf/core/rpc/v10/client'
-require 'rex/ui'
 
 rpc = Msf::RPC::Client.new(
   :host => opts['ServerHost'],

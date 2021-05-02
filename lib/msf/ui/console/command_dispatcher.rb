@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
-require 'msf/ui/console/command_dispatcher/common'
+
+
 module Msf
 module Ui
 module Console
@@ -75,6 +76,22 @@ module CommandDispatcher
   end
 
   #
+  # Load the configuration required for this CommandDispatcher, configuring
+  # any internal state as required.
+  #
+  def load_config(_path = nil)
+    # noop
+  end
+
+  #
+  # Return the subdir of the `documentation/` directory that should be used
+  # to find usage documentation
+  #
+  def docs_dir
+    File.join(super, 'msfconsole')
+  end
+
+  #
   # Generate an array of job or session IDs from a given range String.
   # Always returns an Array.
   #
@@ -88,7 +105,7 @@ module CommandDispatcher
         return if ele.count('-') > 1
         return if ele.first == '-' || ele[-1] == '-'
         return if ele.first == '.' || ele[-1] == '.'
-        return unless ele =~ (/^(\d)+$/)  # Not a number
+        return unless ele =~ (/^\d+((\.\.|-)\d+)?$/)  # Not a number or range
 
         if ele.include? '-'
           temp_array = (ele.split("-").inject { |s, e| s.to_i..e.to_i }).to_a
@@ -106,13 +123,22 @@ module CommandDispatcher
   end
 
   #
+  # Remove lines with specific substring
+  #
+  # @param text [String] Block of text to search over
+  # @param to_match [String] String that when found, causes the whole line to
+  #   be removed, including trailing "\n" if present
+  # @return [String] Text sans lines containing to_match
+  #
+  def remove_lines(text, to_match)
+    to_match = Regexp.escape(to_match)
+    text.gsub(/^.*(#{to_match}).*(#{Regexp.escape $/})?/, '')
+  end
+
+  #
   # The driver that this command dispatcher is associated with.
   #
   attr_accessor :driver
 
 end
 end end end
-
-require 'msf/ui/console/module_command_dispatcher'
-require 'msf/ui/console/command_dispatcher/core'
-

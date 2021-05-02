@@ -1,5 +1,6 @@
 require 'singleton'
 require 'metasploit/framework/data_service/remote/http/core'
+require 'open3'
 
 module Metasploit
 module Framework

@@ -27,13 +27,14 @@ class MetasploitModule < Msf::Auxiliary
         ]
     ))
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run
 
     print_status("Connecting to the target system...");
 
-    connect
+    connect(versions: [1])
     smb_login
 
     begin

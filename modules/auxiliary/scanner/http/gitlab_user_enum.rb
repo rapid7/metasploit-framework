@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 require 'json'
 
 class MetasploitModule < Msf::Auxiliary
@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Auxiliary
       ",
       'Author'         => 'Ben Campbell',
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => 'Nov 21 2014',
+      'DisclosureDate' => '2014-11-21',
       'References'     =>
         [
           ['URL', 'https://labs.mwrinfosecurity.com/blog/2015/03/20/gitlab-user-enumeration/']

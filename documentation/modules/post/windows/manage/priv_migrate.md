@@ -10,7 +10,7 @@ The types of migrations that occur are described below:
 
 This module is a nice addition to the beginning of an autorun script for post-Meterpreter session creation. An example of an autorun script is provided below.
 
-## Module Options
+## Options
 - **ANAME** - This option allows you to specify a system level process that the module attempts to migrate to first if the session has admin rights. 
 - **NAME** - This option allows you to specify the user level process that the module attempts to migrate to first if the session has user rights or if admin migration fails through all of the default processes.  
 - **KILL** - This option allows you to kill the original process after a successful migration. The default value is FALSE.

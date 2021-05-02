@@ -26,7 +26,12 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    deregister_options('RPORT', 'RHOST')
+    register_options(
+      [
+        OptBool.new('DB_ALL_USERS', [ false, "Add all enumerated usernames to the database", false ]),
+      ])
+
+    deregister_options('RPORT')
   end
 
   def rport
@@ -309,6 +314,11 @@ class MetasploitModule < Msf::Auxiliary
           extra << ")"
         end
         print_good("#{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ] #{extra}")
+        if datastore['DB_ALL_USERS']
+          users.each { |user|
+            store_username(user, domain, ip, rport, resp)
+          }
+        end
       end
 
       # cleanup
@@ -326,5 +336,31 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+
+  def store_username(username, domain, ip, rport, resp)
+    service_data = {
+      address: ip,
+      port: rport,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: myworkspace_id,
+      proof: resp
+    }
+
+    credential_data = {
+      origin_type: :service,
+      module_fullname: fullname,
+      username: username[1],
+      realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+      realm_value: domain,
+    }.merge(service_data)
+
+    login_data = {
+      core: create_credential(credential_data),
+      status: Metasploit::Model::Login::Status::UNTRIED
+    }.merge(service_data)
+
+    create_credential_login(login_data)
+  end
 
 end

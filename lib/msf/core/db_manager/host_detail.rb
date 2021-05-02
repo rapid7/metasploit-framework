@@ -4,7 +4,7 @@ module Msf::DBManager::HostDetail
   # information, matched by a specific criteria
   #
   def report_host_details(host, details)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
 
     detail = ::Mdm::HostDetail.where(( details.delete(:key) || {} ).merge(:host_id => host.id)).first
     if detail

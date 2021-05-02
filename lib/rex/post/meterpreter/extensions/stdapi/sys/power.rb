@@ -28,7 +28,7 @@ class Power
   # Calls ExitWindows on the remote machine with the supplied parameters.
   #
   def Power._exitwindows(flags, reason = 0, force = 0) # :nodoc:
-    request = Packet.create_request('stdapi_sys_power_exitwindows')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_POWER_EXITWINDOWS)
 
     flags |= EWX_FORCEIFHUNG if force == 1
     flags |= EWX_FORCE       if force == 2
@@ -36,9 +36,7 @@ class Power
     request.add_tlv(TLV_TYPE_POWER_FLAGS, flags);
     request.add_tlv(TLV_TYPE_POWER_REASON, reason);
 
-    response = client.send_request(request)
-
-    return response
+    client.send_request(request)
   end
 
   #

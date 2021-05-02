@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/unix'
-
 module Msf
 class Post
 module Solaris
@@ -116,16 +112,6 @@ module System
     command_exists?('gcc') || command_exists?('/usr/sfw/bin/gcc') || command_exists?('/opt/sfw/bin/gcc') || command_exists?('/opt/csw/bin/gcc')
   rescue
     raise 'Unable to check for gcc'
-  end
-
-  #
-  # Checks if the `cmd` is installed on the system
-  # @return [Boolean]
-  #
-  def command_exists?(cmd)
-    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
-  rescue
-    raise "Unable to check if command `#{cmd}` exists"
   end
 
   #

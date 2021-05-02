@@ -1,8 +1,8 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: http://www.metasploit.com/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://www.metasploit.com/
 
 Files: *
-Copyright: 2006-2018, Rapid7, Inc.
+Copyright: 2006-2020, Rapid7, Inc.
 License: BSD-3-clause
 
 # The Metasploit Framework is provided under the 3-clause BSD license provided
@@ -71,9 +71,9 @@ Files: lib/anemone.rb lib/anemone/*
 Copyright: 2009 Vertive, Inc.
 License: MIT
 
-Files: lib/metasm.rb lib/metasm/* data/cpuinfo/*
-Copyright: 2006-2010 Yoann GUILLOT
-License: LGPL-2.1
+Files: lib/expect.rb
+Copyright: 2017 Yukihiro Matsumoto
+License: Ruby
 
 Files: lib/msf/core/modules/external/python/async_timeout/*
 Copyright: 2016-2017 Andrew Svetlov
@@ -118,6 +118,18 @@ License: MIT
 Files: lib/msf/core/web_services/public/*, lib/msf/core/web_services/views/api_docs.erb
 Copyright: Copyright 2018 SmartBear Software
 License: Apache 2.0
+
+Files: data/jtr/*
+Copyright: Copyright 1996-2013 by Solar Designer
+License: GNU GPL 2.0
+
+Files: external/source/exploits/drunkpotato/Common_Src_Files/spnegotokenhandler/*
+Copyright: 2011 Jon Bringhurst
+License: GNU GPL 2.0
+
+Files: external/source/evasion/windows/process_herpaderping/ProcessHerpaderping/*
+Copyright: 2020 Johnny Shaw
+License: MIT
 
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without modification,

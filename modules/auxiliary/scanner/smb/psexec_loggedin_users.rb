@@ -39,11 +39,9 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('USERNAME', [false, 'The name of a specific user to search for', '']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the Windows directory', 'WINDOWS']),
     ])
-
-    deregister_options('RHOST')
   end
 
   # This is the main controller function

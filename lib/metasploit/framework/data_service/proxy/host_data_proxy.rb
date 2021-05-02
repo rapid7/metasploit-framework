@@ -71,6 +71,36 @@ module HostDataProxy
     end
   end
 
+  def get_host_tags(opts)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.get_host_tags(opts)
+      end
+    else
+      nil
+    end
+  end
+
+  def add_host_tag(opts)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.add_host_tag(opts)
+      end
+    else
+      nil
+    end
+  end
+
+  def delete_host_tag(opts)
+    if add_host_id_to_opts(opts)
+      self.data_service_operation do |data_service|
+        return data_service.delete_host_tag(opts)
+      end
+    else
+      nil
+    end
+  end
+
   private
 
   def valid(opts)
@@ -86,6 +116,24 @@ module HostDataProxy
     end
 
     return true
+  end
+
+  def add_host_id_to_opts(opts)
+    if opts[:id]
+      return true
+    end
+
+    if opts[:address]
+      self.data_service_operation do |data_service|
+        host = data_service.get_host(opts)
+
+        if host
+          opts[:id] = host.id
+        end
+      end
+    end
+
+    opts.key?(:id)
   end
 
 end

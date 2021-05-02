@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
           Opt::RPORT(80),
         ])
 
-    deregister_options('BLANK_PASSWORDS') # we don't need this option
+    deregister_options('BLANK_PASSWORDS', 'PASSWORD_SPRAY') # we don't need these options
   end
 
   def run_host(ip)

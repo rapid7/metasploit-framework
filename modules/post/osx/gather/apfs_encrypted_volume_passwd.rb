@@ -28,11 +28,7 @@ class MetasploitModule < Msf::Post
         'cbrnrd'          # Metasploit module
       ],
       'SessionTypes'  => [ 'shell', 'meterpreter' ],
-      'Targets'       => [
-        [ 'Mac OS X High Sierra (10.13.1, 10.13.2, 10.13.3)', { } ]
-      ],
-      'DefaultTarget' => 0,
-      'DisclosureDate' => 'Mar 21 2018'
+      'DisclosureDate' => '2018-03-21'
     ))
     register_options([
       # The command doesn't give volume names, only mount paths (current or previous)

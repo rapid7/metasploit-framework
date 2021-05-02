@@ -1,4 +1,7 @@
 # -*- coding: binary -*-
+
+require 'metasploit/framework/require'
+
 module Msf
 
 ###
@@ -23,6 +26,7 @@ module Auxiliary::Report
 
   def create_cracked_credential(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_cracked_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -31,6 +35,7 @@ module Auxiliary::Report
 
   def create_credential(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -39,6 +44,7 @@ module Auxiliary::Report
 
   def create_credential_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -47,6 +53,7 @@ module Auxiliary::Report
 
   def create_credential_and_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.create_credential_and_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -55,6 +62,7 @@ module Auxiliary::Report
 
   def invalidate_login(opts={})
     if active_db?
+      opts = { :task_id => mytask.id }.merge(opts) if mytask
       framework.db.invalidate_login(opts)
     elsif !db_warning_given?
       vprint_warning('No active DB -- Credential data will not be saved!')
@@ -88,7 +96,7 @@ module Auxiliary::Report
   end
 
   def mytask
-    if self[:task]
+    if self.respond_to?(:[]) && self[:task]
       return self[:task].record
     elsif @task && @task.class == Mdm::Task
       return @task
@@ -425,7 +433,7 @@ module Auxiliary::Report
       conf[:workspace] = myworkspace
       conf[:name] = filename if filename
       conf[:info] = info if info
-      conf[:data] = data if data
+      conf[:data] = data unless data.nil?
 
       if service and service.kind_of?(::Mdm::Service)
         conf[:service] = service if service
@@ -443,7 +451,7 @@ module Auxiliary::Report
   # module, such as files from fileformat exploits. (TODO: actually
   # implement this on file format modules.)
   #
-  # +filenmae+ is the local file name.
+  # +filename+ is the local file name.
   #
   # +data+ is the actual contents of the file
   #
@@ -515,6 +523,7 @@ module Auxiliary::Report
     end
     cred_opts = opts
     cred_opts = opts.merge(:workspace => myworkspace)
+    cred_opts = { :task_id => mytask.id }.merge(cred_opts) if mytask
     cred_host = myworkspace.hosts.find_by_address(cred_opts[:host])
     unless opts[:port]
       possible_services = myworkspace.services.where(host_id: cred_host[:id], name: cred_opts[:sname])

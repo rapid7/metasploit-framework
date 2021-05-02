@@ -5,7 +5,7 @@ This module captures keystrokes from a Windows target and saves them to a text f
 ## Requirements
 - Windows Meterpreter Session
 
-## Module Options
+## Options
 - **CAPTURE_TYPE** - This option sets the process where the module records keystrokes. Accepted: explorer, winlogon, or pid. Default value is explorer.
 
 - **INTERVAL** - The interval in seconds that the module uses for recording keystrokes. The log file goes to a new line at the end of each interval. Default value is 5 seconds.
@@ -45,7 +45,7 @@ This module has two actions it can take if module requests time out. This occurs
 ### Running Module Stand Alone
 When running the module stand alone, it will prevent the Framework UI from being use for anything else until you exit the module. Use `CTRL-C` to exit. The module will save the last few keystrokes. This may take up to 30 seconds to complete.
 
-## Example Output
+## Scenarios
 ```
 Keystroke log from explorer.exe on JULY with user JULY\User started at 2016-07-13 21:01:56 -0500
 

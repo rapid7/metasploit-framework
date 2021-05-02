@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -25,10 +25,6 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License'     => MSF_LICENSE
       ))
-
-      deregister_options('RHOST', 'DOMAIN', 'DigestAuthIIS', 'NTLM::SendLM',
-            'NTLM::SendNTLM', 'VHOST', 'RPORT', 'NTLM::SendSPN', 'NTLM::UseLMKey',
-            'NTLM::UseNTLM2_session', 'NTLM::UseNTLMv2', 'SSL')
 
       register_options(
         [

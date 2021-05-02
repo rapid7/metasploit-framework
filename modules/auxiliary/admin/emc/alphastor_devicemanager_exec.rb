@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'CVE', '2008-2157' ],
           [ 'BID', '29398' ],
         ],
-      'DisclosureDate' => 'May 27 2008'))
+      'DisclosureDate' => '2008-05-27'))
 
       register_options(
         [
@@ -52,6 +52,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     disconnect
-
+  rescue ::Rex::ConnectionError => e
+    print_error 'Connection failed'
+  rescue ::EOFError => e
+    print_error 'No reply'
   end
 end

@@ -41,7 +41,6 @@
 # The third key has to begin from the 14th character of the
 # input string instead of 13th:)
 
-require 'rex/proto/ntlm/constants'
 
 module Rex
 module Proto

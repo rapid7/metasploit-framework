@@ -15,7 +15,7 @@ class Plugin::EventLibnotify < Msf::Plugin
     super
 
     @bin = opts[:bin] || opts['bin'] || `which notify-send`.chomp
-    @bin_opts = opts[:opts] || opts['opts'] || '-a Metasploit'
+    @bin_opts = opts[:opts] || opts['opts'] || '--app-name=Metasploit'
 
     raise 'libnotify not found' if @bin.empty?
 
@@ -24,7 +24,11 @@ class Plugin::EventLibnotify < Msf::Plugin
   end
 
   def notify_send(urgency, title, message)
-    system("#{@bin} #{@bin_opts} -u #{urgency} '#{title}' '#{message}'")
+    begin
+      system(@bin, @bin_opts, '-u', urgency, title, message)
+    rescue StandarError => e
+      puts "Error running #{@bin}: #{e.message}"
+    end
   end
 
   def on_session_open(session)

@@ -27,8 +27,8 @@ class EventRecord
 
   def initialize(recnum, timegen, timewri, id, type, cat, strs, data)
     self.num       = recnum
-    self.generated = Time.at(timegen)
-    self.written   = Time.at(timewri)
+    self.generated = ::Time.at(timegen)
+    self.written   = ::Time.at(timewri)
     self.eventid   = id
     self.type      = type
     self.category  = cat

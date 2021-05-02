@@ -67,12 +67,12 @@ class Def_windows_iphlpapi
       ])
 
     dll.add_function('NotifyAddrChange', 'DWORD',[
-      ["PDWORD","Handle","inout"],
+      ["PHANDLE","Handle","inout"],
       ["PBLOB","overlapped","in"],
       ])
 
     dll.add_function('NotifyRouteChange', 'DWORD',[
-      ["PDWORD","Handle","inout"],
+      ["PHANDLE","Handle","inout"],
       ["PBLOB","overlapped","in"],
       ])
 

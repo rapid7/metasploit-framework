@@ -32,7 +32,7 @@ class Resolve
   end
 
   def resolve_host(hostname, family=AF_INET)
-    request = Packet.create_request('stdapi_net_resolve_host')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_RESOLVE_HOST)
     request.add_tlv(TLV_TYPE_HOST_NAME, hostname)
     request.add_tlv(TLV_TYPE_ADDR_TYPE, family)
 
@@ -45,7 +45,7 @@ class Resolve
   end
 
   def resolve_hosts(hostnames, family=AF_INET)
-    request = Packet.create_request('stdapi_net_resolve_hosts')
+    request = Packet.create_request(COMMAND_ID_STDAPI_NET_RESOLVE_HOSTS)
     request.add_tlv(TLV_TYPE_ADDR_TYPE, family)
 
     hostnames.each do |hostname|

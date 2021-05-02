@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
@@ -22,7 +20,7 @@ module MetasploitModule
       'Session'       => Msf::Sessions::CommandShellWindows,
       'PayloadCompat' =>
         {
-          'Convention' => 'sockedi -http -https'
+          'Convention' => 'sockedi udpsockedi -http -https'
         },
       'Stage'         =>
         {

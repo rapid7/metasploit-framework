@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
         OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true]),
       ])
-    deregister_options('RHOST')
 
     @evilchars = [
       'A','a','%s','%d','%n','%x','%p','-1','0','0xfffffffe','0xffffffff','A/','//','/..','//..',

@@ -32,10 +32,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '36273'],
           [ 'OSVDB', '57753'],
           [ 'MSB', 'MS09-053'],
-          [ 'URL', 'https://www.microsoft.com/technet/security/Bulletin/MS09-053.mspx'],
           [ 'URL', 'http://archives.neohapsis.com/archives/fulldisclosure/2009-09/0040.html']
         ],
-      'DisclosureDate' => 'Sep 03 2009'))
+      'DisclosureDate' => '2009-09-03'))
   end
 
   def run

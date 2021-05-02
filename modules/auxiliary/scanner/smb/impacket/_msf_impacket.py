@@ -48,7 +48,7 @@ class RemoteShell(object):
             logging.info("Downloading %s\\%s" % (drive, tail))
             self.__transferClient.getFile(drive[:-1]+'$', tail, fh.write)
             fh.close()
-        except Exception, e:
+        except Exception as e:
             logging.error(str(e))
             if os.path.exists(filename):
                 os.remove(filename)
@@ -65,14 +65,14 @@ class RemoteShell(object):
 
             src_file = os.path.basename(src_path)
             fh = open(src_path, 'rb')
-            dst_path = string.replace(dst_path, '/','\\')
+            dst_path = string.replace(dst_path, '/', '\\')
 
-            pathname = ntpath.join(ntpath.join(self._pwd,dst_path), src_file)
+            pathname = ntpath.join(ntpath.join(self._pwd, dst_path), src_file)
             drive, tail = ntpath.splitdrive(pathname)
             logging.info("Uploading %s to %s" % (src_file, pathname))
             self.__transferClient.putFile(drive[:-1]+'$', tail, fh.read)
             fh.close()
-        except Exception, e:
+        except Exception as e:
             logging.critical(str(e))
 
     def do_exit(self, _):
@@ -93,7 +93,7 @@ class RemoteShell(object):
             try:
                 self.__transferClient.getFile(self._share, self._output, output_callback)
                 break
-            except Exception, e:
+            except Exception as e:
                 if str(e).find('STATUS_SHARING_VIOLATION') >=0:
                     # Output not finished, let's wait
                     time.sleep(1)

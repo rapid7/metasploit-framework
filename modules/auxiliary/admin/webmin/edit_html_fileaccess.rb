@@ -29,10 +29,10 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.americaninfosec.com/research/dossiers/AISG-12-002.pdf'],
           ['URL', 'https://github.com/webmin/webmin/commit/4cd7bad70e23e4e19be8ccf7b9f245445b2b3b80']
         ],
-      'DisclosureDate' => 'Sep 06 2012',
+      'DisclosureDate' => '2012-09-06',
       'Actions'        =>
         [
-          ['Download']
+          ['Download', 'Description' => 'Download arbitrary file']
         ],
       'DefaultAction'  => 'Download'
       ))

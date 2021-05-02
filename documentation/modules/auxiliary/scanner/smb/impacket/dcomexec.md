@@ -31,7 +31,7 @@ Currently supported objects are:
   module user to view the output but also causes it to be written to disk before
   it is retrieved and deleted.
 
-## Scenario
+## Scenarios
 
 ```
 metasploit-framework (S:0 J:1) auxiliary(scanner/smb/impacket/dcomexec) > show options 

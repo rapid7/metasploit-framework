@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'BID', '57505' ],
           [ 'URL', 'http://ics-cert.us-cert.gov/advisories/ICSA-13-022-02' ]
         ],
-      'DisclosureDate' => 'Jan 22 2013'))
+      'DisclosureDate' => '2013-01-22'))
 
     register_options(
       [

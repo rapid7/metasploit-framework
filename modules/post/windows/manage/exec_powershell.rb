@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/powershell'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
@@ -21,7 +20,7 @@ class MetasploitModule < Msf::Post
       'SessionTypes'         => ['meterpreter'],
       'Author'               => [
         'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
-        'RageLtMan' # post module and libs
+        'RageLtMan <rageltman[at]sempervictus>' # post module and libs
         ]
     ))
 

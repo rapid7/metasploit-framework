@@ -35,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
     ])
 
-    deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
+    deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE', 'PASSWORD_SPRAY')
   end
 
   # Operate on a single host so that we can take advantage of multithreading

@@ -9,7 +9,7 @@ accounts are enabled or disabled/locked out.
 To use kerberos_enumusers, make sure you are able to connect to the
 Kerberos service on a Domain Controller.
 
-## Scenario
+## Scenarios
 
 The following demonstrates basic usage, using a custom wordlist,
 targeting a single Domain Controller to identify valid domain user

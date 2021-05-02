@@ -1,7 +1,4 @@
 require 'rex'
-require 'msf/core/module/reference'
-require 'msf/util/document_generator'
-require 'msf/util/document_generator/pull_request_finder'
 
 RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
 
@@ -130,14 +127,6 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     end
   end
 
-  describe 'normalize_options' do
-    context 'when datastore options are given' do
-      it 'returns a list of options in HTML' do
-        expect(subject.send(:normalize_options, msf_mod.options)).to include('* RHOST - The target address')
-      end
-    end
-  end
-
   describe 'normalize_description' do
     context 'when a description is a long one-liner' do
       it 'returns the wrapped the description' do
@@ -185,19 +174,6 @@ RSpec.describe Msf::Util::DocumentGenerator::DocumentNormalizer do
     context 'when a platform as a string is given' do
       it 'returns the platform' do
         expect(subject.send(:normalize_platforms, msf_mod.platforms)).to eq(mod_platforms)
-      end
-    end
-  end
-
-  describe 'normalize_rank' do
-    context 'when a rank is given' do
-      it 'returns the rank' do
-        expect(subject.send(:normalize_rank, msf_mod.rank)).to include('Normal')
-      end
-
-      it 'includes a wiki about exploit ranks' do
-        wiki = 'https://github.com/rapid7/metasploit-framework/wiki/Exploit-Ranking'
-        expect(subject.send(:normalize_rank, msf_mod.rank)).to include(wiki)
       end
     end
   end

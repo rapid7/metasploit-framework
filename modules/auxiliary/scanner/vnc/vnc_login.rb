@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/rfb'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vnc'
 
@@ -46,6 +45,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
         OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
       ])
+
+    deregister_options('PASSWORD_SPRAY')
 
     register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 

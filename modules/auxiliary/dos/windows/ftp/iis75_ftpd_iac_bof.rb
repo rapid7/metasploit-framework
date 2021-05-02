@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'EDB', '15803' ],
           [ 'URL', 'http://blogs.technet.com/b/srd/archive/2010/12/22/assessing-an-iis-ftp-7-5-unauthenticated-denial-of-service-vulnerability.aspx' ]
         ],
-      'DisclosureDate' => 'Dec 21 2010'))
+      'DisclosureDate' => '2010-12-21'))
 
     register_options(
       [
@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     connect
 
     banner = sock.get_once(-1, 10)
-    print_status("banner: #{banner.strip}")
+    print_status("banner: #{banner.to_s.strip}")
 
     buf = Rex::Text.pattern_create(1024)
 

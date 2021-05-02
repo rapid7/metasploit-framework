@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/command_dispatcher/db'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   include_context 'Msf::DBManager'
@@ -29,8 +27,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :cmd_db_nmap }
   it { is_expected.to respond_to :cmd_db_notes }
   it { is_expected.to respond_to :cmd_db_notes_help }
-  it { is_expected.to respond_to :cmd_db_rebuild_cache }
-  it { is_expected.to respond_to :cmd_db_rebuild_cache_help }
   it { is_expected.to respond_to :cmd_db_services }
   it { is_expected.to respond_to :cmd_db_services_help }
   it { is_expected.to respond_to :cmd_db_status }
@@ -46,9 +42,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
   it { is_expected.to respond_to :cmd_workspace_tabs }
   it { is_expected.to respond_to :commands }
   it { is_expected.to respond_to :db_check_driver }
-  it { is_expected.to respond_to :db_connect_postgresql }
   it { is_expected.to respond_to :db_find_tools }
-  it { is_expected.to respond_to :db_parse_db_uri_postgresql }
   it { is_expected.to respond_to :deprecated_commands }
   it { is_expected.to respond_to :each_host_range_chunk }
   it { is_expected.to respond_to :name }
@@ -238,8 +232,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
           "",
           "host         port  proto  name      state  info",
           "----         ----  -----  ----      -----  ----",
-          "192.168.0.1  1024  udp    service1  open   ",
-          "192.168.0.1  1025  tcp    service2  open   "
+          "192.168.0.1  1024  udp    service1  open",
+          "192.168.0.1  1025  tcp    service2  open"
         ]
       end
     end
@@ -271,8 +265,8 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Db do
             "",
             "host         port  proto  name  state  info",
             "----         ----  -----  ----  -----  ----",
-            "192.168.0.2  1025  snmp         open   ",
-            "192.168.0.2  1026  snmp         open   "
+            "192.168.0.2  1025  snmp         open",
+            "192.168.0.2  1026  snmp         open"
           ]
         }
       end

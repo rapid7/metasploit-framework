@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Auxiliary
         Discover information from Web Services Dynamic Discovery (WS-Discovery)
         enabled systems.
       },
-      'Author'      => 'Brendan Coles <bcoles[at]gmail.com>',
+      'Author'      => 'bcoles',
       'License'     => MSF_LICENSE,
       'References'  =>
         [

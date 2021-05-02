@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_advanced_options(
       [
-        OptString.new('RPORT', [true, 'AWS EC2 Endpoint TCP Port', 443]),
+        OptPort.new('RPORT', [true, 'AWS EC2 Endpoint TCP Port', 443]),
         OptBool.new('SSL', [true, 'AWS EC2 Endpoint SSL', true]),
         OptString.new('INSTANCE_TYPE', [true, 'The instance type', 'm3.medium']),
         OptString.new('ROLE_NAME', [false, 'The instance profile/role name', '']),
@@ -133,7 +133,7 @@ class MetasploitModule < Msf::Auxiliary
       sleep(15)
       doc = call_ec2(creds, 'Action' => action, 'InstanceId' => instance_id)
       doc = print_results(doc, action)
-      if doc ['instanceStatusSet'].nil?
+      if doc['instanceStatusSet'].nil?
         print_error("Error, could not get instance status, instance possibly terminated")
         break
       end

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/acpp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/acpp'
 
@@ -40,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       # there is no username, so remove all of these options
       'DB_ALL_USERS',
       'DB_ALL_CREDS',
+      'PASSWORD_SPRAY',
       'USERNAME',
       'USERPASS_FILE',
       'USER_FILE',

@@ -42,8 +42,6 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('TARGETURI', [false, 'URI to the site (e.g /site/) or a valid file resource (e.g /welcome.png)', '/'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def upper_range

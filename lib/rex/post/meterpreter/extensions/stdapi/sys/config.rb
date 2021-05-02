@@ -29,17 +29,20 @@ class Config
   #
   # Returns the username that the remote side is running as.
   #
-  def getuid
-    request  = Packet.create_request('stdapi_sys_config_getuid')
-    response = client.send_request(request)
-    client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+  def getuid(refresh: true)
+    if @uid.nil? || refresh
+      request  = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_GETUID)
+      response = client.send_request(request)
+      @uid = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+    end
+    @uid
   end
 
   #
   # Gets the SID of the current process/thread.
   #
   def getsid
-    request = Packet.create_request('stdapi_sys_config_getsid')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_GETSID)
     response = client.send_request(request)
     response.get_tlv_value(TLV_TYPE_SID)
   end
@@ -55,7 +58,7 @@ class Config
   # Returns a list of currently active drivers used by the target system
   #
   def getdrivers
-    request = Packet.create_request('stdapi_sys_config_driver_list')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_DRIVER_LIST)
     response = client.send_request(request)
 
     result = []
@@ -75,7 +78,7 @@ class Config
   # If a requested value doesn't exist in the response, then the value wasn't found.
   #
   def getenvs(*var_names)
-    request = Packet.create_request('stdapi_sys_config_getenv')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_GETENV)
 
     var_names.each do |v|
       request.add_tlv(TLV_TYPE_ENV_VARIABLE, v)
@@ -105,7 +108,7 @@ class Config
   # Returns the target's local system date and time.
   #
   def localtime
-    request = Packet.create_request('stdapi_sys_config_localtime')
+    request = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_LOCALTIME)
     response = client.send_request(request)
     (response.get_tlv_value(TLV_TYPE_LOCAL_DATETIME) || "").strip
   end
@@ -114,7 +117,7 @@ class Config
   # Returns a hash of information about the remote computer.
   #
   def sysinfo(refresh: false)
-    request  = Packet.create_request('stdapi_sys_config_sysinfo')
+    request  = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_SYSINFO)
     if @sysinfo.nil? || refresh
       response = client.send_request(request)
 
@@ -141,14 +144,14 @@ class Config
   # Calls RevertToSelf on the remote machine.
   #
   def revert_to_self
-    client.send_request(Packet.create_request('stdapi_sys_config_rev2self'))
+    client.send_request(Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_REV2SELF))
   end
 
   #
   # Steals the primary token from a target process
   #
   def steal_token(pid)
-    req = Packet.create_request('stdapi_sys_config_steal_token')
+    req = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_STEAL_TOKEN)
     req.add_tlv(TLV_TYPE_PID, pid.to_i)
     res = client.send_request(req)
     client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
@@ -158,7 +161,7 @@ class Config
   # Drops any assumed token
   #
   def drop_token
-    req = Packet.create_request('stdapi_sys_config_drop_token')
+    req = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_DROP_TOKEN)
     res = client.send_request(req)
     client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
   end
@@ -167,7 +170,7 @@ class Config
   # Enables all possible privileges
   #
   def getprivs
-    req = Packet.create_request('stdapi_sys_config_getprivs')
+    req = Packet.create_request(COMMAND_ID_STDAPI_SYS_CONFIG_GETPRIVS)
     ret = []
     res = client.send_request(req)
     res.each(TLV_TYPE_PRIVILEGE) do |p|

@@ -36,7 +36,7 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w{tcp udp}]),
+      OptEnum.new('PROTOCOL', [true, 'Protocol to use', 'tcp', %w[tcp udp]]),
       OptString.new('DOMAIN', [true, 'NIS domain']),
       OptString.new('MAP',    [true, 'NIS map to dump', 'passwd'])
     ])

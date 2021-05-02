@@ -3,16 +3,17 @@ module Msf
 module RPC
 
 class RPC_Base
-  attr_accessor :framework, :service, :tokens, :users
+  attr_accessor :framework, :service, :tokens, :users, :job_status_tracker
 
   # Initializes framework, service, tokens, and users
   #
   # return [void]
   def initialize(service)
-    self.service   = service
-    self.framework = service.framework
-    self.tokens    = service.tokens
-    self.users     = service.users
+    self.service            = service
+    self.framework          = service.framework
+    self.tokens             = service.tokens
+    self.users              = service.users
+    self.job_status_tracker = service.job_status_tracker
   end
 
   # Raises an Msf::RPC Exception.

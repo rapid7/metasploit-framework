@@ -1,4 +1,4 @@
-require 'rex/proto/http'
+
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 
@@ -190,8 +190,8 @@ module Metasploit
             # Use _send_recv instead of send_recv to skip automatic
             # authentication
             response = http_client._send_recv(request)
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
-            error_message = "Unable to connect to target"
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
+            return "Unable to connect to target"
           end
 
           if !(response && response.code == 401 && response.headers['WWW-Authenticate'])
@@ -246,7 +246,12 @@ module Metasploit
           begin
             cli.connect
             req = cli.request_cgi(opts)
-            res = cli.send_recv(req)
+            # Authenticate by default
+            res = if opts['authenticate'].nil? || opts['authenticate']
+                    cli.send_recv(req)
+                  else
+                    cli._send_recv(req)
+                  end
           rescue ::EOFError, Errno::ETIMEDOUT ,Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             raise Rex::ConnectionError, e.message
           ensure
@@ -261,6 +266,7 @@ module Metasploit
         #
         # @param credential [Credential] The credential object to attempt to
         #   login with.
+        #
         # @return [Result] A Result object indicating success or failure
         def attempt_login(credential)
           result_opts = {

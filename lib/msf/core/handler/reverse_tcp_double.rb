@@ -97,8 +97,8 @@ module ReverseTcpDouble
             sock_inp, sock_out = detect_input_output(client_a_copy, client_b_copy)
             chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp, sock_out)
             handle_connection(chan.lsock, { datastore: datastore })
-          rescue
-            elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
+          rescue => e
+            elog('Exception raised from handle_connection', error: e)
           end
         }
       end while true

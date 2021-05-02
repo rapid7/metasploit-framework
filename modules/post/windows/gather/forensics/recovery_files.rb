@@ -296,7 +296,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Bytes per Cluster: #{bytes_per_cluster}")
       vprint_status("Length of the MFT (bytes): #{ra['lpOutBuffer'][56,8].unpack('Q<*')[0]}")
       vprint_status("Logical cluster where MTF starts #{mft_logical_offset}")
-      # We set the pointer to the begining of the MFT
+      # We set the pointer to the beginning of the MFT
       client.railgun.kernel32.SetFilePointer(r['return'],offset_mft_bytes,0,0)
       return r['return']
     end

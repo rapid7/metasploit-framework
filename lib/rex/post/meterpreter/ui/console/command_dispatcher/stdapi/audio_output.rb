@@ -21,14 +21,9 @@ class Console::CommandDispatcher::Stdapi::AudioOutput
   # List of supported commands.
   #
   def commands
-    all = {
-      'play' => 'play an audio file on target system, nothing written on disk'
+    {
+      'play' => 'play a waveform audio file (.wav) on the target system'
     }
-    reqs = {
-      'play' => []
-    }
-
-    filter_commands(all, reqs)
   end
 
   #

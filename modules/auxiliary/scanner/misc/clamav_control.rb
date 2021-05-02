@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'DisclosureDate' => '2016-06-08',
         'Actions'        => [
-          [ 'VERSION',  'Description' => 'Get Version Information' ],
+          [ 'VERSION', 'Description' => 'Get Version Information' ],
           [ 'SHUTDOWN', 'Description' => 'Kills ClamAV Daemon' ]
         ],
         'DefaultAction'  => 'VERSION'

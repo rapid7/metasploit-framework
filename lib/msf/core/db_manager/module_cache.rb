@@ -125,7 +125,7 @@ module Msf::DBManager::ModuleCache
     return if not self.migrated
     return if self.modules_caching
 
-    ::ActiveRecord::Base.connection_pool.with_connection do
+    ::ApplicationRecord.connection_pool.with_connection do
       Mdm::Module::Detail.destroy_all
     end
   end
@@ -139,7 +139,7 @@ module Msf::DBManager::ModuleCache
   def remove_module_details(mtype, refname)
     return if not self.migrated
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       Mdm::Module::Detail.where(:mtype => mtype, :refname => refname).destroy_all
     end
   end
@@ -147,7 +147,6 @@ module Msf::DBManager::ModuleCache
   # This provides a standard set of search filters for every module.
   #
   # Supported keywords with the format <keyword>:<search_value>:
-  # +app+:: If +client+ then matches +'passive'+ stance modules, otherwise matches +'active' stance modules.
   # +author+:: Matches modules with the given author email or name.
   # +bid+:: Matches modules with the given Bugtraq ID.
   # +cve+:: Matches modules with the given CVE ID.
@@ -196,7 +195,7 @@ module Msf::DBManager::ModuleCache
       end
     end
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       @query = Mdm::Module::Detail.all
 
       @archs    = Set.new
@@ -204,7 +203,6 @@ module Msf::DBManager::ModuleCache
       @names    = Set.new
       @os       = Set.new
       @refs     = Set.new
-      @stances  = Set.new
       @text     = Set.new
       @types    = Set.new
 
@@ -212,15 +210,6 @@ module Msf::DBManager::ModuleCache
         formatted_values = match_values(value_set)
 
         case keyword
-          when 'app'
-            formatted_values = value_set.collect { |value|
-              formatted_value = 'aggressive'
-              if value == 'client'
-                formatted_value = 'passive'
-              end
-              formatted_value
-            }
-            @stances << formatted_values
           when 'arch'
             @archs << formatted_values
           when 'author'
@@ -251,7 +240,6 @@ module Msf::DBManager::ModuleCache
     @query = @query.module_os_or_platform(  @os.to_a.flatten      ) if @os.any?
     @query = @query.module_text(            @text.to_a.flatten    ) if @text.any?
     @query = @query.module_type(            @types.to_a.flatten   ) if @types.any?
-    @query = @query.module_stance(          @stances.to_a.flatten ) if @stances.any?
     @query = @query.module_ref(             @refs.to_a.flatten    ) if @refs.any?
 
     @query.uniq
@@ -273,7 +261,7 @@ module Msf::DBManager::ModuleCache
     self.modules_cached  = false
     self.modules_caching = true
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
 
       refresh = []
       skip_reference_name_set_by_module_type = Hash.new { |hash, module_type|
@@ -319,8 +307,8 @@ module Msf::DBManager::ModuleCache
           next if not obj
           begin
             update_module_details(obj)
-          rescue ::Exception
-            elog("Error updating module details for #{obj.fullname}: #{$!.class} #{$!}")
+          rescue ::Exception => e
+            elog("Error updating module details for #{obj.fullname}", error: e)
           end
         end
       end
@@ -343,7 +331,7 @@ module Msf::DBManager::ModuleCache
   def update_module_details(module_instance)
     return if not self.migrated
 
-    ActiveRecord::Base.connection_pool.with_connection do
+    ApplicationRecord.connection_pool.with_connection do
       info = module_to_details_hash(module_instance)
       bits = info.delete(:bits) || []
       module_detail = Mdm::Module::Detail.create!(info)

@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'  # Metasploit module
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Jul 13 2012"
+      'DisclosureDate' => '2012-07-13'
     ))
 
     register_options(
@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE', [ true,  "The path to the file to view", '/etc/passwd']),
         OptInt.new('DEPTH', [true, 'The max traversal depth', 11])
       ])
-
-    deregister_options('RHOST')
   end
 
 

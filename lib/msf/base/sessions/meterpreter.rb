@@ -1,8 +1,6 @@
 # -*- coding: binary -*-
-
-require 'msf/base'
-require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/client'
+require 'rex/post/meterpreter/ui/console'
 
 module Msf
 module Sessions
@@ -14,6 +12,7 @@ module Sessions
 # with the server instance both at an API level as well as at a console level.
 #
 ###
+
 class Meterpreter < Rex::Post::Meterpreter::Client
 
   include Msf::Session
@@ -28,7 +27,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   include Msf::Session::Provider::SingleCommandShell
 
-  include Msf::Session::Scriptable
+  include Msf::Sessions::Scriptable
 
   # Override for server implementations that can't do SSL
   def supports_ssl?
@@ -115,7 +114,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
     # COMSPEC is special-cased on all meterpreters to return a viable
     # shell.
-    sh = fs.file.expand_path("%COMSPEC%")
+    sh = sys.config.getenv('COMSPEC')
     @shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
 
   end
@@ -123,75 +122,74 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   def bootstrap(datastore = {}, handler = nil)
     session = self
 
-    init_session = Proc.new do
-      # Configure unicode encoding before loading stdapi
-      session.encode_unicode = datastore['EnableUnicodeEncoding']
+    # Configure unicode encoding before loading stdapi
+    session.encode_unicode = datastore['EnableUnicodeEncoding']
 
-      session.init_ui(self.user_input, self.user_output)
+    session.init_ui(self.user_input, self.user_output)
 
-      session.tlv_enc_key = session.core.negotiate_tlv_encryption
-
-      unless datastore['AutoVerifySession'] == false
-        unless session.is_valid_session?(datastore['AutoVerifySessionTimeout'].to_i)
-          print_error("Meterpreter session #{session.sid} is not valid and will be closed")
-          # Terminate the session without cleanup if it did not validate
-          session.skip_cleanup = true
-          session.kill
-          return nil
-        end
-      end
-
-      # always make sure that the new session has a new guid if it's not already known
-      guid = session.session_guid
-      if guid == "\x00" * 16
-        guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
-        session.core.set_session_guid(guid)
-        session.session_guid = guid
-        # TODO: New stageless session, do some account in the DB so we can track it later.
-      else
-        # TODO: This session was either staged or previously known, and so we should do some accounting here!
-      end
-
-      unless datastore['AutoLoadStdapi'] == false
-
-        session.load_stdapi
-
-        unless datastore['AutoSystemInfo'] == false
-          session.load_session_info
-        end
-
-        # only load priv on native windows
-        # TODO: abastrct this too, to remove windows stuff
-        if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
-          session.load_priv rescue nil
-        end
-      end
-
-      # TODO: abstract this a little, perhaps a "post load" function that removes
-      # platform-specific stuff?
-      if session.platform == 'android'
-        session.load_android
-      end
-
-      ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
-        unless datastore[key].nil? || datastore[key].empty?
-          args = Shellwords.shellwords(datastore[key])
-          print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
-          session.execute_script(args.shift, *args)
-        end
-      end
-
-      # Process the auto-run scripts for this session
-      if self.respond_to?(:process_autoruns)
-        self.process_autoruns(datastore)
-      end
-
-      # Tell the handler that we have a session
-      handler.on_session(self) if handler
+    verification_timeout = datastore['AutoVerifySessionTimeout']&.to_i || session.comm_timeout
+    begin
+      session.tlv_enc_key = session.core.negotiate_tlv_encryption(timeout: verification_timeout)
+    rescue Rex::TimeoutError
     end
 
-    # Defer the session initialization to the Session Manager scheduler
-    framework.sessions.schedule init_session
+    if session.tlv_enc_key.nil?
+      # Fail-closed if TLV encryption can't be negotiated (close the session as invalid)
+      dlog("Session #{session.sid} failed to negotiate TLV encryption")
+      print_error("Meterpreter session #{session.sid} is not valid and will be closed")
+      # Terminate the session without cleanup if it did not validate
+      session.skip_cleanup = true
+      session.kill
+      return nil
+    end
+
+    # always make sure that the new session has a new guid if it's not already known
+    guid = session.session_guid
+    if guid == "\x00" * 16
+      guid = [SecureRandom.uuid.gsub(/-/, '')].pack('H*')
+      session.core.set_session_guid(guid)
+      session.session_guid = guid
+      # TODO: New stageless session, do some account in the DB so we can track it later.
+    else
+      # TODO: This session was either staged or previously known, and so we should do some accounting here!
+    end
+
+    session.commands.concat(session.core.get_loaded_extension_commands('core'))
+
+    # Unhook the process prior to loading stdapi to reduce logging/inspection by any AV/PSP
+    if datastore['AutoUnhookProcess'] == true
+      console.run_single('load unhook')
+      console.run_single('unhook_pe')
+    end
+
+    unless datastore['AutoLoadStdapi'] == false
+
+      session.load_stdapi
+
+      unless datastore['AutoSystemInfo'] == false
+        session.load_session_info
+      end
+
+      # only load priv on native windows
+      # TODO: abstract this too, to remove windows stuff
+      if session.platform == 'windows' && [ARCH_X86, ARCH_X64].include?(session.arch)
+        session.load_priv rescue nil
+      end
+    end
+
+    # TODO: abstract this a little, perhaps a "post load" function that removes
+    # platform-specific stuff?
+    if session.platform == 'android'
+      session.load_android
+    end
+
+    ['InitialAutoRunScript', 'AutoRunScript'].each do |key|
+      unless datastore[key].nil? || datastore[key].empty?
+        args = Shellwords.shellwords(datastore[key])
+        print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+        session.execute_script(args.shift, *args)
+      end
+    end
   end
 
   ##
@@ -302,11 +300,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   ##
   # :category: Msf::Session::Scriptable implementors
   #
-  # Runs the Meterpreter script or resource file
+  # Runs the Meterpreter script or resource file.
   #
   def execute_file(full_path, args)
-    # Infer a Meterpreter script by it having an .rb extension
-    if File.extname(full_path) == ".rb"
+    # Infer a Meterpreter script by .rb extension
+    if File.extname(full_path) == '.rb'
       Rex::Script::Meterpreter.new(self, full_path).run(args)
     else
       console.load_resource(full_path)
@@ -402,26 +400,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     console.disable_output = original
   end
 
-  #
-  # Validate session information by checking for a machine_id response
-  #
-  def is_valid_session?(timeout=10)
-    return true if self.machine_id
-
-    begin
-      self.machine_id = self.core.machine_id(timeout)
-
-      return true
-    rescue ::Rex::Post::Meterpreter::RequestError
-      # This meterpreter doesn't support core_machine_id
-      return true
-    rescue ::Exception => e
-      dlog("Session #{self.sid} did not respond to validation request #{e.class}: #{e}")
-    end
-    false
-  end
-
   def update_session_info
+    # sys.config.getuid, and fs.dir.getwd cache their results, so update them
+    fs.dir.getwd
     username = self.sys.config.getuid
     sysinfo  = self.sys.config.sysinfo
 
@@ -488,7 +469,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
         # there
         return if !(framework.db && framework.db.active)
 
-        ::ActiveRecord::Base.connection_pool.with_connection {
+        ::ApplicationRecord.connection_pool.with_connection {
           wspace = framework.db.find_workspace(workspace)
 
           # Account for finding ourselves on a different host
@@ -516,8 +497,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
           })
 
           if self.db_record
-            self.db_record.desc = safe_info
-            self.db_record.save!
+            framework.db.update_session(self)
           end
 
           # XXX: This is obsolete given the Mdm::Host.normalize_os() support for host.os.session_fingerprint
@@ -551,7 +531,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
     rescue ::Exception => e
       # Log the error but otherwise ignore it so we don't kill the
       # session if reporting failed for some reason
-      elog("Error loading sysinfo: #{e.class}: #{e}")
+      elog('Error loading sysinfo', error: e)
       dlog("Call stack:\n#{e.backtrace.join("\n")}")
     end
   end
@@ -563,11 +543,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
   #
   def _interact
     framework.events.on_session_interact(self)
+
+    console.framework = framework
+    if framework.datastore['MeterpreterPrompt']
+      console.update_prompt(framework.datastore['MeterpreterPrompt'])
+    end
     # Call the console interaction subsystem of the meterpreter client and
     # pass it a block that returns whether or not we should still be
     # interacting.  This will allow the shell to abort if interaction is
     # canceled.
     console.interact { self.interacting != true }
+    console.framework = nil
 
     # If the stop flag has been set, then that means the user exited.  Raise
     # the EOFError so we can drop this handle like a bad habit.

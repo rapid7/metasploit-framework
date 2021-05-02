@@ -39,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('RPATH', [false, 'The name of the remote directory relative to the share']),
     ])
 
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def as_size( s )
@@ -55,7 +56,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
     print_status("Connecting to the server...")
     begin
-      connect()
+      connect(versions: [1])
       smb_login()
       print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
             self.simple.connect("\\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}")

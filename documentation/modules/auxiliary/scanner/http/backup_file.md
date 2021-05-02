@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans a web server for a file name with various backup type extensions.
 The list of extensions are:

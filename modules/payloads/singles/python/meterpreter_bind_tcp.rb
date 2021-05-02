@@ -3,15 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/bind_tcp'
-require 'msf/core/payload/python'
-require 'msf/core/payload/python/meterpreter_loader'
-require 'msf/core/payload/python/bind_tcp'
-require 'msf/base/sessions/meterpreter_python'
 
 module MetasploitModule
 
-  CachedSize = 71634
+  CachedSize = 112877
 
   include Msf::Payload::Single
   include Msf::Payload::Python

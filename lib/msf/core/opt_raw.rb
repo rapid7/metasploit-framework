@@ -28,7 +28,7 @@ class OptRaw < OptBase
     value
   end
 
-  def valid?(value=self.value)
+  def valid?(value=self.value, check_empty: true)
     value = normalize(value)
     return false if empty_required_value?(value)
     return super

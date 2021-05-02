@@ -1,9 +1,7 @@
 # -*- coding: binary -*-
+require 'rex/file'
 
-require 'msf/core/modules/loader'
-require 'msf/core/modules/loader/base'
-
-# Concerns loading module from a directory
+# Concerns loading Ruby modules from a directory
 class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # Returns true if the path is a directory
   #
@@ -12,6 +10,11 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
   # @return [false] otherwise
   def loadable?(path)
     File.directory?(path)
+  end
+
+  def loadable_module?(parent_path, type, module_reference_name)
+    full_path = module_path(parent_path, type, module_reference_name)
+    module_path?(full_path)
   end
 
   protected
@@ -38,11 +41,11 @@ class Msf::Modules::Loader::Directory < Msf::Modules::Loader::Base
 
       # Try to load modules from all the files in the supplied path
       Rex::Find.find(full_entry_path) do |entry_descendant_path|
-        if module_path?(entry_descendant_path) && !script_path?(entry_descendant_path)
+        if module_path?(entry_descendant_path)
           entry_descendant_pathname = Pathname.new(entry_descendant_path)
           relative_entry_descendant_pathname = entry_descendant_pathname.relative_path_from(full_entry_pathname)
           relative_entry_descendant_path = relative_entry_descendant_pathname.to_s
-          next if File::basename(relative_entry_descendant_path) == "example.rb"
+          next if File::basename(relative_entry_descendant_path).start_with?('example')
           # The module_reference_name doesn't have a file extension
           module_reference_name = module_reference_name_from_path(relative_entry_descendant_path)
 

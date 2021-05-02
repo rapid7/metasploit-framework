@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(_ip)
     begin
       vprint_status("Connecting to the server...")
-      connect(versions: [1, 2])
+      connect
       smb_login()
 
       vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
@@ -57,19 +57,19 @@ class MetasploitModule < Msf::Auxiliary
         begin
           vprint_status("Trying to upload #{local_path} to #{remote_path}...")
 
-          fd = simple.open("#{remote_path}", 's', write: true)
+          fd = simple.open("#{remote_path}", 'wct', write: true)
           data = ::File.read(datastore['LPATH'], ::File.size(datastore['LPATH']))
           fd.write(data)
           fd.close
 
           print_good("#{local_path} uploaded to #{remote_path}")
         rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
-          elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+          elog("Unable to upload #{local_path} to #{remote_path}", error: e)
           print_error("Unable to upload #{local_path} to #{remote_path} : #{e.message}")
         end
       end
     rescue Rex::Proto::SMB::Exceptions::LoginError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog("Unable to login:", error: e)
       print_error("Unable to login: #{e.message}")
     end
   end

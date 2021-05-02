@@ -9,8 +9,6 @@
 
 ## Verification Steps
 
-  Example steps in this format (is also in the PR):
-
   1. Install the application
   2. Start msfconsole
   3. Do: ```use auxiliary/admin/smb/webexec_command```
@@ -22,7 +20,7 @@
 
 ## Options
 
-  **FORCE_GUI**
+### FORCE_GUI
 
   Uses WMIC to create a GUI
 

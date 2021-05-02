@@ -3,9 +3,8 @@ require 'xmlrpc/client'
 require 'msgpack'
 
 require 'rex'
-require 'rex/proto/http'
+require 'msf'
 
-require 'msf/core/rpc/v10/constants'
 
 module Msf
 module RPC
@@ -92,7 +91,7 @@ class Client
       do_logout_cleanup
     end
 
-    unless meth == "auth.login"
+    if meth != 'auth.login' && meth != 'health.check'
       unless self.token
         raise RuntimeError, "client not authenticated"
       end

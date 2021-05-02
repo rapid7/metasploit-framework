@@ -1,7 +1,6 @@
 require 'json'
 require 'uri'
 
-require 'msf/core/rpc'
 
 module Msf::RPC::JSON
   # JSON-RPC Client

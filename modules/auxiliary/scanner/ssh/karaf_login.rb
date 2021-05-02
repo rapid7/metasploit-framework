@@ -8,10 +8,10 @@ require 'metasploit/framework/login_scanner/ssh'
 require 'metasploit/framework/credential_collection'
 
 class MetasploitModule < Msf::Auxiliary
-  include Msf::Auxiliary::Report
-  include Msf::Auxiliary::CommandShell
-  include Msf::Auxiliary::AuthBrute
   include Msf::Auxiliary::Scanner
+  include Msf::Auxiliary::AuthBrute
+  include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::SSH::Options
 
   DEFAULT_USERNAME = 'karaf'
   DEFAULT_PASSWORD = 'karaf'
@@ -50,6 +50,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def rport

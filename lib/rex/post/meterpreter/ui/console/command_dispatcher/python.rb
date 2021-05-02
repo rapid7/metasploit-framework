@@ -29,9 +29,9 @@ class Console::CommandDispatcher::Python
   #
   def commands
     {
-      'python_reset'              => 'Resets/restarts the Python interpreter',
-      'python_execute'            => 'Execute a python command string',
-      'python_import'             => 'Import/run a python file or module'
+      'python_reset'   => 'Resets/restarts the Python interpreter',
+      'python_execute' => 'Execute a python command string',
+      'python_import'  => 'Import/run a python file or module'
     }
   end
 

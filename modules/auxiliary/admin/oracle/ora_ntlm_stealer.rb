@@ -24,11 +24,11 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'URL', 'http://dsecrg.com/pages/pub/show.php?id=17' ],
         ],
-      'DisclosureDate' => 'Apr 7 2009'))
+      'DisclosureDate' => '2009-04-07'))
 
       register_options(
         [
-          OptString.new('IP', [ false, 'IP adress of SMB proxy.', '0.0.0.0' ]),
+          OptString.new('IP', [ false, 'IP address of SMB proxy.', '0.0.0.0' ]),
         ])
   end
 

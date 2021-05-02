@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 From the `bootparamd(8)` man page:
 

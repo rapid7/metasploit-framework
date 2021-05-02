@@ -43,6 +43,8 @@ class MetasploitModule < Msf::Auxiliary
           File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
         ])
     ])
+
+  deregister_options('PASSWORD_SPRAY')
   end
 
   def target

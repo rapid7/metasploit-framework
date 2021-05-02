@@ -1,16 +1,14 @@
+## Vulnerable Application
+
 This module shows Apple VNC Password from Mac OS X High Sierra.
 
 The password can be set by visiting:
 System Preferences > Sharing > Screen Sharing > Computer Settings
 
-## Vulnerable Application
-
   * macOS 10.13.6
 
 
 ## Verification Steps
-
-  Example steps in this format (is also in the PR):
 
   1. Start `msfconsole`
   2. Get an OSX meterpreter session running as root

@@ -1,5 +1,5 @@
 
-## About
+## Description
 
 This module simply queries the DB2 discovery service for information.
 The discovery service is integrated with the Configuration Assistant and the DB2® administration server.
@@ -12,9 +12,10 @@ Using the discovery method, catalog information for a remote server can be autom
 3. `set THREDS [number of threads]`
 4. `run`
 
-
 ## Scenarios
-- DB2 `9.07.2` running at a `RHEL 6.9` .
+
+### DB2 9.07.2 on RHEL 6.9
+
 ```
 msf auxiliary(scanner/db2/discovery) > set RHOSTS 192.168.1.25
 msf auxiliary(scanner/db2/discovery) > run

@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
-require 'msf/core/module'
-
 #
 # A mixin used for providing Modules with post-exploitation options and helper methods
 #
@@ -30,6 +27,8 @@ module Msf::PostMixin
   #
   # @raise [OptionValidateError] if {#session} returns nil
   def setup
+    alert_user
+
     unless session
       # Always fail if the session doesn't exist.
       raise Msf::OptionValidateError.new(['SESSION'])
@@ -60,7 +59,10 @@ module Msf::PostMixin
       select(nil,nil,nil,back_off_period)
     end
     session_ready = !!session.sys
-    raise "Could not get a hold of the session." unless session_ready
+    unless session_ready
+      raise "The stdapi extension has not been loaded yet." unless session.tlv_enc_key.nil?
+      raise "Could not get a hold of the session."
+    end
     return session_ready
   end
 

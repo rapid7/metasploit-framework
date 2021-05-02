@@ -3,16 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/transport_config'
-require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/windows/x64/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x64_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 207449
+  CachedSize = 201308
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -24,7 +18,7 @@ module MetasploitModule
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Reverse HTTPS Inline (x64)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
+      'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',
@@ -37,6 +31,11 @@ module MetasploitModule
       OptString.new('EXTENSIONS', [false, 'Comma-separate list of extensions to load']),
       OptString.new('EXTINIT',    [false, 'Initialization strings for extensions'])
     ])
+
+    register_advanced_options(
+      Msf::Opt::http_header_options +
+      Msf::Opt::http_proxy_options
+    )
   end
 
   def generate(opts={})

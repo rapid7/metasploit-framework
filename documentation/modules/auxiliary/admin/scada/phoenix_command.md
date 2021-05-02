@@ -64,7 +64,7 @@ msf auxiliary(phoenix_command) > run
 [*] Auxiliary module execution completed
 ```
 
-## Module Options
+## Options
 ```
 msf auxiliary(phoenix_command) > show options
 

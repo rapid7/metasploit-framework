@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'Oliver Gruskovnjak'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Feb 28 2014"
+      'DisclosureDate' => '2014-02-28'
     ))
 
     register_options(
@@ -36,8 +36,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(8080),
         OptBool.new('SSL',   [false, 'Use SSL', false])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

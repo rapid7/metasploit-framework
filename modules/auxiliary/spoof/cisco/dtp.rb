@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'		=> MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run DTP forging service' ]
         ],
       'PassiveActions' => [ 'Service' ],
       'DefaultAction'  => 'Service'

@@ -26,6 +26,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
         OptString.new('TARGETURI', [true, "The directory of the IP Board install", "/forum/"]),
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

@@ -73,7 +73,7 @@ if client.platform == 'windows'
   # Upload to the filesystem
   #
 
-  tempdir = client.fs.file.expand_path("%TEMP%") + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
+  tempdir = client.sys.config.getenv('TEMP') + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
 
   print_status("Creating a temporary installation directory #{tempdir}...")
   client.fs.dir.mkdir(tempdir)

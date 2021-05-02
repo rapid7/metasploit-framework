@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           'jhart'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Dec 9 2014"
+      'DisclosureDate' => '2014-12-09'
     ))
 
     register_options(
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       version = res.body.scan(/\bBuild=([\d\.]+)/).flatten.first
       if version
         fix_version = '11.4'
-        if Gem::Version.new(version) < Gem::Version.new(fix_version)
+        if Rex::Version.new(version) < Rex::Version.new(fix_version)
           report_vuln(
             host: ip,
             port: rport,

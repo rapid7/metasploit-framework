@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'     =>
         [
-          ['System Information'],
-          ['Create Logon Notice']
+          ['System Information', 'Description' => 'Dump system info (user, owner, OS, CPU...)'],
+          ['Create Logon Notice', 'Description' => 'Add a logon notice']
         ],
       'DefaultAction' => 'System Information'
       ))

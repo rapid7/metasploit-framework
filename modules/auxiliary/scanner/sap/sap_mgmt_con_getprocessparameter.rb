@@ -31,7 +31,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('MATCH', [false, 'Display matches e.g login/', '']),
       ])
     register_autofilter_ports([ 50013 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
 
 module Msf
 class Post
@@ -87,12 +86,27 @@ module Kernel
   end
 
   #
+  # Returns a list of CPU flags
+  #
+  # @return [Array]
+  #
+  def cpu_flags
+    cpuinfo = cmd_exec('cat /proc/cpuinfo').to_s
+
+    return unless cpuinfo.include? 'flags'
+
+    cpuinfo.scan(/^flags\s*:(.*)$/).flatten.join(' ').split(/\s/).map(&:strip).reject(&:empty?).uniq
+  rescue
+    raise'Could not retrieve CPU flags'
+  end
+
+  #
   # Returns true if kernel and hardware supports Supervisor Mode Access Prevention (SMAP), false if not.
   #
   # @return [Boolean]
   #
   def smap_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'smap'
+    cpu_flags.include? 'smap'
   rescue
     raise 'Could not determine SMAP status'
   end
@@ -103,7 +117,7 @@ module Kernel
   # @return [Boolean]
   #
   def smep_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'smep'
+    cpu_flags.include? 'smep'
   rescue
     raise 'Could not determine SMEP status'
   end
@@ -114,9 +128,20 @@ module Kernel
   # @return [Boolean]
   #
   def kaiser_enabled?
-    cmd_exec('cat /proc/cpuinfo').to_s.include? 'kaiser'
+    cpu_flags.include? 'kaiser'
   rescue
     raise 'Could not determine KAISER status'
+  end
+
+  #
+  # Returns true if Kernel Page-Table Isolation (KPTI) is enabled, false if not.
+  #
+  # @return [Boolean]
+  #
+  def kpti_enabled?
+    cpu_flags.include? 'pti'
+  rescue
+    raise 'Could not determine KPTI status'
   end
 
   #
@@ -162,7 +187,7 @@ module Kernel
   # @return [Boolean]
   #
   def unprivileged_bpf_disabled?
-    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.unprivileged_bpf_disabled status'
   end
@@ -173,7 +198,7 @@ module Kernel
   # @return [Boolean]
   #
   def kptr_restrict?
-    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/kptr_restrict').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.kptr_restrict status'
   end
@@ -184,7 +209,7 @@ module Kernel
   # @return [Boolean]
   #
   def dmesg_restrict?
-    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1' 
+    cmd_exec('cat /proc/sys/kernel/dmesg_restrict').to_s.strip.eql? '1'
   rescue
     raise 'Could not determine kernel.dmesg_restrict status'
   end
@@ -224,7 +249,7 @@ module Kernel
   # Returns true if PaX is installed
   #
   def pax_installed?
-    cmd_exec('test -x /sbin/paxctl && echo true').to_s.strip.include? 'true'
+    cmd_exec('/bin/grep -q "PaX:" /proc/self/status && echo true').to_s.strip.include? 'true'
   rescue
     raise 'Could not determine PaX status'
   end

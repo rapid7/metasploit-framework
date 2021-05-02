@@ -4,7 +4,7 @@ Exchange installations to enumerate email.
 
 Error-based user enumeration for Office 365 integrated email addresses
 
-## Verification
+## Verification Steps
 
 - Start `msfconsole`
 - `use auxiliary/scanner/msmail/exchange_enum`

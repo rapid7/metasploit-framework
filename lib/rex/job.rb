@@ -27,7 +27,7 @@ class Job
   # Otherwise, the job is run inline.
   #
   def start(async = false)
-    self.start_time = Time.now
+    self.start_time = ::Time.now
     if (async)
       self.job_thread = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
         # Deschedule our thread momentarily

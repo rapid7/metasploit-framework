@@ -9,7 +9,7 @@ first probes Mode $09 PID $00 to determine what all PIDs are supported then
 iterates through them and prints the response.  The module will format known
 PIDs to ASCII.
 
-## Options ##
+## Options
 
   **SRCID**
 

@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Jan 03 2013"
+      'DisclosureDate' => '2013-01-03'
     ))
 
     register_options(
@@ -36,10 +36,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILEPATH', [true, 'The name of the file to download', 'windows\\win.ini']),
         OptInt.new('DEPTH',       [true, 'The max traversal depth', 8])
       ])
-
-    deregister_options('RHOST')
   end
-
 
   #
   # The web server will actually return two HTTP statuses: A 400 (Bad Request), and the actual

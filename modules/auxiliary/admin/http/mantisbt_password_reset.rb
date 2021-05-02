@@ -26,7 +26,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://hyp3rlinx.altervista.org/advisories/MANTIS-BUG-TRACKER-PRE-AUTH-REMOTE-PASSWORD-RESET.txt']
         ],
       'Platform'     => ['win', 'linux'],
-      'DisclosureDate' => "Apr 16 2017"))
+      'DisclosureDate' => '2017-04-16'))
 
       register_options(
         [

@@ -33,15 +33,19 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(target_host)
-    vprint_status("Sending RMI Header...")
-    connect
+    begin
+      connect
+    rescue Rex::ConnectionError
+      return Exploit::CheckCode::Unknown
+    end
 
+    vprint_status("Sending RMI Header...")
     send_header
     ack = recv_protocol_ack
     if ack.nil?
       print_error("Failed to negotiate RMI protocol")
       disconnect
-      return
+      return Exploit::CheckCode::Unknown
     end
 
     # Determine if the instance allows remote class loading
@@ -81,7 +85,7 @@ class MetasploitModule < Msf::Auxiliary
     if return_value.nil?
       print_good("Failed to send RMI Call, anyway JAVA RMI Endpoint detected")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
-      return
+      return Exploit::CheckCode::Detected
     end
 
     if return_value.is_exception? && loader_enabled?(return_value.value)
@@ -94,9 +98,11 @@ class MetasploitModule < Msf::Auxiliary
         :info         => "Module #{self.fullname} confirmed remote code execution via this RMI service",
         :refs         => self.references
       )
+      Exploit::CheckCode::Vulnerable
     else
       print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
       report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
+      Exploit::CheckCode::Safe
     end
   end
 

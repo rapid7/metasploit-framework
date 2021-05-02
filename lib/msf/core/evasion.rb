@@ -1,4 +1,3 @@
-require 'msf/core/module'
 
 module Msf
   class Evasion < Msf::Module
@@ -59,6 +58,7 @@ module Msf
     end
 
     def setup
+      alert_user
     end
 
     def file_format_filename
@@ -117,17 +117,25 @@ module Msf
 
     # Returns a list of compatible payloads based on platform, architecture,
     # and size requirements.
-    def compatible_payloads
+    def compatible_payloads(excluded_platforms: [], excluded_archs: [])
       payloads = []
 
       c_platform, c_arch = normalize_platform_arch
 
-      framework.payloads.each_module(
-        'Arch' => c_arch, 'Platform' => c_platform) { |name, mod|
-        payloads << [ name, mod ] if is_payload_compatible?(name)
-      }
+      # The "All" platform name represents generic payloads
+      results = Msf::Modules::Metadata::Cache.instance.find(
+        'type'     => [['payload'], []],
+        'platform' => [[*c_platform.names, 'All'], excluded_platforms],
+        'arch'     => [c_arch, excluded_archs]
+      )
 
-      return payloads
+      results.each do |res|
+        if is_payload_compatible?(res.ref_name)
+          payloads << [res.ref_name, framework.payloads[res.ref_name]]
+        end
+      end
+
+      payloads
     end
 
     def run
@@ -210,13 +218,14 @@ module Msf
       reqs = self.payload_info.dup
 
       # Pass save register requirements to the NOP generator
-      reqs['Space']           = payload_info['Space'].to_i
+      reqs['Space']           = payload_info['Space'] ? payload_info['Space'].to_i : nil
       reqs['SaveRegisters']   = module_info['SaveRegisters']
       reqs['Prepend']         = payload_info['Prepend']
       reqs['PrependEncoder']  = payload_info['PrependEncoder']
       reqs['BadChars']        = payload_info['BadChars']
       reqs['Append']          = payload_info['Append']
       reqs['AppendEncoder']   = payload_info['AppendEncoder']
+      reqs['DisableNops']     = payload_info['DisableNops']
       reqs['MaxNops']         = payload_info['MaxNops']
       reqs['MinNops']         = payload_info['MinNops']
       reqs['Encoder']         = datastore['ENCODER'] || payload_info['Encoder']
@@ -224,6 +233,7 @@ module Msf
       reqs['EncoderType']     = payload_info['EncoderType']
       reqs['EncoderOptions']  = payload_info['EncoderOptions']
       reqs['ExtendedOptions'] = payload_info['ExtendedOptions']
+      reqs['ForceEncode']     = payload_info['ForceEncode']
       reqs['Evasion']         = self
 
       # Pass along the encoder don't fall through flag
@@ -283,7 +293,12 @@ module Msf
     end
 
     def target_index
-      target_idx = Integer(datastore['TARGET']) rescue datastore['TARGET']
+      target_idx =
+        begin
+          Integer(datastore['TARGET'])
+        rescue TypeError, ArgumentError
+          datastore['TARGET']
+        end
 
       default_idx = default_target || 0
       # Use the default target if one was not supplied.

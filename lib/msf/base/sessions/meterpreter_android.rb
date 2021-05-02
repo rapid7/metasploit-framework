@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base/sessions/meterpreter'
-require 'msf/base/sessions/meterpreter_java'
-require 'msf/base/sessions/meterpreter_options'
 
 module Msf
 module Sessions
@@ -24,6 +21,7 @@ class Meterpreter_Java_Android < Msf::Sessions::Meterpreter_Java_Java
     original = console.disable_output
     console.disable_output = true
     console.run_single('load android')
+    console.run_single('load appapi')
     console.disable_output = original
   end
 

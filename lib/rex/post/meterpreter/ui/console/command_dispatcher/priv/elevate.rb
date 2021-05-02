@@ -17,18 +17,20 @@ class Console::CommandDispatcher::Priv::Elevate
 
   include Console::CommandDispatcher
 
-  ELEVATE_TECHNIQUE_NONE               = -1
-  ELEVATE_TECHNIQUE_ANY                = 0
-  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE  = 1
-  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2 = 2
-  ELEVATE_TECHNIQUE_SERVICE_TOKENDUP   = 3
+  ELEVATE_TECHNIQUE_NONE                    = -1
+  ELEVATE_TECHNIQUE_ANY                     = 0
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE       = 1
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE2      = 2
+  ELEVATE_TECHNIQUE_SERVICE_TOKENDUP        = 3
+  ELEVATE_TECHNIQUE_SERVICE_NAMEDPIPE_RPCSS = 4
 
   ELEVATE_TECHNIQUE_DESCRIPTION =
     [
-      "All techniques available",
-      "Named Pipe Impersonation (In Memory/Admin)",
-      "Named Pipe Impersonation (Dropper/Admin)",
-      "Token Duplication (In Memory/Admin)"
+      'All techniques available',
+      'Named Pipe Impersonation (In Memory/Admin)',
+      'Named Pipe Impersonation (Dropper/Admin)',
+      'Token Duplication (In Memory/Admin)',
+      'Named Pipe Impersonation (RPCSS variant)'
     ]
 
   #
@@ -36,7 +38,7 @@ class Console::CommandDispatcher::Priv::Elevate
   #
   def commands
     {
-      "getsystem" => "Attempt to elevate your privilege to that of local system."
+      'getsystem' => 'Attempt to elevate your privilege to that of local system.'
     }
   end
 
@@ -44,7 +46,7 @@ class Console::CommandDispatcher::Priv::Elevate
   # Name for this dispatcher.
   #
   def name
-    "Priv: Elevate"
+    'Priv: Elevate'
   end
 
 
@@ -79,7 +81,7 @@ class Console::CommandDispatcher::Priv::Elevate
 
     getsystem_opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner." ],
-      "-t" => [ true, "The technique to use. (Default to \'#{technique}\')." + desc ]
+      "-t" => [ true, "The technique to use. (Default to '#{technique}')." + desc ]
     )
 
     getsystem_opts.parse(args) { | opt, idx, val |
@@ -96,7 +98,7 @@ class Console::CommandDispatcher::Priv::Elevate
 
     if( technique < 0 or technique >= ELEVATE_TECHNIQUE_DESCRIPTION.length )
       print_error( "Technique '#{technique}' is out of range." )
-      return false;
+      return false
     end
 
     begin
@@ -106,7 +108,7 @@ class Console::CommandDispatcher::Priv::Elevate
       translate_technique_index(technique).each do |desc|
         print_error(desc)
       end
-      elog("#{e.class} #{e.message} (Technique: #{technique})\n#{e.backtrace * "\n"}")
+      elog("Technique: #{technique})", error: e)
       return
     end
 

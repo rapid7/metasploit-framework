@@ -136,7 +136,7 @@ module Auxiliary::Login
   def password_prompt?(username=nil)
     return true if(@recvd =~ @password_regex)
     if username
-      return true if( !(username.empty?) and @recvd =~ /#{username}'s/)
+      return true if !(username.empty?) and @recvd.to_s.include?("#{username}'s")
     end
     return false
   end

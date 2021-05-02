@@ -3,7 +3,6 @@ require 'spec_helper'
 load Metasploit::Framework.root.join('tools/exploit/virustotal.rb').to_path
 
 require 'msfenv'
-require 'msf/base'
 require 'digest/sha2'
 
 RSpec.describe VirusTotalUtility do
@@ -87,7 +86,11 @@ RSpec.describe VirusTotalUtility do
         let(:vt) do
           file = double(File, read: malware_data)
           allow(File).to receive(:open).with(filename, 'rb') {|&block| block.yield file}
-          VirusTotalUtility::VirusTotal.new({'api_key'=>api_key, 'sample'=>filename})
+
+          mod_klass = VirusTotalUtility::VirusTotal
+          features = instance_double(Msf::FeatureManager, enabled?: false)
+          mod_klass.framework = instance_double(Msf::Framework, features: features, datastore: {})
+          mod_klass.new({'api_key'=>api_key, 'sample'=>filename})
         end
 
         context ".Initializer" do

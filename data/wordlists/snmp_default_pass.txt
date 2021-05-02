@@ -44,7 +44,7 @@ apc
 bintec
 blue
 c
-cable-d
+cable-docsis
 canon_admin
 cc
 cisco

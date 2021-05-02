@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/message'
-require 'rex/proto/ntlm/crypt'
 
 NTLM_CONST = Rex::Proto::NTLM::Constants
 NTLM_CRYPT = Rex::Proto::NTLM::Crypt
@@ -37,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run MSSQL capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )

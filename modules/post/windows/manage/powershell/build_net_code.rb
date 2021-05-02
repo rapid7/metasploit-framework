@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/powershell'
-require 'msf/core/exploit/powershell/dot_net'
-
 class MetasploitModule < Msf::Post
   Rank = ExcellentRanking
 
@@ -28,9 +25,7 @@ class MetasploitModule < Msf::Post
         'Author'         => 'RageLtMan <rageltman[at]sempervictus>',
         'Platform'       => [ 'windows' ],
         'SessionTypes'   => [ 'meterpreter' ],
-        'Targets'        => [ [ 'Universal', {} ] ],
-        'DefaultTarget'  => 0,
-        'DisclosureDate' => 'Aug 14 2012'
+        'DisclosureDate' => '2012-08-14'
       )
     )
 
@@ -70,7 +65,7 @@ class MetasploitModule < Msf::Post
     net_com_opts = {}
     net_com_opts[:target] =
       datastore['OUTPUT_TARGET'] ||
-      "#{session.fs.file.expand_path('%TEMP%')}\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
+      "#{session.sys.config.getenv('TEMP')}\\#{Rex::Text.rand_text_alpha(rand(8) + 8)}.exe"
     net_com_opts[:com_opts] = datastore['COMPILER_OPTS']
     net_com_opts[:provider] = datastore['CODE_PROVIDER']
     net_com_opts[:assemblies] = datastore['ASSEMBLIES']

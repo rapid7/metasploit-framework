@@ -30,8 +30,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(27017),
         OptString.new('DB', [ true, "Database to use", "admin"])
       ])
-
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

@@ -3,16 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/transport_config'
-require 'msf/core/handler/bind_named_pipe'
-require 'msf/core/payload/windows/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x86_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 179779
+  CachedSize = 175174
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -24,7 +18,7 @@ module MetasploitModule
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Bind Named Pipe Inline',
-      'Description' => 'Connect to victim and spawn a Meterpreter shell',
+      'Description' => 'Connect to victim and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'UserExistsError' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',

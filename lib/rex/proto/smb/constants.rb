@@ -172,7 +172,7 @@ class Constants
   CAP_UNIX_EXTENSIONS  = 0x800000
 
   # Open Modes
-  OPEN_MODE_CREAT = 0x10   # Create the file if file does not exists. Otherwise, operation fails.
+  OPEN_MODE_CREAT = 0x10   # Create the file if file does not exist. Otherwise, operation fails.
   OPEN_MODE_EXCL  = 0x00   # When used with SMB_O_CREAT, operation fails if file exists. Cannot be used with SMB_O_OPEN.
   OPEN_MODE_OPEN  = 0x01   # Open the file if the file exists
   OPEN_MODE_TRUNC = 0x02   # Truncate the file if the file exists

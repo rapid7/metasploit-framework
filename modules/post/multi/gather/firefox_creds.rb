@@ -16,7 +16,6 @@ require 'zip'
 #
 # Project
 #
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -264,7 +263,7 @@ class MetasploitModule < Msf::Post
 
         checkpath.each_line do |ffpath|
           ffpath.chomp!
-          if ffpath =~ /\.default$/
+          if ffpath =~ /\.default(?:-release)?$/
             vprint_good("Found profile: #{ffpath}")
             paths << "#{ffpath}"
           end

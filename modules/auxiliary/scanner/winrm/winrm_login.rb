@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/message'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner'
 require 'metasploit/framework/login_scanner/winrm'
@@ -32,6 +31,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'License'        => MSF_LICENSE
     )
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
 

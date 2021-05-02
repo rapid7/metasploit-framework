@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/exploit'
-require 'rex/proto/mqtt'
 
 module Msf
   module Auxiliary::MQTT
@@ -25,11 +23,11 @@ module Msf
       end
 
       def setup
-        fail_with(Failure::BadConfig, 'READ_TIMEOUT must be > 0') if read_timeout <= 0
+        fail_with(Msf::Exploit::Failure::BadConfig, 'READ_TIMEOUT must be > 0') if read_timeout <= 0
 
         client_id_arg = datastore['CLIENT_ID']
         if client_id_arg && client_id_arg.blank?
-          fail_with(Failure::BadConfig, 'CLIENT_ID must be a non-empty string')
+          fail_with(Msf::Exploit::Failure::BadConfig, 'CLIENT_ID must be a non-empty string')
         end
       end
 

@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
       OptString.new('CPQLOGIN', [true, 'The homepage of the login', '/cpqlogin.htm']),
       OptString.new('LOGIN_REDIRECT', [true, 'The URL to redirect to', '/cpqlogin'])
     ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def get_version(res)
@@ -48,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def is_version_tested?(version)
     # As of Sep 4 2014, version 7.4 is the latest and that's the last one we've tested
-    if Gem::Version.new(version) < Gem::Version.new('7.5')
+    if Rex::Version.new(version) < Rex::Version.new('7.5')
       return true
     end
 
@@ -171,23 +173,27 @@ class MetasploitModule < Msf::Auxiliary
       }
     })
 
+    sys_name = get_system_name(res)
+
+    if sys_name.blank?
+      print_error 'Could not retrieve system name.'
+      return
+    end
+
     version = get_version(res)
     unless version.blank?
       print_status("Version detected: #{version}")
       unless is_version_tested?(version)
-        print_warning("You're running the module against a version we have not tested")
+        print_warning("You're running the module against a version we have not tested.")
       end
     end
 
-    sys_name = get_system_name(res)
-    unless sys_name.blank?
-      print_good("System name detected: #{sys_name}")
-      report_note(
-        :host => ip,
-        :type => "system.name",
-        :data => sys_name
-      )
-    end
+    print_good("System name detected: #{sys_name}")
+    report_note(
+      :host => ip,
+      :type => "system.name",
+      :data => sys_name
+    )
 
     if anonymous_access?(res)
       print_good("No login necessary. Server allows anonymous access.")

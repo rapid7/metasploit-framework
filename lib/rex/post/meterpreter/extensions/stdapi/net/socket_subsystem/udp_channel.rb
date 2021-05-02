@@ -35,34 +35,34 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
   #
   # @return [Channel]
   def self.open(client, params)
-    c = Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
+    Channel.create(client, 'stdapi_net_udp_client', self, CHANNEL_FLAG_SYNCHRONOUS,
     [
-      {
-        'type'  => TLV_TYPE_LOCAL_HOST,
-        'value' => params.localhost
-      },
-      {
-        'type'  => TLV_TYPE_LOCAL_PORT,
-        'value' => params.localport
-      },
-      {
-        'type'  => TLV_TYPE_PEER_HOST,
-        'value' => params.peerhost
-      },
-      {
-        'type'  => TLV_TYPE_PEER_PORT,
-        'value' => params.peerport
-      }
-    ] )
-    c.params = params
-    c
+        {
+          'type'  => TLV_TYPE_LOCAL_HOST,
+          'value' => params.localhost
+        },
+        {
+          'type'  => TLV_TYPE_LOCAL_PORT,
+          'value' => params.localport
+        },
+        {
+          'type'  => TLV_TYPE_PEER_HOST,
+          'value' => params.peerhost
+        },
+        {
+          'type'  => TLV_TYPE_PEER_PORT,
+          'value' => params.peerport
+        }
+      ],
+      sock_params: params
+    )
   end
 
   #
   # Simply initialize this instance.
   #
-  def initialize(client, cid, type, flags)
-    super(client, cid, type, flags)
+  def initialize(client, cid, type, flags, packet, sock_params: nil)
+    super(client, cid, type, flags, packet)
 
     lsock.extend(Rex::Socket::Udp)
     lsock.initsock
@@ -74,6 +74,9 @@ class UdpChannel < Rex::Post::Meterpreter::Datagram
     rsock.extend(SocketInterface)
     rsock.channel = self
 
+    unless sock_params.nil?
+      @params = sock_params.merge(Socket.parameters_from_response(packet))
+    end
   end
 
   #

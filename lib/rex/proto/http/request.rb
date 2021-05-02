@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'uri'
-require 'rex/proto/http'
+
 
 module Rex
 module Proto
@@ -63,6 +63,10 @@ class Request < Packet
     self.chunk_max_size = 10
     self.uri_encode_mode = 'hex-normal'
 
+    if self.method == 'GET' || self.method == 'CONNECT'
+      self.auto_cl = false
+    end
+
     update_uri_parts
   end
 
@@ -72,7 +76,7 @@ class Request < Packet
   def update_cmd_parts(str)
     if (md = str.match(/^(.+?)\s+(.+?)\s+HTTP\/(.+?)\r?\n?$/i))
       self.method  = md[1]
-      self.raw_uri = URI.decode(md[2])
+      self.raw_uri = CGI.unescape(md[2])
       self.proto   = md[3]
 
       update_uri_parts

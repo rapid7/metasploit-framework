@@ -3,16 +3,10 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/transport_config'
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/windows/x64/meterpreter_loader'
-require 'msf/base/sessions/meterpreter_x64_win'
-require 'msf/base/sessions/meterpreter_options'
-require 'rex/payloads/meterpreter/config'
 
 module MetasploitModule
 
-  CachedSize = 206403
+  CachedSize = 200262
 
   include Msf::Payload::TransportConfig
   include Msf::Payload::Windows
@@ -24,7 +18,7 @@ module MetasploitModule
 
     super(merge_info(info,
       'Name'        => 'Windows Meterpreter Shell, Reverse TCP Inline (IPv6) (x64)',
-      'Description' => 'Connect back to attacker and spawn a Meterpreter shell',
+      'Description' => 'Connect back to attacker and spawn a Meterpreter shell. Requires Windows XP SP2 or newer.',
       'Author'      => [ 'OJ Reeves' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'win',

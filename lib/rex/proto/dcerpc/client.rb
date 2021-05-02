@@ -4,11 +4,7 @@ module Proto
 module DCERPC
 class Client
 
-require 'rex/proto/dcerpc/uuid'
-require 'rex/proto/dcerpc/response'
-require 'rex/proto/dcerpc/exceptions'
 require 'rex/text'
-require 'rex/proto/smb/exceptions'
 
   attr_accessor :handle, :socket, :options, :last_response, :context, :no_bind, :ispipe, :smb
 
@@ -111,8 +107,7 @@ require 'rex/proto/smb/exceptions'
   end
 
   def smb_connect()
-    require 'rex/proto/smb/simpleclient'
-
+    
     if(not self.smb)
       if self.socket.peerport == 139
         smb = Rex::Proto::SMB::SimpleClient.new(self.socket)
@@ -188,7 +183,7 @@ require 'rex/proto/smb/exceptions'
     if (self.socket.class == Rex::Proto::SMB::SimpleClient::OpenPipe)
       while(idx < data.length)
         bsize = (rand(max_write-min_write)+min_write).to_i
-        len = self.socket.write(data[idx, bsize], rand(1024)+1)
+        len = self.socket.write(data[idx, bsize])
         idx += bsize
       end
     else
@@ -199,7 +194,6 @@ require 'rex/proto/smb/exceptions'
   end
 
   def bind()
-    require 'rex/proto/dcerpc/packet'
     bind = ''
     context = ''
     if self.options['fake_multi_bind']

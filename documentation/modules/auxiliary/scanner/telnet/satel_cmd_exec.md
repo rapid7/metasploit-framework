@@ -12,7 +12,7 @@ The following versions of SenNet Data Logger and Electricity Meters, monitoring 
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/telnet/satel_cmd_exec

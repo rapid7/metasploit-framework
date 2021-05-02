@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 require 'thread'
 
 class MetasploitModule < Msf::Auxiliary
@@ -150,7 +150,7 @@ class MetasploitModule < Msf::Auxiliary
               :risk   => 0,
               :confidence   => 100,
               :category     => 'directory',
-              :description  => 'Directoy found.',
+              :description  => 'Directory found.',
               :name   => 'directory'
             )
 

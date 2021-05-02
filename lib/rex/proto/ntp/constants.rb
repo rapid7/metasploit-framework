@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 module Rex
 module Proto
-module NTP
+module NTP::Constants
 VERSIONS = (0..7).to_a
 MODES = (0..7).to_a
 MODE_6_OPERATIONS = (0..31).to_a

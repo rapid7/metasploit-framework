@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/base/sessions/command_shell'
 
 class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   #
@@ -13,7 +12,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       username = $1
       hostname = $2
       self.info = "#{username} @ #{hostname}"
-    else
+    elsif initial_output
       self.info = initial_output.gsub(/[\r\n]/, ' ')
     end
 
@@ -62,11 +61,11 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
       timeout = etime - ::Time.now.to_f
 
       buff << res
-      if buff.match(/#{endm}/)
+      if buff.include?(endm)
         # if you see the end marker, read the buffer from the start marker to the end and then display back to screen
         buff = buff.split(/#{strm}\r\n/)[-1]
-        buff.gsub!(/\nPS .*>/, '')
-        buff.gsub!(/#{endm}/, '')
+        buff = buff.split(endm)[0]
+        buff.gsub!(/(?<=\r\n)PS [^>]*>/, '')
         return buff
       end
     end

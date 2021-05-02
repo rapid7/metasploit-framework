@@ -27,6 +27,9 @@ end
 
 # Create a custom group
 group :local do
-  # Add the lab gem so that the 'lab' plugin will work again
+  # This is the first way to add a non-standard gem file dependency in.
   gem 'lab', '~> 0.2.7'
+  # And this is another way that references local directories to find and compile the gem file as needed.
+  # This is the optimal method for testing Gem PRs such as those in rex-text or rex-powershell.
+  gem 'rex-powershell', path: '../rex-powershell'
 end

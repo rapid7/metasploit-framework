@@ -41,7 +41,7 @@ Metasploit can launch a Socks 4a Proxy server using the module: auxiliary/server
 ```
 use auxiliary/server/socks4a
 set SRVHOST 127.0.0.1
-set LPORT 1080
+set SRVPORT 1080
 exploit -j
 ```
 
@@ -75,7 +75,7 @@ For scanning with Nmap, Zenmap, Nessus and others, keep in mind that ICMP and UP
 For Nmap and Zenmap, the below example shows the commands can be used. It is best to be selective on ports to scan since scanning through the proxy tunnel can be slow.
 
 ```
-$ sudo proxychains nmap -n -sT- sV -PN -p 445 10.10.125.0/24
+$ sudo proxychains nmap -n -sT -sV -PN -p 445 10.10.125.0/24
 ```
 
 ### Combined With Default Route

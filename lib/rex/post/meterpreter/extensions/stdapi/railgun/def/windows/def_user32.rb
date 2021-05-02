@@ -160,7 +160,7 @@ class Def_windows_user32
       ["DWORD","wHow","in"],
       ["PBLOB","lpRect","in"],
       ["DWORD","cKids","in"],
-      ["PDWORD","lpKids","in"],
+      ["PHANDLE","lpKids","in"],
       ])
 
     dll.add_function('ChangeClipboardChain', 'BOOL',[
@@ -2163,7 +2163,7 @@ class Def_windows_user32
 
     dll.add_function('MsgWaitForMultipleObjects', 'DWORD',[
       ["DWORD","nCount","in"],
-      ["PDWORD","pHandles","in"],
+      ["PHANDLE","pHandles","in"],
       ["BOOL","fWaitAll","in"],
       ["DWORD","dwMilliseconds","in"],
       ["DWORD","dwWakeMask","in"],
@@ -2171,7 +2171,7 @@ class Def_windows_user32
 
     dll.add_function('MsgWaitForMultipleObjectsEx', 'DWORD',[
       ["DWORD","nCount","in"],
-      ["PDWORD","pHandles","in"],
+      ["PHANDLE","pHandles","in"],
       ["DWORD","dwMilliseconds","in"],
       ["DWORD","dwWakeMask","in"],
       ["DWORD","dwFlags","in"],
@@ -2319,7 +2319,7 @@ class Def_windows_user32
       ["DWORD","nIconIndex","in"],
       ["DWORD","cxIcon","in"],
       ["DWORD","cyIcon","in"],
-      ["PDWORD","phicon","out"],
+      ["PHANDLE","phicon","out"],
       ["PDWORD","piconid","out"],
       ["DWORD","nIcons","in"],
       ["DWORD","flags","in"],
@@ -2330,7 +2330,7 @@ class Def_windows_user32
       ["DWORD","nIconIndex","in"],
       ["DWORD","cxIcon","in"],
       ["DWORD","cyIcon","in"],
-      ["PDWORD","phicon","out"],
+      ["PHANDLE","phicon","out"],
       ["PDWORD","piconid","out"],
       ["DWORD","nIcons","in"],
       ["DWORD","flags","in"],
@@ -2982,7 +2982,7 @@ class Def_windows_user32
       ["DWORD","wHow","in"],
       ["PBLOB","lpRect","in"],
       ["DWORD","cKids","in"],
-      ["PDWORD","lpKids","in"],
+      ["PHANDLE","lpKids","in"],
       ])
 
     dll.add_function('ToAscii', 'DWORD',[

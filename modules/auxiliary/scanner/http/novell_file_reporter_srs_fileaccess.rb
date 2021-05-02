@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
       'References'   =>
         [
           [ 'CVE', '2012-4957' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
+          [ 'URL', 'https://blog.rapid7.com/2012/11/16/nfr-agent-buffer-vulnerabilites-cve-2012-4959' ]
         ],
       'Author'       =>
         [
@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
     ])
 
     register_autofilter_ports([ 3037 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

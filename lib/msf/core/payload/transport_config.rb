@@ -1,13 +1,12 @@
 # -*- coding: binary -*-
 
-require 'msf/core/payload/uuid/options'
-
 ##
 # This module contains helper functions for creating the transport
 # configuration stubs that are used for Meterpreter payloads.
 ##
 module Msf::Payload::TransportConfig
 
+  include Msf::Payload::Pingback::Options
   include Msf::Payload::UUID::Options
 
   def transport_config_reverse_tcp(opts={})
@@ -118,7 +117,7 @@ module Msf::Payload::TransportConfig
       lhost:      '.',
       uri:        "/#{ds['PIPENAME']}",
     }.merge(timeout_config(opts))
-    
+
   end
 
 

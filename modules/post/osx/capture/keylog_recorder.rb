@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Post
           [ true, 'The time between transferring log chunks.', 10 ]
         ),
         OptPort.new('LOGPORT',
-          [ false, 'Local port opened for momentarily for log transfer', 22899 ]
+          [ false, 'Local port opened momentarily for log transfer', 22899 ]
         )
       ]
     )

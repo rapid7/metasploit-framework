@@ -11,7 +11,7 @@ Note: If the backup url is not retrieved, it is recommended to increase the TIME
 3. Do: ```set COMMUNTY [SNMP_COMMUNUTY_STRING]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/snmp/epmp_snmp_loot

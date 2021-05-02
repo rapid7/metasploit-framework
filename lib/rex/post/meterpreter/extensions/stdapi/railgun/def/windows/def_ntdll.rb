@@ -26,7 +26,7 @@ class Def_windows_ntdll
       ])
 
     dll.add_function('NtCreateFile', 'DWORD',[
-      ["PDWORD","FileHandle","inout"],
+      ["PHANDLE","FileHandle","inout"],
       ["DWORD","DesiredAccess","in"],
       ["PBLOB","ObjectAttributes","in"],
       ["PBLOB","IoStatusBlock","inout"],
@@ -53,7 +53,7 @@ class Def_windows_ntdll
       ])
 
     dll.add_function('NtOpenFile', 'DWORD',[
-      ["PDWORD","FileHandle","inout"],
+      ["PHANDLE","FileHandle","inout"],
       ["DWORD","DesiredAccess","in"],
       ["PBLOB","ObjectAttributes","in"],
       ["PBLOB","IoStatusBlock","inout"],
@@ -156,6 +156,18 @@ class Def_windows_ntdll
       ["PBLOB","TargetIp","in"],
       ["PBLOB","ExceptionRecord","in"],
       ["PBLOB","ReturnValue","in"],
+      ])
+
+    dll.add_function('RtlInitUnicodeString', 'VOID',[
+      ["PBLOB","DestinationString","out"],
+      ["PWCHAR","SourceString","in"]
+      ])
+
+    dll.add_function('NtCreateSymbolicLinkObject', 'DWORD',[
+      ["PDWORD","LinkHandle","out"],
+      ["DWORD","DesiredAccess","in"], # ACCESS_MASK
+      ["PBLOB","ObjectAttributes","in"], # POBJECT_ATTRIBUTES
+      ["PBLOB","TargetName","in"] # PUNICODE_STRING
       ])
 
     return dll

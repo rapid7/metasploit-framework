@@ -1,9 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/php'
-require 'msf/core/payload/uuid'
-
 module Msf
 
 ###
@@ -25,7 +21,7 @@ module Payload::Php::SendUUID
     uuid_raw = uuid.to_raw.chars.map { |c| '\x%.2x' % c.ord }.join('')
 
     php = %Q^$u="#{uuid_raw}";
-switch (#{sock_type}) { 
+switch (#{sock_type}) {
 case 'stream': fwrite(#{sock_var}, $u); break;
 case 'socket': socket_write(#{sock_var}, $u); break;
 }

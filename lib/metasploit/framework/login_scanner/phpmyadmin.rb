@@ -14,7 +14,7 @@ module Metasploit
 
           if res && res.body.include?('phpMyAdmin')
             if res.body =~ /PMA_VERSION:"(\d+\.\d+\.\d+)"/
-              version = Gem::Version.new($1)
+              version = Rex::Version.new($1)
             end
             return version.to_s
           end
@@ -31,7 +31,7 @@ module Metasploit
           session_id = res.get_cookies.scan(/phpMyAdmin=(\w+);*/).flatten[0]
           token = Rex::Text.html_decode(res.body.scan(/token"\s*value="(.*?)"/).flatten[0])
           cookies = res.get_cookies.split[-2..-1].join(' ')
-          
+
           info = [session_id, token, cookies]
           return no_connect if (info.empty? || session_id.empty? || token.empty? || cookies.empty?)
 
@@ -69,7 +69,7 @@ module Metasploit
 
         def attempt_login(credential)
           result_opts = {
-            credential: credential,   
+            credential: credential,
             status: LOGIN_STATUS::INCORRECT,
             proof: nil,
             host: host,

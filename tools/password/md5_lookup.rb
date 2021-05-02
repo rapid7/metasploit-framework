@@ -32,7 +32,6 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 require 'msfenv'
 require 'rex'
-require 'msf/core'
 require 'optparse'
 
 #

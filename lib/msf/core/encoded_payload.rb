@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
 
 module Msf
 
@@ -63,8 +62,13 @@ class EncodedPayload
       # First, validate
       pinst.validate()
 
-      # Tell the payload how much space is available
-      pinst.available_space = self.space
+      # Propagate space information when set
+      unless self.space.nil?
+        # Tell the payload how much space is available
+        pinst.available_space = self.space
+        # Reserve 10% of the available space if encoding is required
+        pinst.available_space -= (self.space * 0.1).ceil if needs_encoding
+      end
 
       # Generate the raw version of the payload first
       generate_raw() if self.raw.nil?
@@ -125,9 +129,9 @@ class EncodedPayload
   # encoded attribute.
   #
   def encode
-    # If the exploit has bad characters, we need to run the list of encoders
-    # in ranked precedence and try to encode without them.
-    if reqs['BadChars'].to_s.length > 0 or reqs['Encoder'] or reqs['ForceEncode']
+    # If the exploit needs the payload to be encoded, we need to run the list of
+    # encoders in ranked precedence and try to encode with them.
+    if needs_encoding
       encoders = pinst.compatible_encoders
 
       # Make sure the encoder name from the user has the same String#encoding
@@ -235,9 +239,8 @@ class EncodedPayload
             next_encoder = true
             break
 
-          rescue ::Exception
-            elog("#{err_start}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
-            dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
+          rescue ::Exception => e
+            elog("Broken encoder #{encoder.refname}", error: e)
             next_encoder = true
             break
           end
@@ -276,6 +279,11 @@ class EncodedPayload
     # If there are no bad characters, then the raw is the same as the
     # encoded
     else
+      # NOTE: BadChars can contain whitespace, so don't use String#blank?
+      unless reqs['BadChars'].nil? || reqs['BadChars'].empty?
+        ilog("#{pinst.refname}: payload contains no badchars, skipping automatic encoding", 'core', LEV_0)
+      end
+
       self.encoded = raw
     end
 
@@ -290,6 +298,7 @@ class EncodedPayload
   def generate_sled
     min   = reqs['MinNops'] || 0
     space = reqs['Space']
+    pad_nops = reqs['PadNops']
 
     self.nop_sled_size = min
 
@@ -309,6 +318,9 @@ class EncodedPayload
 
     # Check for the DisableNops setting
     self.nop_sled_size = 0 if reqs['DisableNops']
+
+    # Check for the PadNops setting
+    self.nop_sled_size = (pad_nops - self.encoded.length) if reqs['PadNops']
 
     # Now construct the actual sled
     if (self.nop_sled_size > 0)
@@ -338,7 +350,6 @@ class EncodedPayload
 
         begin
           nop.copy_ui(pinst)
-
           self.nop_sled = nop.generate_sled(self.nop_sled_size,
             'BadChars'      => reqs['BadChars'],
             'SaveRegisters' => save_regs)
@@ -456,6 +467,15 @@ class EncodedPayload
   end
 
   #
+  # An array containing the platform(s) that this payload was made to run on
+  #
+  def platform
+    if pinst
+      pinst.platform
+    end
+  end
+
+  #
   # The raw version of the payload
   #
   attr_reader :raw
@@ -509,6 +529,27 @@ protected
   #
   attr_accessor :reqs
 
+  def needs_encoding
+    reqs['Encoder'] || reqs['ForceEncode'] || has_chars?(reqs['BadChars'])
+  end
+
+  def has_chars?(chars)
+    # NOTE: BadChars can contain whitespace, so don't use String#blank?
+    if chars.nil? || chars.empty?
+      return false
+    end
+
+    # payload hasn't been set yet but we have bad characters so assume they'll need to be encoded
+    return true if self.raw.nil?
+
+    return false if self.raw.empty?
+
+    chars.each_byte do |bad|
+      return true if self.raw.index(bad.chr(::Encoding::ASCII_8BIT))
+    end
+
+    false
+  end
 end
 
 end

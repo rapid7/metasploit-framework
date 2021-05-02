@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('JITTER', [true, "The delay jitter factor (maximum value by which to +/- DELAY) in milliseconds.", 0])
     ])
 
-    deregister_options('RHOST', 'RPORT')
+    deregister_options('RPORT')
   end
 
   # No IPv6 support yet

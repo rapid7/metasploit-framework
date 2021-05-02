@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core'
 
 class MetasploitModule < Msf::Auxiliary
   Rank = NormalRanking
@@ -28,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'Automatic', {} ]
         ],
       'Privileged'     => false,
-      'DisclosureDate' => "Mar 1 2014",
+      'DisclosureDate' => '2014-03-01',
       'DefaultTarget'  => 0))
   end
 

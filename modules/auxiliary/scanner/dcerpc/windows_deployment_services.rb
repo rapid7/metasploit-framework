@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/dcerpc'
-require 'rex/proto/dcerpc/wdscp'
-require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
@@ -40,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(5040),
       ])
 
-    deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
+    deregister_options('CHOST', 'CPORT', 'SSL', 'SSLVersion')
 
     register_advanced_options(
       [

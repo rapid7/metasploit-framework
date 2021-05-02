@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/parser/arguments'
 
 module Msf
 module Ui
@@ -58,8 +57,9 @@ class Nop
         when nil
           length = val.to_i
         when '-b'
-          badchars = Rex::Text.hex_to_raw(val)
-        when "-c"
+          badchars = Rex::Text.dehex(val)
+when "-s", "-c"  # 'c' is deprecated; remove later
+  saveregs = val.split(/,\s?/)
           saveregs = val.split(/,\s?/)
         when '-t'
           type = val

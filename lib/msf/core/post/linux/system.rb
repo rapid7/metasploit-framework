@@ -1,8 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core/post/common'
-require 'msf/core/post/file'
-require 'msf/core/post/unix'
-
 module Msf
 class Post
 module Linux
@@ -23,7 +19,7 @@ module System
 
     # Debian
     if etc_files.include?("debian_version")
-      version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'').strip
       if kernel_version =~ /Ubuntu/
         system_data[:distro] = "ubuntu"
         system_data[:version] = version
@@ -34,7 +30,7 @@ module System
 
     # Amazon / CentOS
     elsif etc_files.include?('system-release')
-      version = read_file('/etc/system-release').gsub(/\n|\\n|\\l/,'')
+      version = read_file('/etc/system-release').gsub(/\n|\\n|\\l/,'').strip
       if version.include? 'CentOS'
         system_data[:distro] = 'centos'
         system_data[:version] = version
@@ -45,67 +41,73 @@ module System
 
     # Alpine
     elsif etc_files.include?('alpine-release')
-      version = read_file('/etc/alpine-release').gsub(/\n|\\n|\\l/,'')
+      version = read_file('/etc/alpine-release').gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = 'alpine'
       system_data[:version] = version
 
     # Fedora
     elsif etc_files.include?("fedora-release")
-      version = read_file("/etc/fedora-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/fedora-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "fedora"
       system_data[:version] = version
 
     # Oracle Linux
     elsif etc_files.include?("enterprise-release")
-      version = read_file("/etc/enterprise-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/enterprise-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "oracle"
       system_data[:version] = version
 
     # RedHat
     elsif etc_files.include?("redhat-release")
-      version = read_file("/etc/redhat-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/redhat-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "redhat"
       system_data[:version] = version
 
     # Arch
     elsif etc_files.include?("arch-release")
-      version = read_file("/etc/arch-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/arch-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "arch"
       system_data[:version] = version
 
     # Slackware
     elsif etc_files.include?("slackware-version")
-      version = read_file("/etc/slackware-version").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/slackware-version").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "slackware"
       system_data[:version] = version
 
     # Mandrake
     elsif etc_files.include?("mandrake-release")
-      version = read_file("/etc/mandrake-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/mandrake-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "mandrake"
       system_data[:version] = version
 
-    #SuSE
+    # SuSE
     elsif etc_files.include?("SuSE-release")
-      version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "suse"
+      system_data[:version] = version
+
+    # OpenSUSE
+    elsif etc_files.include?("SUSE-brand")
+      version = read_file("/etc/SUSE-brand").scan(/^VERSION\s*=\s*([\d\.]+)/).flatten.first
+      system_data[:distro] = 'suse'
       system_data[:version] = version
 
     # Gentoo
     elsif etc_files.include?("gentoo-release")
-      version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "gentoo"
       system_data[:version] = version
 
     # Openwall
     elsif etc_files.include?("owl-release")
-      version = read_file("/etc/owl-release").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/owl-release").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = 'openwall'
       system_data[:version] = version
 
     # Generic
     elsif etc_files.include?("issue")
-      version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
+      version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'').strip
       system_data[:distro] = "linux"
       system_data[:version] = version
 
@@ -140,7 +142,7 @@ module System
 
   #
   # Gets the $PATH environment variable
-  #
+  # @return [String]
   def get_path
     cmd_exec('echo $PATH').to_s
   rescue
@@ -172,7 +174,11 @@ module System
   # @return [String]
   #
   def get_hostname
-    hostname = cmd_exec('uname -n').to_s
+    if command_exists?("uname")
+      hostname = cmd_exec('uname -n').to_s
+    else
+      hostname = read_file("/proc/sys/kernel/hostname").to_s.chomp
+    end
     report_host({:host => rhost, :name => hostname})
     hostname
   rescue
@@ -184,10 +190,31 @@ module System
   # @return [String]
   #
   def get_shell_name
-    psout = cmd_exec('ps -p $$').to_s
-    psout.split("\n").last.split(' ')[3]
+    if command_exists?("ps")
+      psout = cmd_exec('ps -p $$').to_s
+      psout.split("\n").last.split(' ')[3]
+    else
+      str_shell = cmd_exec("echo $0").split("-")[1]
+      return str_shell
+    end
   rescue
     raise 'Unable to gather shell name'
+  end
+
+  #
+  # Gets the pid of the current shell
+  # @return [String]
+  #
+  def get_shell_pid
+    cmd_exec("echo $$").to_s
+  end
+
+  #
+  # Gets the pid of the current session
+  # @return [String]
+  #
+  def get_session_pid
+    cmd_exec("echo $PPID").to_s
   end
 
   #
@@ -201,16 +228,6 @@ module System
   end
 
   #
-  # Checks if the `cmd` is installed on the system
-  # @return [Boolean]
-  #
-  def command_exists?(cmd)
-    cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
-  rescue
-    raise "Unable to check if command `#{cmd}` exists"
-  end
-
-  #
   # Gets the process id(s) of `program`
   # @return [Array]
   #
@@ -221,6 +238,14 @@ module System
       pids << pid.split(' ')[1].to_i if pid.include? program
     end
     pids
+  end
+
+  #
+  # Gets the uid of a pid
+  # @return [String]
+  #
+  def pid_uid(pid)
+    read_file("/proc/#{pid}/status").to_s
   end
 
   #
@@ -295,6 +320,104 @@ module System
     raise "Unable to get mount path of #{filepath}"
   end
 
+
+  #
+  # Gets all the IP directions of the device
+  # @return [Array]
+  #
+  def ips
+    lines = read_file("/proc/net/fib_trie")
+    result = []
+    previous_line = ""
+    lines.each_line do |line|
+      if line.include?("/32 host LOCAL")
+        previous_line = previous_line.split("-- ")[1].strip()
+        if not result.include? previous_line
+          result.insert(-1, previous_line)
+        end
+      end
+      previous_line = line
+    end
+    return result
+  end
+
+
+  #
+  # Gets all the interfaces of the device
+  # @return [Array]
+  #
+  def interfaces
+    result = []
+    data = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
+    parts = data.split("\n")
+    parts.each do |line|
+      line = line.split("/")[-1]
+      result.insert(-1,line)
+    end
+    return result
+  end
+
+  #
+  # Gets all the macs of the device
+  # @return [Array]
+  #
+  def macs
+    result = []
+    str_macs = cmd_exec("for fn in /sys/class/net/*; do echo $fn; done")
+    parts = str_macs.split("\n")
+    parts.each do |line|
+      rut = line + "/address"
+      mac_array = read_file(rut)
+      mac_array.each_line do |mac|
+        result.insert(-1,mac.strip())
+      end
+    end
+    return result
+  end
+
+  # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
+  #
+  # Gets all the listening tcp ports in the device
+  # @return [Array]
+  #
+  def listen_tcp_ports
+    ports = []
+    content = read_file('/proc/net/tcp')
+    content.each_line do |line|
+      if m = line.match(/^\s*\d+:\s+(.{8}|.{32}):(.{4})\s+(.{8}|.{32}):(.{4})\s+(.{2})/)
+        connection_state = m[5].to_s
+        if connection_state == "0A"
+          connection_port = m[2].to_i(16)
+          if ports.include?(connection_port) == false
+            ports.insert(-1, connection_port)
+          end
+        end
+      end
+    end
+    return ports
+  end
+
+  # Parsing information based on: https://github.com/sensu-plugins/sensu-plugins-network-checks/blob/master/bin/check-netstat-tcp.rb
+  #
+  # Gets all the listening udp ports in the device
+  # @return [Array]
+  #
+  def listen_udp_ports
+    ports = []
+    content = read_file('/proc/net/udp')
+    content.each_line do |line|
+      if m = line.match(/^\s*\d+:\s+(.{8}|.{32}):(.{4})\s+(.{8}|.{32}):(.{4})\s+(.{2})/)
+        connection_state = m[5].to_s
+        if connection_state == "07"
+          connection_port = m[2].to_i(16)
+          if ports.include?(connection_port) == false
+            ports.insert(-1, connection_port)
+          end
+        end
+      end
+    end
+    return ports
+  end
 
 end # System
 end # Linux

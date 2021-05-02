@@ -27,15 +27,15 @@ class MetasploitModule < Msf::Auxiliary
         [
           [ 'CVE', '2013-0136' ],
           [ 'US-CERT-VU', '701572' ],
-          [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2013/05/15/new-1day-exploits-mutiny-vulnerabilities' ]
+          [ 'URL', 'https://blog.rapid7.com/2013/05/15/new-1day-exploits-mutiny-vulnerabilities' ]
         ],
       'Actions'     =>
         [
-          ['Read'],
-          ['Delete']
+          ['Read', 'Description' => 'Read arbitrary file'],
+          ['Delete', 'Description' => 'Delete arbitrary file']
         ],
       'DefaultAction' => 'Read',
-      'DisclosureDate' => 'May 15 2013'))
+      'DisclosureDate' => '2013-05-15'))
 
     register_options(
       [

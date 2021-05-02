@@ -1,9 +1,8 @@
-This module allows you to upload a binary file, and automatically execute it.
-
 ## Vulnerable Application
 
-The following platforms are supported:
+This module allows you to upload a binary file, and automatically execute it.
 
+The following platforms are supported:
 
 * Windows
 * Linux
@@ -29,7 +28,7 @@ The file on your machine that you want to upload to the target machine.
 
 The file path on the target machine. This defaults to LFILE.
 
-## Demo
+## Scenarios
 
 ```
 msf > use post/multi/manage/upload_exec

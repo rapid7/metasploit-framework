@@ -15,7 +15,7 @@ Vulnerable app versions include:
 
 Related security bulletin from IBM: http://www-01.ibm.com/support/docview.wss?uid=swg21999385
 
-## Verification
+## Verification Steps
 
 1. Start msfconsole
 1. `use auxiliary/dos/http/ibm_lotus_notes.rb`

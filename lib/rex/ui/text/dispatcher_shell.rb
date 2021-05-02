@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/ui'
 require 'pp'
 require 'rex/text/table'
 require 'erb'
@@ -174,10 +173,19 @@ module DispatcherShell
             end
           end
         end
+
+        if docs_dir && File.exist?(File.join(docs_dir, cmd + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir, cmd + '.md')))
+        end
         print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
         print_error("No such command") if not cmd_found
       else
         print(shell.help_to_s)
+        if docs_dir && File.exist?(File.join(docs_dir + '.md'))
+          print_line
+          print(File.read(File.join(docs_dir + '.md')))
+        end
       end
     end
 
@@ -231,6 +239,17 @@ module DispatcherShell
     end
 
     #
+    # Return the subdir of the `documentation/` directory that should be used
+    # to find usage documentation
+    #
+    # TODO: get this value from somewhere that doesn't invert a bunch of
+    # dependencies
+    #
+    def docs_dir
+      File.expand_path(File.join(__FILE__, '..', '..', '..', '..', '..', 'documentation', 'cli'))
+    end
+
+    #
     # No tab completion items by default
     #
     attr_accessor :shell, :tab_complete_items
@@ -248,7 +267,7 @@ module DispatcherShell
         dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
         matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir)
       end
-      matches
+      matches.nil? ? [] : matches
     end
 
     #
@@ -309,6 +328,17 @@ module DispatcherShell
       end
       addresses
     end
+
+    #
+    # A callback that can be used to handle unknown commands. This can for example, allow a dispatcher to mark a command
+    # as being disabled.
+    #
+    # @return [Symbol, nil] Returns a symbol specifying the action that was taken by the handler or `nil` if no action
+    #   was taken. The only supported action at this time is `:handled`, signifying that the unknown command was handled
+    #   by this dispatcher and no additional dispatchers should receive it.
+    def unknown_command(method, line)
+      nil
+    end
   end
 
   #
@@ -338,27 +368,29 @@ module DispatcherShell
   # Readline.basic_word_break_characters variable being set to \x00
   #
   def tab_complete(str)
+    ::Readline.completion_append_character = ' '
+
     # Check trailing whitespace so we can tell 'x' from 'x '
-    str_match = str.match(/\s+$/)
+    str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
+    split_str = shellsplitex(str)
     # Split the line up by whitespace into words
-    str_words = str.split(/[\s\t\n]+/)
 
     # Append an empty word if we had trailing whitespace
-    str_words << '' if str_trail.length > 0
+    split_str[:words] << '' if str_trail.length > 0
 
     # Place the word list into an instance variable
-    self.tab_words = str_words
+    self.tab_words = split_str[:words]
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop)
+    tab_complete_stub(self.tab_words.pop, quote: split_str[:quote])
   end
 
   # Performs tab completion of a command, if supported
   # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str)
+  def tab_complete_stub(str, quote: nil)
     items = []
 
     return nil if not str
@@ -390,22 +422,13 @@ module DispatcherShell
       end
     }
 
-    # Verify that our search string is a valid regex
-    begin
-      Regexp.compile(str,Regexp::IGNORECASE)
-    rescue RegexpError
-      str = Regexp.escape(str)
-    end
-
-    # @todo - This still doesn't fix some Regexp warnings:
-    # ./lib/rex/ui/text/dispatcher_shell.rb:171: warning: regexp has `]' without escape
-
     # Match based on the partial word
-    items.find_all { |e|
-      e.downcase.start_with?(str.downcase) || e =~ /^#{str}/i
+    items.find_all { |word|
+      word.downcase.start_with?(str.downcase)
     # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |e|
-      tab_words.dup.push(e).join(' ')
+    }.map { |word|
+      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word << quote.dup
+      tab_words.dup.push(word).join(' ')
     }
   end
 
@@ -432,11 +455,16 @@ module DispatcherShell
   #
   # Run a single command line.
   #
+  # @param [String] line The command string that should be executed.
+  # @param [Boolean] propagate_errors Whether or not to raise exceptions that are caught while executing the command.
+  #
+  # @return [Boolean] A boolean value signifying whether or not the command was handled. Value is `true` when the
+  #   command line was handled.
   def run_single(line, propagate_errors: false)
-    arguments = parse_line(line)
-    method    = arguments.shift
-    found     = false
-    error     = false
+    arguments  = parse_line(line)
+    method     = arguments.shift
+    cmd_status = nil  # currently either nil or :handled, more statuses can be added in the future
+    error      = false
 
     # If output is disabled output will be nil
     output.reset_color if (output)
@@ -451,10 +479,12 @@ module DispatcherShell
           if (dispatcher.commands.has_key?(method) or dispatcher.deprecated_commands.include?(method))
             self.on_command_proc.call(line.strip) if self.on_command_proc
             run_command(dispatcher, method, arguments)
-            found = true
+            cmd_status = :handled
+          elsif cmd_status.nil?
+            cmd_status = dispatcher.unknown_command(method, line)
           end
         rescue ::Interrupt
-          found = true
+          cmd_status = :handled
           print_error("#{method}: Interrupted")
           raise if propagate_errors
         rescue OptionParser::ParseError => e
@@ -482,12 +512,12 @@ module DispatcherShell
         break if (dispatcher_stack.length != entries)
       }
 
-      if (found == false and error == false)
+      if (cmd_status.nil? && error == false)
         unknown_command(method, line)
       end
     end
 
-    return found
+    return cmd_status == :handled
   end
 
   #
@@ -601,6 +631,60 @@ module DispatcherShell
     self.blocked.delete(cmd)
   end
 
+  #
+  # Split a line as Shellwords.split would however instead of raising an
+  # ArgumentError on unbalanced quotes return the remainder of the string as if
+  # the last character were the closing quote.
+  #
+  # This code was originally taken from https://github.com/ruby/ruby/blob/93420d34aaf8c30f11a66dd08eb186da922c831d/lib/shellwords.rb#L88
+  #
+  def shellsplitex(line)
+    quote = nil
+    words = []
+    field = String.new
+    regexp = %r{
+      \G\s*(?>(?<word>[^\s\'\"]+)             # Words within str
+
+      |                                       # OR
+
+      '(?<sq>[^\']*)'                         # Text between single quotes
+
+      |                                       # OR
+
+      "(?<dq>(?:[^\"\\]|\\.)*)"               # Text between double quotes
+
+      |                                       # OR
+
+      (?<esc>\\.?)                            # Escapes used on special characters
+
+      |                                       # OR
+
+      (?<garbage>\S))                         # Anything that wasn't already matched, expect whitespace
+
+      (?<sep>\s|\z)?                          # Separators
+    }ix
+
+    line.scan(regexp) do
+      |word, sq, dq, esc, garbage, sep|
+      if garbage
+        if quote.nil?
+          quote = garbage
+        else
+          field << garbage
+        end
+        next
+      end
+
+      field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
+      field << sep unless quote.nil? || sep.nil?
+      if quote.nil? && sep
+        words << field
+        field = String.new
+      end
+    end
+    words << field unless quote.nil?
+    {:quote => quote, :words => words}
+  end
 
   attr_accessor :dispatcher_stack # :nodoc:
   attr_accessor :tab_words # :nodoc:

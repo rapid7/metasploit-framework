@@ -23,8 +23,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'	    => MSF_LICENSE,
       'Actions'	    =>
         [
-          [ 'Sniffer' ],
-          [ 'List' ]
+          [ 'Sniffer', 'Description' => 'Run sniffer' ],
+          [ 'List', 'Description' => 'List protocols' ]
         ],
       'PassiveActions' => [ 'Sniffer' ],
       'DefaultAction'  => 'Sniffer'
@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
         File.join(Msf::Config.data_directory, 'exploits', 'psnuffle')
       ]),
     ]
-    deregister_options('RHOST', 'RHOSTS')
+    deregister_options('RHOSTS')
   end
 
 

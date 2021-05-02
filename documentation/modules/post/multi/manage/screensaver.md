@@ -15,7 +15,7 @@ The following platforms are supported:
 ## Verification Steps
 
 1. Obtain a session.
-2. In msfconsole do `use post/multi/screensaver`.
+2. In msfconsole do `use post/multi/manage/screensaver`.
 3. Set the `SESSION` option.
 4. Choose the action you want to perform via `set action NAME` (available actions described below).
 5. Do `run`.

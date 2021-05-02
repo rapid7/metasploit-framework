@@ -36,6 +36,8 @@ class MetasploitModule < Msf::Auxiliary
           'PASS_FILE' => 'data/wordlists/unix_passwords.txt'
         }
     )
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def test_login(username, password)

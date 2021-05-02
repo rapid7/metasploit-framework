@@ -13,6 +13,13 @@ module Msf::ModuleManager::Reloading
       metasploit_class = mod
     end
 
+    if aliased_as = self.inv_aliases[metasploit_class.fullname]
+      aliased_as.each do |a|
+        self.aliases.delete a
+      end
+      self.inv_aliases.delete metasploit_class.fullname
+    end
+
     namespace_module = metasploit_class.parent
     loader = namespace_module.loader
     loader.reload_module(mod)
@@ -26,6 +33,8 @@ module Msf::ModuleManager::Reloading
       module_set_by_type[type].clear
       init_module_set(type)
     end
+    self.aliases.clear
+    self.inv_aliases.clear
 
     # default the count to zero the first time a type is accessed
     count_by_type = Hash.new(0)

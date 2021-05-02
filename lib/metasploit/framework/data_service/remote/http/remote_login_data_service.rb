@@ -9,11 +9,11 @@ module RemoteLoginDataService
 
   def logins(opts)
     path = get_path_select(opts, LOGIN_API_PATH)
-    json_to_mdm_object(self.get_data(path, nil, opts), LOGIN_MDM_CLASS, [])
+    json_to_mdm_object(self.get_data(path, nil, opts), LOGIN_MDM_CLASS)
   end
 
   def create_credential_login(opts)
-    json_to_mdm_object(self.post_data(LOGIN_API_PATH, opts), LOGIN_MDM_CLASS, []).first
+    json_to_mdm_object(self.post_data(LOGIN_API_PATH, opts), LOGIN_MDM_CLASS).first
   end
 
   def update_login(opts)
@@ -22,6 +22,6 @@ module RemoteLoginDataService
       id = opts.delete(:id)
       path = "#{LOGIN_API_PATH}/#{id}"
     end
-    json_to_mdm_object(self.put_data(path, opts), LOGIN_MDM_CLASS, []).first
+    json_to_mdm_object(self.put_data(path, opts), LOGIN_MDM_CLASS).first
   end
 end

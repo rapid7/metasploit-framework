@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module uses a malformed packet or timing attack to enumerate users on
 an OpenSSH server.

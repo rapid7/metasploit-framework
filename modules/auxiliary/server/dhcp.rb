@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/dhcp'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DHCPServer
@@ -19,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run DHCP server' ]
         ],
       'PassiveActions' =>
         [

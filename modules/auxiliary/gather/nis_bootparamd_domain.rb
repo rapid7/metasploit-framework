@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
     ))
 
     register_options([
-      OptEnum.new('PROTOCOL',  [true, 'Protocol to use', 'udp', %w{tcp udp}]),
+      OptEnum.new('PROTOCOL',  [true, 'Protocol to use', 'udp', %w[tcp udp]]),
       OptAddress.new('CLIENT', [true, "Client from target's bootparams file"])
     ])
 
@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     unless res
-      fail_with(Failure::Unknown, 'No response from server')
+      fail_with(Failure::Unreachable, 'No response from server')
     end
 
     bootparams = begin

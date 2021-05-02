@@ -8,14 +8,6 @@ class Client
 
 require 'rex/text'
 require 'rex/struct2'
-require 'rex/proto/smb/constants'
-require 'rex/proto/smb/exceptions'
-require 'rex/proto/smb/evasions'
-require 'rex/proto/smb/utils'
-require 'rex/proto/smb/crypt'
-require 'rex/proto/ntlm/crypt'
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/utils'
 
 
 # Some short-hand class aliases
@@ -57,9 +49,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     self.send_ntlm  = true
 
     # Signing
-    self.sequence_counter = 0
-    self.signing_key      = ''
-    self.require_signing  = false
+    self.sequence_counter     = 0
+    self.signing_key          = ''
+    self.require_signing      = false
+    self.peer_require_signing = false
 
     #Misc
     self.spnopt = {}
@@ -162,7 +155,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     pkt.from_s(data)
 
     # Store the received packet into the cache
-    @smb_recv_cache << [ pkt, data, Time.now ]
+    @smb_recv_cache << [ pkt, data, ::Time.now ]
   end
 
   # Scan the packet receive cache for a matching response
@@ -181,7 +174,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
       end
 
       # Purge any packets older than 5 minutes
-      if Time.now.to_i - tstamp.to_i > 300
+      if ::Time.now.to_i - tstamp.to_i > 300
         clean << cent
       end
 
@@ -585,7 +578,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     #set require_signing
     if (ack['Payload'].v['SecurityMode'] & 0x08 != 0)
-      self.require_signing	= true
+      self.require_signing = true
+      self.peer_require_signing = true
     end
 
     # Set the challenge key
@@ -653,7 +647,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
     end
 
-    return self.session_setup_clear(*args)
+    return self.session_setup_clear(user, pass, domain)
   end
 
   # Authenticate using clear-text passwords
@@ -839,12 +833,12 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
     ntlm_options = {
-        :signing 		=> self.require_signing,
-        :usentlm2_session 	=> self.usentlm2_session,
-        :use_ntlmv2 		=> self.use_ntlmv2,
-        :send_lm 		=> self.send_lm,
-        :send_ntlm		=> self.send_ntlm,
-        :use_lanman_key		=> self.use_lanman_key
+        :signing          => self.require_signing,
+        :usentlm2_session => self.usentlm2_session,
+        :use_ntlmv2       => self.use_ntlmv2,
+        :send_lm          => self.send_lm,
+        :send_ntlm        => self.send_ntlm,
+        :use_lanman_key   => self.use_lanman_key
         }
 
     ntlmssp_flags = NTLM_UTILS.make_ntlm_flags(ntlm_options)
@@ -2077,10 +2071,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
     return self.smb_recv_parse(CONST::SMB_COM_ECHO)
   end
 
-  
+
 # public read/write methods
-  attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-  attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
+  attr_accessor :native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
+  attr_accessor :verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm
   attr_accessor :system_time, :system_zone
   attr_accessor :spnopt
   attr_accessor :default_max_buffer_size
@@ -2091,7 +2085,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
   attr_reader		:dns_host_name, :dns_domain_name
   attr_reader		:security_mode, :server_guid
-  attr_reader		:sequence_counter,:signing_key, :require_signing
+  attr_reader		:sequence_counter,:signing_key, :require_signing, :peer_require_signing
 
 # private write methods
   attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
@@ -2099,7 +2093,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
   attr_writer		:dns_host_name, :dns_domain_name
   attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
   attr_writer		:security_mode, :server_guid
-  attr_writer		:sequence_counter,:signing_key, :require_signing
+  attr_writer		:sequence_counter,:signing_key, :require_signing, :peer_require_signing
 
   attr_accessor	:socket
 

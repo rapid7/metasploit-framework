@@ -137,6 +137,7 @@ class MetasploitModule < Msf::Post
       rkhunter tcpdump webmin jailkit pwgen proxychains bastille
       psad wireshark nagios apparmor oz-seccomp honeyd thpot
       aa-status gradm gradm2 getenforce aide tripwire paxctl
+      paxctld paxtest firejail auditd
     )
 
     apps.each do |app|

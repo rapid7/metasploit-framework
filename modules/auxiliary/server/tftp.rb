@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/tftp'
 require 'tmpdir'
 
 class MetasploitModule < Msf::Auxiliary
@@ -20,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Serve files via TFTP' ]
         ],
       'PassiveActions' =>
         [

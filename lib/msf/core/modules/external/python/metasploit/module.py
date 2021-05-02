@@ -14,7 +14,7 @@ class LogFormatter(logging.Formatter):
         self.prefix = prefix
 
     def format(self, record):
-        return self.prefix + record.msg
+        return self.prefix + super().format(record)
 
 
 class LogHandler(logging.Handler):
@@ -67,6 +67,12 @@ def report_vuln(ip, name, **opts):
     vuln = opts.copy()
     vuln.update({'host': ip, 'name': name})
     report('vuln', vuln)
+
+
+def report_valid_username(username, **opts):
+    info = opts.copy()
+    info.update({'username': username})
+    report('credential_login', info)
 
 
 def report_correct_password(username, password, **opts):

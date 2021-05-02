@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GETALL', [ false, 'Download all available files (WARNING: may take a long time!)', false])
       ])
     register_autofilter_ports([ 50013 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

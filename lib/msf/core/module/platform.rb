@@ -404,6 +404,38 @@ class Msf::Module::Platform
   end
 
   #
+  # Ubiquiti Unifi
+  #
+  class Unifi < Msf::Module::Platform
+    Rank = 100
+    Alias = "unifi"
+  end
+
+  #
+  # Brocade
+  #
+  class Brocade < Msf::Module::Platform
+    Rank = 100
+    Alias = "brocade"
+  end
+
+  #
+  # MikroTik
+  #
+  class Mikrotik < Msf::Module::Platform
+    Rank = 100
+    Alias = "mikrotik"
+  end
+
+  #
+  # Arista
+  #
+  class Arista < Msf::Module::Platform
+    Rank = 100
+    Alias = "arista"
+  end
+
+  #
   # Solaris
   #
   class Solaris < Msf::Module::Platform

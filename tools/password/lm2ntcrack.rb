@@ -22,7 +22,6 @@ require 'msfenv'
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'rex/proto/ntlm/crypt'
 
 CRYPT = Rex::Proto::NTLM::Crypt
 

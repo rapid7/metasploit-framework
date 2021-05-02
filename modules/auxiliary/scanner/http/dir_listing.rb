@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true,  "The path to identify directoy listing", '/']),
+        OptString.new('PATH', [ true,  "The path to identify directory listing", '/']),
       ])
 
   end
@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
             :risk   => 0,
             :confidence   => 100,
             :category     => 'directory',
-            :description  => 'Directoy found allowing liting of its contents.',
+            :description  => 'Directory found allowing listing of its contents.',
             :name   => 'directory listing'
           )
 

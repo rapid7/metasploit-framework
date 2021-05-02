@@ -1,18 +1,19 @@
-module ServiceServlet
+module Msf::WebServices::ServiceServlet
 
   def self.api_path
     '/api/v1/services'
   end
 
   def self.api_path_with_id
-    "#{ServiceServlet.api_path}/?:id?"
+    "#{self.api_path}/?:id?"
   end
 
   def self.registered(app)
-    app.get  ServiceServlet.api_path_with_id, &get_services
-    app.post ServiceServlet.api_path, &report_service
-    app.put ServiceServlet.api_path_with_id, &update_service
-    app.delete ServiceServlet.api_path, &delete_service
+    app.get  self.api_path, &get_services
+    app.get  self.api_path_with_id, &get_services
+    app.post self.api_path, &report_service
+    app.put self.api_path_with_id, &update_service
+    app.delete self.api_path, &delete_service
   end
 
   #######

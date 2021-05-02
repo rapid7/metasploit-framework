@@ -18,12 +18,13 @@ class MetasploitModule < Msf::Auxiliary
         It should be noted this module will register activity on ifconfig.me,
         which is not affiliated with Metasploit.
       },
-      'Author'        => ['RageLtMan'],
+      'Author'        => ['RageLtMan <rageltman[at]sempervictus>'],
       'License'	=> MSF_LICENSE,
       'References'	=>
         [
           [ 'URL', 'http://ifconfig.me/ip' ],
-        ]
+        ],
+      'DefaultOptions' => { 'VHOST' => 'ifconfig.me' }
     )
 
     register_options(

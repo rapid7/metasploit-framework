@@ -39,7 +39,10 @@ class MetasploitModule < Msf::Auxiliary
         OptBool.new('GET_USERNAMES_FROM_CONFIG', [ false, 'Pull usernames from config and running config', true])
       ], self.class
     )
-  @no_pass_prompt = []
+
+    deregister_options('PASSWORD_SPRAY')
+
+    @no_pass_prompt = []
   end
 
   def get_username_from_config(un_list,ip)
@@ -152,6 +155,6 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => pass
     }
 
-    start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock)
+    start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true, scanner.sock) if datastore['CreateSession']
   end
 end

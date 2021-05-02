@@ -5,7 +5,6 @@
 #
 # $Revision$
 #
-require "metasploit/aggregator"
 
 module Msf
   Aggregator_yaml = "#{Msf::Config.get_config_root}/aggregator.yaml" # location of the aggregator.yml containing saved aggregator creds
@@ -498,6 +497,15 @@ module Msf
 
     def initialize(framework, opts)
       super
+
+      #
+      # Require the metasploit/aggregator gem, but fail nicely if it's not there.
+      #
+      begin
+        require "metasploit/aggregator"
+      rescue LoadError
+        raise "WARNING: metasploit/aggregator is not avaiable for now."
+      end
 
       add_console_dispatcher(AggregatorCommandDispatcher)
       print_status("Aggregator interaction has been enabled")

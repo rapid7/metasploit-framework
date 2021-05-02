@@ -173,7 +173,7 @@ module WorkspaceApiDoc
 
     # Swagger documentation for /api/v1/workspaces/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing workspaces.'
+      key :description, 'Update the attributes on an existing workspace.'
       key :tags, [ 'workspace' ]
 
       parameter :update_id

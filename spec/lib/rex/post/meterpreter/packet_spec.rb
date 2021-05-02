@@ -117,19 +117,19 @@ RSpec.describe Rex::Post::Meterpreter::Tlv do
     end
   end
 
-  context "A Method TLV" do
+  context "A Command ID TLV" do
     subject(:tlv) {
       Rex::Post::Meterpreter::Tlv.new(
-        Rex::Post::Meterpreter::TLV_TYPE_METHOD,
-        "test"
+        Rex::Post::Meterpreter::TLV_TYPE_COMMAND_ID,
+        31337
       )
     }
-    it "should have a meta type of String" do
-      expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_STRING)).to eq true
+    it "should have a meta type of UINT" do
+      expect(tlv.meta_type?(Rex::Post::Meterpreter::TLV_META_TYPE_UINT)).to eq true
     end
 
     it "should show the correct type and meta type in inspect" do
-      tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=METHOD          meta=STRING     value=\"test\">"
+      tlv_to_s = "#<Rex::Post::Meterpreter::Tlv type=COMMAND-ID      meta=INT        value=31337>"
       expect(tlv.inspect).to eq tlv_to_s
     end
   end
@@ -389,7 +389,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     subject(:packet) {
       Rex::Post::Meterpreter::Packet.new(
         Rex::Post::Meterpreter::PACKET_TYPE_REQUEST,
-        "test_method"
+        31337
       )
     }
 
@@ -430,17 +430,17 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should evaluate the method correctly" do
-      expect(packet.method?("test_method")).to eq true
-      expect(packet.method?("blah")).to eq false
+      expect(packet.method?(31337)).to eq true
+      expect(packet.method?(0xdead)).to eq false
     end
 
     it "should accept new methods" do
-      packet.method= "test_method2"
-      expect(packet.method?("test_method2")).to eq true
+      packet.method= 0xc0ffee
+      expect(packet.method?(0xc0ffee)).to eq true
     end
 
     it "should return the correct method" do
-      expect(packet.method).to eq "test_method"
+      expect(packet.method).to eq 31337
     end
 
     it "should not have a result" do
@@ -452,10 +452,10 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     end
 
     it "should be created when Packet.create_request is called" do
-      req = Rex::Post::Meterpreter::Packet.create_request("test_method")
+      req = Rex::Post::Meterpreter::Packet.create_request(31337)
       expect(req.class).to eq Rex::Post::Meterpreter::Packet
       expect(req.response?).to eq false
-      expect(req.method?("test_method")).to eq true
+      expect(req.method?(31337)).to eq true
     end
 
     it "should return the correct raw byte form of the packet" do
@@ -473,7 +473,7 @@ RSpec.describe Rex::Post::Meterpreter::Packet do
     subject(:packet) {
       Rex::Post::Meterpreter::Packet.new(
         Rex::Post::Meterpreter::PACKET_TYPE_RESPONSE,
-        "test_method"
+        31337
       )
     }
     before(:example) do

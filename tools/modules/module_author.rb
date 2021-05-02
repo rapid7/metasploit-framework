@@ -16,17 +16,15 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
-require 'msfenv'
-
-$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
+require 'json'
+
+FILENAME = 'db/modules_metadata_base.json'
 
 sort = 0
 filter = 'All'
-filters = ['all','exploit','payload','post','nOP','encoder','auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary', 'evasion']
 reg = 0
 regex = nil
 
@@ -69,19 +67,6 @@ opts.parse(ARGV) { |opt, idx, val|
 
 Indent = '    '
 
-# Always disable the database (we never need it just to list module
-# information).
-framework_opts = { 'DisableDatabase' => true }
-
-# If the user only wants a particular module type, no need to load the others
-if filter.downcase != 'all'
-  framework_opts[:module_types] = [ filter.downcase ]
-end
-
-# Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create(framework_opts)
-
-
 tbl = Rex::Text::Table.new(
   'Header'  => 'Module References',
   'Indent'  => Indent.length,
@@ -90,18 +75,18 @@ tbl = Rex::Text::Table.new(
 
 names = {}
 
-$framework.modules.each { |name, mod|
-  x = mod.new
-  x.author.each do |r|
-    r = r.to_s
+local_modules = JSON.parse(File.read(FILENAME)) # get cache file location from framework?
+
+local_modules.each do |_module_key, local_module|
+  local_module['author'].each do |r|
+    next if filter.downcase != 'all' && local_module['type'] != filter.downcase
     if regex.nil? or r =~ regex
-      tbl << [ x.fullname, r ]
+      tbl << [ local_module['fullname'], r ]
       names[r] ||= 0
       names[r] += 1
     end
   end
-}
-
+end
 
 if sort == 1
   tbl.sort_rows(1)

@@ -9,7 +9,7 @@ The device has at least two (2) users - admin and user. Due to an access control
 3. Do: ```set RPORT [PORT]```
 4. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/cnpilot_r_web_login_loot

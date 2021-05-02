@@ -3,15 +3,11 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_tcp'
-require 'msf/core/payload/php/reverse_tcp'
-require 'msf/base/sessions/meterpreter_php'
-require 'msf/base/sessions/meterpreter_options'
 
 
 module MetasploitModule
 
-  CachedSize = 30658
+  CachedSize = 34282
 
   include Msf::Payload::Single
   include Msf::Payload::Php::ReverseTcp

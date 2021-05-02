@@ -182,8 +182,8 @@ module BindUdp
         conn_threads << framework.threads.spawn("BindUdpHandlerSession", false, client) { |client_copy|
           begin
             handle_connection(client_copy, opts)
-          rescue
-            elog("Exception raised from BindUdp.handle_connection: #{$!}")
+          rescue => e
+            elog('Exception raised from BindUdp.handle_connection', error: e)
           end
         }
       else

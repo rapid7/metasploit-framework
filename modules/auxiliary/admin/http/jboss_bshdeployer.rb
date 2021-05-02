@@ -27,8 +27,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Actions'       =>
         [
-          ['Deploy'],
-          ['Undeploy']
+          ['Deploy', 'Description' => 'Create and deploy app (WAR) to deliver payload'],
+          ['Undeploy', 'Description' => 'Remove app (WAR) for cleanup']
         ],
       'DefaultAction' => 'Deploy',
       'License'       => BSD_LICENSE,

@@ -328,7 +328,7 @@ module CredentialApiDoc
 
     #Swagger documentation for /api/v1/credentials/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing credential.'
+      key :description, 'Update the attributes on an existing credential.'
       key :tags, [ 'credential' ]
 
       parameter :update_id

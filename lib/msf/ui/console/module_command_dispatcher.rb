@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/ui/console/command_dispatcher'
 
 module Msf
 module Ui
@@ -79,16 +78,17 @@ module ModuleCommandDispatcher
 
     loop do
       while (@tl.length < threads_max)
-        ip = hosts.next_ip
-        break unless ip
+        host = hosts.next_host
+        break unless host
 
-        @tl << framework.threads.spawn("CheckHost-#{ip}", false, ip.dup) { |tip|
+        @tl << framework.threads.spawn("CheckHost-#{host[:address]}", false, host.dup) { |thr_host|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
-          instance = mod.replicant
-          instance.datastore['RHOST'] = tip.dup
-          Msf::Simple::Framework.simplify_module(instance, false)
-          check_simple(instance)
+          nmod = mod.replicant
+          nmod.datastore['RHOST'] = thr_host[:address].dup
+          nmod.datastore['VHOST'] = thr_host[:hostname].dup if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
+          Msf::Simple::Framework.simplify_module(nmod, false)
+          check_simple(nmod)
         }
       end
 
@@ -105,7 +105,7 @@ module ModuleCommandDispatcher
         if exception.kind_of?(::Interrupt)
           raise exception
         else
-          elog("#{exception} #{exception.class}:\n#{exception.backtrace.join("\n")}")
+          elog('Error encountered with first Thread', error: exception)
         end
       end
 
@@ -126,7 +126,8 @@ module ModuleCommandDispatcher
       return
     end
 
-    ip_range_arg = args.shift || mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
+    ip_range_arg = args.join(' ') unless args.empty?
+    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
     opt = Msf::OptAddressRange.new('RHOSTS')
 
     begin
@@ -234,7 +235,7 @@ module ModuleCommandDispatcher
         raise NotImplementedError, msg
       end
 
-      if (code and code.kind_of?(Array) and code.length > 1)
+      if (code && code.kind_of?(Msf::Exploit::CheckCode))
         if (code == Msf::Exploit::CheckCode::Vulnerable)
           print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
@@ -251,20 +252,20 @@ module ModuleCommandDispatcher
     rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error => e
       # Connection issues while running check should be handled by the module
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Msf::Exploit::Failed => e
       # Handle fail_with and other designated exploit failures
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::RuntimeError => e
       # Some modules raise RuntimeError but we don't necessarily care about those when we run check()
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::NotImplementedError => e
       print_error(e.message)
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     rescue ::Exception => e
       print_error("Check failed: #{e.class} #{e}")
-      elog("#{e.message}\n#{e.backtrace.join("\n")}")
+      elog('Check Failed', error: e)
     end
   end
 

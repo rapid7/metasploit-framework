@@ -19,9 +19,6 @@ class PayloadCachedSize
     'Options'     => {
       'CPORT' => 4444,
       'LPORT' => 4444,
-      'LHOST' => '255.255.255.255',
-      'KHOST' => '255.255.255.255',
-      'AHOST' => '255.255.255.255',
       'CMD' => '/bin/sh',
       'URL' => 'http://a.com',
       'PATH' => '/',
@@ -36,27 +33,27 @@ class PayloadCachedSize
     'DisableNops' => true
   }
 
-  OPTS6 = {
-    'Format'      => 'raw',
-    'Options'     => {
-      'CPORT' => 4444,
-      'LPORT' => 4444,
-      'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
-      'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
-      'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
-      'CMD' => '/bin/sh',
-      'URL' => 'http://a.com',
-      'PATH' => '/',
-      'BUNDLE' => 'data/isight.bundle',
-      'DLL' => 'external/source/byakugan/bin/XPSP2/detoured.dll',
-      'RC4PASSWORD' => 'Metasploit',
-      'DNSZONE' => 'corelan.eu',
-      'PEXEC' => '/bin/sh',
-      'StagerURILength' => 5
-    },
-    'Encoder'     => nil,
-    'DisableNops' => true
-  }
+  OPTS_ARCH_X64 = {
+    'DLL' => 'data/vncdll.x64.dll',
+    'PE' => 'data/vncdll.x64.dll'
+  }.freeze
+
+  OPTS_ARCH_X86 = {
+    'DLL' => 'data/vncdll.x86.dll',
+    'PE' => 'data/vncdll.x86.dll'
+  }.freeze
+
+  OPTS_IPV4 = {
+    'LHOST' => '255.255.255.255',
+    'KHOST' => '255.255.255.255',
+    'AHOST' => '255.255.255.255'
+  }.freeze
+
+  OPTS_IPV6 = {
+    'LHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    'KHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff',
+    'AHOST' => 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'
+  }.freeze
 
   # Insert a new CachedSize value into the text of a payload module
   #
@@ -104,8 +101,8 @@ class PayloadCachedSize
   # @return [Integer]
   def self.compute_cached_size(mod)
     return ":dynamic" if is_dynamic?(mod)
-    return mod.generate_simple(OPTS6).size if mod.shortname =~ /6/
-    return mod.generate_simple(OPTS).size
+
+    mod.generate_simple(module_options(mod)).size
   end
 
   # Determines whether a payload generates a static sized output
@@ -115,12 +112,9 @@ class PayloadCachedSize
   #   verify that the size is static.
   # @return [Integer]
   def self.is_dynamic?(mod, generation_count=5)
+    opts = module_options(mod)
     [*(1..generation_count)].map do |x|
-      if mod.shortname =~ /6/
-        mod.generate_simple(OPTS6).size
-      else
-        mod.generate_simple(OPTS).size
-      end
+      mod.generate_simple(opts).size
     end.uniq.length != 1
   end
 
@@ -131,13 +125,26 @@ class PayloadCachedSize
   def self.is_cached_size_accurate?(mod)
     return true if mod.dynamic_size? && is_dynamic?(mod)
     return false if mod.cached_size.nil?
-    if mod.shortname =~ /6/
-      mod.cached_size == mod.generate_simple(OPTS6).size
-    else
-      mod.cached_size == mod.generate_simple(OPTS).size
-    end
+
+    mod.cached_size == mod.generate_simple(module_options(mod)).size
   end
 
+  # Get a set of sane default options for the module so it can generate a
+  # payload for size analysis.
+  #
+  # @param mod [Msf::Payload] The class of the payload module to get options for
+  # @return [Hash]
+  def self.module_options(mod)
+    opts = OPTS.clone
+    # Assign this way to overwrite the Options key of the newly cloned hash
+    opts['Options'] = opts['Options'].merge(mod.shortname =~ /6/ ? OPTS_IPV6 : OPTS_IPV4)
+    if mod.arch_to_s == ARCH_X64
+      opts['Options'].merge!(OPTS_ARCH_X64)
+    elsif mod.arch_to_s == ARCH_X86
+      opts['Options'].merge!(OPTS_ARCH_X86)
+    end
+    opts
+  end
 end
 
 end

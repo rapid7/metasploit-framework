@@ -1,4 +1,3 @@
-require 'rex/parser/ip360_aspl_xml'
 
 module Msf::DBManager::Import::IP360::ASPL
   #
@@ -6,8 +5,6 @@ module Msf::DBManager::Import::IP360::ASPL
   #
   def import_ip360_aspl_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
-    bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     if not data.index("<ontology")
       raise Msf::DBImportError.new("The ASPL file does not appear to be valid or may still be compressed")

@@ -1,10 +1,7 @@
 # -*- coding: binary -*-
-require 'msf/core/payload/uuid'
-require 'msf/core/payload/windows'
-require 'msf/core/reflective_dll_loader'
 require 'rex/socket/x509_certificate'
+require 'rex/post/meterpreter/extension_mapper'
 require 'securerandom'
-
 class Rex::Payloads::Meterpreter::Config
 
   include Msf::ReflectiveDLLLoader
@@ -36,6 +33,9 @@ private
   end
 
   def to_str(item, size)
+    if item.size >= size  # ">=" instead of only ">", because we need space for a terminating null byte (for string handling in C)
+      raise Msf::PayloadItemSizeError.new(item, size - 1)
+    end
     @to_str.call(item, size)
   end
 
@@ -129,24 +129,25 @@ private
 
   def extension_block(ext_name, file_extension)
     ext_name = ext_name.strip.downcase
-    ext, o = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
+    ext, _ = load_rdi_dll(MetasploitPayloads.meterpreter_path("ext_server_#{ext_name}",
                                                               file_extension))
 
-    extension_data = [ ext.length, ext ].pack('VA*')
+    [ ext.length, ext ].pack('VA*')
   end
 
   def extension_init_block(name, value)
+    ext_id = Rex::Post::Meterpreter::ExtensionMapper.get_extension_id(name)
+
     # for now, we're going to blindly assume that the value is a path to a file
     # which contains the data that gets passed to the extension
-    content = ::File.read(value)
+    content = ::File.read(value) + "\x00\x00"
     data = [
-      name,
-      "\x00",
+      ext_id,
       content.length,
       content
     ]
 
-    data.pack('A*A*VA*')
+    data.pack('VVA*')
   end
 
   def config_block
@@ -179,8 +180,8 @@ private
       config << extension_init_block(name, value)
     end
 
-    # terminate the ext init config with a final null byte
-    config << "\x00"
+    # terminate the ext init config with -1
+    config << "\xFF\xFF\xFF\xFF"
 
     # and we're done
     config

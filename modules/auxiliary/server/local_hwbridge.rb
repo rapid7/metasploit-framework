@@ -25,7 +25,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'WebServer' ]
+          [ 'WebServer', 'Description' => 'Run HWBridge web server' ]
         ],
       'PassiveActions' =>
         [

@@ -1,14 +1,11 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_named_pipe'
-require 'msf/core/payload/windows/reverse_named_pipe'
-
 module MetasploitModule
 
-  CachedSize = 276
+  CachedSize = 289
 
   include Msf::Payload::Stager
   include Msf::Payload::Windows::ReverseNamedPipe

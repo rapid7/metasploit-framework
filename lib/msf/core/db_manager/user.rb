@@ -1,5 +1,5 @@
 require 'bcrypt'
-require 'sysrandom/securerandom'
+require 'securerandom'
 
 module Msf::DBManager::User
 
@@ -7,8 +7,9 @@ module Msf::DBManager::User
 
   # Returns a list of all users in the database
   def users(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
 
+      opts = opts.clone() # protect the original caller's opts
       search_term = opts.delete(:search_term)
       if search_term && !search_term.empty?
         column_search_conditions = Msf::Util::DBManager.create_all_column_search_conditions(Mdm::User, search_term)
@@ -41,7 +42,7 @@ module Msf::DBManager::User
     raise ArgumentError.new("Missing required option :username") if opts[:username].nil?
     raise ArgumentError.new("Missing required option :password") if opts[:password].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
 
       conditions = {username: opts[:username]}
       user = Mdm::User.where(conditions).first_or_initialize
@@ -73,9 +74,12 @@ module Msf::DBManager::User
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::User] The updated Mdm::User object.
   def update_user(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
+      opts = opts.clone() # protect the original caller's opts
       id = opts.delete(:id)
-      Mdm::User.update(id, opts)
+      user = Mdm::User.find(id)
+      user.update!(opts)
+      return user
     }
   end
 
@@ -86,7 +90,7 @@ module Msf::DBManager::User
   def delete_user(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |user_id|
         user = Mdm::User.find(user_id)
@@ -133,7 +137,9 @@ module Msf::DBManager::User
 
     token_length = opts[:token_length] || MIN_TOKEN_LENGTH
     # NOTE: repurposing persistence_token in the database as the API token
-    Mdm::User.update(opts[:id], {persistence_token: SecureRandom.hex(token_length)}).persistence_token
+    user = Mdm::User.find(opts[:id])
+    user.update!({persistence_token: SecureRandom.hex(token_length)})
+    user.persistence_token
   end
 
 end

@@ -1,7 +1,7 @@
 module Msf::DBManager::Import::Nessus::XML::V1
   def import_nessus_xml(args={}, &block)
     data = args[:data]
-    wspace = args[:wspace] || workspace
+    wspace = Msf::Util::DBManager.process_opts_workspace(args, framework).name
     bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
     doc = rexmlify(data)

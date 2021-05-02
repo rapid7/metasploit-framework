@@ -32,7 +32,7 @@
 
   **RHOSTS**
   
-  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file://root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
+  Either a comma space (`, `) separated list of hosts, or a file containing list of hosts, one per line.  File Example: `file:/root/ssh_hosts.lst`, list example: `192.168.0.1` or `192.168.0.1, 192.168.0.2`
 
   **STOP_ON_SUCCESS**
   
@@ -104,8 +104,8 @@ msf auxiliary(ssh_login) > cat /root/ssh_hosts.lst
 192.168.2.137
 192.168.2.35
 192.168.2.46
-msf auxiliary(ssh_login) > set rhosts file://root/ssh_hosts.lst
-rhosts => file://root/ssh_hosts.lst
+msf auxiliary(ssh_login) > set rhosts file:/root/ssh_hosts.lst
+rhosts => file:/root/ssh_hosts.lst
 msf auxiliary(ssh_login) > set verbose false
 verbose => false
 msf auxiliary(ssh_login) > set threads 4

@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'        =>  MSF_LICENSE
     )
 
-    deregister_options('Proxies','SSL','RHOST')
+    deregister_udp_options
     register_options(
       [
         Opt::RPORT(5060),

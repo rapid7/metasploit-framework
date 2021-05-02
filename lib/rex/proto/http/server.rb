@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/socket'
-require 'rex/proto/http'
-require 'rex/proto/http/handler'
+
 
 module Rex
 module Proto
@@ -368,8 +367,7 @@ protected
         handler.on_request(cli, request)
       end
     else
-      elog("Failed to find handler for resource: #{request.resource}",
-        LogSource)
+      elog("Failed to find handler for resource: #{request.resource}", LogSource)
 
       send_e404(cli, request)
     end

@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 require 'cgi'
 require 'uri'
-require 'rex/proto/http'
+
 require 'nokogiri'
 require 'rkelly'
 
@@ -126,7 +126,7 @@ class Response < Packet
     begin
       json = JSON.parse(self.body)
     rescue JSON::ParserError => e
-      elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+      elog(e)
     end
 
     json
@@ -219,11 +219,9 @@ class Response < Packet
   # @return [URI] the uri of the redirection location.
   # @return [nil] if the response hasn't a Location header or it isn't a valid uri.
   def redirection
-    begin
-      URI(headers['Location'])
-    rescue ::URI::InvalidURIError
-      nil
-    end
+    URI(headers['Location'])
+  rescue ArgumentError, ::URI::InvalidURIError
+    nil
   end
 
   #

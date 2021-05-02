@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE
       )
     )
-    deregister_options('RHOST', 'RPORT')
+    deregister_udp_options
   end
 
   def parse_reply(pkt)

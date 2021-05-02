@@ -1,7 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/crypt'
-require 'rex/proto/ntlm/exceptions'
 
 module Rex::Proto::NTLM
   class Utils
@@ -435,7 +432,7 @@ module Rex::Proto::NTLM
       client_challenge ||= Rex::Text.rand_text(8)
       # We have to set the timestamps here to the one in the challenge message from server if present
       # If we don't do that, recent server like Seven/2008 will send a STATUS_INVALID_PARAMETER error packet
-      timestamp = chall_MsvAvTimestamp != '' ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
+      timestamp = chall_MsvAvTimestamp != '' ? chall_MsvAvTimestamp : self.time_unix_to_smb(::Time.now.to_i).reverse.pack("VV")
       # Make those values unicode as requested
       win_domain = Rex::Text.to_unicode(win_domain)
       win_name = Rex::Text.to_unicode(win_name)

@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans for Joomla Content Management System running on a web server for components/plugins.
 The list can be found in [data/wordlists/joomla.txt](https://github.com/rapid7/metasploit-framework/blob/master/data/wordlists/joomla.txt). 

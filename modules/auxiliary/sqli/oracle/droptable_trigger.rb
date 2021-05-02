@@ -23,7 +23,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.securityfocus.com/archive/1/500061' ],
           [ 'URL', 'http://www.ngssoftware.com/' ],
         ],
-      'DisclosureDate' => 'Jan 13 2009'))
+      'DisclosureDate' => '2009-01-13'))
 
       register_options(
         [

@@ -1,5 +1,4 @@
 require 'json'
-require 'msf/core/modules/metadata'
 
 #
 # Handles storage of module metadata on disk. A base metadata file is always included - this was added to ensure a much
@@ -39,7 +38,7 @@ module Msf::Modules::Metadata::Store
         end
       }
     rescue => e
-      elog("Unable to update metadata store: #{e.message}")
+      elog('Unable to update metadata store', error: e)
     end
   end
 
@@ -60,7 +59,7 @@ module Msf::Modules::Metadata::Store
         retry
       else
         @console.print_warning('Unable to load module metadata from disk see error log')
-        elog("Unable to load module metadata: #{e.message}")
+        elog('Unable to load module metadata', error: e)
       end
     end
 
@@ -120,10 +119,9 @@ module Msf::Modules::Metadata::Store
       begin
         @module_metadata_cache[k] =  Msf::Modules::Metadata::Obj.from_hash(v)
       rescue => e
-        elog("Unable to load module metadata object with key: #{k}")
+        elog("Unable to load module metadata object with key: #{k}", error: e)
       end
     }
   end
 
 end
-

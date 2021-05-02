@@ -3,10 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/payload/r'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
 
@@ -20,7 +16,7 @@ module MetasploitModule
     super(merge_info(info,
       'Name'        => 'Unix Command Shell, Bind TCP (via R)',
       'Description' => 'Continually listen for a connection and spawn a command shell via R',
-      'Author'      => [ 'RageLtMan' ],
+      'Author'      => [ 'RageLtMan <rageltman[at]sempervictus>' ],
       'License'     => MSF_LICENSE,
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,

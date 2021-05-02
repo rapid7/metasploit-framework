@@ -25,7 +25,7 @@ ALPHA バージョンです。将来のバージョンで互換がない変更�
 
 使用例:
 
- Mysql.connect("mysql://username:password@hostname:3306/dbname") do |my|
+ RbMysql.connect("mysql://username:password@hostname:3306/dbname") do |my|
    my.query("select col1, col2 from tblname").each do |col1, col2|
      p col1, col2
    end

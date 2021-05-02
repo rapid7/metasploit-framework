@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
@@ -153,7 +152,7 @@ class MetasploitModule < Msf::Post
           end
         end
       rescue ::Rex::Post::Meterpreter::RequestError => e
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog(e)
         print_error("Cannot Access User SID: #{hive['HKU']} : #{e.message}")
       end
     end
@@ -168,7 +167,7 @@ class MetasploitModule < Msf::Post
     hex_chars = encoded.scan(/../)
     hex_chars.each do |entry|
       x = entry.to_i(16) - shift
-      decoded += x.chr(Encoding::UTF_8)
+      decoded += x.chr(::Encoding::UTF_8)
     end
 
     return decoded

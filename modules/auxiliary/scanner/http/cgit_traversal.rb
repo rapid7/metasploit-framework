@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           'Google Project Zero', # Vulnerability discovery
           'Dhiraj Mishra' # Metasploit module
         ],
-      'DisclosureDate' => 'Aug 03 2018',
+      'DisclosureDate' => '2018-08-03',
       'License'     => MSF_LICENSE
     ))
 

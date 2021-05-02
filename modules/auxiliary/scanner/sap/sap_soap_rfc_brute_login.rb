@@ -41,7 +41,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8000),
-        OptString.new('CLIENT', [true, 'Client can be single (066), comma seperated list (000,001,066) or range (000-999)', '000,001,066']),
+        OptString.new('CLIENT', [true, 'Client can be single (066), comma separated list (000,001,066) or range (000-999)', '000,001,066']),
         OptString.new('TARGETURI', [true, 'The base path to the SOAP RFC Service', '/sap/bc/soap/rfc']),
         OptPath.new('USERPASS_FILE', [ false, "File containing users and passwords separated by space, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "sap_default.txt") ])

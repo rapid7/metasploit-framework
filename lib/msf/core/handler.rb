@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 module Msf
 
@@ -28,7 +27,6 @@ module Msf
 #
 ###
 module Handler
-  require 'msf/core/handler/reverse'
 
   ##
   #
@@ -210,7 +208,7 @@ protected
       rescue ::Exception => e
         # We just wanna show and log the error, not trying to swallow it.
         print_error("#{e.class} #{e.message}")
-        elog("#{e.class} #{e.message}\n#{e.backtrace * "\n"}")
+        elog('Could not allocate a new Session.', error: e)
         raise e
       end
 
@@ -221,10 +219,22 @@ protected
       # and any relevant information
       s.set_from_exploit(assoc_exploit)
 
+      # set injected workspace value if db is active
+      if framework.db.active && wspace = framework.db.find_workspace(s.workspace)
+        framework.db.workspace = wspace
+      end
+
       # Pass along any associated payload uuid if specified
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
-        if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.uuid_db[s.payload_uuid.puid_hex])
+        s.payload_uuid.registered = false
+        if framework.db.active
+          payload_info = { uuid: s.payload_uuid.puid_hex, workspace: framework.db.workspace }
+          uuid_info = framework.db.payloads(payload_info).first
+        else
+          print_warning('Without a database connected that payload UUID tracking will not work!')
+        end
+        if s.payload_uuid.respond_to?(:puid_hex) && uuid_info
           s.payload_uuid.registered = true
           s.payload_uuid.name = uuid_info['name']
           s.payload_uuid.timestamp = uuid_info['timestamp']
@@ -236,7 +246,11 @@ protected
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
       if (s)
-        register_session(s)
+        # Defer the session registration to the Session Manager scheduler
+        registration = Proc.new do
+          register_session(s)
+        end
+        framework.sessions.schedule registration
       end
 
       return s
@@ -255,12 +269,25 @@ protected
     # Call the handler's on_session() method
     if session.respond_to?(:bootstrap)
       session.bootstrap(datastore, self)
-    else
-      # Process the auto-run scripts for this session
-      if session.respond_to?(:process_autoruns)
-        session.process_autoruns(datastore)
-      end
-      on_session(session)
+
+      return unless session.alive
+    end
+
+    # Process the auto-run scripts for this session
+    if session.respond_to?(:process_autoruns)
+      session.process_autoruns(datastore)
+    end
+
+    # Tell the handler that we have a session
+    on_session(session)
+
+    # Notify the framework that we have a new session opening up...
+    # Don't let errant event handlers kill our session
+    begin
+      framework.events.on_session_open(session)
+    rescue ::Exception => e
+      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
     end
 
     # If there is an exploit associated with this payload, then let's notify
@@ -287,7 +314,3 @@ protected
 end
 
 end
-
-# The default none handler
-require 'msf/core/handler/none'
-

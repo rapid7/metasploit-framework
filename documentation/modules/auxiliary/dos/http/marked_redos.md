@@ -6,7 +6,7 @@ Versions before 0.3.19 are vulnerable.
 Any application that uses a vulnerable version of this module and passes untrusted input
 to the module will be vulnerable.
 
-## How to Install
+### How to Install
 
 To install a vulnerable version of `marked`, run:
 ```
@@ -14,8 +14,6 @@ npm i marked@0.3.19
 ```
 
 ## Verification Steps
-
-Example steps in this format (is also in the PR):
 
 1. Create a new directory for test application.
 2. Copy below example server into test application directory as `server.js`.

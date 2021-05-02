@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
           'sinn3r'
         ],
       'License'        => MSF_LICENSE,
-      'DisclosureDate' => "Nov 30 2012"
+      'DisclosureDate' => '2012-11-30'
     ))
 
     register_options(
@@ -42,8 +42,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('USERNAME', [true, 'The username to login as']),
         OptString.new('PASSWORD', [true, 'The password to login with'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def auth(username, password, sid, last_login)

@@ -20,7 +20,7 @@ module LogSink
   # intended to take the supplied parameters and persist them to an arbitrary
   # medium.
   #
-  def log(sev, src, level, msg, from)
+  def log(sev, src, level, msg)
     raise NotImplementedError
   end
 
@@ -30,14 +30,10 @@ protected
   # This method returns the current timestamp in MM/DD/YYYY HH:Mi:SS format.
   #
   def get_current_timestamp
-    return Time.now.strftime("%m/%d/%Y %H:%M:%S")
+    return ::Time.now.strftime("%m/%d/%Y %H:%M:%S")
   end
 
 end
 
 end
 end
-
-require 'rex/logging/sinks/flatfile'
-require 'rex/logging/sinks/stderr'
-require 'rex/logging/sinks/timestamp_flatfile'

@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 require 'metasm'
 
 module Msf
@@ -13,28 +12,11 @@ module Msf
 ###
 class Payload < Msf::Module
 
-  require 'rex/payloads'
-
-  require 'msf/core/payload/single'
-  require 'msf/core/payload/generic'
-  require 'msf/core/payload/stager'
 
   # Platform specific includes
-  require 'msf/core/payload/aix'
-  require 'msf/core/payload/bsd'
-  require 'msf/core/payload/linux'
-  require 'msf/core/payload/osx'
-  require 'msf/core/payload/solaris'
-  require 'msf/core/payload/windows'
-  require 'msf/core/payload/netware'
-  require 'msf/core/payload/java'
-  require 'msf/core/payload/android'
-  require 'msf/core/payload/firefox'
-  require 'msf/core/payload/mainframe'
-  require 'msf/core/payload/hardware'
+  require 'metasploit/framework/compiler/mingw'
 
   # Universal payload includes
-  require 'msf/core/payload/multi'
 
   ##
   #
@@ -68,6 +50,13 @@ class Payload < Msf::Module
   #
   def initialize(info = {})
     super
+    self.can_cleanup = true
+
+    #
+    # Gets the Dependencies if the payload requires external help
+    # to work
+    #
+    self.module_info['Dependencies'] = self.module_info['Dependencies'] || []
 
     # If this is a staged payload but there is no stage information,
     # then this is actually a stager + single combination.  Set up the
@@ -202,7 +191,9 @@ class Payload < Msf::Module
     pl = nil
     begin
       pl = generate()
+    rescue Metasploit::Framework::Compiler::Mingw::UncompilablePayloadError
     rescue NoCompatiblePayloadError
+    rescue PayloadItemSizeError
     end
     pl ||= ''
     pl.length
@@ -239,6 +230,13 @@ class Payload < Msf::Module
   end
 
   #
+  # Returns the compiler dependencies if the payload has one
+  #
+  def dependencies
+    module_info['Dependencies']
+  end
+
+  #
   # Returns the staging convention that the payload uses, if any.  This is
   # used to make sure that only compatible stagers and stages are built
   # (where assumptions are made about register/environment initialization
@@ -262,29 +260,6 @@ class Payload < Msf::Module
   #
   def symbol_lookup
     module_info['SymbolLookup']
-  end
-
-  #
-  # Checks to see if the supplied convention is compatible with this
-  # payload's convention.
-  #
-  def compatible_convention?(conv)
-    # If we don't have a convention or our convention is equal to
-    # the one supplied, then we know we are compatible.
-    if ((self.convention == nil) or
-        (self.convention == conv))
-      true
-    # On the flip side, if we are a stager and the supplied convention is
-    # nil, then we know it's compatible.
-    elsif ((payload_type == Type::Stager) and
-           (conv == nil))
-      true
-    # Otherwise, the conventions don't match in some way or another, and as
-    # such we deem ourself as not being compatible with the supplied
-    # convention.
-    else
-      false
-    end
   end
 
   #
@@ -537,6 +512,11 @@ class Payload < Msf::Module
 
   end
 
+  #
+  # This attribute designates if the payload supports onsession()
+  # method calls (typically to clean up artifacts)
+  #
+  attr_accessor :can_cleanup
   #
   # This attribute holds the string that should be prepended to the buffer
   # when it's generated.

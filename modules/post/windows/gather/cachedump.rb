@@ -306,7 +306,7 @@ class MetasploitModule < Msf::Post
       client.railgun.netapi32()
       join_status = client.railgun.netapi32.NetGetJoinInformation(nil,4,4)["BufferType"]
 
-      if sysinfo['Architecture'] =~ /x64/
+      if sysinfo['Architecture'] == ARCH_X64
         join_status = join_status & 0x00000000ffffffff
       end
 

@@ -32,9 +32,9 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('TARGETURI', [true, 'The path to GitLab', '/'])
       ])
 
-    register_autofilter_ports([ 80, 443 ])
+    deregister_options('PASSWORD_SPRAY')
 
-    deregister_options('RHOST')
+    register_autofilter_ports([ 80, 443 ])
   end
 
   def run_host(ip)

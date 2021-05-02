@@ -37,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
           'RPORT' => 443
         },
        'License'        => MSF_LICENSE,
-       'DisclosureDate' => 'Dec 17 2015'
+       'DisclosureDate' => '2015-12-17'
     ))
 
     register_options(
@@ -47,8 +47,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [true, 'The password to login with']),
         OptString.new('TARGETURI', [true, 'The base path to Symantec Messaging Gateway', '/'])
       ])
-
-    deregister_options('RHOST')
   end
 
   def print_status(msg='')

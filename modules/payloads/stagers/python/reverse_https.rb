@@ -3,13 +3,9 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/python'
-require 'msf/core/payload/python/reverse_http'
-
 module MetasploitModule
 
-  CachedSize = 762
+  CachedSize = 841
 
   include Msf::Payload::Stager
   include Msf::Payload::Python

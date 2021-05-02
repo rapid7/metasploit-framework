@@ -23,7 +23,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       'pry'        => 'Open the Pry debugger on the current module or Framework',
       'edit'       => 'Edit the current module or a file with the preferred editor',
       'reload_lib' => 'Reload Ruby library files from specified paths',
-      'log'        => 'Display framework.log paged to the end if possible'
+      'log'        => 'Display framework.log paged to the end if possible',
+      'time'       => 'Time how long it takes to run a particular command'
     }
   end
 
@@ -76,8 +77,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     files = output.split("\n")
 
     files.each do |file|
+      next if file.end_with?('_spec.rb')
       f = File.join(Msf::Config.install_root, file)
-      reload_file(file, print_errors: false)
+      reload_file(f, print_errors: false)
     end
   end
 
@@ -137,8 +139,9 @@ class Msf::Ui::Console::CommandDispatcher::Developer
   #
   # Tab completion for the irb command
   #
-  def cmd_irb_tabs(str, words)
+  def cmd_irb_tabs(_str, words)
     return [] if words.length > 1
+
     @@irb_opts.fmt.keys
   end
 
@@ -305,4 +308,29 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     end
   end
 
+  #
+  # Time how long in seconds a command takes to execute
+  #
+  def cmd_time(*args)
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    command = args.join(' ')
+    driver.run_single(command)
+  ensure
+    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    elapsed_time = end_time - start_time
+    print_good("Command #{command.inspect} completed in #{elapsed_time} seconds")
+  end
+
+  def cmd_time_help
+    print_line 'Usage: time [command]'
+    print_line
+    print_line 'Time how long a command takes to execute in seconds'
+    print_line
+    print_line '   Usage:'
+    print_line '      * time db_import ./db_import.html'
+    print_line '      * time show exploits'
+    print_line '      * time reload_all'
+    print_line '      * time missing_command'
+    print_line
+  end
 end

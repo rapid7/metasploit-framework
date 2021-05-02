@@ -8,21 +8,29 @@ class UsageError < MsfVenomError; end
 require 'optparse'
 require 'timeout'
 
-def require_deps
-  msfbase = __FILE__
-  while File.symlink?(msfbase)
-    msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
-  end
+# Silences warnings as they only serve to confuse end users
+if defined?(Warning) && Warning.respond_to?(:[]=)
+  Warning[:deprecated] = false
+end
 
-  $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+msfbase = __FILE__
+while File.symlink?(msfbase)
+  msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
+
+require 'metasploit/framework/profiler'
+Metasploit::Framework::Profiler.start
+
+def require_deps
   require 'msfenv'
 
   $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
   require 'rex'
-  require 'msf/ui'
-  require 'msf/base'
   require 'msf/core/payload_generator'
+  require 'msf/core/constants'
 
   @framework_loaded = true
 end
@@ -40,10 +48,10 @@ def init_framework(create_opts={})
   ]
 
   create_opts[:module_types].map! do |type|
-    type = Msf.const_get("MODULE_#{type.upcase}")
+    Msf.const_get("MODULE_#{type.upcase}")
   end
 
-  @framework = ::Msf::Simple::Framework.create(create_opts.merge('DisableDatabase' => true))
+  @framework = ::Msf::Simple::Framework.create(create_opts)
 end
 
 # Cached framework object
@@ -97,6 +105,16 @@ def parse_args(args)
     opts[:encoder] = e
   end
 
+  opt.on('--service-name    <value>', String, 'The service name to use when generating a service binary') do |s|
+    opts[:servicename] = s
+    opts[:sub_method] = true # Needed to ensure that to_win32pe_service() will call
+                             # exe_sub_method() for x86 binaries, not needed and ignored for x64 binaries.
+  end
+
+  opt.on('--sec-name        <value>', String, 'The new section name to use when generating large Windows binaries. Default: random 4-character alpha string') do |s|
+    opts[:secname] = s
+  end
+
   opt.on('--smallest', 'Generate the smallest possible payload using all available encoders') do
     opts[:smallest] = true
   end
@@ -106,7 +124,8 @@ def parse_args(args)
   end
 
   opt.on('--encrypt-key     <value>', String, 'A key to be used for --encrypt') do |e|
-    opts[:encryption_key] = e
+    init_framework
+    opts[:encryption_key] = Rex::Text.dehex(e)
   end
 
   opt.on('--encrypt-iv      <value>', String, 'An initialization vector for --encrypt') do |e|
@@ -126,15 +145,15 @@ def parse_args(args)
   end
 
   opt.on('-b', '--bad-chars       <list>', String, 'Characters to avoid example: \'\x00\xff\'') do |b|
-    init_framework()
-    opts[:badchars] = Rex::Text.hex_to_raw(b)
+    init_framework
+    opts[:badchars] = Rex::Text.dehex(b)
   end
 
   opt.on('-n', '--nopsled         <length>', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
     opts[:nops] = n.to_i
   end
 
-  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, thus performing a subtraction to prepend a nopsled of quantity (nops minus payload length)') do
+  opt.on('--pad-nops', 'Use nopsled size specified by -n <length> as the total payload size, auto-prepending a nopsled of quantity (nops minus payload length)') do
     opts[:padnops] = true
   end
 
@@ -192,7 +211,7 @@ def parse_args(args)
       datastore[k.upcase] = v.to_s
     end
     if opts[:payload].to_s =~ /[\_\/]reverse/ && datastore['LHOST'].nil?
-      init_framework()
+      init_framework
       datastore['LHOST'] = Rex::Socket.source_address
     end
   end
@@ -313,7 +332,7 @@ def dump_formats
   "\n" + tbl1.to_s + "\n" + tbl2.to_s + "\n"
 end
 
-def dump_payloads
+def dump_payloads(platform = nil, arch = nil)
   init_framework(:module_types => [ :payload ])
   tbl = Rex::Text::Table.new(
     'Indent'  => 4,
@@ -324,9 +343,17 @@ def dump_payloads
       "Description"
     ])
 
-  framework.payloads.each_module { |name, mod|
-    tbl << [ name, mod.new.description.split.join(' ') ]
-  }
+  framework.payloads.each_module(
+    'Platform' => platform ? Msf::Module::PlatformList.transform(platform.split(',')) : nil,
+    'Arch'     => arch ? arch.split(',') : nil) do |name, mod|
+      begin
+        mod_info = mod.new.description.split.join(' ')
+      rescue ::Exception, ::LoadError => e
+        wlog("Module #{name} failed to initialize: #{e}", 'core', LEV_0)
+        next
+      end
+      tbl << [ name, mod_info ]
+  end
 
   "\n" + tbl.to_s + "\n"
 end
@@ -345,11 +372,11 @@ def dump_encoders(arch = nil)
   cnt = 0
 
   framework.encoders.each_module(
-    'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+    'Arch' => arch ? arch.split(',') : nil) do |name, mod|
       tbl << [ name, mod.rank_to_s, mod.new.name ]
 
       cnt += 1
-    }
+  end
 
     (cnt > 0) ? "\n" + tbl.to_s + "\n" : "\nNo compatible encoders found.\n\n"
 end
@@ -365,9 +392,9 @@ def dump_nops
       "Description"
     ])
 
-  framework.nops.each_module { |name, mod|
+  framework.nops.each_module do |name, mod|
     tbl << [ name, mod.new.description.split.join(' ') ]
-  }
+  end
 
   "\n" + tbl.to_s + "\n"
 end
@@ -387,7 +414,7 @@ if generator_opts[:list]
   generator_opts[:list].each do |mod|
     case mod.downcase
     when "payloads", "payload", "p"
-      $stdout.puts dump_payloads
+      $stdout.puts dump_payloads(generator_opts[:platform], generator_opts[:arch])
     when "encoders", "encoder", "e"
       $stdout.puts dump_encoders(generator_opts[:arch])
     when "nops", "nop", "n"
@@ -444,7 +471,7 @@ generator_opts[:cli] = true
 begin
   venom_generator = Msf::PayloadGenerator.new(generator_opts)
   payload = venom_generator.generate_payload
-rescue ::Msf::Simple::Buffer::BufferFormatError => e
+rescue Msf::InvalidFormat => e
   $stderr.puts "Error: #{e.message}"
   $stderr.puts dump_formats
 rescue ::Exception => e

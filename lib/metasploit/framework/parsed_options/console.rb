@@ -11,6 +11,7 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
         options.console.commands = []
         options.console.confirm_exit = false
         options.console.histfile = nil
+        options.console.logger = nil
         options.console.local_output = nil
         options.console.plugins = []
         options.console.quiet = false
@@ -41,6 +42,10 @@ class Metasploit::Framework::ParsedOptions::Console < Metasploit::Framework::Par
 
         option_parser.on('-H', '--history-file FILE', 'Save command history to the specified file') do |file|
           options.console.histfile = file
+        end
+
+        option_parser.on('-l', '--logger STRING', "Specify a logger to use (#{Rex::Logging::LogSinkFactory.available_sinks.join(', ')})") do |logger|
+          options.console.logger = logger
         end
 
         option_parser.on('-L', '--real-readline', 'Use the system Readline library instead of RbReadline') do

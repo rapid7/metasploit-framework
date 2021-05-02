@@ -31,7 +31,7 @@ attr_accessor :sock, :thread
 
         'Actions'     =>
         [
-          [ 'Service' ]
+          [ 'Service', 'Description' => 'Run LLMNR spoofing service' ]
         ],
       'PassiveActions' =>
         [

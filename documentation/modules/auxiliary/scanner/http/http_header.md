@@ -22,7 +22,7 @@ Module options (auxiliary/scanner/http/http_header):
    Name         Current Setting                                                        Required  Description
    ----         ---------------                                                        --------  -----------
    HTTP_METHOD  HEAD                                                                   yes       HTTP Method to use, HEAD or GET (Accepted: GET, HEAD)
-   IGN_HEADER   Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges  yes       List of headers to ignore, seperated by comma
+   IGN_HEADER   Vary,Date,Content-Length,Connection,Etag,Expires,Pragma,Accept-Ranges  yes       List of headers to ignore, separated by comma
    Proxies                                                                             no        A proxy chain of format type:host:port[,type:host:port][...]
    RHOSTS                                                                              yes       The target address range or CIDR identifier
    RPORT        80                                                                     yes       The target port (TCP)

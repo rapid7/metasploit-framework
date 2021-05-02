@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/unattend'
 require 'rexml/document'
 
 class MetasploitModule < Msf::Post

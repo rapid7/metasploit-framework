@@ -1,4 +1,3 @@
-require 'msf/core'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 $:.push(lib) unless $:.include?(lib)
@@ -51,7 +50,9 @@ class MetasploitModule < Msf::Post
         "c:\\boot.ini",
         "c:\\pagefile.sys",
         "/etc/passwd",
-        "/etc/master.passwd"
+        "/etc/master.passwd",
+        "%WINDIR%\\system32\\notepad.exe",
+        "%WINDIR%\\system32\\calc.exe"
       ].each { |path|
         ret = true if file?(path)
       }

@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Auxiliary
 
@@ -51,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('MaxDepth',      [true, 'Max number of subdirectories to spider', 999]),
       ])
 
-    deregister_options('RPORT', 'RHOST')
+    deregister_options('RPORT')
   end
 
   def device_type_int_to_text(device_type)
@@ -85,6 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     self.simple.connect("\\\\#{ip}\\#{share}")
 
     begin
+      # XXX: not implemented with RubySMB client, should I implement it?
       device_type = self.simple.client.queryfs_fs_device['device_type']
       unless device_type
         vprint_error("\\\\#{ip}\\#{share}: Error querying filesystem device type")
@@ -330,7 +330,7 @@ class MetasploitModule < Msf::Auxiliary
       @smb_redirect = info[1]
 
       begin
-        connect(versions: [2,1])
+        connect
         smb_login
         shares = smb_netshareenumall
 
@@ -354,7 +354,17 @@ class MetasploitModule < Msf::Auxiliary
           )
 
           if datastore['SpiderShares']
-            get_files_info(ip, rport, shares, info)
+            begin
+              connect(versions: [1])
+              smb_login
+              get_files_info(ip, rport, shares, info)
+            rescue ::Rex::Proto::SMB::Exceptions::Error, Errno::ECONNRESET => e
+              print_error(
+                "Error when Spidering shares recursively (#{e}). This feature "\
+                "is only available with Rex client (SMB1 only) and the host "\
+                "probably doesn't support SMB1."
+              )
+            end
           end
 
           break if rport == 139

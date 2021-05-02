@@ -77,8 +77,8 @@ class Handler::Erb < Handler
       end
     rescue Errno::ENOENT
       server.send_e404(cli, req)
-    rescue
-      elog("Erb::on_request: #{$!}\n#{$@.join("\n")}", LogSource)
+    rescue => e
+      elog('Erb::on_request', LogSource, error: e)
 
       resp.code    = 500
       resp.message = "Internal Server Error"

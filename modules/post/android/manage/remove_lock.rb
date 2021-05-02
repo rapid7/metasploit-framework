@@ -33,7 +33,7 @@ class MetasploitModule < Msf::Post
         ],
         'SessionTypes'  => [ 'meterpreter', 'shell' ],
         'Platform'       => 'android',
-        'DisclosureDate' => "Oct 11 2013"
+        'DisclosureDate' => '2013-10-11'
       }
     ))
   end
@@ -47,8 +47,8 @@ class MetasploitModule < Msf::Post
       fail_with(Failure::Unknown, 'Failed to retrieve build.prop, you might need to try again.')
     end
 
-    android_version = Gem::Version.new(build_prop['ro.build.version.release'])
-    if android_version <= Gem::Version.new('4.3') && android_version >= Gem::Version.new('4.0')
+    android_version = Rex::Version.new(build_prop['ro.build.version.release'])
+    if android_version <= Rex::Version.new('4.3') && android_version >= Rex::Version.new('4.0')
       return true
     end
 

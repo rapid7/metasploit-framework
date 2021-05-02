@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'rex/logging'
 
 module Rex
 module Post
@@ -58,11 +57,6 @@ module Console::CommandDispatcher
     return @msf_loaded unless @msf_loaded.nil?
     # if we get here we must not have initialized yet
 
-    if client.framework
-      # We have a framework instance so the msf libraries should be
-      # available.  Load up the ones we're going to use
-      require 'msf/base/serializer/readable_text'
-    end
     @msf_loaded = !!(client.framework)
     @msf_loaded
   end
@@ -73,9 +67,7 @@ module Console::CommandDispatcher
   def log_error(msg)
     print_error(msg)
 
-    elog(msg, 'hwbridge')
-
-    dlog("Call stack:\n#{$@.join("\n")}", 'hwbridge')
+    elog(msg, 'hwbridge', error: $!)
   end
 
 end

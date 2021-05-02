@@ -38,6 +38,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('PASSWORD', [false, 'The password to specify for authentication', '']),
         OptString.new('TARGETURI', [ true,  'The path to the Chef Web UI application', '/']),
       ])
+
+    deregister_options('PASSWORD_SPRAY')
   end
 
   #

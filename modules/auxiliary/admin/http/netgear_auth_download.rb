@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://raw.githubusercontent.com/pedrib/PoC/master/advisories/netgear_nms_rce.txt'],
           ['URL', 'https://seclists.org/fulldisclosure/2016/Feb/30']
         ],
-      'DisclosureDate' => 'Feb 4 2016'))
+      'DisclosureDate' => '2016-02-04'))
 
     register_options(
       [

@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 If you've worked with old Unix systems before, you've probably
 encountered NIS (Network Information Service). The most familiar way of

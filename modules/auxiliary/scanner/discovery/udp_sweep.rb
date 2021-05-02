@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Auxiliary
     # multiple ports.
     deregister_options('RPORT')
 
-    # Intialize the probes array
+    # Initialize the probes array
     @probes = []
 
     # Add the UDP probe method names

@@ -1,8 +1,5 @@
 require 'spec_helper'
 
-require 'msf/ui'
-require 'msf/ui/console/module_command_dispatcher'
-require 'msf/ui/console/command_dispatcher/core'
 require 'readline'
 
 RSpec.describe Msf::Ui::Console::CommandDispatcher::Core do

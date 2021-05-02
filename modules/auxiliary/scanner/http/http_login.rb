@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/message'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/http'
 
@@ -45,7 +44,7 @@ class MetasploitModule < Msf::Auxiliary
       ])
     register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 
-    deregister_options('USERNAME', 'PASSWORD')
+    deregister_options('USERNAME', 'PASSWORD', 'PASSWORD_SPRAY')
   end
 
   def to_uri(uri)

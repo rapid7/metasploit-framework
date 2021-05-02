@@ -4,7 +4,7 @@ module Msf::DBManager::Note
   # note instance of each entry.
   #
   def each_note(wspace=framework.db.workspace, &block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.notes.each do |note|
       block.call(note)
     end
@@ -22,13 +22,15 @@ module Msf::DBManager::Note
   # This methods returns a list of all notes in the database
   #
   def notes(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If we have the ID, there is no point in creating a complex query.
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Mdm::Note.find(opts[:id]))
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+      opts = opts.clone()
+      opts.delete(:workspace)
 
       data = opts.delete(:data)
       search_term = opts.delete(:search_term)
@@ -76,8 +78,10 @@ module Msf::DBManager::Note
   #
   def report_note(opts)
     return if not active
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
+    opts = opts.clone()
+    opts.delete(:workspace)
     seen = opts.delete(:seen) || false
     crit = opts.delete(:critical) || false
     host = nil
@@ -129,7 +133,11 @@ module Msf::DBManager::Note
       host = get_host(:workspace => wspace, :host => addr)
     end
     if host and (opts[:port] and proto)
-      service = get_service(wspace, host, proto, opts[:port])
+      # only one result can be returned, as the +port+ field restricts potential results to a single service
+      service = services(:workspace => wspace,
+                         :hosts => {address: host.address},
+                         :proto => proto,
+                         :port => opts[:port]).first
     elsif opts[:service] and opts[:service].kind_of? ::Mdm::Service
       service = opts[:service]
     end
@@ -143,7 +151,7 @@ module Msf::DBManager::Note
     conditions[:service_id] = service[:id] if service
     conditions[:vuln_id] = opts[:vuln_id]
 
-    case mode
+    case mode.to_sym
     when :unique
       note      = wspace.notes.where(conditions).first_or_initialize
       note.data = data
@@ -195,12 +203,16 @@ module Msf::DBManager::Note
   # @param opts [Hash] Hash containing the updated values. Key should match the attribute to update. Must contain :id of record to update.
   # @return [Mdm::Note] The updated Mdm::Note object.
   def update_note(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace] = wspace if wspace
 
       id = opts.delete(:id)
-      Mdm::Note.update(id, opts)
+      note = Mdm::Note.find(id)
+      note.update!(opts)
+      return note
     }
   end
 
@@ -211,7 +223,7 @@ module Msf::DBManager::Note
   def delete_note(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |note_id|
         note = Mdm::Note.find(note_id)

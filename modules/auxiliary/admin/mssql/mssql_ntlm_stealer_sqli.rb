@@ -30,11 +30,6 @@ class MetasploitModule < Msf::Auxiliary
           'Antti <antti.rantasaari[at]netspi.com>'
         ],
       'License'        => MSF_LICENSE,
-      'Targets'        =>
-        [
-          [ 'Automatic', { } ],
-        ],
-      'DefaultTarget'  => 0,
       'References'     => [[ 'URL', 'http://en.wikipedia.org/wiki/SMBRelay' ]]
     ))
 

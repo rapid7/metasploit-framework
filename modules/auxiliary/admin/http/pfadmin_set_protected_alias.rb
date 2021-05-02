@@ -27,8 +27,7 @@ class MetasploitModule < Msf::Auxiliary
       'Privileged'      => true,
       'Platform'        => ['php'],
       'Arch'            => ARCH_PHP,
-      'Targets'         => [[ 'Postfixadmin v2.91 - v3.0.1', {}]],
-      'DisclosureDate'  => 'Feb 03 2017',
+      'DisclosureDate'  => '2017-02-03',
     ))
 
     register_options(
@@ -67,9 +66,9 @@ class MetasploitModule < Msf::Auxiliary
     if res.body =~ /<div id="footer".*Postfix Admin/m
       version = res.body.match(/<div id="footer"[^<]*<a[^<]*Postfix\s*Admin\s*([^<]*)<\//mi)
       return Exploit::CheckCode::Detected unless version
-      if Gem::Version.new("2.91") > Gem::Version.new(version[1])
+      if Rex::Version.new("2.91") > Rex::Version.new(version[1])
         return Exploit::CheckCode::Detected
-      elsif Gem::Version.new("3.0.1") < Gem::Version.new(version[1])
+      elsif Rex::Version.new("3.0.1") < Rex::Version.new(version[1])
         return Exploit::CheckCode::Detected
       end
       return Exploit::CheckCode::Appears

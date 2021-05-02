@@ -164,8 +164,8 @@ class MetasploitModule < Msf::Post
     }
 
     # Print Route Tables
-    print(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
-    print(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
+    print_status(tbl_ipv4.to_s) if tbl_ipv4.rows.length > 0
+    print_status(tbl_ipv6.to_s) if tbl_ipv6.rows.length > 0
     if (tbl_ipv4.rows.length + tbl_ipv6.rows.length) < 1
       print_status("There are currently no routes defined.")
     elsif (tbl_ipv4.rows.length < 1) && (tbl_ipv6.rows.length > 0)

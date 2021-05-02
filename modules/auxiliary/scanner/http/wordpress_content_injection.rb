@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
         'wvu'           # Metasploit module
       ],
       'References'     => [
-        ['CVE' , '2017-5612'],
+        ['CVE' , '2017-1001000'],
         ['WPVDB', '8734'],
         ['URL',   'https://blog.sucuri.net/2017/02/content-injection-vulnerability-wordpress-rest-api.html'],
         ['URL',   'https://secure.php.net/manual/en/language.types.type-juggling.php'],
@@ -50,14 +50,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def check_host(_ip)
     if (version = wordpress_version)
-      version = Gem::Version.new(version)
+      version = Rex::Version.new(version)
     else
       return Exploit::CheckCode::Safe
     end
 
     vprint_status("WordPress #{version}: #{full_uri}")
 
-    if version.between?(Gem::Version.new('4.7'), Gem::Version.new('4.7.1'))
+    if version.between?(Rex::Version.new('4.7'), Rex::Version.new('4.7.1'))
       Exploit::CheckCode::Appears
     else
       Exploit::CheckCode::Detected

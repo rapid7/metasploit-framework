@@ -12,9 +12,6 @@
 #   for more information on IEFBR14
 ##
 
-require 'msf/core/handler/find_shell'
-require 'msf/base/sessions/mainframe_shell'
-require 'msf/base/sessions/command_shell_options'
 
 module MetasploitModule
   CachedSize = 150

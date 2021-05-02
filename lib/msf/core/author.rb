@@ -1,5 +1,4 @@
 # -*- coding: binary -*-
-require 'msf/core'
 
 ###
 #
@@ -18,6 +17,7 @@ class Msf::Author
     'amaloteaux'          => 'alex_maloteaux' + 0x40.chr + 'metasploit.com',
     'aushack'             => 'patrick' + 0x40.chr + 'osisecurity.com.au',
     'bannedit'            => 'bannedit' + 0x40.chr + 'metasploit.com',
+    'bcoles'              => 'bcoles' + 0x40.chr + 'gmail.com',
     'Carlos Perez'        => 'carlos_perez' + 0x40.chr + 'darkoperator.com',
     'cazz'                => 'bmc' + 0x40.chr + 'shmoo.com',
     'CG'                  => 'cg' + 0x40.chr + 'carnal0wnage.com',

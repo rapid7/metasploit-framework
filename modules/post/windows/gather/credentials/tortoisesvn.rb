@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
@@ -100,7 +99,7 @@ class MetasploitModule < Msf::Post
   def get_config_files
     # Determine if TortoiseSVN is installed and parse config files
     savedpwds = 0
-    path = session.fs.file.expand_path("%APPDATA%\\Subversion\\auth\\svn.simple\\")
+    path = session.sys.config.getenv('APPDATA') + "\\Subversion\\auth\\svn.simple\\"
     print_status("Checking for configuration files in: #{path}")
 
     begin

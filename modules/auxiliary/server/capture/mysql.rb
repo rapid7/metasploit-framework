@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author'         => 'Patrik Karlsson <patrik[at]cqure.net>',
       'License'        => MSF_LICENSE,
-      'Actions'        => [ [ 'Capture' ] ],
+      'Actions'        => [[ 'Capture', 'Description' => 'Run MySQL capture server' ]],
       'PassiveActions' => [ 'Capture' ],
       'DefaultAction'  => 'Capture'
     )

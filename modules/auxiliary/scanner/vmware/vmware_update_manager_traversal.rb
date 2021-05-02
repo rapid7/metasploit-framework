@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.vmware.com/security/advisories/VMSA-2011-0014.html'],
           ['URL', 'http://dsecrg.com/pages/vul/show.php?id=342']
         ],
-      'DisclosureDate' => "Nov 21 2011"))
+      'DisclosureDate' => '2011-11-21'))
 
     register_options(
       [

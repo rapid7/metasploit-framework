@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/parser/fs/ntfs'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv

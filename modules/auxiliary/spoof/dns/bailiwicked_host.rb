@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'US-CERT-VU', '800113' ],
           [ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0002.txt' ],
         ],
-      'DisclosureDate' => 'Jul 21 2008'
+      'DisclosureDate' => '2008-07-21'
       ))
 
       register_options(

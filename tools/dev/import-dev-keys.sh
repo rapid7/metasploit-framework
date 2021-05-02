@@ -30,7 +30,7 @@ done
 
 echo Processing exceptions...
 
-MIT_KEYIDS="
+UBUNTU_KEYIDS="
 Brandont       0xA3EE1B07
 Ccatalan       0xC3953653
 Farias         0x01DF79A1
@@ -46,12 +46,12 @@ TheLightCosine 0x3A913DB2
 Wvu            0xC1629024
 "
 
-MIT_KEY_URL_BASE="https://pgp.mit.edu/pks/lookup?op=get&search="
+UBUNTU_KEY_URL_BASE="https://keyserver.ubuntu.com/pks/lookup?op=get&search="
 
-for key in $MIT_KEYIDS; do
+for key in $UBUNTU_KEYIDS; do
   if [[ $key =~ ^0x ]]
   then
-    \curl -sSL $MIT_KEY_URL_BASE$key | gpg --quiet --no-auto-check-trustdb --import -
+    \curl -sSL $UBUNTU_KEY_URL_BASE$key | gpg --quiet --no-auto-check-trustdb --import -
   else
     echo Importing key for $key...
   fi

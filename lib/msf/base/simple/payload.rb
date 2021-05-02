@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/base'
 
 module Msf
 module Simple
@@ -53,6 +52,7 @@ module Payload
     e = EncodedPayload.create(payload,
         'BadChars'    => opts['BadChars'],
         'MinNops'     => opts['NopSledSize'],
+        'PadNops'     => opts['PadNops'],
         'Encoder'     => opts['Encoder'],
         'Iterations'  => opts['Iterations'],
         'ForceEncode' => opts['ForceEncode'],
@@ -64,7 +64,8 @@ module Payload
     exeopts = {
       :inject => opts['KeepTemplateWorking'],
       :template => opts['Template'],
-      :template_path => opts['ExeDir']
+      :template_path => opts['ExeDir'],
+      :secname => opts['SecName']
     }
 
     arch = payload.arch
@@ -96,15 +97,15 @@ module Payload
         output =
           Buffer.comment(
             "#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
-            "http://www.metasploit.com\n" +
+            "https://metasploit.com/\n" +
             ((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
             ((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
             "#{ou}",
             fmt) +
           output
 
-        # If it's multistage, include the second stage too
-        if payload.staged?
+        # If verbose was requested and it's multistage, include the second stage too
+        if opts['Verbose'] && payload.staged?
           stage = payload.generate_stage
 
           # If a stage was generated, then display it
@@ -113,7 +114,7 @@ module Payload
               "\n" +
               Buffer.comment(
                 "#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
-                "http://www.metasploit.com\n",
+                "https://metasploit.com/\n",
                 fmt) +
               Buffer.transform(stage, fmt)
           end

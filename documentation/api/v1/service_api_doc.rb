@@ -187,7 +187,7 @@ module ServiceApiDoc
 
     # Swagger documentation for /api/v1/services/:id PUT
     operation :put do
-      key :description, 'Update the attributes an existing service.'
+      key :description, 'Update the attributes on an existing service.'
       key :tags, [ 'service' ]
 
       parameter :update_id

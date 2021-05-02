@@ -516,6 +516,18 @@ class Def_windows_kernel32
       ["PWCHAR","lpName","in"],
       ])
 
+    dll.add_function( 'CreateSymbolicLinkA', 'BOOL',[
+      ["PCHAR","lpSymlinkFileName","in"],
+      ["PCHAR","lpTargetFileName","in"],
+      ["DWORD","dwFlags","in"]
+      ])
+
+    dll.add_function( 'CreateSymbolicLinkW', 'BOOL',[
+      ["PWCHAR","lpSymlinkFileName","in"],
+      ["PWCHAR","lpTargetFileName","in"],
+      ["DWORD","dwFlags","in"]
+      ])
+
     dll.add_function( 'CreateTapePartition', 'DWORD',[
       ["HANDLE","hDevice","in"],
       ["DWORD","dwPartitionMethod","in"],
@@ -3756,7 +3768,7 @@ class Def_windows_kernel32
       ["PBLOB","lpBaseAddress","inout"],
       ["PBLOB","lpBuffer","inout"],
       ["DWORD","cbRead","in"],
-      ["PDWORD","lpNumberOfBytesRead","in"],
+      ["PSIZE_T","lpNumberOfBytesRead","in"],
       ])
 
     dll.add_function('CreateToolhelp32Snapshot', 'DWORD',[
@@ -3839,7 +3851,7 @@ class Def_windows_kernel32
       ["PBLOB","lpBaseAddress","inout"],
       ["PBLOB","lpBuffer","inout"],
       ["DWORD","cbRead","in"],
-      ["PDWORD","lpNumberOfBytesRead","in"],
+      ["PSIZE_T","lpNumberOfBytesRead","in"],
       ])
 
     return dll

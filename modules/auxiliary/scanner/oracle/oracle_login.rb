@@ -17,6 +17,8 @@ class MetasploitModule < Msf::Auxiliary
         This module attempts to authenticate against an Oracle RDBMS
         instance using username and password combinations indicated
         by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
+
+        Due to a bug in nmap versions 6.50-7.80 may not work.
       },
       'Author'         => [
         'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse
@@ -33,7 +35,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+        OptPath.new('USERPASS_FILE',  [ false, "File containing (space-separated) users and passwords, one pair per line",
           File.join(Msf::Config.data_directory, "wordlists", "oracle_default_userpass.txt") ]),
         OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
       ])

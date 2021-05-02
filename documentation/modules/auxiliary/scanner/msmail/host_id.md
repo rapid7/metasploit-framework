@@ -11,7 +11,7 @@ OWA (Outlook Webapp) is vulnerable to time-based user enumeration attacks.
 
 **Note:**  Currently uses RHOSTS which resolves to an IP which is NOT desired, this is currently being fixed 
 
-## Verification
+## Verification Steps
 
 - Start `msfconsole`
 - `use auxiliary/scanner/msmail/host_id`

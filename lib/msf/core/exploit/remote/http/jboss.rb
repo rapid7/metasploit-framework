@@ -1,0 +1,30 @@
+# -*- coding: binary -*-
+
+module Msf
+  class Exploit
+    class Remote
+      module HTTP
+        # This module provides a way of interacting with JBoss installations
+        module JBoss
+          include Msf::Exploit::Remote::HttpClient
+          include Msf::Exploit::Remote::HTTP::JBoss::Base
+          include Msf::Exploit::Remote::HTTP::JBoss::BeanShell
+          include Msf::Exploit::Remote::HTTP::JBoss::BeanShellScripts
+          include Msf::Exploit::Remote::HTTP::JBoss::DeploymentFileRepository
+          include Msf::Exploit::Remote::HTTP::JBoss::DeploymentFileRepositoryScripts
+
+          def initialize(info = {})
+            super
+
+            register_options(
+              [
+                OptString.new('TARGETURI', [true,  'The URI path of the JMX console', '/jmx-console']),
+                OptEnum.new('VERB',        [true,  'HTTP Method to use (for CVE-2010-0738)', 'POST', ['GET', 'POST', 'HEAD']]),
+                OptString.new('PACKAGE',   [false, 'The package containing the BSHDeployer service'])
+              ], Msf::Exploit::Remote::HTTP::JBoss)
+          end
+        end
+      end
+    end
+  end
+end

@@ -1,7 +1,6 @@
 # -*- coding:binary -*-
 require 'spec_helper'
 
-require 'msf/core'
 
 RSpec.describe Msf::Modules::Loader::Base do
   include_context 'Msf::Modules::Loader::Base'
@@ -357,7 +356,7 @@ RSpec.describe Msf::Modules::Loader::Base do
           allow(module_manager).to receive(:on_module_load)
 
           # if the module eval error includes the module_path then the module_path was passed along correctly
-          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/)
+          expect(subject).to receive(:elog).with(/#{Regexp.escape(module_path)}/, error: an_instance_of(NoMethodError))
           expect(subject.load_module(parent_path, type, module_reference_name, :reload => true)).to be_falsey
         end
 
@@ -688,8 +687,15 @@ RSpec.describe Msf::Modules::Loader::Base do
     end
 
     context '#module_path?' do
+      def mock_module(module_path, content: nil, executable: false)
+        allow(File).to receive(:file?).with(module_path).and_return(true)
+        allow(File).to receive(:read).with(module_path, 2).and_return(content)
+        allow(File).to receive(:executable?).with(module_path).and_return(executable)
+      end
+
       it 'should return false if path is hidden' do
         hidden_path = '.hidden/path/file.rb'
+        mock_module(hidden_path)
 
         expect(subject.send(:module_path?, hidden_path)).to be_falsey
       end
@@ -697,6 +703,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should return false if the file extension is not MODULE_EXTENSION' do
         non_module_extension = '.c'
         path = "path/with/wrong/extension#{non_module_extension}"
+        mock_module(path)
 
         expect(non_module_extension).not_to eq described_class::MODULE_EXTENSION
         expect(subject.send(:module_path?, path)).to be_falsey
@@ -705,6 +712,7 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should return false if the file is a unit test' do
         unit_test_extension = '.rb.ut.rb'
         path = "path/to/unit_test#{unit_test_extension}"
+        mock_module(path)
 
         expect(subject.send(:module_path?, path)).to be_falsey
       end
@@ -712,12 +720,23 @@ RSpec.describe Msf::Modules::Loader::Base do
       it 'should return false if the file is a test suite' do
         test_suite_extension = '.rb.ts.rb'
         path = "path/to/test_suite#{test_suite_extension}"
+        mock_module(path)
 
         expect(subject.send(:module_path?, path)).to be_falsey
       end
 
       it 'should return true otherwise' do
+        mock_module(module_path)
         expect(subject.send(:module_path?, module_path)).to be_truthy
+      end
+
+      it 'should not load executable modules' do
+        mock_module(
+            module_path,
+            content: "#!",
+            executable: true
+        )
+        expect(subject.send(:module_path?, module_path)).to be_falsey
       end
     end
 

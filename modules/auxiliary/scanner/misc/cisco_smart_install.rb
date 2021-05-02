@@ -1,5 +1,5 @@
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
@@ -32,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
         'License'        => MSF_LICENSE,
         'DefaultAction' => 'SCAN',
         'Actions' => [
-          ['SCAN', {'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'}],
-          ['DOWNLOAD', {'Description' => 'Retrieve configuration via Smart Install Protocol'}]
+          ['SCAN', 'Description' => 'Scan for instances communicating via Smart Install Protocol (default)'],
+          ['DOWNLOAD', 'Description' => 'Retrieve configuration via Smart Install Protocol']
         ],
       )
     )

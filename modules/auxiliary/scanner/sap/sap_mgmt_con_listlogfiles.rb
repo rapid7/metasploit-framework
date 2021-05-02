@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
         OptEnum.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE', ['TRACEFILE','LOGFILE']])
       ])
     register_autofilter_ports([ 50013 ])
-    deregister_options('RHOST')
   end
 
   def run_host(ip)

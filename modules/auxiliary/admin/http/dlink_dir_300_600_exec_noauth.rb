@@ -27,8 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'http://www.s3cur1ty.de/home-network-horror-days' ],
           [ 'URL', 'http://www.s3cur1ty.de/m1adv2013-003' ]
         ],
-      'DefaultTarget'  => 0,
-      'DisclosureDate' => 'Feb 04 2013'))
+      'DisclosureDate' => '2013-02-04'))
 
     register_options(
       [

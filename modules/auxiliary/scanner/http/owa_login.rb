@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/ntlm/message'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -96,7 +95,8 @@ class MetasploitModule < Msf::Auxiliary
 
     register_advanced_options(
       [
-        OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", ''])
+        OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),
+        OptFloat.new('BaselineAuthTime', [ false, "Baseline HTTP authentication response time for invalid users", 1.0])
       ])
 
     deregister_options('BLANK_PASSWORDS', 'RHOSTS')
@@ -184,6 +184,7 @@ class MetasploitModule < Msf::Auxiliary
       if datastore['AUTH_TIME']
         start_time = Time.now
       end
+      baseline = datastore['BaselineAuthTime'] || 1.0
 
       res = send_request_cgi({
         'encode'   => true,
@@ -253,7 +254,7 @@ class MetasploitModule < Msf::Auxiliary
         headers['Cookie'] = 'PBack=0;' << res.get_cookies
       else
         # Login didn't work. no point in going on, however, check if valid domain account by response time.
-        if elapsed_time <= 1
+        if elapsed_time && elapsed_time <= baseline
           unless user =~ /@\w+\.\w+/
             report_cred(
               ip: res.peerinfo['addr'],
@@ -301,7 +302,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if res.redirect?
-      if elapsed_time <= 1
+      if elapsed_time && elapsed_time <= baseline
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],
@@ -329,7 +330,7 @@ class MetasploitModule < Msf::Auxiliary
       )
       return :next_user
     else
-      if elapsed_time <= 1
+      if elapsed_time && elapsed_time <= baseline
         unless user =~ /@\w+\.\w+/
           report_cred(
             ip: res.peerinfo['addr'],

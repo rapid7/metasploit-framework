@@ -1,4 +1,4 @@
-## Intro
+## Introduction
 
 This module scans for h.323 servers and determines the version and information about the server. 
 

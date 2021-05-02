@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core/post/windows/cli_parse'
 
 module Msf
 class Post

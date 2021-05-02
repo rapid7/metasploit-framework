@@ -3,9 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/handler/reverse_https'
-require 'msf/core/payload/multi/reverse_https'
-
 module MetasploitModule
 
   CachedSize = 0
@@ -16,7 +13,7 @@ module MetasploitModule
 
   def initialize(info={})
     super(merge_info(info,
-      'Name'        => 'Reverse HTTPS Stager (Mulitple Architectures)',
+      'Name'        => 'Reverse HTTPS Stager (Multiple Architectures)',
       'Description' => 'Tunnel communication over HTTPS',
       'Author'      => 'OJ Reeves',
       'License'     => MSF_LICENSE,

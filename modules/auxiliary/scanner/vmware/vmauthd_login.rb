@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/exploit/tcp'
 require 'metasploit/framework/credential_collection'
 require 'metasploit/framework/login_scanner/vmauthd'
 
@@ -31,6 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([Opt::RPORT(902)])
 
+    deregister_options('PASSWORD_SPRAY')
   end
 
   def run_host(ip)

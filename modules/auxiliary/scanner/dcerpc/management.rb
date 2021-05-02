@@ -24,8 +24,6 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE
     )
 
-    deregister_options('RHOST')
-
     register_options(
       [
         Opt::RPORT(135)

@@ -21,12 +21,8 @@ class MetasploitModule < Msf::Auxiliary
       'License'        => MSF_LICENSE,
       'References'     => ['URL', 'https://github.com/whoot/TelpOWN'],
       'Platform'       => 'linux',
-      'Targets'        =>
-        [
-          ['Telpho10', {}]
-        ],
       'Privileged'     => false,
-      'DisclosureDate' => 'Sep 2 2016'))
+      'DisclosureDate' => '2016-09-02'))
 
       register_options(
         [
@@ -41,7 +37,7 @@ class MetasploitModule < Msf::Auxiliary
     File.open(tarfile, 'rb') do |file|
       Rex::Tar::Reader.new(file) do |tar|
         tar.each do |entry|
-          dest = File.join destination, entry.full_name
+          dest = File.join(destination, File.basename(entry.full_name))
           if entry.file?
             File.open(dest, 'wb') do |f|
               f.write(entry.read)

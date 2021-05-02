@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
         [
           'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
         ],
-      'DisclosureDate' => 'Jun 07 2013',
+      'DisclosureDate' => '2013-06-07',
       'License'        => MSF_LICENSE
     ))
   register_options(

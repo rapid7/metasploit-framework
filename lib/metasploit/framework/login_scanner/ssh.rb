@@ -39,6 +39,9 @@ module Metasploit
         #
         #   @return [Symbol] An element of {VERBOSITIES}.
         attr_accessor :verbosity
+        # @!attribute skip_gather_proof
+        #   @return [Boolean] Whether to skip calling gather_proof
+        attr_accessor :skip_gather_proof
 
         validates :verbosity,
           presence: true,
@@ -82,7 +85,7 @@ module Metasploit
                 opt_hash
               )
             end
-          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error => e
+          rescue OpenSSL::Cipher::CipherError, ::EOFError, Net::SSH::Disconnect, Rex::ConnectionError, ::Timeout::Error, Errno::ECONNRESET => e
             result_options.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)
           rescue Net::SSH::Exception
             result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: e)
@@ -90,7 +93,7 @@ module Metasploit
 
           unless result_options.has_key? :status
             if ssh_socket
-              proof = gather_proof
+              proof = gather_proof unless skip_gather_proof
               result_options.merge!(status: Metasploit::Model::Login::Status::SUCCESSFUL, proof: proof)
             else
               result_options.merge!(status: Metasploit::Model::Login::Status::INCORRECT, proof: nil)
@@ -112,14 +115,26 @@ module Metasploit
         def gather_proof
           proof = ''
           begin
-            Timeout.timeout(5) do
+            Timeout.timeout(10) do
               proof = ssh_socket.exec!("id\n").to_s
               if (proof =~ /id=/)
                 proof << ssh_socket.exec!("uname -a\n").to_s
-                if (proof =~/JUNOS /)
+                if (proof =~ /JUNOS /)
                   # We're in the SSH shell for a Juniper JunOS, we can pull the version from the cli
                   # line 2 is hostname, 3 is model, 4 is the Base OS version
                   proof = ssh_socket.exec!("cli show version\n").split("\n")[2..4].join(", ").to_s
+                elsif (proof =~ /Linux USG /)
+                  # Ubiquiti Unifi USG
+                  proof << ssh_socket.exec!("cat /etc/version\n").to_s.rstrip
+                end
+                temp_proof = ssh_socket.exec!("grep unifi.version /tmp/system.cfg\n").to_s.rstrip
+                if (temp_proof =~ /unifi\.version/)
+                  proof << temp_proof
+                  # Ubiquiti Unifi device (non-USG), possibly a switch.  Tested on US-24, UAP-nanoHD
+                  # The /tmp/*.cfg files don't give us device info, however the info command does
+                  # we dont call it originally since it doesnt say unifi/ubiquiti in it and info
+                  # is a linux command as well
+                  proof << ssh_socket.exec!("grep board.name /etc/board.info\n").to_s.rstrip
                 end
               else
                 # Cisco IOS
@@ -131,6 +146,36 @@ module Metasploit
                 # Juniper JunOS CLI
                 elsif proof =~ /unknown command: id/
                   proof = ssh_socket.exec!("show version\n").split("\n")[2..4].join(", ").to_s
+                # Brocade CLI
+                elsif proof =~ /Invalid input -> id/ || proof =~ /Protocol error, doesn't start with scp\!/
+                  proof = ssh_socket.exec!("show version\n").to_s
+                  if proof =~ /Version:(?<os_version>.+).+HW: (?<hardware>)/mi
+                    proof = "Model: #{hardware}, OS: #{os_version}"
+                  end
+                # Arista
+                elsif proof =~ /% Invalid input at line 1/
+                  proof = ssh_socket.exec!("show version\n").split("\n")[0..1]
+                  proof = proof.map {|item| item.strip}
+                  proof = proof.join(", ").to_s
+                # Windows
+                elsif proof =~ /command not found|is not recognized as an internal or external command/
+                  proof = ssh_socket.exec!("systeminfo\n").to_s
+                  /OS Name:\s+(?<os_name>.+)$/ =~ proof
+                  /OS Version:\s+(?<os_num>.+)$/ =~ proof
+                  if os_num.present? && os_name.present?
+                    proof = "#{os_name.strip} #{os_num.strip}"
+                  else
+                    proof = ssh_socket.exec!("ver\n").to_s.strip
+                  end
+                # mikrotik
+                elsif proof =~ /bad command name id \(line 1 column 1\)/
+                  proof = ssh_socket.exec!("/ system resource print\n").to_s
+                  /platform:\s+(?<platform>.+)$/ =~ proof
+                  /board-name:\s+(?<board>.+)$/ =~ proof
+                  /version:\s+(?<version>.+)$/ =~ proof
+                  if version && platform && board
+                    proof = "#{platform.strip} #{board.strip} #{version.strip}"
+                  end
                 else
                   proof << ssh_socket.exec!("help\n?\n\n\n").to_s
                 end
@@ -151,6 +196,8 @@ module Metasploit
 
         def get_platform(proof)
           case proof
+          when /unifi\.version|UniFiSecurityGateway/ #Ubiquiti Unifi.  uname -a is left in, so we got to pull before Linux
+            'unifi'
           when /Linux/
             'linux'
           when /Darwin/
@@ -163,14 +210,18 @@ module Metasploit
             'hpux'
           when /AIX/
             'aix'
-          when /Win32|Windows/
+          when /cygwin|Win32|Windows|Microsoft/
             'windows'
           when /Unknown command or computer name|Line has invalid autocommand/
             'cisco-ios'
           when /unknown keyword/ # ScreenOS
             'juniper'
-          when /JUNOS Base OS/ #JunOS
+          when /JUNOS Base OS/ # JunOS
             'juniper'
+          when /MikroTik/
+            'mikrotik'
+          when /Arista/
+            'arista'
           else
             'unknown'
           end

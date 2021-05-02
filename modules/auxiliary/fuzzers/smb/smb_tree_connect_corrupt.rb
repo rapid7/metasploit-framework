@@ -20,11 +20,13 @@ class MetasploitModule < Msf::Auxiliary
       OptInt.new('MAXDEPTH', [false, 'Specify a maximum byte depth to test']),
       OptString.new('SMBTREE', [true, 'Specify the tree name to corrupt', "\\\\SERVER\\IPC$"])
     ])
+
+    deregister_options('SMB::ProtocolVersion')
   end
 
   def do_smb_tree(pkt,opts={})
     @connected = false
-    connect
+    connect(versions: [1])
     simple.login(
       datastore['SMBName'],
       datastore['SMBUser'],
@@ -40,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   def run
 
     # Connect in order to get the server-assigned user-id
-    connect
+    connect(versions: [1])
     smb_login
     pkt = make_smb_tree
     disconnect

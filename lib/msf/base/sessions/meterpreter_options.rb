@@ -23,10 +23,6 @@ module Msf
               'AutoLoadStdapi',
               [true, "Automatically load the Stdapi extension", true]
             ),
-            OptBool.new(
-              'AutoVerifySession',
-              [true, "Automatically verify and drop invalid sessions", true]
-            ),
             OptInt.new(
               'AutoVerifySessionTimeout',
               [false, "Timeout period to wait for session validation to occur, in seconds", 30]
@@ -70,7 +66,11 @@ module Msf
             OptString.new(
               'PayloadProcessCommandLine',
               [ false, 'The displayed command line that will be used by the payload', '']
-            )
+            ),
+            OptBool.new(
+              'AutoUnhookProcess',
+              [true, "Automatically load the unhook extension and unhook the process", false]
+            ),
           ],
           self.class
         )

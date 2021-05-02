@@ -2,19 +2,6 @@
 require 'msgpack'
 
 require 'rex'
-require 'rex/service_manager'
-
-require 'msf/core/rpc/v10/constants'
-require 'msf/core/rpc/v10/rpc_base'
-require 'msf/core/rpc/v10/rpc_auth'
-require 'msf/core/rpc/v10/rpc_core'
-require 'msf/core/rpc/v10/rpc_console'
-require 'msf/core/rpc/v10/rpc_module'
-require 'msf/core/rpc/v10/rpc_session'
-require 'msf/core/rpc/v10/rpc_plugin'
-require 'msf/core/rpc/v10/rpc_job'
-require 'msf/core/rpc/v10/rpc_db'
-
 
 module Msf
 module RPC
@@ -24,6 +11,7 @@ class Service
   attr_accessor :service, :srvhost, :srvport, :uri, :options
   attr_accessor :handlers, :default_handler, :tokens, :users, :framework
   attr_accessor :dispatcher_timeout, :token_timeout, :debug, :str_encoding
+  attr_accessor :job_status_tracker
 
   def initialize(framework, options={})
     self.framework = framework
@@ -46,7 +34,9 @@ class Service
     self.token_timeout      = self.options[:token_timeout] || 300
     self.tokens             = self.options[:tokens] || {}
     self.users              = self.options[:users] || []
+    self.job_status_tracker = Msf::RPC::RpcJobStatusTracker.new
 
+    add_handler("health",  Msf::RPC::RPC_Health.new(self))
     add_handler("core",    Msf::RPC::RPC_Core.new(self))
     add_handler("auth",    Msf::RPC::RPC_Auth.new(self))
     add_handler("console", Msf::RPC::RPC_Console.new(self))
@@ -90,7 +80,7 @@ class Service
     begin
       res.body = process(req).to_msgpack
     rescue Msf::RPC::Exception => e
-      elog("RPC Exception: #{e.class} #{e} #{e.backtrace} #{cli.inspect} #{req.inspect}")
+      elog('RPC Exception', error: e)
       res.body = process_exception(e).to_msgpack
       res.code = e.code
     end
@@ -153,7 +143,7 @@ class Service
       ::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(mname, *msg) }
 
     rescue ::Exception => e
-      elog("RPC Exception: #{e.class} #{e.to_s} #{e.backtrace} #{msg.inspect} #{req.inspect}")
+      elog('RPC Exception', error: e)
       process_exception(e)
     end
   end

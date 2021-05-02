@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       address: opts[:host],
       port: opts[:port],
       protocol: 'udp',
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       service_name: opts[:creds_name]
     }
 

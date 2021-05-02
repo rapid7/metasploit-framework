@@ -32,8 +32,8 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'Actions'     =>
         [
-          ['PUT'],
-          ['DELETE']
+          ['PUT', 'Description' => 'Upload local file'],
+          ['DELETE', 'Description' => 'Delete remote file']
         ],
       'DefaultAction' => 'PUT'
     )

@@ -2,21 +2,21 @@ module Msf::DBManager::Cred
   # This methods returns a list of all credentials in the database
   def creds(opts)
     query = nil
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # If :id exists we're looking for a specific record, skip the other stuff
       if opts[:id] && !opts[:id].to_s.empty?
         return Array.wrap(Metasploit::Credential::Core.find(opts[:id]))
       end
 
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
-      search_term = opts.delete(:search_term)
+      search_term = opts[:search_term]
 
       query = Metasploit::Credential::Core.where( workspace_id: wspace.id )
       query = query.includes(:private, :public, :logins, :realm).references(:private, :public, :logins, :realm)
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if opts[:type].present?
-        query = query.where(metasploit_credential_privates: { type: opts[:type] })
+        query = query.where('"metasploit_credential_privates"."type" = ?', opts[:type] )
       end
 
       if opts[:svcs].present?
@@ -28,13 +28,11 @@ module Msf::DBManager::Cred
       end
 
       if opts[:user].present?
-        # If we have a user regex, only include those that match
-        query = query.where('"metasploit_credential_publics"."username" ~* ?', opts[:user])
+        query = query.where('"metasploit_credential_publics"."username" = ?', opts[:user])
       end
 
       if opts[:pass].present?
-        # If we have a password regex, only include those that match
-        query = query.where('"metasploit_credential_privates"."data" ~* ?', opts[:pass])
+        query = query.where('"metasploit_credential_privates"."data" = ?', opts[:pass])
       end
 
       if opts[:host_ranges] || opts[:ports] || opts[:svcs]
@@ -58,7 +56,7 @@ module Msf::DBManager::Cred
   # This method iterates the creds table calling the supplied block with the
   # cred instance of each entry.
   def each_cred(wspace=framework.db.workspace,&block)
-  ::ActiveRecord::Base.connection_pool.with_connection {
+  ::ApplicationRecord.connection_pool.with_connection {
     wspace.creds.each do |cred|
       block.call(cred)
     end
@@ -109,17 +107,17 @@ module Msf::DBManager::Cred
       raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
     end
 
-  ::ActiveRecord::Base.connection_pool.with_connection {
-    host = opts.delete(:host)
-    ptype = opts.delete(:type) || "password"
-    token = [opts.delete(:user), opts.delete(:pass)]
-    sname = opts.delete(:sname)
-    port = opts.delete(:port)
-    proto = opts.delete(:proto) || "tcp"
-    proof = opts.delete(:proof)
-    source_id = opts.delete(:source_id)
-    source_type = opts.delete(:source_type)
-    duplicate_ok = opts.delete(:duplicate_ok)
+  ::ApplicationRecord.connection_pool.with_connection {
+    host = opts[:host]
+    ptype = opts[:type] || "password"
+    token = [opts[:user], opts[:pass]]
+    sname = opts[:sname]
+    port = opts[:port]
+    proto = opts[:proto] || "tcp"
+    proof = opts[:proof]
+    source_id = opts[:source_id]
+    source_type = opts[:source_type]
+    duplicate_ok = opts[:duplicate_ok]
     # Nil is true for active.
     active = (opts[:active] || opts[:active].nil?) ? true : false
 
@@ -127,7 +125,7 @@ module Msf::DBManager::Cred
 
     # Service management; assume the user knows what
     # he's talking about.
-    service = opts.delete(:service) || report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
+    service = opts[:service] || report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
 
     # Non-US-ASCII usernames are tripping up the database at the moment, this is a temporary fix until we update the tables
     if (token[0])
@@ -225,9 +223,11 @@ module Msf::DBManager::Cred
   end
 
   def update_credential(opts)
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       # process workspace string for update if included in opts
       wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework, false)
+      opts = opts.clone()
+      opts.delete(:workspace)
       opts[:workspace] = wspace if wspace
 
       if opts[:public]
@@ -262,14 +262,16 @@ module Msf::DBManager::Cred
       end
 
       id = opts.delete(:id)
-      Metasploit::Credential::Core.update(id, opts)
+      cred = Metasploit::Credential::Core.find(id)
+      cred.update!(opts)
+      return cred
     }
   end
 
   def delete_credentials(opts)
     raise ArgumentError.new("The following options are required: :ids") if opts[:ids].nil?
 
-    ::ActiveRecord::Base.connection_pool.with_connection {
+    ::ApplicationRecord.connection_pool.with_connection {
       deleted = []
       opts[:ids].each do |cred_id|
         cred = Metasploit::Credential::Core.find(cred_id)

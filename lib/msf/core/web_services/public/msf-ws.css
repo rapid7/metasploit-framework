@@ -86,7 +86,7 @@ input[type=text], input[type=password] {
     height: 34px;
 }
 
-button {
+input[type=button] {
     border-color: rgba(0, 0, 0, 0.6);
     border-width: 1px;
     cursor: pointer;

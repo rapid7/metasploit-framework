@@ -27,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           [ 'OSVDB', '103521' ],
           [ 'URL', 'http://www.devttys0.com/2014/02/wrt120n-fprintf-stack-overflow/' ] # a huge amount of details about this vulnerability and the original exploit
         ],
-      'DisclosureDate' => 'Feb 19 2014'))
+      'DisclosureDate' => '2014-02-19'))
   end
 
   def check_login(user)

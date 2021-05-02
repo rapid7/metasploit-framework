@@ -4,8 +4,6 @@
 ##
 
 require 'metasm'
-require 'msf/core/handler/reverse_tcp'
-
 
 module MetasploitModule
 

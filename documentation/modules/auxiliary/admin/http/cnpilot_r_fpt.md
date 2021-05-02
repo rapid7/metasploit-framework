@@ -1,3 +1,5 @@
+## Vulnerable Application
+
 This module exploits a File Path Traversal vulnerability in Cambium cnPilot r200/r201 devices to read arbitrary files off the file system. Affected versions - 4.3.3-R4 and prior.
 
 ## Verification Steps
@@ -8,7 +10,7 @@ This module exploits a File Path Traversal vulnerability in Cambium cnPilot r200
 4. Do: ```set FILENAME [filename]```
 5. Do: ```run```
 
-## Sample Output
+## Scenarios
 
   ```
 msf > use auxiliary/scanner/http/cnpilot_r_fpt

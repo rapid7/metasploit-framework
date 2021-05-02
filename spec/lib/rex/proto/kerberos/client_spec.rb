@@ -2,7 +2,6 @@
 require 'spec_helper'
 
 require 'stringio'
-require 'rex/proto/kerberos'
 
 class MyStringIO < StringIO
   def put(data)

@@ -30,10 +30,10 @@ class MetasploitModule < Msf::Auxiliary
         'joev'          # Play Store vector and Metasploit module
       ],
       'License'        => MSF_LICENSE,
-      'Actions'        => [[ 'WebServer' ]],
+      'Actions'        => [[ 'WebServer', 'Description' => 'Serve exploit via web server' ]],
       'PassiveActions' => [ 'WebServer' ],
       'References' => [
-        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041'],
+        [ 'URL', 'https://blog.rapid7.com/2014/09/15/major-android-bug-is-a-privacy-disaster-cve-2014-6041'],
         [ 'URL', 'http://1337day.com/exploit/description/22581' ],
         [ 'OSVDB', '110664' ],
         [ 'CVE', '2014-6041' ]

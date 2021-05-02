@@ -50,8 +50,6 @@ require 'rex/random_identifier'
 require 'rex/powershell'
 # Library for processing and creating Zip compatible archives
 require 'rex/zip'
-# Library for processing and creating tar compatible archives (not really a gem)
-require 'rex/tar'
 # Library for parsing offline Windows Registry files
 require 'rex/registry'
 # Library for parsing Java serialized streams
@@ -70,19 +68,10 @@ require 'rex/arch'
 require 'rex/exploitation'
 
 # Generic classes
-require 'rex/exceptions'
-require 'rex/transformer'
-require 'rex/random_identifier'
-require 'rex/time'
-require 'rex/job_container'
 require 'rex/file'
 
 # Thread safety and synchronization
 require 'rex/sync'
-
-# Thread factory
-require 'rex/thread_factory'
-
 
 # Assembly
 require 'rex/assembly/nasm'
@@ -98,26 +87,15 @@ require 'rex/io/stream_server'
 # Sockets
 require 'rex/socket'
 
-# Protocols
-require 'rex/proto'
-require 'rex/mac_oui'
-
-# Parsers
-require 'rex/parser/arguments'
-require 'rex/parser/ini'
-
-
 # Compatibility
 require 'rex/compat'
 
-# SSLScan 
+# SSLScan
 require 'rex/sslscan/scanner'
 require 'rex/sslscan/result'
 
-# Cryptography
-require 'rex/crypto/aes256'
-require 'rex/crypto/rc4'
-
+# Versions
+require 'rex/version'
 
 # Overload the Kernel.sleep() function to be thread-safe
 Kernel.class_eval("

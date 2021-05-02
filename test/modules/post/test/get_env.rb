@@ -1,4 +1,3 @@
-require 'msf/core'
 
 lib = File.join(Msf::Config.install_root, "test", "lib")
 require 'module_test'
@@ -53,8 +52,12 @@ class MetasploitModule < Msf::Post
 
   def test_get_envs
     it "should return multiple envs" do
-      res = get_envs('PATH','USERNAME')
-      !res['PATH'].blank? && !res['USERNAME'].blank?
+      res = get_envs('PATH','USERNAME','USER')
+      if session.platform =~ /win/i
+        !res['PATH'].blank? && !res['USERNAME'].blank?
+      else
+        !res['PATH'].blank? && !res['USER'].blank?
+      end
     end
   end
 

@@ -3,7 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/http'
+
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
     credential_data = {
       origin_type: :service,
       module_fullname: self.fullname,
-      workspace_id: myworkspace.id,
+      workspace_id: myworkspace_id,
       private_data: password,
       private_type: :password,
       username: username

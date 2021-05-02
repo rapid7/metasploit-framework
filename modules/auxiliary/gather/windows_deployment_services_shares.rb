@@ -3,8 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-require 'rex/proto/dcerpc'
-require 'rex/parser/unattend'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::SMB::Client
@@ -39,7 +37,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('SMBDomain', [ false, "SMB Domain", '']),
       ])
 
-    deregister_options('RHOST', 'CHOST', 'CPORT', 'SSL', 'SSLVersion')
   end
 
   # Determine the type of share based on an ID type value
@@ -137,7 +134,7 @@ class MetasploitModule < Msf::Auxiliary
     deploy_shares = []
 
     begin
-      connect
+      connect(versions: [1])
       smb_login
       srvsvc_netshareenum.each do |share|
         # Ghetto unicode to ascii conversation

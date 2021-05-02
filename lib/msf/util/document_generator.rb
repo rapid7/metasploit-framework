@@ -4,8 +4,6 @@
 #
 ###
 
-require 'msf/util/document_generator/pull_request_finder'
-require 'msf/util/document_generator/normalizer'
 
 module Msf
   module Util
@@ -61,6 +59,7 @@ module Msf
             mod_pull_requests: pr,
             mod_refs:          mod.references,
             mod_rank:          mod.rank,
+            mod_rank_name:     Msf::RankingName[mod.rank].capitalize,
             mod_platforms:     mod.send(:module_info)['Platform'],
             mod_options:       mod.options,
             mod_side_effects:  mod.side_effects,
@@ -73,7 +72,7 @@ module Msf
           items[:mod_targets] = mod.targets
         end
 
-        n.get_md_content(items, kb)
+        n.get_md_content(items, kb).force_encoding('UTF-8')
       end
 
     end

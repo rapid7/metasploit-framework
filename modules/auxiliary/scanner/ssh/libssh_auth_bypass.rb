@@ -58,16 +58,16 @@ class MetasploitModule < Msf::Auxiliary
 
   # Vulnerable since 0.6.0 and patched in 0.7.6 and 0.8.4
   def check_banner(ip, version)
-    version =~ /libssh[_-]?([\d.]*)$/ && $1 && (v = Gem::Version.new($1))
+    version =~ /libssh[_-]?([\d.]*)$/ && $1 && (v = Rex::Version.new($1))
 
     if v.nil?
       vprint_error("#{ip}:#{rport} - #{version} does not appear to be libssh")
       Exploit::CheckCode::Unknown
-    elsif v == Gem::Version.new('')
+    elsif v.to_s.empty?
       vprint_warning("#{ip}:#{rport} - libssh version not reported")
       Exploit::CheckCode::Detected
-    elsif v.between?(Gem::Version.new('0.6.0'), Gem::Version.new('0.7.5')) ||
-          v.between?(Gem::Version.new('0.8.0'), Gem::Version.new('0.8.3'))
+    elsif v.between?(Rex::Version.new('0.6.0'), Rex::Version.new('0.7.5')) ||
+          v.between?(Rex::Version.new('0.8.0'), Rex::Version.new('0.8.3'))
       vprint_good("#{ip}:#{rport} - #{version} appears to be unpatched")
       Exploit::CheckCode::Appears
     else
@@ -137,7 +137,9 @@ class MetasploitModule < Msf::Auxiliary
 
     case action.name
     when 'Shell'
-      start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      if datastore['CreateSession']
+        start_session(self, "#{self.name} (#{version})", {}, false, shell.lsock)
+      end
     when 'Execute'
       output = shell.channel && (shell.channel[:data] || '').chomp
 

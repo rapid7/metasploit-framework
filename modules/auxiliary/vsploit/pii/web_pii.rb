@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'Author'         => 'MJC',
       'References' =>
       [
-        [ 'URL', 'https://community.rapid7.com/community/metasploit/blog/2011/06/02/vsploit--virtualizing-exploitation-attributes-with-metasploit-framework']
+        [ 'URL', 'https://blog.rapid7.com/2011/06/02/vsploit--virtualizing-exploitation-attributes-with-metasploit-framework']
       ],
       'DefaultOptions' => { 'HTTP::server_name' => 'IIS'}
       ))

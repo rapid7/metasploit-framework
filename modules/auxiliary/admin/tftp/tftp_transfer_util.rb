@@ -3,6 +3,7 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+
 class MetasploitModule < Msf::Auxiliary
   include Rex::Proto::TFTP
   include Msf::Auxiliary::Report
@@ -30,8 +31,8 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.networksorcery.com/enp/protocol/tftp.htm']
         ],
       'Actions' => [
-        [ 'Download', {'Description' => "Download REMOTE_FILENAME as FILENAME from the server."}],
-        [ 'Upload',   {'Description' => "Upload FILENAME as REMOTE_FILENAME to the server."}]
+          [ 'Download', 'Description' => "Download REMOTE_FILENAME as FILENAME from the server."],
+          [ 'Upload',   'Description' => "Upload FILENAME as REMOTE_FILENAME to the server."]
         ],
       'DefaultAction' => 'Upload',
       'License'     => MSF_LICENSE

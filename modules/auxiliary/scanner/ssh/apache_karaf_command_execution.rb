@@ -25,13 +25,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
       'Platform'       => 'unix',
       'Arch'           => ARCH_CMD,
-      'Targets'        =>
-        [
-          ['Apache Karaf', {}],
-        ],
       'Privileged'     => true,
-      'DisclosureDate' => "Feb 9 2016",
-      'DefaultTarget'  => 0))
+      'DisclosureDate' => '2016-02-09'))
 
     register_options(
       [

@@ -2,7 +2,7 @@
 
 module Rex
 module Proto
-module Kademlia
+module Kademlia::Util
   # Decodes an on-the-wire representation of a Kademlia peer to its 16-character hex equivalent
   #
   # @param bytes [String] the on-the-wire representation of a Kademlia peer

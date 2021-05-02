@@ -16,7 +16,7 @@ class MetasploitModule < Msf::Post
         files in Microsoft Plus! 98 and Windows Me.
       },
       'License'        => MSF_LICENSE,
-      'Author'         => ['Brendan Coles <bcoles[at]gmail.com>'],
+      'Author'         => ['bcoles'],
       'References'     =>
         [
           ['CVE', '2001-0152'],
@@ -24,7 +24,7 @@ class MetasploitModule < Msf::Post
           ['PACKETSTORM', '24543'],
           ['URL', 'https://support.microsoft.com/en-us/kb/265131']
         ],
-      'DisclosureDate' => 'Mar 27 2001',
+      'DisclosureDate' => '2001-03-27',
       'Platform'       => ['win'],
       'SessionTypes'   => ['meterpreter', 'shell']
     ))

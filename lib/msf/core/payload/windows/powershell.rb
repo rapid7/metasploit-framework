@@ -1,8 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/core'
-require 'msf/core/payload/windows'
-
 module Msf
 
 ###
@@ -44,7 +41,7 @@ module Payload::Windows::Powershell
     script_in.gsub!('LHOST_REPLACE', lhost.to_s)
 
     script = Rex::Powershell::Command.compress_script(script_in)
-    command_args = { 
+    command_args = {
         noprofile: true,
         windowstyle: 'hidden',
         noninteractive: true,

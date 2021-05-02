@@ -3,7 +3,6 @@
 # Gems
 #
 require 'active_support/concern'
-require 'msf/core/modules/metadata/cache'
 
 # Concerns the module cache maintained by the {Msf::ModuleManager}.
 module Msf::ModuleManager::Cache
@@ -84,7 +83,7 @@ module Msf::ModuleManager::Cache
 
       # XXX borked
       loaders.each do |loader|
-        if loader.loadable?(parent_path)
+        if loader.loadable_module?(parent_path, type, reference_name)
           type = module_info[:type]
           reference_name = module_info[:reference_name]
 
@@ -170,6 +169,10 @@ module Msf::ModuleManager::Cache
           :parent_path => parent_path,
           :modification_time => module_metadata.mod_time
       }
+      module_metadata.aliases.each do |a|
+        self.aliases[a] = module_metadata.fullname
+      end
+      self.inv_aliases[module_metadata.fullname] = module_metadata.aliases unless module_metadata.aliases.empty?
 
       typed_module_set = module_set(type)
 

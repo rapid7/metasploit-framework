@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
+require 'rex/post/meterpreter/extensions/extapi/command_ids'
 
 module Rex
 module Post
@@ -16,6 +17,7 @@ class Console::CommandDispatcher::Extapi::Wmi
   Klass = Console::CommandDispatcher::Extapi::Wmi
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Extapi
 
   # Zero indicates "no limit"
   DEFAULT_MAX_RESULTS = 0
@@ -26,10 +28,10 @@ class Console::CommandDispatcher::Extapi::Wmi
   #
   def commands
     all = {
-      "wmi_query" => "Perform a generic WMI query and return the results",
+      'wmi_query' => 'Perform a generic WMI query and return the results',
     }
     reqs = {
-      "wmi_query" => [ "extapi_wmi_query" ],
+      'wmi_query' => [COMMAND_ID_EXTAPI_WMI_QUERY],
     }
     filter_commands(all, reqs)
   end
@@ -38,7 +40,7 @@ class Console::CommandDispatcher::Extapi::Wmi
   # Name for this dispatcher
   #
   def name
-    "Extapi: WMI Querying"
+    'Extapi: WMI Querying'
   end
 
   #

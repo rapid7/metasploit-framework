@@ -1,4 +1,4 @@
-module Authentication
+module Msf::WebServices::Authentication
   module Strategies
     class AdminApiToken < ApiToken
 

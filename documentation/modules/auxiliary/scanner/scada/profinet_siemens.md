@@ -57,7 +57,7 @@ IP, Subnetmask and Gateway are: 172.16.30.102, 255.255.0.0, 172.16.0.1
 [*] Auxiliary module execution completed
 ```
 
-## Module Options
+## Options
 ```
 msf auxiliary(profinet_siemens) > show options
 

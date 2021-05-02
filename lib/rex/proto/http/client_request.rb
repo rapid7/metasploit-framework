@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'uri'
-#require 'rex/proto/http'
+
 require 'rex/socket'
 require 'rex/text'
 
@@ -24,6 +24,7 @@ class ClientRequest
     'headers'                => nil,
     'raw_headers'            => '',
     'method'                 => 'GET',
+    'partial'                => false,
     'path_info'              => '',
     'port'                   => 80,
     'proto'                  => 'HTTP',
@@ -89,8 +90,7 @@ class ClientRequest
     @opts['headers'] ||= {}
   end
 
-  def to_s
-
+  def to_s(headers_only: false)
     # Start GET query string
     qstr = opts['query'] ? opts['query'].dup : ""
 
@@ -136,12 +136,16 @@ class ClientRequest
 
       opts['vars_post'].each_pair do |var,val|
         var = var.to_s
-        val = val.to_s
-
-        pstr << '&' if pstr.length > 0
-        pstr << (opts['encode_params'] ? set_encode_uri(var) : var)
-        pstr << '='
-        pstr << (opts['encode_params'] ? set_encode_uri(val) : val)
+        unless val.is_a?(Array)
+          val = [val]
+        end
+        val.each do |v|
+          v = v.to_s
+          pstr << '&' if pstr.length > 0
+          pstr << (opts['encode_params'] ? set_encode_uri(var) : var)
+          pstr << '='
+          pstr << (opts['encode_params'] ? set_encode_uri(v) : v)
+        end
       end
     else
       if opts['encode']
@@ -173,22 +177,19 @@ class ClientRequest
     req << set_version
 
     # Set a default Host header if one wasn't passed in
-    if opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
-      host = opts['headers'].keys.each { |k| break opts['headers'][k] if k =~ /host/i }
-      req << set_formatted_header('Host', host)
-    else
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('host')
       req << set_host_header
     end
 
     # If an explicit User-Agent header is set, then use that instead of
     # the default
-    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('user-agent')
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('user-agent')
       req << set_agent_header
     end
 
     # Similar to user-agent, only add an automatic auth header if a
     # manual one hasn't been provided
-    unless opts['headers'] && opts['headers'].keys.map { |x| x.downcase }.include?('authorization')
+    unless opts['headers'] && opts['headers'].keys.map(&:downcase).include?('authorization')
       req << set_auth_header
     end
 
@@ -198,9 +199,11 @@ class ClientRequest
 
     req << set_content_type_header
     req << set_content_len_header(pstr.length)
-    req << set_chunked_header()
+    req << set_chunked_header
     req << opts['raw_headers']
-    req << set_body(pstr)
+    req << set_body(pstr) unless headers_only
+
+    req
   end
 
   protected

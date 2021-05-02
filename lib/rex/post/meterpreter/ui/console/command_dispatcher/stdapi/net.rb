@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/post/meterpreter'
-require 'rex/service_manager'
+require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 
 module Rex
 module Post
@@ -17,6 +17,7 @@ class Console::CommandDispatcher::Stdapi::Net
   Klass = Console::CommandDispatcher::Stdapi::Net
 
   include Console::CommandDispatcher
+  include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
   # This module is used to extend the meterpreter session
@@ -90,22 +91,22 @@ class Console::CommandDispatcher::Stdapi::Net
     }
 
     reqs = {
-      'ipconfig' => ['stdapi_net_config_get_interfaces'],
-      'ifconfig' => ['stdapi_net_config_get_interfaces'],
+      'ipconfig' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES],
+      'ifconfig' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_INTERFACES],
       'route'    => [
         # Also uses these, but we don't want to be unable to list them
         # just because we can't alter them.
-        #'stdapi_net_config_add_route',
-        #'stdapi_net_config_remove_route',
-        'stdapi_net_config_get_routes'
+        #COMMAND_ID_STDAPI_NET_CONFIG_ADD_ROUTE,
+        #COMMAND_ID_STDAPI_NET_CONFIG_REMOVE_ROUTE,
+        COMMAND_ID_STDAPI_NET_CONFIG_GET_ROUTES
       ],
       # Only creates tcp channels, which is something whose availability
       # we can't check directly at the moment.
       'portfwd'  => [],
-      'arp'      => ['stdapi_net_config_get_arp_table'],
-      'netstat'  => ['stdapi_net_config_get_netstat'],
-      'getproxy' => ['stdapi_net_config_get_proxy'],
-      'resolve'  => ['stdapi_net_resolve_host'],
+      'arp'      => [COMMAND_ID_STDAPI_NET_CONFIG_GET_ARP_TABLE],
+      'netstat'  => [COMMAND_ID_STDAPI_NET_CONFIG_GET_NETSTAT],
+      'getproxy' => [COMMAND_ID_STDAPI_NET_CONFIG_GET_PROXY],
+      'resolve'  => [COMMAND_ID_STDAPI_NET_RESOLVE_HOST],
     }
 
     filter_commands(all, reqs)
@@ -426,11 +427,7 @@ class Console::CommandDispatcher::Stdapi::Net
           direction = 'Forward'
           direction = 'Reverse' if opts['Reverse'] == true
 
-          if opts['Reverse'] == true
-            table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", 'Reverse']
-          else
-            table << [cnt + 1, "#{lhost}:#{lport}", "#{rhost}:#{rport}", 'Forward']
-          end
+          table << [cnt + 1, "#{rhost}:#{rport}", "#{lhost}:#{lport}", direction]
 
           cnt += 1
         }
@@ -463,11 +460,12 @@ class Console::CommandDispatcher::Stdapi::Net
             )
 
             # Start the local TCP reverse relay in association with this stream
-            service.start_reverse_tcp_relay(channel,
-              'LocalPort'         => rport,
+            relay = service.start_reverse_tcp_relay(channel,
+              'LocalPort'         => channel.params.localport,
               'PeerHost'          => lhost,
               'PeerPort'          => lport,
               'MeterpreterRelay'  => true)
+            rport = relay.opts['LocalPort']
           rescue Exception => e
             print_error("Failed to create relay: #{e.to_s}")
             return false
@@ -481,12 +479,13 @@ class Console::CommandDispatcher::Stdapi::Net
           end
 
           # Start the local TCP relay in association with this stream
-          service.start_tcp_relay(lport,
+          relay = service.start_tcp_relay(lport,
             'LocalHost'         => lhost,
             'PeerHost'          => rhost,
             'PeerPort'          => rport,
             'MeterpreterRelay'  => true,
             'OnLocalConnection' => Proc.new { |relay, lfd| create_tcp_channel(relay) })
+          lport = relay.opts['LocalPort']
         end
 
         print_status("Local TCP relay created: #{lhost}:#{lport} <-> #{rhost}:#{rport}")

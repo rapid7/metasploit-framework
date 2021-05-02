@@ -38,7 +38,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'etc/shadow']),
+        OptString.new('PATH', [ true, "Path to the file to disclose, relative to the root dir.", 'etc/shadow']),
         OptString.new('OUTPUTPATH', [ false, "Local path to save the file contents to", nil ])
       ])
   end

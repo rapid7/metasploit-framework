@@ -56,7 +56,7 @@ module Metasploit
             if @version.nil? || @version !~ /^[2349]/
               return "Unsupported version ('#{@version}')"
             end
-          rescue ::EOFError, Errno::ETIMEDOUT, Rex::ConnectionError, ::Timeout::Error
+          rescue ::EOFError, Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Rex::ConnectionError, ::Timeout::Error
             return "Unable to connect to target"
           end
 
@@ -208,7 +208,7 @@ module Metasploit
               result_opts.merge!(status)
             when /^9\.x$/
               status = try_glassfish_9(credential)
-              result_opts.merge!(status) 
+              result_opts.merge!(status)
             end
           rescue ::EOFError, Errno::ECONNRESET, Rex::ConnectionError, OpenSSL::SSL::SSLError, ::Timeout::Error => e
             result_opts.merge!(status: Metasploit::Model::Login::Status::UNABLE_TO_CONNECT, proof: e)

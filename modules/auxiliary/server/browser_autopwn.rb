@@ -984,7 +984,7 @@ class MetasploitModule < Msf::Auxiliary
           rescue ::Interrupt
             raise $!
           rescue ::Exception => e
-            elog("Reporting failed: #{e.class} : #{e.message} #{e.backtrace}")
+            elog('Reporting failed', error: e)
           end
         end
       end

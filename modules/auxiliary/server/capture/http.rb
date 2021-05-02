@@ -19,7 +19,7 @@ class MetasploitModule < Msf::Auxiliary
       'License'     => MSF_LICENSE,
       'Actions'     =>
         [
-          [ 'Capture' ]
+          [ 'Capture', 'Description' => 'Run capture web server' ]
         ],
       'PassiveActions' =>
         [

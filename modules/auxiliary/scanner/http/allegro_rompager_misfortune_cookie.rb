@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         ['URL', 'http://mis.fortunecook.ie/misfortune-cookie-suspected-vulnerable.pdf'], # list of likely vulnerable devices
         ['URL', 'http://mis.fortunecook.ie/too-many-cooks-exploiting-tr069_tal-oppenheim_31c3.pdf'] # 31C3 presentation with POC
       ],
-      'DisclosureDate' => 'Dec 17 2014',
+      'DisclosureDate' => '2014-12-17',
       'License' => MSF_LICENSE
     ))
 
@@ -78,7 +78,7 @@ class MetasploitModule < Msf::Auxiliary
     fp = http_fingerprint(response: res)
     if /RomPager\/(?<version>[\d\.]+)/ =~ fp
       vprint_status("#{peer} is RomPager #{version}")
-      if Gem::Version.new(version) < Gem::Version.new('4.34')
+      if Rex::Version.new(version) < Rex::Version.new('4.34')
         return Exploit::CheckCode::Appears
       end
     end
