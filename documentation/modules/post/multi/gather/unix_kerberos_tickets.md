@@ -32,7 +32,7 @@
   On a system running SSS (sssd), the modules will gather:
 
   * /var/lib/sss/db/ccache_*
-  * /tmp/krb5*
+  * Files matching the default_ccache_name property in /etc/krb5.conf (usually /tmp/krb5*)
 
 ### One Identity Vintela Authentication Services (vasd)
 

