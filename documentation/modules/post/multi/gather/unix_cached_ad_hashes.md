@@ -18,6 +18,7 @@
   4. Do: ```use post/multi/gather/unix_cached_ad_hashes```
   5. Do: ```run```
   6. You should get the cached hashes
+  7. Additional tools need to be run to extract the hashes in a crackable format
 
   Files will be retrieved and placed into the Metasploit loot sub-system as unix_cached_ad_hashes_*.
 
@@ -34,7 +35,10 @@
   * /var/lib/samba/private/secrets.tdb
   * /var/lib/samba/passdb.tdb
 
-  JtR can natively crack the cached hashes extracted from this database using tdbdump.
+  Use tdbdump to extract structed data from these files (`tdbdump #{filename}`), and search for the phrase
+  `cachedPassword`. The hash should be in the same format as hashes in /etc/shadow (e.g. `$6$...`).
+
+  JtR can natively crack these hashes.
 
 ### SSS (sssd)
 
@@ -42,7 +46,10 @@
 
   * /var/lib/sss/db/cache_*
 
-  JtR can natively crack the cached hashes extracted from this database using tdbdump.
+  Use tdbdump to extract structed data from these files (`tdbdump #{filename}`), and search for the phrase
+  `cachedPassword`. The hash should be in the same format as hashes in /etc/shadow (e.g. `$6$...`).
+
+  JtR can natively crack these hashes.
 
 ### One Identity Vintela Authentication Services (vasd)
 
