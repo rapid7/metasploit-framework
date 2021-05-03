@@ -257,12 +257,12 @@ module Msf
       end
       
       def send_text_to_gotify(session)
-        # https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/9e91d73c
+        # https://gotify.net/docs/more-pushmsg
         uri_parser = URI.parse(gotify_address)
-        markdown_text =
-        "Platform : #{session.platform}\n\n" \
-        "Tunnel : #{session.tunnel_to_s}\n\n" \
-        "Arch : #{session.arch}\n\n" \
+        message_text =
+        "Platform : #{session.platform}\n" \
+        "Tunnel : #{session.tunnel_to_s}\n" \
+        "Arch : #{session.arch}\n" \
         "Info : > #{session.info ? session.info.to_s : nil}"
         json_post_data = JSON.pretty_generate({
 		      title: "#{session.platform}主机#{session.type}会话上线!",
