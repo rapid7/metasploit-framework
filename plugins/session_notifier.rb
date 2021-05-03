@@ -24,6 +24,7 @@ module Msf
       attr_reader :maximum_ip
       attr_reader :dingtalk_webhook
       attr_reader :gotify_address
+      attr_reader :gotify_ssl
 
       def name
         'SessionNotifier'
@@ -42,6 +43,7 @@ module Msf
           'set_session_maximum_ip'         => 'Set the maximum session IP range you want to be notified for',
           'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier (keyword: session).',
           'set_session_gotify_address'     => 'Set the Gotify address for the session notifier',
+          'set_session_gotify_ssl'         => 'Set whether use ssl for Gotify push or not (1/0)',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
           'start_session_notifier'         => 'Start notifying sessions',
           'stop_session_notifier'          => 'Stop notifying sessions',
@@ -114,17 +116,6 @@ module Msf
         end
       end
 
-      def cmd_set_session_dingtalk_webhook(*args)
-        webhook_url = args[0]
-        if webhook_url.blank?
-          @dingtalk_webhook = nil
-        elsif !(webhook_url =~ URI::DEFAULT_PARSER.make_regexp).nil?
-          @dingtalk_webhook = webhook_url
-        else
-          print_error('Invalid webhook_url')
-        end
-      end
-      
       def cmd_set_session_gotify_address(*args)
         webhook_url = args[0]
         if webhook_url.blank?
@@ -133,6 +124,28 @@ module Msf
           @gotify_address = webhook_url
         else
           print_error('Invalid gotify_address')
+        end
+      end
+
+      def cmd_set_session_gotify_ssl(*args)
+        ssl_options = args[0]
+        if ssl_options == '1'
+          @gotify_ssl = 1
+          print_status('Set Gotify ssl_mode ON!')
+        elsif ssl_options == '0'
+          @gotify_ssl = 0
+          print_status('Set Gotify ssl_mode OFF!')
+        end
+      end
+
+      def cmd_set_session_dingtalk_webhook(*args)
+        webhook_url = args[0]
+        if webhook_url.blank?
+          @dingtalk_webhook = nil
+        elsif !(webhook_url =~ URI::DEFAULT_PARSER.make_regexp).nil?
+          @dingtalk_webhook = webhook_url
+        else
+          print_error('Invalid webhook_url')
         end
       end
 
@@ -160,7 +173,7 @@ module Msf
             )
             @sms_client = Rex::Proto::Sms::Client.new(carrier: sms_carrier, smtp_server: smtp)
             print_status('Session notification started.')
-            end
+          end
           if !dingtalk_webhook.nil?
             print_status('DingTalk notification started.')
           end
@@ -205,6 +218,7 @@ module Msf
         ini[name]['maximum_ip']       = maximum_ip.to_s unless maximum_ip.blank?
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?
         ini[name]['gotify_address']   = gotify_address.to_s unless gotify_address.blank?
+        ini[name]['gotify_ssl']       = gotify_ssl
         ini.to_file(config_file)
       end
 
@@ -224,7 +238,7 @@ module Msf
           @maximum_ip       = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
           @dingtalk_webhook = group['dingtalk_webhook']       if group['dingtalk_webhook']
           @gotify_address   = group['gotify_address']         if group['gotify_address']
-
+          @gotify_ssl       = group['gotify_ssl']             if group['gotify_ssl']
           print_status('Session Notifier settings loaded from config file.')
         end
       end
@@ -255,7 +269,7 @@ module Msf
         body = JSON.parse(res.body)
         print_status((body['errcode'] == 0) ? 'Session notified to DingTalk.' : 'Failed to send notification.')
       end
-      
+
       def send_text_to_gotify(session)
         # https://gotify.net/docs/more-pushmsg
         uri_parser = URI.parse(gotify_address)
@@ -265,13 +279,15 @@ module Msf
         "Arch : #{session.arch}\n" \
         "Info : > #{session.info ? session.info.to_s : nil}"
         json_post_data = JSON.pretty_generate({
-		      title: "#{session.platform}主机#{session.type}会话上线!",
-		      message: markdown_text,
-		      priority: 10
+          title: "#{session.platform}主机#{session.type}会话上线!",
+          message: message_text,
+          priority: 10
         })
         http = Net::HTTP.new(uri_parser.host, uri_parser.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        if gotify_ssl == 1
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
         request = Net::HTTP::Post.new(uri_parser.request_uri)
         request.content_type = 'application/json'
         request.body = json_post_data
