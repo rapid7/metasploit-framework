@@ -28,6 +28,13 @@ module Interactive
     super()
   end
 
+  def interact(*args)
+    history_context = {
+      history_file: type == 'meterpreter' ? Msf::Config.meterpreter_history : nil,
+      name: type.to_sym
+    }
+    super(*args, history_context: history_context)
+  end
   #
   # Returns that, yes, indeed, this session supports going interactive with
   # the user.
@@ -142,10 +149,7 @@ protected
   def _suspend
     # Ask the user if they would like to background the session
     intent = prompt_yesno("Background session #{name}?")
-    if intent
-      Msf::Ui::Console::HistoryManager.clear_readline
-      Msf::Ui::Console::HistoryManager.pop_context
-    else
+    if !intent
       # User does not want to background the current session
       # Assuming the target is *nix, we'll forward CTRL-Z to the foreground process on the target
       if !(self.platform=="windows" && self.type =="shell")

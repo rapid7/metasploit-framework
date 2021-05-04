@@ -37,14 +37,16 @@ module Shell
     end
   end
 
+  @@last_console = :msfconsole
   #
   # Initializes a shell that has a prompt and can be interacted with.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = :msfconsole)
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
     self.stop_count     = 0
+    self.name = name
 
     # Initialize the prompt
     self.cont_prompt = ' > '
@@ -63,6 +65,11 @@ module Shell
   end
 
   def init_tab_complete
+
+    if @@last_console == :meterpreter && name == :msfconsole
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
+    end
+    @@last_console = self.name 
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
       self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
@@ -149,11 +156,6 @@ module Shell
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
         elsif block
-          if self.histfile && line != @last_line
-            File.open(self.histfile, "a+") { |f| f.puts(line) }
-            @last_line = line
-          end
-          self.stop_count = 0
           break if block.call(line)
 
         # Otherwise, call what should be an overriden instance method to
@@ -492,7 +494,7 @@ module Shell
   attr_accessor :log_source, :stop_count # :nodoc:
   attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
-
+  attr_accessor :name
 private
 
   attr_writer   :cont_flag # :nodoc:
