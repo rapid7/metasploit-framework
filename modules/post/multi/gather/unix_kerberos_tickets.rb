@@ -68,7 +68,7 @@ class MetasploitModule < Msf::Post
           else
             print_error("Unknown storage type: #{cache_location}")
           end
-  
+
           if file_pattern
             print_status("Kerberos tickets configured to be stored at #{file_pattern}")
             placeholder = 'MSF_INSERT_HERE'
