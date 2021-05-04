@@ -8,7 +8,6 @@ class MetasploitModule < Msf::Post
   include Msf::ModuleTest::PostTest
   include Msf::Post::File
   include Msf::Post::Windows::FileInfo
-  include Msf::Post::Windows::Railgun
 
   def initialize(info={})
     super( update_info( info,
