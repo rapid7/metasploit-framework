@@ -253,7 +253,7 @@ module Msf::Post::Common
 
   def get_processes
     if session.type == 'meterpreter'
-      return session.sys.process.get_processes
+      return session.sys.process.get_processes.map {|p| p.slice('name', 'pid')}
     end
     processes = []
     if session.platform == 'windows'
@@ -261,19 +261,23 @@ module Msf::Post::Common
       tasklist.each do |p|
         properties = p.split
         process = {}
-        process['name'] = properties[0].to_s
-        process['pid'] = properties[1].to_s
+        process['name'] = properties[0]
+        process['pid'] = properties[1].to_i
         processes.push(process)
       end
+      4.times {processes.delete_at(0)}
+      # adding manually because this is common for all windows I think and spliting for this was causing problem for other processes.
+      processes.push({'name' => 'System Idle Process', 'pid' => 0})
     else
       ps_aux = cmd_exec('ps aux').split("\n")
       ps_aux.each do |p|
         properties = p.split
         process = {}
-        process['name'] = properties[10].to_s.gsub(/\[|\]/,"")
-        process['pid'] = properties[1].to_s
+        process['name'] = properties[10].gsub(/\[|\]/,"")
+        process['pid'] = properties[1].to_i
         processes.push(process)
       end
+      processes.delete_at(0)
     end
     return processes
   end
