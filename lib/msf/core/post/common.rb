@@ -34,22 +34,7 @@ module Msf::Post::Common
   # Checks if the remote system has a process with ID +pid+
   #
   def has_pid?(pid)
-    pid_list = []
-    case client.type
-    when /meterpreter/
-      pid_list = client.sys.process.processes.collect {|e| e['pid']}
-    when /shell/
-      if client.platform == 'windows'
-        o = cmd_exec('tasklist /FO LIST')
-        pid_list = o.scan(/^PID:\s+(\d+)/).flatten
-      else
-        o = cmd_exec('ps ax')
-        pid_list = o.scan(/^\s*(\d+)/).flatten
-      end
-
-      pid_list = pid_list.collect {|e| e.to_i}
-    end
-
+    pid_list = get_processes.collect { |e| e['pid'] }
     pid_list.include?(pid)
   end
 
@@ -249,6 +234,37 @@ module Msf::Post::Common
     end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
+  end
+
+  def get_processes
+    if session.type == 'meterpreter'
+      return session.sys.process.get_processes.map {|p| p.slice('name', 'pid')}
+    end
+    processes = []
+    if session.platform == 'windows'
+      tasklist = cmd_exec('tasklist').split("\n")
+      4.times { tasklist.delete_at(0) }
+      tasklist.each do |p|
+        properties = p.split
+        process = {}
+        process['name'] = properties[0]
+        process['pid'] = properties[1].to_i
+        processes.push(process)
+      end
+      # adding manually because this is common for all windows I think and splitting for this was causing problem for other processes.
+      processes.prepend({ 'name' => '[System Process]', 'pid' => 0 })
+    else
+      ps_aux = cmd_exec('ps aux').split("\n")
+      ps_aux.delete_at(0)
+      ps_aux.each do |p|
+        properties = p.split
+        process = {}
+        process['name'] = properties[10].gsub(/\[|\]/,"")
+        process['pid'] = properties[1].to_i
+        processes.push(process)
+      end
+    end
+    return processes
   end
 
 end
