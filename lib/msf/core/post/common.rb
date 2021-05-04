@@ -34,8 +34,7 @@ module Msf::Post::Common
   # Checks if the remote system has a process with ID +pid+
   #
   def has_pid?(pid)
-    pid_list = []
-    pid_list = get_processes.collect {|e| e['pid']}
+    pid_list = get_processes.collect { |e| e['pid'] }
     pid_list.include?(pid)
   end
 
@@ -244,6 +243,7 @@ module Msf::Post::Common
     processes = []
     if session.platform == 'windows'
       tasklist = cmd_exec('tasklist').split("\n")
+      4.times { tasklist.delete_at(0) }
       tasklist.each do |p|
         properties = p.split
         process = {}
@@ -251,11 +251,11 @@ module Msf::Post::Common
         process['pid'] = properties[1].to_i
         processes.push(process)
       end
-      4.times {processes.delete_at(0)}
-      # adding manually because this is common for all windows I think and spliting for this was causing problem for other processes.
-      processes.push({'name' => 'System Idle Process', 'pid' => 0})
+      # adding manually because this is common for all windows I think and splitting for this was causing problem for other processes.
+      processes.prepend({ 'name' => '[System Process]', 'pid' => 0 })
     else
       ps_aux = cmd_exec('ps aux').split("\n")
+      ps_aux.delete_at(0)
       ps_aux.each do |p|
         properties = p.split
         process = {}
@@ -263,7 +263,6 @@ module Msf::Post::Common
         process['pid'] = properties[1].to_i
         processes.push(process)
       end
-      processes.delete_at(0)
     end
     return processes
   end
