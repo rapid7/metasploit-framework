@@ -50,7 +50,7 @@ module MsfdbHelpers
     end
 
     def self.requirements
-      Array.new
+      []
     end
 
     def run_cmd(cmd, input: nil, env: {})

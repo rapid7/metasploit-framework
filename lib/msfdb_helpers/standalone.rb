@@ -5,7 +5,13 @@ module MsfdbHelpers
     def initialize(options:, db_conf:, connection_string:)
       @options = options
       @db_conf = db_conf
-      @conn = PG.connect(connection_string)
+      begin
+        @conn = PG.connect(connection_string)
+      rescue PG::ConnectionBad
+        print_error('Could not connect to standalone PostgreSQL instance. Ensure that the connection string is valid, and that the database is accessible')
+        raise
+      end
+
       conninfo = @conn.conninfo_hash
       @options[:db_port] = conninfo[:port]
       @options[:db_host] = conninfo[:host]
@@ -60,7 +66,7 @@ module MsfdbHelpers
     end
 
     def self.requirements
-      Array.new
+      []
     end
 
   end
