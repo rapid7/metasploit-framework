@@ -24,7 +24,7 @@ module Msf
       attr_reader :maximum_ip
       attr_reader :dingtalk_webhook
       attr_reader :gotify_address
-      attr_reader :gotify_ssl
+      attr_reader :gotify_sslcert
 
       def name
         'SessionNotifier'
@@ -43,7 +43,7 @@ module Msf
           'set_session_maximum_ip'         => 'Set the maximum session IP range you want to be notified for',
           'set_session_dingtalk_webhook'   => 'Set the DingTalk webhook for the session notifier (keyword: session).',
           'set_session_gotify_address'     => 'Set the Gotify address for the session notifier',
-          'set_session_gotify_ssl'         => 'Set whether use ssl for Gotify push or not (1/0)',
+          'set_session_gotify_sslcert'     => 'Set the path to load your Gotify SSL cert (if you want to use HTTPS, or you should_not set it)',
           'save_session_notifier_settings' => 'Save all the session notifier settings to framework',
           'start_session_notifier'         => 'Start notifying sessions',
           'stop_session_notifier'          => 'Stop notifying sessions',
@@ -127,13 +127,13 @@ module Msf
         end
       end
 
-      def cmd_set_session_gotify_ssl(*args)
-        ssl_options = args[0]
-        if ssl_options == '1'
-          @gotify_ssl = 1
-          print_status('Set Gotify ssl_mode ON!')
-        elsif ssl_options == '0'
-          @gotify_ssl = 0
+      def cmd_set_session_gotify_sslcert(*args)
+        cert_path = args[0]
+        if !cert_path.nil?
+          @gotify_sslcert = cert_path
+          print_status('Set Gotify ssl_mode ON! Your cert path is '+gotify_sslcert)
+        else
+          @gotify_sslcert = nil
           print_status('Set Gotify ssl_mode OFF!')
         end
       end
@@ -218,7 +218,7 @@ module Msf
         ini[name]['maximum_ip']       = maximum_ip.to_s unless maximum_ip.blank?
         ini[name]['dingtalk_webhook'] = dingtalk_webhook.to_s unless dingtalk_webhook.blank?
         ini[name]['gotify_address']   = gotify_address.to_s unless gotify_address.blank?
-        ini[name]['gotify_ssl']       = gotify_ssl
+        ini[name]['gotify_sslcert']   = gotify_sslcert
         ini.to_file(config_file)
       end
 
@@ -238,7 +238,7 @@ module Msf
           @maximum_ip       = IPAddr.new(group['maximum_ip']) if group['maximum_ip']
           @dingtalk_webhook = group['dingtalk_webhook']       if group['dingtalk_webhook']
           @gotify_address   = group['gotify_address']         if group['gotify_address']
-          @gotify_ssl       = group['gotify_ssl']             if group['gotify_ssl']
+          @gotify_sslcert   = group['gotify_sslcert']         if group['gotify_sslcert']
           print_status('Session Notifier settings loaded from config file.')
         end
       end
@@ -279,14 +279,16 @@ module Msf
         "Arch : #{session.arch}\n" \
         "Info : > #{session.info ? session.info.to_s : nil}"
         json_post_data = JSON.pretty_generate({
-          title: "#{session.platform}主机#{session.type}会话上线!",
+          title: "A #{session.platform}/#{session.type} Session is On!",
           message: message_text,
           priority: 10
         })
         http = Net::HTTP.new(uri_parser.host, uri_parser.port)
-        if gotify_ssl == 1
+        if !gotify_sslcert.nil?
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          store = OpenSSL::X509::Store.new
+          store.add_file(gotify_sslcert)
         end
         request = Net::HTTP::Post.new(uri_parser.request_uri)
         request.content_type = 'application/json'
