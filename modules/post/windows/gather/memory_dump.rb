@@ -131,7 +131,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    pid = datastore['PID']
+    pid = datastore['PID'].to_i
 
     if pid == (session.sys.process.getpid) && !datastore['ForceExploit']
       fail_with(Msf::Module::Failure::BadConfig, 'Dumping current process is not recommended (can result in deadlock). To run anyway, set ForceExploit to True')
