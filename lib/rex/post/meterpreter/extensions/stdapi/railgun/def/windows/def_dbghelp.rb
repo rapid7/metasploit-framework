@@ -13,9 +13,9 @@ class Def_windows_dbghelp
     dll = Library.new(library_path, constant_manager)
 
     dll.add_function('MiniDumpWriteDump', 'BOOL',[
-      ["DWORD","hProcess","in"],
+      ["HANDLE","hProcess","in"],
       ["DWORD","ProcessId","in"],
-      ["DWORD","hFile","in"],
+      ["HANDLE","hFile","in"],
       ["DWORD","DumpType","in"],
       ["PBLOB","ExceptionParam","in"],
       ["PBLOB","UserStreamParam","in"],

