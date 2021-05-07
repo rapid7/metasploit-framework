@@ -1,8 +1,8 @@
-This is an example of how to write a module that uses the [HttpClient](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html) mixin to send a basic HTTP request.
+The [HttpClient mixin](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient) can be included with an exploit module in order to facilitate easier HTTP communications with a target machine.
 
-### There are mainly two common methods you will see:
+## There are mainly two common methods you will see:
 
-* **[send_request_raw](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
+* **[send\_request\_raw](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_raw-instance_method)** - You use this to send a raw HTTP request. Usually, you will want this method if you need something that violates the specification; in most other cases, you should prefer `send_request_cgi`.  If you wish to learn about how this method works, look at the documentation for [`Rex::Proto::Http::Client#request_raw`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_raw-instance_method).
  
 Here's a basic example of how to use `send_request_raw`:
 
@@ -10,7 +10,9 @@ Here's a basic example of how to use `send_request_raw`:
 	send_request_raw({'uri'=>'/index.php'})
 ```
 
-* **[send_request_cgi](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
+* **[send\_request\_cgi](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#send_request_cgi-instance_method)** - You use this to send a more CGI-compatible HTTP request. If your request contains a query string (or POST data), then you should use this.  If you wish to learn about how this method works, check out [`Rex::Proto::Http::Client#request_cgi`](https://rapid7.github.io/metasploit-framework/api/Rex/Proto/Http/Client.html#request_cgi-instance_method).
+
+
 
 Here's a very basic example for `send_request_cgi`:
 
@@ -27,7 +29,93 @@ Here's a very basic example for `send_request_cgi`:
 
 **Please note**: `send_request_raw` and `send_request_cgi` will return a `nil` if there's a timeout, so please make sure to account for that condition when you handle the return value.
 
-### URI Parsing
+## Cookies & CookieJars
+
+Part of send\_request\_cgi functionality is the ability to collect, edit, and send cookies via the HttpClient's  `cookie_jar` variable, an instance of the [HttpCookieJar](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie_jar.rb) class. 
+
+A HttpCookieJar is a collection of [HttpCookie](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie.rb). The Jar can be populated manually with it's `add` method, or automatically via the `keep_cookies` option that can be passed to [send\_request\_cgi](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/lib/msf/core/exploit/remote/http_client.rb#L385).
+
+
+### `keep_cookies` option
+
+Shown below is the request used to login to a gitlab account in the [gitlab\_file\_read\_rce exploit module](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/modules/exploits/multi/http/gitlab_file_read_rce.rb#L70)
+
+```
+res = @http_client.send_request_cgi({
+        'method' => 'POST',
+        'uri' => '/users/sign_in',
+        'keep_cookies' => true,
+        'vars_post' => {
+          'utf8' => '✓',
+          'authenticity_token' => csrf_token,
+          'user[login]' => username,
+          'user[password]' => password,
+          'user[remember_me]' => 0
+        }
+})
+```
+The cookies returned by the server with a successful login need to be attached to all future requests, so `'keep_cookies' => true,` is used to add all returned cookies to the HttpClient CookieJar and attach them to all subsequent requests. 
+
+### `cookie` option
+Shown below is the request used to login to a gitlab account in the [artical\_proxy\_auth\_bypass\_service\_cmds\_peform\_command\_injection module](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/modules/exploits/linux/http/artica_proxy_auth_bypass_service_cmds_peform_command_injection.rb#L115)
+
+artical\_proxy\_auth\_bypass\_service\_cmds\_peform\_command\_injection requires a specific cookie header to be sent with a request in order to achieve RCE. By setting a string of the desired header as the value of the `cookie` option, that string is set as the cookie header without any changes, allowing the exploit to be carried out.
+
+```
+res = send_request_cgi({
+  'method' => 'GET',
+  'uri' => normalize_uri(target_uri.path, 'cyrus.index.php'),
+  'vars_get' => {
+    'service-cmds-peform' => "||#{Rex::Text.uri_encode(cmd, 'hex-all')}||"
+  },
+  'cookie' => "PHPSESSID=#{@phpsessid}; AsWebStatisticsCooKie=1; shellinaboxCooKie=1"
+})
+```
+
+Any object passed to `cookie` that isn't an instance of HttpCookieJar will have `to_s` called on it. The result of `to_s` will be set as the cookie header of the http request. The contents of the HttpClient cookie\_jar is ignored **_only_** this request. Subsequent requests are unaffected.
+
+----
+
+Module authors can also pass an instance of `HttpCookieJar` with the `cookie` option:
+
+```
+cj = Msf::Exploit::Remote::HTTP::HttpCookieJar.new
+
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid))
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('AsWebStatisticsCooKie', 1))
+cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('shellinaboxCooKie', 1))
+
+res = send_request_cgi({
+  'method' => 'GET',
+  'uri' => normalize_uri(target_uri.path, 'cyrus.index.php'),
+  'vars_get' => {
+    'service-cmds-peform' => "||#{Rex::Text.uri_encode(cmd, 'hex-all')}||"
+  },
+  'cookie' => cj
+})
+```
+The above code would create an identical cookie header to the one used in the previous example, save for a random ordering of the name value pairs. This shouldn't affect how the server would read the cookies, but it's still worth keeping in mind if you've somehow found a vuln reliant on the order of cookies in a header.
+
+### `expire_cookies` option
+
+`send_request_cgi` will call `cleanup` on `cookie_jar` before iot is used to populate a request with cookies. `cleanup` will remove any expired cookies permenetly from the jar, affecting all future requests.
+
+If this behaviour isn't deisred and an author would prefer to keep expired cookies in the jar, the `expire_cookies` option can be set to false:
+
+```
+res = send_request_cgi({
+  'method' => 'GET',
+  'uri' => normalize_uri(target_uri.path, 'cyrus.index.php'),
+  'vars_get' => {
+    'service-cmds-peform' => "||#{Rex::Text.uri_encode(cmd, 'hex-all')}||"
+  },
+  'cookie' => "PHPSESSID=#{@phpsessid}; AsWebStatisticsCooKie=1; shellinaboxCooKie=1",
+  'expire_cookies' => false
+})
+```
+
+
+## URI Parsing
 
 Before you send a HTTP request, you will most likely have to do some URI parsing.  This is a tricky task, because sometimes when you join paths, you may accidentally get double slashes, like this: "/test//index.php".  Or for some reason you have a missing slash.  These are really commonly made mistakes.  So here's how you can handle it safely:
 
@@ -67,7 +155,7 @@ Please note: The `normalize_uri` method will always follow these rules:
 2. You will have to decide if you need the trailing slash or not.
 3. There should be no double slashes.
 
-### Full Example
+## Full Example
 
 ```ruby
 
@@ -115,7 +203,7 @@ Please note: The `normalize_uri` method will always follow these rules:
 	end
 ```
 
-### Working with Burp Suite
+## Working with Burp Suite
 
 Burp Suite is a useful tool to examine or modify HTTPS traffic while developing a module using HttpClient. To do this:
 
@@ -142,7 +230,7 @@ end
 
 You can do the same for send_request_raw as well.
 
-### Other Common questions:
+## Other Common questions:
 
 **1 - Can I use ```vars_get``` and ```vars_post``` together?**
 
