@@ -95,7 +95,7 @@ module Msf::Post::Common
       end
 
       session.response_timeout = time_out
-      o = session.sys.process.capture_output(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
+      o = session.sys.process.capture_output(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true }, time_out)
     when /powershell/
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
