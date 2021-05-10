@@ -78,6 +78,7 @@ PATH
       sinatra
       sqlite3
       sshkey
+      swagger-blocks
       thin
       tzinfo
       tzinfo-data
@@ -478,7 +479,6 @@ DEPENDENCIES
   rubocop
   ruby-prof (= 1.4.2)
   simplecov (= 0.18.2)
-  swagger-blocks
   timecop
   yard
 
