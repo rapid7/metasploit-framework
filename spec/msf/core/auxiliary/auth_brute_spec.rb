@@ -46,6 +46,13 @@ RSpec.shared_examples_for '#each_user_pass' do |options|
         expect { |block| subject.each_user_pass(true, &block) }.not_to yield_control
       end
     end
+
+    it 'calculates the size correctly' do
+      subject.each_user_pass(true) do |_user, _pass|
+        # noop
+      end
+      expect(subject.class.class_variable_get("@@max_per_service")).to eq(options[:expected_size])
+    end
   end
 end
 
@@ -126,7 +133,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           datastore: {
             'TRANSITION_DELAY' => 0
           },
-          expected: []
+          expected: [],
+          expected_size: 0
         )
       end
 
@@ -141,7 +149,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           },
           expected: [
             ['user1', 'pass1'],
-          ]
+          ],
+          expected_size: 1
         )
 
         it_behaves_like(
@@ -153,7 +162,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           },
           expected: [
             ['user1', ''],
-          ]
+          ],
+          expected_size: 1
         )
 
         it_behaves_like(
@@ -165,7 +175,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           },
           expected: [
             ['', 'pass1'],
-          ]
+          ],
+          expected_size: 1
         )
       end
 
@@ -181,7 +192,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           expected: [
             ['user1', ''],
             ['user2', '']
-          ]
+          ],
+          expected_size: 2
         )
 
         it_behaves_like(
@@ -199,7 +211,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass1'],
             ['user2', 'pass2'],
             ['user2', 'pass3']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -218,7 +231,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass2'],
             ['user1', 'pass3'],
             ['user2', 'pass3']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -237,7 +251,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass1'],
             ['user2', 'pass2'],
             ['user2', 'pass3']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -255,7 +270,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass1'],
             ['user2', 'pass2'],
             ['user2', 'pass3']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -274,7 +290,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'pass2'],
             ['user2', 'pass1'],
             ['user2', 'pass2']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -293,7 +310,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'pass1'],
             ['user2', 'pass1'],
             ['user3', 'pass1']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -313,7 +331,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user3', 'pass1'],
             ['user1', 'pass1'],
             ['user2', 'pass1']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -328,7 +347,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', ''],
             ['user2', ''],
             ['user3', '']
-          ]
+          ],
+          expected_size: 3
         )
 
         it_behaves_like(
@@ -343,7 +363,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['', 'pass1'],
             ['', 'pass2'],
             ['', 'pass3']
-          ]
+          ],
+          expected_size: 3
         )
 
         it_behaves_like(
@@ -364,7 +385,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user3', 'pass1'],
             ['user3', 'pass2'],
             ['user3', 'pass3']
-          ]
+          ],
+          expected_size: 9
         )
       end
 
@@ -379,7 +401,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           expected: [
             ['user1', 'foo'],
             ['user1', 'foo bar']
-          ]
+          ],
+          expected_size: 2
         )
 
         it_behaves_like(
@@ -397,7 +420,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'foo'],
             ['user1', 'foo bar'],
             ['user3', 'foo']
-          ]
+          ],
+          expected_size: 6
         )
 
         it_behaves_like(
@@ -410,7 +434,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
           expected: [
             ['user1', 'foo'],
             ['user1', 'foo bar']
-          ]
+          ],
+          expected_size: 2
         )
 
         it_behaves_like(
@@ -428,7 +453,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user3', ''],
             ['user1', 'foo'],
             ['user3', 'foo']
-          ]
+          ],
+          expected_size: 5
         )
       end
 
@@ -444,7 +470,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['db_user', 'db_pass'],
             ['', 'db_nonblank_pass'],
             ['db_nonblank_user', '']
-          ]
+          ],
+          expected_size: 3
         )
 
         it_behaves_like(
@@ -458,7 +485,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['db_user', ''],
             ['', ''],
             ['db_nonblank_user', '']
-          ]
+          ],
+          expected_size: 3
         )
 
         it_behaves_like(
@@ -472,7 +500,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['', 'db_pass'],
             ['', 'db_nonblank_pass'],
             ['', '']
-          ]
+          ],
+          expected_size: 3
         )
 
         it_behaves_like(
@@ -494,7 +523,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['', ''],
             ['db_nonblank_user', 'db_pass'],
             ['db_nonblank_user', 'db_nonblank_pass']
-          ]
+          ],
+          expected_size: 9
         )
       end
 
@@ -547,7 +577,8 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['db_nonblank_user', 'pass2'],
             ['db_nonblank_user', 'pass3'],
             ['db_nonblank_user', 'db_pass']
-          ]
+          ],
+          expected_size: 31
         )
       end
     end
