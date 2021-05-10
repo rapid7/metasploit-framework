@@ -116,6 +116,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
         )
       ]
     )
+
   end
 
   # Convenience method which defers the creation of a temporary file until its needed as
@@ -291,7 +292,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass1'],
             ['user2', 'pass2']
           ],
-          expected_size: 6
+          expected_size: 8
         )
 
         it_behaves_like(
@@ -311,7 +312,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user2', 'pass1'],
             ['user3', 'pass1']
           ],
-          expected_size: 6
+          expected_size: 9
         )
 
         it_behaves_like(
@@ -332,7 +333,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'pass1'],
             ['user2', 'pass1']
           ],
-          expected_size: 6
+          expected_size: 12
         )
 
         it_behaves_like(
@@ -386,7 +387,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user3', 'pass2'],
             ['user3', 'pass3']
           ],
-          expected_size: 9
+          expected_size: 81
         )
       end
 
@@ -421,7 +422,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'foo bar'],
             ['user3', 'foo']
           ],
-          expected_size: 6
+          expected_size: 8
         )
 
         it_behaves_like(
@@ -454,7 +455,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['user1', 'foo'],
             ['user3', 'foo']
           ],
-          expected_size: 5
+          expected_size: 8
         )
       end
 
@@ -524,7 +525,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['db_nonblank_user', 'db_pass'],
             ['db_nonblank_user', 'db_nonblank_pass']
           ],
-          expected_size: 9
+          expected_size: 12
         )
       end
 
@@ -578,7 +579,7 @@ RSpec.describe Msf::Auxiliary::AuthBrute do
             ['db_nonblank_user', 'pass3'],
             ['db_nonblank_user', 'db_pass']
           ],
-          expected_size: 31
+          expected_size: 47
         )
       end
     end

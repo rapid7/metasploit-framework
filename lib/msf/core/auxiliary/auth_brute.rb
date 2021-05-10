@@ -175,7 +175,6 @@ module Auxiliary::AuthBrute
     cred_collection.add_public(msf_cred.public) if datastore['DB_ALL_USERS']
   end
 
-
   # Checks all three files for usernames and passwords, and combines them into
   # one credential list to apply against the supplied block. The block (usually
   # something like do_login(user,pass) ) is responsible for actually recording
@@ -202,11 +201,14 @@ module Auxiliary::AuthBrute
     end
 
     prev_iterator = nil
+    # Cache the datastore values, as continued lookup is expensive
+    cached_userpass_interval = userpass_interval
+    cached_max_minutes_per_service = datastore['MaxMinutesPerService']
     credentials.each do |u, p|
       # Explicitly be able to set a blank (zero-byte) username by setting the
       # username to <BLANK>. It's up to the caller to handle this if it's not
       # allowed or if there's any special handling needed (such as smb_login).
-      u = "" if u =~ /^<BLANK>$/i
+      u = '' if u.casecmp?('<BLANK>')
       break if @@credentials_skipped[fq_rest]
 
       fq_user = [this_service,u].join(":")
@@ -215,7 +217,7 @@ module Auxiliary::AuthBrute
       # is not actually kicking off a connection, so the
       # bruteforce_speed datastore should be ignored.
       if not noconn
-        userpass_sleep_interval unless @@credentials_tried.empty?
+        userpass_sleep_interval(cached_userpass_interval) unless @@credentials_tried.empty? || cached_max_minutes_per_service == 0
       end
 
       next if @@credentials_skipped[fq_user]
@@ -224,7 +226,7 @@ module Auxiliary::AuthBrute
       # Used for tracking if we should TRANSITION_DELAY
       # If the current user/password values don't match the previous iteration we know
       # we've made it through all of the records for that iteration and should start the delay.
-      if ![u,p].include?(prev_iterator)
+      if u != prev_iterator && p != prev_iterator
         unless prev_iterator.nil? # Prevents a delay on the first run through
           if datastore['TRANSITION_DELAY'] > 0
             vprint_status("Delaying #{datastore['TRANSITION_DELAY']} minutes before attempting next iteration.")
@@ -269,16 +271,15 @@ module Auxiliary::AuthBrute
 
       @@guesses_per_service[this_service] ||= 1
       @@credentials_tried[fq_user] = p
-      if counters_expired? this_service,credentials
+      if counters_expired? this_service, credentials, cached_max_minutes_per_service
         break
       else
         @@guesses_per_service[this_service] += 1
       end
-
     end
   end
 
-  def counters_expired?(this_service,credentials)
+  def counters_expired?(this_service, credentials, max_minutes_per_service)
     expired_cred = false
     expired_time = false
     # Workaround for cases where multiple auth_brute modules are running concurrently and
@@ -295,7 +296,7 @@ module Auxiliary::AuthBrute
           expired_cred = true
       end
     end
-    seconds_to_run = datastore['MaxMinutesPerService'].to_i.abs * 60
+    seconds_to_run = (max_minutes_per_service || datastore['MaxMinutesPerService']).to_i.abs * 60
     if seconds_to_run > 0
       if Time.now.utc.to_i > @@brute_start_time.to_i + seconds_to_run
         print_brute(
@@ -317,8 +318,9 @@ module Auxiliary::AuthBrute
     credentials = extract_word_pair(datastore['USERPASS_FILE'])
     translate_proto_datastores()
     return credentials if datastore['USERPASS_FILE'] =~ /^memory:/
-    users = load_user_vars(credentials)
-    passwords = load_password_vars(credentials)
+    users, credentials = load_user_vars(credentials)
+    passwords, credentials = load_password_vars(credentials)
+    # TODO: Not sure why this exists? Will break if passwords are lazy loaded/generated though
     cleanup_files()
     if datastore['USER_AS_PASS']
       credentials = gen_user_as_password(users, credentials)
@@ -328,26 +330,41 @@ module Auxiliary::AuthBrute
     end
     if framework.db.active
       if datastore['DB_ALL_CREDS']
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          credentials << [o.public.username, o.private.data] if o.private && o.private.type =~ /password/i
-        end
+        database_creds = (
+          framework.db
+            .creds(workspace: myworkspace.name)
+            .select { |o| o.private && o.private.type =~ /password/i }
+            .map { |o| [o.public.username, o.private.data] }
+        )
+        credentials += LazyCredentialEnumerator.new(database_creds)
       end
       if datastore['DB_ALL_USERS']
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          users << o.public.username if o.public
-        end
+        database_users = (
+          framework.db
+             .creds(workspace: myworkspace.name)
+             .select { |o| o.public }
+             .map { |o| o.public.username }
+        )
+        users += LazyCredentialEnumerator.new(database_users)
       end
       if datastore['DB_ALL_PASS']
-        framework.db.creds(workspace: myworkspace.name).each do |o|
-          passwords << o.private.data if o.private && o.private.type =~ /password/i
-        end
+        database_passwords = (
+          framework.db
+                   .creds(workspace: myworkspace.name)
+                   .select { |o| o.private && o.private.type =~ /password/i}
+                   .map { |o| o.private.data }
+        )
+        passwords += LazyCredentialEnumerator.new(database_passwords)
       end
     end
-    credentials.concat(combine_users_and_passwords(users, passwords))
-    credentials.uniq!
-    credentials = just_uniq_users(credentials) if @strip_passwords
-    credentials = just_uniq_passwords(credentials) if @strip_usernames
-    return credentials
+
+    # TODO: Investigate if the existing append orders make sense
+    credentials += combine_users_and_passwords(users, passwords)
+    credentials = credentials.uniq
+    # TODO
+    # credentials = just_uniq_users(credentials) if @strip_passwords
+    # credentials = just_uniq_passwords(credentials) if @strip_usernames
+    credentials
   end
 
   # Class variables to track credential use. They need
@@ -381,19 +398,25 @@ module Auxiliary::AuthBrute
   def load_user_vars(credentials = nil)
     users = extract_words(datastore['USER_FILE'])
     if datastore['USERNAME']
-      users.unshift datastore['USERNAME']
-      credentials = prepend_chosen_username(datastore['USERNAME'], credentials) if credentials
+      users = LazyCredentialEnumerator.new([datastore['USERNAME']]) + users
+      if credentials
+        credentials = prepend_chosen_username(datastore['USERNAME'], credentials)
+      end
     end
-    users
+
+    [users, credentials]
   end
 
   def load_password_vars(credentials = nil)
     passwords = extract_words(datastore['PASS_FILE'])
     if datastore['PASSWORD']
-      passwords.unshift datastore['PASSWORD']
-      credentials = prepend_chosen_password(datastore['PASSWORD'], credentials) if credentials
+      passwords = LazyCredentialEnumerator.new([datastore['PASSWORD']]) + passwords
+      if credentials
+        credentials = prepend_chosen_password(datastore['PASSWORD'], credentials)
+      end
     end
-    passwords
+
+    [passwords, credentials]
   end
 
 
@@ -422,100 +445,126 @@ module Auxiliary::AuthBrute
     credentials.map{|x| ["",x[1]]}.uniq
   end
 
-  def prepend_chosen_username(user,cred_array)
-    cred_array.map {|pair| [user,pair[1]]} + cred_array
+  def prepend_chosen_username(user, cred_array)
+    cred_array.map { |pair| [user, pair[1]] } + cred_array
   end
 
-  def prepend_chosen_password(pass,cred_array)
-    cred_array.map {|pair| [pair[0],pass]} + cred_array
+  def prepend_chosen_password(pass, cred_array)
+    cred_array.map { |pair| [pair[0], pass] } + cred_array
   end
 
   def gen_blank_passwords(user_array,cred_array)
-    blank_passwords = []
+    result = LazyCredentialEnumerator.new([])
     unless user_array.empty?
-      blank_passwords.concat(user_array.map {|u| [u,""]})
+      result += user_array.map { |u| [u, ""] }
     end
     unless cred_array.empty?
-      cred_array.each {|u,p| blank_passwords << [u,""]}
+      result += cred_array.map { |u, _p| [u, ""] }
     end
-    return(blank_passwords + cred_array)
+    result += cred_array
+    result
   end
 
   def gen_user_as_password(user_array,cred_array)
-    user_as_passwords = []
+    result = LazyCredentialEnumerator.new([])
     unless user_array.empty?
-      user_as_passwords.concat(user_array.map {|u| [u,u]})
+      result += user_array.map { |u| [u, u] }
     end
     unless cred_array.empty?
-      cred_array.each {|u,p| user_as_passwords << [u,u]}
+      result += cred_array.map { |u, _p|  [u, u] }
     end
-    return(user_as_passwords + cred_array)
+    result += cred_array
+    result
   end
 
-  def combine_users_and_passwords(user_array,pass_array)
-    if (user_array.length + pass_array.length) < 1
-      return []
+  def combine_users_and_passwords(user_array, pass_array)
+    if user_array.empty? && pass_array.empty?
+      return LazyCredentialEnumerator.new([])
     end
-    combined_array = []
+
     if pass_array.empty?
-      combined_array = user_array.map {|u| [u,""] }
+      combined_array = user_array.map { |u| [u, ""] }
     elsif user_array.empty?
-      combined_array = pass_array.map {|p| ["",p] }
+      combined_array = pass_array.map { |p| ["", p] }
     else
       if datastore['PASSWORD_SPRAY']
-        pass_array.each do |p|
-          user_array.each do |u|
-            combined_array << [u,p]
+        size_proc = proc { pass_array.size * user_array.size }
+        combined_array = LazyCredentialEnumerator.new(size_proc) do |results|
+          pass_array.each do |p|
+            user_array.each do |u|
+              results << [u, p]
+            end
           end
         end
       else
-        user_array.each do |u|
-          pass_array.each do |p|
-            combined_array << [u,p]
+        size_proc = proc { pass_array.size * user_array.size }
+        combined_array = LazyCredentialEnumerator.new(size_proc) do |results|
+          user_array.each do |u|
+            pass_array.each do |p|
+              results << [u, p]
+            end
           end
         end
       end
     end
 
-    creds = [ [], [], [], [] ] # userpass, pass, user, rest
-    remaining_pairs = combined_array.length # counter for our occasional output
-    interval = 60 # seconds between each remaining pair message reported to user
-    next_message_time = Time.now + interval # initial timing interval for user message
-    # Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
-    # Note that we cannot tell the user intention if USERNAME or PASSWORD is blank --
-    # maybe (and it's often) they wanted a blank. One more credential won't kill
-    # anyone, and hey, won't they be lucky if blank user/blank pass actually works!
-    combined_array.each do |pair|
-      if pair == [datastore['USERNAME'],datastore['PASSWORD']]
-        creds[0] << pair
-      elsif pair[1] == datastore['PASSWORD']
-        creds[1] << pair
-      elsif pair[0] == datastore['USERNAME']
-        creds[2] << pair
-      else
-        creds[3] << pair
-      end
-      if Time.now > next_message_time
-        print_brute(
-          :level => :vstatus,
-          :msg => "Pair list is still building with #{remaining_pairs} pairs left to process"
-        )
-        next_message_time = Time.now + interval
-      end
-      remaining_pairs -= 1
+    if !datastore['USERNAME'] && !datastore['PASSWORD']
+      return combined_array
     end
-    return creds[0] + creds[1] + creds[2] + creds[3]
+
+    # Prioritizes yielding credentials that match the currently set username/password
+    # datastore values, followed by the remaining values. This is inefficient for larger
+    # wordlists.
+    prioritized_array = LazyCredentialEnumerator.new(proc { combined_array.size }) do |results|
+      # Cache the datastore values, as continued lookup is expensive
+      datastore_username = datastore['USERNAME']
+      datastore_password = datastore['PASSWORD']
+
+      if datastore_username && datastore_password
+        combined_array.each do |pair|
+          if pair[0] == datastore_username && pair[1] == datastore_password
+            results << pair
+            break
+          end
+        end
+      end
+
+      if datastore_password
+        combined_array.each do |pair|
+          if pair[1] == datastore_password
+            results << pair
+          end
+        end
+      end
+
+      if datastore_username
+        combined_array.each do |pair|
+          if pair[0] == datastore_username
+            results << pair
+          end
+        end
+      end
+
+      # Yield the remaining values that don't match username or password
+      combined_array.each do |pair|
+        if pair[0] != datastore_username && pair[1] != datastore_password
+          results << pair
+        end
+      end
+    end
+
+    prioritized_array
   end
 
   def extract_words(wordfile)
-    return [] unless wordfile && File.readable?(wordfile)
-    begin
-      words = File.open(wordfile) {|f| f.read(f.stat.size)}
-    rescue
-      return
+    return LazyCredentialEnumerator.new([]) unless wordfile && File.readable?(wordfile)
+
+    size_proc = proc { File.foreach(wordfile).count }
+    LazyCredentialEnumerator.new(size_proc) do |results|
+      File.read(wordfile).each_line(chomp: true) do |line|
+        results << line
+      end
     end
-    save_array = words.split(/\r?\n/)
-    return save_array
   end
 
   def get_object_from_memory_location(memloc)
@@ -526,21 +575,17 @@ module Auxiliary::AuthBrute
   end
 
   def extract_word_pair(wordfile)
-    creds = []
     if wordfile.to_s =~ /^memory:/
       return extract_word_pair_from_memory(wordfile.to_s)
-    else
-      return [] unless wordfile && File.readable?(wordfile)
-      begin
-        upfile_contents = File.open(wordfile) {|f| f.read(f.stat.size)}
-      rescue
-        return []
+    end
+    return LazyCredentialEnumerator.new([]) unless wordfile && File.readable?(wordfile)
+
+    size_proc = proc { File.foreach(wordfile).count }
+    LazyCredentialEnumerator.new(size_proc) do |results|
+      File.read(wordfile).each_line(chomp: true) do |line|
+        user, pass = line.split(/\s+/,2).map { |x| x.strip }
+        results << [user.to_s, pass.to_s]
       end
-      upfile_contents.split(/\n/).each do |line|
-        user,pass = line.split(/\s+/,2).map { |x| x.strip }
-        creds << [user.to_s, pass.to_s]
-      end
-      return creds
     end
   end
 
@@ -586,8 +631,8 @@ module Auxiliary::AuthBrute
     end
   end
 
-  def userpass_sleep_interval
-    ::IO.select(nil,nil,nil,userpass_interval) unless userpass_interval == 0
+  def userpass_sleep_interval(interval = userpass_sleep_interval)
+    ::IO.select(nil,nil,nil,interval) unless interval == 0
   end
 
   # See #print_brute
@@ -674,23 +719,21 @@ module Auxiliary::AuthBrute
   # a particular user.
   def adjust_credentials_by_max_user(credentials)
     max = datastore['MaxGuessesPerUser'].to_i.abs
-    if max == 0
-      new_credentials = credentials
-    else
-      print_brute(
-        :level => :vstatus,
-        :msg => "Adjusting credentials by MaxGuessesPerUser (#{max})"
-      )
-      user_count = {}
-      new_credentials = []
-      credentials.each do |u,p|
-        user_count[u] ||= 0
+    return credentials if max == 0
+
+    print_brute(
+      :level => :vstatus,
+      :msg => "Adjusting credentials by MaxGuessesPerUser (#{max})"
+    )
+    size_proc = proc { credentials.size }
+    LazyCredentialEnumerator.new(size_proc) do |results|
+      user_count = Hash.new(0)
+      credentials.each do |u, p|
         user_count[u] += 1
         next if user_count[u] > max
-        new_credentials << [u,p]
+        results << [u, p]
       end
     end
-    return new_credentials
   end
 
   # Fun trick: Only prints if we're already in each_user_pass, since
@@ -729,6 +772,65 @@ module Auxiliary::AuthBrute
     end
   end
 
+  # Ensures that credentials can be enumerated over in a lazy fashion, i.e. the wordlists
+  # can be calculated on demand - rather than eagerly loading all possibilities ahead of time
+  # in memory. The API is based on the Ruby Enumerator::Lazy class, but with the assurance that
+  # functions such + and map will always return new lazy enumerators, and will not eagerly evaluate
+  # the value
+  class LazyCredentialEnumerator
+    def initialize(value = nil, size = nil, &block)
+      enumerator = Enumerator.new(value, &block)
+      lazy_size_proc = proc do
+        if size
+          size.is_a?(Proc) ? size.call : size
+        elsif value.is_a?(Array)
+          value.size
+        elsif size
+          size
+        else
+          enumerator.size
+        end
+      end
+      lazy_enumerator_with_size = Enumerator::Lazy.new(enumerator, lazy_size_proc) do |yielder, value|
+        yielder << value
+      end
+      @value = lazy_enumerator_with_size
+    end
+
+    def +(other)
+      self.class.new(@value + other, proc { size + other.size })
+    end
+
+    def map(&block)
+      self.class.new(@value.map(&block), proc { size })
+    end
+
+    def each(&block)
+      @value.each(&block)
+    end
+
+    def uniq
+      # TODO: It's not possible to know the uniq size. Review Enumerator.new([1, 2, 3, 4]).lazy.uniq.size
+      self.class.new(@value.uniq, proc { size })
+    end
+
+    def size
+      @size ||= @value.size
+      if @size.nil?
+        raise 'Error calculating credentials length'
+      end
+
+      @size
+    end
+
+    def empty?
+      @value.none?
+    end
+
+    def to_a
+      @value.to_a
+    end
+  end
 end
 end
 

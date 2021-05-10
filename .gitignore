@@ -1,3 +1,6 @@
+# TODO: Will remove as part of final review
+rockyou*
+users*
 .bundle
 Gemfile.local
 Gemfile.local.lock
