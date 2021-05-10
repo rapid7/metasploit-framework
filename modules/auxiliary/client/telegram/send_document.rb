@@ -11,7 +11,8 @@ class MetasploitModule < Msf::Auxiliary
     super(
     'Name' => 'Module for sending documents to mass with telegram bot',
     'Description' => %q{
-       This module.
+        This module can be used to send a specified document to multiple users with an
+        optional message and can be used for phishing.
         },
     'Author' => 'Gaurav Purswani', # @pingport80
     'License' => MSF_LICENSE,

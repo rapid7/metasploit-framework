@@ -1,5 +1,5 @@
 This module allows you to send a document(binary, video, audio etc.) to a given `chat_id` on telegram using a telegram bot.
-This module can also be used to send a specified document to multiple users with an optional message and can be used for phishing campaigns.
+This module can also be used to send a specified document to multiple users with an optional message and can be used for phishing.
 
 ## Module Options
 
