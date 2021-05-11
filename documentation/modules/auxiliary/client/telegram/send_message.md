@@ -1,5 +1,6 @@
-The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message to given chat ID with a given
+The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and document to a given chat ID with a given
 Telegram bot token. This module also can be used as a notifier for established sessions with using the `AutoRunScript` handler option.
+This module can also be used to send a specified document and a message to multiple users for phishing purposes.
 
 ## Module Options
 
@@ -28,16 +29,31 @@ The Bot API supports basic formatting for messages. You can use bold, italic, un
 as well as inline links and pre-formatted code in your bots' messages. Telegram clients will render them accordingly.
 You can use either markdown-style or HTML-style formatting.
 
+**DOCUMENT**
+The path of the document to be sent.
+
+**IDFILE**
+The path of the file which contains different CHAT_IDs, one per line.
+
+
 ## Demonstration
 
 ```
-msf5 > use auxiliary/client/telegram/send_message
-msf5 post(client/telegram/send_message) > set BOT_TOKEN 851676320:AAFAkVtZP5Hd8cmfFIUg6j4eWJndDtdksl4
-BOT_TOKEN => 851676320:AAFAkVtZP5Hd8cmfFIUg6j4eWJndDtdksl4
-msf5 post(client/telegram/send_message) > set CHAT_ID 123456789
-CHAT_ID => 123456789
-msf5 auxiliary(client/telegram/send_message) > run
+msf6 auxiliary(client/telegram/send_document) > show options 
 
-[+] Message sent
+Module options (auxiliary/client/telegram/send_document):
+
+   Name       Current Setting                               Required  Description
+   ----       ---------------                               --------  -----------
+   BOT_TOKEN  123-94AE32:dJIEdGsNljsdf2092_fdiewSFJiei23Kq  yes       Telegram BOT token
+   CHAT_ID    1234234243                                    yes       Chat ID for the BOT
+   DOCUMENT   ~/Documents/document_to_send                  yes       The path to the document(binary, video etc)
+   IDFILE                                                   no        File containing chat IDs, one per line
+   MESSAGE    Please open this document                     no        Optional message sent with the document
+
+msf6 auxiliary(client/telegram/send_document) > run 
+
+[+] Document sent successfully!
 [*] Auxiliary module execution completed
+msf6 auxiliary(client/telegram/send_document) >
 ```
