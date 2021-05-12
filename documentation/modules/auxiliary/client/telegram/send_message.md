@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and/or document to a given chat ID or
 set of chat IDs with a given Telegram bot token. This module also can be used as a notifier for established sessions with
 using the `AutoRunScript` handler option.
+=======
+The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and document to a given chat ID with a given
+Telegram bot token. This module also can be used as a notifier for established sessions with using the `AutoRunScript` handler option.
+This module can also be used to send a specified document and a message to multiple users for phishing purposes.
+>>>>>>> 3e86f0030b (Update documentation/modules/auxiliary/client/telegram/send_message.md)
 
 ## Module Options
 
