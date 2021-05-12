@@ -56,7 +56,7 @@ require 'msfenv'
 @environments = %w(production development)
 
 @options = {
-    component: :all,
+    component: :database,
     debug: false,
     msf_db_name: 'msf',
     msf_db_user: 'msf',
@@ -758,7 +758,7 @@ def parse_args(args)
     opts.separator('Manage a Metasploit Framework database and web service')
     opts.separator('')
     opts.separator('General Options:')
-    opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: all)',
+    opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: database)',
             "  (#{@components.join(', ')})") { |component|
       @options[:component] = component.to_sym
     }
@@ -1003,7 +1003,7 @@ if $PROGRAM_NAME == __FILE__
       puts
     }
   else
-    puts "Running the '#{command}' command for the #{@options[:component].to_s}:"
+    puts "Running the '#{command}' command for the #{@options[:component]}:"
     invoke_command(commands, @options[:component], command)
   end
 end
