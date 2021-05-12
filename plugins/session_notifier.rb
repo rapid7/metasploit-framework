@@ -130,7 +130,7 @@ module Msf
 
       def cmd_set_session_gotify_sslcert_path(*args)
         cert_path = args[0]
-        if !cert_path.blank? && ::File.exists?(cert_path) && ::File.readable?(cert_path)
+        if !cert_path.blank? && ::File.file?(cert_path) && ::File.readable?(cert_path)
           @gotify_sslcert_path = cert_path
           print_status("Set Gotify ssl_mode ON! Your cert path is #{gotify_sslcert_path}")
         else
@@ -293,7 +293,7 @@ module Msf
           priority: 10
         })
         http = Net::HTTP.new(uri_parser.host, uri_parser.port)
-        if !gotify_sslcert_path.nil? && ::File.exists?(gotify_sslcert_path) && ::File.readable?(gotify_sslcert_path)
+        if !gotify_sslcert_path.nil? && ::File.file?(gotify_sslcert_path) && ::File.readable?(gotify_sslcert_path)
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           store = OpenSSL::X509::Store.new
