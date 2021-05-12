@@ -130,7 +130,7 @@ module Msf
 
       def cmd_set_session_gotify_sslcert_path(*args)
         cert_path = args[0]
-        if !cert_path.blank?
+        if !cert_path.blank? && ::File.exists?(cert_path) && ::File.readable?(cert_path)
           @gotify_sslcert_path = cert_path
           print_status("Set Gotify ssl_mode ON! Your cert path is #{gotify_sslcert_path}")
         else
@@ -267,8 +267,16 @@ module Msf
         request.content_type = 'application/json'
         request.body = json_post_data
         res = http.request(request)
-        body = JSON.parse(res.body)
-        print_status((body['errcode'] == 0) ? 'Session notified to DingTalk.' : 'Failed to send notification.')
+        if res.nil? || res.body.blank?
+          print_error("No response recieved from the DingTalk server!")
+          return nil
+        end
+        begin
+          body = JSON.parse(res.body)
+          print_status((body['errcode'] == 0) ? 'Session notified to DingTalk.' : 'Failed to send notification.')
+        rescue JSON::ParserError
+          print_error("Couldn't parse the JSON returned from the DingTalk server!")
+        end
       end
 
       def send_text_to_gotify(session)
@@ -285,7 +293,7 @@ module Msf
           priority: 10
         })
         http = Net::HTTP.new(uri_parser.host, uri_parser.port)
-        if !gotify_sslcert_path.nil?
+        if !gotify_sslcert_path.nil? && ::File.exists?(gotify_sslcert_path) && ::File.readable?(gotify_sslcert_path)
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           store = OpenSSL::X509::Store.new
@@ -295,8 +303,16 @@ module Msf
         request.content_type = 'application/json'
         request.body = json_post_data
         res = http.request(request)
-        body = JSON.parse(res.body)
-        print_status((body['priority'] == 10) ? 'Session notified to Gotify.' : 'Failed to send notification.')
+        if res.nil? || res.body.blank?
+          print_error("No response recieved from the Gotify server!")
+          return nil
+        end
+        begin
+          body = JSON.parse(res.body)
+          print_status((body['priority'] == 10) ? 'Session notified to Gotify.' : 'Failed to send notification.')
+        rescue JSON::ParserError
+          print_error("Couldn't parse the JSON returned from the Gotify server!")
+        end
       end
 
       def notify_session(session, subject, msg)
