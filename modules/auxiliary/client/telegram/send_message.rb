@@ -10,11 +10,10 @@ class MetasploitModule < Msf::Auxiliary
     super(
     'Name' => 'Telegram Message Client',
     'Description' => %q{
-        This module can be used to send a specified document and message
-        to multiple users with an optional message and can be used for
-        ethical phishing campaigns. Please refer to the module documentation
-        for info on how to retrieve the bot token and corresponding chat ID
-        values.
+        This module can be used to send a document and/or message to
+        multiple chats on telegram. Please refer to the module
+        documentation for info on how to retrieve the bot token and corresponding chat
+        ID values.
         },
     'Author' =>
       [
@@ -27,12 +26,17 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('BOT_TOKEN', [true, 'Telegram BOT token', '']),
-        OptString.new('MESSAGE', [false, 'Optional message sent with the document']),
+        OptString.new('MESSAGE', [false, 'The message to be sent']),
         OptInt.new('CHAT_ID', [false, 'Chat ID for the BOT', '']),
         OptPath.new('DOCUMENT', [false, 'The path to the document(binary, video etc)']),
-        OptPath.new('IDFILE', [false, 'File containing chat IDs, one per line'])
+        OptPath.new('IDFILE', [false, 'File containing chat IDs, one per line']),
+        OptEnum.new('FORMATTING', [false, 'Message formating option (Markdown|MarkdownV2|HTML)', 'Markdown', [ 'Markdown', 'MarkdownV2', 'HTML']])
       ], self.class
     )
+  end
+
+  def formatting
+    datastore['FORMATTING']
   end
 
   def message
@@ -52,35 +56,30 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_document(conn, chat_id)
-    return unless document
-
     raw_params = { 'chat_id' => chat_id, 'document' => Faraday::UploadIO.new(document, 'application/octet-stream') }
-    parms = {}
+    params = {}
     raw_params.each_with_object({}) do |(key, value), _params|
-      parms[key] = value
+      params[key] = value
     end
-    print_warning("Sending to #{chat_id.strip}")
-    response = conn.post("/bot#{bot_token}/sendDocument", parms)
+    response = conn.post("/bot#{bot_token}/sendDocument", params)
     if response.status == 200
-      print_good('Document sent successfully!')
+      print_good("Document sent successfully to #{chat_id}")
     elsif response.status == 403
-      print_bad("Error while sending document! Make sure the user with chat_id : #{chat_id} is active on bot.")
+      print_bad("Error while sending document! Make sure you have access to message chat_id : #{chat_id}")
     else
-      print_bad('Error while sending the document!')
+      print_bad("Error while sending the document to #{chat_id} API Status : #{response.status}")
     end
   end
 
   def send_message(conn, chat_id)
-    return if message == ''
-
-    parms = { 'chat_id' => chat_id, 'text' => message }
-    response = conn.post("/bot#{bot_token}/sendMessage", parms)
+    params = { 'chat_id' => chat_id, 'text' => message, 'parse_mode' => formatting }
+    response = conn.post("/bot#{bot_token}/sendMessage", params)
     if response.status == 200
-      print_good('Message sent successfully')
+      print_good("Message sent successfully to #{chat_id}")
     elsif response.status == 403
-      print_bad("Error while sending messsage. Make sure the user with chat_id : #{chat_id} is active on bot")
+      print_bad("Error while sending document! Make sure you have access to message chat_id : #{chat_id}")
     else
-      print_bad('Error while sending the message.')
+      print_bad("Error while sending the message to chat_id #{chat_id} API Status : #{response.status}")
     end
   end
 
@@ -93,14 +92,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if id_file
+      print_warning("Opening `#{id_file}` to fetch chat IDs...")
       File.readlines(id_file).each do |chat_id|
-        send_document(conn, chat_id)
-        send_message(conn, chat_id)
+        send_document(conn, chat_id) if document
+        send_message(conn, chat_id) if message
       end
       return
     end
-    send_document(conn, datastore['CHAT_ID'])
-    send_message(conn, datastore['CHAT_ID'])
+    send_document(conn, datastore['CHAT_ID']) if document
+    send_message(conn, datastore['CHAT_ID']) if message
   end
 
 end

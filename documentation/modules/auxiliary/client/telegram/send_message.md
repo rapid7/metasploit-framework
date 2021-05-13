@@ -1,4 +1,4 @@
-The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and document to a given chat ID with a given
+The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and/or document to a given chat ID with a given
 Telegram bot token. This module also can be used as a notifier for established sessions with using the `AutoRunScript` handler option.
 This module can also be used to send a specified document and a message to multiple users for phishing purposes.
 
@@ -39,21 +39,25 @@ The path of the file which contains different CHAT_IDs, one per line.
 ## Demonstration
 
 ```
-msf6 auxiliary(client/telegram/send_document) > show options 
+msf6 auxiliary(client/telegram/send_message) > show options 
 
-Module options (auxiliary/client/telegram/send_document):
+Module options (auxiliary/client/telegram/send_message):
 
-   Name       Current Setting                               Required  Description
-   ----       ---------------                               --------  -----------
-   BOT_TOKEN  123-94AE32:dJIEdGsNljsdf2092_fdiewSFJiei23Kq  yes       Telegram BOT token
-   CHAT_ID    1234234243                                    yes       Chat ID for the BOT
-   DOCUMENT   ~/Documents/document_to_send                  yes       The path to the document(binary, video etc)
-   IDFILE                                                   no        File containing chat IDs, one per line
-   MESSAGE    Please open this document                     no        Optional message sent with the document
+   Name        Current Setting                         Required  Description
+   ----        ---------------                         --------  -----------
+   BOT_TOKEN   1769090985:AAHH9wfKV0Yc1wTtQtGssjF7uhX  yes       Telegram BOT token
+               GGD_IAHc
+   CHAT_ID     763606568                               no        Chat ID for the BOT
+   DOCUMENT    /etc/issue                              no        The path to the document(binary, video etc)
+   FORMATTING  Markdown                                no        Message formating option (Markdown|MarkdownV2|HTML) (Accepted: Markdo
+                                                                 wn, MarkdownV2, HTML)
+   IDFILE                                              no        File containing chat IDs, one per line
+   MESSAGE                                             no        The message to be sent
 
-msf6 auxiliary(client/telegram/send_document) > run 
+msf6 auxiliary(client/telegram/send_message) > rerun 
+[*] Reloading module...
 
-[+] Document sent successfully!
+[+] Document sent successfully to 763606568
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_document) >
+msf6 auxiliary(client/telegram/send_message) >
 ```
