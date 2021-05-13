@@ -14,6 +14,9 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
     host_ranges = []
     print_empty = false
 
+    found_vulns = false
+    reported_module = false
+
     while (arg = args.shift)
       case arg
         when '-h','help'
@@ -51,10 +54,12 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
           print_status("No suggestions for #{eval_host.address}.") if  print_empty
           next
         end
+        found_vulns = true
 
         host_result = framework.analyze.host(eval_host)
         found_modules = host_result[:results]
         if found_modules.any?
+          reported_module = true
           print_status("Analysis for #{eval_host.address} ->")
           found_modules.each do |res|
             print_status("  " + res.mod.fullname + " - " + res.to_s)
@@ -65,7 +70,20 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
           print_status("No suggestions for #{eval_host.address}.")
         end
       end
+
+      if !print_empty
+        if !found_vulns
+          if host_ranges.any?
+            print_status("No vulnerabilities found for given hosts.")
+          else
+            print_status("No vulnerabilities found for hosts in this workspace.")
+          end
+        elsif !reported_module
+          print_status("No matching modules found.")
+        end
+      end
     end
+
     suggested_modules
   end
 
