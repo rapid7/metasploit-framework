@@ -37,10 +37,16 @@ typedef struct _EPROCESS_OFFSETS {
 typedef EPROCESS_OFFSETS* PEPROCESS_OFFSETS;
 
 #ifdef _WIN64
+/* Windows 7 SP0 (build 6.1.7600) - https://www.vergiliusproject.com/kernels/x64/Windows%207%20%7C%202008R2/RTM/_EPROCESS */
+const static EPROCESS_OFFSETS EprocessOffsetsWin7Sp0 = { 0x188, 0x208, 0x180 };
+/* Windows 7 SP1 (build 6.1.7601) - https://www.vergiliusproject.com/kernels/x64/Windows%207%20%7C%202008R2/SP1/_EPROCESS */
+const static EPROCESS_OFFSETS EprocessOffsetsWin7Sp1 = { 0x188, 0x208, 0x180 };
 /* Windows 8.1 (build: 6.3.9600) - https://www.vergiliusproject.com/kernels/x64/Windows%208.1%20%7C%202012R2/Update%201/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin8p1 = { 0x2e8, 0x348, 0x2e0 };
-const static EPROCESS_OFFSETS EprocessOffsetsWin10v1803 = { 0x2f0, 0x360, 0x2e8 }; /* Windows 10 v1803 - v1909 */
-const static EPROCESS_OFFSETS EprocessOffsetsWin10v2004 = { 0x448, 0x4b8, 0x440 }; /* Windows 10 v2004 - v20H2 */
+/* Windows 10 v1803 - v1909 */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v1803 = { 0x2f0, 0x360, 0x2e8 };
+/* Windows 10 v2004 - v20H2 */
+const static EPROCESS_OFFSETS EprocessOffsetsWin10v2004 = { 0x448, 0x4b8, 0x440 };
 #endif
 
 /*
