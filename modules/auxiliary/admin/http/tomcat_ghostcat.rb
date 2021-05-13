@@ -146,7 +146,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def make_forward_request_package(method, headers, attributes)
-
     prefix_code_int = 2
     prefix_code_bytes = int2byte(prefix_code_int)
     method_bytes = int2byte(method2code(method))

@@ -32,7 +32,6 @@ class MetasploitModule < Msf::Auxiliary
         Opt::RPORT(22)
       ]
     )
-
   end
 
   def run

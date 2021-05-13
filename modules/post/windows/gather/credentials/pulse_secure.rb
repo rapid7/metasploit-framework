@@ -38,7 +38,6 @@ class MetasploitModule < Msf::Post
         'Author' => ['Quentin Kaiser <kaiserquentin[at]gmail.com>']
       )
     )
-
   end
 
   # Decrypts `data` encrypted with Windows DPAPI by calling CryptUnprotectData
