@@ -33,7 +33,7 @@ module MsfdbHelpers
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
       FileUtils.mkdir_p(@pg_cluster_conf_root)
-      run_cmd("pg_createcluster --user=$(whoami) -l #{@db}/log -d #{@db} -s /tmp --encoding=UTF8 #{@pg_version} #{@options[:msf_db_name]} -- --username=$(whoami) --auth-host=trust --auth-local=trust")
+      run_cmd("pg_createcluster --user=$(whoami) -l #{@db.shellescape}/log -d #{@db.shellescape} -s /tmp --encoding=UTF8 #{@pg_version} #{@options[:msf_db_name].shellescape} -- --username=$(whoami) --auth-host=trust --auth-local=trust")
       File.open("#{@pg_cluster_conf_root}/#{@pg_version}/#{@options[:msf_db_name]}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
       end
@@ -52,7 +52,7 @@ module MsfdbHelpers
 
         if @options[:delete_existing_data]
           puts "Deleting all data at #{@db}"
-          run_cmd("pg_dropcluster #{@pg_version} #{@options[:msf_db_name]}")
+          run_cmd("pg_dropcluster #{@pg_version} #{@options[:msf_db_name].shellescape}")
           FileUtils.rm_rf(@db)
           FileUtils.rm_rf("#{@localconf}/.local/etc/postgresql")
           File.delete(@db_conf)
@@ -69,7 +69,7 @@ module MsfdbHelpers
 
     def start
       print "Starting database at #{@db}..."
-      status = run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} start -- -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log")
+      status = run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} start -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log")
       case status
       when 0
         puts 'success'.green.bold.to_s
@@ -84,16 +84,16 @@ module MsfdbHelpers
     end
 
     def stop
-      run_cmd("pg_ctlcluster #{get_postgres_version} #{@options[:msf_db_name]} stop -- -o \"-p #{@options[:db_port]}\" -D #{@db}")
+      run_cmd("pg_ctlcluster #{get_postgres_version} #{@options[:msf_db_name].shellescape} stop -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape}")
     end
 
     def restart
-      run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} reload -- -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log")
+      run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} reload -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log")
     end
 
     def status
       if Dir.exist?(@db)
-        if run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name]} status -- -o \"-p #{@options[:db_port]}\" -D #{@db}") == 0
+        if run_cmd("pg_ctlcluster #{@pg_version} #{@options[:msf_db_name].shellescape} status -- -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape}") == 0
           puts "Database started at #{@db}"
         else
           puts "Database is not running at #{@db}"
@@ -125,12 +125,12 @@ module MsfdbHelpers
 
     def create_db_users(msf_pass, msftest_pass)
       puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      run_psql("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-      run_psql("alter role #{@options[:msf_db_user]} createdb")
-      run_psql("alter role #{@options[:msftest_db_user]} createdb")
-      run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
+      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
+      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
+      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb")
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb")
+      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
 
       conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
       conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")

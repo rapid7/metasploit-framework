@@ -656,11 +656,11 @@ end
 
 # TODO: In the future this can be replaced by Msf::WebServices::HttpDBManagerService
 def thin_cmd
-  server_opts = "--rackup #{@ws_conf} --address #{@options[:address]} --port #{@options[:port]}"
-  ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key]} --ssl-cert-file #{@options[:ssl_cert]}" : ''
+  server_opts = "--rackup #{@ws_conf.shellescape} --address #{@options[:address].shellescape} --port #{@options[:port]}"
+  ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key].shellescape} --ssl-cert-file #{@options[:ssl_cert].shellescape}" : ''
   ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify?
   adapter_opts = "--environment #{@options[:ws_env]}"
-  daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}" if @options[:daemon]
+  daemon_opts = "--daemonize --log #{@ws_log.shellescape} --pid #{@ws_pid.shellescape} --tag #{@ws_tag}" if @options[:daemon]
   all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:blank?).join(' ')
 
   "thin #{all_opts}"
