@@ -39,25 +39,63 @@ The path of the file which contains different CHAT_IDs, one per line.
 ## Demonstration
 
 ```
+msf6 > use auxiliary/client/telegram/send_message 
+
+msf6 auxiliary(client/telegram/send_message) > set bot_token 1769090985:AAHeeQolJnTMiNH9neA6hYWLOueG0H-kXuA
+bot_token => 1769090985:AAHeeQolJnTMiNH9neA6hYWLOueG0H-kXuA
+
+msf6 auxiliary(client/telegram/send_message) > set chat_id 763606563
+chat_id => 763606563
+
+msf6 auxiliary(client/telegram/send_message) > set message msf
+message => msf
+
 msf6 auxiliary(client/telegram/send_message) > show options 
 
 Module options (auxiliary/client/telegram/send_message):
 
    Name        Current Setting                         Required  Description
    ----        ---------------                         --------  -----------
-   BOT_TOKEN   1769090985:AAHH9wfKV0Yc1wTtQtGssjF7uhX  yes       Telegram BOT token
-               GGD_IAHc
+   BOT_TOKEN   1769090985:AAHeeQolJnTMiNH9neA6hYWLOue  yes       Telegram BOT token
+               G0H-kXuA
    CHAT_ID     763606568                               no        Chat ID for the BOT
-   DOCUMENT    /etc/issue                              no        The path to the document(binary, video etc)
+   DOCUMENT                                            no        The path to the document(binary, video etc)
    FORMATTING  Markdown                                no        Message formating option (Markdown|MarkdownV2|HTML) (Accepted: Markdo
                                                                  wn, MarkdownV2, HTML)
    IDFILE                                              no        File containing chat IDs, one per line
-   MESSAGE                                             no        The message to be sent
+   MESSAGE     msf                                     no        The message to be sent
 
-msf6 auxiliary(client/telegram/send_message) > rerun 
-[*] Reloading module...
+msf6 auxiliary(client/telegram/send_message) > run
+
+[+] Message sent successfully to 763606568
+[*] Auxiliary module execution completed
+
+msf6 auxiliary(client/telegram/send_message) > set document /etc/issue
+document => /etc/issue
+
+msf6 auxiliary(client/telegram/send_message) > run
 
 [+] Document sent successfully to 763606568
+[+] Message sent successfully to 763606568
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_message) >
+
+msf6 auxiliary(client/telegram/send_message) > set idfile /tmp/chat_ids
+idfile => /tmp/chat_ids
+msf6 auxiliary(client/telegram/send_message) > run
+
+[!] Opening `/tmp/chat_ids` to fetch chat IDs...
+[+] Document sent successfully to 763606568
+
+[+] Message sent successfully to 763606568
+
+[+] Document sent successfully to 763606569
+
+[+] Message sent successfully to 763606569
+
+[+] Document sent successfully to 763606570
+
+[+] Message sent successfully to 763606570
+
+[*] Auxiliary module execution completed
+msf6 auxiliary(client/telegram/send_message) > 
 ```

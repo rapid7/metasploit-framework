@@ -58,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   def send_document(conn, chat_id)
     raw_params = { 'chat_id' => chat_id, 'document' => Faraday::UploadIO.new(document, 'application/octet-stream') }
     params = {}
-    raw_params.each_with_object({}) do |(key, value), _params|
+    raw_params.each_with_object({}) do |(key, value), _tmp_params|
       params[key] = value
     end
     response = conn.post("/bot#{bot_token}/sendDocument", params)
@@ -84,6 +84,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    unless document || message
+      fail_with(Failure::BadConfig, 'You must supply a message and/or document')
+    end
     url = 'https://api.telegram.org'
     conn = Faraday.new(url: url) do |faraday|
       faraday.request :multipart
