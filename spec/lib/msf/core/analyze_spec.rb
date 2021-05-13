@@ -163,7 +163,7 @@ RSpec.describe Msf::Analyze do
     context 'with transitive vulns' do
       %w(vuln_a vuln_c vuln_c_transitive_to_a).permutation do |perm|
         context "in permutation #{perm.inspect}" do
-          # One the one hand, we need to test all these permutations, on the
+          # On the one hand, we need to test all these permutations, on the
           # other I'm sorry.
           let(:vuln_permutation) { eval("[#{perm.join(',')}]") }
           subject(:group_vulns) { msf_analyze.send(:group_vulns, vuln_permutation) }
@@ -190,7 +190,7 @@ RSpec.describe Msf::Analyze do
     context 'with double-transitive vulns' do
       %w(vuln_a vuln_c vuln_c_transitive_to_a vuln_d vuln_d_transitive_to_c).permutation do |perm|
         context "in permutation #{perm.inspect}" do
-          # One the one hand, we need to test all these permutations, on the
+          # On the one hand, we need to test all these permutations, on the
           # other I'm sorry.
           let(:vuln_permutation) { eval("[#{perm.join(',')}]") }
           subject(:group_vulns) { msf_analyze.send(:group_vulns, vuln_permutation) }
