@@ -60,7 +60,7 @@ class Msf::Analyze::Result
     end
 
     if @mod.post_auth?
-      unless @mod.default_cred? || have_service_cred? || have_datastore_cred?
+      unless @mod.default_cred? || has_service_cred? || has_datastore_cred?
         @missing << :credential
       end
     end
@@ -116,11 +116,11 @@ class Msf::Analyze::Result
     @mod.session_types.join(' or ')
   end
 
-  def have_service_cred?
+  def has_service_cred?
     @available_creds&.any?
   end
 
-  def have_datastore_cred?
+  def has_datastore_cred?
     !!(@datastore['username'] && @datastore['password'])
   end
 

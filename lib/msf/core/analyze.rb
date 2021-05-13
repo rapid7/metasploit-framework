@@ -56,7 +56,8 @@ class Msf::Analyze
     end
 
     vuln_families = grouped_vulns.values
-    vuln_families.uniq! || vuln_families
+    vuln_families.uniq!
+    vuln_families
   end
 
   def suggest_modules_for_vulns(eval_host, vuln_families)
