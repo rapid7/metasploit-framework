@@ -24,10 +24,10 @@ begin
 
       self.extend(::Readline)
 
-      if (tab_complete_proc)
+      if tab_complete_proc
         ::Readline.basic_word_break_characters = ""
-        ::Readline.completion_proc = tab_complete_proc
-        @rl_saved_proc = tab_complete_proc
+        @rl_saved_proc = with_error_handling(tab_complete_proc)
+        ::Readline.completion_proc = @rl_saved_proc
       end
     end
 
@@ -36,7 +36,7 @@ begin
     #
     def reset_tab_completion(tab_complete_proc = nil)
       ::Readline.basic_word_break_characters = "\x00"
-      ::Readline.completion_proc = tab_complete_proc || @rl_saved_proc
+      ::Readline.completion_proc = tab_complete_proc ? with_error_handling(tab_complete_proc) : @rl_saved_proc
     end
 
 
@@ -184,6 +184,17 @@ begin
         end
 
         line
+      end
+    end
+
+    private
+
+    def with_error_handling(proc)
+      proc do |*args|
+        proc.call(*args)
+      rescue StandardError => e
+        elog("tab_complete_proc has failed with args #{args}", error: e)
+        []
       end
     end
 

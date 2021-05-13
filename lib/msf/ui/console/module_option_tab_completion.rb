@@ -213,9 +213,6 @@ module Msf
                 res << port
               end
             end
-            if res.empty?
-              res << rand(1..65534).to_s
-            end
           when Msf::OptEnum
             o.enums.each do |val|
               res << val
@@ -338,19 +335,25 @@ module Msf
         # Provide the target ports
         #
         def option_values_target_ports(mod)
-          res = [ ]
-          return res if !framework.db.active
-          return res if !mod.datastore['RHOST']
+          return [] unless framework.db.active
+          return [] if mod.datastore['RHOST'].nil?
 
-          host = framework.db.has_host?(framework.db.workspace, mod.datastore['RHOST'])
-          return res if !host
+          host_addresses = mod.datastore['RHOST'].split.map do |addr|
+            address, _scope = addr.split('%', 2)
+            address
+          end
 
-          framework.db.services.each do |service|
-            if service.host_id == host.id
+          hosts = framework.db.hosts({:address => host_addresses, :workspace => framework.db.workspace})
+          return [] if hosts.empty?
+
+          res = []
+          hosts.each do |host|
+            host.services.each do |service|
               res << service.port.to_s
             end
           end
-          return res
+
+          res.uniq
         end
       end
     end
