@@ -1,6 +1,6 @@
-The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and/or document to a given chat ID with a given
-Telegram bot token. This module also can be used as a notifier for established sessions with using the `AutoRunScript` handler option.
-This module can also be used to send a specified document and a message to multiple users for phishing purposes.
+The `auxiliary/client/telegram/send_message` module allows you to send a Telegram message and/or document to a given chat ID or
+set of chat IDs with a given Telegram bot token. This module also can be used as a notifier for established sessions with
+using the `AutoRunScript` handler option.
 
 ## Module Options
 
@@ -19,9 +19,13 @@ earlier. Then browse to `https://api.telegram.org/bot<BOT_TOKEN VALUE>/getUpdate
 and look for a line like `"chat":"id":1344308063`. That ID is what you will
 want to use the value of `CHAT_ID`; in this case it would be `1344308063`.
 
+For group chats, add the bot to the chat, then perform these same steps and look for a line that has the text `"type":"group"`.
+This should be within a pair of `{}` that contains an `id:` field. The value of this `id:` field is the value of the chat id
+for the group.
+
 **MSG**
 
-The message content.
+The content of the message to be sent.
 
 **FORMATTING**
 
@@ -30,72 +34,69 @@ as well as inline links and pre-formatted code in your bots' messages. Telegram 
 You can use either markdown-style or HTML-style formatting.
 
 **DOCUMENT**
-The path of the document to be sent.
+The full path to the document to be sent.
 
 **IDFILE**
-The path of the file which contains different CHAT_IDs, one per line.
+The full path to the file which contains different CHAT_IDs, one per line, which the message and/or document will be sent to.
 
 
 ## Demonstration
 
 ```
-msf6 > use auxiliary/client/telegram/send_message 
-
-msf6 auxiliary(client/telegram/send_message) > set bot_token 1769090985:AAHeeQolJnTMiNH9neA6hYWLOueG0H-kXuA
-bot_token => 1769090985:AAHeeQolJnTMiNH9neA6hYWLOueG0H-kXuA
-
-msf6 auxiliary(client/telegram/send_message) > set chat_id 763606563
-chat_id => 763606563
-
-msf6 auxiliary(client/telegram/send_message) > set message msf
-message => msf
-
-msf6 auxiliary(client/telegram/send_message) > show options 
+msf6 > use auxiliary/client/telegram/send_message
+msf6 auxiliary(client/telegram/send_message) > show options
 
 Module options (auxiliary/client/telegram/send_message):
 
-   Name        Current Setting                         Required  Description
-   ----        ---------------                         --------  -----------
-   BOT_TOKEN   1769090985:AAHeeQolJnTMiNH9neA6hYWLOue  yes       Telegram BOT token
-               G0H-kXuA
-   CHAT_ID     763606568                               no        Chat ID for the BOT
-   DOCUMENT                                            no        The path to the document(binary, video etc)
-   FORMATTING  Markdown                                no        Message formating option (Markdown|MarkdownV2|HTML) (Accepted: Markdo
-                                                                 wn, MarkdownV2, HTML)
-   IDFILE                                              no        File containing chat IDs, one per line
-   MESSAGE     msf                                     no        The message to be sent
+   Name        Current Setting  Required  Description
+   ----        ---------------  --------  -----------
+   BOT_TOKEN                    yes       Telegram BOT token
+   CHAT_ID                      no        Chat ID for the BOT
+   DOCUMENT                     no        The path to the document(binary, video etc)
+   FORMATTING  Markdown         no        Message formating option (Markdown|MarkdownV2|HTML) (Accepted: Markdown, MarkdownV2, HT
+                                          ML)
+   IDFILE                       no        File containing chat IDs, one per line
+   MESSAGE                      no        The message to be sent
 
+msf6 auxiliary(client/telegram/send_message) > set BOT_TOKEN *redacted*
+BOT_TOKEN => *redacted*
+msf6 auxiliary(client/telegram/send_message) >
+msf6 auxiliary(client/telegram/send_message) >
+msf6 auxiliary(client/telegram/send_message) >
+msf6 auxiliary(client/telegram/send_message) > set CHAT_ID 1725*redacted*
+CHAT_ID => 1725*redacted*
+msf6 auxiliary(client/telegram/send_message) > set DOCUMENT /home/gwillcox/git/metasploit-framework/bind_meterpreter.py
+DOCUMENT => /home/gwillcox/git/metasploit-framework/bind_meterpreter.py
+msf6 auxiliary(client/telegram/send_message) > set MESSAGE "Check out this cool new script!"
+MESSAGE => Check out this cool new script!
 msf6 auxiliary(client/telegram/send_message) > run
 
-[+] Message sent successfully to 763606568
+[+] Document sent successfully to 1725*redacted*
+[+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
-
-msf6 auxiliary(client/telegram/send_message) > set document /etc/issue
-document => /etc/issue
-
 msf6 auxiliary(client/telegram/send_message) > run
 
-[+] Document sent successfully to 763606568
-[+] Message sent successfully to 763606568
+[+] Document sent successfully to 1725*redacted*
+[+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
+msf6 auxiliary(client/telegram/send_message) > code test_ids
+[*] exec: code test_ids
 
-msf6 auxiliary(client/telegram/send_message) > set idfile /tmp/chat_ids
-idfile => /tmp/chat_ids
-msf6 auxiliary(client/telegram/send_message) > run
+msf6 auxiliary(client/telegram/send_message) > set IDFILE test_ids
+IDFILE => test_ids
+msf6 auxiliary(client/telegram/send_message) > cat test_ids
+[*] exec: cat test_ids
 
-[!] Opening `/tmp/chat_ids` to fetch chat IDs...
-[+] Document sent successfully to 763606568
+-593*redacted*
+1725*redacted*msf6 auxiliary(client/telegram/send_message) > run
 
-[+] Message sent successfully to 763606568
+[!] Opening `/home/gwillcox/git/metasploit-framework/test_ids` to fetch chat IDs...
+[+] Document sent successfully to -593*redacted*
 
-[+] Document sent successfully to 763606569
+[+] Message sent successfully to -593*redacted*
 
-[+] Message sent successfully to 763606569
-
-[+] Document sent successfully to 763606570
-
-[+] Message sent successfully to 763606570
-
+[+] Document sent successfully to 1725*redacted*
+[+] Message sent successfully to 1725*redacted*
 [*] Auxiliary module execution completed
-msf6 auxiliary(client/telegram/send_message) > 
+msf6 auxiliary(client/telegram/send_message) >
 ```

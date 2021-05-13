@@ -56,6 +56,9 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def send_document(conn, chat_id)
+    unless ::File.file?(document) && ::File.readable?(document)
+      fail_with(Failure::BadConfig, 'The document to be sent does not exist or is not a readable file!')
+    end
     raw_params = { 'chat_id' => chat_id, 'document' => Faraday::UploadIO.new(document, 'application/octet-stream') }
     params = {}
     raw_params.each_with_object({}) do |(key, value), _tmp_params|
@@ -96,6 +99,9 @@ class MetasploitModule < Msf::Auxiliary
 
     if id_file
       print_warning("Opening `#{id_file}` to fetch chat IDs...")
+      unless ::File.file?(id_file) && ::File.readable?(id_file)
+        fail_with(Failure::BadConfig, 'The ID file is not an existing readable file!')
+      end
       File.readlines(id_file).each do |chat_id|
         send_document(conn, chat_id) if document
         send_message(conn, chat_id) if message
