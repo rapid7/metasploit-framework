@@ -135,7 +135,7 @@ module Msf::DBManager::Import
             next
           end
           next unless mports[service.port]
-          if (match_vulns - mports[service.port]).size < matched_vulns.size
+          if (matched_vulns - mports[service.port]).size < matched_vulns.size
             serv = service
             break
           end
