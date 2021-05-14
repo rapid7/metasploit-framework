@@ -249,14 +249,11 @@ module Msf::Post::Common
         directories_proc.each do |elem|
           elem.gsub( / *\n+/, "")
           if elem[-1].match? /\d/
-            pids.insert(-1, elem)
+            process = {}
+            process['pid'] = elem.to_i
+            process['name'] = cmd_exec("cat /proc/#{elem}/status").split(/\n|\t/)[1]
+            processes.push(process)
           end
-        end
-        pids.each do |pid|
-          process = {}
-          process['pid'] = pid.to_i
-          process['name'] = cmd_exec("cat /proc/#{pid}/status").split(/\n|\t/)[1]
-          processes.push(process)
         end
       end
     end
