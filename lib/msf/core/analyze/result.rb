@@ -87,6 +87,12 @@ class Msf::Analyze::Result
       @mod.datastore[k] = v
     end
 
+    target_idx = @mod.auto_targeted_index(@host)
+    if target_idx
+      @datastore['target'] = target_idx
+      @mod.datastore['target'] = target_idx
+    end
+
     @mod.validate
   rescue Msf::OptionValidateError => e
     unset_options = []
