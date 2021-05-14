@@ -40,7 +40,7 @@ A HttpCookieJar is a collection of [HttpCookie](https://github.com/rapid7/metasp
 
 Shown below is the request used to login to a gitlab account in the [gitlab\_file\_read\_rce exploit module](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/modules/exploits/multi/http/gitlab_file_read_rce.rb#L70)
 
-```
+```ruby
 res = @http_client.send_request_cgi({
         'method' => 'POST',
         'uri' => '/users/sign_in',
