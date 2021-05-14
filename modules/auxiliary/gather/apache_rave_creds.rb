@@ -46,10 +46,6 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def default_cred?
-    true
-  end
-
   def login(username, password)
     uri = normalize_uri(target_uri.to_s, "j_spring_security_check")
 
