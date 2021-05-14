@@ -61,7 +61,7 @@ Shown below is the request used to login to a gitlab account in the [artical\_pr
 
 artical\_proxy\_auth\_bypass\_service\_cmds\_peform\_command\_injection requires a specific cookie header to be sent with a request in order to achieve RCE. By setting a string of the desired header as the value of the `cookie` option, that string is set as the cookie header without any changes, allowing the exploit to be carried out.
 
-```
+```ruby
 res = send_request_cgi({
   'method' => 'GET',
   'uri' => normalize_uri(target_uri.path, 'cyrus.index.php'),
@@ -78,7 +78,7 @@ Any object passed to `cookie` that isn't an instance of HttpCookieJar will have 
 
 Module authors can also pass an instance of `HttpCookieJar` with the `cookie` option:
 
-```
+```ruby
 cj = Msf::Exploit::Remote::HTTP::HttpCookieJar.new
 
 cj.add(Msf::Exploit::Remote::HTTP::HttpCookie.new('PHPSESSID', @phpsessid))
@@ -102,7 +102,7 @@ The above code would create an identical cookie header to the one used in the pr
 
 If this behaviour isn't deisred and an author would prefer to keep expired cookies in the jar, the `expire_cookies` option can be set to false:
 
-```
+```ruby
 res = send_request_cgi({
   'method' => 'GET',
   'uri' => normalize_uri(target_uri.path, 'cyrus.index.php'),
