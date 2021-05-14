@@ -55,7 +55,7 @@ module Msf
             xml_credential << file_save.to_s
           end
           xml_loot = store_loot("EXTRACTIONS#{artifact}", '', session, xml_credential.to_s, local_loc)
-          print_good "File with credentials saved:  #{xml_loot}"
+          print_good "File with data saved:  #{xml_loot}"
         rescue StandardError => e
           print_status e.to_s
         end
@@ -99,7 +99,7 @@ module Msf
             cred_save << file_save.to_s
           end
           regex_loot = store_loot("EXTRACTION#{artifact}", '', session, cred_save.to_s, local_loc)
-          print_good "File with credentials saved:  #{regex_loot}"
+          print_good "File with data saved:  #{regex_loot}"
         rescue StandardError => e
           print_status e.to_s
         end
@@ -118,7 +118,7 @@ module Msf
           end
 
           sql_loot = store_loot("EXTRACTIONS#{artifact}", '', session, database_string.to_s, local_loc)
-          print_good "File with credentials saved:  #{sql_loot}"
+          print_good "File with data saved:  #{sql_loot}"
         rescue StandardError => e
           print_status e.to_s
         end
@@ -152,7 +152,7 @@ module Msf
             json_cred << file_save.to_s
           end
           json_loot = store_loot("EXTRACTIONS#{artifact}", '', session, json_cred.to_s, local_loc)
-          print_good "File with credentials saved:  #{json_loot}"
+          print_good "File with data saved:  #{json_loot}"
         rescue StandardError => e
           print_status e.to_s
         end
@@ -231,7 +231,7 @@ module Msf
                   vprint_error 'This artifact does not support any extraction type'
                 end
               else
-                vprint_status 'Credentials are not extracted'
+                vprint_status 'Data are not extracted'
               end
             end
           end
