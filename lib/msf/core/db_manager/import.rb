@@ -145,7 +145,7 @@ module Msf::DBManager::Import
         if serv.nil? && !second_pass_services.empty?
           second_pass_services.each do |service|
             next unless mports[service.port]
-            if (match_vulns - mports[service.port]).size < matched_vulns.size
+            if (matched_vulns - mports[service.port]).size < matched_vulns.size
               serv = service
               break
             end
