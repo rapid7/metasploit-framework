@@ -232,14 +232,32 @@ module Msf::Post::Common
       # adding manually because this is common for all windows I think and splitting for this was causing problem for other processes.
       processes.prepend({ 'name' => '[System Process]', 'pid' => 0 })
     else
-      ps_aux = cmd_exec('ps aux').split("\n")
-      ps_aux.delete_at(0)
-      ps_aux.each do |p|
-        properties = p.split
-        process = {}
-        process['name'] = properties[10].gsub(/\[|\]/,"")
-        process['pid'] = properties[1].to_i
-        processes.push(process)
+      if command_exists?('ps')
+        ps_aux = cmd_exec('ps aux').split("\n")
+        ps_aux.delete_at(0)
+        ps_aux.each do |p|
+          properties = p.split
+          process = {}
+          process['name'] = properties[10].gsub(/\[|\]/,"")
+          process['pid'] = properties[1].to_i
+          processes.push(process)
+        end
+      else
+        dir_proc = "/proc/"
+        pids = []
+        directories_proc = dir(dir_proc)
+        directories_proc.each do |elem|
+          elem.gsub( / *\n+/, "")
+          if elem[-1].match? /\d/
+            pids.insert(-1, elem)
+          end
+        end
+        pids.each do |pid|
+          process = {}
+          process['pid'] = pid.to_i
+          process['name'] = cmd_exec("cat /proc/#{pid}/status").split(/\n|\t/)[1]
+          processes.push(process)
+        end
       end
     end
     return processes
