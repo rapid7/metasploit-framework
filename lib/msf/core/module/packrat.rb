@@ -217,7 +217,7 @@ module Msf
 
               # Download file
               download_file(saving_path, file_to_download, file, application)
-              if datastore['EXTRACT_CREDENTIALS']
+              if datastore['EXTRACT_DATA']
                 case credential_type
                 when 'xml'
                   extract_xml(saving_path, artifact_child, artifact, local_loc)
