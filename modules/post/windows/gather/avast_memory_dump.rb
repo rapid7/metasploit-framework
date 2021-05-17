@@ -48,7 +48,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     fail_with(Failure::NotVulnerable, 'AvDump.exe does not exist on target.') unless avdump
     print_status('AvDump.exe exists!')
 
@@ -65,6 +64,5 @@ class MetasploitModule < Msf::Post
 
     print_status(result)
     rm_f(dump_path)
-
   end
 end

@@ -68,39 +68,37 @@ class MetasploitModule < Msf::Auxiliary
 
   # Connect to Redis and ensure compatibility.
   def redis_connect
-    begin
-      connect
-      # NOTE: Full INFO payload fails occasionally. Using server filter until Redis library can be fixed
-      if (info_data = redis_command('INFO', 'server')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
-        print_good("Connected to Redis version #{redis_version}")
-      end
+    connect
+    # NOTE: Full INFO payload fails occasionally. Using server filter until Redis library can be fixed
+    if (info_data = redis_command('INFO', 'server')) && /redis_version:(?<redis_version>\S+)/ =~ info_data
+      print_good("Connected to Redis version #{redis_version}")
+    end
 
-      # Some connection attempts such as incorrect password set fail silently in the Redis library.
-      if !info_data
-        print_error('Unable to connect to Redis')
-        print_error('Set verbose true to troubleshoot') if !datastore['VERBOSE']
-        return
-      end
-
-      # Ensure version compatability
-      if (Rex::Version.new(redis_version) < Rex::Version.new(MIN_REDIS_VERSION))
-        print_status("Module supports Redis #{MIN_REDIS_VERSION} or higher.")
-        return
-      end
-
-      # Connection was sucessful
-      return info_data
-    rescue Msf::Auxiliary::Failed => e
-      # This error trips when auth is required but password not set
-      print_error('Unable to connect to Redis: ' + e.message)
-      return
-    rescue Rex::ConnectionTimeout
-      print_error('Timed out trying to connect to Redis')
-      return
-    rescue StandardError
-      print_error('Unknown error trying to connect to Redis')
+    # Some connection attempts such as incorrect password set fail silently in the Redis library.
+    if !info_data
+      print_error('Unable to connect to Redis')
+      print_error('Set verbose true to troubleshoot') if !datastore['VERBOSE']
       return
     end
+
+    # Ensure version compatability
+    if (Rex::Version.new(redis_version) < Rex::Version.new(MIN_REDIS_VERSION))
+      print_status("Module supports Redis #{MIN_REDIS_VERSION} or higher.")
+      return
+    end
+
+    # Connection was sucessful
+    return info_data
+  rescue Msf::Auxiliary::Failed => e
+    # This error trips when auth is required but password not set
+    print_error('Unable to connect to Redis: ' + e.message)
+    return
+  rescue Rex::ConnectionTimeout
+    print_error('Timed out trying to connect to Redis')
+    return
+  rescue StandardError
+    print_error('Unknown error trying to connect to Redis')
+    return
   end
 
   def check_host(_ip)
