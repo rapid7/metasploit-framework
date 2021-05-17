@@ -186,7 +186,7 @@ class Msf::Modules::External::PyBridge < Msf::Modules::External::Bridge
   def handle_exception(error)
     case error
     when Errno::ENOENT
-      LoadError.new('Failed to execute external Python module. Please ensure you have Python installed on your environment.')
+      LoadError.new('Failed to execute external Python module. Please ensure you have Python3 installed on your environment.')
     else
       super
     end

@@ -1,4 +1,7 @@
 #!/usr/bin/env python2
+# Note: This module explicitly requires Python2 as KillerBee does not yet support Python3:
+# https://github.com/riverloopsec/killerbee/tree/cb04e169a635ad4bc0772b631e1b332320f7a8da#killerbee
+
 # KillerBee Metasploit relay server
 
 import re

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2003-2018 CORE Security Technologies
 #
 # This software is provided under under a slightly modified version
@@ -101,7 +101,7 @@ class DumpSecrets:
         self.__canProcessSAMLSA = True
         self.__kdcHost = None
         self.__execMethod = execMethod
-        
+
 
     def connect(self):
         self.__smbConnection = SMBConnection(self.__remoteName, self.__remoteHost)
