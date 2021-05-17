@@ -29,7 +29,7 @@ module MsfdbHelpers
 
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
-      run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
+      run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
 
       File.open("#{@db}/postgresql.conf", 'a') do |f|
         f.puts "port = #{@options[:db_port]}"
@@ -66,15 +66,15 @@ module MsfdbHelpers
     end
 
     def start
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
         puts "Database already started at #{@db}"
         return true
       end
 
       print "Starting database at #{@db}..."
-      run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
+      run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} -l #{@db.shellescape}/log start")
       sleep(2)
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
+      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") != 0
         puts 'failed'.red.bold.to_s
         false
       else
@@ -84,9 +84,9 @@ module MsfdbHelpers
     end
 
     def stop
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
         puts "Stopping database at #{@db}"
-        run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} stop")
+        run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} stop")
       else
         puts "Database is no longer running at #{@db}"
       end
@@ -99,7 +99,7 @@ module MsfdbHelpers
 
     def status
       if Dir.exist?(@db)
-        if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
+        if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
           puts "Database started at #{@db}"
         else
           puts "Database is not running at #{@db}"
@@ -111,12 +111,12 @@ module MsfdbHelpers
 
     def create_db_users(msf_pass, msftest_pass)
       puts 'Creating database users'
-      run_psql("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      run_psql("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-      run_psql("alter role #{@options[:msf_db_user]} createdb")
-      run_psql("alter role #{@options[:msftest_db_user]} createdb")
-      run_psql("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      run_psql("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
+      run_psql("create user #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
+      run_psql("create user #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
+      run_psql("alter role #{@options[:msf_db_user].shellescape} createdb")
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} createdb")
+      run_psql("alter role #{@options[:msf_db_user].shellescape} with password '#{msf_pass}'")
+      run_psql("alter role #{@options[:msftest_db_user].shellescape} with password '#{msftest_pass}'")
 
       conn = PG.connect(host: @options[:db_host], dbname: 'postgres', port: @options[:db_port], user: @options[:msf_db_user], password: msf_pass)
       conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
