@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name' => 'Synology Forget Password  User Enumeration Scanner',
+        'Name' => 'Synology Forget Password User Enumeration Scanner',
         'Description' => %q{
           This module attempts to enumerate users on the Synology NAS
           by sending GET requests for the forgot password URL.
