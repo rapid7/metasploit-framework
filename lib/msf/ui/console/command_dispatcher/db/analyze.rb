@@ -24,6 +24,8 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
           return
         when '-a', '-v'
           print_empty = true
+        when '-p'
+          wanted_payloads = args.shift.split(',')
         else
           (arg_host_range(arg, host_ranges))
       end
@@ -56,7 +58,7 @@ module Msf::Ui::Console::CommandDispatcher::Analyze
         end
         found_vulns = true
 
-        host_result = framework.analyze.host(eval_host)
+        host_result = framework.analyze.host(eval_host, payloads: wanted_payloads)
         found_modules = host_result[:results]
         if found_modules.any?
           reported_module = true
