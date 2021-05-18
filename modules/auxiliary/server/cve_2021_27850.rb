@@ -16,7 +16,8 @@ class MetasploitModule < Msf::Auxiliary
               Find the HMAC secret key used in Java serizalization
           ),
           'License'        => MSF_LICENSE,
-          'Author'         => ['Yann Castel (yann.castel@orange.com)'], #Metasploit module
+          'Author'         => ['Johannes Moritz',                       #CVE
+                               'Yann Castel (yann.castel@orange.com)'], #Metasploit module
           'References'     =>
             [
               [ 'CVE', '2021-27850']
