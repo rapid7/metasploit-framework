@@ -47,9 +47,9 @@ const static EPROCESS_OFFSETS EprocessOffsetsWin8p1 = { 0x2e8, 0x348, 0x2e0 };
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1607 = { 0x2f0, 0x358, 0x2e8 };
 /* Windows 10 v1703 (10.0.15063) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1703%20Redstone%202%20(Creators%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1703 = { 0x2e8, 0x358, 0x2e0 };
-/* Windows 10 v1709 (10.0.16299) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1709%20Redstone%203%20(Fall%20Creators%20Update */
+/* Windows 10 v1709 (10.0.16299) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1709%20Redstone%203%20(Fall%20Creators%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1709 = { 0x2e8, 0x358, 0x2e0 };
-/* Windows 10 v1803 (10.0.17134) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1803%20Redstone%204%20(Spring%20Creators%20Update)/_EPROCESS*/
+/* Windows 10 v1803 (10.0.17134) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1803%20Redstone%204%20(Spring%20Creators%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1803 = { 0x2e8, 0x358, 0x2e0 };
 /* Windows 10 v1809 (10.0.17763) - https://www.vergiliusproject.com/kernels/x64/Windows%2010%20%7C%202016/1809%20Redstone%205%20(October%20Update)/_EPROCESS */
 const static EPROCESS_OFFSETS EprocessOffsetsWin10v1809 = { 0x2e8, 0x358, 0x2e0 };
