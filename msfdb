@@ -54,6 +54,7 @@ require 'msfenv'
 
 @components = %w(database webservice)
 @environments = %w(production development)
+@component_provided = false
 
 @options = {
     component: :database,
@@ -253,7 +254,24 @@ def update_db_port
   end
 end
 
-def ask_yn(question)
+def ask_yn_default(question, default_value)
+  return default_value if @options[:use_defaults]
+
+  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
+  yn = STDIN.gets.strip
+  case yn
+  when /^[Yy]/
+    return true
+  when /^[Nn]/
+    return false
+  when nil, ''
+    return default_value
+  else
+    puts 'Please answer yes or no.'
+  end
+end
+
+def ask_yn_loop(question)
   loop do
     print "#{'[?]'.blue.bold} #{question}: "
     yn = STDIN.gets
@@ -269,6 +287,8 @@ def ask_yn(question)
 end
 
 def ask_value(question, default_value)
+  return default_value if @options[:use_defaults]
+
   print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
@@ -761,6 +781,7 @@ def parse_args(args)
     opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: database)',
             "  (#{@components.join(', ')})") { |component|
       @options[:component] = component.to_sym
+      @component_provided = true
     }
 
     opts.on('-d', '--debug', 'Enable debug output') { |d| @options[:debug] = d }
@@ -944,7 +965,7 @@ end
 
 def should_delete
   return true if @options[:use_defaults]
-  ask_yn("Would you like to delete your existing data and configurations?")
+  ask_yn_loop("Would you like to delete your existing data and configurations?")
 end
 
 
@@ -978,6 +999,12 @@ if $PROGRAM_NAME == __FILE__
   }
 
   parse_args(ARGV)
+
+  unless @component_provided
+    if ask_yn_default('Would you also like to start up the webservice?', false)
+      @options[:component] = :all
+    end
+  end
 
   update_db_port
 
