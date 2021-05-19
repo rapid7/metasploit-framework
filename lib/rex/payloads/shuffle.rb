@@ -12,6 +12,7 @@ module Rex
       FLOW_INSTRUCTIONS = {}
       FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X86] = %w{ call jae jb jbe jc jcxz je jecxz jg jge jl jle jmp jna jnae jnb jnbe jnc jne jng jnge jnl jnle jno jnp jns jnz jo jp jpe jpo js jz }.freeze
       FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X64] = (FLOW_INSTRUCTIONS[Rex::Arch::ARCH_X86] + %w{ jrcxz }).freeze
+      private_constant :FLOW_INSTRUCTIONS
 
       #
       # Shuffle instructions from a GraphML data file and return the assembly source. If an architecture is specified
@@ -23,7 +24,7 @@ module Rex
       def self.from_graphml_file(file_path, arch: nil, name: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
         blocks = graphml.graphs.select { |graph| graph.attributes['type'] == 'block' }.sort_by { |graph| graph.attributes['address'] }
-        blocks.map! { |block| { node: block, instructions: self.process_block(block) } }
+        blocks.map! { |block| { node: block, instructions: process_block(block) } }
 
         label_prefix = Rex::Text.rand_text_alpha_lower(4)
         labeler = lambda { |address| "loc_#{label_prefix}#{ address.to_s(16).rjust(4, '0') }" }
@@ -32,10 +33,14 @@ module Rex
         labeled = []
         label_refs = []
         blocks.each do |block|
-          source_lines << labeler.call(block[:node].attributes['address']) + ':'
-          labeled << block[:node].attributes['address']
-          # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
-          instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+          if [ Rex::Arch::ARCH_X86, Rex::Arch::ARCH_X64 ].include? arch
+            source_lines << labeler.call(block[:node].attributes['address']) + ':'
+            labeled << block[:node].attributes['address']
+            # by default use the raw binary instruction to avoid syntax compatibility issues with metasm
+            instructions = block[:instructions].map { |node| 'db ' + node.attributes['instruction.hex'].strip.chars.each_slice(2).map { |hex| '0x' + hex.join }.join(', ') }
+          else
+            instructions = block[:instructions].map { |node| node.attributes['instruction.source'] }
+          end
           unless arch.nil?
             raise ArgumentError, 'Unsupported architecture' if FLOW_INSTRUCTIONS[arch].nil?
 
@@ -63,37 +68,38 @@ module Rex
         source_lines.join("\n") + "\n"
       end
 
-      private
+      class << self
+        private
 
-      #
-      # Process the specified graph element which represents a single basic block in assembly. This graph element
-      # contains nodes representing each of its instructions.
-      #
-      def self.process_block(block)
-        path = []
-        instructions = block.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
+        #
+        # Process the specified graph element which represents a single basic block in assembly. This graph element
+        # contains nodes representing each of its instructions.
+        #
+        def process_block(block)
+          path = []
+          instructions = block.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
 
-        # the initial choices are any node without a predecessor (dependency)
-        targets = block.edges.map(&:target)
-        choices = instructions.values.select { |node| !targets.include? node.id }
-        until choices.empty?
-          selection = choices.sample
-          choices.delete(selection)
-          path << selection
+          # the initial choices are any node without a predecessor (dependency)
+          targets = block.edges.map(&:target)
+          choices = instructions.values.select { |node| !targets.include? node.id }
+          until choices.empty?
+            selection = choices.sample
+            choices.delete(selection)
+            path << selection
 
-          # check each node for which the selection is a dependency
-          successors = selection.target_edges.map { |edge| instructions[edge.target] }
-          successors.each do |successor|
-            next if path.include? successor
-            next if !successor.source_edges.map { |edge| path.include? instructions[edge.source] }.all?
+            # check each node for which the selection is a dependency
+            successors = selection.target_edges.map { |edge| instructions[edge.target] }
+            successors.each do |successor|
+              next if path.include? successor
+              next if !successor.source_edges.map { |edge| path.include? instructions[edge.source] }.all?
 
-            choices << successor
+              choices << successor
+            end
           end
+
+          path
         end
-
-        path
       end
-
     end
   end
 end
