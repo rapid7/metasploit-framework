@@ -540,10 +540,10 @@ module Rex
           when 'graph'
             element.edges.each do |edge|
               source_node = element.nodes[edge.source]
-              raise InvalidAttributeError.new('edge', 'source', details: 'undefined source', missing: false) if source_node.nil?
+              raise Error::InvalidAttributeError.new('edge', 'source', details: "undefined source: '#{edge.source}'", missing: false) if source_node.nil?
 
               target_node = element.nodes[edge.target]
-              raise InvalidAttributeError.new('edge', 'target', details: 'undefined target', missing: false) if target_node.nil?
+              raise Error::InvalidAttributeError.new('edge', 'target', details: "undefined target: '#{edge.target}'", missing: false) if target_node.nil?
 
               source_node.edges << edge
               target_node.edges << edge
