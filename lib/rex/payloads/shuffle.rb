@@ -23,7 +23,7 @@ module Rex
       # @param name [String] An optional symbol name to apply to the assembly source.
       def self.from_graphml_file(file_path, arch: nil, name: nil)
         graphml = Rex::Parser::GraphML.from_file(file_path)
-        blocks = graphml.graphs.select { |graph| graph.attributes['type'] == 'block' }.sort_by { |graph| graph.attributes['address'] }
+        blocks = create_path(graphml.nodes.select { |_id,node| node.attributes['type'] == 'block' }, graphml.graphs[0].edges)
         blocks.map! { |block| { node: block, instructions: process_block(block) } }
 
         label_prefix = Rex::Text.rand_text_alpha_lower(4)
@@ -76,22 +76,27 @@ module Rex
         # contains nodes representing each of its instructions.
         #
         def process_block(block)
+          subgraph = block.subgraph
+          instructions = subgraph.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
+          create_path(instructions, subgraph.edges)
+        end
+
+        def create_path(nodes, edges)
           path = []
-          instructions = block.nodes.select { |_id, node| node.attributes['type'] == 'instruction' }
 
           # the initial choices are any node without a predecessor (dependency)
-          targets = block.edges.map(&:target)
-          choices = instructions.values.select { |node| !targets.include? node.id }
+          targets = edges.map(&:target)
+          choices = nodes.values.select { |node| !targets.include? node.id }
           until choices.empty?
             selection = choices.sample
             choices.delete(selection)
             path << selection
 
             # check each node for which the selection is a dependency
-            successors = selection.target_edges.map { |edge| instructions[edge.target] }
+            successors = selection.target_edges.map { |edge| nodes[edge.target] }
             successors.each do |successor|
               next if path.include? successor
-              next if !successor.source_edges.map { |edge| path.include? instructions[edge.source] }.all?
+              next if !successor.source_edges.map { |edge| path.include? nodes[edge.source] }.all?
 
               choices << successor
             end

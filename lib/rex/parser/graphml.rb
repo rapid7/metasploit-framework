@@ -362,6 +362,7 @@ module Rex
           def initialize(id)
             @id = id
             @edges = []
+            @subgraph = nil
             super()
           end
 
@@ -390,6 +391,9 @@ module Rex
           # @!attribute edges
           #   @return [Array] An array of all edges for which this node is either the source or the target.
           attr_reader :edges
+          # @!attribute subgraph
+          #   @return [Graph,nil] A subgraph contained within this node.
+          attr_accessor :subgraph
         end
       end
 
@@ -461,6 +465,7 @@ module Rex
 
           when 'graph'
             element = Element::Graph.from_xml_attributes(attrs)
+            @stack[-1].subgraph = element if @stack[-1].is_a? Element::Node
             @graphml.graphs << element
 
           when 'graphml'
