@@ -505,7 +505,12 @@ module Rex
               raise Error::ParserError, "The #{meta_attribute.name} attribute is invalid for #{parent.class::ELEMENT_NAME} elements"
             end
 
-            parent.attributes[meta_attribute.name] = meta_attribute.convert(string)
+            if meta_attribute.type == :string && !parent.attributes[meta_attribute.name].nil?
+              # this may be run multiple times if there is an XML escape sequence in the string to concat the parts together
+              parent.attributes[meta_attribute.name] << meta_attribute.convert(string)
+            else
+              parent.attributes[meta_attribute.name] = meta_attribute.convert(string)
+            end
 
           when Element::Default
             @stack[-1] = Element::Default.new(value: string)
