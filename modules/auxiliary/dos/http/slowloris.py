@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# Note, works with both python 2.7 and 3
+#!/usr/bin/env python3
 
 import random
 import socket

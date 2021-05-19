@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2003-2018 CORE Security Technologies
 #
 # This software is provided under under a slightly modified version
@@ -118,7 +118,7 @@ class RemoteShell(_msf_impacket.RemoteShell):
         super(RemoteShell, self).__init__(share, smbConnection)
 
     def execute_remote(self, data):
-        command = self._shell + data 
+        command = self._shell + data
         if self._noOutput is False:
             command += ' 1> ' + '\\\\127.0.0.1\\%s' % self._share + self._output  + ' 2>&1'
         self.__win32Process.Create(command.decode('utf-8'), self._pwd, None)
@@ -131,7 +131,7 @@ def run(args):
         return
 
     _msf_impacket.pre_run_hook(args)
-    executer = WMIEXEC(args['COMMAND'], args['SMBUser'], args['SMBPass'], args['SMBDomain'], 
+    executer = WMIEXEC(args['COMMAND'], args['SMBUser'], args['SMBPass'], args['SMBDomain'],
                         share='ADMIN$', noOutput=args['OUTPUT'] != 'true')
     executer.run(args['rhost'])
 
