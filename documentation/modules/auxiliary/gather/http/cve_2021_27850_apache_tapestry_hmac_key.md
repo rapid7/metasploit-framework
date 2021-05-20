@@ -7,7 +7,7 @@ This module exploit the CVE-2021-27850 which affects several versions of Apache 
 List the steps needed to make sure this thing works
 
 - 1. Start `msfconsole`
-- 2. `use auxiliary/server/cve_2021_27850`
+- 2. `use auxiliary/gather/http/cve_2021_27850_apache_tapestry_hmac_key`
 - 3. `set RHOST <target_host>` and `set RPORT <target_port>`
 - 4. `check` to check if the targeted Tapestry server is vulnerable or not
 - 5. `set targeted_class` if you want to target another class than the default one (AppModule.class) 
