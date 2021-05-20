@@ -32,11 +32,12 @@ class Db
   #
   def commands
     base = {
-      "db_connect"    => "Connect to an existing data service",
-      "db_disconnect" => "Disconnect from the current data service",
-      "db_status"     => "Show the current data service status",
-      "db_save"       => "Save the current data service connection as the default to reconnect on startup",
-      "db_remove"     => "Remove the saved data service entry"
+      "db_connect"       => "Connect to an existing data service",
+      "db_disconnect"    => "Disconnect from the current data service",
+      "db_status"        => "Show the current data service status",
+      "db_save"          => "Save the current data service connection as the default to reconnect on startup",
+      "db_remove"        => "Remove the saved data service entry",
+      "db_clear_default" => "Clears the default data service connection used on startup"
     }
 
     more = {
@@ -1889,6 +1890,27 @@ class Db
       print_error e.message
     end
   end
+
+  def cmd_db_clear_default_help(*args)
+    print_line "Usage: db_clear_default"
+    print_line
+    print_line "Clears the default data service connection used on startup."
+    print_line
+  end
+
+
+  def cmd_db_clear_default(*args)
+    while (arg = args.shift)
+      case arg
+      when '-h', '--help'
+        cmd_db_clear_default_help
+        return
+      end
+    end
+
+    clear_default_db
+  end
+
 
   def save_db_to_config(database, database_name)
     if database_name =~ /\/|\[|\]/

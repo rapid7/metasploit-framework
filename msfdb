@@ -640,6 +640,17 @@ def persist_data_service
   end
 end
 
+def clear_default_data_service
+  # execute msfconsole commands to add and persist the data service connection
+  cmd = "./msfconsole -qx db_clear_default; exit\""
+  if @db_driver.run_cmd(cmd) != 0
+    # attempt to execute msfconsole in the current working directory
+    if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+      puts 'Failed to run msfconsole and clear the default data service connection'
+    end
+  end
+end
+
 def get_db_connect_command
   data_service_name = "local-#{@options[:ssl] ? 'https' : 'http'}-data-service"
   if !@options[:data_service_name].nil?
@@ -1001,9 +1012,13 @@ if $PROGRAM_NAME == __FILE__
   parse_args(ARGV)
 
   unless @component_provided
-    if ask_yn_default('Would you also like to start up the webservice?', false)
+    if ask_yn_default('Would you also like this operation to affect the webservice?', false)
       @options[:component] = :all
     end
+  end
+
+  if @options[:database]
+    clear_default_data_service
   end
 
   update_db_port
