@@ -479,6 +479,7 @@ DEPENDENCIES
   rubocop
   ruby-prof (= 1.4.2)
   simplecov (= 0.18.2)
+  swagger-blocks
   timecop
   yard
 
