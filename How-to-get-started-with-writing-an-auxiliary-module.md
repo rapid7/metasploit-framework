@@ -1,10 +1,10 @@
 Metasploit is known for its free, open-source exploits - modules that pop shells. But in reality, penetration testers rely more on auxiliary modules, and often a successful pentest can be done without firing a single exploit. They're just more handy, and the punishment for a failed attempt is generally much lower. Professionals actually love auxiliary modules.
 
-Another interesting fact about auxiliary modules is that some of them aren't so different from being exploits. The main difference is how it's defined in Metasploit: if a module pops a shell, it's an exploit. If not, even though it takes advantage of a vulnerability, it still belongs to the auxiliary category.
+Another interesting fact about auxiliary modules is that some of them aren't so different from being exploits. The main difference is how it's defined in Metasploit: **if a module executes a payload, it's an exploit.** If not, even though it takes advantage of a vulnerability, it still belongs to the auxiliary category. If an auxiliary module is capable of running an Operating System command, it could be made into an exploit by delivering a `cmd*` payload and/or using a [[command stager|How-to-use-command-stagers]].
 
 So you see, if you're an auxiliary module addict, you are on the right track.
 
-### Plan your module
+## Plan your module
 
 Just like writing a software, before you start coding you should have a clear and specific goal for what your auxiliary module does. It's never a good idea to have multiple functionalities in a single module. You should break it down into multiple modules instead.
 
@@ -12,7 +12,7 @@ You should also think about how your module will perform in different situations
 
 Most importantly, make sure to test your module thoroughly. It's always ugly to find out problems in the middle of an important engagement, that just might cost you.
 
-### Main categories of auxiliary modules
+## Main categories of auxiliary modules
 
 Generally speaking, auxiliary modules are categorized based on their behavior, but this is somewhat inconsistent so you'll just have to use your best judgement and find the most appropriate one. Here's a list of the common ones:
 
@@ -31,7 +31,7 @@ Generally speaking, auxiliary modules are categorized based on their behavior, b
 
 There are actually a few more directories in auxiliary, but that's kind of where the gray area is. You are more than welcome to [see if yourself](https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary).
 
-### The Msf::Auxiliary::Scanner mixin
+## The Msf::Auxiliary::Scanner mixin
 
 The ```Msf::Auxiliary::Scanner``` mixin is heavily used in auxiliary modules, so we might as well talk about it right here. The mixin allows you to be able to test against a range of hosts, and it's multi-threaded. To use it, first off you need to include the mixin under the scope of your ```Metasploit3``` class:
 
@@ -43,7 +43,7 @@ A couple of new things will be added to your module when you include this mixin.
 
 Typically, the main method for an auxiliary module is "def run". But when you use the ```Msf::Auxiliary::Scanenr``` mixin, you need to be using ```def run_host(ip)```. The IP parameter is the target machine.
 
-### Templates
+## Templates
 
 Here's the most basic example of an auxiliary module. We'll explain a bit more about the fields that need to be filled:
 
@@ -161,7 +161,7 @@ When you're done, push your changes, which will upload your code to your remote 
 $ git push origin my_awesome_branch
 ```
 
-### References
+## References
 
 https://github.com/rapid7/metasploit-framework/tree/master/modules/auxiliary
 
