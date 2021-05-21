@@ -114,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
 
     # results gets our results from shodan_query
     results = []
-    results[0] = shodan_query(query, apikey, 0)
+    results[0] = shodan_query(query, apikey, 1)
 
     if results[0]['total'].nil? || results[0]['total'] == 0
       msg = "No results."
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
     if results[0]['total'] > 100
       page = 1
       while page < maxpage
-        results[page] = shodan_query(query, apikey, page)
+        results[page] = shodan_query(query, apikey, page+1)
         page += 1
       end
     end
@@ -159,7 +159,7 @@ class MetasploitModule < Msf::Auxiliary
     regex = datastore['REGEX'] if datastore['REGEX']
     while p < maxpage
       if results[p]['matches'].nil?
-      	break
+        break
       end
       results[p]['matches'].each do |host|
         city = host['location']['city'] || 'N/A'
