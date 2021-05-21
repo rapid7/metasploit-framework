@@ -15,6 +15,7 @@ module Msf
         include Msf::Post::File
         include Msf::Post::Windows::UserProfiles
 
+		  
         # Check to see if the application base folder exists on the remote system.
         def parent_folder_available?(path, dir, application)
           parent_folder = dir.split('\\').first
@@ -34,6 +35,14 @@ module Msf
           end
           return files
         end
+		  # Download file from the remote system, if it exists.
+        def download_file(saving_path, file_to_download, file, application)
+          print_status("Downloading #{file_to_download}")
+          session.fs.file.download_file(saving_path, file_to_download)
+          print_status("#{application.capitalize} #{file['name'].capitalize} downloaded")
+          print_good("File saved to:  #{saving_path}\n")
+        end
+
 
         def extract_xml(saving_path, artifact_child, artifact, local_loc)
           xml_file = Nokogiri::XML(::File.read(saving_path.to_s))

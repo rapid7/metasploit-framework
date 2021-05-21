@@ -122,7 +122,6 @@ class MetasploitModule < Msf::Post
     # used to grab files for each user on the remote host
     grab_user_profiles.each do |userprofile|
       run_packrat(userprofile, module_info['artifacts'])
-
     end
 
     print_status 'PackRat credential sweep Completed'

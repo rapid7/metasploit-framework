@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "LINE",
                               "artifact_file_name": "*.png",
-                              "description": "Image cache for profile images of users",
+                              "description": "Image cache with png extension",
                               "credential_type": "chat_log"
                             },
                             {
@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "LINE",
                               "artifact_file_name": "*.jpeg",
-                              "description": "Image cache for profile images of users",
+                              "description": "Image cache for jpg cache",
                               "credential_type": "chat_log"
                             },
                             {
@@ -63,7 +63,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "LINE\\Cache\\g",
                               "artifact_file_name": "*",
-                              "description": "Image cache for profile images of users",
+                              "description": "Image cache for group icons",
                               "credential_type": "chat_log"
                             },
                             {
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "LINE\\Cache\\m",
                               "artifact_file_name": "*",
-                              "description": "Image cache for profile images of users",
+                              "description": "Image cache for images sent through chat",
                               "credential_type": "chat_log"
                             },
                             {
@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "LINE\\Cache\\e",
                               "artifact_file_name": "*",
-                              "description": "Image cache for profile images of users",
+                              "description": "Image cache for profile images sent by official accounts",
                               "credential_type": "chat_log"
                             },
                             {
