@@ -73,6 +73,10 @@ module Msf
           opts[:log_file] ||= ds['RemoteMeterpreterDebugFile']
         end
 
+        if ds['MeterpreterBackground']
+          opts[:background] = 1
+        end
+
         log_level = ds['MeterpreterDebugLevel'].to_i
         log_level = 0 if log_level < 0
         log_level = 3 if log_level > 3
@@ -97,7 +101,7 @@ module Msf
         end
         opts[:session_guid] = Base64.encode64(guid).strip
 
-        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name)
+        opts.slice(:uuid, :session_guid, :uri, :debug, :log_file, :name, :background)
       end
 
       # Stage encoding is not safe for Mettle (doesn't apply to stageless)
