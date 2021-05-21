@@ -110,19 +110,19 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if expressions.empty?
       print_status('Starting IRB shell...')
 
-      Rex::Ui::Text::Shell::HistoryManager.push_context(name: :irb)
-      begin
-        if active_module
-          print_status("You are in #{active_module.fullname}\n")
-          Rex::Ui::Text::IrbShell.new(active_module).run
-        else
-          print_status("You are in the \"framework\" object\n")
-          Rex::Ui::Text::IrbShell.new(framework).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        begin
+          if active_module
+            print_status("You are in #{active_module.fullname}\n")
+            Rex::Ui::Text::IrbShell.new(active_module).run
+          else
+            print_status("You are in the \"framework\" object\n")
+            Rex::Ui::Text::IrbShell.new(framework).run
+          end
+        rescue
+          print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
         end
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
       end
-      Rex::Ui::Text::Shell::HistoryManager.pop_context
 
       # Reset tab completion
       if (driver.input.supports_readline)
@@ -173,16 +173,15 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     print_status('Starting Pry shell...')
 
     Pry.config.history_load = false
-    Rex::Ui::Text::Shell::HistoryManager.push_context(history_file: Msf::Config.pry_history, name: :pry)
-    if active_module
-      print_status("You are in the \"#{active_module.fullname}\" module object\n")
-      active_module.pry
-    else
-      print_status("You are in the \"framework\" object\n")
-      framework.pry
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      if active_module
+        print_status("You are in the \"#{active_module.fullname}\" module object\n")
+        active_module.pry
+      else
+        print_status("You are in the \"framework\" object\n")
+        framework.pry
+      end
     end
-
-    Rex::Ui::Text::Shell::HistoryManager.pop_context
   end
 
   def cmd_edit_help

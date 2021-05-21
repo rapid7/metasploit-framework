@@ -40,7 +40,7 @@ module Shell
   #
   # Initializes a shell that has a prompt and can be interacted with.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = :msfconsole)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
@@ -145,7 +145,7 @@ module Shell
         if input.eof? || line == nil
           self.stop_count += 1
           next if self.stop_count > 1
-          run_single("quit")
+          run_single('quit')
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
@@ -159,7 +159,7 @@ module Shell
           # don't bother saving lines that couldn't be found as a
           # command, create the file if it doesn't exist, don't save dupes
           if ret && self.histfile && line != @last_line
-            File.open(self.histfile, "a+") { |f| f.puts(line) }
+            File.open(self.histfile, 'a+') { |f| f.puts(line) }
             @last_line = line
           end
           self.stop_count = 0
