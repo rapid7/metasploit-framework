@@ -108,7 +108,7 @@ class MetasploitModule < Msf::Post
     print_status('Filtering based on these selections:  ')
     print_status("ARTIFACTS: #{datastore['ARTIFACTS'].capitalize}")
     print_status("STORE_LOOT: #{datastore['STORE_LOOT']}")
-    print_status("EXTRACT_DATA_FROM_FILE: #{datastore['EXTRACT_DATA']}\n")
+    print_status("EXTRACT_DATA: #{datastore['EXTRACT_DATA']}\n")
 
     # used to grab files for each user on the remote host
     grab_user_profiles.each do |userprofile|

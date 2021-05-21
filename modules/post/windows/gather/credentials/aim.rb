@@ -91,7 +91,7 @@ class MetasploitModule < Msf::Post
           ))
 
     register_options(
-      [
+      
         OptRegexp.new('REGEX', [false, 'Match a regular expression', '^password']),
         OptBool.new('STORE_LOOT', [false, 'Store artifacts into loot database', true]),
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
@@ -104,7 +104,7 @@ class MetasploitModule < Msf::Post
     print_status('Filtering based on these selections:  ')
     print_status("ARTIFACTS: #{datastore['ARTIFACTS'].capitalize}")
     print_status("STORE_LOOT: #{datastore['STORE_LOOT']}")
-    print_status("EXTRACT_DATA_FROM_FILE: #{datastore['EXTRACT_DATA']}\n")
+    print_status("EXTRACT_DATA: #{datastore['EXTRACT_DATA']}\n")
 
     # used to grab files for each user on the remote host
     grab_user_profiles.each do |userprofile|
