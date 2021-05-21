@@ -44,7 +44,6 @@ module FrameworkEventManager
   # Called when a session is closed and removed from the framework.
   #
   def on_session_close(session, reason='')
-    Rex::Ui::Text::Shell::HistoryManager.pop_context if session.type != 'meterpreter'
     if (session.interacting == true)
       output.print_line
     end

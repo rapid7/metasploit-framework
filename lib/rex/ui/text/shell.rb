@@ -37,7 +37,6 @@ module Shell
     end
   end
 
-  @@last_console = :msfconsole
   #
   # Initializes a shell that has a prompt and can be interacted with.
   #
@@ -65,11 +64,6 @@ module Shell
   end
 
   def init_tab_complete
-
-    if @@last_console == :meterpreter && name == :msfconsole
-      Rex::Ui::Text::Shell::HistoryManager.pop_context
-    end
-    @@last_console = self.name 
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
       self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
