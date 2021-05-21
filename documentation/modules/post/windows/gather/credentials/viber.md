@@ -9,7 +9,7 @@ The list of available artifcts are listed within the module and can be added at 
 
 1. Start MSF console
 2. Get a Meterpreter session on a Windows system
-3. use post/windows/gather/credentials/Viber
+3. use post/windows/gather/credentials/viber
 4. Set SESSION 1
 5. enter 'run' to extract credentials from all applications
 
