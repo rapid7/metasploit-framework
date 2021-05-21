@@ -9,7 +9,7 @@ The list of available artifcts are listed within the module and can be added at 
 
 1. Start MSF console
 2. Get a Meterpreter session on a Windows system
-3. use post/windows/gather/credentials/chrome
+3. use post/windows/gather/credentials/aim
 4. Set SESSION 1
 5. enter 'run' to extract credentials from all applications
 
@@ -31,4 +31,3 @@ this is required for also extracting credentials from files using regexp, JSON, 
 
 ### EXTRACT_CREDENTIALS
 This option is turned on by defalt and will perform the credentials extraction use the predefined regular expression. The 'Store loot' options must be turned on in order for this to take place.
-
