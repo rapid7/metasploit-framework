@@ -60,7 +60,8 @@ class MetasploitModule < Msf::Auxiliary
     message << "(name:#{result[:nb_name]}) "
     message << "(domain:#{result[:nb_domain]}) "
     message << "(domain_fqdn:#{result[:dns_domain]}) "
-    message << "(server_fqdn:#{result[:dns_server]})"
+    message << "(server_fqdn:#{result[:dns_server]}) "
+    message << "(os_version:#{result[:os_version]})"
     print_good(message)
     report_note(
       :host  => rhost,
@@ -106,7 +107,11 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 401 && res['WWW-Authenticate'] && res['WWW-Authenticate'].match(/^NTLM/i)
       hash = res['WWW-Authenticate'].split('NTLM ')[1]
       # Parse out the NTLM and just get the Target Information Data
-      target = Rex::Proto::NTLM::Message.parse(Rex::Text.decode_base64(hash))[:target_info].value()
+      challenge = Rex::Proto::NTLM::Message.decode64(hash)
+      os_version_struct = challenge[:padding].value()[0..4]
+      os_version = os_version_struct.unpack('\C\C\v').join(".")
+
+      target = challenge[:target_info].value()
       # Retrieve Domain name subblock info
       nb_domain = parse_ntlm_info(target, "\x02\x00", 0)
       # Retrieve Server name subblock info
@@ -120,7 +125,8 @@ class MetasploitModule < Msf::Auxiliary
         :nb_name    => nb_name[:message],
         :nb_domain  => nb_domain[:message],
         :dns_domain => dns_domain[:message],
-        :dns_server => dns_server[:message]
+        :dns_server => dns_server[:message],
+        :os_version => os_version
       }
     end
   end
