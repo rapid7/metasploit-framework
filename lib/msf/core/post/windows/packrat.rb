@@ -167,7 +167,7 @@ module Msf
         end
 
         # Download file from the remote system, if it exists.
-        def download_file(saving_path, file_to_download, file, application)
+        def packrat_download_file(saving_path, file_to_download, file, application)
           print_status("Downloading #{file_to_download}")
           session.fs.file.download_file(saving_path, file_to_download)
           print_status("#{application.capitalize} #{file['name'].capitalize} downloaded")
@@ -225,7 +225,7 @@ module Msf
               file_to_download = "#{file['path']}#{session.fs.file.separator}#{file['name']}"
 
               # Download file
-              download_file(saving_path, file_to_download, file, application)
+              packrat_download_file(saving_path, file_to_download, file, application)
               if datastore['EXTRACT_DATA']
                 case credential_type
                 when 'xml'
