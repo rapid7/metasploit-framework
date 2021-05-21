@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "Comodo",
                               "artifact_file_name": "Login Data",
-                              "description": "Comodo's saved Username &amp; Passwords",
+                              "description": "Comodo's saved Username and Passwords",
                               "credential_type": "sqlite",
                               "sql_search": [
                                 {

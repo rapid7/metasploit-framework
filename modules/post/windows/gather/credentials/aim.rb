@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "AIM",
                               "artifact_file_name": "aimx.bin",
-                              "description": "AIM's saved Username &amp; Passwords",
+                              "description": "AIM's saved Username and Passwords",
                               "credential_type": "text",
                               "regex_search": [
                                 {

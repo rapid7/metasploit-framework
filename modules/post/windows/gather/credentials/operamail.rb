@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Opera Mail",
                               "artifact_file_name": "wand.dat",
-                              "description": "Opera-Mail's saved Username &amp; Passwords",
+                              "description": "Opera-Mail's saved Username and Passwords",
                               "credential_type": "text",
                               "regex_search": [
                                 {

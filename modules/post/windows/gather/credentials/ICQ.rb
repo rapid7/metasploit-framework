@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "ICQ",
                               "artifact_file_name": "Owner.mdb",
-                              "description": "ICQ's saved Username &amp; Passwords",
+                              "description": "ICQ's saved Username and Passwords",
                               "credential_type": "text",
                               "regex_search": [
                                 {

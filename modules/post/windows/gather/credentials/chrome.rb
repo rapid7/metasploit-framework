@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
                               "path": "LocalAppData",
                               "dir": "Google",
                               "artifact_file_name": "Login Data",
-                              "description": "Chrome's saved Username & Passwords",
+                              "description": "Chrome's saved Username and Passwords",
                               "credential_type": "sqlite",
                               "sql_search": [
                                 {

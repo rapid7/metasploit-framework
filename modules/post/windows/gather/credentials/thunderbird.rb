@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Thunderbird",
                               "artifact_file_name": "signons.sqlite",
-                              "description": "Thunderbird's saved Username &amp; Passwords",
+                              "description": "Thunderbird's saved Username and Passwords",
                               "credential_type": "sqlite",
                               "sql_search": [
                                 {
@@ -54,7 +54,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Thunderbird",
                               "artifact_file_name": "key3.db",
-                              "description": "Thunderbird's saved Username &amp; Passwords",
+                              "description": "Thunderbird's saved Username and Passwords",
                               "credential_type": "binary"
                             },
                             {
@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Thunderbird",
                               "artifact_file_name": "cert8.db",
-                              "description": "Thunderbird's saved Username &amp; Passwords",
+                              "description": "Thunderbird's saved Username and Passwords",
                               "credential_type": "binary"
                             },
                             {

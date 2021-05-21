@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Microsoft",
                               "artifact_file_name": "*.oeaccount",
-                              "description": "Windows Live Mail's saved Username &amp; Password",
+                              "description": "Windows Live Mail's saved Username and Password",
                               "credential_type": "text",
                               "regex_search": [
                                 {

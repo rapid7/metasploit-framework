@@ -39,7 +39,7 @@ class MetasploitModule < Msf::Post
                               "path": "AppData",
                               "dir": "Flock",
                               "artifact_file_name": "formhistory.sqlite",
-                              "description": "Flock's saved Username &amp; Passwords ",
+                              "description": "Flock's saved Username and Passwords ",
                               "credential_type": "sqlite",
                               "sql_search": [
                                 {
