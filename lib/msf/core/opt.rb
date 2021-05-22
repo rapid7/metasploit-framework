@@ -39,13 +39,13 @@ module Msf
       Msf::OptString.new(__method__.to_s, [ required, desc, default ])
     end
 
-    # @return [OptAddressRange]
-    def self.RHOSTS(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
+    # @return [OptRhosts]
+    def self.RHOSTS(default= nil, required=true, desc="The target host(s) of format 10.10.10.10, cidr identifier 10.10.10.10/24, 'http:<url>' which overrides the RPORT/SSL/TARGETURI values, combine cidr and http with 'cidr:/24:http://<url>', or host file 'file:<path>'")
+      Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
-    def self.RHOST(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
+    def self.RHOST(default=nil, required=true, desc="The target host(s) of format 10.10.10.10, cidr identifier 10.10.10.10/24, 'http:<url>' which overrides the RPORT/SSL/TARGETURI values, combine cidr and http with 'cidr:/24:http://<url>', or host file 'file:<path>'")
+      Msf::OptRhosts.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     # @return [OptPort]

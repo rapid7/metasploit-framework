@@ -169,7 +169,9 @@ class DataStore < Hash
   def to_h
     datastore_hash = {}
     self.keys.each do |k|
-      datastore_hash[k.to_s] = self[k].to_s
+      # TODO: Confirm if to_s is required, it wasn't previously to_s a few years ago
+      # https://github.com/rapid7/metasploit-framework/commit/d5d0b9e9b82dae14fd7ceac3cf0a895be127f9d3
+      datastore_hash[k.to_s] = self[k]
     end
     datastore_hash
   end

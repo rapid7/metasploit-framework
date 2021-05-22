@@ -48,19 +48,28 @@ module ModuleCommandDispatcher
     end
   end
 
-  def check_multiple(hosts)
+  def check_multiple(mod)
+    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore).to_enum
+
+    # Short-circuit check_multiple if it's a single host
+    if rhosts_walker.count == 1
+      nmod = mod.replicant
+      nmod.datastore.merge!(rhosts_walker.next)
+      check_simple(nmod)
+      return
+    end
+
     # This part of the code is mostly from scanner.rb
     @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
     @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
 
-    @range_count   = hosts.length || 0
+    @range_count   = rhosts_walker.count || 0
     @range_done    = 0
     @range_percent = 0
 
     # Set the default thread to 1. The same behavior as before.
     threads_max = (framework.datastore['THREADS'] || mod.datastore['THREADS'] || 1).to_i
     @tl = []
-
 
     if Rex::Compat.is_windows
       if threads_max > 16
@@ -77,16 +86,19 @@ module ModuleCommandDispatcher
     end
 
     loop do
-      while (@tl.length < threads_max)
-        host = hosts.next_host
-        break unless host
+      while @tl.length < threads_max
+        begin
+          datastore = rhosts_walker.next
+        rescue StopIteration
+          datastore = nil
+        end
+        break unless datastore
 
-        @tl << framework.threads.spawn("CheckHost-#{host[:address]}", false, host.dup) { |thr_host|
+        @tl << framework.threads.spawn("CheckHost-#{datastore['RHOSTS']}", false, datastore.dup) { |thr_datastore|
           # Make sure this is thread-safe when assigning an IP to the RHOST
           # datastore option
           nmod = mod.replicant
-          nmod.datastore['RHOST'] = thr_host[:address].dup
-          nmod.datastore['VHOST'] = thr_host[:hostname].dup if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
+          nmod.datastore.merge!(thr_datastore)
           Msf::Simple::Framework.simplify_module(nmod)
           check_simple(nmod)
         }
@@ -128,39 +140,24 @@ module ModuleCommandDispatcher
 
     ip_range_arg = args.join(' ') unless args.empty?
     ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
-    opt = Msf::OptAddressRange.new('RHOSTS')
+
+    rhosts_walker = Msf::RhostsWalker.new(ip_range_arg, mod.datastore)
+    unless rhosts_walker.valid?
+      invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
+      print_error("Auxiliary failed: option RHOSTS failed to validate")
+      print_error("Unexpected values: #{invalid_values.join(', ')}") if invalid_values.any?
+      return false
+    end
 
     begin
-      if !ip_range_arg.blank? && opt.valid?(ip_range_arg)
-        hosts = Rex::Socket::RangeWalker.new(opt.normalize(ip_range_arg))
-
-        # Check multiple hosts
-        last_rhost_opt = mod.datastore['RHOST']
-        last_rhosts_opt = mod.datastore['RHOSTS']
-        mod.datastore['RHOSTS'] = ip_range_arg
-        begin
-          if hosts.length > 1
-            check_multiple(hosts)
-          # Short-circuit check_multiple if it's a single host
-          else
-            mod.datastore['RHOST'] = hosts.next_ip
-            check_simple
-          end
-        ensure
-          # Restore the original rhost if set
-          mod.datastore['RHOST'] = last_rhost_opt
-          mod.datastore['RHOSTS'] = last_rhosts_opt
-          mod.cleanup
-        end
-      # XXX: This is basically dead code now that exploits use RHOSTS
-      else
-        # Check a single rhost
-        unless Msf::OptAddress.new('RHOST').valid?(mod.datastore['RHOST'])
-          raise Msf::OptionValidateError.new(['RHOST'])
-        end
-        check_simple
+      nmod = mod.replicant
+      nmod.datastore['RHOSTS'] = ip_range_arg
+      begin
+        check_multiple(nmod)
+      ensure
+        # TODO: Why isn't this part of check_multiple / check_simple already? Bug?
+        nmod.cleanup
       end
-
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they
@@ -193,6 +190,9 @@ module ModuleCommandDispatcher
     print_line
     print_line('Against a range of IPs loaded from a file:')
     print_line('check file:///tmp/ip_list.txt')
+    print_line
+    print_line('Against a URL, this overrides the RPORT/TARGETURI options:')
+    print_line('check http://www.example.com/foo')
     print_line
     print_line('Multi-threaded checks:')
     print_line('1. set THREADS 10')
