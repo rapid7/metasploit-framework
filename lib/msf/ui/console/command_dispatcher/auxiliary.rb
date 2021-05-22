@@ -52,6 +52,14 @@ class Auxiliary
     end
 
     rhosts = mod.datastore['RHOSTS']
+    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore)
+    if datastore.options.include?('RHOSTS') && !rhosts_walker.valid?
+      invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
+      print_error("Auxiliary failed: option RHOSTS failed to validate")
+      print_error("Unexpected values: #{invalid_values.join(', ')}") if invalid_values.any?
+      return false
+    end
+
     begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
@@ -65,20 +73,14 @@ class Auxiliary
         )
       # For multi target attempts with non-scanner modules.
       else
-        rhosts_opt = Msf::OptAddressRange.new('RHOSTS')
-        if !rhosts_opt.valid?(rhosts)
-          print_error("Auxiliary failed: option RHOSTS failed to validate.")
-          return false
-        end
-
-        rhosts_range = Rex::Socket::RangeWalker.new(rhosts_opt.normalize(rhosts))
-        rhosts_range.each_host do |rhost|
+        rhosts_walker.each do |datastore|
           nmod = mod.replicant
-          nmod.datastore['RHOST'] = rhost[:address]
-          nmod.datastore['VHOST'] = rhost[:hostname] if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
-          print_status("Running module against #{rhost[:address]}")
+          nmod.datastore.merge!(datastore)
+          print_status("Running module against #{datastore['RHOSTS']}")
           nmod.run_simple(
             'Action'         => args[:action],
+            # XXX: if this OptionStr contains multiple rhosts, they won't be handled correctly
+            # XXX: Additionally this has a different end-user UX to `cmd_check`, which supports 'check 127.0.0.1' in comparison to 'run rhosts=127.0.0.1'
             'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
             'LocalInput'     => driver.input,
             'LocalOutput'    => driver.output,

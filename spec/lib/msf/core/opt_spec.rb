@@ -38,7 +38,12 @@ RSpec.describe Msf::Opt do
 
     context 'RHOST' do
       subject { described_class::RHOST }
-      it { is_expected.to be_a(Msf::OptAddressRange) }
+      it { is_expected.to be_a(Msf::OptRhosts) }
+    end
+
+    context 'RHOSTS' do
+      subject { described_class::RHOST }
+      it { is_expected.to be_a(Msf::OptRhosts) }
     end
 
     context 'RPORT' do
@@ -90,9 +95,17 @@ RSpec.describe Msf::Opt do
       end
     end
 
+    context 'RHOSTS()' do
+      subject { described_class::RHOST(default) }
+      it { is_expected.to be_a(Msf::OptRhosts) }
+      specify 'sets default' do
+        expect(subject.default).to eq(default)
+      end
+    end
+
     context 'RHOST()' do
       subject { described_class::RHOST(default) }
-      it { is_expected.to be_a(Msf::OptAddressRange) }
+      it { is_expected.to be_a(Msf::OptRhosts) }
       specify 'sets default' do
         expect(subject.default).to eq(default)
       end
