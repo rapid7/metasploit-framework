@@ -251,13 +251,13 @@ module Msf::Post::Common
           if elem[-1].match? /\d/
             process = {}
             process['pid'] = elem.to_i
-            status = read_file("/proc/#{elem}/status")
+            status = read_file("/proc/#{elem}/status") # will return nil if the process `elem` PID got vanished
             process['name'] = status.split(/\n|\t/)[1] if status
             processes.push(process) if status
           end
         end
       else
-        raise "Can't enumerate processes becuase `ps' command and `/proc' directory doesn't exist."
+        raise "Can't enumerate processes because `ps' command and `/proc' directory doesn't exist."
       end
     end
     return processes
