@@ -242,19 +242,22 @@ module Msf::Post::Common
           process['pid'] = properties[1].to_i
           processes.push(process)
         end
-      else
+      elsif directory?('/proc')
         dir_proc = "/proc/"
         pids = []
         directories_proc = dir(dir_proc)
         directories_proc.each do |elem|
-          elem.gsub( / *\n+/, "")
+          elem.to_s.gsub( / *\n+/, "")
           if elem[-1].match? /\d/
             process = {}
             process['pid'] = elem.to_i
-            process['name'] = cmd_exec("cat /proc/#{elem}/status").split(/\n|\t/)[1]
-            processes.push(process)
+            status = read_file("/proc/#{elem}/status")
+            process['name'] = status.split(/\n|\t/)[1] if status
+            processes.push(process) if status
           end
         end
+      else
+        raise "Can't enumerate processes becuase `ps' command and `/proc' directory doesn't exist."
       end
     end
     return processes
