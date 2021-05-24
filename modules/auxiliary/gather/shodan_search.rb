@@ -136,14 +136,14 @@ class MetasploitModule < Msf::Auxiliary
     # start printing out our query statistics
     print_status("Total: #{results[0]['total']} on #{tpages} " +
       "pages. Showing: #{maxpage} page(s)")
-
+    p = 1
     # If search results greater than 100, loop & get all results
     print_status('Collecting data, please wait...')
     if results[0]['total'] > 100
-      page = p = 1
+      page = 1
       while p < maxpage
         results[p] = shodan_query(query, apikey, page+1)
-        if results[page]['matches'].nil?
+        if results[p]['matches'].nil?
           next
         else
           p += 1
