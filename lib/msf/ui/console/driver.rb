@@ -79,7 +79,6 @@ class Driver < Msf::Ui::Driver
 
     # Call the parent
     super(prompt, prompt_char, histfile, framework, :msfconsole)
-    Rex::Ui::Text::Shell::HistoryManager.push_context(history_file: histfile, name: :msfconsole)
 
     # Temporarily disable output
     self.disable_output = true

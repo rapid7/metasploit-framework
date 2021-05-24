@@ -754,7 +754,9 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    _interact_stream
+    Rex::Ui::Text::Shell::HistoryManager.with_context(name: self.type.to_sym) {
+      _interact_stream
+    }
   end
 
   ##

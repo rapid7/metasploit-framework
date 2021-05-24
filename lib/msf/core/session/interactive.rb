@@ -28,13 +28,6 @@ module Interactive
     super()
   end
 
-  def interact(*args)
-    history_context = {
-      history_file: type == 'meterpreter' ? Msf::Config.meterpreter_history : nil,
-      name: type.to_sym
-    }
-    super(*args, history_context: history_context)
-  end
   #
   # Returns that, yes, indeed, this session supports going interactive with
   # the user.
