@@ -18,59 +18,76 @@ class HistoryManager
   end
 
   def self.push_context(history_file: nil, name: nil)
-    clear_readline
-    @@contexts.push({:history_file => history_file, :name => name})
-    if history_file
-      self.set_history_file(history_file)
-    end
+    dlog("HistoryManager.push_context name: #{name.inspect}")
+    new_context = { history_file: history_file, name: name }
+
+    switch_context(new_context, @@contexts.last)
+    @@contexts.push(new_context)
   end
 
   def self.pop_context
     if @@contexts.empty?
-      elog("`#pop_context' called even when the stack was already empty!")
+      elog("HistoryManager.pop_context called even when the stack was already empty!")
       return
     end
-    history_file, name = @@contexts.pop.values
-    if history_file
-      cmds = []
-      history_diff = Readline::HISTORY.size - @@original_histsize
-      history_diff.times do
-        cmds.push(Readline::HISTORY.pop)
-      end
-      File.open(history_file, 'a+') do |f|
-        f.puts(cmds.reverse)
-      end
-    end
-    clear_readline
+
+    old_context = @@contexts.pop
+    switch_context(@@contexts.last, old_context)
+
+    dlog("HistoryManager.pop_context name: #{old_context&.fetch(:name, nil).inspect}")
   end
 
   def self.with_context(**kwargs, &block)
-    self.push_context(**kwargs)
+    push_context(**kwargs)
 
     begin
       block.call
     ensure
-      self.pop_context
+      pop_context
     end
   end
 
   class << self
     private
 
-    def set_history_file(history_file)
+    def clear_readline
+      Readline::HISTORY.length.times { Readline::HISTORY.pop }
+    end
+
+    def load_history_file(history_file)
       clear_readline
+
       if File.exist?(history_file)
         File.readlines(history_file).each do |e|
           Readline::HISTORY << e.chomp
         end
-        @@original_histsize = Readline::HISTORY.size
-      else
-        @@original_histsize = 0
+      end
+
+      @@original_history_length = Readline::HISTORY.length
+    end
+
+    def store_history_file(history_file, skip: 0)
+      cmds = []
+      history_diff = Readline::HISTORY.length - skip
+      history_diff.times do
+        cmds.push(Readline::HISTORY.pop)
+      end
+
+      File.open(history_file, 'a+') do |f|
+        f.puts(cmds.reverse)
       end
     end
 
-    def clear_readline
-      Readline::HISTORY.length.times { Readline::HISTORY.pop }
+    def switch_context(new_context, old_context=nil)
+      if old_context&.fetch(:history_file, nil)
+        store_history_file(old_context[:history_file], skip: @@original_history_length)
+      end
+
+      if new_context&.fetch(:history_file, nil)
+        load_history_file(new_context[:history_file])
+      else
+        clear_readline
+      end
     end
 
   end
