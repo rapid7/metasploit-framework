@@ -12,6 +12,13 @@ module Msf::Post::Windows::Runas
   STARTF_USESHOWWINDOW = 0x00000001
   SW_HIDE = 0
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun_api* } } }
+    ))
+  end
+
   def shell_execute_exe(filename = nil, path = nil)
     exe_payload = generate_payload_exe
     payload_filename = filename || Rex::Text.rand_text_alpha((rand(8) + 6)) + '.exe'
