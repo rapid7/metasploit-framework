@@ -130,8 +130,8 @@ class MetasploitModule < Msf::Auxiliary
       tpages = results[0]['total'] / 100
     else
       tpages = results[0]['total'] / 100 + 1
-      maxpage = tpages if datastore['MAXPAGE'] > tpages
     end
+    maxpage = tpages if datastore['MAXPAGE'] > tpages
 
     # start printing out our query statistics
     print_status("Total: #{results[0]['total']} on #{tpages} " +
@@ -140,10 +140,15 @@ class MetasploitModule < Msf::Auxiliary
     # If search results greater than 100, loop & get all results
     print_status('Collecting data, please wait...')
     if results[0]['total'] > 100
-      page = 1
-      while page < maxpage
-        results[page] = shodan_query(query, apikey, page+1)
-        page += 1
+      page = p = 1
+      while p < maxpage
+        results[p] = shodan_query(query, apikey, page+1)
+        if results[page]['matches'].nil?
+          next
+        else
+          p += 1
+        end
+        page+=1
       end
     end
 
@@ -155,13 +160,10 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # Organize results and put them into the table and database
-    p = 0
+    page = 0
     regex = datastore['REGEX'] if datastore['REGEX']
-    while p < maxpage
-      if results[p]['matches'].nil?
-        break
-      end
-      results[p]['matches'].each do |host|
+    while page < p
+      results[page]['matches'].each do |host|
         city = host['location']['city'] || 'N/A'
         ip   = host['ip_str'] || 'N/A'
         port = host['port'] || ''
@@ -190,11 +192,9 @@ class MetasploitModule < Msf::Auxiliary
            tbl << ["#{ip}:#{port}", city, country, hostname]
         end
       end
-      p += 1
+      page += 1
     end
-
-    # Show data and maybe save it if needed
-    print_line
+    #Show data and maybe save it if needed
     print_line("#{tbl}")
     save_output(tbl) if datastore['OUTFILE']
   end
