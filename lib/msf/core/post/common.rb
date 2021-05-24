@@ -2,8 +2,6 @@
 
 module Msf::Post::Common
 
-  include Msf::Post::File
-
   def initialize(info = {})
     super(update_info(
       info,
