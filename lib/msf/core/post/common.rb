@@ -2,6 +2,8 @@
 
 module Msf::Post::Common
 
+  include Msf::Post::File
+
   def clear_screen
     Gem.win_platform? ? (system "cls") : (system "clear")
   end
@@ -216,7 +218,7 @@ module Msf::Post::Common
 
   def get_processes
     if session.type == 'meterpreter'
-      return session.sys.process.get_processes.map {|p| p.slice('name', 'pid')}
+      return session.sys.process.get_processes.map { |p| p.slice('name', 'pid') }
     end
     processes = []
     if session.platform == 'windows'
@@ -243,18 +245,18 @@ module Msf::Post::Common
           processes.push(process)
         end
       elsif directory?('/proc')
-        dir_proc = "/proc/"
-        pids = []
-        directories_proc = dir(dir_proc)
+        directories_proc = dir('/proc/')
         directories_proc.each do |elem|
-          elem.to_s.gsub( / *\n+/, "")
-          if elem[-1].match? /\d/
-            process = {}
-            process['pid'] = elem.to_i
-            status = read_file("/proc/#{elem}/status") # will return nil if the process `elem` PID got vanished
-            process['name'] = status.split(/\n|\t/)[1] if status
-            processes.push(process) if status
-          end
+          elem.to_s.gsub(/ *\n+/, '')
+          next unless elem[-1].match? /\d/
+
+          process = {}
+          process['pid'] = elem.to_i
+          status = read_file("/proc/#{elem}/status") # will return nil if the process `elem` PID got vanished
+          next unless status
+
+          process['name'] = status.split(/\n|\t/)[1]
+          processes.push(process)
         end
       else
         raise "Can't enumerate processes because `ps' command and `/proc' directory doesn't exist."
