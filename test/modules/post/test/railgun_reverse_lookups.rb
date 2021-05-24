@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Post
   #
   # Returns an array of windows error code names for a given windows error code matching +err_code+
   #
-  def lookup_error (err_code, filter_regex=nil)
+  def lookup_error(err_code, filter_regex=nil)
     select_const_names(err_code, /^ERROR_/).select do |name|
       name =~ filter_regex
     end
