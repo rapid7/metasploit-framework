@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 #
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
+require 'msf/core/post/file_stat'
 
 module Msf::Post::File
 
@@ -691,5 +692,18 @@ protected
     vprint_status("Max line length is #{line_max}")
 
     line_max
+  end
+
+
+  def stat(filename)
+     if session.type == 'meterpreter'
+      return session.fs.file.stat(filename)
+    end
+    if session.type == 'shell'
+      if session.platform == 'windows'
+        raise "`stat' method does not support Windows systems"
+      end
+      return FileStat.new(filename,session)
+    end
   end
 end
