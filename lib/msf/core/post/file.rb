@@ -1,7 +1,6 @@
 # -*- coding: binary -*-
 #
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
-require 'msf/core/post/file_stat'
 
 module Msf::Post::File
 
@@ -703,7 +702,7 @@ protected
       if session.platform == 'windows'
         raise "`stat' method does not support Windows systems"
       end
-      return FileStat.new(filename, session)
+      return Msf::Post::FileStat::Stat.new(filename, session)
     end
   end
 end

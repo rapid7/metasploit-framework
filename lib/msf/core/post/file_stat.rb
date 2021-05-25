@@ -1,4 +1,8 @@
-class FileStat
+# -*- coding: binary -*-
+#
+module Msf::Post::FileStat
+
+class Stat
   attr_accessor :stathash
 
  @@ftypes = [
@@ -161,4 +165,5 @@ class FileStat
     "Modify: #{mtime}\n"\
     "Change: #{ctime}\n"
   end
+end
 end
