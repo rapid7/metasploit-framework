@@ -7,7 +7,7 @@ class FileStat
   ]
 
 
-  def initialize(filename,session)
+  def initialize(filename, session)
     data = session.shell_command_token("stat --format='%d,%i,%h,%u,%g,%t,%s,%B,%b,%x,%y,%z,%f' #{filename}").to_s.chomp
     data = data.split(",")
     @stathash = Hash.new

@@ -703,7 +703,7 @@ protected
       if session.platform == 'windows'
         raise "`stat' method does not support Windows systems"
       end
-      return FileStat.new(filename,session)
+      return FileStat.new(filename, session)
     end
   end
 end
