@@ -124,6 +124,10 @@ class MetasploitModule < Msf::Auxiliary
       end
       print_error(msg)
       return
+    else
+      while results[0]['matches'].nil?
+	results[0] = shodan_query(apikey, query, 1)
+      end
     end
 
     # Determine page count based on total results
@@ -197,6 +201,7 @@ class MetasploitModule < Msf::Auxiliary
       page += 1
     end
     #Show data and maybe save it if needed
+    print_line()
     print_line("#{tbl}")
     save_output(tbl) if datastore['OUTFILE']
   end
