@@ -712,4 +712,17 @@ protected
 
     line_max
   end
+
+
+  def stat(filename)
+     if session.type == 'meterpreter'
+      return session.fs.file.stat(filename)
+    end
+    if session.type == 'shell'
+      if session.platform == 'windows'
+        raise "`stat' method does not support Windows systems"
+      end
+      return Msf::Post::FileStat::Stat.new(filename, session)
+    end
+  end
 end
