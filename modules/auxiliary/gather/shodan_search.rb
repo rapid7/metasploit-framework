@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # create our Shodan query function that performs the actual web request
-  def shodan_query(query, apikey, page)
+  def shodan_query(apikey, query, page)
     # send our query to Shodan
     res = send_request_cgi({
       'method' => 'GET',
@@ -56,8 +56,8 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => '/shodan/host/search',
       'SSL' => true,
       'vars_get' => {
-        'query' => query,
         'key' => apikey,
+        'query' => query,
         'page' => page.to_s
       }
     })
@@ -113,8 +113,9 @@ class MetasploitModule < Msf::Auxiliary
     maxpage = datastore['MAXPAGE']
 
     # results gets our results from shodan_query
+    
     results = []
-    results[0] = shodan_query(query, apikey, 1)
+    results[0] = shodan_query(apikey, query, 1)
 
     if results[0]['total'].nil? || results[0]['total'] == 0
       msg = "No results."
@@ -136,19 +137,20 @@ class MetasploitModule < Msf::Auxiliary
     # start printing out our query statistics
     print_status("Total: #{results[0]['total']} on #{tpages} " +
       "pages. Showing: #{maxpage} page(s)")
-    p = 1
+
     # If search results greater than 100, loop & get all results
     print_status('Collecting data, please wait...')
+    p = 1
     if results[0]['total'] > 100
-      page = 1
+      page = 2
       while p < maxpage
-        results[p] = shodan_query(query, apikey, page+1)
+        results[p] = shodan_query(apikey, query, page)
         if results[p]['matches'].nil?
           next
         else
           p += 1
+          page += 1
         end
-        page+=1
       end
     end
 
@@ -162,7 +164,7 @@ class MetasploitModule < Msf::Auxiliary
     # Organize results and put them into the table and database
     page = 0
     regex = datastore['REGEX'] if datastore['REGEX']
-    while page < p
+    while page < maxpage
       results[page]['matches'].each do |host|
         city = host['location']['city'] || 'N/A'
         ip   = host['ip_str'] || 'N/A'
