@@ -81,7 +81,6 @@ class MsfAutoload
 
   def custom_inflections
     {
-      'opt_http_rhost_url' => 'OptHTTPRhostURL',
       'uuid' => 'UUID',
       'db_manager' => 'DBManager',
       'ci' => 'CI',
