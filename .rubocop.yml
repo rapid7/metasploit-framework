@@ -20,7 +20,7 @@ require:
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
-  - ./lib/rubocop/cop/lint/side_effects_in_notes.rb
+  - ./lib/rubocop/cop/lint/module_side_effects_in_notes.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -161,8 +161,9 @@ Lint/ModuleDisclosureDatePresent:
 
 Lint/SideEffectsInNotes:
   Include:
-    # Only exploits require disclosure dates, but they can be present in auxiliary modules etc.
+    # Only exploits and auxiliary modules require SideEffects to be listed.
     - 'modules/exploits/**/*'
+    - 'modules/auxiliary/**/*'
 
 Lint/DeprecatedGemVersion:
   Enabled: true

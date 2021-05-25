@@ -8,7 +8,6 @@ module RuboCop
         NO_NOTES_MSG = 'Module is missing the Notes section which must include SideEffects - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
         NO_SIDE_EFFECTS_MSG = 'Module is missing SideEffects from the Notes section - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
 
-
         def_node_matcher :find_update_info_node, <<~PATTERN
           (def :initialize _args (begin (super $(send nil? {:update_info :merge_info} (lvar :info) (hash ...))) ...))
         PATTERN
@@ -45,7 +44,6 @@ module RuboCop
         def check_for_side_effects(notes)
           last_key = nil
           side_effects_present = false
-          p notes
           notes.each_pair do |key, _value|
             if key.value == 'SideEffects'
               side_effects_present = true

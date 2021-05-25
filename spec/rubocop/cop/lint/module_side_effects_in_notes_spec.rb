@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'rubocop/cop/lint/side_effects_in_notes'
+require 'rubocop/cop/lint/module_side_effects_in_notes'
 
 RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
   subject(:cop) { described_class.new(config) }
