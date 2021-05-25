@@ -7,6 +7,13 @@ module UserProfiles
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Accounts
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_fs_stat stdapi_fs_file_expand_path } } }
+    ))
+  end
+
   #
   # Load the registry hive for each user on the machine and parse out the
   # user profile information. Next, unload the hives we loaded and return

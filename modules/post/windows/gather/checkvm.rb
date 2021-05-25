@@ -4,6 +4,7 @@
 ##
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::Process
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 

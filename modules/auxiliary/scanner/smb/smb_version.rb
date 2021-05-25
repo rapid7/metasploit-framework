@@ -93,7 +93,7 @@ class MetasploitModule < Msf::Auxiliary
       dialect = simple.client.dialect
       if simple.client.is_a? RubySMB::Client
         if dialect == '0x0311'
-          info[:capabilities][:compression] = simple.client.server_encryption_algorithms.map do |algorithm|
+          info[:capabilities][:compression] = simple.client.server_compression_algorithms.map do |algorithm|
             RubySMB::SMB2::CompressionCapabilities::COMPRESSION_ALGORITHM_MAP[algorithm]
           end
           info[:capabilities][:encryption] = simple.client.server_encryption_algorithms.map do |algorithm|

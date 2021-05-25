@@ -30,4 +30,4 @@ Complex Software Examples:
 
 We will also accept demonstrations of successful module execution even if your module doesn't meet the above conditions. It's not a necessity, but it may help us land your module faster!
 
-Demonstration of successful module execution can take the form of a packet capture (pcap) or a screen recording. You can send pcaps and recordings to [msfdev@metaspolit.com](mailto:msfdev@metaspolit.com). Please include a CVE number in the subject header (if applicable), and a link to your PR in the email body.
+Demonstration of successful module execution can take the form of a packet capture (pcap) or a screen recording. You can send pcaps and recordings to [msfdev@metasploit.com](mailto:msfdev@metasploit.com). Please include a CVE number in the subject header (if applicable), and a link to your PR in the email body.

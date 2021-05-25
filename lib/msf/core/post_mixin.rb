@@ -34,14 +34,17 @@ module Msf::PostMixin
       raise Msf::OptionValidateError.new(['SESSION'])
     end
 
-    unless session_compatible?(session)
-      print_warning('SESSION may not be compatible with this module.')
+    # Check session readiness before compatibility so the session can be queried
+    # for its platform, capabilities, etc.
+    check_for_session_readiness if session.type == "meterpreter"
+
+    incompatibility = session_incompatibility(session)
+    unless incompatibility.nil?
+      print_warning("SESSION may not be compatible with this module (#{incompatibility})")
     end
 
     # Msf::Exploit#setup for exploits, NoMethodError for post modules
     super rescue NoMethodError
-
-    check_for_session_readiness() if session.type == "meterpreter"
 
     @session.init_ui(self.user_input, self.user_output)
     @sysinfo = nil
@@ -156,6 +159,14 @@ module Msf::PostMixin
   #   compatibility.
   #
   def session_compatible?(sess_or_sid)
+    session_incompatibility(sess_or_sid).nil?
+  end
+
+  #
+  # Return a reason the session is incompatible or nil if it is compatible.
+  #
+  # @return [String,nil]
+  def session_incompatibility(sess_or_sid)
     # Normalize the argument to an actual Session
     case sess_or_sid
     when ::Integer, ::String
@@ -165,30 +176,78 @@ module Msf::PostMixin
     end
 
     # Can't do anything without a session
-    return false unless s
+    return 'invalid session' unless s
 
     # Can't be compatible if it's the wrong type
     if session_types
-      return false unless session_types.include?(s.type)
+      return "incompatible session type: #{s.type}" unless session_types.include?(s.type)
     end
 
     # Check to make sure architectures match
     mod_arch = self.module_info['Arch']
     if mod_arch
       mod_arch = [mod_arch] unless mod_arch.kind_of?(Array)
-      # Assume ARCH_CMD modules can work on supported SessionTypes
-      return true if mod_arch.include?(ARCH_CMD)
-      return false unless mod_arch.include?(s.arch)
+      # Assume ARCH_CMD modules can work on supported SessionTypes since both shell and meterpreter types can execute commands
+      return "incompatible session architecture: #{s.arch}" unless mod_arch.include?(s.arch) || mod_arch.include?(ARCH_CMD)
     end
 
     # Arch is okay, now check the platform.
     if self.platform && self.platform.kind_of?(Msf::Module::PlatformList)
-      return false unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+      return "incompatible session platform: #{s.platform}" unless self.platform.supports?(Msf::Module::PlatformList.transform(s.platform))
+    end
+
+    # Check all specified meterpreter commands are provided by the remote session
+    if s.type == 'meterpreter'
+      cmd_name_wildcards = module_info.dig('Compat', 'Meterpreter', 'Commands') || []
+      cmd_names = Rex::Post::Meterpreter::CommandMapper.get_command_names.select do |cmd_name|
+        cmd_name_wildcards.any? { |cmd_name_wildcard| ::File.fnmatch(cmd_name_wildcard, cmd_name) }
+      end
+
+      unmatched_wildcards = cmd_name_wildcards.select { |cmd_name_wildcard| cmd_names.none? { |cmd_name| ::File.fnmatch(cmd_name_wildcard, cmd_name) } }
+      unless unmatched_wildcards.empty?
+        # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
+        wlog("The #{fullname} module specified the following Meterpreter command wildcards that did not match anything: #{ unmatched_wildcards.join(', ') }")
+        raise RuntimeError, 'one or more of the specified Meterpreter command wildcards did not match anything'
+      end
+
+      cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }
+
+      # XXX: Remove this condition once the payloads gem has had another major version bump from 2.x to 3.x and
+      # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
+      # proactive validation of Windows core commands. This is not the only instance of this workaround.
+      if s.base_platform == 'windows'
+        cmd_ids = cmd_ids.select do |cmd_id|
+          !cmd_id.between?(
+            Rex::Post::Meterpreter::ClientCore.extension_id,
+            Rex::Post::Meterpreter::ClientCore.extension_id + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
+          )
+        end
+      end
+
+      missing_cmd_ids = (cmd_ids - s.commands)
+      unless missing_cmd_ids.empty?
+        # If there are missing commands, try to load the necessary extension.
+        return 'missing Meterpreter features' unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
+
+        missing_extensions = missing_cmd_ids.map { |cmd_id| Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(cmd_id) }.uniq
+        missing_extensions.each do |ext_name|
+          return 'missing Meterpreter features' if s.ext.aliases.include?(ext_name)
+
+          begin
+            s.core.use(ext_name)
+          rescue RuntimeError
+            return "unloadable Meterpreter extension: #{ext_name}"
+          end
+        end
+      end
+      missing_cmd_ids -= s.commands
+
+      return 'missing Meterpreter features' unless missing_cmd_ids.empty?
     end
 
     # If we got here, we haven't found anything that definitely
     # disqualifies this session.  Assume that means we can use it.
-    true
+    nil
   end
 
   #
