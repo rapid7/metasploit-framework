@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Post
         vm = 'VirtualBox'
       when /vmw_ballon|vmxnet|vmw/i
         vm = 'VMware'
-      when /xen-vbd|xen-vnif/
+      when /xen-vbd|xen-vnif|xen_netfront|xen_blkfront/
         vm = 'Xen'
       when /virtio_pci|virtio_net/
         vm = 'Qemu/KVM'
@@ -96,7 +96,18 @@ class MetasploitModule < Msf::Post
         vm = 'Hyper-V/Virtual PC'
       end
     end
-
+   
+    #identity Xen block Device Root
+    if !vm
+      proc_mounts = read_file('/proc/mounts')
+      if proc_mounts
+        case proc_mounts
+        when /\/dev\/xvd.* \/ /
+          vm = 'Xen'
+        end
+      end
+    end
+     
     # Check using lspci
     if !vm
       case get_sysinfo[:distro]
