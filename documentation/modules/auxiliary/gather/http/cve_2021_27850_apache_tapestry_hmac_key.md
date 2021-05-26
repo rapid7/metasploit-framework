@@ -17,7 +17,7 @@ List the steps needed to make sure this thing works
 
 **RHOSTS**
 
-Set the target host. The default value is `localhost`.
+Set the target host.
 
 **RPORT**
 
