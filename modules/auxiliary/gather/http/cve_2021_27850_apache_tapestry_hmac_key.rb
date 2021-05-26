@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'Author' => [
           'Johannes Moritz', # CVE
-          'Yann Castel (yann.castel@orange.com)' # Metasploit module
+          'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
         ],
         'References' =>
           [
