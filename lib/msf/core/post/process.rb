@@ -1,3 +1,5 @@
+# -*- coding: binary -*-
+
 module Msf::Post::Process
 
   include Msf::Post::File
@@ -12,6 +14,17 @@ module Msf::Post::Process
   end
 
   #
+  # Gets the `pid`(s) of a specified program
+  #
+  def pidof(program)
+    pids = []
+    get_processes.each do |p|
+       pids << p["pid"] if p['name'] =~ /(^|[\\\/])#{::Regexp.escape(program)}$/
+    end
+    pids
+  end
+
+  #
   # Checks if the remote system has a process with ID +pid+
   #
   def has_pid?(pid)
@@ -19,10 +32,34 @@ module Msf::Post::Process
     pid_list.include?(pid)
   end
 
+  #
+  # Gets the `pid` and `name` of the processes on the remote system
+  #
   def get_processes
-    if session.type == 'meterpreter'
-      return session.sys.process.get_processes.map { |p| p.slice('name', 'pid') }
+    if session_has_process_ext
+      meterpreter_get_processes
+    else
+      shell_get_processes
     end
+  end
+
+  def session_has_process_ext
+    begin
+      return !!(session.sys and session.sys.process)
+    rescue NoMethodError
+      return false
+    end
+  end
+
+  def meterpreter_get_processes
+    begin
+      return session.sys.process.get_processes.map { |p| p.slice('name', 'pid') }
+    rescue Rex::Post::Meterpreter::RequestError
+      shell_get_processes
+    end
+  end
+
+  def shell_get_processes
     processes = []
     if session.platform == 'windows'
       tasklist = cmd_exec('tasklist').split("\n")
@@ -67,6 +104,5 @@ module Msf::Post::Process
     end
     return processes
   end
-
 
 end
