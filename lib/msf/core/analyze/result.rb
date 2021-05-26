@@ -98,7 +98,7 @@ class Msf::Analyze::Result
     # Must come after the target so we know we match the target we want.
     # TODO: feed available payloads into target selection
     if @wanted_payloads
-      if p = @wanted_payloads.select { |p|@mod.is_payload_compatible?(p) }.first
+      if p = @wanted_payloads.find { |p| @mod.is_payload_compatible?(p) }
         @datastore['payload'] = p
       else
         @missing << :payload_match
