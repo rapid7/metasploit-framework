@@ -30,7 +30,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8080),
-      Opt::RHOST('localhost'),
       OptString.new('TARGETED_CLASS', [false, 'Name of the targeted java class', 'AppModule.class'])
     ])
   end
