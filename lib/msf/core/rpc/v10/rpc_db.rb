@@ -1549,6 +1549,12 @@ end
   def rpc_report_loot(xopts)
   ::ApplicationRecord.connection_pool.with_connection {
     opts, wspace = init_db_opts_workspace(xopts)
+    
+    if !opts[:data]
+      file = File.open(opts[:path], "rb")
+      opts[:data] = file.read
+    end
+    
     if opts[:host] && opts[:port] && opts[:proto]
       opts[:service] = self.framework.db.find_or_create_service(opts)
     end
