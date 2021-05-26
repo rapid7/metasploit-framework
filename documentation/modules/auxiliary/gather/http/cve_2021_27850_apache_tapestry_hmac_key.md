@@ -1,6 +1,6 @@
 ## Description
 
-This module exploit the CVE-2021-27850 which affects several versions of Apache Tapestry. The versions concerned are at least 5.4.5, 5.5.0, 5.6.2 and 5.7.0. This CVE allows an attacker to leak the source code of a such a Tapestry server by requesting a particular .class file with its name through the url with an extra "/" at the end : http://tapestryhost:8080/assets/something/services/AppModule.class/. It makes in particular possible to leak the HMAC secret key which is located by default in AppModule.class.
+This module exploits CVE-2021-27850 which affects several versions of Apache Tapestry. The versions concerned are at least 5.4.5, 5.5.0, 5.6.2 and 5.7.0. This CVE allows an attacker to leak the source code of a Tapestry server by requesting a particular `.class` file with its name through the url with an extra `/` at the end: http://tapestryhost:8080/assets/something/services/AppModule.class/. Due to this, it is possible to leak the HMAC secret key which is located in `AppModule.class` by default.
 
 ## Verification Steps
 
