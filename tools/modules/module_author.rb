@@ -17,6 +17,7 @@ end
 
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), '..', '..', 'lib')))
 
+require 'msfenv'
 require 'rex'
 require 'json'
 

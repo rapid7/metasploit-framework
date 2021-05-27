@@ -13,7 +13,6 @@ require 'module_test'
 class MetasploitModule < Msf::Post
 
   include Msf::ModuleTest::PostTest
-  include Msf::Post::Windows::Railgun
 
   def initialize(info={})
     super( update_info( info,
@@ -32,6 +31,22 @@ class MetasploitModule < Msf::Post
         OptRegexp.new("ECREGEX", [ false, "Regexp to apply to error code lookup" ]),
       ], self.class)
 
+  end
+
+  #
+  # Return an array of windows constants names matching +winconst+
+  #
+  def select_const_names(winconst, filter_regex=nil)
+    session.railgun.constant_manager.select_const_names(winconst, filter_regex)
+  end
+
+  #
+  # Returns an array of windows error code names for a given windows error code matching +err_code+
+  #
+  def lookup_error(err_code, filter_regex=nil)
+    select_const_names(err_code, /^ERROR_/).select do |name|
+      name =~ filter_regex
+    end
   end
 
   def test_static

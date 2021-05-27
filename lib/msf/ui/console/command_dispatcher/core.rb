@@ -715,6 +715,7 @@ class Core
     print_line
     print_line "If -n is not set, only the last #{@history_limit} commands will be shown."
     print_line 'If -c is specified, the command history and history file will be cleared.'
+    print_line 'Start commands with a space to avoid saving them to history.'
     print @@history_opts.usage
   end
 
@@ -1427,15 +1428,13 @@ class Core
               end
               c, c_args = cmd.split(' ', 2)
               begin
-                process = session.sys.process.execute(c, c_args,
-                  {
-                    'Channelized' => true,
-                    'Hidden'      => true
-                  })
-                if process && process.channel
-                  data = process.channel.read
-                  print_line(data) if data
-                end
+                data = session.sys.process.capture_output(c, c_args,
+                {
+                  'Channelized' => true,
+                  'Subshell'    => true,
+                  'Hidden'      => true
+                }, response_timeout)
+                print_line(data) unless data.blank?
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
               rescue Rex::TimeoutError

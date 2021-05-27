@@ -47,7 +47,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   # create our Shodan query function that performs the actual web request
-  def shodan_query(query, apikey, page)
+  def shodan_query(apikey, query, page)
     # send our query to Shodan
     res = send_request_cgi({
       'method' => 'GET',
@@ -56,8 +56,8 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => '/shodan/host/search',
       'SSL' => true,
       'vars_get' => {
-        'query' => query,
         'key' => apikey,
+        'query' => query,
         'page' => page.to_s
       }
     })
@@ -110,41 +110,44 @@ class MetasploitModule < Msf::Auxiliary
     # create our Shodan request parameters
     query = datastore['QUERY']
     apikey = datastore['SHODAN_APIKEY']
-    page = 1
     maxpage = datastore['MAXPAGE']
 
     # results gets our results from shodan_query
     results = []
-    results[page] = shodan_query(query, apikey, page)
+    results[0] = shodan_query(apikey, query, 1)
 
-    if results[page]['total'].nil? || results[page]['total'] == 0
+    if results[0]['total'].nil? || results[0]['total'] == 0
       msg = "No results."
-      if results[page]['error'].to_s.length > 0
-        msg << " Error: #{results[page]['error']}"
+      if results[0]['error'].to_s.length > 0
+        msg << " Error: #{results[0]['error']}"
       end
       print_error(msg)
       return
     end
 
     # Determine page count based on total results
-    if results[page]['total'] % 100 == 0
-      tpages = results[page]['total'] / 100
+    if results[0]['total'] % 100 == 0
+      tpages = results[0]['total'] / 100
     else
-      tpages = results[page]['total'] / 100 + 1
-      maxpage = tpages if datastore['MAXPAGE'] > tpages
+      tpages = results[0]['total'] / 100 + 1
     end
+    maxpage = tpages if datastore['MAXPAGE'] > tpages
 
     # start printing out our query statistics
-    print_status("Total: #{results[page]['total']} on #{tpages} " +
+    print_status("Total: #{results[0]['total']} on #{tpages} " +
       "pages. Showing: #{maxpage} page(s)")
 
     # If search results greater than 100, loop & get all results
     print_status('Collecting data, please wait...')
-    if results[page]['total'] > 100
-      page += 1
-      while page <= maxpage
-        break if page > datastore['MAXPAGE']
-        results[page] = shodan_query(query, apikey, page)
+
+    if results[0]['total'] > 100
+      page = 1
+      while page < maxpage
+        page_result = shodan_query(apikey, query, page+1)
+        if page_result['matches'].nil?
+          next
+        end
+        results[page] = page_result
         page += 1
       end
     end
@@ -157,11 +160,9 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # Organize results and put them into the table and database
-    p = 1
     regex = datastore['REGEX'] if datastore['REGEX']
-    while p <= maxpage
-      break if p > maxpage
-      results[p]['matches'].each do |host|
+    results.each do |page|
+      page['matches'].each do |host|
         city = host['location']['city'] || 'N/A'
         ip   = host['ip_str'] || 'N/A'
         port = host['port'] || ''
@@ -181,20 +182,18 @@ class MetasploitModule < Msf::Auxiliary
                        ) if datastore['DATABASE']
 
         if ip =~ regex ||
-           city =~ regex ||
-           country =~ regex ||
-           hostname =~ regex ||
-           data =~ regex
-           # Unfortunately we cannot display the banner properly,
-           # because it messes with our output format
-           tbl << ["#{ip}:#{port}", city, country, hostname]
+          city =~ regex ||
+          country =~ regex ||
+          hostname =~ regex ||
+          data =~ regex
+          # Unfortunately we cannot display the banner properly,
+          # because it messes with our output format
+          tbl << ["#{ip}:#{port}", city, country, hostname]
         end
       end
-      p += 1
     end
-
-    # Show data and maybe save it if needed
-    print_line
+    #Show data and maybe save it if needed
+    print_line()
     print_line("#{tbl}")
     save_output(tbl) if datastore['OUTFILE']
   end

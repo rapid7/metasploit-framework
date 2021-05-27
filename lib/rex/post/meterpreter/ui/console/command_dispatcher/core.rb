@@ -116,7 +116,8 @@ class Console::CommandDispatcher::Core
 
     # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
     # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
-    # filtering for Windows which supports all the filtered commands anyways.
+    # filtering for Windows which supports all the filtered commands anyways. This is not the only instance of this
+    # workaround.
     reqs.clear if client.base_platform == 'windows'
 
     filter_commands(cmds, reqs)

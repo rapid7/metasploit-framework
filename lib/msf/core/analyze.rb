@@ -5,85 +5,107 @@ class Msf::Analyze
   end
 
   def host(eval_host)
-    suggested_modules = {}
-
-    mrefs, _mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
-
     unless eval_host.vulns
       return {}
     end
 
-    vuln_refs = []
-    eval_host.vulns.each do |vuln|
-      next if vuln.service.nil?
-      vuln_refs.push(*vuln.refs)
-    end
+    # Group related vulns
+    vuln_families = group_vulns(eval_host.vulns)
 
     # finds all modules that have references matching those found on host vulns with service data
-    found_modules = mrefs.values_at(*(vuln_refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
-    found_modules.each do |fnd_mod|
-      # next if exploit_filter_by_service(fnd_mod, vuln.service)
-      next unless exploit_matches_host_os(fnd_mod, eval_host)
-    end
+    suggested_modules = suggest_modules_for_vulns(eval_host, vuln_families)
 
-    suggested_modules[:modules] = found_modules
-
-    suggested_modules
+    {results: suggested_modules}
   end
-
 
   private
 
-  # Tests for various service conditions by comparing the module's fullname (which
-  # is basically a pathname) to the intended target service record. The service.info
-  # column is tested against a regex in most/all cases and "false" is returned in the
-  # event of a match between an incompatible module and service fingerprint.
-  def exploit_filter_by_service(mod, serv)
+  def group_vulns(vulns)
+    return [] if vulns.empty?
 
-    # Filter out Unix vs Windows exploits for SMB services
-    return true if (mod.fullname =~ /\/samba/ and serv.info.to_s =~ /windows/i)
-    return true if (mod.fullname =~ /\/windows/ and serv.info.to_s =~ /samba|unix|vxworks|qnx|netware/i)
-    return true if (mod.fullname =~ /\/netware/ and serv.info.to_s =~ /samba|unix|vxworks|qnx/i)
+    vulns = vulns.map do |vuln|
+      [vuln, Set.new(vuln.refs.map {|r| r.name.upcase})]
+    end
+    grouped_vulns = Hash.new
 
-    # Filter out IIS exploits for non-Microsoft services
-    return true if (mod.fullname =~ /\/iis\/|\/isapi\// and (serv.info.to_s !~ /microsoft|asp/i))
+    vulns.each_index do |ii|
+      vuln, refs = vulns[ii]
+      grouped_vulns[vuln] ||= [Set.new, Set.new]
+      grouped_vulns[vuln][0] << vuln
+      grouped_vulns[vuln][1].merge(refs)
 
-    # Filter out Apache exploits for non-Apache services
-    return true if (mod.fullname =~ /\/apache/ and serv.info.to_s !~ /apache|ibm/i)
+      vulns[(ii+1)..-1].each do |candidate_match, candidate_refs|
+        # TODO: measure if sorting the refs ahead of time and doing a O(n + m)
+        # walk here is faster
+        if candidate_refs.intersect? refs
+          if grouped_vulns[candidate_match]
+            # For merging two different transitive sets that overlap, we need
+            # to merge the individual grouping elements and then use those
+            # cells inside both the grouping arrays so that all the
+            # already-visited vulns are rolled into the big new set
+            grouped_vulns[candidate_match][0] = grouped_vulns[candidate_match][0].merge(grouped_vulns[vuln][0])
+            grouped_vulns[candidate_match][1] = grouped_vulns[candidate_match][1].merge(grouped_vulns[vuln][1])
+            grouped_vulns[vuln][0] = grouped_vulns[candidate_match][0]
+            grouped_vulns[vuln][1] = grouped_vulns[candidate_match][1]
+          else
+            # Whoever was initialized first has the canonical set
+            grouped_vulns[candidate_match] = grouped_vulns[vuln]
+          end
+        end
+      end
+    end
 
-    false
+    vuln_families = grouped_vulns.values
+    vuln_families.uniq!
+    vuln_families
   end
 
-  # Determines if an exploit (mod, an instantiated module) is suitable for the host (host)
-  # defined operating system. Returns true if the host.os isn't defined, if the module's target
-  # OS isn't defined, if the module's OS is "unix" and the host's OS is not "windows," or
-  # if the module's target is "php." Or, of course, in the event the host.os actually matches.
-  # This is a fail-open gate; if there's a doubt, assume the module will work on this target.
-  def exploit_matches_host_os(mod, host)
-    hos = host.os_name
-    return true if hos.nil? || hos.empty?
+  def suggest_modules_for_vulns(eval_host, vuln_families)
+    mrefs, _mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_exploit_maps
+    suggested_modules = []
 
-    set = mod.platform.split(',').map{ |x| x.downcase }
-    return true if set.empty?
+    evaluated_module_targets = Set.new
+    to_evaluate_with_defaults = Array.new
+    vuln_families.each do |vulns, refs|
+      found_modules = mrefs.values_at(*refs).compact.reduce(:+)
+      next unless found_modules
 
-    # Special cases
-    return true if set.include?("unix") and hos !~ /windows/i
+      services = vulns.map(&:service).compact
+      found_modules.each do |fnd_mod|
+        if services.any?
+          services.each do |svc|
+            port = svc.port
+            next if evaluated_module_targets.include?([fnd_mod, port])
 
-    if set.include?("unix")
-      # Skip archaic old HPUX bugs if we have a solid match against another OS
-      return false if set.include?("hpux") and mod.refname.index("hpux") and hos =~ /linux|irix|solaris|aix|bsd/i
-      # Skip AIX bugs if we have a solid match against another OS
-      return false if set.include?("aix") and mod.refname.index("aix") and hos =~ /linux|irix|solaris|hpux|bsd/i
-      # Skip IRIX bugs if we have a solid match against another OS
-      return false if set.include?("irix") and mod.refname.index("irix") and hos =~ /linux|solaris|hpux|aix|bsd/i
+            creds = @framework.db.creds(svcs: [svc.name])
+            r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
+            if r.match?
+              suggested_modules << r.evaluate
+            end
+            evaluated_module_targets << [fnd_mod, port]
+          end
+        else
+          # Only have the default port to go off of, at least for this vuln,
+          # prefer using the service data if available on a different vuln
+          # entry
+          port = fnd_mod.rport
+          to_evaluate_with_defaults << [fnd_mod, port]
+        end
+      end
     end
 
-    return true if set.include?("php")
+    to_evaluate_with_defaults.each do |fnd_mod, port|
+      next if evaluated_module_targets.include?([fnd_mod, port])
 
-    set.each do |mos|
-      return true if hos.downcase.index(mos)
+      creds = @framework.db.creds(port: port) if port
+      r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
+
+      if r.match?
+        suggested_modules << r.evaluate
+      end
+      evaluated_module_targets << [fnd_mod, port]
     end
 
-    false
+    suggested_modules
   end
 end

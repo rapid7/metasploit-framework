@@ -1271,6 +1271,9 @@ class Db
     tbl = Rex::Text::Table.new({
         'Header'  => "Loot",
         'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
+        # For now, don't perform any word wrapping on the loot table as it breaks the workflow of
+        # copying paths and pasting them into applications
+        'WordWrap' => false,
       })
 
     # Sentinel value meaning all

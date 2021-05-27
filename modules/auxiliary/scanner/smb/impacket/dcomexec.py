@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2003-2018 CORE Security Technologies
 #
 # This software is provided under under a slightly modified version
@@ -301,7 +301,7 @@ def run(args):
         return
 
     _msf_impacket.pre_run_hook(args)
-    executer = DCOMEXEC(args['COMMAND'], args['SMBUser'], args['SMBPass'], args['SMBDomain'], 
+    executer = DCOMEXEC(args['COMMAND'], args['SMBUser'], args['SMBPass'], args['SMBDomain'],
                         share='ADMIN$', noOutput=args['OUTPUT'] != 'true', dcomObject=args['OBJECT'])
     executer.run(args['rhost'])
 

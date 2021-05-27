@@ -166,10 +166,10 @@ begin
           raise exception
         end
 
-        if add_history && line
+        if add_history && line && !line.start_with?(' ')
           # Don't add duplicate lines to history
-          if ::Readline::HISTORY.empty? || line != ::Readline::HISTORY[-1]
-            RbReadline.add_history(line)
+          if ::Readline::HISTORY.empty? || line.strip != ::Readline::HISTORY[-1]
+            RbReadline.add_history(line.strip)
           end
         end
 

@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '~> 3.1.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.43'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.45'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.9'
   # Needed by msfgui and other rpc components
@@ -105,6 +105,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
   spec.add_runtime_dependency 'warden'
+  spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
   spec.add_runtime_dependency 'em-http-request'
   # TimeZone info
@@ -117,6 +118,8 @@ Gem::Specification.new do |spec|
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
     spec.add_runtime_dependency 'xmlrpc'
   end
+  # Gem for handling Cookies
+  spec.add_runtime_dependency 'http-cookie'
 
   #
   # File Parsing Libraries

@@ -359,8 +359,7 @@ Layout/EmptyLinesAroundClassBody:
   Description: 'these are used to increase readability'
 
 Layout/EmptyLinesAroundMethodBody:
-  Enabled: false
-  Description: 'these are used to increase readability'
+  Enabled: true
 
 Layout/ExtraSpacingWithBinDataIgnored:
   Description: 'Do not use unnecessary spacing.'
@@ -405,18 +404,7 @@ Style/PercentLiteralDelimiters:
   VersionChanged: '0.48.1'
 
 Style/RedundantBegin:
-  Exclude:
-    # this pattern is very common and somewhat unavoidable
-    # def run_host(ip)
-    #   begin
-    #     ...
-    #   rescue ...
-    #     ...
-    #   ensure
-    #     disconnect
-    #   end
-    # end
-    - 'modules/**/*'
+  Enabled: true
 
 Style/SafeNavigation:
   Description: >-

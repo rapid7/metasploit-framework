@@ -20,6 +20,7 @@ module Msf::DBManager::Web
   def report_web_form(opts)
     return if not active
   ::ApplicationRecord.connection_pool.with_connection {
+    opts = opts.clone() # protect the original caller's opts
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]
@@ -107,6 +108,7 @@ module Msf::DBManager::Web
   def report_web_page(opts)
     return if not active
   ::ApplicationRecord.connection_pool.with_connection {
+    opts = opts.clone() # protect the original caller's opts
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]
@@ -188,6 +190,7 @@ module Msf::DBManager::Web
   def report_web_site(opts)
     return if not active
   ::ApplicationRecord.connection_pool.with_connection { |conn|
+    opts = opts.clone() # protect the original caller's opts
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
     vhost  = opts.delete(:vhost)
 
@@ -289,6 +292,7 @@ module Msf::DBManager::Web
   def report_web_vuln(opts)
     return if not active
   ::ApplicationRecord.connection_pool.with_connection {
+    opts = opts.clone() # protect the original caller's opts
     wspace = Msf::Util::DBManager.process_opts_workspace(opts, framework)
 
     path    = opts[:path]

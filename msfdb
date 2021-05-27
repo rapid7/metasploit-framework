@@ -12,6 +12,8 @@ require 'rex/text'
 require 'securerandom'
 require 'uri'
 require 'yaml'
+require 'pg'
+
 
 include Rex::Text::Color
 
@@ -23,6 +25,10 @@ end
 $:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
+require 'msfdb_helpers/pg_ctlcluster'
+require 'msfdb_helpers/pg_ctl'
+require 'msfdb_helpers/standalone'
+
 require 'msfenv'
 
 @script_name = File.basename(__FILE__)
@@ -31,6 +37,8 @@ require 'msfenv'
 @localconf = Msf::Config.get_config_root
 @db = "#{@localconf}/db"
 @db_conf = "#{@localconf}/database.yml"
+@pg_cluster_conf_root = "#{@localconf}/.local/etc/postgresql"
+@db_driver = nil
 
 @ws_tag = 'msf-ws'
 @ws_conf = File.join(@framework, "#{@ws_tag}.ru")
@@ -54,6 +62,7 @@ require 'msfenv'
     msf_db_user: 'msf',
     msftest_db_name: 'msftest',
     msftest_db_user: 'msftest',
+    db_host: '127.0.0.1',
     db_port: 5433,
     db_pool: 200,
     address: 'localhost',
@@ -106,39 +115,6 @@ class String
 
 end
 
-
-def run_cmd(cmd, input: nil, env: {})
-  exitstatus = 0
-  err = out = ""
-
-  puts "run_cmd: cmd=#{cmd}, input=#{input}, env=#{env}" if @options[:debug]
-
-  Open3.popen3(env, cmd) do |stdin, stdout, stderr, wait_thr|
-    stdin.puts(input) if input
-    if @options[:debug]
-      err = stderr.read
-      out = stdout.read
-    end
-    exitstatus = wait_thr.value.exitstatus
-  end
-
-  if @options[:debug]
-    puts "'#{cmd}' returned #{exitstatus}"
-    puts out
-    puts err
-  end
-
-  exitstatus
-end
-
-def run_psql(cmd, db_name: 'postgres')
-  if @options[:debug]
-    puts "psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}"
-  end
-
-  run_cmd("psql -p #{@options[:db_port]} -c \"#{cmd};\" #{db_name}")
-end
-
 def pw_gen
   SecureRandom.base64(32)
 end
@@ -153,34 +129,11 @@ end
 
 def status_db
   update_db_port
-
-  if Dir.exist?(@db)
-    if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-      puts "Database started at #{@db}"
-    else
-      puts "Database is not running at #{@db}"
-    end
-  else
-    puts "No database found at #{@db}"
-  end
+  @db_driver.status
 end
 
 def started_db
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-    puts "Database already started at #{@db}"
-    return true
-  end
-
-  print "Starting database at #{@db}..."
-  run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} -l #{@db}/log start")
-  sleep(2)
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") != 0
-    puts "#{'failed'.red.bold}"
-    false
-  else
-    puts "#{'success'.green.bold}"
-    true
-  end
+  @db_driver.start
 end
 
 def start_db
@@ -204,67 +157,25 @@ end
 
 def stop_db
   update_db_port
-
-  if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} status") == 0
-    puts "Stopping database at #{@db}"
-    run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db} stop")
-  else
-    puts "Database is no longer running at #{@db}"
-  end
+  @db_driver.stop
 end
 
 def restart_db
-  stop_db
-  start_db
-end
-
-def create_db
-  puts "Creating database at #{@db}"
-  Dir.mkdir(@db)
-  run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db}")
-
-  File.open("#{@db}/postgresql.conf", 'a') do |f|
-    f.puts "port = #{@options[:db_port]}"
-  end
+  @db_driver.restart
 end
 
 def init_db
-  if Dir.exist?(@db)
-    puts "Found a database at #{@db}, checking to see if it is started"
-    start_db
-    return
-  end
+  # Generate new database passwords if not already assigned
+  @msf_pass ||= pw_gen
+  @msftest_pass ||= pw_gen
 
-  if File.exist?(@db_conf) && !@options[:delete_existing_data]
-    if !load_db_config
-      puts "Failed to load existing database config. Please reinit and overwrite the file."
-      return
-    end
-  else
-    write_db_config
-  end
+  @db_driver.init(@msf_pass, @msftest_pass)
+  write_db_config
 
-  create_db
-  start_db
-
-  puts 'Creating database users'
-  run_psql("create user #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("create user #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-  run_psql("alter role #{@options[:msf_db_user]} createdb")
-  run_psql("alter role #{@options[:msftest_db_user]} createdb")
-  run_psql("alter role #{@options[:msf_db_user]} with password '#{@msf_pass}'")
-  run_psql("alter role #{@options[:msftest_db_user]} with password '#{@msftest_pass}'")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msf_db_user]} -h 127.0.0.1 -U #{@options[:msf_db_user]} -E UTF-8 -T template0 #{@options[:msf_db_name]}",
-          input: "#{@msf_pass}\n#{@msf_pass}\n")
-  run_cmd("createdb -p #{@options[:db_port]} -O #{@options[:msftest_db_user]} -h 127.0.0.1 -U #{@options[:msftest_db_user]} -E UTF-8 -T template0 #{@options[:msftest_db_name]}",
-          input: "#{@msftest_pass}\n#{@msftest_pass}\n")
-
-  write_db_client_auth_config
-  restart_db
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
-    run_cmd('bundle exec rake db:migrate')
+    @db_driver.run_cmd('bundle exec rake db:migrate')
   end
 end
 
@@ -302,10 +213,6 @@ def load_db_config
 end
 
 def write_db_config
-  # Generate new database passwords if not already assigned
-  @msf_pass ||= pw_gen
-  @msftest_pass ||= pw_gen
-
   # Write a default database config file
   Dir.mkdir(@localconf) unless File.directory?(@localconf)
   File.open(@db_conf, 'w') do |f|
@@ -315,7 +222,7 @@ def write_db_config
         database: #{@options[:msf_db_name]}
         username: #{@options[:msf_db_user]}
         password: #{@msf_pass}
-        host: 127.0.0.1
+        host: #{@options[:db_host]}
         port: #{@options[:db_port]}
         pool: #{@options[:db_pool]}
 
@@ -331,23 +238,6 @@ def write_db_config
   end
 
   File.chmod(0640, @db_conf)
-end
-
-def write_db_client_auth_config
-  client_auth_config = "#{@db}/pg_hba.conf"
-  puts "Writing client authentication configuration file #{client_auth_config}"
-  File.open(client_auth_config, 'w') do |f|
-    f.puts "host    \"#{@options[:msf_db_name]}\"      \"#{@options[:msf_db_user]}\"      127.0.0.1/32           md5"
-    f.puts "host    \"#{@options[:msftest_db_name]}\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-    f.puts "host    \"postgres\"  \"#{@options[:msftest_db_user]}\"  127.0.0.1/32           md5"
-    f.puts "host    \"template1\"   all                127.0.0.1/32           trust"
-    if Gem.win_platform?
-      f.puts "host    all             all                127.0.0.1/32           trust"
-      f.puts "host    all             all                ::1/128                trust"
-    else
-      f.puts "local   all             all                                       trust"
-    end
-  end
 end
 
 def update_db_port
@@ -404,20 +294,8 @@ def print_error(error)
 end
 
 def delete_db
-  if Dir.exist?(@db)
-    stop_db
-
-    if @options[:delete_existing_data]
-      puts "Deleting all data at #{@db}"
-      FileUtils.rm_rf(@db)
-    end
-
-    if @options[:delete_existing_data]
-      File.delete(@db_conf)
-    end
-  else
-    puts "No data at #{@db}, doing nothing"
-  end
+  stop_web_service
+  @db_driver.delete
 end
 
 def reinit_db
@@ -497,7 +375,7 @@ def init_web_service
 end
 
 def start_web_service_daemon(expect_auth:)
-  if run_cmd("#{thin_cmd} start") == 0
+  if @db_driver.run_cmd("#{thin_cmd} start") == 0
     # wait until web service is online
     retry_count = 0
     response_data = web_service_online_check(expect_auth: expect_auth)
@@ -554,9 +432,9 @@ def start_web_service(expect_auth: true)
 
   print 'Attempting to start MSF web service...'
 
-  unless File.file?(@ws_ssl_key_default)
+  unless File.file?(@options[:ssl_key])
     puts "#{'failed'.red.bold}"
-    print_error "The SSL Key needed for the webservice to connect to the database could not be found at #{@ws_ssl_key_default}."
+    print_error "The SSL Key needed for the webservice to connect to the database could not be found at #{@options[:ssl_key]}."
     print_error 'Has the webservice been initialized with "msfdb init"  or "msfdb init --component webservice"?'
     return false
   end
@@ -574,7 +452,7 @@ def stop_web_service
   status = web_service_pid_status
   if status == WebServicePIDStatus::RUNNING
     puts "Stopping MSF web service PID #{ws_pid}"
-    run_cmd("#{thin_cmd} stop")
+    @db_driver.run_cmd("#{thin_cmd} stop")
   else
     puts 'MSF web service is no longer running'
     if status == WebServicePIDStatus::INACTIVE
@@ -734,9 +612,9 @@ end
 def persist_data_service
   # execute msfconsole commands to add and persist the data service connection
   cmd = "./msfconsole -qx \"#{get_db_connect_command}; db_save; exit\""
-  if run_cmd(cmd) != 0
+  if @db_driver.run_cmd(cmd) != 0
     # attempt to execute msfconsole in the current working directory
-    if run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
+    if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
       puts 'Failed to run msfconsole and persist the data service connection'
     end
   end
@@ -778,11 +656,11 @@ end
 
 # TODO: In the future this can be replaced by Msf::WebServices::HttpDBManagerService
 def thin_cmd
-  server_opts = "--rackup #{@ws_conf} --address #{@options[:address]} --port #{@options[:port]}"
-  ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key]} --ssl-cert-file #{@options[:ssl_cert]}" : ''
+  server_opts = "--rackup #{@ws_conf.shellescape} --address #{@options[:address].shellescape} --port #{@options[:port]}"
+  ssl_opts = @options[:ssl] ? "--ssl --ssl-key-file #{@options[:ssl_key].shellescape} --ssl-cert-file #{@options[:ssl_cert].shellescape}" : ''
   ssl_opts << ' --ssl-disable-verify' if skip_ssl_verify?
   adapter_opts = "--environment #{@options[:ws_env]}"
-  daemon_opts = "--daemonize --log #{@ws_log} --pid #{@ws_pid} --tag #{@ws_tag}" if @options[:daemon]
+  daemon_opts = "--daemonize --log #{@ws_log.shellescape} --pid #{@ws_pid.shellescape} --tag #{@ws_tag}" if @options[:daemon]
   all_opts = [server_opts, ssl_opts, adapter_opts, daemon_opts].reject(&:blank?).join(' ')
 
   "thin #{all_opts}"
@@ -920,6 +798,11 @@ def parse_args(args)
       @options[:db_pool] = m
     }
 
+    opts.on('--connection-string URI', 'Use a pre-existing database cluster for initialization',
+            'Example: --connection-string=postgresql://postgres:mysecretpassword@localhost:5432/postgres') { |c|
+      @connection_string = c
+    }
+
     opts.separator('')
     opts.separator('Web Service Options:')
     opts.on('-a', '--address ADDRESS',
@@ -1006,9 +889,12 @@ def invoke_command(commands, component, command)
   end
 end
 
-def has_requirements
+def installed?(cmd)
+  !Msf::Util::Helper.which(cmd).nil?
+end
+
+def has_requirements(postgresql_cmds)
   ret_val = true
-  postgresql_cmds = %w(psql pg_ctl initdb createdb)
   other_cmds = %w(bundle thin)
   missing_msg = "Missing requirement: %<name>s does not appear to be installed or '%<prog>s' is not in the environment path"
 
@@ -1069,10 +955,6 @@ if $PROGRAM_NAME == __FILE__
     abort
   end
 
-  unless has_requirements
-    abort
-  end
-
   # map component commands to methods
   commands = {
       database: {
@@ -1096,6 +978,19 @@ if $PROGRAM_NAME == __FILE__
   }
 
   parse_args(ARGV)
+
+  update_db_port
+
+  if @connection_string
+    @db_driver = MsfdbHelpers::Standalone.new(options: @options, db_conf: @db_conf, connection_string: @connection_string)
+  elsif installed?('pg_ctl') && has_requirements(MsfdbHelpers::PgCtl.requirements)
+    @db_driver = MsfdbHelpers::PgCtl.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  elsif installed?('pg_ctlcluster') && has_requirements(MsfdbHelpers::PgCtlcluster.requirements)
+    @db_driver = MsfdbHelpers::PgCtlcluster.new(db_path: @db, options: @options, localconf: @localconf, db_conf: @db_conf)
+  else
+    print_error('You need to have postgres installed or specify a database with --connection-string')
+    abort
+  end
 
   command = ARGV[0].to_sym
   prompt_for_deletion(command)

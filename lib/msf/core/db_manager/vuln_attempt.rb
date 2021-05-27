@@ -28,6 +28,7 @@ module Msf::DBManager::VulnAttempt
       return Array.wrap(Mdm::VulnAttempt.find(opts[:id]))
     end
 
+    opts = opts.clone() # protect the original caller's opts
     # 'workspace' is not a valid attribute for Mdm::VulnAttempt. Remove it.
     opts.delete(:workspace)
 
