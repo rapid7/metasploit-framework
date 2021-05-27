@@ -20,7 +20,7 @@ module Msf::ModuleManager::Reloading
       self.inv_aliases.delete metasploit_class.fullname
     end
 
-    namespace_module = metasploit_class.parent
+    namespace_module = metasploit_class.module_parent
     loader = namespace_module.loader
     loader.reload_module(mod)
   end

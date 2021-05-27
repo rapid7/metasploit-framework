@@ -32,7 +32,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def handle_aws_errors(e)
-    if e.class.parents.include?(Aws)
+    if e.class.module_parents.include?(Aws)
       fail_with(Failure::UnexpectedReply, e.message)
     else
       raise e

@@ -279,7 +279,7 @@ class Msf::Modules::Loader::Base
       original_metasploit_class = original_metasploit_class_or_instance
     end
 
-    namespace_module = original_metasploit_class.parent
+    namespace_module = original_metasploit_class.module_parent
     parent_path = namespace_module.parent_path
 
     type = original_metasploit_class.type
