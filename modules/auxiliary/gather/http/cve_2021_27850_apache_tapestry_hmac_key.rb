@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/'+datastore['TARGETED_CLASS']+'/')
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/' + datastore['TARGETED_CLASS'] + '/')
     })
 
     if res.nil?
@@ -50,7 +50,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif res.code == 302
 
       id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/#{datastore['TARGETED_CLASS']}}, 1]
-      normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/'+datastore['TARGETED_CLASS']+'/')
+      normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/' + datastore['TARGETED_CLASS'] + '/')
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalized_url
@@ -70,11 +70,11 @@ class MetasploitModule < Msf::Auxiliary
   def run
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/'+datastore['TARGETED_CLASS'] +'/')
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/' + datastore['TARGETED_CLASS'] + '/')
     })
 
     id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/+#{datastore['TARGETED_CLASS']}}, 1]
-    normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/'+datastore['TARGETED_CLASS']+'/')
+    normalized_url = normalize_uri(target_uri.path, '/assets/app/' + id_url + '/services/' + datastore['TARGETED_CLASS'] + '/')
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalized_url
