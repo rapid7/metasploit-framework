@@ -229,10 +229,10 @@ module Msf::PostMixin
         # If there are missing commands, try to load the necessary extension.
 
         # If core_loadlib isn't supported, then extensions can't be loaded
-        return 'missing Meterpreter features' unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
+        return 'missing Meterpreter features: core can not be extended' unless s.commands.include?(Rex::Post::Meterpreter::COMMAND_ID_CORE_LOADLIB)
 
         # Since core is already loaded, if the missing command is a core command then it's truly missing
-        return 'missing Meterpreter features' if missing_cmd_ids.any? do |cmd_id|
+        return 'missing Meterpreter features: core commands' if missing_cmd_ids.any? do |cmd_id|
           cmd_id.between?(
             Rex::Post::Meterpreter::ClientCore.extension_id,
             Rex::Post::Meterpreter::ClientCore.extension_id + Rex::Post::Meterpreter::COMMAND_ID_RANGE - 1
@@ -242,7 +242,7 @@ module Msf::PostMixin
         missing_extensions = missing_cmd_ids.map { |cmd_id| Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(cmd_id) }.uniq
         missing_extensions.each do |ext_name|
           # If the extension is already loaded, the command is truly missing
-          return 'missing Meterpreter features' if s.ext.aliases.include?(ext_name)
+          return "missing Meterpreter features: extension commands" if s.ext.aliases.include?(ext_name)
 
           begin
             s.core.use(ext_name)
@@ -253,7 +253,7 @@ module Msf::PostMixin
       end
       missing_cmd_ids -= s.commands
 
-      return 'missing Meterpreter features' unless missing_cmd_ids.empty?
+      return "missing Meterpreter features: extension commands" unless missing_cmd_ids.empty?
     end
 
     # If we got here, we haven't found anything that definitely
