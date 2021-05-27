@@ -40,11 +40,12 @@ module Shell
   #
   # Initializes a shell that has a prompt and can be interacted with.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     # Set the stop flag to false
     self.stop_flag      = false
     self.disable_output = false
     self.stop_count     = 0
+    self.name = name
 
     # Initialize the prompt
     self.cont_prompt = ' > '
@@ -66,12 +67,6 @@ module Shell
     if (self.input and self.input.supports_readline)
       # Unless cont_flag because there's no tab complete for continuation lines
       self.input = Input::Readline.new(lambda { |str| tab_complete(str) unless cont_flag })
-      if Readline::HISTORY.length == 0 and histfile and File.exist?(histfile)
-        File.readlines(histfile).each { |e|
-          Readline::HISTORY << e.chomp
-        }
-        self.hist_last_saved = Readline::HISTORY.length
-      end
       self.input.output = self.output
     end
   end
@@ -128,6 +123,9 @@ module Shell
   #
   def run(&block)
 
+    HistoryManager.push_context(history_file: histfile, name: name)
+    self.hist_last_saved = Readline::HISTORY.length
+
     begin
 
       while true
@@ -144,23 +142,17 @@ module Shell
         if input.eof? || line == nil
           self.stop_count += 1
           next if self.stop_count > 1
-          run_single("quit")
+          run_single('quit')
 
         # If a block was passed in, pass the line to it.  If it returns true,
         # break out of the shell loop.
         elsif block
           break if block.call(line)
 
-        # Otherwise, call what should be an overriden instance method to
+        # Otherwise, call what should be an overridden instance method to
         # process the line.
         else
-          ret = run_single(line)
-          # don't bother saving lines that couldn't be found as a
-          # command, create the file if it doesn't exist, don't save dupes
-          if ret && self.histfile && line && line.strip != @last_line&.strip
-            File.open(self.histfile, "a+") { |f| f.puts(line.strip) unless line.starts_with?(" ") }
-            @last_line = line
-          end
+          run_single(line)
           self.stop_count = 0
         end
 
@@ -169,6 +161,9 @@ module Shell
     rescue ::Interrupt
       output.print("Interrupt: use the 'exit' command to quit\n")
       retry
+    ensure
+      HistoryManager.pop_context
+      self.hist_last_saved = Readline::HISTORY.length
     end
   end
 
@@ -487,7 +482,7 @@ module Shell
   attr_accessor :log_source, :stop_count # :nodoc:
   attr_accessor :local_hostname, :local_username # :nodoc:
   attr_reader   :cont_flag # :nodoc:
-
+  attr_accessor :name
 private
 
   attr_writer   :cont_flag # :nodoc:

@@ -349,7 +349,7 @@ module DispatcherShell
   #
   # Initialize the dispatcher shell.
   #
-  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
+  def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil, name = nil)
     super
 
     # Initialze the dispatcher array

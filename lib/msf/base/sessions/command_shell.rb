@@ -182,6 +182,7 @@ class CommandShell
     end
 
     if prompt_yesno("Background session #{name}?")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       self.interacting = false
     end
   end
@@ -216,6 +217,7 @@ class CommandShell
       print_status("Session #{self.name} is already interactive.")
     else
       print_status("Backgrounding session #{self.name}...")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       # store the next session id so that it can be referenced as soon
       # as this session is no longer interacting
       self.next_session = args[0]
@@ -548,8 +550,9 @@ class CommandShell
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"self\" (session) object\n")
-
-      Rex::Ui::Text::IrbShell.new(self).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        Rex::Ui::Text::IrbShell.new(self).run
+      end
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -585,8 +588,10 @@ class CommandShell
 
     print_status('Starting Pry shell...')
     print_status("You are in the \"self\" (session) object\n")
-
-    self.pry
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      self.pry
+    end
   end
 
   #
@@ -753,7 +758,9 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    _interact_stream
+    Rex::Ui::Text::Shell::HistoryManager.with_context(name: self.type.to_sym) {
+      _interact_stream
+    }
   end
 
   ##
