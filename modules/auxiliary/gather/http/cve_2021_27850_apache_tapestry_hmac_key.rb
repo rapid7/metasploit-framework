@@ -13,7 +13,7 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Apache Tapestry HMAC secret key leak',
         'Description' => %q{
-          This exploit finds the HMAC secret key used in Java serizalization by Apache Tapestry. This key
+          This exploit finds the HMAC secret key used in Java serialization by Apache Tapestry. This key
           is located in the file AppModule.class by default and looks like the standard representation of UUID in hex digits (hd) :
           6hd-4hd-4hd-4hd-12hd
           If the HMAC key has been changed to look differently, this module won't find the key because it tries to download the file
