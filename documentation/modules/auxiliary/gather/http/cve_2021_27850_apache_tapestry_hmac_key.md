@@ -2,6 +2,10 @@
 
 This module exploits CVE-2021-27850 which affects several versions of Apache Tapestry. The versions concerned are at least 5.4.5, 5.5.0, 5.6.2 and 5.7.0. This CVE allows an attacker to leak the source code of a Tapestry server by requesting a particular `.class` file with its name through the url with an extra `/` at the end: http://tapestryhost:8080/assets/something/services/AppModule.class/. Due to this, it is possible to leak the HMAC secret key which is located in `AppModule.class` by default.
 
+## Installation
+
+A vulnerable version of Apache Tapestry can be downloaded from [here](https://downloads.apache.org/tapestry/apache-tapestry-5.7.0-bin.zip). I highly recommend you to follow the Tapestry tutorial there : [here](https://tapestry.apache.org/tapestry-tutorial.html). It will guide you through all the steps from setting up to launching a demo skeleton of your server.
+
 ## Verification Steps
 
 List the steps needed to make sure this thing works
