@@ -4,7 +4,7 @@ This module exploits CVE-2021-27850 which affects several versions of Apache Tap
 
 ## Installation
 
-A vulnerable version of Apache Tapestry can be downloaded from [here](https://downloads.apache.org/tapestry/apache-tapestry-5.7.0-bin.zip). I highly recommend you to follow the Tapestry tutorial there : [here](https://tapestry.apache.org/tapestry-tutorial.html). It will guide you through all the steps from setting up to launching a demo skeleton of your server.
+A vulnerable version of Apache Tapestry can be downloaded from [here](https://downloads.apache.org/tapestry/apache-tapestry-5.7.0-bin.zip). I highly recommend you to follow the Tapestry tutorial [there](https://tapestry.apache.org/tapestry-tutorial.html). It will guide you through all the steps from setting up to launching a demo skeleton of your server.
 
 ## Verification Steps
 
