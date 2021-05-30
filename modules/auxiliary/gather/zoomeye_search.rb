@@ -13,6 +13,8 @@ class MetasploitModule < Msf::Auxiliary
         The module use the ZoomEye API to search ZoomEye. ZoomEye is a search
         engine for cyberspace that lets the user find specific network
         components(ip, services, etc.).
+        Beware to properly enclose the whole request with single quotes and limit the span of filters with double quotes:
+        `set zoomeye_dork 'country:"france"+some+query'`
       },
       'Author'      => [ 'Nixawk' ],
       'References'  => [
@@ -28,12 +30,19 @@ class MetasploitModule < Msf::Auxiliary
           OptString.new('USERNAME', [true, 'The ZoomEye username']),
           OptString.new('PASSWORD', [true, 'The ZoomEye password']),
           OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
-          OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil, ['app', 'device', 'service', 'os', 'port', 'country', 'city']]),
+          OptEnum.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil, ['app', 'device', 'service', 'os', 'port', 'country', 'city']]),
           OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
           OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
           OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
           OptBool.new('DATABASE', [false, 'Add search results to the database', false])
        ])
+  end
+  # save output to file
+  def save_output(data)
+    ::File.open(datastore['OUTFILE'], 'wb') do |f|
+      f.write(data)
+      print_status("Saved results in #{datastore['OUTFILE']}")
+    end
   end
 
   # Check to see if api.zoomeye.org resolves properly
@@ -160,12 +169,12 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Total: #{results[0]['total']} on #{tpages} " +
       "pages. Showing: #{maxpage} page(s)")
 
-    # If search results greater than 100, loop & get all results
+    # If search results greater than 20, loop & get all results
     if results[0]['total'] > 20
       print_status('Collecting data, please wait...')
       page = 1
       while page < maxpage
-        page_result = dork_search(resource, dork, page, facets)
+        page_result = dork_search(resource, dork, page+1, facets)
         if page_result['matches'].nil?
           next
         end
@@ -186,64 +195,61 @@ class MetasploitModule < Msf::Auxiliary
     )
     page = 0
     # scroll max pages from ZoomEye
-    while page < maxpage
-      results.each do |records|
+    results.each do |page|
+      page['matches'].each do |match|
         if resource.include?('host')
-          records['matches'].each do |match|
-            ip = match['ip']
-            port = match['portinfo']['port']
-            city = match['geoinfo']['city']['names']['en']
-            country = match['geoinfo']['country']['names']['en']
-            hostname = match['portinfo']['hostname']
-            os = match['portinfo']['os']
-            service = match['portinfo']['app']
-            version = match['portinfo']['version']
-            info = match['portinfo']['extrainfo']
-            report_host(:host     => ip,
-                        :name     => hostname,
-                        :os_name  => os,
-                        :comments => 'Added from Zoomeye'
-                        ) if datastore['DATABASE']
-            report_service(:host => ip,
-                           :port => port,
-                           :name => "#{service}:#{version}",
-                           :info => info
-                           ) if datastore['DATABASE']
-            tbl1 << ["#{ip}:#{port}", city, country, hostname, os, "#{service}:#{version}", info]
+          ip = match['ip']
+          port = match['portinfo']['port']
+          city = match['geoinfo']['city']['names']['en']
+          country = match['geoinfo']['country']['names']['en']
+          hostname = match['portinfo']['hostname']
+          os = match['portinfo']['os']
+          service = match['portinfo']['app']
+          name = match['portinfo']['name']
+          version = match['portinfo']['version']
+          info = match['portinfo']['extrainfo']
+          report_host(:host     => ip,
+                      :name     => hostname,
+                      :os_name  => os,
+                      :comments => 'Added from Zoomeye'
+                      ) if datastore['DATABASE']
+          report_service(:host => ip,
+                         :port => port,
+                         :proto => name,
+                         :name => "#{service}:#{version}",
+                         :info => info
+                         ) if datastore['DATABASE']
+          tbl1 << ["#{ip}:#{port}", city, country, hostname, os, "#{service}:#{version}", info]
+        else
+          ip = match['ip']
+          site = match['site']
+          city = match['geoinfo']['city']['names']['en']
+          country = match['geoinfo']['country']['names']['en']
+          database = match['db']
+          dbInfo = ''
+          database.each do |db|
+            dbInfo << "#{db['name']}:"
+            dbInfo << "#{db['version']}\n"
           end
-        elsif resource.include?('web')
-          records['matches'].each do |match|
-            ip = match['ip']
-            site = match['site']
-            city = match['geoinfo']['city']['names']['en']
-            country = match['geoinfo']['country']['names']['en']
-            database = match['db']
-            dbInfo = ''
-            database.each do |db|
-              dbInfo << "#{db['name']}:"
-              dbInfo << "#{db['version']}\n"
-            end
-            webapp = match['webapp']
-            waInfo = ''
-            webapp.each do |wa|
-              waInfo << "#{wa['name']}:"
-              waInfo << "#{wa['version']}\n"
-            end
-            report_host(:host     => ip,
-                        :name     => site,
-                        :comments => 'Added from Zoomeye'
-                        ) if datastore['DATABASE']
-            tbl2 << [ip, site, city, country, dbInfo, waInfo]
+          webapp = match['webapp']
+          waInfo = ''
+          webapp.each do |wa|
+            waInfo << "#{wa['name']}:"
+            waInfo << "#{wa['version']}\n"
           end
+          report_host(:host     => ip,
+                      :name     => site,
+                      :comments => 'Added from Zoomeye'
+                      ) if datastore['DATABASE']
+          tbl2 << [ip, site, city, country, dbInfo, waInfo]
         end
       end
-      page += 1
     end
     print_line()
     if resource.include?('host')
       print_line("#{tbl1}")
       save_output(tbl1) if datastore['OUTFILE']
-    elsif resource.include?('web')
+    else
       print_line("#{tbl2}")
       save_output(tbl2) if datastore['OUTFILE']
     end
