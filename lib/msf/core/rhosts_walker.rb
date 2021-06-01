@@ -83,6 +83,7 @@ module Msf
     # Parses the input rhosts string, and yields the possible combinations of datastore values.
     #
     # @param value [String] the http string
+    # @param datastore [Msf::Datastore] the datastore
     # @return [Enumerable<Msf::DataStore|StandardError>] The calculated datastore values that can be iterated over for
     #   enumerating the given rhosts, or the error that occurred when iterating over the input
     def parse(input, datastore)
@@ -95,6 +96,11 @@ module Msf
               parse(line, datastore).each do |result|
                 results << result
               end
+            end
+          elsif value.start_with?('smb:')
+            smb_options = parse_smb_uri(value, datastore)
+            Rex::Socket::RangeWalker.new(smb_options['RHOSTS']).each_ip do |ip|
+              results << datastore.merge(smb_options.merge('RHOSTS' => ip))
             end
           elsif value.start_with?('http:') || value.start_with?('https:')
             http_options = parse_http_uri(value, datastore)
@@ -125,6 +131,47 @@ module Msf
       end
     end
 
+    # Parses an smb string such as smb://domain;user:pass@domain/share_name/file.txt into a hash which can safely be
+    # merged with a [Msf::DataStore] datastore for setting smb options.
+    #
+    # @param value [String] the http string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the http uri value
+    def parse_smb_uri(value, datastore)
+      uri = URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      result['RPORT'] = (uri.port || 445) if datastore.options.include?('RPORT')
+
+      # Handle users in the format:
+      #   user
+      #   domain;user
+      if uri.user && uri.user.include?(';')
+        domain, user = uri.user.split(';')
+        result['SMBDomain'] = domain
+        result['SMBUser'] = user
+      elsif uri.user
+        result['SMBUser'] = uri.user
+      end
+      if uri.password
+        result['SMBPass'] = uri.password
+      end
+
+      # Handle paths of the format:
+      #    /
+      #    /share_name
+      #    /share_name/file
+      #    /share_name/dir/file
+      if uri.path
+        _preceding_slash, share, *rpath = uri.path.split('/')
+        result['SMBSHARE'] = share if datastore.options.include?('SMBSHARE')
+        result['RPATH'] = rpath.join('/') if datastore.options.include?('RPATH')
+      end
+
+      result
+    end
+
     # Parses an http string such as http://example.com into a hash which can safely be
     # merged with a [Msf::DataStore] datastore for setting http options.
     #
@@ -146,11 +193,9 @@ module Msf
       result['TARGETURI'] = target_uri if datastore.options.include?('TARGETURI')
       result['URI'] = target_uri if datastore.options.include?('URI')
 
-      if uri.scheme && %(http https).include?(uri.scheme)
-        result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
-        result['HttpUsername'] = uri.user.to_s
-        result['HttpPassword'] = uri.password.to_s
-      end
+      result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
+      result['HttpUsername'] = uri.user if uri.user
+      result['HttpPassword'] = uri.password if uri.password
 
       result
     end
