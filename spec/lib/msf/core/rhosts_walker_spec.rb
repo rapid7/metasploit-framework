@@ -16,18 +16,12 @@ RSpec::Matchers.define :have_datastore_values do |expected|
   end
 
   def http_options_for(datastores)
+    http_keys = %w[RHOSTS RPORT VHOST SSL HttpUsername HttpPassword TARGETURI URI]
+    smb_keys = %w[RHOSTS RPORT SMBDomain SMBUser SMBPass SMBSHARE RPATH]
+    required_keys = http_keys + smb_keys
     datastores.map do |datastore|
-      # Slice the datastore options we care about, ignoring other values that just add noise such as VERBOSE/WORKSPACE/etc.
-      datastore.to_h.slice(
-        'RHOSTS',
-        'RPORT',
-        'VHOST',
-        'SSL',
-        'HttpUsername',
-        'HttpPassword',
-        'TARGETURI',
-        'URI'
-      )
+      # Slice the datastore options that we care about, ignoring other values that just add noise such as VERBOSE/WORKSPACE/etc.
+      datastore.to_h.slice(*required_keys)
     end
   end
 end
@@ -98,6 +92,65 @@ RSpec.describe Msf::RhostsWalker do
             Msf::Opt::RHOSTS,
             Msf::Opt::RPORT(3000),
             Msf::OptString.new('TARGETURI', [true, 'Path to application', '/default_app'])
+          ]
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    allow(mod).to receive(:datastore).and_return(datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:smb_scanner_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::DCERPC
+      include Msf::Exploit::Remote::SMB::Client
+
+      # Scanner mixin should be near last
+      include Msf::Auxiliary::Scanner
+      include Msf::Auxiliary::Report
+
+      def initialize
+        super(
+          'Name' => 'mock smb module',
+          'Description' => 'mock smb module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        deregister_options('RPORT')
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    allow(mod).to receive(:datastore).and_return(datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:smb_share_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::DCERPC
+      include Msf::Exploit::Remote::SMB::Client
+      include Msf::Exploit::Remote::SMB::Client::RemotePaths
+
+      def initialize
+        super(
+          'Name' => 'mock smb share module',
+          'Description' => 'mock smb share module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::OptString.new('SMBShare', [true, 'Target share', '']),
           ]
         )
       end
@@ -295,6 +348,27 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
     end
 
+    it 'enumerates http values with user/passwords' do
+      http_mod.datastore.import_options(
+        Msf::OptionContainer.new(
+          [
+            Msf::OptString.new('HttpUsername', [true, 'The username to authenticate as', 'admin']),
+            Msf::OptString.new('HttpPassword', [true, 'The password for the specified username', 'admin'])
+          ]
+        ),
+        http_mod.class,
+        true
+      )
+      http_mod.datastore['RHOSTS'] = 'http://example.com/ http://user@example.com/ http://user:password@example.com http://:@example.com'
+      expected = [
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'admin', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+    end
+
     it 'enumerates a cidr scheme with a single http value' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:http://127.0.0.1:3000/foo/bar'
       expected = [
@@ -407,8 +481,88 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
     end
 
+    context 'when using the smb scheme' do
+      it 'enumerates smb schemes for scanners when no user or password are specified' do
+        smb_scanner_mod.datastore['RHOSTS'] = 'smb://example.com/'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
+        ]
+        expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates smb schemes for scanners when no user or password are specified and uses the default option values instead' do
+        smb_scanner_mod.datastore.import_options(
+          Msf::OptionContainer.new(
+            [
+              Msf::OptString.new('SMBUser', [true, 'The username to authenticate as', 'db2admin']),
+              Msf::OptString.new('SMBPass', [true, 'The password for the specified username', 'db2admin'])
+            ]
+          ),
+          smb_scanner_mod.class,
+          true
+        )
+        smb_scanner_mod.datastore['RHOSTS'] = 'smb://example.com/ smb://user@example.com/ smb://user:password@example.com smb://:@example.com'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'db2admin', 'SMBPass' => 'db2admin' },
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'db2admin' },
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => 'user', 'SMBPass' => 'password' },
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBUser' => '', 'SMBPass' => '' }
+        ]
+        expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
+      end
+
+      # TODO: Scanners in general are awkward because:
+      #   - the 'setup' method of scanner modules is called _before_ we've walked the RHOSTS to calculate the datastore options. Some setup methods validate options.
+      #      Example:
+      # ```
+      # use auxiliary/admin/smb/download_file
+      # set rhosts smb://alan:a@192.168.222.135/my_share/helloworld.txt
+      # run
+      # ```
+      #   - the OptionsContainer attempts validation _before_ we've walked the RHOSTS to calculate the datastore options.
+      #     Example:
+      # ```
+      # use scanner/smb/impacket/secretsdump
+      # set rhosts smb://alan:a@192.168.222.135
+      # run
+      # [-] Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: SMBPass, SMBUser.
+      #   ^--> validate happens before 'run' is called, which actually invokes the rhosts walker for scanners
+      # ```
+      # At the minute both master and this branch copy/pasta RHOSTS validation checks into the module dispatchers, and bypass datastore validation entirely.
+      it 'enumerates smb schemes for scanners when a user and password are specified' do
+        smb_scanner_mod.datastore['RHOSTS'] = 'smb://user:pass@example.com/'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => '.', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+        ]
+        expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates smb schemes for scanners when a domain, user and password are specified' do
+        smb_scanner_mod.datastore['RHOSTS'] = 'smb://domain;user:pass@example.com/'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+        ]
+        expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates smb schemes for ' do
+        smb_scanner_mod.datastore['RHOSTS'] = 'smb://domain;user:pass@example.com/'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'SSL' => false, 'SMBDomain' => 'domain', 'SMBPass' => 'pass', 'SMBUser' => 'user' }
+        ]
+        expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
+      end
+
+      it 'enumerates smb schemes for when the module has SMBSHARE and RPATHS available' do
+        smb_share_mod.datastore['RHOSTS'] = 'smb://user@example.com/share_name/path/to/file.txt'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBPass' => '', 'SMBUser' => 'user', 'RPATH' => 'path/to/file.txt' }
+        ]
+        expect(each_host_for(smb_share_mod)).to have_datastore_values(expected)
+      end
+    end
+
     # TODO: Discuss adding a test for the datastore containing an existing TARGETURI,and running with a HTTP url without a path. Should the TARGETURI be overridden to '/', '', or unaffected, and the default value is used instead?
-    # TODO: Discuss adding a test for the datastore containing an existing HttpUsername/HttpPassword value, and running with a HTTP url without a specified user/password. Is the user/password an empty string, or the default values?
 
     it 'enumerates a combination of all syntaxes' do
       temp_file_a = create_tempfile("\n192.0.2.0\n\n\n127.0.0.5\n\nhttp://user:pass@example.com:9000/foo\ncidr:/30:https://user:pass@multiple_ips.example.com:9000/foo")

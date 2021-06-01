@@ -192,32 +192,60 @@ module Msf
     #
     # Make sures that each of the options has a value of a compatible
     # format and that all the required options are set.
-    #
+    # TODO: Decide if this lives here, or if the scanner is the real smell here
     def validate(datastore)
-      errors = []
+      if include?('RHOSTS')
+        Msf::RhostsWalker.new(self['RHOSTS'], datastore).each do |datastore|
+          errors = []
+          each_pair { |name, option|
+            if (!option.valid?(datastore[name]))
+              errors << name
+              # If the option is valid, normalize its format to the correct type.
+            elsif ((val = option.normalize(datastore[name])) != nil)
+              # This *will* result in a module that previously used the
+              # global datastore to have its local datastore set, which
+              # means that changing the global datastore and re-running
+              # the same module will now use the newly-normalized local
+              # datastore value instead. This is mostly mitigated by
+              # forcing a clone through mod.replicant, but can break
+              # things in corner cases.
+              # TODO: Decide if this side effect lives here
+              datastore[name] = val
+            end
+          }
 
-      each_pair { |name, option|
-        if (!option.valid?(datastore[name]))
-          errors << name
-          # If the option is valid, normalize its format to the correct type.
-        elsif ((val = option.normalize(datastore[name])) != nil)
-          # This *will* result in a module that previously used the
-          # global datastore to have its local datastore set, which
-          # means that changing the global datastore and re-running
-          # the same module will now use the newly-normalized local
-          # datastore value instead. This is mostly mitigated by
-          # forcing a clone through mod.replicant, but can break
-          # things in corner cases.
-          datastore[name] = val
+          if errors.empty? == false
+            raise Msf::OptionValidateError.new(errors),
+                  # TODO: It would be great to have the real value, i.e. 'Target http://www.example.com/'
+                  "Target #{datastore['RHOSTS']} has one or more options failed to validate: #{errors.join(', ')}."
+          end
         end
-      }
+      else
+        errors = []
+        each_pair { |name, option|
+          if (!option.valid?(datastore[name]))
+            errors << name
+            # If the option is valid, normalize its format to the correct type.
+          elsif ((val = option.normalize(datastore[name])) != nil)
+            # This *will* result in a module that previously used the
+            # global datastore to have its local datastore set, which
+            # means that changing the global datastore and re-running
+            # the same module will now use the newly-normalized local
+            # datastore value instead. This is mostly mitigated by
+            # forcing a clone through mod.replicant, but can break
+            # things in corner cases.
+            # TODO: Decide if this side effect lives here
+            datastore[name] = val
+          end
+        }
 
-      if (errors.empty? == false)
-        raise Msf::OptionValidateError.new(errors),
-          "One or more options failed to validate: #{errors.join(', ')}.", caller
+        if errors.empty? == false
+          raise Msf::OptionValidateError.new(errors),
+                "One or more options failed to validate: #{errors.join(', ')}."
+        end
       end
 
-      return true
+      true
     end
 
     #
