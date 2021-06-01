@@ -13,10 +13,18 @@ class MetasploitModule < Msf::Auxiliary
         The module use the ZoomEye API to search ZoomEye. ZoomEye is a search
         engine for cyberspace that lets the user find specific network
         components(ip, services, etc.).
-        Beware to properly enclose the whole request with single quotes and limit the span of filters with double quotes:
+        Mind to enclose the whole request with quotes and limit the span of filters:
         `set zoomeye_dork 'country:"france"+some+query'`
+
+        Setting facets will output a simple report on the overall search. It's values are:
+        Host search: app, device, service, os, port, country, city
+        Web search: webapp, component, framework, frontend, server, waf, os, country, city
+
+        Possible filters values are:
+        Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
+        Web search: app, header, keywords, desc, title, ip, site, city, country
       },
-      'Author'      => [ 'Nixawk' ],
+      'Author'      => [ 'Nixawk, modified by Yvain' ],
       'References'  => [
         ['URL', 'https://github.com/zoomeye/SDK'],
         ['URL', 'https://www.zoomeye.org/api/doc'],
@@ -24,13 +32,12 @@ class MetasploitModule < Msf::Auxiliary
       ],
       'License'     => MSF_LICENSE
       ))
-
       register_options(
         [
           OptString.new('USERNAME', [true, 'The ZoomEye username']),
           OptString.new('PASSWORD', [true, 'The ZoomEye password']),
           OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
-          OptEnum.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil, ['app', 'device', 'service', 'os', 'port', 'country', 'city']]),
+          OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil]),
           OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
           OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
           OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
@@ -78,21 +85,10 @@ class MetasploitModule < Msf::Auxiliary
 
     records = ActiveSupport::JSON.decode(res.body)
     access_token = records['access_token'] if records && records.key?('access_token')
-    access_token
+    return access_token
   end
 
   def dork_search(resource, dork, page, facets)
-    # param: dork
-    #        ex: country:cn
-    #        access https://www.zoomeye.org/search/dorks for more details.
-    # param: page
-    #        total page(s) number
-    # param: resource
-    #        set a search resource type, ex: [web, host]
-    # param: facet
-    #        ex: [app, device]
-    #         A comma-separated list of properties to get summary information
-
     begin
       req = @cli.request_cgi({
         'uri'      => "/#{resource}/search",
@@ -101,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
         'vars_get' => {
           'query'  => dork,
           'page'   => page,
-          'facet'  => facets
+          'facets'  => facets
         }
       })
 
@@ -121,8 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     if res.body =~ /Invalid Token, /
       fail_with(Failure::BadConfig, '401 Unauthorized. Your ZOOMEYE_APIKEY is invalid')
     end
-
-    ActiveSupport::JSON.decode(res.body)
+    return ActiveSupport::JSON.decode(res.body)
   end
 
   def match_records?(records)
@@ -144,6 +139,8 @@ class MetasploitModule < Msf::Auxiliary
     if @zoomeye_token.blank?
       print_error("Unable to login api.zoomeye.org")
       return
+    else
+      print_status("Logged in to zoomeye")
     end
 
     results = []
@@ -193,65 +190,78 @@ class MetasploitModule < Msf::Auxiliary
       'Indent'  => 1,
       'Columns' => ['IP', 'Site', 'City', 'Country', 'DB:Version', 'WebApp:Version']
     )
-    page = 0
     # scroll max pages from ZoomEye
     results.each do |page|
-      page['matches'].each do |match|
-        if resource.include?('host')
-          ip = match['ip']
-          port = match['portinfo']['port']
+      if facets
+        fcets = page['facets']
+        fcets.each do |fac|
+          print_line("#{fac[0]}")
+          fac[1].each do |f|
+            print_line("#{f['name']} count=#{f['count']}")
+          end
+        end
+      else
+        page['matches'].each do |match|
           city = match['geoinfo']['city']['names']['en']
           country = match['geoinfo']['country']['names']['en']
-          hostname = match['portinfo']['hostname']
-          os = match['portinfo']['os']
-          service = match['portinfo']['app']
-          name = match['portinfo']['name']
-          version = match['portinfo']['version']
-          info = match['portinfo']['extrainfo']
-          report_host(:host     => ip,
-                      :name     => hostname,
-                      :os_name  => os,
-                      :comments => 'Added from Zoomeye'
-                      ) if datastore['DATABASE']
-          report_service(:host => ip,
-                         :port => port,
-                         :proto => name,
-                         :name => "#{service}:#{version}",
-                         :info => info
-                         ) if datastore['DATABASE']
-          tbl1 << ["#{ip}:#{port}", city, country, hostname, os, "#{service}:#{version}", info]
-        else
-          ip = match['ip']
-          site = match['site']
-          city = match['geoinfo']['city']['names']['en']
-          country = match['geoinfo']['country']['names']['en']
-          database = match['db']
-          dbInfo = ''
-          database.each do |db|
-            dbInfo << "#{db['name']}:"
-            dbInfo << "#{db['version']}\n"
+          if resource.include?('host')
+            ip = match['ip']
+            port = match['portinfo']['port']
+            hostname = match['portinfo']['hostname']
+            os = match['portinfo']['os']
+            service = match['portinfo']['app']
+            name = match['portinfo']['name']
+            version = match['portinfo']['version']
+            info = match['portinfo']['extrainfo']
+            report_host(:host     => ip,
+                        :name     => hostname,
+                        :os_name  => os,
+                        :comments => 'Added from Zoomeye'
+                        ) if datastore['DATABASE']
+            report_service(:host => ip,
+                           :port => port,
+                           :proto => name,
+                           :name => "#{service}:#{version}",
+                           :info => info
+                           ) if datastore['DATABASE']
+            tbl1 << ["#{ip}:#{port}", city, country, hostname, os, "#{service}:#{version}", info]
+          else
+            ips = match['ip']
+            ipList = ''
+            ips.each do |ip|
+              ipList << "#{ip}\n"
+            end
+            site = match['site']
+            database = match['db']
+            dbInfo = ''
+            database.each do |db|
+              dbInfo << "#{db['name']}:"
+              dbInfo << "#{db['version']}\n"
+            end
+            webapp = match['webapp']
+            waInfo = ''
+            webapp.each do |wa|
+              waInfo << "#{wa['name']}:"
+              waInfo << "#{wa['version']}\n"
+            end
+            report_host(:host     => ip,
+                        :name     => site,
+                        :comments => 'Added from Zoomeye'
+                        ) if datastore['DATABASE']
+            tbl2 << [ipList, site, city, country, dbInfo, waInfo]
           end
-          webapp = match['webapp']
-          waInfo = ''
-          webapp.each do |wa|
-            waInfo << "#{wa['name']}:"
-            waInfo << "#{wa['version']}\n"
-          end
-          report_host(:host     => ip,
-                      :name     => site,
-                      :comments => 'Added from Zoomeye'
-                      ) if datastore['DATABASE']
-          tbl2 << [ip, site, city, country, dbInfo, waInfo]
         end
       end
-    end
-    print_line()
-    if resource.include?('host')
-      print_line("#{tbl1}")
-      save_output(tbl1) if datastore['OUTFILE']
-    else
-      print_line("#{tbl2}")
-      save_output(tbl2) if datastore['OUTFILE']
+      if facets
+        return
+      end
+      if resource.include?('host')
+        print_line("#{tbl1}")
+        save_output(tbl1) if datastore['OUTFILE']
+      else
+        print_line("#{tbl2}")
+        save_output(tbl2) if datastore['OUTFILE']
+      end
     end
   end
 end
