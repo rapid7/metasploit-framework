@@ -127,14 +127,6 @@ module Msf::DBManager::Host
   }
   end
 
-  # Look for an address across all comms
-  def has_host?(wspace,addr)
-  ::ApplicationRecord.connection_pool.with_connection {
-    address, scope = addr.split('%', 2)
-    wspace.hosts.find_by_address(addr)
-  }
-  end
-
   # Returns a list of all hosts in the database
   def hosts(opts)
     ::ApplicationRecord.connection_pool.with_connection {
