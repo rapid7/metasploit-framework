@@ -9,7 +9,6 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
   include Msf::Exploit::Remote::HttpClient
-  include Msf::Post::File
 
   def initialize(info = {})
     super(
@@ -112,6 +111,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_creds(creds)
+
     creds.each do |cred|
       cred = cred.gsub('"', '').gsub(/[{}:]/, '').split(', ')
       cred = cred.map do |h|
