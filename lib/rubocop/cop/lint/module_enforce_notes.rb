@@ -3,10 +3,11 @@
 module RuboCop
   module Cop
     module Lint
-      class SideEffectsInNotes < Base
+      class ModuleEnforceNotes < Base
 
-        NO_NOTES_MSG = 'Module is missing the Notes section which must include SideEffects - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
-        NO_SIDE_EFFECTS_MSG = 'Module is missing SideEffects from the Notes section - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
+        NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
+        MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
+        NOTES_KEYS = %w[Stability Reliability SideEffects]
 
         def_node_matcher :find_update_info_node, <<~PATTERN
           (def :initialize _args (begin (super $(send nil? {:update_info :merge_info} (lvar :info) (hash ...))) ...))
@@ -33,7 +34,7 @@ module RuboCop
           end
 
           if notes_present
-            check_for_side_effects(notes)
+            check_for_notes_keys(notes)
           else
             add_offense(last_key || hash, message: NO_NOTES_MSG)
           end
@@ -41,18 +42,24 @@ module RuboCop
 
         private
 
-        def check_for_side_effects(notes)
+        def check_for_notes_keys(notes)
           last_key = nil
-          side_effects_present = false
+          keys_present = []
           notes.each_pair do |key, _value|
-            if key.value == 'SideEffects'
-              side_effects_present = true
+            if NOTES_KEYS.include? key.value
+              keys_present << key.value
             end
             last_key = key
           end
 
-          unless side_effects_present
-            add_offense(last_key || notes, message: NO_SIDE_EFFECTS_MSG)
+          missing_keys = NOTES_KEYS - keys_present
+          unless missing_keys.empty?
+            if missing_keys.length == 1
+              msg = missing_keys[0]
+            else
+              msg = missing_keys[0...-1].join(', ') + ' and ' + missing_keys[-1]
+            end
+            add_offense(last_key || notes, message: MISSING_KEY_MSG % msg)
           end
         end
 

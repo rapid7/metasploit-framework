@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'rubocop/cop/lint/module_side_effects_in_notes'
+require 'rubocop/cop/lint/module_enforce_notes'
 
-RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
+RSpec.describe RuboCop::Cop::Lint::ModuleEnforceNotes do
   subject(:cop) { described_class.new(config) }
   let(:config) { RuboCop::Config.new }
 
@@ -46,7 +46,7 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
     expect_no_corrections
   end
 
-  it 'requires SideEffects to be present when no keys are present' do
+  it 'requires Stability, Reliability and SideEffects to be present when no keys are present' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -60,7 +60,7 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
               'Platform' => 'win',
               'Arch' => ARCH_X86,
               'Notes' => {}
-                         ^^ Module is missing SideEffects [...]
+                         ^^ Module is missing Stability, Reliability and SideEffects [...]
             )
           )
         end
@@ -69,7 +69,7 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
     expect_no_corrections
   end
 
-  it 'requires SideEffects to be present when keys are present' do
+  it 'requires Stability, Reliability and SideEffects to be present when keys are present' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -82,8 +82,8 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
               'License' => MSF_LICENSE,
               'Platform' => 'win',
               'Arch' => ARCH_X86,
-              'Notes' => {'Stability' => [CRASH_SAFE],}
-                          ^^^^^^^^^^^ Module is missing SideEffects [...]
+              'Notes' => {'SomeKey' => [some_value],}
+                          ^^^^^^^^^ Module is missing Stability, Reliability and SideEffects [...]
             )
           )
         end
@@ -92,8 +92,34 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
     expect_no_corrections
   end
 
-  it 'SideEffects can be an empty array' do
-    expect_no_offenses(<<~RUBY)
+  it 'requires Stability to be present even when SideEffects and Reliability are present' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'Notes' => {
+                'SideEffects' => [IOC_IN_LOGS],
+                'Reliability' => [FIRST_ATTEMPT_FAIL]
+                ^^^^^^^^^^^^^ Module is missing Stability [...]
+              }
+            )
+          )
+        end
+      end
+    RUBY
+    expect_no_corrections
+  end
+
+  it 'requires SideEffects to be present even when Stability and Reliability are present' do
+    expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
           super(
@@ -107,7 +133,60 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
               'Arch' => ARCH_X86,
               'Notes' => {
                 'Stability' => [CRASH_SAFE],
-                'SideEffects' => []
+                'Reliability' => [FIRST_ATTEMPT_FAIL]
+                ^^^^^^^^^^^^^ Module is missing SideEffects [...]
+              }
+            )
+          )
+        end
+      end
+    RUBY
+    expect_no_corrections
+  end
+
+  it 'requires Reliability to be present even when Stability and SideEffects are present' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'Notes' => {
+                'Stability' => [CRASH_SAFE],
+                'SideEffects' => [IOC_IN_LOGS],
+                ^^^^^^^^^^^^^ Module is missing Reliability [...]
+              }
+            )
+          )
+        end
+      end
+    RUBY
+    expect_no_corrections
+  end
+
+  it 'Stability, Reliability and SideEffects can be empty arrays' do
+    expect_no_offenses(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'Notes' => {
+                'Stability' => [],
+                'SideEffects' => [],
+                'Reliability' => []
               }
             )
           )
@@ -116,7 +195,7 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
     RUBY
   end
 
-  it 'SideEffects can be a single item in an array' do
+  it 'Stability, Reliability and SideEffects can be a single item in an array' do
     expect_no_offenses(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -131,7 +210,8 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
               'Arch' => ARCH_X86,
               'Notes' => {
                 'Stability' => [CRASH_SAFE],
-                'SideEffects' => [IOC_IN_LOGS]
+                'SideEffects' => [IOC_IN_LOGS],
+                'Reliability' => [FIRST_ATTEMPT_FAIL]
               }
             )
           )
@@ -140,7 +220,7 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
     RUBY
   end
 
-  it 'SideEffects can be a multiple items in an array' do
+  it 'Stability, Reliability and SideEffects can be a multiple items in an array' do
     expect_no_offenses(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -154,8 +234,9 @@ RSpec.describe RuboCop::Cop::Lint::SideEffectsInNotes do
               'Platform' => 'win',
               'Arch' => ARCH_X86,
               'Notes' => {
-                'Stability' => [CRASH_SAFE],
-                'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS]
+                'Stability' => [CRASH_SAFE, SECOND_ITEM],
+                'SideEffects' => [IOC_IN_LOGS, ACCOUNT_LOCKOUTS],
+                'Reliability' => [FIRST_ATTEMPT_FAIL, SECOND_ITEM]
               }
             )
           )
