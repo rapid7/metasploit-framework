@@ -15,7 +15,7 @@ module Msf
           super(update_info(
             info,
             'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-              core_migrate sys_config_getprivs stdapi_sys_config_getuid stdapi_sys_process_* incognito_impersonate_token priv_elevate_getsystem
+              core_migrate stdapi_sys_config_getprivs stdapi_sys_config_getuid stdapi_sys_process_* incognito_impersonate_token priv_elevate_getsystem
             } } }
           ))
         end
