@@ -19,6 +19,11 @@ class MetasploitModule < Msf::Auxiliary
         'References' => [['URL', 'https://redis.io/topics/protocol']]
       )
     )
+    register_options(
+      [
+        OptInt.new('LimitCount', [false, 'Stop after retrieving this many entries, per database', nil])
+      ]
+    )
   end
 
   MIN_REDIS_VERSION = '2.8.0'.freeze
@@ -33,34 +38,52 @@ class MetasploitModule < Msf::Auxiliary
     keys = parsed[1]
     results = []
     keys.each do |key|
-      results.push([key, value_for_key(key)])
+      value = value_for_key(key)
+      if value
+        results.push([key, value])
+      end
     end
     [new_offset, results]
   end
 
   def value_for_key(key)
     key_type = redis_command('TYPE', key)
+    return unless key_type
+
     key_type = parse_redis_response(key_type)
     case key_type
     when 'string'
       string_content = redis_command('get', key)
+      return unless string_content
+
       return parse_redis_response(string_content)
     when 'list'
       list_content = redis_command('LRANGE', key, '0', '-1')
+      return unless list_content
+
       return parse_redis_response(list_content)
     when 'set'
       set_content = redis_command('SMEMBERS', key)
+      return unless set_content
+
       return parse_redis_response(set_content)
     when 'zset'
       set_content = redis_command('ZRANGE', key, '0', '-1')
+      return unless set_content
+
       return parse_redis_response(set_content)
     when 'hash'
       hash_content = parse_redis_response(redis_command('HGETALL', key))
+      return unless hash_content
+
       result = {}
       (0..hash_content.length - 1).step(2) do |x|
         result[hash_content[x]] = hash_content[x + 1]
       end
       return result
+    when 'none'
+      # May have been deleted in the interim
+      return nil
     else
       return 'unknown key type ' + key_type
     end
@@ -142,14 +165,21 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     keyspace = get_keyspace
+    max_results = datastore['LimitCount']
     keyspace.each do |space|
-      print_status("Extracting about #{space[1]} keys from database #{space[0]}")
+      if max_results
+        amount = "#{[space[1].to_i, max_results].min} of #{space[1]}"
+      else
+        amount = (space[1]).to_s
+      end
+      print_status("Extracting about #{amount} keys from database #{space[0]}")
       redis_command('SELECT', space[0])
       new_offset = '0'
       all_results = []
       loop do
         new_offset, results = scan(new_offset)
         all_results.concat(results)
+        break if max_results && all_results.count >= max_results
         break if new_offset == '0'
       end
 
