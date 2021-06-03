@@ -10,11 +10,14 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name' => 'Emby Version Checker',
-      'Description' => 'This module attempts to identify the version of an Emby Media Server running on a host. If you wish to see all the information available, set VERBOSE to true. Use in conjunction with emby_ssrf_scanner to locate devices vulnerable to CVE-2020-26948.',
+      'Name' => 'Emby Version Scanner',
+      'Description' => 'This module attempts to identify the version of an Emby Media Server running on a
+                        host. If you wish to see all the information available, set VERBOSE to true. Use in
+                        conjunction with emby_ssrf_scanner to locate devices vulnerable to CVE-2020-26948.',
       'Author' => 'Btnz',
       'License' => MSF_LICENSE,
-      'Disclosure Date' => 'September 1 2020',
+      'Disclosure Date' => '2020-10-01',
+      'RelatedModules' => ['auxiliary/scanner/http/emby_ssrf_scanner'],
       'References' =>
               [
                 ['CVE', '2020-26948'],
@@ -25,8 +28,8 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(8096),
-        OptString.new('BASEPATH', [true, 'The base path, usually just /', '/']),
-        OptInt.new('TIMEOUT', [true, 'Timeout for the version checker', 30])
+        OptString.new('TARGETURI', [true, 'The base path, usually just /', '/']),
+        OptInt.new('TIMEOUT', [true, 'Timeout for the version scanner', 30])
       ]
     )
     deregister_options('SSL')
@@ -34,19 +37,19 @@ class MetasploitModule < Msf::Auxiliary
 
   def run_host(ip)
     res = send_request_cgi({
-      'uri' => "#{datastore['BASEPATH']}System/Info/Public",
+      'uri' => "#{datastore['TARGETURI']}System/Info/Public",
       'method' => 'GET'
     }, datastore['TIMEOUT'])
     if res.nil? || res.code != 200
-      vprint_error('[Emby Version] failed to connect')
+      print_error('Failed to connect to an Emby Server')
       return
     end
 
     result = res.get_json_document
     print_status("Identifying Media Server Version on #{peer}")
-    print_good("[Media Server] URI: http://#{ip}:#{rport}#{datastore['BASEPATH']}")
+    print_good("[Media Server] URI: http://#{peer}#{datastore['TARGETURI']}")
     print_good("[Media Server] Version: #{result['Version']}")
-    print_good("[Media Server] Internal IP: #{result['LocalAddress']}")
+    print_good("[Media Server] Internal IP: #{result['LocalAddress']}") if ("#{result['LocalAddress']}") != ""
     print_good("*** Vulnerable to SSRF module auxiliary/scanner/emby_ssrf_scanner! ***") if Gem::Version.new("#{result['Version']}") < Gem::Version.new('4.5.0')
     report_service(
       host: rhost,
@@ -54,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       name: 'emby',
       info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})"
     )
-    print_status "All info: #{result}" if datastore['VERBOSE']
+    vprint_status "All info: #{result}"
     report_note(
       host: ip,
       port: rport,
@@ -63,7 +66,7 @@ class MetasploitModule < Msf::Auxiliary
       data: result['Version'],
       info: "Media Server v.#{result['Version']}"
     )
-    print_status('Saving host information.')
+    vprint_status('Saving host information.')
     report_host(
       host: ip,
       info: "Emby Server v.#{result['Version']} (LAN:#{result['LocalAddress']})"
