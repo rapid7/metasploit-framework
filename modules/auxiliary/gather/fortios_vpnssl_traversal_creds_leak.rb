@@ -111,7 +111,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def report_creds(creds)
-
     creds.each do |cred|
       cred = cred.gsub('"', '').gsub(/[{}:]/, '').split(', ')
       cred = cred.map do |h|
