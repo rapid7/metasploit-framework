@@ -84,7 +84,7 @@ class MetasploitModule < Msf::Auxiliary
       if rx[:title].empty?
         vprint_error("#{target_host}:#{p} No webpage title")
         next
-      end     
+      end
 
       rx_title = Rex::Text.html_decode(rx[:title])
       if datastore['SHOW_TITLES']

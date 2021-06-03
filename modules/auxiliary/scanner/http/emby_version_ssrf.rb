@@ -22,7 +22,7 @@ class MetasploitModule < Msf::Auxiliary
               [
                 ['CVE', '2020-26948'],
                 ['URL', 'https://github.com/btnz-k/emby_ssrf']
-              ]              
+              ]
     )
 
     register_options(
