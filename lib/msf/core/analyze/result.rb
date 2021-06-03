@@ -7,7 +7,7 @@ class Msf::Analyze::Result
   attr_reader :mod
   attr_reader :required
 
-  def initialize(host:, mod:, framework:, available_creds: nil, datastore: nil)
+  def initialize(host:, mod:, framework:, available_creds: nil, payloads: nil, datastore: nil)
     @host = host
     @mod = mod
     @required = []
@@ -15,13 +15,15 @@ class Msf::Analyze::Result
     @invalid = []
     @datastore = datastore&.transform_keys(&:downcase) || Hash.new
     @available_creds = available_creds
+    @wanted_payloads = payloads
     @framework = framework
 
     determine_likely_compatibility
   end
 
-  def evaluate(with: @datastore)
+  def evaluate(with: @datastore, payloads: @wanted_payloads)
     @datastore = with
+    @wanted_payloads = payloads
 
     determine_prerequisites
     self
@@ -85,6 +87,22 @@ class Msf::Analyze::Result
 
     @datastore.each_pair do |k, v|
       @mod.datastore[k] = v
+    end
+
+    target_idx = @mod.auto_targeted_index(@host)
+    if target_idx
+      @datastore['target'] = target_idx
+      @mod.datastore['target'] = target_idx
+    end
+
+    # Must come after the target so we know we match the target we want.
+    # TODO: feed available payloads into target selection
+    if @wanted_payloads
+      if p = @wanted_payloads.find { |p| @mod.is_payload_compatible?(p) }
+        @datastore['payload'] = p
+      else
+        @missing << :payload_match
+      end
     end
 
     @mod.validate
@@ -169,6 +187,8 @@ class Msf::Analyze::Result
         "open #{required_sessions_list} session required"
       when :credential
         "credentials are required"
+      when :payload_match
+        "none of the requested payloads match"
       when String
         "option #{m.inspect} needs to be set"
       end

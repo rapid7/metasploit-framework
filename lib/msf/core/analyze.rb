@@ -4,7 +4,7 @@ class Msf::Analyze
     @framework = framework
   end
 
-  def host(eval_host)
+  def host(eval_host, payloads: nil)
     unless eval_host.vulns
       return {}
     end
@@ -13,7 +13,7 @@ class Msf::Analyze
     vuln_families = group_vulns(eval_host.vulns)
 
     # finds all modules that have references matching those found on host vulns with service data
-    suggested_modules = suggest_modules_for_vulns(eval_host, vuln_families)
+    suggested_modules = suggest_modules_for_vulns(eval_host, vuln_families, payloads: payloads)
 
     {results: suggested_modules}
   end
@@ -60,7 +60,7 @@ class Msf::Analyze
     vuln_families
   end
 
-  def suggest_modules_for_vulns(eval_host, vuln_families)
+  def suggest_modules_for_vulns(eval_host, vuln_families, payloads: nil)
     mrefs, _mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_exploit_maps
     suggested_modules = []
 
@@ -78,7 +78,8 @@ class Msf::Analyze
             next if evaluated_module_targets.include?([fnd_mod, port])
 
             creds = @framework.db.creds(svcs: [svc.name])
-            r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
+            r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port},
+                           available_creds: creds, payloads: payloads, framework: @framework)
             if r.match?
               suggested_modules << r.evaluate
             end
@@ -98,7 +99,8 @@ class Msf::Analyze
       next if evaluated_module_targets.include?([fnd_mod, port])
 
       creds = @framework.db.creds(port: port) if port
-      r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port}, available_creds: creds, framework: @framework)
+      r = Result.new(mod: fnd_mod, host: eval_host, datastore: {'rport': port},
+                     available_creds: creds, payloads: payloads, framework: @framework)
 
       if r.match?
         suggested_modules << r.evaluate
