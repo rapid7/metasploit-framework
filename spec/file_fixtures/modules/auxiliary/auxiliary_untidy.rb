@@ -12,9 +12,8 @@ class MetasploitModule < Msf::Exploit
     super(
       update_info(
         info,
-        'Name'            => 'Untidy Auxiliary Module for RSpec'
-        'Description'     => 'Test!'
-        },
+        'Name'            => 'Untidy Auxiliary Module for RSpec',
+        'Description'     => 'Test!',
         'Author'         => %w(Unknown),
         'License'        => MSF_LICENSE,
       )
