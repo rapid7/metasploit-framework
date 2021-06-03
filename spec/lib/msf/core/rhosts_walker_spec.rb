@@ -511,24 +511,6 @@ RSpec.describe Msf::RhostsWalker do
         expect(each_host_for(smb_scanner_mod)).to have_datastore_values(expected)
       end
 
-      # TODO: Scanners in general are awkward because:
-      #   - the 'setup' method of scanner modules is called _before_ we've walked the RHOSTS to calculate the datastore options. Some setup methods validate options.
-      #      Example:
-      # ```
-      # use auxiliary/admin/smb/download_file
-      # set rhosts smb://alan:a@192.168.222.135/my_share/helloworld.txt
-      # run
-      # ```
-      #   - the OptionsContainer attempts validation _before_ we've walked the RHOSTS to calculate the datastore options.
-      #     Example:
-      # ```
-      # use scanner/smb/impacket/secretsdump
-      # set rhosts smb://alan:a@192.168.222.135
-      # run
-      # [-] Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: SMBPass, SMBUser.
-      #   ^--> validate happens before 'run' is called, which actually invokes the rhosts walker for scanners
-      # ```
-      # At the minute both master and this branch copy/pasta RHOSTS validation checks into the module dispatchers, and bypass datastore validation entirely.
       it 'enumerates smb schemes for scanners when a user and password are specified' do
         smb_scanner_mod.datastore['RHOSTS'] = 'smb://user:pass@example.com/'
         expected = [

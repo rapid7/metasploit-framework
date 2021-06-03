@@ -86,9 +86,9 @@ module Msf
     # @param datastore [Msf::Datastore] the datastore
     # @return [Enumerable<Msf::DataStore|StandardError>] The calculated datastore values that can be iterated over for
     #   enumerating the given rhosts, or the error that occurred when iterating over the input
-    def parse(input, datastore)
+    def parse(value, datastore)
       Enumerator.new do |results|
-        values = input.to_s.split(', ').map { |line| line.split(' ') }.flatten
+        values = value.to_s.split(', ').map { |line| line.split(' ') }.flatten
         values.each do |value|
           if (value =~ %r{^file://(.*)}) || (value =~ /^file:(.*)/)
             file = Regexp.last_match(1)
@@ -100,12 +100,16 @@ module Msf
           elsif value.start_with?('smb:')
             smb_options = parse_smb_uri(value, datastore)
             Rex::Socket::RangeWalker.new(smb_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(smb_options.merge('RHOSTS' => ip))
+              results << datastore.merge(
+                smb_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
+              )
             end
           elsif value.start_with?('http:') || value.start_with?('https:')
             http_options = parse_http_uri(value, datastore)
             Rex::Socket::RangeWalker.new(http_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(http_options.merge('RHOSTS' => ip))
+              results << datastore.merge(
+                http_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
+              )
             end
           elsif value =~ /^cidr:(.*)/
             range, value = Regexp.last_match(1).split(':', 2)
@@ -114,7 +118,7 @@ module Msf
             parse(value, datastore).each do |result|
               host_with_cidr = result['RHOSTS'] + range
               Rex::Socket::RangeWalker.new(host_with_cidr).each_ip do |rhost|
-                results << result.merge('RHOSTS' => rhost)
+                results << result.merge('RHOSTS' => rhost, 'TODO_RHOST_SCHEMA_VALUE' => value)
               end
             end
           else
