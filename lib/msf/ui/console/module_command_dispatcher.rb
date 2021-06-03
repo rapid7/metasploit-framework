@@ -141,23 +141,23 @@ module ModuleCommandDispatcher
     ip_range_arg = args.join(' ') unless args.empty?
     ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
 
-    rhosts_walker = Msf::RhostsWalker.new(ip_range_arg, mod.datastore)
-    unless rhosts_walker.valid?
-      invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
-      print_error("Auxiliary failed: option RHOSTS failed to validate")
-      print_error("Unexpected values: #{invalid_values.join(', ')}") if invalid_values.any?
-      return false
-    end
-
     begin
       nmod = mod.replicant
       nmod.datastore['RHOSTS'] = ip_range_arg
+      begin
+        nmod.validate
+      rescue ::Msf::OptionValidateError => e
+        ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+        return false
+      end
+
       begin
         check_multiple(nmod)
       ensure
         # TODO: Why isn't this part of check_multiple / check_simple already? Bug?
         nmod.cleanup
       end
+
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they

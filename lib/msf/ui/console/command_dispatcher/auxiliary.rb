@@ -53,10 +53,12 @@ class Auxiliary
 
     rhosts = mod.datastore['RHOSTS']
     rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore)
-    if datastore.options.include?('RHOSTS') && !rhosts_walker.valid?
-      invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
-      print_error("Auxiliary failed: option RHOSTS failed to validate")
-      print_error("Unexpected values: #{invalid_values.join(', ')}") if invalid_values.any?
+
+    begin
+      # TODO: Doesn't always work because of OptionStr
+      mod.validate
+    rescue ::Msf::OptionValidateError => e
+      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
       return false
     end
 
@@ -98,6 +100,8 @@ class Auxiliary
       end
     rescue ::Interrupt
       print_error("Auxiliary interrupted by the console user")
+    rescue ::Msf::OptionValidateError => e
+      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
     rescue ::Exception => e
       print_error("Auxiliary failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
