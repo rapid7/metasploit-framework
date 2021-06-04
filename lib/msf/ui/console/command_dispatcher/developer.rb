@@ -23,7 +23,8 @@ class Msf::Ui::Console::CommandDispatcher::Developer
       'pry'        => 'Open the Pry debugger on the current module or Framework',
       'edit'       => 'Edit the current module or a file with the preferred editor',
       'reload_lib' => 'Reload Ruby library files from specified paths',
-      'log'        => 'Display framework.log paged to the end if possible'
+      'log'        => 'Display framework.log paged to the end if possible',
+      'time'       => 'Time how long it takes to run a particular command'
     }
   end
 
@@ -109,16 +110,18 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     if expressions.empty?
       print_status('Starting IRB shell...')
 
-      begin
-        if active_module
-          print_status("You are in #{active_module.fullname}\n")
-          Rex::Ui::Text::IrbShell.new(active_module).run
-        else
-          print_status("You are in the \"framework\" object\n")
-          Rex::Ui::Text::IrbShell.new(framework).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        begin
+          if active_module
+            print_status("You are in #{active_module.fullname}\n")
+            Rex::Ui::Text::IrbShell.new(active_module).run
+          else
+            print_status("You are in the \"framework\" object\n")
+            Rex::Ui::Text::IrbShell.new(framework).run
+          end
+        rescue
+          print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
         end
-      rescue
-        print_error("Error during IRB: #{$!}\n\n#{$@.join("\n")}")
       end
 
       # Reset tab completion
@@ -169,14 +172,16 @@ class Msf::Ui::Console::CommandDispatcher::Developer
 
     print_status('Starting Pry shell...')
 
-    unless active_module
-      print_status("You are in the \"framework\" object\n")
-      framework.pry
-      return
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      if active_module
+        print_status("You are in the \"#{active_module.fullname}\" module object\n")
+        active_module.pry
+      else
+        print_status("You are in the \"framework\" object\n")
+        framework.pry
+      end
     end
-
-    print_status("You are in #{active_module.fullname}\n")
-    active_module.pry
   end
 
   def cmd_edit_help
@@ -307,4 +312,29 @@ class Msf::Ui::Console::CommandDispatcher::Developer
     end
   end
 
+  #
+  # Time how long in seconds a command takes to execute
+  #
+  def cmd_time(*args)
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    command = args.join(' ')
+    driver.run_single(command)
+  ensure
+    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    elapsed_time = end_time - start_time
+    print_good("Command #{command.inspect} completed in #{elapsed_time} seconds")
+  end
+
+  def cmd_time_help
+    print_line 'Usage: time [command]'
+    print_line
+    print_line 'Time how long a command takes to execute in seconds'
+    print_line
+    print_line '   Usage:'
+    print_line '      * time db_import ./db_import.html'
+    print_line '      * time show exploits'
+    print_line '      * time reload_all'
+    print_line '      * time missing_command'
+    print_line
+  end
 end

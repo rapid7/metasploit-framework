@@ -32,7 +32,9 @@ module Msf
         left_value = mod.datastore[left_source] || opt.default
       end
 
-      eval_condition(left_value, operator, right_value)
+      show = eval_condition(left_value, operator, right_value)
+      show ||= eval_condition(left_value.to_s, operator, right_value) if left_value.is_a?(Symbol)
+      show
     end
 
   end

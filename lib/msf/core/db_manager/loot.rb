@@ -16,6 +16,7 @@ module Msf::DBManager::Loot
         return Array.wrap(Mdm::Loot.find(opts[:id]))
       end
 
+      opts = opts.clone() # protect the original caller's opts
       # Remove path from search conditions as this won't accommodate remote data
       # service usage where the client and server storage locations differ.
       opts.delete(:path)

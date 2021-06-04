@@ -50,10 +50,6 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
-  def default_cred?
-    true
-  end
-
   def ipmi_status(msg)
     vprint_status("#{rhost}:#{rport} - IPMI - #{msg}")
   end

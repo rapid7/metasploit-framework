@@ -12,6 +12,8 @@ require 'fileutils'
 require 'find'
 require 'time'
 
+SUPPRESS_INFO_MESSAGES = !!ENV['MSF_SUPPRESS_INFO_MESSAGES']
+
 class String
   def red
     "\e[1;31;40m#{self}\e[0m"
@@ -178,7 +180,8 @@ class MsftidyDoc
     end
 
     unless has_options
-      warn('Missing Section: ## Options')
+      # INFO because there may be no documentation-worthy options
+      info('Missing Section: ## Options')
     end
 
     if has_bad_description
@@ -200,9 +203,9 @@ class MsftidyDoc
     end
   end
 
-  # This checks that the H2 headings are in teh right order.
+  # This checks that the H2 headings are in the right order. Options are optional.
   def h2_order
-    unless @source =~ /^## Vulnerable Application$.+^## Verification Steps$.+^## Options$.+^## Scenarios$/m
+    unless @source =~ /^## Vulnerable Application$.+^## Verification Steps$.+(?:^## Options$.+)?^## Scenarios$/m
       warn('H2 headings in incorrect order.  Should be: Vulnerable Application, Verification Steps, Options, Scenarios')
     end
   end

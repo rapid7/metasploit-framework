@@ -48,7 +48,6 @@ class MetasploitModule < Msf::Post
       OptBool.new('NoSaveCache', [false, 'Dont save the cache file to disk', true]),
       OptString.new('ZipFileName', [false, 'Zip Output File Name.  Blank for random', '']),
     ])
-
   end
 
   # Options removed or changed in sharphound v2 to sharphound v3

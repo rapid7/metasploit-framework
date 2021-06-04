@@ -51,6 +51,15 @@ module Auxiliary::CommandShell
     framework.sessions.register(sess)
     sess.process_autoruns(datastore)
 
+    # Notify the framework that we have a new session opening up...
+    # Don't let errant event handlers kill our session
+    begin
+      framework.events.on_session_open(sess)
+    rescue ::Exception => e
+      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
     sess
   end
 

@@ -2,6 +2,7 @@
 # -*- coding: binary -*-
 #
 # Starts the HTTP DB Service interface
+# TODO: This functionality exists within the top level msfdb.rb, and should be merged
 
 require 'optparse'
 

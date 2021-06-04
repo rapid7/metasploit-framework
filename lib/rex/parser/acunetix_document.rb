@@ -76,7 +76,7 @@ module Rex
         end
       when "StartTime"
         @state[:has_text] = false
-        @state[:timestamp] = @text.to_s.tr!(',','').tr!('/','-')
+        @state[:timestamp] = @text.to_time
         @text = nil
       when "Text"
         @state[:has_text] = false

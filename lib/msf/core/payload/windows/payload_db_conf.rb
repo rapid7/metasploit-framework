@@ -20,7 +20,7 @@ module Msf::Payload::Windows::PayloadDBConf
     payload_uuid = conf['uuid']
     conf.delete('uuid')
 
-    saved_payload = framework.db.get_payload(uuid: payload_uuid)
+    saved_payload = framework.db.payloads(uuid: payload_uuid).first
     if saved_payload
       framework.db.update_payload(id: saved_payload.id, build_opts: conf)
     else
@@ -40,7 +40,7 @@ module Msf::Payload::Windows::PayloadDBConf
   def retrieve_conf_from_db(uuid=nil)
     return nil unless (framework.db && framework.db.active)
 
-    curr_payload = framework.db.get_payload(uuid: uuid)
+    curr_payload = framework.db.payloads(uuid: uuid).first
     return nil unless curr_payload && curr_payload[:build_opts]
 
     return curr_payload[:build_opts]

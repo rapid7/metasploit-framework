@@ -116,7 +116,8 @@ class Console::CommandDispatcher::Core
 
     # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
     # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
-    # filtering for Windows which supports all the filtered commands anyways.
+    # filtering for Windows which supports all the filtered commands anyways. This is not the only instance of this
+    # workaround.
     reqs.clear if client.base_platform == 'windows'
 
     filter_commands(cmds, reqs)
@@ -582,8 +583,9 @@ class Console::CommandDispatcher::Core
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"client\" (session) object\n")
-
-      Rex::Ui::Text::IrbShell.new(client).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        Rex::Ui::Text::IrbShell.new(client).run
+      end
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -620,7 +622,10 @@ class Console::CommandDispatcher::Core
     print_status('Starting Pry shell...')
     print_status("You are in the \"client\" (session) object\n")
 
-    client.pry
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      client.pry
+    end
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
@@ -1304,7 +1309,7 @@ class Console::CommandDispatcher::Core
       end
 
       if (extensions.include?(md))
-        print_error("The \"#{md}\" extension has already been loaded.")
+        print_warning("The \"#{md}\" extension has already been loaded.")
         next
       end
 

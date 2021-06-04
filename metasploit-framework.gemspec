@@ -61,18 +61,18 @@ Gem::Specification.new do |spec|
   # Metasm compiler/decompiler/assembler
   spec.add_runtime_dependency 'metasm'
   # Metasploit::Concern hooks
-  spec.add_runtime_dependency 'metasploit-concern'
+  spec.add_runtime_dependency 'metasploit-concern', '~> 3.0.0'
   # Metasploit::Credential database models
-  spec.add_runtime_dependency 'metasploit-credential'
+  spec.add_runtime_dependency 'metasploit-credential', '~> 4.0.0'
   # Database models shared between framework and Pro.
-  spec.add_runtime_dependency 'metasploit_data_models'
+  spec.add_runtime_dependency 'metasploit_data_models', '~> 4.1.0'
   # Things that would normally be part of the database model, but which
   # are needed when there's no database
-  spec.add_runtime_dependency 'metasploit-model'
+  spec.add_runtime_dependency 'metasploit-model', '~> 3.1.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.37'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.45'
   # Needed for the next-generation POSIX Meterpreter
-  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.6'
+  spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.9'
   # Needed by msfgui and other rpc components
   spec.add_runtime_dependency 'msgpack'
   # get list of network interfaces, like eth* from OS.
@@ -105,6 +105,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'thin'
   spec.add_runtime_dependency 'sinatra'
   spec.add_runtime_dependency 'warden'
+  spec.add_runtime_dependency 'swagger-blocks'
   # Required for JSON-RPC client
   spec.add_runtime_dependency 'em-http-request'
   # TimeZone info
@@ -117,6 +118,8 @@ Gem::Specification.new do |spec|
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.3.0')
     spec.add_runtime_dependency 'xmlrpc'
   end
+  # Gem for handling Cookies
+  spec.add_runtime_dependency 'http-cookie'
 
   #
   # File Parsing Libraries

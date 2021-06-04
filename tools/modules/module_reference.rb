@@ -28,7 +28,7 @@ require 'uri'
 def types
   {
     'ALL'         => '',
-    'CVE'         => 'http://cvedetails.com/cve/#{in_ctx_val}/',
+    'CVE'         => 'https://nvd.nist.gov/vuln/detail/CVE-#{in_ctx_val}',
     'CWE'         => 'http://cwe.mitre.org/data/definitions/#{in_ctx_val}.html',
     'BID'         => 'http://www.securityfocus.com/bid/#{in_ctx_val}',
     'MSB'         => 'http://technet.microsoft.com/en-us/security/bulletin/#{in_ctx_val}',

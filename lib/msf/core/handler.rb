@@ -228,26 +228,29 @@ protected
       if opts[:payload_uuid]
         s.payload_uuid = opts[:payload_uuid]
         s.payload_uuid.registered = false
-
         if framework.db.active
-          payload_info = {
-              uuid: s.payload_uuid.puid_hex,
-              workspace: framework.db.workspace
-          }
-          if s.payload_uuid.respond_to?(:puid_hex) && (uuid_info = framework.db.payloads(payload_info).first)
-            s.payload_uuid.registered = true
-            s.payload_uuid.name = uuid_info['name']
-            s.payload_uuid.timestamp = uuid_info['timestamp']
-          else
-            s.payload_uuid.registered = false
-          end
+          payload_info = { uuid: s.payload_uuid.puid_hex, workspace: framework.db.workspace }
+          uuid_info = framework.db.payloads(payload_info).first
+        else
+          print_warning('Without a database connected that payload UUID tracking will not work!')
+        end
+        if s.payload_uuid.respond_to?(:puid_hex) && uuid_info
+          s.payload_uuid.registered = true
+          s.payload_uuid.name = uuid_info['name']
+          s.payload_uuid.timestamp = uuid_info['timestamp']
+        else
+          s.payload_uuid.registered = false
         end
       end
 
       # If the session is valid, register it with the framework and
       # notify any waiters we may have.
       if (s)
-        register_session(s)
+        # Defer the session registration to the Session Manager scheduler
+        registration = Proc.new do
+          register_session(s)
+        end
+        framework.sessions.schedule registration
       end
 
       return s
@@ -266,12 +269,25 @@ protected
     # Call the handler's on_session() method
     if session.respond_to?(:bootstrap)
       session.bootstrap(datastore, self)
-    else
-      # Process the auto-run scripts for this session
-      if session.respond_to?(:process_autoruns)
-        session.process_autoruns(datastore)
-      end
-      on_session(session)
+
+      return unless session.alive
+    end
+
+    # Process the auto-run scripts for this session
+    if session.respond_to?(:process_autoruns)
+      session.process_autoruns(datastore)
+    end
+
+    # Tell the handler that we have a session
+    on_session(session)
+
+    # Notify the framework that we have a new session opening up...
+    # Don't let errant event handlers kill our session
+    begin
+      framework.events.on_session_open(session)
+    rescue ::Exception => e
+      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
     end
 
     # If there is an exploit associated with this payload, then let's notify

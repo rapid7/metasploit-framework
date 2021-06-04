@@ -26,6 +26,10 @@ module Msf::WebServices
       def framework
         settings.framework
       end
+
+      def get_db
+        framework.db
+      end
     end
 
     def self.registered(app)
@@ -35,50 +39,41 @@ module Msf::WebServices
       app.set :data_service_api_token, ENV.fetch('MSF_WS_DATA_SERVICE_API_TOKEN', nil)
       app.set :data_service_cert, ENV.fetch('MSF_WS_DATA_SERVICE_CERT', nil)
       app.set :data_service_skip_verify, to_bool(ENV.fetch('MSF_WS_DATA_SERVICE_SKIP_VERIFY', false))
+
       @@framework = nil
       # Create simplified instance of the framework
-      app.set :framework, Proc.new {
+      app.set :framework, (proc {
         @@framework ||= begin
           init_framework_opts = {
-            'Logger' => ENV.fetch('MSF_WS_DATA_SERVICE_LOGGER', nil)
+            'Logger' => ENV.fetch('MSF_WS_DATA_SERVICE_LOGGER', nil),
+            # SkipDatabaseInit false is the default behavior, however for explicitness - note that framework first
+            # connects to a local database as a pre-requisite to connecting to a remote service to correctly
+            # configure active record
+            'SkipDatabaseInit' => false
           }
           framework = Msf::Simple::Framework.create(init_framework_opts)
-
-          if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
-            framework_db_connect_http_data_service(framework: framework,
-                                                   data_service_url: app.settings.data_service_url,
-                                                   api_token: app.settings.data_service_api_token,
-                                                   cert: app.settings.data_service_cert,
-                                                   skip_verify: app.settings.data_service_skip_verify)
-          end
+          Msf::WebServices::FrameworkExtension.db_connect(framework, app)
 
           framework
         end
-      }
+      })
     end
 
-    def self.framework_db_connect_http_data_service(
-        framework:, data_service_url:, api_token: nil, cert: nil, skip_verify: false)
-      # local database is required to use Mdm objects
-      unless framework.db.active
-        raise "No local database connected"
+    def self.db_connect(framework, app)
+      if !app.settings.data_service_url.nil? && !app.settings.data_service_url.empty?
+        options = {
+          url: app.settings.data_service_url,
+          api_token: app.settings.data_service_api_token,
+          cert: app.settings.data_service_cert,
+          skip_verify: app.settings.data_service_skip_verify
+        }
+        db_result = Msf::DbConnector.db_connect(framework, options)
+      else
+        db_result = Msf::DbConnector.db_connect_from_config(framework)
       end
 
-      opts = {}
-      https_opts = {}
-      opts[:url] = data_service_url unless data_service_url.nil?
-      opts[:api_token] = api_token unless api_token.nil?
-      https_opts[:cert] = cert unless cert.nil?
-      https_opts[:skip_verify] = skip_verify if skip_verify
-      opts[:https_opts] = https_opts unless https_opts.empty?
-
-      begin
-        uri = URI.parse(data_service_url)
-        remote_data_service = Metasploit::Framework::DataService::RemoteHTTPDataService.new(uri.to_s, opts)
-        framework.db.register_data_service(remote_data_service)
-        framework.db.workspace = framework.db.default_workspace
-      rescue => e
-        raise "Failed to connect to the HTTP data service: #{e.message}"
+      if db_result[:error]
+        raise db_result[:error]
       end
     end
 

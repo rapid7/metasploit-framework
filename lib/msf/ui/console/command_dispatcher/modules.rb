@@ -21,7 +21,9 @@ module Msf
             '-I' => [false, 'Ignore the command if the only match has the same name as the search'],
             '-o' => [true,  'Send output to a file in csv format'],
             '-S' => [true,  'Regex pattern used to filter search results'],
-            '-u' => [false, 'Use module if there is one result']
+            '-u' => [false, 'Use module if there is one result'],
+            '-s' => [true, 'Sort search results by the specified column in ascending order'],
+            '-r' => [true, 'Reverse the order of search results to descending order']
           )
 
           @@favorite_opts = Rex::Parser::Arguments.new(
@@ -342,10 +344,12 @@ module Msf
             print_line "If no options or keywords are provided, cached results are displayed."
             print_line
             print_line "OPTIONS:"
-            print_line "  -h                Show this help information"
-            print_line "  -o <file>         Send output to a file in csv format"
-            print_line "  -S <string>       Regex pattern used to filter search results"
-            print_line "  -u                Use module if there is one result"
+            print_line "  -h                   Show this help information"
+            print_line "  -o <file>            Send output to a file in csv format"
+            print_line "  -S <string>          Regex pattern used to filter search results"
+            print_line "  -u                   Use module if there is one result"
+            print_line "  -s <search_column>   Sort the research results based on <search_column> in ascending order"
+            print_line "  -r                   Reverse the search results order to descending order"
             print_line
             print_line "Keywords:"
             {
@@ -370,12 +374,26 @@ module Msf
               'target'      => 'Modules affecting this target',
               'type'        => 'Modules of a specific type (exploit, payload, auxiliary, encoder, evasion, post, or nop)',
             }.each_pair do |keyword, description|
-              print_line "  #{keyword.ljust 12}:  #{description}"
+              print_line "  #{keyword.ljust 17}:  #{description}"
+            end
+            print_line
+            print_line "Supported search columns:"
+            {
+              'rank'                 => 'Sort modules by their exploitabilty rank',
+              'date'                 => 'Sort modules by their disclosure date. Alias for disclosure_date',
+              'disclosure_date'      => 'Sort modules by their disclosure date',
+              'name'                 => 'Sort modules by their name',
+              'type'                 => 'Sort modules by their type',
+              'check'                => 'Sort modules by whether or not they have a check method',
+            }.each_pair do |keyword, description|
+              print_line "  #{keyword.ljust 17}:  #{description}"
             end
             print_line
             print_line "Examples:"
             print_line "  search cve:2009 type:exploit"
             print_line "  search cve:2009 type:exploit platform:-linux"
+            print_line "  search cve:2009 -s name"
+            print_line "  search type:exploit -s type -r"
             print_line
           end
 
@@ -390,7 +408,9 @@ module Msf
             use          = false
             count        = -1
             search_terms = []
-
+            sort         = 'name'
+            sort_options = ['rank','disclosure_date','name','date','type','check']
+            desc         = false
             ignore_use_exact_match = false
 
             @@search_opts.parse(args) do |opt, idx, val|
@@ -406,6 +426,10 @@ module Msf
                 use = true
               when '-I'
                 ignore_use_exact_match = true
+              when '-s'
+                sort = val
+              when '-r'
+                desc = true
               else
                 match += val + ' '
               end
@@ -426,6 +450,24 @@ module Msf
               else
                 search_params = Msf::Modules::Metadata::Search.parse_search_string(match)
                 @module_search_results = Msf::Modules::Metadata::Cache.instance.find(search_params)
+
+                if sort and sort_options.include?(sort)
+                  if sort == 'date'
+                    sort = 'disclosure_date'
+                  end
+                  if sort != 'check'
+                    @module_search_results.sort_by! { |meta| meta.send(sort) }
+                  else
+                    @module_search_results.sort_by! { |meta| meta.send(sort) ? 0 : 1} # Taken from https://stackoverflow.com/questions/14814966/is-it-possible-to-sort-a-list-of-objects-depending-on-the-individual-objects-re
+                  end
+                elsif sort
+                  print_error("Supported options for the -s flag are: #{sort_options}")
+                  return false
+                end
+
+                if desc
+                  @module_search_results.reverse!
+                end
               end
 
               if @module_search_results.empty?
@@ -985,7 +1027,7 @@ module Msf
               driver.destack_dispatcher
             end
           end
-        
+
           def cmd_favorite_help
             print_line 'Usage: favorite [mod1 mod2 ...]'
             print_line
@@ -1115,7 +1157,7 @@ module Msf
             writable = false
             readable = false
             contents = ''
-            
+
             if File.exists?(favs_file)
               exists = true
             end
@@ -1287,45 +1329,50 @@ module Msf
           # Module list enumeration
           #
 
-          def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
+          def show_encoders # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible encoders and display them
             if (active_module and active_module.exploit? == true)
-              show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank, opts)
+              show_module_metadata('Compatible Encoders', active_module.compatible_encoders)
             else
-              show_module_set("Encoders", framework.encoders, regex, minrank, opts)
+              show_module_metadata('Encoders', 'encoder')
             end
           end
 
-          def show_nops(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("NOP Generators", framework.nops, regex, minrank, opts)
+          def show_nops # :nodoc:
+            show_module_metadata('NOP Generators', 'nop')
           end
 
-          def show_exploits(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Exploits", framework.exploits, regex, minrank, opts)
+          def show_exploits # :nodoc:
+            show_module_metadata('Exploits', 'exploit')
           end
 
-          def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
+          def show_payloads # :nodoc:
             # If an active module has been selected and it's an exploit, get the
             # list of compatible payloads and display them
             if active_module && (active_module.exploit? || active_module.evasion?)
               @@payload_show_results = active_module.compatible_payloads
 
-              show_module_set('Compatible Payloads', @@payload_show_results, regex, minrank, opts)
+              show_module_metadata('Compatible Payloads', @@payload_show_results)
             else
-              show_module_set('Payloads', framework.payloads, regex, minrank, opts)
+              # show_module_set(‘Payloads’, framework.payloads, regex, minrank, opts)
+              show_module_metadata('Payloads', 'payload')
             end
           end
 
-          def show_auxiliary(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts)
+          def show_auxiliary # :nodoc:
+            show_module_metadata('Auxiliary','auxiliary')
           end
 
-          def show_post(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set("Post", framework.post, regex, minrank, opts)
+          def show_post # :nodoc:
+            show_module_metadata('Post','post')
           end
 
-          def show_favorites(regex = nil, minrank = nil, opts = nil) # :nodoc:
+          def show_evasion # :nodoc:
+            show_module_metadata('Evasion','evasion')
+          end
+
+          def show_favorites # :nodoc:
             favs_file = Msf::Config.fav_modules_file
 
             unless File.exists?(favs_file)
@@ -1350,7 +1397,7 @@ module Msf
               module_name = mod.strip
               fav_modules[module_name] = framework.modules[module_name]
             end
-            show_module_set("Favorites", fav_modules, regex, minrank, opts)
+            show_module_metadata('Favorites', fav_modules)
           end
 
           def show_missing(mod) # :nodoc:
@@ -1374,10 +1421,6 @@ module Msf
                 print("\nPayload options (#{mod.datastore['PAYLOAD']}):\n\n#{p_opt}\n") if (p_opt and p_opt.length > 0)
               end
             end
-          end
-
-          def show_evasion(regex = nil, minrank = nil, opts = nil) # :nodoc:
-            show_module_set('evasion', framework.evasion, regex, minrank, opts)
           end
 
           def show_global_options
@@ -1485,55 +1528,64 @@ module Msf
             print(tbl.to_s)
           end
 
-          def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
+          # @param [table_name] used to name table
+          # @param [module_filter] this will either be a modules fullname, or it will be an Array(show payloads/encoders)
+          # or a Hash(show favorites) containing fullname
+          # @param [compatible_mod] handles logic for if there is an active module when the
+          # `show` command is run
+          #
+          # Handles the filtering of modules that will be generated into a table
+          def show_module_metadata(table_name, module_filter)
             count = -1
+            tbl = generate_module_table(table_name)
 
-            tbl = generate_module_table(type)
+            if module_filter.is_a?(Array) || module_filter.is_a?(Hash)
+              module_filter.sort.each do |_mod_fullname, mod_obj|
+                mod = nil
 
-            module_set.sort.each { |refname, mod|
-              o = nil
-
-              begin
-                o = mod.new
-              rescue ::Exception
-              end
-              next if not o
-
-              # handle a search string, search deep
-              if (
-              not regex or
-                o.name.match(regex) or
-                o.description.match(regex) or
-                o.refname.match(regex) or
-                o.references.map{|x| [x.ctx_id + '-' + x.ctx_val, x.to_s]}.join(' ').match(regex) or
-                o.author.to_s.match(regex)
-              )
-                if (not minrank or minrank <= o.rank)
-                  show = true
-                  if opts
-                    mod_opt_keys = o.options.keys.map { |x| x.downcase }
-
-                    opts.each do |opt,val|
-                      if !mod_opt_keys.include?(opt.downcase) || (val != nil && o.datastore[opt] != val)
-                        show = false
-                      end
-                    end
-                  end
-                  if (opts == nil or show == true)
-                    tbl << [
-                      count += 1,
-                      refname,
-                      o.disclosure_date.nil? ? "" : o.disclosure_date.strftime("%Y-%m-%d"),
-                      o.rank,
-                      o.has_check? ? 'Yes' : 'No',
-                      o.name
-                    ]
-                  end
+                begin
+                  mod = mod_obj.new
+                rescue ::Exception
                 end
-              end
-            }
+                next unless mod
 
+                count += 1
+                tbl << add_record(mod, count, true)
+              end
+            else
+              results = Msf::Modules::Metadata::Cache.instance.find(
+                'type' => [[module_filter], []]
+              )
+              # Loop over each module and gather data
+              results.each do |mod, _value|
+                count += 1
+                tbl << add_record(mod, count, false)
+              end
+            end
             print(tbl.to_s)
+          end
+
+          # @param [mod] current module being passed in
+          # @param [count] passes the count for each record
+          # @param [compatible_mod] handles logic for if there is an active module when the
+          # `show` command is run
+          #
+          # Adds a record for a table, also handle logic for whether the module is currently
+          # handling compatible payloads/encoders
+          def add_record(mod, count, compatible_mod)
+            if compatible_mod
+              check = mod.has_check? ? 'Yes' : 'No'
+            else
+              check = mod.check ? 'Yes' : 'No'
+            end
+            [
+              count,
+              mod.fullname,
+              mod.disclosure_date.nil? ? '' : mod.disclosure_date.strftime('%Y-%m-%d'),
+              mod.rank,
+              check,
+              mod.name
+            ]
           end
 
           def generate_module_table(type, search_terms = [], row_filter = nil) # :nodoc:

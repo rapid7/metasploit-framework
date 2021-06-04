@@ -228,27 +228,6 @@ module System
   end
 
   #
-  # Gets the process id(s) of `program`
-  # @return [Array]
-  #
-  def pidof(program)
-    pids = []
-    full = cmd_exec('ps aux').to_s
-    full.split("\n").each do |pid|
-      pids << pid.split(' ')[1].to_i if pid.include? program
-    end
-    pids
-  end
-
-  #
-  # Gets the uid of a pid
-  # @return [String]
-  #
-  def pid_uid(pid)
-    read_file("/proc/#{pid}/status").to_s
-  end
-
-  #
   # Checks if `file_path` is mounted on a noexec mount point
   # @return [Boolean]
   #

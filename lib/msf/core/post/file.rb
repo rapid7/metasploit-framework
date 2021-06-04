@@ -1,8 +1,29 @@
 # -*- coding: binary -*-
 #
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
+require 'rex/post/file_stat'
 
 module Msf::Post::File
+
+  include Msf::Post::Common
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
+        core_channel_*
+        stdapi_fs_chdir
+        stdapi_fs_delete_dir
+        stdapi_fs_delete_file
+        stdapi_fs_file_expand_path
+        stdapi_fs_file_move
+        stdapi_fs_getwd
+        stdapi_fs_ls
+        stdapi_fs_mkdir
+        stdapi_fs_stat
+      } } }
+    ))
+  end
 
   #
   # Change directory in the remote session to +path+, which may be relative or
@@ -160,18 +181,8 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def setuid?(path)
-    if session.type == 'meterpreter'
-      stat = session.fs.file.stat(path) rescue nil
-      return false unless stat
-      return stat.setuid?
-    else
-      if session.platform != 'windows'
-        f = session.shell_command_token("test -u \"#{path}\" && echo true")
-      end
-      return false if f.nil? || f.empty?
-      return false unless f =~ /true/
-      true
-    end
+    stat = stat(path)
+    stat.setuid?
   end
 
   #
@@ -692,4 +703,41 @@ protected
 
     line_max
   end
+
+  def stat(filename)
+    if session.type == 'meterpreter'
+      return session.fs.file.stat(filename)
+    else
+      raise NotImplementedError if session.platform == 'windows'
+      raise "`stat' command doesn't exist on target system" unless command_exists?('stat')
+      return FileStat.new(filename, session)
+    end
+  end
+
+
+  class FileStat < Rex::Post::FileStat
+  
+    attr_accessor :stathash
+
+    def initialize(filename, session)
+      data = session.shell_command_token("stat --format='%d,%i,%h,%u,%g,%t,%s,%B,%o,%X,%Y,%Z,%f' '#{filename}'").to_s.chomp
+      raise 'format argument of stat command not behaving as expected' unless data =~ /(\d+,){12}\w+/
+      data = data.split(",")
+      @stathash = Hash.new
+      @stathash['st_dev'] = data[0].to_i
+      @stathash['st_ino'] = data[1].to_i
+      @stathash['st_nlink'] = data[2].to_i
+      @stathash['st_uid'] = data[3].to_i
+      @stathash['st_gid'] = data[4].to_i
+      @stathash['st_rdev'] = data[5].to_i
+      @stathash['st_size'] = data[6].to_i
+      @stathash['st_blksize'] = data[7].to_i
+      @stathash['st_blocks'] = data[8].to_i
+      @stathash['st_atime'] = data[9].to_i
+      @stathash['st_mtime'] = data[10].to_i
+      @stathash['st_ctime'] = data[11].to_i
+      @stathash['st_mode'] = data[12].to_i(16) #stat command returns hex value of mode" 
+    end
+  end
+
 end

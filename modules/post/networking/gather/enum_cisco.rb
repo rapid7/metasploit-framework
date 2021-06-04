@@ -28,7 +28,6 @@ class MetasploitModule < Msf::Post
         OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
       ]
     )
-
   end
 
   def run

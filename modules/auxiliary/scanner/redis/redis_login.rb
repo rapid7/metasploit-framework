@@ -18,7 +18,7 @@ class MetasploitModule < Msf::Auxiliary
       update_info(
         info,
         'Name'         => 'Redis Login Utility',
-        'Description'  => 'This module attempts to authenticate to an REDIS service.',
+        'Description'  => 'This module attempts to authenticate to an Redis service.',
         'Author'       => [ 'Nixawk' ],
         'References'   => [
           ['URL', 'http://redis.io/topics/protocol']
@@ -39,7 +39,26 @@ class MetasploitModule < Msf::Auxiliary
     deregister_options('USERNAME', 'USER_AS_PASS', 'USERPASS_FILE', 'USER_FILE', 'DB_ALL_USERS', 'DB_ALL_CREDS', 'PASSWORD_SPRAY')
   end
 
+  def requires_password?(_ip)
+    connect
+    command_response = send_redis_command('INFO')
+    !(command_response && REDIS_UNAUTHORIZED_RESPONSE !~ command_response)
+  end
+
   def run_host(ip)
+    unless requires_password?(ip)
+      print_good "#{peer} - No password is required."
+      report_vuln(
+        host: ip,
+        port: rport,
+        proto: 'tcp',
+        sname: 'redis',
+        name: 'Unauthenticated Redis Access',
+        info: "Module #{fullname} confirmed unauthenticated access to the Redis service"
+      )
+      return
+    end
+
     cred_collection = Metasploit::Framework::CredentialCollection.new(
       blank_passwords: datastore['BLANK_PASSWORDS'],
       pass_file: datastore['PASS_FILE'],
@@ -75,16 +94,16 @@ class MetasploitModule < Msf::Auxiliary
         create_credential_login(credential_data)
 
         if datastore['VERBOSE']
-          vprint_good "#{peer} - Login Successful: #{result.credential} (#{result.status}: #{result.proof})"
+          vprint_good "#{peer} - Login Successful: #{result.credential} (#{result.status}: #{result.proof.strip})"
         else
           print_good "#{peer} - Login Successful: #{result.credential}"
         end
       when Metasploit::Model::Login::Status::NO_AUTH_REQUIRED
-        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
         break
       else
         invalidate_login(credential_data)
-        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof})"
+        vprint_error "#{peer} - LOGIN FAILED: #{result.credential} (#{result.status}: #{result.proof.strip})"
       end
     end
   end

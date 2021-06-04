@@ -5,25 +5,18 @@ module Msf
     module Console
       module TablePrint
         class HighlightSubstringStyler
-          COLOR = '%bgmag'
+          HIGHLIGHT_COLOR = '%bgmag'
+          RESET_COLOR = '%clr'
 
           def initialize(substrings)
             @substrings = substrings
           end
 
           def style(value)
-            value_cp = value.clone
+            search_terms = @substrings.map { |substring| Regexp.escape(substring) }
+            search_pattern = /#{search_terms.join('|')}/i
 
-            @substrings.each do |s|
-              # Regex used to pull out matches and preserve case sensitivity
-              matches = value_cp.scan(%r{#{Regexp.escape(s)}}i)
-
-              matches.each do |m|
-                value_cp.gsub!(m, COLOR + m + '%clr')
-              end
-            end
-
-            value_cp
+            value.gsub(search_pattern) { |match| "#{HIGHLIGHT_COLOR}#{match}#{RESET_COLOR}" }
           end
         end
       end

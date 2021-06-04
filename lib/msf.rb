@@ -13,6 +13,8 @@ require 'msf/core/exception' # TODO: temporary require until we can split up the
 require 'msf/core/constants'
 require 'msf_autoload'
 
+MsfAutoload.instance
+
 NTLM_CONST   ||= ::Rex::Proto::NTLM::Constants
 NTLM_CRYPT   ||= ::Rex::Proto::NTLM::Crypt
 NTLM_UTILS   ||= ::Rex::Proto::NTLM::Utils

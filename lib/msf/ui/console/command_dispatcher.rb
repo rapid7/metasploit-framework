@@ -76,6 +76,14 @@ module CommandDispatcher
   end
 
   #
+  # Load the configuration required for this CommandDispatcher, configuring
+  # any internal state as required.
+  #
+  def load_config(_path = nil)
+    # noop
+  end
+
+  #
   # Return the subdir of the `documentation/` directory that should be used
   # to find usage documentation
   #

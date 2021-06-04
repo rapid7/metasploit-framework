@@ -9,7 +9,7 @@ module Msf::Modules::Metadata::Maps
   @mservs = {}
 
 
-  def all_remote_exploit_maps
+  def all_exploit_maps
 
     return @mrefs, @mports, @mservs if @mrefs && !@mrefs.empty?
 
@@ -20,33 +20,32 @@ module Msf::Modules::Metadata::Maps
     get_metadata.each do |exploit|
       # expand this in future to be more specific about remote exploits.
       next unless exploit.type == "exploit"
-      fullname = exploit.fullname
       exploit.references.each do |reference|
         next if reference =~ /^URL/
         ref = reference
         ref.upcase!
 
-        mrefs[ref]           ||= {}
-        mrefs[ref][fullname] = exploit
+        mrefs[ref] ||= Set.new
+        mrefs[ref] << exploit
       end
 
       if exploit.rport
         rport                        = exploit.rport
-        mports[rport.to_i]           ||= {}
-        mports[rport.to_i][fullname] = exploit
+        mports[rport.to_i]           ||= []
+        mports[rport.to_i] << exploit
       end
 
       unless exploit.autofilter_ports.nil? || exploit.autofilter_ports.empty?
         exploit.autofilter_ports.each do |rport|
-          mports[rport.to_i]           ||= {}
-          mports[rport.to_i][fullname] = exploit
+          mports[rport.to_i] ||= Set.new
+          mports[rport.to_i] << exploit
         end
       end
 
       unless exploit.autofilter_services.nil? || exploit.autofilter_services.empty?
         exploit.autofilter_services.each do |serv|
-          mservs[serv]           ||= {}
-          mservs[serv][fullname] = exploit
+          mservs[serv] ||= Set.new
+          mservs[serv] << exploit
         end
       end
 

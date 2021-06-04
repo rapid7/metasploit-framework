@@ -131,7 +131,7 @@ class Socks4a
       def resolve( hostname )
         if( not hostname.empty? )
           begin
-            return Rex::Socket.addr_itoa( Rex::Socket.gethostbyname( hostname )[3].unpack( 'N' ).first )
+            return Rex::Socket.getaddress(hostname, false)
           rescue ::SocketError
             return nil
           end

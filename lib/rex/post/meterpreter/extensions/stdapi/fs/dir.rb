@@ -258,6 +258,8 @@ class Dir < Rex::Post::Dir
   # local directory, optionally in a recursive fashion.
   #
   def Dir.download(dst, src, opts = {}, force = true, glob = nil, &stat)
+    src.force_encoding('UTF-8')
+    dst.force_encoding('UTF-8')
     tries_cnt = 0
 
     continue =  opts["continue"]

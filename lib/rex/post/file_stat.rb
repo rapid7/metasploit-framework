@@ -125,10 +125,10 @@ class FileStat
     filetype?(010000) # ??? fifo?
   end
   def socket?
-    filetype(0140000)
+    filetype?(0140000)
   end
   def symlink?
-    filetype(0120000)
+    filetype?(0120000)
   end
 
   def ftype
