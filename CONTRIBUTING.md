@@ -53,6 +53,7 @@ Keeping the following in mind gives your contribution the best chance of landing
 * **Do** use the many module mixin [API]s.
 * **Do** include instructions on how to setup the vulnerable environment or software.
 * **Do** include [Module Documentation] showing sample run-throughs.
+* **Do** ask cve@rapid7.com for a CVE ID if this is describes a new vulnerability (remember to mention your PR number!)
 * **Don't** include more than one module per pull request.
 * **Don't** submit new [scripts].  Scripts are shipped as examples for automating local tasks, and anything "serious" can be done with post modules and local exploits.
 
