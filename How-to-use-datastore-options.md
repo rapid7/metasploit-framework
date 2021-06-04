@@ -175,7 +175,7 @@ Typically for a string option. If the input begins with "file://", OptString wil
 OptString.new('MYTEST', [ true, 'Set a MYTEST option', 'This is a default value' ])
 ```
 
-# Registering and deregistring module options
+# Registering and deregistering module options
 
 ## The register_options method
 
@@ -188,7 +188,7 @@ register_options(
   [
     OptString.new('SUBJECT', [ true, 'Set a subject' ]),
     OptString.new('MESSAGE', [ true, 'Set a message' ])
-  ], self.class)
+  ])
 ```
 
 ## The register_advanced_options method
@@ -201,7 +201,7 @@ An example of register an advanced option:
 register_advanced_options(
   [
     OptInt.new('Timeout', [ true, 'Set a timeout, in seconds', 60 ])
-  ], self.class)
+  ])
 ```
 
 ## The deregister_options method
