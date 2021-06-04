@@ -207,7 +207,6 @@ module Msf::PostMixin
       unless unmatched_wildcards.empty?
         # This implies that there was a typo in one of the wildcards because it didn't match anything. This is a developer mistake.
         wlog("The #{fullname} module specified the following Meterpreter command wildcards that did not match anything: #{ unmatched_wildcards.join(', ') }")
-        raise RuntimeError, 'one or more of the specified Meterpreter command wildcards did not match anything'
       end
 
       cmd_ids = cmd_names.map { |name| Rex::Post::Meterpreter::CommandMapper.get_command_id(name) }
