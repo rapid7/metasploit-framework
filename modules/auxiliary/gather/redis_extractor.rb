@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        OptInt.new('LimitCount', [false, 'Stop after retrieving this many entries, per database', nil])
+        OptInt.new('LIMIT_COUNT', [false, 'Stop after retrieving this many entries, per database', nil])
       ]
     )
   end
@@ -165,7 +165,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     keyspace = get_keyspace
-    max_results = datastore['LimitCount']
+    max_results = datastore['LIMIT_COUNT']
     keyspace.each do |space|
       if max_results
         amount = "#{[space[1].to_i, max_results].min} of #{space[1]}"

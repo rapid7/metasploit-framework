@@ -35,11 +35,11 @@ echo 'auth abcde \n set key2 value2' | nc 127.0.0.1 6379 > /dev/null
 
 ## Options
 
-### **PASSWORD**
+### PASSWORD
 
 The password for the redis instance. This value will be ignored for instances with no password required.
 
-### **LIMITCOUNT**
+### LIMIT_COUNT
 
 Stop after retrieving this number of keys, per datastore. Note that one redis instance may have more than one datastore. This modules also pulls values down in batches, so it may go slightly over this limit.
 
