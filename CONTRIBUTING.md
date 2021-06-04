@@ -24,7 +24,9 @@ will be closed. We need to ensure the code we're adding to master is written to 
 
 
 ### Code Contribution Do's & Don'ts:
---
+
+Keeping the following in mind gives your contribution the best chance of landing!
+
 #### <u>Pull Requests</u>
 **Pull request [PR#9966] is a good example to follow.**
 
