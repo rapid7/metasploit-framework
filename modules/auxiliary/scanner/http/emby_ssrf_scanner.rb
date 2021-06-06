@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
       location_header = res['location']
 
       # Check to see if the captured headers are populated
-      if server_header == nil && location_header == nil
+      if server_header.nil? && location_header.nil?
         vprint_error("#{target_host}:#{p} No HTTP headers")
       end
 
