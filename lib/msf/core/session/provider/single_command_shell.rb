@@ -61,7 +61,7 @@ module SingleCommandShell
             buf << tmp
 
             # see if we have the wanted idx
-            parts = buf.split(token, -1)
+            parts = buf.split("\n#{token}", -1).map { |part| "#{part}\n" }
 
             if parts.length == parts_needed
               # cause another prompt to appear (just in case)
