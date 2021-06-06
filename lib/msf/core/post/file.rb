@@ -53,7 +53,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         # XXX: %CD% only exists on XP and newer, figure something out for NT4
         # and 2k
-        return session.shell_command_token("echo %CD%")
+        return session.shell_command_token("echo %CD%").to_s.strip
       else
         if command_exists?("pwd")
           return session.shell_command_token("pwd").to_s.strip
@@ -73,8 +73,14 @@ module Msf::Post::File
       return session.fs.dir.entries(directory)
     end
 
+    if session.type == 'powershell'
+      dir = session.shell_command_token("Get-ChildItem \"#{directory}\" | Format-Table Name").split(/[\r\n]+/)
+      dir.slice!(0..2)
+      return dir
+    end
+
     if session.platform == 'windows'
-      return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
+      return session.shell_command_token("dir /b \"#{directory}\"").split(/[\r\n]+/)
     end
 
     if command_exists?('ls')
