@@ -73,7 +73,7 @@ module Msf
           opts[:log_file] ||= ds['RemoteMeterpreterDebugFile']
         end
 
-        if ds['MeterpreterBackground']
+        if ds['MeterpreterTryToFork']
           opts[:background] = 1
         end
 
