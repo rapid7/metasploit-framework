@@ -211,7 +211,7 @@ module Msf::Post::Common
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
       cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
     else
-      cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+      cmd_exec("command -v #{cmd} || which #{cmd} && echo true").to_s.split("\n")[-1] == 'true'
     end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
