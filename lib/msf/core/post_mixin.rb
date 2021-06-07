@@ -242,7 +242,7 @@ module Msf::PostMixin
         missing_extensions = missing_cmd_ids.map { |cmd_id| Rex::Post::Meterpreter::ExtensionMapper.get_extension_name(cmd_id) }.uniq
         missing_extensions.each do |ext_name|
           # If the extension is already loaded, the command is truly missing
-          return "missing Meterpreter features: extension commands" if s.ext.aliases.include?(ext_name)
+          return 'missing Meterpreter features: extension commands' if s.ext.aliases.include?(ext_name)
 
           begin
             s.core.use(ext_name)
@@ -253,7 +253,7 @@ module Msf::PostMixin
       end
       missing_cmd_ids -= s.commands
 
-      return "missing Meterpreter features: extension commands" unless missing_cmd_ids.empty?
+      return 'missing Meterpreter features: extension commands' unless missing_cmd_ids.empty?
     end
 
     # If we got here, we haven't found anything that definitely
