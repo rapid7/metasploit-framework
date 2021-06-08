@@ -75,7 +75,7 @@ module Msf::Post::File
 
     if session.type == 'powershell'
       dir = session.shell_command_token("Get-ChildItem \"#{directory}\" | Format-Table Name").split(/[\r\n]+/)
-      dir.slice!(0..2)
+      dir.slice!(0..2) if dir.length > 2
       return dir
     end
 
