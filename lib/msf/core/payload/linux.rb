@@ -21,7 +21,7 @@ module Msf::Payload::Linux
         Msf::OptBool.new('PrependFork',
           [
             false,
-            "Prepend a stub that executes: if (fork()) { exit(0); }",
+            "Prepend a stub that starts the payload in its own process via fork",
             "false"
           ]
         ),
@@ -118,8 +118,10 @@ module Msf::Payload::Linux
                "\x85\xc0"             + #   test    %eax,%eax                  #
                "\x74\x06"             + #   jz      0xf                        #
                "\x31\xc0"             + #   xor     %eax,%eax                  #
-               "\xb0\x01"             + #   movb    $0x1,%al    ; exit         #
-               "\xcd\x80"               #   int     $0x80                      #
+               "\xb0\x01"             + #   movb    $0x1,%al                   #
+               "\xcd\x80"             + #   int     $0x80       ; exit         #
+               "\xb0\x42"             + #   movb    %0x42,%al                  #
+               "\xcd\x80"               #   int     $0x80       ; setsid       #
       end
 
       if (datastore['PrependSetresuid'])
@@ -304,7 +306,7 @@ module Msf::Payload::Linux
     elsif (test_arch.include?(ARCH_X64))
 
       if (datastore['PrependFork'])
-        # if (fork()) { exit(0); }
+        # if (fork()) { exit(0); }; setsid();
         pre << "\x6a\x39"             #    push    57        ; __NR_fork     #
         pre << "\x58"                 #    pop     rax                       #
         pre << "\x0f\x05"             #    syscall                           #
@@ -312,6 +314,9 @@ module Msf::Payload::Linux
         pre << "\x74\x08"             #    jz      0x08                      #
         pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
         pre << "\x6a\x3c"             #    push    60        ; __NR_exit     #
+        pre << "\x58"                 #    pop     rax                       #
+        pre << "\x0f\x05"             #    syscall                           #
+        pre << "\x6a\x70"             #    push    112       ; __NR_setsid   #
         pre << "\x58"                 #    pop     rax                       #
         pre << "\x0f\x05"             #    syscall                           #
       end
