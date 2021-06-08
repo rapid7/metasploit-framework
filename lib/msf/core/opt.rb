@@ -41,7 +41,7 @@ module Msf
 
     # @return [OptAddressRange]
     def self.RHOSTS(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
-      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ])
+      Msf::OptAddressRange.new('RHOSTS', [ required, desc, default ], aliases: [ 'RHOST' ])
     end
 
     def self.RHOST(default=nil, required=true, desc="The target host(s), range CIDR identifier, or hosts file with syntax 'file:<path>'")
