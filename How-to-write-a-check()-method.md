@@ -13,8 +13,10 @@ Modules messages are important to the user, because they keep the user informed 
 | **vprint_error()** | verbose version of print_error that begins with "[x]" |
 | **vprint_warning()** | verbose version of print_warning that begins with "[!]", in yellow |
 
+Better yet, use the `CheckCode` description to provide additional information (see below).
 
 Note: You shouldn't be printing if a target is vulnerable or not, as this is automatically handled by the framework when your method returns a check code.
+
 
 ## Check Codes
 
@@ -29,6 +31,11 @@ Once you have determined the vulnerable state, you should return a check code. C
 | **Exploit::CheckCode::Vulnerable** | Only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability. |
 | **Exploit::CheckCode::Unsupported** | The exploit does not support the check method. If this is the case, then you don't really have to add the check method. |
 
+The `CheckCode` also supports an optional description which is printed by the framework upon completion of the `check` method. For example:
+
+```ruby
+return CheckCode::Appears('Vulnerable component XYZ is installed')
+```
 
 ## Remote Check Example
 
