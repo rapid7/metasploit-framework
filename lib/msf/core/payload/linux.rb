@@ -316,8 +316,7 @@ module Msf::Payload::Linux
         pre << "\x6a\x3c"             #    push    60        ; __NR_exit     #
         pre << "\x58"                 #    pop     rax                       #
         pre << "\x0f\x05"             #    syscall                           #
-        pre << "\x6a\x70"             #    push    112       ; __NR_setsid   #
-        pre << "\x58"                 #    pop     rax                       #
+        pre << "\x04\x70"             #    add     al, 112   ; __NR_setsid   #
         pre << "\x0f\x05"             #    syscall                           #
       end
 
