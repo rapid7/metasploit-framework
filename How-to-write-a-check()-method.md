@@ -4,7 +4,7 @@ Although vulnerability checks aren't the focus of Metasploit, because it isn't a
 
 ## Check Method Output
 
-Modules messages are important to the user, because they keep him/her informed about what the module is doing, and usually make the module more debuggable. However, you do also want to keep your messages in verbose mode because it becomes really noisy if the check is used against multiple targets. Ideally, you only should be using these print methods:
+Modules messages are important to the user, because they keep the user informed about what the module is doing, and usually make the module more debuggable. However, you do also want to keep your messages in verbose mode because it becomes really noisy if the check is used against multiple targets. Ideally, you only should be using these print methods:
 
 | Method | Description |
 | ------ | ----------- |
@@ -18,14 +18,14 @@ Note: You shouldn't be printing if a target is vulnerable or not, as this is aut
 
 ## Check Codes
 
-Once you have determined the vulnerable state, you should return a check code. Check codes are constants defined in Msf::Exploit::CheckCode, and these are the ones you can use:
+Once you have determined the vulnerable state, you should return a check code. Check codes are constants defined in `Msf::Exploit::CheckCode`, and these are the ones you can use:
 
 | Checkcode | Description |
 | --------- | ----------- |
 | **Exploit::CheckCode::Unknown** | Used if the module fails to retrieve enough information from the target machine, such as due to a timeout. |
 | **Exploit::CheckCode::Safe** | Used if the check fails to trigger the vulnerability, or even detect the service. |
 | **Exploit::CheckCode::Detected** | The target is running the service in question, but the check fails to determine whether the target is vulnerable or not. |
-| **Exploit::CheckCode::Appears** | This is used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnearble. |
+| **Exploit::CheckCode::Appears** | This is used if the vulnerability is determined based on passive reconnaissance. For example: version, banner grabbing, or simply having the resource that's known to be vulnerable. |
 | **Exploit::CheckCode::Vulnerable** | Only used if the check is able to actually take advantage of the bug, and obtain some sort of hard evidence. For example: for a command execution type bug, get a command output from the target system. For a directory traversal, read a file from the target, etc. Since this level of check is pretty aggressive in nature, you should not try to DoS the host as a way to prove the vulnerability. |
 | **Exploit::CheckCode::Unsupported** | The exploit does not support the check method. If this is the case, then you don't really have to add the check method. |
 
@@ -63,7 +63,7 @@ def check
 end
 ```
 
-Note: If you are writing an auxiliary module with the ```Msf::Auxiliary::Scanner``` mixin, you should declare your check method like this:
+Note: If you are writing an auxiliary module with the `Msf::Auxiliary::Scanner` mixin, you should declare your check method like this:
 
 ```ruby
 def check_host(ip)
@@ -73,7 +73,7 @@ end
 
 ### Local Exploit Check Example
 
-Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging Exploit::CheckCode::Appears. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for Exploit::CheckCode::Vulnerable, your check should do the extra mile, which means either you somehow make the program return a vulnerable response, or you inspect the vulnerable code.
+Most local exploit checks are done by checking the version of the vulnerable file, which is considered passive, therefore they should be flagging `Exploit::CheckCode::Appears`. Passive local exploit checks don't necessarily mean they are less reliable, in fact, they are not bad. But to qualify for `Exploit::CheckCode::Vulnerable`, your check should do the extra mile, which means either you somehow make the program return a vulnerable response, or you inspect the vulnerable code.
 
 An example of making the program return a vulnerable response is ShellShock (the following is specific for VMWare):
 
