@@ -30,11 +30,10 @@ class MetasploitModule < Msf::Post
     unless have_powershell?
       fail_with(Failure::NoAccess, "The target does not have PowerShell installed so we can't access the state of the Hyper-V VMs")
     end
-    results = psh_exec('Get-VM')
-    if results =~ /is not recognized as the name of a cmdlet/
-      print_error('The target is not a Hyper-V host')
-    elsif results =~ /do not have the required permission/
-      print_error('You need to be running as an elevated admin or a user of the Hyper-V Administrators group to run this module')
+    get_vm = 'try { Get-VM } catch { echo "false" }'
+    results = psh_exec(get_vm)
+    if results == 'false'
+      print_error('Error running `Get-VM` command. Either the target is not a hyper-V host or you do not have enough permissions!')
       return
     end
     vprint_status(results)
