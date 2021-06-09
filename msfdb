@@ -57,7 +57,9 @@ require 'msfenv'
 @component_provided = false
 
 @options = {
-    component: :database,
+    # When the component vlaue is nil, the user has not yet specified a specific component
+    # It will later be defaulted to a more sane value
+    component: nil,
     debug: false,
     msf_db_name: 'msf',
     msf_db_user: 'msf',
@@ -254,28 +256,12 @@ def update_db_port
   end
 end
 
-def ask_yn_default(question, default_value)
-  return default_value if @options[:use_defaults]
-
-  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
-  yn = STDIN.gets.strip
-  case yn
-  when /^[Yy]/
-    return true
-  when /^[Nn]/
-    return false
-  when nil, ''
-    return default_value
-  else
-    puts 'Please answer yes or no.'
-  end
-end
-
-def ask_yn_loop(question)
+def ask_yn(question, default: nil)
   loop do
-    print "#{'[?]'.blue.bold} #{question}: "
-    yn = STDIN.gets
-    case yn
+    print "#{'[?]'.blue.bold} #{question} [#{default}]: "
+    input = STDIN.gets.strip
+    input = input.empty? ? default : input
+    case input
     when /^[Yy]/
       return true
     when /^[Nn]/
@@ -286,13 +272,13 @@ def ask_yn_loop(question)
   end
 end
 
-def ask_value(question, default_value)
-  return default_value if @options[:use_defaults]
+def ask_value(question, default)
+  return default if @options[:use_defaults]
 
-  print "#{'[?]'.blue.bold} #{question} [#{default_value}]: "
+  print "#{'[?]'.blue.bold} #{question} [#{default}]: "
   input = STDIN.gets.strip
   if input.nil? || input.empty?
-    return default_value
+    return default
   else
     return input
   end
@@ -629,26 +615,29 @@ def output_web_service_information
   end
 end
 
-def persist_data_service
-  # execute msfconsole commands to add and persist the data service connection
-  cmd = "./msfconsole -qx \"#{get_db_connect_command}; db_save; exit\""
+def run_msfconsole_command(cmd)
+  # Attempts to run a the metasploit command first with the default env settings, and once again with the path set
+  # to the current directory. This ensures that it works in an environment such as bundler
   if @db_driver.run_cmd(cmd) != 0
     # attempt to execute msfconsole in the current working directory
     if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
-      puts 'Failed to run msfconsole and persist the data service connection'
+      puts 'Failed to run msfconsole'
     end
   end
 end
 
-def clear_default_data_service
+def persist_data_service
+  puts 'Persisting data service credentials in msfconsole'
   # execute msfconsole commands to add and persist the data service connection
-  cmd = "./msfconsole -qx db_clear_default; exit\""
-  if @db_driver.run_cmd(cmd) != 0
-    # attempt to execute msfconsole in the current working directory
-    if @db_driver.run_cmd(cmd, env: {'PATH' => ".:#{ENV["PATH"]}"}) != 0
-      puts 'Failed to run msfconsole and clear the default data service connection'
-    end
-  end
+  cmd = "./msfconsole -qx '#{get_db_connect_command}; db_save; exit'"
+  run_msfconsole_command(cmd)
+end
+
+def clear_default_data_service
+  puts 'Clearing data service credentials in msfconsole'
+  # execute msfconsole commands to clear the default data service connection
+  cmd = "./msfconsole -qx 'db_disconnect --clear; exit'"
+  run_msfconsole_command(cmd)
 end
 
 def get_db_connect_command
@@ -946,10 +935,22 @@ def has_requirements(postgresql_cmds)
   ret_val
 end
 
-
 def should_generate_web_service_ssl
   @options[:ssl] && ((!File.file?(@options[:ssl_key]) || !File.file?(@options[:ssl_cert])) ||
       (@options[:ssl_key] == @ws_ssl_key_default && @options[:ssl_cert] == @ws_ssl_cert_default))
+end
+
+def prompt_for_component(command)
+  if command == :status || command == :delete
+    return :all
+  end
+
+  enable_webservice = ask_yn("Would you like to #{command} the webservice? (Not Required)", default: 'no')
+  if enable_webservice
+    :all
+  else
+    :database
+  end
 end
 
 def prompt_for_deletion(command)
@@ -973,12 +974,10 @@ def prompt_for_deletion(command)
   end
 end
 
-
 def should_delete
   return true if @options[:use_defaults]
-  ask_yn_loop("Would you like to delete your existing data and configurations?")
+  ask_yn("Would you like to delete your existing data and configurations?")
 end
-
 
 if $PROGRAM_NAME == __FILE__
   # Bomb out if we're root
@@ -1010,17 +1009,6 @@ if $PROGRAM_NAME == __FILE__
   }
 
   parse_args(ARGV)
-
-  unless @component_provided
-    if ask_yn_default('Would you also like this operation to affect the webservice?', false)
-      @options[:component] = :all
-    end
-  end
-
-  if @options[:database]
-    clear_default_data_service
-  end
-
   update_db_port
 
   if @connection_string
@@ -1035,7 +1023,14 @@ if $PROGRAM_NAME == __FILE__
   end
 
   command = ARGV[0].to_sym
+  if @options[:component].nil?
+    @options[:component] = prompt_for_component(command)
+  end
   prompt_for_deletion(command)
+  # Disable the locally configured webservice component
+  if command != :status && @options[:component] == :database
+    clear_default_data_service
+  end
   if @options[:component] == :all
     @components.each { |component|
       puts '===================================================================='

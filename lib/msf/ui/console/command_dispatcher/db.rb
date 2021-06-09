@@ -1827,17 +1827,20 @@ class Db
   end
 
   def cmd_db_disconnect_help
-    print_line "Usage: db_disconnect"
-    print_line
-    print_line "Disconnect from the data service."
+    print_line "Usage:"
+    print_line "    db_disconnect              Temporarily disconnects from the currently configured dataservice."
+    print_line "    db_disconnect --clear      Clears the default dataservice that msfconsole will use when opened."
     print_line
   end
 
   def cmd_db_disconnect(*args)
     return if not db_check_driver
 
-    if(args[0] and (args[0] == "-h" || args[0] == "--help"))
+    if args[0] == '-h' || args[0] == '--help'
       cmd_db_disconnect_help
+      return
+    elsif args[0] == '-c' || args[0] == '--clear'
+      clear_default_db
       return
     end
 
@@ -1890,27 +1893,6 @@ class Db
       print_error e.message
     end
   end
-
-  def cmd_db_clear_default_help(*args)
-    print_line "Usage: db_clear_default"
-    print_line
-    print_line "Clears the default data service connection used on startup."
-    print_line
-  end
-
-
-  def cmd_db_clear_default(*args)
-    while (arg = args.shift)
-      case arg
-      when '-h', '--help'
-        cmd_db_clear_default_help
-        return
-      end
-    end
-
-    clear_default_db
-  end
-
 
   def save_db_to_config(database, database_name)
     if database_name =~ /\/|\[|\]/
