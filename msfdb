@@ -54,10 +54,9 @@ require 'msfenv'
 
 @components = %w(database webservice)
 @environments = %w(production development)
-@component_provided = false
 
 @options = {
-    # When the component vlaue is nil, the user has not yet specified a specific component
+    # When the component value is nil, the user has not yet specified a specific component
     # It will later be defaulted to a more sane value
     component: nil,
     debug: false,
@@ -781,7 +780,6 @@ def parse_args(args)
     opts.on('--component COMPONENT', @components + ['all'], 'Component used with provided command (default: database)',
             "  (#{@components.join(', ')})") { |component|
       @options[:component] = component.to_sym
-      @component_provided = true
     }
 
     opts.on('-d', '--debug', 'Enable debug output') { |d| @options[:debug] = d }

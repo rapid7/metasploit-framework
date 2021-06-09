@@ -36,8 +36,7 @@ class Db
       "db_disconnect"    => "Disconnect from the current data service",
       "db_status"        => "Show the current data service status",
       "db_save"          => "Save the current data service connection as the default to reconnect on startup",
-      "db_remove"        => "Remove the saved data service entry",
-      "db_clear_default" => "Clears the default data service connection used on startup"
+      "db_remove"        => "Remove the saved data service entry"
     }
 
     more = {
