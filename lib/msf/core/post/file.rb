@@ -346,7 +346,7 @@ module Msf::Post::File
       return _read_file_meterpreter(file_name)
     end
 
-    return nil unless session.type == 'shell'
+    return nil unless (session.type == 'shell' || session.type == 'powershell')
 
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
@@ -716,7 +716,7 @@ protected
 
 
   class FileStat < Rex::Post::FileStat
-  
+
     attr_accessor :stathash
 
     def initialize(filename, session)
@@ -736,7 +736,7 @@ protected
       @stathash['st_atime'] = data[9].to_i
       @stathash['st_mtime'] = data[10].to_i
       @stathash['st_ctime'] = data[11].to_i
-      @stathash['st_mode'] = data[12].to_i(16) #stat command returns hex value of mode" 
+      @stathash['st_mode'] = data[12].to_i(16) #stat command returns hex value of mode"
     end
   end
 
