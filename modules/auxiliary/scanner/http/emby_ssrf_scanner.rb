@@ -30,7 +30,7 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptBool.new('TARGETURI', [false, 'The URI of the Emby Server', '/']),
+        OptString.new('TARGETURI', [false, 'The URI of the Emby Server', '/']),
         OptBool.new('STORE_NOTES', [true, 'Store the information in notes.', true]),
         OptBool.new('SHOW_TITLES', [true, 'Show the titles on the console as they are grabbed', true]),
         OptString.new('EMBY_SERVER', [true, 'Emby Web UI IP to use', '']),
