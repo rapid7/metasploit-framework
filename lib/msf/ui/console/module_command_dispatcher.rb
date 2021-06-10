@@ -236,7 +236,7 @@ module ModuleCommandDispatcher
       end
 
       if (code && code.kind_of?(Msf::Exploit::CheckCode))
-        if (code == Msf::Exploit::CheckCode::Vulnerable)
+        if code == Msf::Exploit::CheckCode::Vulnerable || code == Msf::Exploit::CheckCode::Appears
           print_good("#{peer_msg}#{code[1]}")
           # Restore RHOST for report_vuln
           instance.datastore['RHOST'] ||= rhost
