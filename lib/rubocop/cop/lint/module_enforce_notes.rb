@@ -7,7 +7,7 @@ module RuboCop
 
         NO_NOTES_MSG = 'Module is missing the Notes section which must include Stability, Reliability and SideEffects] - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
         MISSING_KEY_MSG = 'Module is missing %s from the Notes section - https://github.com/rapid7/metasploit-framework/wiki/Definition-of-Module-Reliability,-Side-Effects,-and-Stability'
-        NOTES_KEYS = %w[Stability Reliability SideEffects]
+        REQUIRED_KEYS = %w[Stability Reliability SideEffects]
 
         def_node_matcher :find_update_info_node, <<~PATTERN
           (def :initialize _args (begin (super $(send nil? {:update_info :merge_info} (lvar :info) (hash ...))) ...))
@@ -34,7 +34,7 @@ module RuboCop
           end
 
           if notes_present
-            check_for_notes_keys(notes)
+            check_for_required_keys(notes)
           else
             add_offense(last_key || hash, message: NO_NOTES_MSG)
           end
@@ -42,17 +42,17 @@ module RuboCop
 
         private
 
-        def check_for_notes_keys(notes)
+        def check_for_required_keys(notes)
           last_key = nil
           keys_present = []
           notes.each_pair do |key, _value|
-            if NOTES_KEYS.include? key.value
+            if REQUIRED_KEYS.include? key.value
               keys_present << key.value
             end
             last_key = key
           end
 
-          missing_keys = NOTES_KEYS - keys_present
+          missing_keys = REQUIRED_KEYS - keys_present
           unless missing_keys.empty?
             if missing_keys.length == 1
               msg = missing_keys[0]
