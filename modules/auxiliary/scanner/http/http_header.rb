@@ -23,7 +23,10 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'],
           ['URL', 'http://en.wikipedia.org/wiki/List_of_HTTP_header_fields']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'DefaultOptions' => {
+          'HttpClientTimeout' => 1
+        }
       )
     )
 
@@ -43,10 +46,11 @@ class MetasploitModule < Msf::Auxiliary
     uri = normalize_uri(target_uri.path)
     method = datastore['HTTP_METHOD']
     vprint_status("#{peer}: requesting #{uri} via #{method}")
-    res = send_request_raw({
+    res = send_request_raw(
       'method' => method,
-      'uri' => uri
-    })
+      'uri' => uri,
+      'partial' => true
+    )
 
     unless res
       vprint_error("#{peer}: connection timed out")
