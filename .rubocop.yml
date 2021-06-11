@@ -20,6 +20,7 @@ require:
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_present.rb
   - ./lib/rubocop/cop/lint/deprecated_gem_version.rb
+  - ./lib/rubocop/cop/lint/meterpreter_commands_dependencies.rb
 
 Layout/SpaceBeforeBrackets:
   Description: >-
@@ -148,6 +149,9 @@ Layout/ModuleHashOnNewLine:
   Enabled: true
 
 Layout/ModuleDescriptionIndentation:
+  Enabled: true
+
+Lint/MeterpreterCommandDependencies:
   Enabled: true
 
 Lint/ModuleDisclosureDateFormat:
