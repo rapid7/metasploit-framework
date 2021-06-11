@@ -1,6 +1,4 @@
-**Example**
-
-The presence of `Stability`, `Reliability` and `SideEffects` in the notes section of the info hash is mandatory but may be left as empty array if it's not applicable to that particular module
+New Metasploit modules now contain a `Notes` section containing additional information such as the `Stability`, `Reliability` and `SideEffects` associated with running the module.
 
 Example:
 
@@ -28,7 +26,7 @@ Example:
         'Privileged' => false,
         'Targets' => [['Automatic', {}]],
         'DefaultTarget' => 0,
-        # These keys are required. See below for more details on allowed values
+        # All new modules must contain the below information. See below for more details for allowed values
         'Notes' => {
           'Stability' => [...],
           'Reliability' => [...],
@@ -39,7 +37,9 @@ Example:
   end
 ```
 
-**Stability**
+## Allowed Values
+
+### Stability**
 
 | Constant         | Description    |
 | -------------- | ------------- |
@@ -51,7 +51,7 @@ Example:
 | SERVICE_RESOURCE_LOSS | Module causes a resource to be unavailable for the service |
 | OS_RESOURCE_LOSS | Module causes a resource to be unavailable for the OS |
 
-**Side Effects**
+### Side Effects**
 
 | Constant         | Description    |
 | -------------- | ------------- |
@@ -63,11 +63,10 @@ Example:
 | PHYSICAL_EFFECTS | Module may produce physical effects in hardware (Examples: light, sound, or heat) |
 | AUDIO_EFFECTS | Module may cause a noise (Examples: Audio output from the speakers or hardware beeps) |
 
-**Reliability**
+### Reliability
 
 | Constant         | Description    |
 | -------------- | ------------- |
 | FIRST_ATTEMPT_FAIL | The module may fail for the first attempt |
 | REPEATABLE_SESSION | The module is expected to get a session every time it runs |
 | UNRELIABLE_SESSION | The module isn't expected to get a shell reliably (such as only once) |
-
