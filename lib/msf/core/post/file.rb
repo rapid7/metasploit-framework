@@ -346,7 +346,7 @@ module Msf::Post::File
       return _read_file_meterpreter(file_name)
     end
 
-    return nil unless (session.type == 'shell' || session.type == 'powershell')
+    return unless %w[shell powershell].include?(session.type)
 
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
