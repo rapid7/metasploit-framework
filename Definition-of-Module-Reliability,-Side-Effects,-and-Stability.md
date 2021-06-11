@@ -1,8 +1,9 @@
 **Example**
 
-The presence of `Stability`, `Reliability` and `SideEffects` in the notes section of the info hash is mandatory but may be left empty if it's not applicable to that particular module
+The presence of `Stability`, `Reliability` and `SideEffects` in the notes section of the info hash is mandatory but may be left as empty array if it's not applicable to that particular module
 
-Here's an example of what that should look like:
+Example:
+
 ```ruby
   def initialize(info = {})
     super(
@@ -27,6 +28,7 @@ Here's an example of what that should look like:
         'Privileged' => false,
         'Targets' => [['Automatic', {}]],
         'DefaultTarget' => 0,
+        # These keys are required. See below for more details on allowed values
         'Notes' => {
           'Stability' => [...],
           'Reliability' => [...],
@@ -36,7 +38,6 @@ Here's an example of what that should look like:
     )
   end
 ```
-
 
 **Stability**
 
