@@ -716,6 +716,7 @@ protected
         file_info = file_info.split
         attrib = {}
         attrib['name'] = file_info[0]
+        next unless attrib['name'].match? (glob)
         attrib['size'] = file_info[1]
         attrib['path'] = file_info[2]
         matches << attrib
@@ -734,6 +735,7 @@ protected
             file_info = file_info.split
             attrib = {}
             attrib['name'] = file_info[8..-1].join('')
+            next unless attrib['name'].match? (glob)
             attrib['size'] = file_info[4]
             attrib['path'] = path
             matches << attrib
@@ -746,7 +748,7 @@ protected
           file_info = file_info.split
           attrib = {}
           attrib['name'] = file_info[8..-1].join('')
-          next if attrib['name'] = 
+          next unless attrib['name'].match? (glob)
           attrib['size'] = file_info[4]
           attrib['path'] = root
           matches << attrib
