@@ -704,6 +704,59 @@ protected
     line_max
   end
 
+  def search( root=nil, glob='*.*', recurse=true, timeout=-1 )
+    matches = []
+
+    if session.type == 'meterpreter'
+      return session.fs.file.search(root, glob, recurse, timeout)
+
+    elsif session.type == 'powershell'
+      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root}| where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
+      list.each do |file_info|
+        file_info = file_info.split
+        attrib = {}
+        attrib['name'] = file_info[0]
+        attrib['size'] = file_info[1]
+        attrib['path'] = file_info[2]
+        matches << attrib
+      end
+
+    elsif session.platform == 'windows'
+      #cmdcode  
+    else
+      if recurse
+        list = cmd_exec("ls -la1Rp #{root} | grep -v /$").split("\n\n")
+        list.each do |each_dir|
+          path, files = each_dir.split(":\n")
+          files = files.split("\n")
+          files.delete_at(0)
+          files.each do |file_info|
+            file_info = file_info.split
+            attrib = {}
+            attrib['name'] = file_info[8..-1].join('')
+            attrib['size'] = file_info[4]
+            attrib['path'] = path
+            matches << attrib
+          end
+        end
+      else
+        list = cmd_exec('ls -la1p  | grep -v /$').split("\n")
+        list.delete_at(0)
+        list.each do |file_info|
+          file_info = file_info.split
+          attrib = {}
+          attrib['name'] = file_info[8..-1].join('')
+          next if attrib['name'] = 
+          attrib['size'] = file_info[4]
+          attrib['path'] = root
+          matches << attrib
+        end
+      end
+    end
+    matches
+  end
+
+
   def stat(filename)
     if session.type == 'meterpreter'
       return session.fs.file.stat(filename)
