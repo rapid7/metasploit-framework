@@ -39,7 +39,7 @@ Example:
 
 ## Allowed Values
 
-### Stability**
+### Stability
 
 | Constant         | Description    |
 | -------------- | ------------- |
@@ -51,7 +51,7 @@ Example:
 | SERVICE_RESOURCE_LOSS | Module causes a resource to be unavailable for the service |
 | OS_RESOURCE_LOSS | Module causes a resource to be unavailable for the OS |
 
-### Side Effects**
+### Side Effects
 
 | Constant         | Description    |
 | -------------- | ------------- |
