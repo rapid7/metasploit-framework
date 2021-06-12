@@ -3,8 +3,8 @@ This module has been tested on Emby Media Server versions older than 4.5.
 
 ### Description
 
-Generates a GET request to the provided web servers and executes an SSRF against the targeted EMBY server.
-Returns the server header, HTML title, and location header. This is useful for rapidly identifying  web applications
+Generates a `GET` request to the provided web servers and executes an SSRF against the targeted EMBY server.
+Returns the server header, HTML title, and location header. This is useful for rapidly identifying web applications
 on the internal network using the Emby SSRF vulnerability (CVE-2020-26948).
 
 ## Verification Steps
