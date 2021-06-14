@@ -21,7 +21,12 @@ class MetasploitModule < Msf::Post
         'Author' =>
           [
             'gwillcox-r7' # Metasploit post module
-          ]
+          ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
       )
   end
