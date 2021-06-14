@@ -1,4 +1,4 @@
-New Metasploit modules now contain a `Notes` section containing additional information such as the `Stability`, `Reliability` and `SideEffects` associated with running the module.
+New Metasploit modules are now required to contain a `Notes` section containing additional information such as the `Stability`, `Reliability` and `SideEffects` associated with running the module.
 
 Example:
 
