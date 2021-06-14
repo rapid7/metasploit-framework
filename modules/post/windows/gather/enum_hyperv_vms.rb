@@ -37,8 +37,8 @@ class MetasploitModule < Msf::Post
     end
     get_vm = "try { Get-VM } catch {echo #{error_token}; echo $Error[0]}"
     results = psh_exec(get_vm)
-    if results =~ /#{error_token}/
-      results.delete!(error_token)
+    if results.starts_with?(error_token)
+      results = results.delete_prefix(error_token).strip
       print_error("Error running `Get-VM` command. \n #{results} ")
       return
     end
