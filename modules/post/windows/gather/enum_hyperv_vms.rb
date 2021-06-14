@@ -30,10 +30,11 @@ class MetasploitModule < Msf::Post
     unless have_powershell?
       fail_with(Failure::NoAccess, "The target does not have PowerShell installed so we can't access the state of the Hyper-V VMs")
     end
-    get_vm = 'try { Get-VM } catch { echo "false" }'
+    get_vm = "try { Get-VM } catch {echo #{error_token}; echo $Error[0]}"
     results = psh_exec(get_vm)
-    if results == 'false'
-      print_error('Error running `Get-VM` command. Either the target is not a hyper-V host or you do not have enough permissions!')
+    if results =~ /#{error_token}/
+      results.delete!(error_token)
+      print_error("Error running `Get-VM` command. \n #{results} ")
       return
     end
     vprint_status(results)

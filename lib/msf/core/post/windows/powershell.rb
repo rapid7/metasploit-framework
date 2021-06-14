@@ -342,7 +342,7 @@ module Msf
               return out
             end
             ps_output = get_ps_output(cmd_out, eof, datastore['Powershell::Post::timeout'])
-            ps_output = ps_output[/#{Regexp.escape(start)}(.*?)#{Regexp.escape(stop)}/m, 1].strip  #https://stackoverflow.com/a/9661504
+            ps_output = ps_output[/#{start}(.*?)#{stop}/m, 1].strip  #https://stackoverflow.com/a/9661504
             # Kill off the resulting processes if needed
             if ps_cleanup
               vprint_good "Cleaning up #{running_pids.join(', ')}"
