@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Post
     results = psh_exec(get_vm)
     if results.starts_with?(error_token)
       results = results.delete_prefix(error_token).strip
-      print_error("Error running `Get-VM` command. \n #{results} ")
+      print_error('Error running `Get-VM` command:')
+      print_line(results)
       return
     end
     vprint_status(results)
