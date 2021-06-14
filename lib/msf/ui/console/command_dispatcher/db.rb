@@ -416,7 +416,6 @@ class Db
         mode << :add
       when '-d','--delete'
         mode << :delete
-        return
       when '-c','-C'
         list = args.shift
         if(!list)
