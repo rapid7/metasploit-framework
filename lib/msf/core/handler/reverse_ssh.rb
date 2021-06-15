@@ -127,7 +127,7 @@ module ReverseSsh
 
   def create_session(ssh,opts={})
     # If there is a parent payload, then use that in preference.
-    s = Sessions::SshCommandShell.new(ssh,opts)
+    s = Sessions::SshCommandShellReverse.new(ssh,opts)
     # Pass along the framework context
     s.framework = framework
 
