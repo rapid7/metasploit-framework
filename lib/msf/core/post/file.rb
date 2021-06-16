@@ -376,7 +376,7 @@ module Msf::Post::File
       fd.close
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
-        session.shell_command_token("echo #{data} > \"#{file_name}\"")
+        session.shell_command_token("echo | set /p=\"#{data}\"> \"#{file_name}\"")
       else
         _write_file_unix_shell(file_name, data)
       end

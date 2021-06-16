@@ -59,14 +59,23 @@ module SingleCommandShell
         loop do
           if (tmp = shell_read(-1))
             buf << tmp
+            #print_line("tmp = #{tmp}")
+            #print_line("buf = #{buf}")
+            #print_line("wanted_idx = #{wanted_idx}")
 
             # see if we have the wanted idx
-            parts = buf.split("\n#{token}", -1).map { |part| "#{part}\n" }
-
-            if parts.length == parts_needed
-              # cause another prompt to appear (just in case)
-              shell_write("\n")
-              return parts[wanted_idx]
+            unless buf.nil?
+              # This should just be one regex....
+              buf.gsub!("#{token}\n", "#{token}\r\n")
+              parts = buf.split("#{token}\r\n", -1)
+              if parts.length == parts_needed
+                #print_line("parts = #{parts.to_s}")
+                #print_line("parts.length = #{parts.length}")
+                #print_line("parts_needed = #{parts_needed}")
+                # cause another prompt to appear (just in case)
+                shell_write("\n")
+                return parts[wanted_idx]
+              end
             end
           end
         end
@@ -133,7 +142,7 @@ module SingleCommandShell
     shell_write(cmd + "&echo #{token}\n")
     res = shell_read_until_token(token, 1, timeout)
     # I would like a better way to do this, but I don't know of one
-    res.reverse!.chomp!.reverse! # the presence of a leading newline is not consistent
+    #print_line("res = |#{res}|")
     res
   end
 
