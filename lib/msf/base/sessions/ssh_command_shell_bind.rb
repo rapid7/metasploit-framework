@@ -9,6 +9,10 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
   module DirectChannelWrite
 
+    def send(buf, flags = 0)
+      syswrite(buf)
+    end
+
     def write(buf, opts = nil)
       syswrite(buf)
     end
@@ -68,11 +72,12 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   class TcpClientChannel # taken from Meterpreter
     include Rex::IO::StreamAbstraction
 
-    def initialize(channel, param)
+    def initialize(client, channel, params)
       initialize_abstraction
 
+      @client = client
       @channel = channel
-      @params = param
+      @params = params
 
       lsock.extend(SocketInterface)
       lsock.extend(DirectChannelWrite)
@@ -87,6 +92,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     end
 
     attr_reader :channel
+    attr_reader :client
     attr_reader :params
   end
 
@@ -108,7 +114,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     # Notify now that we've created the socket
     #notify_socket_created(self, sock, param)
 
-    msf_channel = TcpClientChannel.new(ssh_channel, param)
+    msf_channel = TcpClientChannel.new(self, ssh_channel, param)
     @channels << msf_channel
 
     ssh_channel.on_close do |ch|
@@ -131,11 +137,15 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   end
 
   def initialize(ssh_socket, conn, opts = {})
+    # this is required to add the #getpeername_as_array method that's used by SocketInterface#getsockname
+    conn.extend(Rex::Socket)
+
     @ssh_socket = ssh_socket
     @channels = []
     super(conn, opts)
   end
 
+  alias sock rstream
   attr_reader :ssh_socket
 
   def self.from_ssh_socket(ssh_socket, opts = {})
