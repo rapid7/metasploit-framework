@@ -12,21 +12,6 @@ module MsfdbHelpers
     end
 
     def init(msf_pass, msftest_pass)
-      if Dir.exist?(@db)
-        puts "Found a database at #{@db}, checking to see if it is started"
-        start
-        return
-      end
-
-      if File.exist?(@db_conf) && !@options[:delete_existing_data]
-        if !load_db_config
-          puts 'Failed to load existing database config. Please reinit and overwrite the file.'
-          return
-        end
-      else
-        write_db_config
-      end
-
       puts "Creating database at #{@db}"
       Dir.mkdir(@db)
       run_cmd("initdb --auth-host=trust --auth-local=trust -E UTF8 #{@db.shellescape}")
@@ -44,7 +29,7 @@ module MsfdbHelpers
     end
 
     def delete
-      if Dir.exist?(@db)
+      if exists?
         stop
 
         if @options[:delete_existing_data]
@@ -53,20 +38,15 @@ module MsfdbHelpers
         end
 
         if @options[:delete_existing_data]
-          File.delete(@db_conf)
+          FileUtils.rm_r(@db_conf, force: true)
         end
       else
         puts "No data at #{@db}, doing nothing"
       end
     end
 
-    def reinit(msf_pass, msftest_pass)
-      delete
-      init(msf_pass, msftest_pass)
-    end
-
     def start
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
+      if status == DatabaseStatus::RUNNING
         puts "Database already started at #{@db}"
         return true
       end
@@ -84,7 +64,7 @@ module MsfdbHelpers
     end
 
     def stop
-      if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
+      if status == DatabaseStatus::RUNNING
         puts "Stopping database at #{@db}"
         run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} stop")
       else
@@ -97,15 +77,19 @@ module MsfdbHelpers
       start
     end
 
+    def exists?
+      Dir.exist?(@db)
+    end
+
     def status
-      if Dir.exist?(@db)
+      if exists?
         if run_cmd("pg_ctl -o \"-p #{@options[:db_port]}\" -D #{@db.shellescape} status") == 0
-          puts "Database started at #{@db}"
+          DatabaseStatus::RUNNING
         else
-          puts "Database is not running at #{@db}"
+          DatabaseStatus::INACTIVE
         end
       else
-        puts "No database found at #{@db}"
+        DatabaseStatus::NOT_FOUND
       end
     end
 
