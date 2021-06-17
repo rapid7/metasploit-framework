@@ -87,7 +87,9 @@ module Metasploit
               sock.put(auth_buffer)
               result_options[:proof] = sock.get_once(1024, 2)
               if result_options[:proof] && result_options[:proof].length == 4
-                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+                if result_options[:proof].chars != ["\xFF","\xFF","\xFF","\xFF"]
+                  result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
+                end
               end
             end
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
