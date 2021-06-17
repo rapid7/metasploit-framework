@@ -14,7 +14,7 @@ module Metasploit
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
 
-        DEFAULT_PORT = 50000
+        DEFAULT_PORT = 1818
         REALM_KEY = nil
 
         def encrypt_pass(inp)
@@ -39,11 +39,11 @@ module Metasploit
             if num12.to_i != num12
               num12 += 1
             end
-            ret += num12.to_i.chr
-            ret += charset_0[num10].ord.chr
+            ret << num12.to_i.chr
+            ret << charset_0[num10].ord.chr
             off = charset_0.find_index(ret.split('').to_a[-1])
             if off & 1 == 0
-              ret += charset_1[off].ord.chr
+              ret << charset_1[off].ord.chr
             end
           end
           ret = 'CRYPT:' + ret
@@ -60,26 +60,26 @@ module Metasploit
             service_name: 'X3 AdxAdmin'
           }
 
+          # encrypt the password
+          enc_pass = encrypt_pass(credential.private.to_s)
+          # building the initial authentication packet
+          # [2bytes][userlen 1 byte][username][userlen 1 byte][username][passlen 1 byte][CRYPT:HASH]
+          user = credential.public.to_s
+
+          t_auth_buffer = [user.length].pack('c')
+          t_auth_buffer << user
+          t_auth_buffer << user.length
+          t_auth_buffer << user
+          t_auth_buffer << enc_pass.length
+          t_auth_buffer << enc_pass
+
+          auth_buffer = "\x6a"
+          auth_buffer << t_auth_buffer.length
+          auth_buffer << t_auth_buffer
+
+          # add the password
+
           begin
-            # encrypt the password
-            enc_pass = encrypt_pass(credential.private.to_s)
-            # building the initial authentication packet
-            # [2bytes][userlen 1 byte][username][userlen 1 byte][username][passlen 1 byte][CRYPT:HASH]
-            user = credential.public.to_s
-
-            t_auth_buffer = [user.length].pack('c')
-            t_auth_buffer << user
-            t_auth_buffer << user.length
-            t_auth_buffer << user
-            t_auth_buffer << enc_pass.length
-            t_auth_buffer << enc_pass
-
-            auth_buffer = "\x6a"
-            auth_buffer << t_auth_buffer.length
-            auth_buffer << t_auth_buffer
-
-            # add the password
-
             connect
             select([sock], nil, nil, 0.4)
 

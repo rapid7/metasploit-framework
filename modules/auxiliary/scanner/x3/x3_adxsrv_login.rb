@@ -1,7 +1,6 @@
 require 'metasploit/framework/login_scanner/x3'
 require 'metasploit/framework/credential_collection'
 class MetasploitModule < Msf::Auxiliary
-  Rank = GreatRanking
 
   include Msf::Auxiliary::Scanner
   include Msf::Auxiliary::Report
