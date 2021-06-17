@@ -8,6 +8,7 @@ module Windows
 module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Process
 
   def initialize(info = {})
     super(update_info(

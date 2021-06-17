@@ -7,7 +7,6 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::Process
-  include Msf::Post::Process
 
   def initialize(info={})
     super( update_info( info,
