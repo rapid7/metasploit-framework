@@ -1,73 +1,13 @@
 # -*- coding: binary -*-
 
+# todo: refactor this so it's no longer under Meterpreter so it can be used elsewhere
+require 'rex/post/meterpreter/channels/socket_abstraction'
 
 module Msf::Sessions
 
 class SshCommandShellBind < Msf::Sessions::CommandShell
 
   include Msf::Session::Comm
-
-  module DirectChannelWrite
-
-    def send(buf, flags = 0)
-      syswrite(buf)
-    end
-
-    def write(buf, opts = nil)
-      syswrite(buf)
-    end
-
-    def syswrite(buf)
-      channel.channel.send_data(buf)
-      buf.length
-    end
-
-    attr_accessor :channel
-  end
-
-  module SocketInterface # taken from Meterpreter
-    include Rex::Socket
-
-    def getsockname
-      return super if not channel
-      # Find the first host in our chain (our address)
-      hops = 0
-      csock = channel.client.sock
-      while(csock.respond_to?('channel'))
-        csock = csock.channel.client.sock
-        hops += 1
-      end
-      _address_family,caddr,_cport = csock.getsockname
-      address_family,raddr,_rport = csock.getpeername_as_array
-      _maddr,mport = [ channel.params.localhost, channel.params.localport ]
-      [ address_family, "#{caddr}#{(hops > 0) ? "-_#{hops}_" : ""}-#{raddr}", mport ]
-    end
-
-    def getpeername
-      return super if not channel
-      maddr,mport = [ channel.params.peerhost, channel.params.peerport ]
-      ::Socket.sockaddr_in(mport, maddr)
-    end
-
-    %i{localhost localport peerhost peerport}.map do |meth|
-      define_method(meth) {
-        return super if not channel
-        channel.params.send(meth)
-      }
-    end
-
-    def close
-      super
-      channel.cleanup_abstraction
-      channel.close
-    end
-
-    attr_accessor :channel
-
-    def type?
-      'tcp'
-    end
-  end
 
   class TcpClientChannel # taken from Meterpreter
     include Rex::IO::StreamAbstraction
@@ -79,16 +19,21 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @channel = channel
       @params = params
 
-      lsock.extend(SocketInterface)
-      lsock.extend(DirectChannelWrite)
+      lsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
       lsock.channel = self
 
-      rsock.extend(SocketInterface)
+      rsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
       rsock.channel = self
     end
 
-    def close
-      cleanup_abstraction
+    def read(length = nil)
+      # todo: figure out how this should handle incomplete reads, timeouts etc to be just like meterpreter
+      raise ::NotImplementedError
+    end
+
+    def write(buffer)
+      channel.send_data(buffer)
+      buffer.length
     end
 
     attr_reader :channel
@@ -97,8 +42,6 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   end
 
   def create(param)
-    sock = nil
-
     # Notify handlers before we create the socket
     notify_before_socket_create(self, param)
 
@@ -129,7 +72,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     ssh_channel.on_data do |ch, data|
       $stderr.puts "writing #{data.length} bytes to rsock"
-      msf_channel.rsock.syswrite(data)
+      msf_channel.rsock.syswrite(data)  # #syswrite selected from SocketAbstraction#dio_write_handler
     end
 
     # Return the socket to the caller
