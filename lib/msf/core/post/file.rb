@@ -709,7 +709,7 @@ protected
 
     if session.type == 'meterpreter'
       return session.fs.file.search(root, glob, recurse)
-    rescue ::Rex::Post::Meterpreter::RequestError => e => e
+    rescue ::Rex::Post::Meterpreter::RequestError => e
       return matches
 
     elsif session.type == 'powershell'
