@@ -709,6 +709,8 @@ protected
 
     if session.type == 'meterpreter'
       return session.fs.file.search(root, glob, recurse)
+    rescue ::Rex::Post::Meterpreter::RequestError => e => e
+      return matches
 
     elsif session.type == 'powershell'
       list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root}| where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
