@@ -19,15 +19,7 @@ module MsfdbHelpers
     end
 
     def init(msf_pass, msftest_pass)
-      @conn.exec("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      @conn.exec("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-      @conn.exec("alter role #{@options[:msf_db_user]} createdb")
-      @conn.exec("alter role #{@options[:msftest_db_user]} createdb")
-      @conn.exec("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
-      @conn.exec("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
-      @conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
-      @conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
-      @conn.finish
+      create_db_users(msf_pass, msftest_pass)
     end
 
     def delete
@@ -35,30 +27,34 @@ module MsfdbHelpers
       @conn.exec("DROP DATABASE IF EXISTS #{@options[:msftest_db_name]};")
       @conn.exec("DROP USER IF EXISTS #{@options[:msf_db_user]};")
       @conn.exec("DROP USER IF EXISTS #{@options[:msftest_db_user]};")
-      if File.exist?(@db_conf)
-        File.delete(@db_conf)
-      end
-    end
-
-    def reinit(msf_pass, msftest_pass)
-      delete
-      init(msf_pass, msftest_pass)
+      FileUtils.rm_r(@db_conf, force: true)
     end
 
     def start
-      raise NotImplementedError
+      true
     end
 
     def stop
-      raise NotImplementedError
+      puts 'A standalone database cannot be stopped by msfdb'
+      false
     end
 
     def restart
       raise NotImplementedError
     end
 
+    def exists?
+      !@conn.nil?
+    end
+
     def status
-      raise NotImplementedError
+      # Search for the database name
+      is_initialized = @conn.exec_params('select * from pg_catalog.pg_database where datname = $1', [@options[:msf_db_name]]).any?
+      if !is_initialized
+        DatabaseStatus::NEEDS_INIT
+      else
+        DatabaseStatus::RUNNING
+      end
     end
 
     def write_db_client_auth_config
@@ -69,5 +65,18 @@ module MsfdbHelpers
       []
     end
 
+    private
+
+    def create_db_users(msf_pass, msftest_pass)
+      @conn.exec("create user #{@options[:msf_db_user]} with password '#{msf_pass}'")
+      @conn.exec("create user #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
+      @conn.exec("alter role #{@options[:msf_db_user]} createdb")
+      @conn.exec("alter role #{@options[:msftest_db_user]} createdb")
+      @conn.exec("alter role #{@options[:msf_db_user]} with password '#{msf_pass}'")
+      @conn.exec("alter role #{@options[:msftest_db_user]} with password '#{msftest_pass}'")
+      @conn.exec("CREATE DATABASE #{@options[:msf_db_name]}")
+      @conn.exec("CREATE DATABASE #{@options[:msftest_db_name]}")
+      @conn.finish
+    end
   end
 end

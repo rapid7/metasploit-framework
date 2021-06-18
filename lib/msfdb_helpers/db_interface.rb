@@ -13,10 +13,6 @@ module MsfdbHelpers
       raise NotImplementedError
     end
 
-    def reinit
-      raise NotImplementedError
-    end
-
     def start
       raise NotImplementedError
     end
