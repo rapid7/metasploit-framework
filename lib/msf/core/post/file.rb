@@ -713,12 +713,11 @@ protected
       return matches
 
     elsif session.type == 'powershell'
-      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root}| where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
+      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{blob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
       list.each do |file_info|
         file_info = file_info.split
         attrib = {}
         attrib['name'] = file_info[0]
-        next unless attrib['name'].match? (glob)
         attrib['size'] = file_info[1].to_i
         attrib['path'] = file_info[2]
         matches << attrib
