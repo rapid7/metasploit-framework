@@ -708,9 +708,11 @@ protected
     matches = []
 
     if session.type == 'meterpreter'
-      return session.fs.file.search(root, glob, recurse)
-    rescue ::Rex::Post::Meterpreter::RequestError => e
-      return matches
+      begin
+        return session.fs.file.search(root, glob, recurse)
+      rescue ::Rex::Post::Meterpreter::RequestError => e
+        return matches
+      end
 
     elsif session.type == 'powershell'
       list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{blob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
