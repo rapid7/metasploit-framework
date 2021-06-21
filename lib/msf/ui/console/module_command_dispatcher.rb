@@ -12,6 +12,7 @@ module Console
 module ModuleCommandDispatcher
 
   include Msf::Ui::Console::CommandDispatcher
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   def commands
     {
@@ -50,11 +51,12 @@ module ModuleCommandDispatcher
 
   def check_multiple(mod)
     rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore).to_enum
+    rhosts_walker_count = rhosts_walker.count
 
-    # Short-circuit check_multiple if it's a single host
-    if rhosts_walker.count == 1
+    # Short-circuit check_multiple if it's a single host, or doesn't have any hosts set
+    if rhosts_walker_count <= 1
       nmod = mod.replicant
-      nmod.datastore.merge!(rhosts_walker.next)
+      nmod.datastore.merge!(rhosts_walker.next) if rhosts_walker_count == 1
       check_simple(nmod)
       return
     end
@@ -133,31 +135,20 @@ module ModuleCommandDispatcher
   # Checks to see if a target is vulnerable.
   #
   def cmd_check(*args)
-    if args.first =~ /^\-h$/i
-      cmd_check_help
-      return
-    end
+    return false unless (args = parse_check_opts(args))
 
-    ip_range_arg = args.join(' ') unless args.empty?
-    ip_range_arg ||= mod.datastore['RHOSTS'] || framework.datastore['RHOSTS'] || ''
+    mod_with_opts = mod.replicant
+    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
 
     begin
-      nmod = mod.replicant
-      nmod.datastore['RHOSTS'] = ip_range_arg
-      begin
-        nmod.validate
-      rescue ::Msf::OptionValidateError => e
-        ::Msf::Simple::Exception.print_option_validate_error(mod, e)
-        return false
-      end
+      mod_with_opts.validate
+    rescue ::Msf::OptionValidateError => e
+      ::Msf::Simple::Exception.print_option_validate_error(mod_with_opts, e)
+      return false
+    end
 
-      begin
-        check_multiple(nmod)
-      ensure
-        # TODO: Why isn't this part of check_multiple / check_simple already? Bug?
-        nmod.cleanup
-      end
-
+    begin
+      check_multiple(mod_with_opts)
     rescue ::Interrupt
       # When the user sends interrupt trying to quit the task, some threads will still be active.
       # This means even though the console tells the user the task has aborted (or at least they

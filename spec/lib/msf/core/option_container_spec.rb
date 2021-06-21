@@ -40,7 +40,8 @@ RSpec.describe Msf::OptionContainer do
         described_class.new(
           [
             Msf::OptString.new('HttpUsername', required: true, default: nil),
-            Msf::OptString.new('HttpPassword', required: true, default: nil)
+            Msf::OptString.new('HttpPassword', required: true, default: nil),
+            Msf::OptFloat.new('FloatValue', required: true, default: 2)
           ]
         )
       end
@@ -62,6 +63,17 @@ RSpec.describe Msf::OptionContainer do
           expect(error.reasons).to eq({})
         }
       end
+
+      it 'has a side effect of normalizing values' do
+        datastore = Msf::ModuleDataStore.new(nil)
+        datastore.import_options(options_with_rhosts)
+        datastore['HttpUsername'] = 'user'
+        datastore['HttpPassword'] = 'pass'
+        datastore.store('FloatValue', '2.0')
+        expect(datastore['FloatValue']).to eq '2.0'
+        expect(options_with_rhosts.validate(datastore)).to be true
+        expect(datastore['FloatValue']).to eq 2.0
+      end
     end
 
     context 'when an RHOSTS option is present' do
@@ -70,7 +82,8 @@ RSpec.describe Msf::OptionContainer do
           [
             Msf::OptRhosts.new('RHOSTS', required: true),
             Msf::OptString.new('HttpUsername', required: true, default: nil),
-            Msf::OptString.new('HttpPassword', required: true, default: nil)
+            Msf::OptString.new('HttpPassword', required: true, default: nil),
+            Msf::OptFloat.new('FloatValue', required: true, default: 2)
           ]
         )
       end
@@ -101,6 +114,16 @@ RSpec.describe Msf::OptionContainer do
         }
       end
 
+      it 'raises an error when RHOSTS is blank' do
+        datastore = Msf::ModuleDataStore.new(nil)
+        datastore.import_options(options_with_rhosts)
+        datastore['RHOSTS'] = ''
+        expect { options_with_rhosts.validate(datastore) }.to raise_error(Msf::OptionValidateError) { |error|
+          expect(error.options).to eq(['RHOSTS'])
+          expect(error.reasons).to eq({})
+        }
+      end
+
       it 'raises an error when RHOST values do not set required values, i.e. missing required HttpUser/Pass options' do
         datastore = Msf::ModuleDataStore.new(nil)
         datastore.import_options(options_with_rhosts)
@@ -116,18 +139,17 @@ RSpec.describe Msf::OptionContainer do
         datastore.import_options(options_with_rhosts)
         datastore['RHOSTS'] = 'http://user:pass@198.51.100.1:8080 http://user@198.51.100.1:8080 http://198.51.100.1:8081'
         expect { options_with_rhosts.validate(datastore) }.to raise_error(Msf::OptionValidateError) { |error|
+          expected_reasons = {
+            'HttpPassword' => [
+              'for rhosts value http://user@198.51.100.1:8080',
+              'for rhosts value http://198.51.100.1:8081'
+            ],
+            'HttpUsername' => [
+              'for rhosts value http://198.51.100.1:8081'
+            ]
+          }
           expect(error.options).to eq(['HttpPassword', 'HttpUsername'])
-          expect(error.reasons).to eq(
-            {
-              'HttpPassword' => [
-                'for rhosts value http://user@198.51.100.1:8080',
-                'for rhosts value http://198.51.100.1:8081'
-              ],
-              'HttpUsername' => [
-                'for rhosts value http://198.51.100.1:8081'
-              ]
-            }
-          )
+          expect(error.reasons).to eq(expected_reasons)
         }
       end
 
@@ -136,15 +158,26 @@ RSpec.describe Msf::OptionContainer do
         datastore.import_options(options_with_rhosts)
         datastore['RHOSTS'] = 'http://198.51.100.1:8080path http://198.51.100.1:8080 http://foo:bar@198.51.100.1:8080path'
         expect { options_with_rhosts.validate(datastore) }.to raise_error(Msf::OptionValidateError) { |error|
+          expected_reasons = {
+            'RHOSTS' => [
+              'unexpected values: http://198.51.100.1:8080path, http://foo:bar@198.51.100.1:8080path'
+            ]
+          }
           expect(error.options).to eq(['RHOSTS', 'HttpUsername', 'HttpPassword'])
-          expect(error.reasons).to eq(
-            {
-              'RHOSTS' => [
-                'unexpected values: http://198.51.100.1:8080path, http://foo:bar@198.51.100.1:8080path'
-              ]
-            }
-          )
+          expect(error.reasons).to eq(expected_reasons)
         }
+      end
+
+      it 'has a side effect of normalizing values' do
+        datastore = Msf::ModuleDataStore.new(nil)
+        datastore.import_options(options_with_rhosts)
+        datastore['RHOSTS'] = '127.0.0.1'
+        datastore['HttpUsername'] = 'user'
+        datastore['HttpPassword'] = 'pass'
+        datastore.store('FloatValue', '2.0')
+        expect(datastore['FloatValue']).to eq '2.0'
+        expect(options_with_rhosts.validate(datastore)).to be true
+        expect(datastore['FloatValue']).to eq 2.0
       end
     end
   end

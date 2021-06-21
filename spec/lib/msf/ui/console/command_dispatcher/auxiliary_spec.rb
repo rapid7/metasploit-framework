@@ -168,7 +168,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_check
         expected_output = [
-          'Check failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
+          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -180,8 +180,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         expected_output = [
           '192.0.2.1:445         - Checking for target 192.0.2.1:445 with normalized datastore value 3.5',
           '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
-          '192.0.2.1:445 - Check failed: The state could not be determined.',
-          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445'
+          '192.0.2.1:445 - Check failed: The state could not be determined.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -198,9 +197,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.2:445         - Checking for target 192.0.2.2:445 with normalized datastore value 3.5',
           '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
           '192.0.2.2:445 - Check failed: The state could not be determined.',
-          'Checked 2 of 2 hosts (100% complete)',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445'
+          'Checked 2 of 2 hosts (100% complete)'
         ]
+
         expect(@combined_output).to match_array(expected_output)
       end
 
@@ -216,29 +215,25 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.2:445         - Checking for target 192.0.2.2:445 with normalized datastore value 5.0',
           '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
           '192.0.2.2:445 - Check failed: The state could not be determined.',
-          'Checked 2 of 2 hosts (100% complete)',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445'
+          'Checked 2 of 2 hosts (100% complete)'
         ]
 
         expect(@combined_output).to match_array(expected_output)
       end
 
       it 'supports inline options' do
-        pending("cmd_check doesn't support inline methods, only cmd_run")
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_check('RHOSTS=192.0.2.5', 'FloatValue=10.0')
         expected_output = [
           '192.0.2.5:445         - Checking for target 192.0.2.5:445 with normalized datastore value 10.0',
           '192.0.2.5:445         - Cleanup for target 192.0.2.5:445',
           '192.0.2.5:445 - Check failed: The state could not be determined.',
-          '192.0.2.5:445         - Cleanup for target 192.0.2.5:445'
         ]
 
         expect(@combined_output).to match_array(expected_output)
       end
 
       it 'supports multiple RHOST inline options' do
-        pending("cmd_check doesn't support inline methods, only cmd_run")
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_check('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
         expected_output = [
@@ -249,8 +244,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.6:445         - Checking for target 192.0.2.6:445 with normalized datastore value 10.0',
           '192.0.2.6:445         - Cleanup for target 192.0.2.6:445',
           '192.0.2.6:445 - Check failed: The state could not be determined.',
-          'Checked 2 of 2 hosts (100% complete)',
-          'Cleanup for target 192.0.2.5 192.0.2.6:445'
+          'Checked 2 of 2 hosts (100% complete)'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -261,14 +255,14 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         expected_output = [
           '192.0.2.5:445         - Checking for target 192.0.2.5:445 with normalized datastore value 3.5',
           '192.0.2.5:445         - Cleanup for target 192.0.2.5:445',
-          '192.0.2.5:445 - Check failed: The state could not be determined.',
-          'Cleanup for target :445'
+          '192.0.2.5:445 - Check failed: The state could not be determined.'
         ]
+
         expect(@combined_output).to match_array(expected_output)
       end
 
       it 'supports targeting multiple hosts as an inline argument' do
-        subject.cmd_check('192.0.2.5 192.0.2.6')
+        subject.cmd_check('192.0.2.5', '192.0.2.6')
 
         expected_output = [
           '192.0.2.5:445         - Checking for target 192.0.2.5:445 with normalized datastore value 3.5',
@@ -278,23 +272,19 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.6:445         - Checking for target 192.0.2.6:445 with normalized datastore value 3.5',
           '192.0.2.6:445         - Cleanup for target 192.0.2.6:445',
           '192.0.2.6:445 - Check failed: The state could not be determined.',
-          'Checked 2 of 2 hosts (100% complete)',
-          'Cleanup for target :445'
+          'Checked 2 of 2 hosts (100% complete)'
         ]
 
         expect(@combined_output).to match_array(expected_output)
       end
 
-      it 'incorrectly handles unknown flags, and inadvertently run the exploit with the old rhosts value' do
+      it 'correctly handles unknown flags' do
+        allow(subject.mod).to receive(:run)
         current_mod.datastore['RHOSTS'] = '192.0.2.1'
         subject.cmd_check('-unknown-flag')
-        expected_output = [
-          '192.0.2.1:445         - Checking for target 192.0.2.1:445 with normalized datastore value 3.5',
-          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
-          '192.0.2.1:445 - Check failed: The state could not be determined.'
-        ]
-
-        expect(@combined_output).to match_array(expected_output)
+        # Ensure the help menu is present
+        expect(@combined_output).to include(/Usage: check /)
+        expect(subject.mod).not_to have_received(:run)
       end
     end
 
@@ -306,7 +296,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = ''
         subject.cmd_check
         expected_output = [
-          'Check failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
+          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -319,8 +309,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         expected_output = [
           'Checking for target 192.0.2.1:3000 with normalized datastore value 3.5',
           'Cleanup for target 192.0.2.1:3000',
-          '192.0.2.1:3000 - Check failed: The state could not be determined.',
-          'Cleanup for target 192.0.2.1:3000'
+          '192.0.2.1:3000 - Check failed: The state could not be determined.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -335,8 +324,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.1:3000 - Check failed: The state could not be determined.',
           'Checking for target 192.0.2.2:3000 with normalized datastore value 3.5',
           'Cleanup for target 192.0.2.2:3000',
-          '192.0.2.2:3000 - Check failed: The state could not be determined.',
-          'Cleanup for target 192.0.2.1 192.0.2.2:3000'
+          '192.0.2.2:3000 - Check failed: The state could not be determined.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -352,39 +340,34 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           '192.0.2.1:3000 - Check failed: The state could not be determined.',
           'Checking for target 192.0.2.2:3000 with normalized datastore value 5.0',
           'Cleanup for target 192.0.2.2:3000',
-          '192.0.2.2:3000 - Check failed: The state could not be determined.',
-          'Cleanup for target 192.0.2.1 192.0.2.2:3000'
+          '192.0.2.2:3000 - Check failed: The state could not be determined.'
         ]
 
         expect(@combined_output).to match_array(expected_output)
       end
 
       it 'supports inline options' do
-        pending('cmd_check does not support inline values yet')
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_check('RHOSTS=192.0.2.5', 'FloatValue=10.0')
         expected_output = [
           'Checking for target 192.0.2.5:3000 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.5:3000',
           '192.0.2.5:3000 - Check failed: The state could not be determined.',
-          'Cleanup for target 192.0.2.5:3000'
         ]
 
         expect(@combined_output).to match_array(expected_output)
       end
 
       it 'supports multiple inlined RHOST values' do
-        pending('pending as inline module options are evaluated too late, and the module is therefore treated as a scanner')
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_check('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
         expected_output = [
           'Checking for target 192.0.2.5:3000 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.5:3000',
           '192.0.2.5:3000 - Check failed: The state could not be determined.',
-          'Checking for target 192.0.2.6:3000 with normalized datastore value 5.0',
+          'Checking for target 192.0.2.6:3000 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.6:3000',
           '192.0.2.6:3000 - Check failed: The state could not be determined.',
-          'Cleanup for target 192.0.2.5 192.0.2.6:3000'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -414,7 +397,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_run
         expected_output = [
-          'Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
+          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -439,13 +422,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = '192.0.2.1 192.0.2.2'
         subject.cmd_run
         expected_output = [
-          '192.0.2.1:445         - Running for target 192.0.2.1:445 with normalized datastore value 3.5',
-          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
-          '192.0.2.1:445         - Scanned 1 of 2 hosts (50% complete)',
-          '192.0.2.2:445         - Running for target 192.0.2.2:445 with normalized datastore value 3.5',
-          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
-          '192.0.2.2:445         - Scanned 2 of 2 hosts (100% complete)',
-          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
+          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 3.5',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          'Scanned 1 of 2 hosts (50% complete)',
+          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 3.5',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          'Scanned 2 of 2 hosts (100% complete)',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
           'Auxiliary module execution completed'
         ]
 
@@ -457,13 +440,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run
         expected_output = [
-          '192.0.2.1:445         - Running for target 192.0.2.1:445 with normalized datastore value 5.0',
-          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
-          '192.0.2.1:445         - Scanned 1 of 2 hosts (50% complete)',
-          '192.0.2.2:445         - Running for target 192.0.2.2:445 with normalized datastore value 5.0',
-          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
-          '192.0.2.2:445         - Scanned 2 of 2 hosts (100% complete)',
-          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
+          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 5.0',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          'Scanned 1 of 2 hosts (50% complete)',
+          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 5.0',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          'Scanned 2 of 2 hosts (100% complete)',
+          'Cleanup for target 192.0.2.1 192.0.2.2:445',
           'Auxiliary module execution completed'
         ]
 
@@ -488,13 +471,13 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
         expected_output = [
-          '192.0.2.5:445         - Running for target 192.0.2.5:445 with normalized datastore value 10.0',
-          '192.0.2.5:445         - Cleanup for target 192.0.2.5:445',
-          '192.0.2.5:445         - Scanned 1 of 2 hosts (50% complete)',
-          '192.0.2.6:445         - Running for target 192.0.2.6:445 with normalized datastore value 10.0',
-          '192.0.2.6:445         - Cleanup for target 192.0.2.6:445',
-          '192.0.2.6:445         - Scanned 2 of 2 hosts (100% complete)',
-          '192.0.2.6:445         - Cleanup for target 192.0.2.6:445',
+          'Running for target 192.0.2.5 192.0.2.6:445 with normalized datastore value 10.0',
+          'Cleanup for target 192.0.2.5 192.0.2.6:445',
+          'Scanned 1 of 2 hosts (50% complete)',
+          'Running for target 192.0.2.5 192.0.2.6:445 with normalized datastore value 10.0',
+          'Cleanup for target 192.0.2.5 192.0.2.6:445',
+          'Scanned 2 of 2 hosts (100% complete)',
+          'Cleanup for target 192.0.2.5 192.0.2.6:445',
           'Auxiliary module execution completed'
         ]
 
@@ -525,7 +508,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
         subject.cmd_run
         expected_output = [
-          'Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
+          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -626,7 +609,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = ''
         subject.cmd_run
         expected_output = [
-          'Auxiliary failed: Msf::OptionValidateError One or more options failed to validate: RHOSTS.'
+          'Msf::OptionValidateError The following options failed to validate: RHOSTS'
         ]
 
         expect(@combined_output).to match_array(expected_output)
@@ -683,6 +666,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run('RHOSTS=192.0.2.5', 'FloatValue=10.0')
         expected_output = [
+          'Running module against 192.0.2.5',
           'Running for target 192.0.2.5:3000 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.5:3000',
           'Auxiliary module execution completed'
@@ -692,7 +676,6 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
       end
 
       it 'supports multiple inlined RHOST values' do
-        pending('fails as inline module options are evaluated too late, and the module is therefore treated as a scanner')
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
         expected_output = [

@@ -193,6 +193,21 @@ module Msf
     # Make sures that each of the options has a value of a compatible
     # format and that all the required options are set.
     def validate(datastore)
+      # First mutate the datastore and normalize all valid values before validating permutations of RHOST/etc.
+      each_pair do |name, option|
+        if option.valid?(datastore[name]) && (val = option.normalize(datastore[name])) != nil
+          # This *will* result in a module that previously used the
+          # global datastore to have its local datastore set, which
+          # means that changing the global datastore and re-running
+          # the same module will now use the newly-normalized local
+          # datastore value instead. This is mostly mitigated by
+          # forcing a clone through mod.replicant, but can break
+          # things in corner cases.
+          datastore[name] = val
+        end
+      end
+
+      # Validate all permutations of rhost combinations
       if include?('RHOSTS')
         error_options = Set.new
         error_reasons = Hash.new do |hash, key|
@@ -212,9 +227,9 @@ module Msf
           each_pair do |name, option|
             unless option.valid?(datastore[name])
               error_options << name
-               if rhosts_count > 1
-                 error_reasons[name] << "for rhosts value #{datastore['TODO_RHOST_SCHEMA_VALUE']}"
-               end
+              if rhosts_count > 1
+                error_reasons[name] << "for rhosts value #{datastore['TODO_RHOST_SCHEMA_VALUE']}"
+              end
             end
           end
         end
@@ -226,18 +241,8 @@ module Msf
       else
         error_options = []
         each_pair do |name, option|
-          if !option.valid?(datastore[name])
+          unless option.valid?(datastore[name])
             error_options << name
-            # If the option is valid, normalize its format to the correct type.
-          elsif (val = option.normalize(datastore[name])) != nil
-            # This *will* result in a module that previously used the
-            # global datastore to have its local datastore set, which
-            # means that changing the global datastore and re-running
-            # the same module will now use the newly-normalized local
-            # datastore value instead. This is mostly mitigated by
-            # forcing a clone through mod.replicant, but can break
-            # things in corner cases.
-            datastore[name] = val
           end
         end
 
@@ -310,7 +315,6 @@ module Msf
     protected
 
     attr_writer :sorted # :nodoc:
-
   end
 
 end

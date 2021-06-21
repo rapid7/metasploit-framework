@@ -36,6 +36,7 @@ RSpec.shared_context 'Msf::UIDriver' do
       @combined_output.concat(lines)
     end
 
+    allow(target).to receive(:print).with(kind_of(String), &append_output)
     allow(target).to receive(:print_line).with(kind_of(String), &append_output)
     allow(target).to receive(:print_status).with(kind_of(String), &append_output)
     allow(target).to receive(:print_warning).with(kind_of(String), &append_error)

@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'msf/ui/console/command_dispatcher'
+require 'msf/ui/console/module_argument_parsing'
 
 module Msf
 module Ui
@@ -11,21 +12,14 @@ module Console
 #
 ###
 module ModuleActionCommands
-  @@module_action_opts = Rex::Parser::Arguments.new(
-    '-h' => [ false, 'Help banner.'                                          ],
-    '-j' => [ false, 'Run in the context of a job.'                          ],
-    '-o' => [ true,  'A comma separated list of options in VAR=VAL format.'  ],
-    '-q' => [ false, 'Run the module in quiet mode with no output'           ]
-  )
-
-  @@module_opts = Rex::Parser::Arguments.new(@@module_action_opts.fmt.merge(
-    '-a' => [ true, 'The action to use. If none is specified, ACTION is used.']
-  ))
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   #
   # Returns the hash of commands specific to auxiliary modules.
   #
   def action_commands
+    return {} unless mod.respond_to?(:actions)
+
     mod.actions.map { |action| [action.name.downcase, action.description] }.to_h
   end
 
@@ -54,46 +48,6 @@ module ModuleActionCommands
   end
 
   #
-  # Parse the arguments to the run command, accounting for an optional module action.
-  #
-  def parse_run_opts(args, action: nil)
-    ds_opts = {}
-    action  ||= mod.datastore['ACTION']
-    jobify  = false
-    quiet   = false
-
-    @@module_opts.parse(args) do |opt, idx, val|
-      case opt
-      when '-j'
-        jobify = true
-      when '-o'
-        val << '=' unless val.include?('=')
-        ds_opts.store(*val.split('=', 2))
-      when '-a'
-        action = val
-      when '-q'
-        quiet  = true
-      when '-h'
-        if action.nil?
-          cmd_run_help
-        else
-          cmd_action_help(action)
-        end
-        return
-      else
-        if val[0] != '-' && val.include?('=')
-          ds_opts.store(*val.split('=', 2))
-        else
-          cmd_run_help
-          return
-        end
-      end
-    end
-
-    { action: action, jobify: jobify, quiet: quiet, datastore_options: ds_opts }
-  end
-
-  #
   # Execute the module with a set action
   #
   def do_action(meth, *args)
@@ -107,7 +61,7 @@ module ModuleActionCommands
     print_line "Usage: " + action.downcase + " [options]"
     print_line
     print_line "Launches a specific module action."
-    print @@module_action_opts.usage
+    print @@module_opts.usage
   end
 
   #
@@ -118,7 +72,7 @@ module ModuleActionCommands
   # at least 1 when tab completion has reached this stage since the command itself has been completed
   #
   def cmd_run_tabs(str, words)
-    flags = @@module_opts.fmt.keys
+    flags = @@module_opts_with_action_support.fmt.keys
     options = tab_complete_option(active_module, str, words)
     flags + options
   end
