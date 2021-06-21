@@ -704,6 +704,10 @@ protected
     line_max
   end
 
+  # @param root [string] the directory path to search in
+  # @param glob [string] the pattern to search for
+  # @param recurse [boolean] to specify recursive search, by default true  
+  # @return [Array] return an array of hashes with file size, name and path
   def search( root=nil, glob='*.*', recurse=true )
     matches = []
 
@@ -743,7 +747,8 @@ protected
     matches
   end
 
-
+  # @param filename [String]
+  # @return [Stat] stat object of the specified file
   def stat(filename)
     if session.type == 'meterpreter'
       return session.fs.file.stat(filename)
