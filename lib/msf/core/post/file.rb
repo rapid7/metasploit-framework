@@ -715,7 +715,7 @@ protected
       end
 
     elsif session.type == 'powershell'
-      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{blob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
+      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{glob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
       list.each do |file_info|
         file_info = file_info.split
         attrib = {}
@@ -728,32 +728,14 @@ protected
     elsif session.platform == 'windows'
       #cmdcode  
     else
-      if recurse
-        list = cmd_exec("ls -la1Rp #{root} | grep -v /$").split("\n\n")
-        list.each do |each_dir|
-          path, files = each_dir.split(":\n")
-          files = files.split("\n")
-          files.delete_at(0)
-          files.each do |file_info|
-            file_info = file_info.split
-            attrib = {}
-            attrib['name'] = file_info[8..-1].join('')
-            next unless attrib['name'].match? (glob)
-            attrib['size'] = file_info[4].to_i
-            attrib['path'] = path
-            matches << attrib
-          end
-        end
-      else
-        list = cmd_exec("ls -la1p #{root} | grep -v /$").split("\n")
-        list.delete_at(0)
-        list.each do |file_info|
-          file_info = file_info.split
+      if command_exists?('find')
+        list = cmd_exec("find \"#{root}\" #{recurse ? "-maxdepth 1" : ""} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
+        list.split("\n").each do |file|
+          size, full_path = file.split
           attrib = {}
-          attrib['name'] = file_info[8..-1].join('')
-          next unless attrib['name'].match? (glob)
-          attrib['size'] = file_info[4].to_i
-          attrib['path'] = root
+          attrib['size'] = size
+          attrib['name'] = (full_path.match /[^\/]+$/).to_s
+          attrib['path'] = full_path.chomp(attrib['name'])
           matches << attrib
         end
       end
