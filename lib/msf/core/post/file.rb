@@ -733,7 +733,7 @@ protected
         list.split("\n").each do |file|
           size, full_path = file.split
           attrib = {}
-          attrib['size'] = size
+          attrib['size'] = size.to_i
           attrib['name'] = (full_path.match /[^\/]+$/).to_s
           attrib['path'] = full_path.chomp(attrib['name'])
           matches << attrib
