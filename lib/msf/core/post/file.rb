@@ -729,7 +729,7 @@ protected
       #cmdcode  
     else
       if command_exists?('find')
-        list = cmd_exec("find \"#{root}\" #{recurse ? "-maxdepth 1" : ""} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
+        list = cmd_exec("find \"#{root}\" #{recurse ? '' : '-maxdepth 1'} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
         list.split("\n").each do |file|
           size, full_path = file.split
           attrib = {}
