@@ -140,7 +140,7 @@ module Msf
     #
     # @param value [String] the http string
     # @return [Hash] A hash where keys match the required datastore options associated with
-    #   the http uri value
+    #   the smb uri value
     def parse_smb_uri(value, datastore)
       uri = URI.parse(value)
       result = {}
@@ -189,8 +189,9 @@ module Msf
       result['VHOST'] = nil
 
       result['RHOSTS'] = uri.hostname
-      result['RPORT'] = uri.port
-      result['SSL'] = %w[ssl https].include?(uri.scheme)
+      is_ssl =  %w[ssl https].include?(uri.scheme)
+      result['RPORT'] = uri.port || (is_ssl ? 443 : 80)
+      result['SSL'] = is_ssl
 
       # Both `TARGETURI` and `URI` are used as datastore options to denote the path on a uri
       target_uri = uri.path.present? ? uri.path : '/'

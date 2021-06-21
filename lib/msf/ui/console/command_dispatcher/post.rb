@@ -14,14 +14,7 @@ class Post
   include Msf::Ui::Console::ModuleCommandDispatcher
   include Msf::Ui::Console::ModuleActionCommands
   include Msf::Ui::Console::ModuleOptionTabCompletion
-
-
-  @@post_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help banner."                                          ],
-    "-j" => [ false, "Run in the context of a job."                          ],
-    "-o" => [ true,  "A comma separated list of options in VAR=VAL format."  ],
-    "-q" => [ false, "Run the module in quiet mode with no output"           ]
-  )
+  include Msf::Ui::Console::ModuleArgumentParsing
 
   #
   # Returns the hash of commands specific to post modules.
@@ -122,7 +115,7 @@ class Post
     print_line "Usage: run [options]"
     print_line
     print_line "Launches a post module."
-    print @@module_opts.usage
+    print @@module_opts_with_action_support.usage
   end
 
   alias cmd_exploit_help cmd_run_help

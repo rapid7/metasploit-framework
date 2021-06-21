@@ -51,23 +51,23 @@ class Auxiliary
       jobify = true
     end
 
-    rhosts = mod.datastore['RHOSTS']
-    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod.datastore)
+    mod_with_opts = mod.replicant
+    mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
+    rhosts = mod_with_opts.datastore['RHOSTS']
+    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod_with_opts.datastore)
 
     begin
-      # TODO: Doesn't always work because of OptionStr
-      mod.validate
+      mod_with_opts.validate
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+      ::Msf::Simple::Exception.print_option_validate_error(mod_with_opts, e)
       return false
     end
 
     begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
-        mod.run_simple(
+        mod_with_opts.run_simple(
           'Action'         => args[:action],
-          'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
           'LocalInput'     => driver.input,
           'LocalOutput'    => driver.output,
           'RunAsJob'       => jobify,
@@ -76,14 +76,11 @@ class Auxiliary
       # For multi target attempts with non-scanner modules.
       else
         rhosts_walker.each do |datastore|
-          nmod = mod.replicant
-          nmod.datastore.merge!(datastore)
+          mod_with_opts = mod.replicant
+          mod_with_opts.datastore.merge!(datastore)
           print_status("Running module against #{datastore['RHOSTS']}")
-          nmod.run_simple(
+          mod_with_opts.run_simple(
             'Action'         => args[:action],
-            # XXX: if this OptionStr contains multiple rhosts, they won't be handled correctly
-            # XXX: Additionally this has a different end-user UX to `cmd_check`, which supports 'check 127.0.0.1' in comparison to 'run rhosts=127.0.0.1'
-            'OptionStr'      => args[:datastore_options].map { |k,v| "#{k}=#{v}" }.join(','),
             'LocalInput'     => driver.input,
             'LocalOutput'    => driver.output,
             'RunAsJob'       => false,
@@ -101,7 +98,7 @@ class Auxiliary
     rescue ::Interrupt
       print_error("Auxiliary interrupted by the console user")
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+      ::Msf::Simple::Exception.print_option_validate_error(running_mod, e)
     rescue ::Exception => e
       print_error("Auxiliary failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')
@@ -115,8 +112,8 @@ class Auxiliary
       return false
     end
 
-    if (jobify && mod.job_id)
-      print_status("Auxiliary module running as background job #{mod.job_id}.")
+    if (jobify && mod_with_opts.job_id)
+      print_status("Auxiliary module running as background job #{mod_with_opts.job_id}.")
     else
       print_status("Auxiliary module execution completed")
     end
@@ -129,7 +126,7 @@ class Auxiliary
     print_line "Usage: run [options]"
     print_line
     print_line "Launches an auxiliary module."
-    print @@module_opts.usage
+    print @@module_opts_with_action_support.usage
   end
 
   alias cmd_exploit_help cmd_run_help
