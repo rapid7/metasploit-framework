@@ -361,7 +361,16 @@ module Msf::Post::File
     # Result on systems without cat command
     session.shell_command_token("while read line; do echo $line; done <#{file_name}")
   end
-
+  def is_bin?(data)
+    index = 0
+    data.each_char do |char|
+      index += 1
+      unless char.ascii_only?
+        return true
+      end
+    end
+    return false
+  end
   # Platform-agnostic file write. Writes given object content to a remote file.
   #
   # NOTE: *This is not binary-safe on Windows shell sessions!*
@@ -376,12 +385,79 @@ module Msf::Post::File
       fd.close
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
-        session.shell_command_token("echo | set /p=\"#{data}\"> \"#{file_name}\"")
+        if is_bin?(data)
+          return win_bin_write_file(file_name, data)
+        else
+          return win_ansi_write_file(file_name, data)
+        end
       else
-        _write_file_unix_shell(file_name, data)
+        return _write_file_unix_shell(file_name, data)
       end
     end
-    true
+  end
+
+  # Platform-agnostic file write. Writes given object content to a remote file.
+  #
+  # NOTE: *This is not binary-safe on Windows shell sessions!*
+  #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
+  def win_ansi_write_file(file_name, data, max_chunk = 5000)
+    start_index = 0
+    write_length =[max_chunk, data.length].min
+    session.shell_command_token("echo | set /p=\"#{data[0, write_length]}\"> \"#{file_name}\"")
+    if data.length > write_length
+      # rest of the f&*king owl
+      win_ansi_append_file(file_name, data[write_length..], max_chunk)
+    end
+  end
+  # Platform-agnostic file write. Writes given object content to a remote file.
+  #
+  # NOTE: *This is not binary-safe on Windows shell sessions!*
+  #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
+  def win_ansi_append_file(file_name, data, max_chunk = 5000)
+    start_index = 0
+    write_length =[max_chunk, data.length].min
+    while start_index < data.length
+      session.shell_command_token("<nul set /p=\"#{data[start_index, write_length]}\" >> \"#{file_name}\"")
+      start_index = start_index + write_length
+      write_length = [max_chunk, data.length - start_index].min
+    end
+  end
+  # Platform-agnostic file write. Writes given object content to a remote file.
+  #
+  # NOTE: *This is not binary-safe on Windows shell sessions!*
+  #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
+  def win_bin_write_file(file_name, data, max_chunk = 5000)
+    b64_data = Base64.strict_encode64(data)
+    b64_filename = "#{file_name}.b64"
+    win_ansi_write_file(b64_filename, b64_data, max_chunk)
+    cmd_exec("certutil -decode #{b64_filename} #{file_name}")
+    file_rm(b64_filename)
+  end
+  # Platform-agnostic file write. Writes given object content to a remote file.
+  #
+  # NOTE: *This is not binary-safe on Windows shell sessions!*
+  #
+  # @param file_name [String] Remote file name to write
+  # @param data [String] Contents to put in the file
+  # @return [void]
+  def win_bin_append_file(file_name, data, max_chunk = 5000)
+    b64_data = Base64.strict_encode64(data)
+    b64_filename = "#{file_name}.b64"
+    tmp_filename = "#{file_name}.tmp"
+    win_ansi_write_file(b64_filename, b64_data, max_chunk)
+    cmd_exec("certutil -decode #{b64_filename} #{tmp_filename}")
+    cmd_exec("copy /b #{file_name}+#{tmp_filename} #{file_name}")
+    file_rm(b64_filename)
+    file_rm(tmp_filename)
   end
 
   #
@@ -400,9 +476,13 @@ module Msf::Post::File
       fd.close
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
-        session.shell_command_token("<nul set /p=\"#{data}\" >> \"#{file_name}\"")
+        if is_bin?(data)
+          return win_bin_append_file(file_name, data)
+        else
+          return win_ansi_append_file(file_name, data)
+        end
       else
-        _write_file_unix_shell(file_name, data, true)
+        return _write_file_unix_shell(file_name, data)
       end
     end
     true
