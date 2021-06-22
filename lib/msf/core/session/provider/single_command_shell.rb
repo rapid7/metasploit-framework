@@ -73,10 +73,9 @@ module SingleCommandShell
           end
         end
       end
-    rescue
-      # nothing, just continue
+    rescue Timeout::Error
+      # This is expected in many cases
     end
-
     # failed to get any data or find the token!
     nil
   end
