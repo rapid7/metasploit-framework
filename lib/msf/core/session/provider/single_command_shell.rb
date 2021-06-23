@@ -61,7 +61,7 @@ module SingleCommandShell
             buf << tmp
             # see if we have the wanted idx
             unless buf.nil?
-              # This should just be one regex....
+              # normalize the line endings following the token and parse them
               buf.gsub!("#{token}\n", "#{token}\r\n")
               parts = buf.split("#{token}\r\n", -1)
               if parts.length == parts_needed

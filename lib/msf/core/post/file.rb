@@ -361,19 +361,23 @@ module Msf::Post::File
     # Result on systems without cat command
     session.shell_command_token("while read line; do echo $line; done <#{file_name}")
   end
-  def is_bin?(data)
+
+  # Checks to see if there are non-ansi or newline characters in a given string
+  #
+  # @param data [String] String to check for non-ansi or newline chars
+  # @return bool
+  def is_safe?(data)
     index = 0
     data.each_char do |char|
       index += 1
-      unless char.ascii_only?
-        return true
+      unless char.ascii_only? or char == '\n'
+        return false
       end
     end
-    return false
+    return true
   end
+
   # Platform-agnostic file write. Writes given object content to a remote file.
-  #
-  # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
@@ -385,10 +389,10 @@ module Msf::Post::File
       fd.close
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
-        if is_bin?(data)
-          return win_bin_write_file(file_name, data)
-        else
+        if is_safe?(data)
           return win_ansi_write_file(file_name, data)
+        else
+          return win_bin_write_file(file_name, data)
         end
       else
         return _write_file_unix_shell(file_name, data)
@@ -396,28 +400,31 @@ module Msf::Post::File
     end
   end
 
-  # Platform-agnostic file write. Writes given object content to a remote file.
+  # Windows ANSI file write for shell sessions. Writes given object content to a remote file.
   #
   # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
+  # @param max_chunk [int] max size for the data chunk to write at a time
   # @return [void]
   def win_ansi_write_file(file_name, data, max_chunk = 5000)
     start_index = 0
     write_length =[max_chunk, data.length].min
     session.shell_command_token("echo | set /p=\"#{data[0, write_length]}\"> \"#{file_name}\"")
     if data.length > write_length
-      # rest of the f&*king owl
-      win_ansi_append_file(file_name, data[write_length..], max_chunk)
+      # just use append to finish the rest
+      win_ansi_append_file(file_name, data[write_length, data.length], max_chunk)
     end
   end
-  # Platform-agnostic file write. Writes given object content to a remote file.
+
+  # Windows ansi file append for shell sessions. Writes given object content to a remote file.
   #
   # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
+  # @param max_chunk [int] max size for the data chunk to write at a time
   # @return [void]
   def win_ansi_append_file(file_name, data, max_chunk = 5000)
     start_index = 0
@@ -428,12 +435,12 @@ module Msf::Post::File
       write_length = [max_chunk, data.length - start_index].min
     end
   end
-  # Platform-agnostic file write. Writes given object content to a remote file.
-  #
-  # NOTE: *This is not binary-safe on Windows shell sessions!*
+
+  # Windows binary file write for shell sessions. Writes given object content to a remote file.
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
+  # @param max_chunk [int] max size for the data chunk to write at a time
   # @return [void]
   def win_bin_write_file(file_name, data, max_chunk = 5000)
     b64_data = Base64.strict_encode64(data)
@@ -442,12 +449,12 @@ module Msf::Post::File
     cmd_exec("certutil -decode #{b64_filename} #{file_name}")
     file_rm(b64_filename)
   end
-  # Platform-agnostic file write. Writes given object content to a remote file.
-  #
-  # NOTE: *This is not binary-safe on Windows shell sessions!*
+
+  # Windows binary file append for shell sessions. Appends given object content to a remote file.
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
+  # @param max_chunk [int] max size for the data chunk to write at a time
   # @return [void]
   def win_bin_append_file(file_name, data, max_chunk = 5000)
     b64_data = Base64.strict_encode64(data)
@@ -462,13 +469,10 @@ module Msf::Post::File
 
   #
   # Platform-agnostic file append. Appends given object content to a remote file.
-  # Returns Boolean true if successful
-  #
-  # NOTE: *This is not binary-safe on Windows shell sessions!*
   #
   # @param file_name [String] Remote file name to write
   # @param data [String] Contents to put in the file
-  # @return [void]
+  # @return bool
   def append_file(file_name, data)
     if session.type == "meterpreter"
       fd = session.fs.file.new(file_name, "ab")
@@ -476,10 +480,10 @@ module Msf::Post::File
       fd.close
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
-        if is_bin?(data)
-          return win_bin_append_file(file_name, data)
-        else
+        if is_safe?(data)
           return win_ansi_append_file(file_name, data)
+        else
+          return win_bin_append_file(file_name, data)
         end
       else
         return _write_file_unix_shell(file_name, data)
