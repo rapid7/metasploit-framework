@@ -122,7 +122,7 @@ class MetasploitModule < Msf::Auxiliary
       'uri' => normalize_uri(target_uri.path)
     })
 
-    fail_with Failure::Unreachable "Target #{RHOST} could not be reached." unless r
+    fail_with(Failure::Unreachable, "Target #{rhost} could not be reached.") unless r
 
     r_time = DateTime.strptime(r.headers['Date'][0..-4], '%a, %d %b %Y %H:%M:%S').strftime('%s')
     r_time
@@ -142,7 +142,7 @@ class MetasploitModule < Msf::Auxiliary
         return res
       end
     end
-    print_error("Didn't succeed after #{datastore['NBRETRIES']} attempts")
+    print_error("Didn't succeed after #{datastore['RETRIES']} attempts")
     res
   end
 
