@@ -56,8 +56,19 @@ class HistoryManager
 
     def load_history_file(history_file)
       clear_readline
-
       if File.exist?(history_file)
+        if File.readlines(history_file).length > 1000
+          lines = []
+          File.readlines(history_file)[-1000..-1].each do |e|
+            lines << e.chomp
+          end
+
+          File.open(history_file, 'w') do |file|
+            file.puts lines
+          end
+        end
+
+
         File.readlines(history_file).each do |e|
           Readline::HISTORY << e.chomp
         end
