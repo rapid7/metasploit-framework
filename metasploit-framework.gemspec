@@ -207,6 +207,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'hrr_rb_ssh', '0.3.0.pre2'
   # Needed for irb internal command
   spec.add_runtime_dependency 'irb'
+  # Lock reline version until Fiddle concerns are addressed
+  spec.add_runtime_dependency 'reline', '0.2.5'
 
   # AWS enumeration modules
   spec.add_runtime_dependency 'aws-sdk-s3'
