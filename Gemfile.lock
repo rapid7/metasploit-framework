@@ -53,6 +53,7 @@ PATH
       rb-readline
       recog
       redcarpet
+      reline (= 0.2.5)
       rex-arch
       rex-bin_tools
       rex-core
