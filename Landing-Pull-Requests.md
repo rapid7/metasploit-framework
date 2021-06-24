@@ -128,7 +128,7 @@ Now, we're on a local branch identical to the original pull request, and can mov
 
 In this particular case with PR #1217, I did want to send some changes back to the contributor.
 
-**Important**: If the codebase the contributor's PR is based on is severely outdated (e.g., they branched off an outdated ```master```), you should not test their PR in isolation as described above. Instead, you should create a test branch that is identical to the latest codebase, merge the contributor's PR into the test branch, and then start your testing.
+**Important**: If the codebase the contributor's PR is based on is severely outdated (e.g., they branched off an outdated ```master```), you should not test their PR in isolation as described above. Instead, you should create a test branch that is identical to the latest codebase, merge the contributor's PR into the test branch, and then start your testing. You may need to `bundle install` before testing.
 
 Here's an example with #6954 (your workflow may vary):
 
