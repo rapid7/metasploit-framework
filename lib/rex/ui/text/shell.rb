@@ -1,5 +1,6 @@
 # -*- coding: binary -*-
 require 'rex/text/color'
+require 'pry'
 
 module Rex
 module Ui
@@ -122,6 +123,8 @@ module Shell
   # Run the command processing loop.
   #
   def run(&block)
+    # pry history will not be loaded when used pry is used as breakpoints like `binding.pry` by default now
+    Pry.config.history_load = false
 
     HistoryManager.push_context(history_file: histfile, name: name)
     self.hist_last_saved = Readline::HISTORY.length
