@@ -57,7 +57,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       if res.code == 200 && res.headers['Content-Type'] == 'application/java'
-        print_good('Java file leak at ' + rhost + ':' + rport.to_s + normalized_url)
+        print_good("Java file leak at #{rhost}:#{rport.to_s}#{normalized_url}")
         Exploit::CheckCode::Vulnerable
       else
         Exploit::CheckCode::Safe
