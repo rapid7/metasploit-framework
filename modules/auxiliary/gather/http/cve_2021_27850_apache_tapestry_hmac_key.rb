@@ -42,7 +42,7 @@ class MetasploitModule < Msf::Auxiliary
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/' + datastore['TARGETED_CLASS'] + '/')
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/', datastore['TARGETED_CLASS'], '/')
     })
 
     if res.nil?
