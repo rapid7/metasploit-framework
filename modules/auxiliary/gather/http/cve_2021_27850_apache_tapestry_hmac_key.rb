@@ -86,7 +86,7 @@ class MetasploitModule < Msf::Auxiliary
     if secret_key.nil?
       print_fail('No secret key found')
     else
-      print_good('Secret key found : ' + secret_key)
+      print_good("Secret key found : #{secret_key}")
     end
   end
 end
