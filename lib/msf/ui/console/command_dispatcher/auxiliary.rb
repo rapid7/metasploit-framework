@@ -51,7 +51,7 @@ class Auxiliary
       jobify = true
     end
 
-    rhosts = datastore['RHOSTS']
+    rhosts = mod.datastore['RHOSTS']
     begin
       # Check if this is a scanner module or doesn't target remote hosts
       if rhosts.blank? || mod.class.included_modules.include?(Msf::Auxiliary::Scanner)
