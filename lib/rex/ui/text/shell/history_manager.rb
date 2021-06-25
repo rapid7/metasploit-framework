@@ -90,13 +90,17 @@ class HistoryManager
     end
 
     def switch_context(new_context, old_context=nil)
-      if old_context&.fetch(:history_file, nil)
-        store_history_file(old_context[:history_file], skip: @@original_history_length)
-      end
+      begin
+        if old_context&.fetch(:history_file, nil)
+          store_history_file(old_context[:history_file], skip: @@original_history_length)
+        end
 
-      if new_context&.fetch(:history_file, nil)
-        load_history_file(new_context[:history_file])
-      else
+        if new_context&.fetch(:history_file, nil)
+          load_history_file(new_context[:history_file])
+        else
+          clear_readline
+        end
+      rescue SignalException => e
         clear_readline
       end
     end
