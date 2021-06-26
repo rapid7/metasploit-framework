@@ -46,7 +46,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     notify_before_socket_create(self, param)
 
     if param.proto == 'tcp' && !param.server
-      ssh_channel = @ssh_socket.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |achannel|
+      ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |achannel|
         $stderr.puts 'direct channel established'
       end
     end
@@ -79,21 +79,19 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     msf_channel.lsock
   end
 
-  def initialize(ssh_socket, conn, opts = {})
-    # this is required to add the #getpeername_as_array method that's used by SocketInterface#getsockname
-    conn.extend(Rex::Socket)
-
-    @ssh_socket = ssh_socket
+  def initialize(ssh_connection, rstream, opts = {})
+    @ssh_connection = ssh_connection
+    @sock = ssh_connection.transport.socket
     @channels = []
-    super(conn, opts)
+    super(rstream, opts)
   end
 
-  alias sock rstream
-  attr_reader :ssh_socket
+  attr_reader :sock
+  attr_reader :ssh_connection
 
-  def self.from_ssh_socket(ssh_socket, opts = {})
-    command_stream = Net::SSH::CommandStream.new(ssh_socket)
-    self.new(ssh_socket, command_stream.lsock, opts)
+  def self.from_ssh_socket(ssh_connection, opts = {})
+    command_stream = Net::SSH::CommandStream.new(ssh_connection)
+    self.new(ssh_connection, command_stream.lsock, opts)
   end
 end
 
