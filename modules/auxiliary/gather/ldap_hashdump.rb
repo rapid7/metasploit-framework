@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -220,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
       @rhost, # host
       ldif, # data
       nil, # filename
-      "Base DN: #{base_dn}" # info
+      "Base DN: #{base_dn.gsub(/[^[:print:]]/, '')}" # info, remove null char from base_dn
     )
 
     unless ldif_filename
