@@ -123,7 +123,7 @@ module Shell
   # Run the command processing loop.
   #
   def run(&block)
-    # pry history will not be loaded when used pry is used as breakpoints like `binding.pry` by default now
+    # pry history will not be loaded by default when pry is used as a breakpoint like `binding.pry`
     Pry.config.history_load = false
 
     HistoryManager.push_context(history_file: histfile, name: name)
@@ -493,4 +493,3 @@ private
 end
 
 end end end
-
