@@ -12,12 +12,27 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   class TcpClientChannel # taken from Meterpreter
     include Rex::IO::StreamAbstraction
 
-    def initialize(client, channel, params)
+    def initialize(client, ssh_channel, params)
       initialize_abstraction
 
       @client = client
-      @channel = channel
+      @ssh_channel = ssh_channel
       @params = params
+
+      ssh_channel.on_close do |ch|
+        $stderr.puts "in #on_close(#{ch.inspect})"
+        rsock.close
+      end
+
+      ssh_channel.on_data do |ch, data|
+        $stderr.puts "in #on_data(#{ch.inspect}, #{data.inspect})"
+        rsock.syswrite(data)  # #syswrite selected from SocketAbstraction#dio_write_handler
+      end
+
+      ssh_channel.on_eof do |ch|
+        $stderr.puts "in #on_eof(#{ch.inspect})"
+        rsock.close
+      end
 
       lsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
       lsock.channel = self
@@ -32,11 +47,10 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     end
 
     def write(buffer)
-      channel.send_data(buffer)
+      @ssh_channel.send_data(buffer)
       buffer.length
     end
 
-    attr_reader :channel
     attr_reader :client
     attr_reader :params
   end
@@ -45,38 +59,42 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     # Notify handlers before we create the socket
     notify_before_socket_create(self, param)
 
+    mutex = Mutex.new
+    condition = ConditionVariable.new
+    msf_channel = nil
+
     if param.proto == 'tcp' && !param.server
-      ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |achannel|
+      ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |new_channel|
         $stderr.puts 'direct channel established'
+        msf_channel = TcpClientChannel.new(self, new_channel, param)
+        mutex.synchronize {
+          condition.signal
+        }
       end
     end
 
     # raise ::Rex::ConnectionError.new ?
-    raise RuntimeError.new('failed to open the channel') if ssh_channel.nil?
+    raise ::Rex::ConnectionError.new if ssh_channel.nil?
+
+    ssh_channel.on_open_failed do |ch, code, desc|
+      $stderr.puts "in #on_open_failed(#{ch.inspect}, #{code.inspect}, #{desc.inspect})"
+      mutex.synchronize {
+        condition.signal
+      }
+    end
+
+    mutex.synchronize {
+      condition.wait(mutex, param.timeout)
+    }
+
+    raise ::Rex::ConnectionError.new if msf_channel.nil?
+
+    @channels << msf_channel
+    sock = msf_channel.lsock
 
     # Notify now that we've created the socket
-    #notify_socket_created(self, sock, param)
-
-    msf_channel = TcpClientChannel.new(self, ssh_channel, param)
-    @channels << msf_channel
-
-    ssh_channel.on_close do |ch|
-      $stderr.puts "closing rsock via on_close"
-      msf_channel.rsock.close
-    end
-
-    ssh_channel.on_eof do |ch|
-      $stderr.puts "closing rsock via on_eof"
-      msf_channel.rsock.close
-    end
-
-    ssh_channel.on_data do |ch, data|
-      $stderr.puts "writing #{data.length} bytes to rsock"
-      msf_channel.rsock.syswrite(data)  # #syswrite selected from SocketAbstraction#dio_write_handler
-    end
-
-    # Return the socket to the caller
-    msf_channel.lsock
+    notify_socket_created(self, sock, param)
+    sock
   end
 
   def initialize(ssh_connection, rstream, opts = {})
