@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 # todo: refactor this so it's no longer under Meterpreter so it can be used elsewhere
+require 'rex/post/meterpreter/channel_container'
 require 'rex/post/meterpreter/channels/socket_abstraction'
 
 module Msf::Sessions
@@ -8,14 +9,16 @@ module Msf::Sessions
 class SshCommandShellBind < Msf::Sessions::CommandShell
 
   include Msf::Session::Comm
+  include Rex::Post::Meterpreter::ChannelContainer
 
   class TcpClientChannel # taken from Meterpreter
     include Rex::IO::StreamAbstraction
 
-    def initialize(client, ssh_channel, params)
+    def initialize(client, cid, ssh_channel, params)
       initialize_abstraction
 
       @client = client
+      @cid = cid
       @ssh_channel = ssh_channel
       @params = params
 
@@ -39,6 +42,14 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
       rsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
       rsock.channel = self
+
+      client.add_channel(self)
+    end
+
+    def close
+      cleanup_abstraction
+      @ssh_channel.close
+      @client.remove_channel(@cid)
     end
 
     def read(length = nil)
@@ -51,8 +62,17 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       buffer.length
     end
 
+    attr_reader :cid
     attr_reader :client
     attr_reader :params
+  end
+
+  def initialize(ssh_connection, rstream, opts = {})
+    @ssh_connection = ssh_connection
+    @sock = ssh_connection.transport.socket
+    initialize_channels
+    @channel_ticker = 0
+    super(rstream, opts)
   end
 
   def create(param)
@@ -66,7 +86,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     if param.proto == 'tcp' && !param.server
       ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |new_channel|
         $stderr.puts 'direct channel established'
-        msf_channel = TcpClientChannel.new(self, new_channel, param)
+        msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, param)
         mutex.synchronize {
           condition.signal
         }
@@ -89,19 +109,11 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     raise ::Rex::ConnectionError.new if msf_channel.nil?
 
-    @channels << msf_channel
     sock = msf_channel.lsock
 
     # Notify now that we've created the socket
     notify_socket_created(self, sock, param)
     sock
-  end
-
-  def initialize(ssh_connection, rstream, opts = {})
-    @ssh_connection = ssh_connection
-    @sock = ssh_connection.transport.socket
-    @channels = []
-    super(rstream, opts)
   end
 
   attr_reader :sock
