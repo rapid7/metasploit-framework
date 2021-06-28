@@ -61,7 +61,8 @@ class MsfAutoload
       "#{__dir__}/msf/base.rb",
       "#{__dir__}/rex/post/",
       "#{__dir__}/rex/post.rb",
-      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb"
+      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb",
+      "#{__dir__}/rex/proto/ssh/connection.rb"
     ]
   end
 
