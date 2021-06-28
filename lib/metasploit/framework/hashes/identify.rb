@@ -46,6 +46,8 @@ def identify_hash(hash)
       return 'ssha'
     when hash.start_with?(/{SHA512}/i)
       return 'raw-sha512'
+    when hash.start_with?(/{SHA256}/i)
+      return 'raw-sha256'
     when hash.start_with?(/{SHA}/i)
       return 'raw-sha1'
     when hash.start_with?(/{MD5}/i)
