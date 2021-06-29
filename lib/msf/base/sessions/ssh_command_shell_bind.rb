@@ -11,7 +11,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   include Msf::Session::Comm
   include Rex::Post::Meterpreter::ChannelContainer
 
-  class TcpClientChannel # taken from Meterpreter
+  class TcpClientChannel
     include Rex::IO::StreamAbstraction
 
     def initialize(client, cid, ssh_channel, params)
@@ -23,17 +23,17 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @params = params
 
       ssh_channel.on_close do |ch|
-        $stderr.puts "in #on_close(#{ch.inspect})"
+        dlog("ssh_channel#on_close closing sock")
         rsock.close
       end
 
       ssh_channel.on_data do |ch, data|
-        $stderr.puts "in #on_data(#{ch.inspect}, #{data.inspect})"
-        rsock.syswrite(data)  # #syswrite selected from SocketAbstraction#dio_write_handler
+        #dlog("ssh_channel#on_data received #{data.length} bytes")
+        rsock.syswrite(data)
       end
 
       ssh_channel.on_eof do |ch|
-        $stderr.puts "in #on_eof(#{ch.inspect})"
+        dlog("ssh_channel#on_eof closing sock")
         rsock.close
       end
 
@@ -124,7 +124,6 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     if param.proto == 'tcp' && !param.server
       ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |new_channel|
-        $stderr.puts 'direct channel established'
         msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, param)
         mutex.synchronize {
           condition.signal
@@ -135,7 +134,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     raise ::Rex::ConnectionError.new if ssh_channel.nil?
 
     ssh_channel.on_open_failed do |ch, code, desc|
-      $stderr.puts "in #on_open_failed(#{ch.inspect}, #{code.inspect}, #{desc.inspect})"
+      wlog("failed to open SSH channel (code=#{code.inspect}, description=#{desc.inspect})")
       mutex.synchronize {
         condition.signal
       }
