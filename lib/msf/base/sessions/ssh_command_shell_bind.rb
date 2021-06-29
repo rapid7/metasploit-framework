@@ -46,10 +46,17 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       client.add_channel(self)
     end
 
+    def closed?
+      @cid.nil?
+    end
+
     def close
+      return if @cid.nil?
+
       cleanup_abstraction
       @ssh_channel.close
       @client.remove_channel(@cid)
+      @cid = nil
     end
 
     def read(length = nil)
@@ -114,6 +121,14 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     # Notify now that we've created the socket
     notify_socket_created(self, sock, param)
     sock
+  end
+
+  def cleanup
+    channels.values.each do |channel|
+      channel.close
+    end
+
+    super
   end
 
   attr_reader :sock
