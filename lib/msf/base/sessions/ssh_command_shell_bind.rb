@@ -59,14 +59,46 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @cid = nil
     end
 
+    #
+    # Read *length* bytes from the channel. If the operation times out, the data
+    # that was read will be returned or nil if no data was read.
+    #
     def read(length = nil)
-      # todo: figure out how this should handle incomplete reads, timeouts etc to be just like meterpreter
-      raise ::NotImplementedError
+      if @cid.nil?
+        raise IOError, 'Channel has been closed.', caller
+      end
+
+      buf = ''
+      length = 65536 if length.nil?
+
+      begin
+        while buf.length < length
+          buf << lsock.recv(length - buf.length)
+        end
+      rescue StandardError
+        buf = nil if buf.empty?
+      end
+
+      buf
     end
 
-    def write(buffer)
-      @ssh_channel.send_data(buffer)
-      buffer.length
+    #
+    # Write *buf* to the channel, optionally truncating it to *length* bytes.
+    #
+    # @param [String] buf The data to write to the channel.
+    # @param [Integer] length An optional length to truncate *data* to before
+    #   sending it.
+    def write(buf, length = nil)
+      if @cid.nil?
+        raise IOError, 'Channel has been closed.', caller
+      end
+
+      if !length.nil? && buf.length >= length
+        buf = buf[0..length]
+      end
+
+      @ssh_channel.send_data(buf)
+      buf.length
     end
 
     attr_reader :cid
@@ -88,7 +120,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     mutex = Mutex.new
     condition = ConditionVariable.new
-    msf_channel = nil
+    ssh_channel = msf_channel = nil
 
     if param.proto == 'tcp' && !param.server
       ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |new_channel|
@@ -100,7 +132,6 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       end
     end
 
-    # raise ::Rex::ConnectionError.new ?
     raise ::Rex::ConnectionError.new if ssh_channel.nil?
 
     ssh_channel.on_open_failed do |ch, code, desc|
