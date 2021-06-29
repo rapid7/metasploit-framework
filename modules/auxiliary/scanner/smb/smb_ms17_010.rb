@@ -88,7 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Received #{status} with FID = 0")
 
       os = simple.client.peer_native_os.dup
-      details[:os] = simple.client.peer_native_os.dup
+      details[:os] = os.dup
       if status == 'STATUS_INSUFF_SERVER_RESOURCES'
         if datastore['CHECK_ARCH']
           case dcerpc_getarch
