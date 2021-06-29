@@ -104,7 +104,7 @@ class HistoryManager
       end
 
       Rex::ThreadFactory.spawn("#{history_file} Writer", false) do
-        File.open(history_file, 'a+') do |f|
+        File.open(history_file, 'w+') do |f|
           f.puts(cmds.reverse)
         end
 
