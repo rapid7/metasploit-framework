@@ -96,7 +96,6 @@ Before you run Metasploit, you will need to update the gems (Ruby libraries) tha
 ```
 cd ~/git/metasploit-framework/
 gem install bundler
-cd .
 bundle install
 ```
 
