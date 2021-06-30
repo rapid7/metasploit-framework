@@ -11,7 +11,7 @@ If you want to contribute to Metasploit, start by reading our [CONTRIBUTING.md],
 ## Assumptions
 
 * You have installed an apt-based Linux environment, such as [Ubuntu] or [Kali].
-* You have created a GitHub account and associated an [ssh key][ssh-key] with it.
+* You have created a GitHub account and associated an [public ssh key][ssh-key] with it.
 * You have familiarity with Git and Github, or have completed the [Github bootcamp][github-bootcamp].
 * For optional database and REST API functionality, you will need regular user account that is not `root`.
 
@@ -42,7 +42,7 @@ git clone git@github.com:$GITHUB_USERNAME/metasploit-framework
 cd ~/git/metasploit-framework
 ```
 
-3. If you encounter a "permission denied" error on the above command, research the error message.  If there isn't an explicit reason given, confirm that your [Github SSH key is configured correctly][github-ssh-instructions].
+3. If you encounter a "permission denied" error on the above command, research the error message.  If there isn't an explicit reason given, confirm that your [Github SSH key is configured correctly][github-ssh-instructions]. You will need to associate your [public SSH key][ssh-key] with your GitHub account, otherwise if you set up a SSH key and don't associate it with your GitHub account, you will receive this "permission denied" error.
 
 4. To receive updates, you will create an `upstream-master` branch to track the Rapid7 remote repository, alongside your `master` branch which will point to your personal repository's fork:
 
