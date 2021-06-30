@@ -519,6 +519,24 @@ module Msf::Post::File
   alias :move_file :rename_file
   alias :mv_file :rename_file
 
+  #
+  # Copy a remote file.
+  #
+  # @param src_file [String] Remote source file name to copy
+  # @param dst_file [String] The name for the remote destination file
+  def copy_file(src_file, dst_file)
+    if session.type == "meterpreter"
+      return (session.fs.file.cp(src_file, dst_file).result == 0)
+    else
+      if session.platform == 'windows'
+        cmd_exec(%Q|copy /y "#{src_file}" "#{dst_file}"|) =~ /copied/
+      else
+        cmd_exec(%Q|cp -f "#{src_file}" "#{dst_file}"|).empty?
+      end
+    end
+  end
+  alias :cp_file :copy_file
+
 protected
 
   #
