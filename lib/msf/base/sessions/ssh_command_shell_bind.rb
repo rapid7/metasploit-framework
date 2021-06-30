@@ -1,7 +1,7 @@
 # -*- coding: binary -*-
 
 # todo: refactor this so it's no longer under Meterpreter so it can be used elsewhere
-require 'rex/post/meterpreter/channel_container'
+require 'rex/post/channel'
 require 'rex/post/meterpreter/channels/socket_abstraction'
 
 module Msf::Sessions
@@ -9,7 +9,7 @@ module Msf::Sessions
 class SshCommandShellBind < Msf::Sessions::CommandShell
 
   include Msf::Session::Comm
-  include Rex::Post::Meterpreter::ChannelContainer
+  include Rex::Post::Channel::Container
 
   class TcpClientChannel
     include Rex::IO::StreamAbstraction
@@ -47,10 +47,10 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
         rsock.close
       end
 
-      lsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
+      lsock.extend(Rex::Post::Channel::SocketAbstraction::SocketInterface)
       lsock.channel = self
 
-      rsock.extend(Rex::Post::Meterpreter::SocketAbstraction::SocketInterface)
+      rsock.extend(Rex::Post::Channel::SocketAbstraction::SocketInterface)
       rsock.channel = self
 
       client.add_channel(self)

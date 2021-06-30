@@ -2,7 +2,7 @@
 
 module Rex
 module Post
-module Meterpreter
+module Channel
 
 ###
 #
@@ -10,7 +10,7 @@ module Meterpreter
 # zero or more channel instances in the form of a hash.
 #
 ###
-module ChannelContainer
+module Container
 
   #
   # Initializes the channel association hash
@@ -51,4 +51,8 @@ protected
 
 end
 
-end; end; end
+end
+
+end
+
+end
