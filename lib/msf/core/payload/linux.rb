@@ -95,13 +95,6 @@ module Msf::Payload::Linux
             ""
           ]
         ),
-        Msf::OptBool.new('MeterpreterTryToFork',
-          [
-            true,
-            'Fork meterpreter to background as a daemon',
-            false
-          ]
-        )
       ], Msf::Payload::Linux)
 
     ret
