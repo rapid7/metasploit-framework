@@ -55,40 +55,6 @@ class MetasploitModule < Msf::Auxiliary
     datastore['RPORT']
   end
 
-  def start_session(obj, info, ds_merge, crlf = false, sock = nil, sess = nil)
-    if crlf
-      # Windows telnet server requires \r\n line endings and it doesn't
-      # seem to affect anything else.
-      obj.sock.extend(CRLFLineEndings)
-    end
-
-    sock ||= obj.sock
-    sess ||= Msf::Sessions::CommandShell.new(sock)
-    sess.set_from_exploit(obj)
-    sess.info = info
-
-    # Clean up the stored data
-    sess.exploit_datastore.merge!(ds_merge)
-
-    # Prevent the socket from being closed
-    obj.sockets.delete(sock)
-    obj.sock = nil if obj.respond_to? :sock
-
-    framework.sessions.register(sess)
-    sess.process_autoruns(datastore)
-
-    # Notify the framework that we have a new session opening up...
-    # Don't let errant event handlers kill our session
-    begin
-      framework.events.on_session_open(sess)
-    rescue ::Exception => e
-      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
-      wlog("Call Stack\n#{e.backtrace.join("\n")}")
-    end
-
-    sess
-  end
-
   def session_setup(result, scanner)
     return unless scanner.ssh_socket
 
@@ -96,8 +62,6 @@ class MetasploitModule < Msf::Auxiliary
 
     # Create a new session
     sess = Msf::Sessions::SshCommandShellBind.from_ssh_socket(scanner.ssh_socket)
-    #conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
-    conn = sess.rstream
 
     merge_me = {
       'USERPASS_FILE' => nil,
@@ -107,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
       'PASSWORD'      => result.credential.private
     }
     info = "#{proto_from_fullname} #{result.credential} (#{ Rex::Socket.is_ipv6?(@ip) ? '[' + @ip + ']' : @ip }:#{rport})"
-    s = start_session(self, info, merge_me, false, conn, sess)
+    s = start_session(self, info, merge_me, false, sess.rstream, sess)
     self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
