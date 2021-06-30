@@ -14,6 +14,16 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   class TcpClientChannel
     include Rex::IO::StreamAbstraction
 
+    #
+    # Create a new TcpClientChannel instance.
+    #
+    # @param client [SshCommandShellBind] The command shell session that this
+    #   channel instance belongs to.
+    # @param cid [Integer] The channel ID.
+    # @param ssh_channel [Net::SSH::Connection::Channel] The connected SSH
+    #   channel.
+    # @param params [Rex::Socket::Parameters] The parameters that were used to
+    #   open the channel.
     def initialize(client, cid, ssh_channel, params)
       initialize_abstraction
 
@@ -114,17 +124,29 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     super(rstream, opts)
   end
 
-  def create(param)
+  #
+  # Create a network socket using this session. At this time, only TCP client
+  # connections can be made (like SSH port forwarding) while TCP server sockets
+  # can not be opened (SSH reverse port forwarding). The SSH specification does
+  # not define a UDP channel, so that is not supported either.
+  #
+  # @param params [Rex::Socket::Parameters] The parameters that should be used
+  #   to open the socket.
+  #
+  # @raise [Rex::ConnectionError] If the connection fails, timesout or is not
+  #   supported, a ConnectionError will be raised.
+  # @return [TcpClientChannel] The connected TCP client channel.
+  def create(params)
     # Notify handlers before we create the socket
-    notify_before_socket_create(self, param)
+    notify_before_socket_create(self, params)
 
     mutex = Mutex.new
     condition = ConditionVariable.new
     ssh_channel = msf_channel = nil
 
-    if param.proto == 'tcp' && !param.server
-      ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, param.peerhost, :long, param.peerport, :string, param.localhost, :long, param.localport) do |new_channel|
-        msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, param)
+    if params.proto == 'tcp' && !params.server
+      ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, params.peerhost, :long, params.peerport, :string, params.localhost, :long, params.localport) do |new_channel|
+        msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, params)
         mutex.synchronize {
           condition.signal
         }
@@ -141,7 +163,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     end
 
     mutex.synchronize {
-      condition.wait(mutex, param.timeout)
+      condition.wait(mutex, params.timeout)
     }
 
     raise ::Rex::ConnectionError.new if msf_channel.nil?
@@ -149,7 +171,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     sock = msf_channel.lsock
 
     # Notify now that we've created the socket
-    notify_socket_created(self, sock, param)
+    notify_socket_created(self, sock, params)
     sock
   end
 
@@ -164,6 +186,15 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   attr_reader :sock
   attr_reader :ssh_connection
 
+  #
+  # Create a sessions instance from an SshConnection. This will handle creating
+  # a new command stream.
+  #
+  # @param ssh_connection [Net::SSH::Connection] The SSH connection to create a
+  #   session instance for.
+  # @param opts [Hash] Optional parameters to pass to the session object.
+  #
+  # @return [SshCommandShellBind] A new session instance.
   def self.from_ssh_socket(ssh_connection, opts = {})
     command_stream = Net::SSH::CommandStream.new(ssh_connection)
     self.new(ssh_connection, command_stream.lsock, opts)
