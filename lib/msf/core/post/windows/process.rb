@@ -61,10 +61,16 @@ module Process
   #   then the value will be passed as is. If the value is nil, it'll be passed as a NULL pointer.
   # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of a random EXE from the
   #   process_list array will be launched to host the injected DLL.
-  def execute_dll(rdll_path, param=nil, pid=nil)
-    process_list = ['sigverif', 'netsh', 'nslookup', 'winver', 'nbtstat -r 200', 'dxpserver', 'sndvol', 'netstat 200']
+  # @param is_wow64  [Boolean] If set, the process that is spawned needs to be WoW64 compatiable. Otherwise
+  #   spawn the default binary.
+  def execute_dll(rdll_path, param=nil, pid=nil, is_wow64=false)
+    process_list = ['msiexec', 'netsh', 'userinit']
     if pid.nil?
       process_cmd = process_list.sample
+      if is_wow64
+        windir = session.sys.config.getenv('windir')
+        process_cmd = "#{windir}\\SysWOW64\\#{process_cmd}.exe"
+      end
       print_status("Launching #{process_cmd} to host the DLL...")
       host_process = client.sys.process.execute(process_cmd, nil, { 'Hidden' => true })
       begin
