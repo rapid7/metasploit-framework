@@ -12,7 +12,7 @@ class HistoryManager
   @@contexts = []
 
   @@write_mutex = Mutex.new
-  @@write_quewue = {}
+  @@write_queue = {}
 
   def self.inspect
     "#<HistoryManager stack size: #{@@contexts.length}>"
@@ -100,7 +100,7 @@ class HistoryManager
 
     def write_history_file(history_file, cmds)
       @@write_mutex.synchronize do
-        @@write_quewue[history_file] = cmds
+        @@write_queue[history_file] = cmds
       end
 
       Rex::ThreadFactory.spawn("#{history_file} Writer", false) do
@@ -109,14 +109,14 @@ class HistoryManager
         end
 
         @@write_mutex.synchronize do
-          @@write_quewue.delete(history_file)
+          @@write_queue.delete(history_file)
         end
       end
     end
 
     def from_storage_queue(history_file)
       @@write_mutex.synchronize do
-        @@write_quewue[history_file]
+        @@write_queue[history_file]
       end
     end
   end
