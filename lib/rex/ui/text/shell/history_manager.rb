@@ -62,7 +62,7 @@ class HistoryManager
     def load_history_file(history_file)
       clear_readline
       if commands = from_storage_queue(history_file)
-        commands.each do |c|
+        commands.reverse.each do |c|
           Readline::HISTORY << c
         end
       else
