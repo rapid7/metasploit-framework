@@ -166,6 +166,7 @@ module Shell
       retry
     ensure
       HistoryManager.pop_context
+      HistoryManager.flush
       self.hist_last_saved = Readline::HISTORY.length
     end
   end

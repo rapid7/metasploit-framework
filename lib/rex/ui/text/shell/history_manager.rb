@@ -52,6 +52,10 @@ class HistoryManager
     end
   end
 
+  def self.flush
+    sleep 0.1 until @@write_queue.empty?
+  end
+
   class << self
     private
 
