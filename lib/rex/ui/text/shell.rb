@@ -122,6 +122,13 @@ module Shell
   # Run the command processing loop.
   #
   def run(&block)
+    begin
+      require 'pry'
+      # pry history will not be loaded by default when pry is used as a breakpoint like `binding.pry`
+      Pry.config.history_load = false
+    rescue LoadError
+      # Pry is a development dependency, if not available suppressing history_load can be safely ignored.
+    end
 
     HistoryManager.push_context(history_file: histfile, name: name)
     self.hist_last_saved = Readline::HISTORY.length
@@ -163,6 +170,7 @@ module Shell
       retry
     ensure
       HistoryManager.pop_context
+      HistoryManager.flush
       self.hist_last_saved = Readline::HISTORY.length
     end
   end
@@ -490,4 +498,3 @@ private
 end
 
 end end end
-
