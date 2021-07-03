@@ -19,8 +19,8 @@ def run_cmd(bin, args, verbose)
     stdin, stdout, stderr = Open3.popen3(cmd)
 
     if verbose
-      $stderr.puts "[+] Running: #{cmd}"
-      $stderr.puts stdout.read + stderr.read
+      $stdout.puts "[+] Running: #{cmd}"
+      $stdout.puts stdout.read + stderr.read
     end
 
     return stdout.read + stderr.read
@@ -46,7 +46,7 @@ def extract_data(java_file, text_file)
     f.write(bytes[0])
   end
 
-  $stderr.puts "[+] Saved as: #{text_file}"
+  $stdout.puts "[+] Saved as: #{text_file}"
 end
 
 def check_tools(verbose)
@@ -56,7 +56,7 @@ def check_tools(verbose)
   tools.each do |tool|
     path = Rex::FileUtils.find_full_path(tool)
     if path && ::File.file?(path)
-      $stderr.puts "[+] Tool present: #{path}" if verbose
+      $stdout.puts "[+] Tool present: #{path}" if verbose
     else
       raise RuntimeError, "[-] #{tool} command not found."
     end
@@ -141,7 +141,7 @@ begin
   temp_dir << "/"
 
   if options[:out].nil?
-    $stderr.puts "[-] No output option selected, working in #{temp_dir}"    
+    $stdout.puts "[-] No output option selected, working in #{temp_dir}"
     output = "#{temp_dir}configbytes.txt"
     options[:keep] = true
   else
@@ -153,27 +153,27 @@ begin
   temp_apk = "#{temp_dir}temp.apk"
   FileUtils.cp(apk, temp_apk)
 
-  $stderr.puts "[+] Renaming apk file to zip file"
+  $stdout.puts "[+] Renaming apk file to zip file"
   File.rename(temp_apk, zip_file)
 
-  $stderr.puts "[+] Using unzip on zip file for dex file"
+  $stdout.puts "[+] Using unzip on zip file for dex file"
   unzip_cmd = run_cmd("unzip", "#{temp_dir}temp.zip -d #{temp_dir}", verbose)
 
-  $stderr.puts "[+] Using d2j-dex2jar on dex file to create jar file"
+  $stdout.puts "[+] Using d2j-dex2jar on dex file to create jar file"
   dex_file = "#{temp_dir}classes.dex"
   d2j_cmd =  run_cmd("d2j-dex2jar", "-o #{temp_dir}classes.jar #{dex_file}", verbose)
 
-  $stderr.puts "[+] Using unzip on jar file for class files"
+  $stdout.puts "[+] Using unzip on jar file for class files"
   classes_dir = "#{temp_dir}classes/"
   FileUtils.mkdir_p classes_dir
   unzip_jar_cmd = run_cmd("unzip", "#{temp_dir}classes.jar -d #{classes_dir}", verbose)
-  
-  $stderr.puts "[+] Using apktool to read AndroidManifest"
+
+  $stdout.puts "[+] Using apktool to read AndroidManifest"
   apktool_cmd = run_cmd("apktool", "d #{apk} -o #{temp_dir}decompile/", verbose)
 
   amanifest = parse_manifest("#{temp_dir}decompile/AndroidManifest.xml")
   package_path = amanifest.xpath("//manifest").first['package'].gsub(/\./, "/")
-  $stderr.puts "[+] Package path found: #{package_path}"
+  $stdout.puts "[+] Package path found: #{package_path}"
 
   # DEFAULT METERPRETER PAYLOAD
   payload_file = "#{classes_dir}#{package_path}/Payload.class"
@@ -189,32 +189,32 @@ begin
   fernflower_jar = options[:jar]
 
   if File.exist?(payload_file) # SEARCH DEFAULT METASPLOIT APK
-    $stderr.puts "[+] Using fernflower to change class file to java file"
+    $stdout.puts "[+] Using fernflower to change class file to java file"
     fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{payload_file} #{java_dir}", verbose)
 
     payload_file = File.dirname(payload_file)
-    $stderr.puts "[+] Class Path: #{payload_file}"
+    $stdout.puts "[+] Class Path: #{payload_file}"
 
     java_file ="#{java_dir}Payload.java"
-    $stderr.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
+    $stdout.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
     extract_data(java_file, output)
 
   elsif !searchable_payload.nil? # SEARCHING APK WTIH METERPRETER INJECTION
-    $stderr.puts "[+] Looking for Backdoored Metasploit Payload Classes"
-    $stderr.puts "[+] Using fernflower to change class files to java files"
+    $stdout.puts "[+] Looking for Backdoored Metasploit Payload Classes"
+    $stdout.puts "[+] Using fernflower to change class files to java files"
     for class_file in class_files
       fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{class_file} #{java_dir}", verbose)
     end
 
     class_path = File.dirname(class_file)
-    $stderr.puts "[+] Class Path: #{class_path}"
+    $stdout.puts "[+] Class Path: #{class_path}"
 
     java_file = File.join("#{java_dir}", "?????.java")
     java_files = Dir.glob(java_file)
 
     for java_file in java_files
       if File.read("#{java_file}").include? "byte"
-        $stderr.puts "[+] Metasploit Backdoored Payload Class found!\n[+] #{java_file}"
+        $stdout.puts "[+] Metasploit Backdoored Payload Class found!\n[+] #{java_file}"
         extract_data(java_file, output)
       end
     end
