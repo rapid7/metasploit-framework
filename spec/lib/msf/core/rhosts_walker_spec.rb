@@ -168,6 +168,10 @@ RSpec.describe Msf::RhostsWalker do
     described_class.new(mod.datastore['RHOSTS'], mod.datastore).to_enum
   end
 
+  def each_error_for(mod)
+    described_class.new(mod.datastore['RHOSTS']).to_enum(:errors).to_a
+  end
+
   before(:each) do
     @temp_files = []
 
@@ -272,7 +276,8 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => '127.0.0.1 http:| 127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('http:|')] },
     ].each do |test|
       it "handles the input #{test['RHOSTS'].inspect} as having the errors #{test['expected']}" do
-        expect(described_class.new(test['RHOSTS'], aux_mod.datastore).to_enum(:errors)).to match_errors(test['expected'])
+        aux_mod.datastore['RHOSTS'] = test['RHOSTS']
+        expect(each_error_for(aux_mod)).to match_errors(test['expected'])
       end
     end
   end
@@ -337,6 +342,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '233.252.0.0', 'RPORT' => 80, 'VHOST' => 'www.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates resolving a single http value to multiple ip addresses' do
@@ -346,6 +352,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates http values with user/passwords' do
@@ -367,6 +374,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a query string containing commas' do
@@ -376,6 +384,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a single http value' do
@@ -387,6 +396,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '127.0.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a domain' do
@@ -398,6 +408,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '192.0.2.3', 'RPORT' => 8080, 'VHOST' => 'example.com', 'SSL' => true, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo/bar' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a domain with multiple ip addresses' do
@@ -413,6 +424,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '203.0.113.3', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a file with http values' do
@@ -423,6 +435,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a file' do
@@ -439,6 +452,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates a cidr scheme with a file' do
@@ -455,6 +469,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '233.252.0.3', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates multiple ipv6 urls' do
@@ -465,6 +480,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates cidr scheme with a ipv6 file' do
@@ -479,6 +495,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '::1', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     it 'enumerates cidr scheme with a ipv6 scope' do
@@ -488,6 +505,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '::1%eth2', 'RPORT' => 8000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
 
     context 'when using the smb scheme' do
@@ -558,7 +576,7 @@ RSpec.describe Msf::RhostsWalker do
     it 'enumerates a combination of all syntaxes' do
       temp_file_a = create_tempfile("\n192.0.2.0\n\n\n127.0.0.5\n\nhttp://user:pass@example.com:9000/foo\ncidr:/30:https://user:pass@multiple_ips.example.com:9000/foo")
       temp_file_b = create_tempfile("https://www.example.com/\n127.0.0.1\ncidr:/31:http://127.0.0.1/tomcat/manager\nfile:#{temp_file_a}")
-      http_mod.datastore['RHOSTS'] = "127.0.0.1, cidr:/31:http://192.0.2.0/tomcat/manager, https://192.0.2.0:8080/manager/html file:#{temp_file_b}"
+      http_mod.datastore['RHOSTS'] = "127.0.0.1, cidr:/31:http://192.0.2.0/tomcat/manager, https://192.0.2.0:8080/manager/html file:#{temp_file_b} :/"
       expected = [
         { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
         { 'RHOSTS' => '192.0.2.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
@@ -581,6 +599,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '203.0.113.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
     end
   end
 end

@@ -189,7 +189,7 @@ module Msf
       result['VHOST'] = nil
 
       result['RHOSTS'] = uri.hostname
-      is_ssl =  %w[ssl https].include?(uri.scheme)
+      is_ssl = %w[ssl https].include?(uri.scheme)
       result['RPORT'] = uri.port || (is_ssl ? 443 : 80)
       result['SSL'] = is_ssl
 
