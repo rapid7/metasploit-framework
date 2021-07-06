@@ -369,6 +369,15 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
     end
 
+    it 'enumerates a query string containing commas' do
+      http_mod.datastore['RHOSTS'] = 'http://multiple_ips.example.com/foo?filter=a,b,c'
+      expected = [
+        { 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
+        { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+    end
+
     it 'enumerates a cidr scheme with a single http value' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:http://127.0.0.1:3000/foo/bar'
       expected = [
