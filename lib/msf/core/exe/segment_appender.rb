@@ -16,12 +16,6 @@ module Exe
     def generate_pe
       # Copy our Template into a new PE
       pe_orig = Metasm::PE.decode_file(template)
-      if is_warbird?(pe_orig)
-        raise RuntimeError, "The template to inject to appears to have license verification (warbird)"
-      end
-      if pe_orig.export && pe_orig.export.num_exports == 0
-        raise RuntimeError, "The template file doesn't have any exports to inject into!"
-      end
       pe = pe_orig.mini_copy
 
       # Copy the headers and exports
