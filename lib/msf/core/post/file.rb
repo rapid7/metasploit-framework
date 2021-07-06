@@ -348,7 +348,7 @@ module Msf::Post::File
 
     return unless %w[shell powershell].include?(session.type)
 
-    if session.platform == 'windows'
+    if session.platform == 'windows' || session.platform == 'win'
       return session.shell_command_token("type \"#{file_name}\"")
     end
 
