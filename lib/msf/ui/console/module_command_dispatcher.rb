@@ -65,7 +65,7 @@ module ModuleCommandDispatcher
     @show_progress = framework.datastore['ShowProgress'] || mod.datastore['ShowProgress'] || false
     @show_percent  = ( framework.datastore['ShowProgressPercent'] || mod.datastore['ShowProgressPercent'] ).to_i
 
-    @range_count   = rhosts_walker.count || 0
+    @range_count   = rhosts_walker_count || 0
     @range_done    = 0
     @range_percent = 0
 
