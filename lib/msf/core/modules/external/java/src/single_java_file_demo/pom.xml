@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>single_java_file_demo</artifactId>
+    <parent>
+        <groupId>com.metasploit.java-external-module</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+    <description>a single_java_file_demo java external module for metasploit
+        framework.
+    </description>
+    <url>null</url>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>loader</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

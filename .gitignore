@@ -97,3 +97,17 @@ rspec.failures
 
 #Ignore any base disk store files
 db/modules_metadata_base.pstore
+
+# Java external module
+# idea project file
+lib/msf/core/modules/external/java/**/*.iml
+# build target
+lib/msf/core/modules/external/java/**/target
+# log
+lib/msf/core/modules/external/java/log
+lib/msf/core/modules/external/java/**/*.log
+# jar
+lib/msf/core/modules/external/java/**/*.jar
+!lib/msf/core/modules/external/java/binary/java_external_module_loader.jar
+# maven wrapper
+lib/msf/core/modules/external/java/**/.mvn

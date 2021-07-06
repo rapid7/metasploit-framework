@@ -104,7 +104,7 @@ class MsftidyDoc
   def has_module
     module_filepath = @full_filepath.sub('documentation/','').sub('/exploit/', '/exploits/')
     found = false
-    ['.rb', '.py', '.go'].each do |ext|
+    ['.rb', '.py', '.go', '.java'].each do |ext|
       if File.file? module_filepath.sub(/.md$/, ext)
         found = true
         break
