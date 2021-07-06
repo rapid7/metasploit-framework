@@ -237,8 +237,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Print Spooler Remote DLL Injection',
         'Description' => %q{
-          The print spooler service can be abused to load a remote DLL through a
-          crafted DCERPC request.
+          The print spooler service can be abused by an authenticated remote attacker to load a DLL through a crafted
+          DCERPC request, resulting in remote code execution as NT AUTHORITY\SYSTEM.
         },
         'Author' => [
           'Zhiniang Peng',           # vulnerability discovery / research
