@@ -273,7 +273,6 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptPort.new('RPORT', [ false, 'The netlogon RPC port' ]),
         OptString.new('DLL_PATH', [ true, 'The path to the DLL that the server should load' ])
       ]
     )
