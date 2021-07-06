@@ -41,7 +41,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(framework)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     Msf::Simple::Framework.simplify_module(mod)
     mod
@@ -88,7 +88,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(framework)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     Msf::Simple::Framework.simplify_module(mod)
     mod
@@ -139,7 +139,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(framework)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     Msf::Simple::Framework.simplify_module(mod)
     mod
@@ -422,11 +422,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore['RHOSTS'] = '192.0.2.1 192.0.2.2'
         subject.cmd_run
         expected_output = [
-          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 3.5',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          '192.0.2.1:445         - Running for target 192.0.2.1:445 with normalized datastore value 3.5',
+          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           'Scanned 1 of 2 hosts (50% complete)',
-          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 3.5',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          '192.0.2.2:445         - Running for target 192.0.2.2:445 with normalized datastore value 3.5',
+          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
           'Scanned 2 of 2 hosts (100% complete)',
           'Cleanup for target 192.0.2.1 192.0.2.2:445',
           'Auxiliary module execution completed'
@@ -440,11 +440,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run
         expected_output = [
-          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 5.0',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          '192.0.2.1:445         - Running for target 192.0.2.1:445 with normalized datastore value 5.0',
+          '192.0.2.1:445         - Cleanup for target 192.0.2.1:445',
           'Scanned 1 of 2 hosts (50% complete)',
-          'Running for target 192.0.2.1 192.0.2.2:445 with normalized datastore value 5.0',
-          'Cleanup for target 192.0.2.1 192.0.2.2:445',
+          '192.0.2.2:445         - Running for target 192.0.2.2:445 with normalized datastore value 5.0',
+          '192.0.2.2:445         - Cleanup for target 192.0.2.2:445',
           'Scanned 2 of 2 hosts (100% complete)',
           'Cleanup for target 192.0.2.1 192.0.2.2:445',
           'Auxiliary module execution completed'
@@ -471,11 +471,11 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
         current_mod.datastore.store('FloatValue', '5.0')
         subject.cmd_run('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
         expected_output = [
-          'Running for target 192.0.2.5 192.0.2.6:445 with normalized datastore value 10.0',
-          'Cleanup for target 192.0.2.5 192.0.2.6:445',
+          '192.0.2.5:445         - Running for target 192.0.2.5:445 with normalized datastore value 10.0',
+          '192.0.2.5:445         - Cleanup for target 192.0.2.5:445',
           'Scanned 1 of 2 hosts (50% complete)',
-          'Running for target 192.0.2.5 192.0.2.6:445 with normalized datastore value 10.0',
-          'Cleanup for target 192.0.2.5 192.0.2.6:445',
+          '192.0.2.6:445         - Running for target 192.0.2.6:445 with normalized datastore value 10.0',
+          '192.0.2.6:445         - Cleanup for target 192.0.2.6:445',
           'Scanned 2 of 2 hosts (100% complete)',
           'Cleanup for target 192.0.2.5 192.0.2.6:445',
           'Auxiliary module execution completed'
@@ -685,6 +685,22 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
           'Running module against 192.0.2.6',
           'Running for target 192.0.2.6:3000 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.6:3000',
+          'Auxiliary module execution completed'
+        ]
+
+        expect(@combined_output).to match_array(expected_output)
+      end
+
+      it 'supports multiple http RHOST inline options' do
+        current_mod.datastore.store('FloatValue', '5.0')
+        subject.cmd_run('rhosts=http://127.0.0.1:8080 http://127.0.0.1', 'FloatValue=10.0')
+        expected_output = [
+          'Running module against 127.0.0.1',
+          'Running for target 127.0.0.1:8080 with normalized datastore value 10.0',
+          'Cleanup for target 127.0.0.1:8080',
+          'Running module against 127.0.0.1',
+          'Running for target 127.0.0.1:80 with normalized datastore value 10.0',
+          'Cleanup for target 127.0.0.1:80',
           'Auxiliary module execution completed'
         ]
 

@@ -54,7 +54,7 @@ class Auxiliary
     mod_with_opts = mod.replicant
     mod_with_opts.datastore.import_options_from_hash(args[:datastore_options])
     rhosts = mod_with_opts.datastore['RHOSTS']
-    rhosts_walker = Msf::RhostsWalker.new(mod.datastore['RHOSTS'], mod_with_opts.datastore)
+    rhosts_walker = Msf::RhostsWalker.new(rhosts, mod_with_opts.datastore)
 
     begin
       mod_with_opts.validate
