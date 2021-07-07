@@ -23,7 +23,7 @@ RHOST_EXAMPLES = [
 # supplying inline datastore values
 RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
   context 'when the -o option flag is supplied' do
-    it 'shows the help mention when no value is supplied' do
+    it 'shows the help menu when no value is supplied' do
       expect(subject.send(opts[:method_name], ['-o'])).to be_nil
       expect(subject).to have_received(opts[:expected_help_cmd])
     end
@@ -40,11 +40,11 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
     it 'allows setting multiple options individually' do
       expected_result = {
         datastore_options: {
-          'RHOSTS' => '192.168.172.1',
+          'RHOSTS' => '192.168.172.1 192.168.172.2',
           'RPORT' => '1337'
         }
       }
-      expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1', '-o', 'RPORT=1337'])).to include(expected_result)
+      expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1', '-o', 'RPORT=1337', '-o', 'rhosts=192.168.172.2'])).to include(expected_result)
     end
 
     it 'parses the option str directly into its components' do
@@ -55,6 +55,16 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
         }
       }
       expect(subject.send(opts[:method_name], ['-o', 'RHOSTS=192.168.172.1,RPORT=1337'])).to include(expected_result)
+    end
+
+    it 'handles arguments containing spaces' do
+      args = ['-o', 'RHOSTS=http://user:this is a password@example.com']
+      expected_result = {
+        datastore_options: {
+          'RHOSTS' => '"http://user:this is a password@example.com"'
+        }
+      }
+      expect(subject.send(opts[:method_name], args)).to include(expected_result)
     end
 
     RHOST_EXAMPLES.each do |value|
@@ -114,9 +124,39 @@ RSpec.shared_examples_for 'a command which parses datastore values' do |opts|
       }
       expect(subject.send(opts[:method_name], ['RPORT='])).to include(expected_result)
     end
+
+    it 'handles multiple values' do
+      args = ['RHOSTS=192.168.172.1', 'rhosts=192.168.172.2', 'rhost=smb://user:a b c@example.com']
+      expected_result = {
+        datastore_options: {
+          'RHOSTS' => '192.168.172.1 192.168.172.2 "smb://user:a b c@example.com"'
+        }
+      }
+      expect(subject.send(opts[:method_name], args)).to include(expected_result)
+    end
+
+    it 'handles whitespaces' do
+      args = ['rhosts=http://user:this is a password@example.com', 'http://user:password@example.com']
+      expected_result = {
+        datastore_options: {
+          'RHOSTS' => '"http://user:this is a password@example.com" http://user:password@example.com'
+        }
+      }
+      expect(subject.send(opts[:method_name], args)).to include(expected_result)
+    end
   end
 
   context 'when arguments that resemble an RHOST value are used' do
+    it 'handles arguments containing spaces' do
+      args = ['http://user:this is a password@example.com', 'http://user:password@example.com']
+      expected_result = {
+        datastore_options: {
+          'RHOSTS' => '"http://user:this is a password@example.com" http://user:password@example.com'
+        }
+      }
+      expect(subject.send(opts[:method_name], args)).to include(expected_result)
+    end
+
     RHOST_EXAMPLES.each do |value|
       it "works with a single value of #{value}" do
         expected_result = {

@@ -469,7 +469,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
       it 'supports multiple RHOST inline options' do
         current_mod.datastore.store('FloatValue', '5.0')
-        subject.cmd_run('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
+        subject.cmd_run('RHOSTS=192.0.2.5', 'RHOSTS=192.0.2.6', 'FloatValue=10.0')
         expected_output = [
           '192.0.2.5:445         - Running for target 192.0.2.5:445 with normalized datastore value 10.0',
           '192.0.2.5:445         - Cleanup for target 192.0.2.5:445',
@@ -574,7 +574,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
       it 'supports multiple RHOST inline options' do
         current_mod.datastore.store('FloatValue', '5.0')
-        subject.cmd_run('RHOSTS=192.0.2.5 192.0.2.6', 'FloatValue=10.0')
+        subject.cmd_run('RHOSTS=192.0.2.5', 'RHOSTS=192.0.2.6', 'FloatValue=10.0')
         expected_output = [
           'Running batch ["192.0.2.5", "192.0.2.6"]:445 with normalized datastore value 10.0',
           'Cleanup for target 192.0.2.5 192.0.2.6:445',
@@ -693,7 +693,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
 
       it 'supports multiple http RHOST inline options' do
         current_mod.datastore.store('FloatValue', '5.0')
-        subject.cmd_run('rhosts=http://127.0.0.1:8080 http://127.0.0.1', 'FloatValue=10.0')
+        subject.cmd_run('rhosts=http://127.0.0.1:8080', 'rhosts=http://127.0.0.1', 'FloatValue=10.0')
         expected_output = [
           'Running module against 127.0.0.1',
           'Running for target 127.0.0.1:8080 with normalized datastore value 10.0',
