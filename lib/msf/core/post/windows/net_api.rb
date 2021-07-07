@@ -22,6 +22,15 @@ module NetAPI
   NERR_InvalidComputer = 2351
   NERR_UserNotFound = 2221
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
+        stdapi_railgun_*
+      } } }
+    ))
+  end
+
   def UnicodeByteStringToAscii(str)
     length = (str.index "\0\0\0") + 1
     Rex::Text.to_ascii(str[0..length])

@@ -215,7 +215,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check
-
     # Set up variables
     os_release = ''
     os_release_file = '/etc/os-release'
@@ -294,7 +293,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_file_read
-
     # Set up XML data for HTTP request
     setup_xml_and_variables
     make_post_data(@file, dos: false)
@@ -349,7 +347,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def action_dos
-
     # Set up XML data for HTTP request
     setup_xml_and_variables
     make_post_data(@file, dos: true)
@@ -389,7 +386,6 @@ class MetasploitModule < Msf::Auxiliary
 
     # Check HTTP response
     fail_with(Failure::NotVulnerable, 'The target responded with a 200 OK response code. The DoS attempt was unsuccessful.') unless dos_response.code != 200
-
   end
 
 end

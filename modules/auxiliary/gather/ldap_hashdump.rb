@@ -229,7 +229,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("#{peer} Saved LDAP data to #{ldif_filename}")
-
   end
 
   def decode_pwdhistory(hash)

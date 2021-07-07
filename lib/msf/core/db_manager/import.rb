@@ -99,7 +99,7 @@ module Msf::DBManager::Import
     opts.delete(:workspace)
     self.send "import_#{ftype}".to_sym, opts.merge(workspace: wspace.name), &block
     # post process the import here for missing default port maps
-    mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_remote_exploit_maps
+    mrefs, mports, _mservs = Msf::Modules::Metadata::Cache.instance.all_exploit_maps
     # the map build above is a little expensive, another option is to do
     # a host by ref search for each vuln ref and then check port reported for each module
     # IMHO this front loaded cost here is worth it with only a small number of modules
@@ -124,9 +124,8 @@ module Msf::DBManager::Import
         serv = nil
 
         # Module names that match this vulnerability
-        matched = mrefs.values_at(*(vuln.refs.map { |x| x.name.upcase } & mrefs.keys)).map { |x| x.values }.flatten.uniq
-        next if matched.empty?
-        match_names = matched.map { |mod| mod.fullname }
+        matched_vulns = Set.new(mrefs.values_at(*vuln.refs.map { |x| x.name.upcase }).compact.flatten(1))
+        next if matched_vulns.empty?
 
         second_pass_services = []
 
@@ -136,7 +135,7 @@ module Msf::DBManager::Import
             next
           end
           next unless mports[service.port]
-          if (match_names - mports[service.port].keys).count < match_names.count
+          if (matched_vulns - mports[service.port]).size < matched_vulns.size
             serv = service
             break
           end
@@ -146,7 +145,7 @@ module Msf::DBManager::Import
         if serv.nil? && !second_pass_services.empty?
           second_pass_services.each do |service|
             next unless mports[service.port]
-            if (match_names - mports[service.port].keys).count < match_names.count
+            if (matched_vulns - mports[service.port]).size < matched_vulns.size
               serv = service
               break
             end

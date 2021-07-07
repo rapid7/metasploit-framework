@@ -1428,16 +1428,13 @@ class Core
               end
               c, c_args = cmd.split(' ', 2)
               begin
-                process = session.sys.process.execute(c, c_args,
-                  {
-                    'Channelized' => true,
-                    'Subshell'    => true,
-                    'Hidden'      => true
-                  })
-                if process && process.channel
-                  data = process.channel.read
-                  print_line(data) if data
-                end
+                data = session.sys.process.capture_output(c, c_args,
+                {
+                  'Channelized' => true,
+                  'Subshell'    => true,
+                  'Hidden'      => true
+                }, response_timeout)
+                print_line(data) unless data.blank?
               rescue ::Rex::Post::Meterpreter::RequestError
                 print_error("Failed: #{$!.class} #{$!}")
               rescue Rex::TimeoutError

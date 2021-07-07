@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
   include Msf::Auxiliary::Scanner
@@ -41,16 +40,14 @@ class MetasploitModule < Msf::Auxiliary
       ]),
       OptString.new('OUTPUT_HASHCAT_FILE', [false, "Save captured password hashes in hashcat format"]),
       OptString.new('OUTPUT_JOHN_FILE', [false, "Save captured password hashes in john the ripper format"]),
-      OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true])
+      OptBool.new('CRACK_COMMON', [true, "Automatically crack common passwords as they are obtained", true]),
+      OptInt.new('SESSION_RETRY_DELAY', [true, "Delay between session retries in seconds", 5]),
+      OptInt.new('SESSION_MAX_ATTEMPTS', [true, "Maximum number of session retries, required on certain BMCs (HP iLO 4, etc)", 5])
     ])
 
   end
 
   def post_auth?
-    true
-  end
-
-  def default_cred?
     true
   end
 
@@ -91,10 +88,14 @@ class MetasploitModule < Msf::Auxiliary
     passwords << ""
     passwords = passwords.uniq
 
+    delay_value = datastore['SESSION_RETRY_DELAY'].to_i
+    max_session_attempts = datastore['SESSION_MAX_ATTEMPTS'].to_i
+
     self.udp_sock = Rex::Socket::Udp.create({'Context' => {'Msf' => framework, 'MsfExploit' => self}})
     add_socket(self.udp_sock)
 
     reported_vuln = false
+    session_succeeded = false
 
     usernames.each do |username|
       console_session_id = Rex::Text.rand_text(4)
@@ -107,7 +108,7 @@ class MetasploitModule < Msf::Auxiliary
       sess_data = nil
 
       # It may take multiple tries to get a working "session" on certain BMCs (HP iLO 4, etc)
-      1.upto(5) do |attempt|
+      1.upto(max_session_attempts) do |attempt|
 
         r = nil
         1.upto(3) do
@@ -130,10 +131,13 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         if sess.data.length < 8
-          ipmi_status("Refused IPMI open session request")
+          ipmi_status("Refused IPMI open session request, waiting #{delay_value} seconds")
           rakp = nil
-          break
+          sleep(delay_value) if session_succeeded
+          next # break
         end
+
+        session_succeeded = true
 
         sess_data = Rex::Proto::IPMI::Session_Data.new.read(sess.data)
 

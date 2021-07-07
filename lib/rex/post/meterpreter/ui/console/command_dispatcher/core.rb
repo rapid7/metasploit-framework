@@ -116,7 +116,8 @@ class Console::CommandDispatcher::Core
 
     # XXX: Remove this line once the payloads gem has had another major version bump from 2.x to 3.x and
     # rapid7/metasploit-payloads#451 has been landed to correct the `enumextcmd` behavior on Windows. Until then, skip
-    # filtering for Windows which supports all the filtered commands anyways.
+    # filtering for Windows which supports all the filtered commands anyways. This is not the only instance of this
+    # workaround.
     reqs.clear if client.base_platform == 'windows'
 
     filter_commands(cmds, reqs)
@@ -582,8 +583,9 @@ class Console::CommandDispatcher::Core
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"client\" (session) object\n")
-
-      Rex::Ui::Text::IrbShell.new(client).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        Rex::Ui::Text::IrbShell.new(client).run
+      end
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -620,7 +622,10 @@ class Console::CommandDispatcher::Core
     print_status('Starting Pry shell...')
     print_status("You are in the \"client\" (session) object\n")
 
-    client.pry
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      client.pry
+    end
   end
 
   @@set_timeouts_opts = Rex::Parser::Arguments.new(
@@ -1315,9 +1320,45 @@ class Console::CommandDispatcher::Core
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
         end
-      rescue
+      rescue => ex
         print_line
-        log_error("Failed to load extension: #{$!}")
+        log_error("Failed to load extension: #{ex.message}")
+        if ex.kind_of?(ExtensionLoadError) && ex.name
+          # MetasploitPayloads and MetasploitPayloads::Mettle do things completely differently, build an array of
+          # suggestion keys (binary_suffixes and Mettle build-tuples)
+          suggestion_keys = MetasploitPayloads.list_meterpreter_extension_suffixes(ex.name) + MetasploitPayloads::Mettle.available_platforms(ex.name)
+          suggestion_map = {
+            # Extension Suffixes
+            'jar' => 'java',
+            'php' => 'php',
+            'py' => 'python',
+            'x64.dll' => 'windows/x64',
+            'x86.dll' => 'windows',
+            # Mettle Platforms
+            'aarch64-iphone-darwin' => 'apple_ios/aarch64',
+            'aarch64-linux-musl' => 'linux/aarch64',
+            'arm-iphone-darwin' => 'apple_ios/armle',
+            'armv5b-linux-musleabi' => 'linux/armbe',
+            'armv5l-linux-musleabi' => 'linux/armle',
+            'i486-linux-musl' => 'linux/x86',
+            'mips64-linux-muslsf' => 'linux/mips64',
+            'mipsel-linux-muslsf' => 'linux/mipsle',
+            'mips-linux-muslsf' => 'linux/mipsbe',
+            'powerpc64le-linux-musl' => 'linux/ppc64le',
+            'powerpc-e500v2-linux-musl' => 'linux/ppce500v2',
+            'powerpc-linux-muslsf' => 'linux/ppc',
+            's390x-linux-musl' => 'linux/zarch',
+            'x86_64-apple-darwin' => 'osx/x64',
+            'x86_64-linux-musl' => 'linux/x64',
+          }
+          suggestions = suggestion_map.select { |k,_v| suggestion_keys.include?(k) }.values
+          unless suggestions.empty?
+            log_error("The \"#{ex.name}\" extension is supported by the following Meterpreter payloads:")
+            suggestions.each do |suggestion|
+              log_error("  - #{suggestion}/meterpreter*")
+            end
+          end
+        end
 
         next
       end
@@ -1757,6 +1798,27 @@ class Console::CommandDispatcher::Core
     @@client_extension_search_paths
   end
 
+  def unknown_command(cmd, line)
+    status = super
+
+    if status.nil?
+      # Check to see if we can find this command in another extension. This relies on the core extension being the last
+      # in the dispatcher stack which it should be since it's the first loaded.
+      Rex::Post::Meterpreter::ExtensionMapper.get_extension_names.each do |ext_name|
+        next if extensions.include?(ext_name)
+        ext_klass = get_extension_client_class(ext_name)
+        next if ext_klass.nil?
+
+        if ext_klass.has_command?(cmd)
+          print_error("The \"#{cmd}\" command requires the \"#{ext_name}\" extension to be loaded (run: `load #{ext_name}`)")
+          return :handled
+        end
+      end
+    end
+
+    status
+  end
+
 protected
 
   attr_accessor :extensions # :nodoc:
@@ -1768,39 +1830,9 @@ protected
   # Loads the client extension specified in mod
   #
   def add_extension_client(mod)
-    loaded = false
-    klass = nil
-    self.class.client_extension_search_paths.each do |path|
-      path = ::File.join(path, "#{mod}.rb")
-      klass = CommDispatcher.check_hash(path)
-      if (klass == nil)
-        old   = CommDispatcher.constants
-        next unless ::File.exist? path
+    klass = get_extension_client_class(mod)
 
-        if (require(path))
-          new  = CommDispatcher.constants
-          diff = new - old
-
-          next if (diff.empty?)
-
-          klass = CommDispatcher.const_get(diff[0])
-
-          CommDispatcher.set_hash(path, klass)
-          loaded = true
-          break
-        else
-          print_error("Failed to load client script file: #{path}")
-          return false
-        end
-
-      else
-        # the klass is already loaded, from a previous invocation
-        loaded = true
-        break
-      end
-    end
-
-    unless loaded
+    if klass.nil?
       print_error("Failed to load client portion of #{mod}.")
       return false
     end
@@ -1810,6 +1842,29 @@ protected
 
     # Insert the module into the list of extensions
     self.extensions << mod
+  end
+
+  def get_extension_client_class(mod)
+    self.class.client_extension_search_paths.each do |path|
+      path = ::File.join(path, "#{mod}.rb")
+      klass = CommDispatcher.check_hash(path)
+      return klass unless klass.nil?
+
+      old = CommDispatcher.constants
+      next unless ::File.exist? path
+
+      return nil unless require(path)
+
+      new  = CommDispatcher.constants
+      diff = new - old
+
+      next if (diff.empty?)
+
+      klass = CommDispatcher.const_get(diff[0])
+
+      CommDispatcher.set_hash(path, klass)
+      return klass
+    end
   end
 
   def tab_complete_modules(str, words)

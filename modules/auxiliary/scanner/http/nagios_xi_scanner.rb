@@ -79,7 +79,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return 'unsupported'
-
   end
 
   def rce_check(version, real_target: false)

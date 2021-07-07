@@ -27,7 +27,7 @@ class Console
     if (Rex::Compat.is_windows())
       super("meterpreter")
     else
-      super("%undmeterpreter%clr")
+      super("%undmeterpreter%clr", '>', Msf::Config.meterpreter_history, nil, :meterpreter)
     end
 
     # The meterpreter client context
@@ -52,8 +52,6 @@ class Console
   # assumed that init_ui has been called prior.
   #
   def interact(&block)
-    init_tab_complete
-
     # Run queued commands
     commands.delete_if { |ent|
       run_single(ent)

@@ -88,8 +88,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
     request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
 
-    # we set the response timeout to -1 to wait indefinatly as a
-    # search could take an indeterminate ammount of time to complete.
+    # we set the response timeout to -1 to wait indefinitely as a
+    # search could take an indeterminate amount of time to complete.
     response = client.send_request( request, timeout )
     if( response.result == 0 )
       response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |

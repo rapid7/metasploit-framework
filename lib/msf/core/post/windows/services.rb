@@ -41,6 +41,13 @@ module Services
   include ::Msf::Post::Windows::ExtAPI
   include ::Msf::Post::Windows::Registry
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ extapi_service_* stdapi_railgun_api* } } }
+    ))
+  end
+
   def advapi32
     session.railgun.advapi32
   end

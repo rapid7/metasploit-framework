@@ -24,7 +24,7 @@ module Interactive
   def interact(user_input, user_output)
 
     # Detach from any existing console
-    if(self.interacting)
+    if self.interacting
       detach()
     end
 
@@ -74,7 +74,7 @@ module Interactive
       _interact_complete if (eof == true)
 
       # Shutdown the readline thread
- 			# XXX disabled
+      # XXX disabled
       # user_input.readline_stop() if user_input.supports_readline
 
       # Detach from the input/output handles

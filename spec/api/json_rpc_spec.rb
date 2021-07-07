@@ -17,7 +17,7 @@ RSpec.describe "Metasploit's json-rpc" do
   let(:rpc_url) { '/api/v1/json-rpc' }
   let(:framework) { app.settings.framework }
   let(:module_name) { 'scanner/ssl/openssl_heartbleed' }
-  let(:a_valid_result_uuid) { { 'result' => hash_including({ 'uuid' => match(/\w+/) }) } }
+  let(:a_valid_result_uuid) { { result: hash_including({ uuid: match(/\w+/) }) } }
   let(:app) do
     # Lazy load to ensure that the json rpc app doesn't create an instance of framework out of band
     ::Msf::WebServices::JsonRpcApp.new
@@ -29,14 +29,14 @@ RSpec.describe "Metasploit's json-rpc" do
 
   def create_job
     post rpc_url, {
-      'jsonrpc': '2.0',
-      'method': 'module.check',
-      'id': 1,
-      'params': [
+      jsonrpc: '2.0',
+      method: 'module.check',
+      id: 1,
+      params: [
         'auxiliary',
         module_name,
         {
-          'RHOSTS': '192.0.2.0'
+          RHOSTS: '192.0.2.0'
         }
       ]
     }.to_json
@@ -44,10 +44,10 @@ RSpec.describe "Metasploit's json-rpc" do
 
   def get_job_results(uuid)
     post rpc_url, {
-      'jsonrpc': '2.0',
-      'method': 'module.results',
-      'id': 1,
-      'params': [
+      jsonrpc: '2.0',
+      method: 'module.results',
+      id: 1,
+      params: [
         uuid
       ]
     }.to_json
@@ -55,10 +55,10 @@ RSpec.describe "Metasploit's json-rpc" do
 
   def get_rpc_health_check
     post rpc_url, {
-      'jsonrpc': '2.0',
-      'method': 'health.check',
-      'id': 1,
-      'params': []
+      jsonrpc: '2.0',
+      method: 'health.check',
+      id: 1,
+      params: []
     }.to_json
   end
 
@@ -67,15 +67,15 @@ RSpec.describe "Metasploit's json-rpc" do
   end
 
   def last_json_response
-    JSON.parse(last_response.body)
+    JSON.parse(last_response.body).with_indifferent_access
   end
 
   def expect_completed_status(rpc_response)
-    expect(rpc_response).to include({ 'result' => hash_including({ 'status' => 'completed' }) })
+    expect(rpc_response).to include({ result: hash_including({ status: 'completed' }) })
   end
 
   def expect_error_status(rpc_response)
-    expect(rpc_response).to include({ 'result' => hash_including({ 'status' => 'errored' }) })
+    expect(rpc_response).to include({ result: hash_including({ status: 'errored' }) })
   end
 
   def mock_rack_env(mock_rack_env_value)
@@ -114,14 +114,14 @@ RSpec.describe "Metasploit's json-rpc" do
     context 'when using the REST health check functionality' do
       it 'passes the health check' do
         expected_response = {
-          "data" => {
-            "status"=>"UP"
+          data: {
+            status: 'UP'
           }
         }
 
         get_rest_health_check
         expect(last_response).to be_ok
-        expect(last_json_response).to eq(expected_response)
+        expect(last_json_response).to include(expected_response)
       end
     end
 
@@ -132,15 +132,15 @@ RSpec.describe "Metasploit's json-rpc" do
 
       it 'fails the health check' do
         expected_response = {
-          "data" => {
-            "status"=>"DOWN"
+          data: {
+            status: 'DOWN'
           }
         }
 
         get_rest_health_check
 
         expect(last_response.status).to be 503
-        expect(last_json_response).to eq(expected_response)
+        expect(last_json_response).to include(expected_response)
       end
     end
 
@@ -148,16 +148,16 @@ RSpec.describe "Metasploit's json-rpc" do
       context 'when the service is healthy' do
         it 'passes the health check' do
           expected_response = {
-            "id"=>1,
-            "jsonrpc"=>"2.0",
-            "result"=> {
-              "status"=>"UP"
+            id: 1,
+            jsonrpc: '2.0',
+            result: {
+              status: 'UP'
             }
           }
 
           get_rpc_health_check
           expect(last_response).to be_ok
-          expect(last_json_response).to eq(expected_response)
+          expect(last_json_response).to include(expected_response)
         end
       end
 
@@ -168,17 +168,17 @@ RSpec.describe "Metasploit's json-rpc" do
 
         it 'fails the health check' do
           expected_response = {
-            "id"=>1,
-            "jsonrpc"=>"2.0",
-            "result"=> {
-              "status"=>"DOWN"
+            id: 1,
+            jsonrpc: '2.0',
+            result: {
+              status: 'DOWN'
             }
           }
 
           get_rpc_health_check
 
           expect(last_response).to be_ok
-          expect(last_json_response).to eq(expected_response)
+          expect(last_json_response).to include(expected_response)
         end
       end
     end
@@ -206,13 +206,13 @@ RSpec.describe "Metasploit's json-rpc" do
         end
 
         expected_completed_response = {
-          'result' => {
-            'status' => 'completed',
-            'result' => {
-              'code' => 'safe',
-              'details' => {},
-              'message' => 'The target is not exploitable.',
-              'reason' => nil
+          result: {
+            status: 'completed',
+            result: {
+              code: 'safe',
+              details: {},
+              message: 'The target is not exploitable.',
+              reason: nil
             }
           }
         }
@@ -223,7 +223,7 @@ RSpec.describe "Metasploit's json-rpc" do
     context 'when the check command raises a known msf error' do
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do |mod|
-          mod.fail_with(Msf::Module::Failure::UnexpectedReply, "Expected failure reason")
+          mod.fail_with(Msf::Module::Failure::UnexpectedReply, 'Expected failure reason')
         end
       end
 
@@ -242,9 +242,9 @@ RSpec.describe "Metasploit's json-rpc" do
         end
 
         expected_error_response = {
-          'result' => {
-            'status' => 'errored',
-            'error' => 'unexpected-reply: Expected failure reason'
+          result: {
+            status: 'errored',
+            error: 'unexpected-reply: Expected failure reason'
           }
         }
         expect(last_json_response).to include(expected_error_response)
@@ -274,21 +274,19 @@ RSpec.describe "Metasploit's json-rpc" do
         end
 
         expected_error_response = {
-          'result' => {
-            'status' => 'errored',
-            'error' => "undefined method `body' for nil:NilClass"
+          result: {
+            status: 'errored',
+            error: "undefined method `body' for nil:NilClass"
           }
         }
         expect(last_json_response).to include(expected_error_response)
       end
     end
 
-    context "when there is a sinatra level application error in the development environment" do
+    context 'when there is a sinatra level application error in the development environment' do
       before(:each) do
-        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process) do
-          raise Exception, "Sinatra level exception raised"
-        end
-        mock_rack_env("development")
+        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process).and_raise(Exception, 'Sinatra level exception raised')
+        mock_rack_env('development')
       end
 
       it 'returns the error results' do
@@ -296,26 +294,23 @@ RSpec.describe "Metasploit's json-rpc" do
 
         expect(last_response).to be_server_error
         expected_error_response = {
-          "error" => {
-            "code" => -32000,
-            "data" => {
-              "backtrace" => include(a_kind_of(String))
+          error: {
+            code: -32000,
+            data: {
+              backtrace: include(a_kind_of(String))
             },
-            "message" => "Application server error: Sinatra level exception raised"
+            message: 'Application server error: Sinatra level exception raised'
           },
-          "id" => 1
+          id: 1
         }
         expect(last_json_response).to include(expected_error_response)
       end
     end
 
-    context "when rack middleware raises an error in the development environment" do
+    context 'when rack middleware raises an error in the development environment' do
       before(:each) do
-        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?) do
-          raise Exception, "Middleware error raised"
-        end
-
-        mock_rack_env("development")
+        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?).and_raise(Exception, 'Middleware error raised')
+        mock_rack_env('development')
       end
 
       it 'returns the error results' do
@@ -323,25 +318,23 @@ RSpec.describe "Metasploit's json-rpc" do
 
         expect(last_response).to be_server_error
         expected_error_response = {
-          "error" => {
-            "code" => -32000,
-            "data" => {
-              "backtrace" => include(a_kind_of(String))
+          error: {
+            code: -32000,
+            data: {
+              backtrace: include(a_kind_of(String))
             },
-            "message" => "Application server error: Middleware error raised"
+            message: 'Application server error: Middleware error raised'
           },
-          "id" => 1
+          id: 1
         }
         expect(last_json_response).to include(expected_error_response)
       end
     end
 
-    context "when rack middleware raises an error in the production environment" do
+    context 'when rack middleware raises an error in the production environment' do
       before(:each) do
-        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?) do
-          raise Exception, "Middleware error raised"
-        end
-        mock_rack_env("production")
+        allow_any_instance_of(::Rack::Protection::AuthenticityToken).to receive(:accepts?).and_raise(Exception, 'Middleware error raised')
+        mock_rack_env('production')
       end
 
       it 'returns the error results' do
@@ -349,22 +342,20 @@ RSpec.describe "Metasploit's json-rpc" do
 
         expect(last_response).to be_server_error
         expected_error_response = {
-          "error" => {
-            "code" => -32000,
-            "message" => "Application server error: Middleware error raised"
+          error: {
+            code: -32000,
+            message: 'Application server error: Middleware error raised'
           },
-          "id" => 1
+          id: 1
         }
         expect(last_json_response).to include(expected_error_response)
       end
     end
 
-    context "when there is a sinatra level application error in the production environment" do
+    context 'when there is a sinatra level application error in the production environment' do
       before(:each) do
-        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process) do
-          raise Exception, "Sinatra level exception raised"
-        end
-        mock_rack_env("production")
+        allow_any_instance_of(Msf::RPC::JSON::Dispatcher).to receive(:process).and_raise(Exception, 'Sinatra level exception raised')
+        mock_rack_env('production')
       end
 
       it 'returns the error results' do
@@ -372,11 +363,11 @@ RSpec.describe "Metasploit's json-rpc" do
 
         expect(last_response).to be_server_error
         expected_error_response = {
-          "error" => {
-            "code" => -32000,
-            "message" => "Application server error: Sinatra level exception raised"
+          error: {
+            code: -32000,
+            message: 'Application server error: Sinatra level exception raised'
           },
-          "id" => 1
+          id: 1
         }
         expect(last_json_response).to include(expected_error_response)
       end

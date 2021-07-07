@@ -8,6 +8,14 @@ module Windows
 module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Process
+
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ core_channel_* stdapi_sys_process_* } } }
+    ))
+  end
 
   # Checks the architecture of a payload and PID are compatible
   # Returns true if they are false if they are not
@@ -127,25 +135,6 @@ module Process
     Rex.sleep(delay_sec)
   end
 
-  # Determines if a PID actually exists
-  def has_pid?(pid)
-    procs = []
-    begin
-      procs = client.sys.process.processes
-    rescue Rex::Post::Meterpreter::RequestError
-      print_error("Unable to enumerate processes")
-      return false
-    end
-
-    procs.each do |p|
-      found_pid = p['pid']
-      return true if found_pid == pid
-    end
-
-    print_error("PID #{pid.to_s} does not actually exist.")
-
-    return false
-  end
 end # Process
 end # Windows
 end # Post

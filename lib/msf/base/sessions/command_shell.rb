@@ -182,6 +182,7 @@ class CommandShell
     end
 
     if prompt_yesno("Background session #{name}?")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       self.interacting = false
     end
   end
@@ -216,6 +217,7 @@ class CommandShell
       print_status("Session #{self.name} is already interactive.")
     else
       print_status("Backgrounding session #{self.name}...")
+      Rex::Ui::Text::Shell::HistoryManager.pop_context
       # store the next session id so that it can be referenced as soon
       # as this session is no longer interacting
       self.next_session = args[0]
@@ -326,22 +328,33 @@ class CommandShell
     print_error("Can not pop up an interactive shell")
   end
 
+  def self.binary_exists(binary, platform: nil, &block)
+    if block.call('command -v command').to_s.strip == 'command'
+      binary_path = block.call("command -v '#{binary}' && echo true").to_s.strip
+    else
+      binary_path = block.call("which '#{binary}' && echo true").to_s.strip
+    end
+    return nil unless binary_path.include?('true')
+
+    binary_path.split("\n")[0].strip # removes 'true' from stdout
+  end
+
   #
   # Returns path of a binary in PATH env.
   #
   def binary_exists(binary)
-    print_status("Trying to find binary(#{binary}) on target machine")
-    if shell_command_token('command -v command').to_s.strip == 'command'
-      binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
-    else
-      binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
+    print_status("Trying to find binary '#{binary}' on the target machine")
+
+    binary_path = self.class.binary_exists(binary, platform: platform) do |command|
+      shell_command_token(command)
     end
-    unless binary_path.include?("true")
+
+    if binary_path.nil?
       print_error("#{binary} not found")
-      return nil
+    else
+      print_status("Found #{binary} at #{binary_path}")
     end
-    binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
-    print_status("Found #{binary} at #{binary_path}")
+
     return binary_path
   end
 
@@ -548,8 +561,9 @@ class CommandShell
     if expressions.empty?
       print_status('Starting IRB shell...')
       print_status("You are in the \"self\" (session) object\n")
-
-      Rex::Ui::Text::IrbShell.new(self).run
+      Rex::Ui::Text::Shell::HistoryManager.with_context(name: :irb) do
+        Rex::Ui::Text::IrbShell.new(self).run
+      end
     else
       # XXX: No vprint_status here
       if framework.datastore['VERBOSE'].to_s == 'true'
@@ -585,8 +599,10 @@ class CommandShell
 
     print_status('Starting Pry shell...')
     print_status("You are in the \"self\" (session) object\n")
-
-    self.pry
+    Pry.config.history_load = false
+    Rex::Ui::Text::Shell::HistoryManager.with_context(history_file: Msf::Config.pry_history, name: :pry) do
+      self.pry
+    end
   end
 
   #
@@ -753,7 +769,9 @@ protected
   # shell_write instead of operating on rstream directly.
   def _interact
     framework.events.on_session_interact(self)
-    _interact_stream
+    Rex::Ui::Text::Shell::HistoryManager.with_context(name: self.type.to_sym) {
+      _interact_stream
+    }
   end
 
   ##

@@ -2,6 +2,17 @@
 
 module Msf::Post::Common
 
+  def initialize(info = {})
+    super(update_info(
+      info,
+      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
+        stdapi_sys_config_getenv
+        stdapi_sys_process_close
+        stdapi_sys_process_execute
+      } } }
+    ))
+  end
+
   def clear_screen
     Gem.win_platform? ? (system "cls") : (system "clear")
   end
@@ -28,29 +39,6 @@ module Msf::Post::Common
 
   def peer
     "#{rhost}:#{rport}"
-  end
-
-  #
-  # Checks if the remote system has a process with ID +pid+
-  #
-  def has_pid?(pid)
-    pid_list = []
-    case client.type
-    when /meterpreter/
-      pid_list = client.sys.process.processes.collect {|e| e['pid']}
-    when /shell/
-      if client.platform == 'windows'
-        o = cmd_exec('tasklist /FO LIST')
-        pid_list = o.scan(/^PID:\s+(\d+)/).flatten
-      else
-        o = cmd_exec('ps ax')
-        pid_list = o.scan(/^\s*(\d+)/).flatten
-      end
-
-      pid_list = pid_list.collect {|e| e.to_i}
-    end
-
-    pid_list.include?(pid)
   end
 
   #
@@ -84,7 +72,7 @@ module Msf::Post::Common
   #
   # Returns a (possibly multi-line) String.
   #
-  def cmd_exec(cmd, args=nil, time_out=15)
+  def cmd_exec(cmd, args=nil, time_out=15, opts = {})
     case session.type
     when /meterpreter/
       #
@@ -105,34 +93,17 @@ module Msf::Post::Common
       # through /bin/sh, solving all the pesky parsing troubles, without
       # affecting Windows.
       #
-      start = Time.now.to_i
       if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
         args = ""
       end
 
       session.response_timeout = time_out
-      process = session.sys.process.execute(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true })
-      o = ""
-      # Wait up to time_out seconds for the first bytes to arrive
-      while (d = process.channel.read)
-        o << d
-        if d == ""
-          if Time.now.to_i - start < time_out
-            sleep 0.1
-          else
-            break
-          end
-        end
-      end
-      o.chomp! if o
-
-      begin
-        process.channel.close
-      rescue IOError => e
-        # Channel was already closed, but we got the cmd output, so let's soldier on.
-      end
-
-      process.close
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+        'Subshell' => true
+      }.merge(opts)
+      o = session.sys.process.capture_output(cmd, args, opts, time_out)
     when /powershell/
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
@@ -245,10 +216,11 @@ module Msf::Post::Common
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
       cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
     else
-      cmd_exec("command -v #{cmd} && echo true").to_s.include? 'true'
+      cmd_exec("command -v #{cmd} || which #{cmd} && echo true").to_s.split("\n")[-1] == 'true'
     end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
   end
+
 
 end

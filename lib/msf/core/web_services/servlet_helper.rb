@@ -98,7 +98,7 @@ module Msf::WebServices::ServletHelper
     if query_hash.key?('id')
       raise ArgumentError, ("'id' is not a valid query parameter. Please use /api/v1/<resource>/{ID} instead.")
     end
-    params.symbolize_keys.except(:captures, :splat)
+    params.symbolize_keys.except(:captures, :splat).to_h.symbolize_keys
   end
 
   # Determines if this data set should be output as a single object instead of an array.

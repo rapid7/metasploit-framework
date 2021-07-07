@@ -38,10 +38,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  def default_cred?
-    true
-  end
-
   def check
 
     sid, cookies = authenticate
