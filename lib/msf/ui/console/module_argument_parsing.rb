@@ -1,5 +1,6 @@
-
 # -*- coding: binary -*-
+
+require 'addressable'
 require 'msf/ui/console/command_dispatcher'
 
 module Msf
@@ -72,7 +73,6 @@ module ModuleArgumentParsing
       action: action || mod.datastore['ACTION']
     }
     datastore_options = result[:datastore_options]
-
     opts.parse(args) do |opt, _idx, val|
       case opt
       when '-e'
@@ -93,7 +93,7 @@ module ModuleArgumentParsing
         val << '=' unless val.include?('=')
         val.split(',').each do |opt|
           name, value = opt.split('=', 2)
-          datastore_options[name] = value.strip
+          append_datastore_option(datastore_options, name, value)
         end
       when '-p'
         result[:payload] = val
@@ -115,14 +115,10 @@ module ModuleArgumentParsing
         end
 
         if resembles_datastore_assignment?(val)
-          name, value = val.split('=', 2)
-          datastore_options[name] = value.strip
+          name, val = val.split('=', 2)
+          append_datastore_option(datastore_options, name, val)
         elsif resembles_rhost_value?(val)
-          if !datastore_options['RHOSTS']
-            datastore_options['RHOSTS'] = val
-          else
-            datastore_options['RHOSTS'] = "#{datastore_options['RHOSTS']} #{val}"
-          end
+          append_datastore_option(datastore_options, 'RHOSTS', val)
         else
           help_cmd.call result
           return
@@ -143,10 +139,29 @@ module ModuleArgumentParsing
   def resembles_rhost_value?(val)
     return false unless val
 
-    URI.parse(val)
+    ::Addressable::URI.parse(val)
     true
-  rescue URI::Error => _e
+  rescue ::Addressable::URI::InvalidURIError => _e
     false
+  end
+
+  def append_datastore_option(datastore_options, name, value)
+    if name.casecmp?('RHOST') || name.casecmp?('RHOSTS')
+      new_value = quote_whitespaced_value(value)
+      if !datastore_options['RHOSTS']
+        datastore_options['RHOSTS'] = new_value
+      else
+        datastore_options['RHOSTS'] = "#{datastore_options['RHOSTS']} #{new_value}"
+      end
+    else
+      datastore_options[name.upcase] = value
+    end
+    datastore_options
+  end
+
+  # Wraps values which contain spaces in quotes to ensure it's handled correctly later
+  def quote_whitespaced_value(val)
+    val.include?(' ') ? "\"#{val}\"" : val
   end
 end
 end

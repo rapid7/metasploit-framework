@@ -1,5 +1,7 @@
 # -*- coding: binary -*-
 
+require 'addressable'
+
 module Msf
   ###
   #
@@ -82,13 +84,15 @@ module Msf
     #
     # Parses the input rhosts string, and yields the possible combinations of datastore values.
     #
-    # @param value [String] the http string
+    # @param value [String] the rhost string
     # @param datastore [Msf::Datastore] the datastore
     # @return [Enumerable<Msf::DataStore|StandardError>] The calculated datastore values that can be iterated over for
     #   enumerating the given rhosts, or the error that occurred when iterating over the input
     def parse(value, datastore)
       Enumerator.new do |results|
-        values = value.to_s.split(', ').map { |line| line.split(' ') }.flatten
+        # extract the individual elements from the rhost string, ensuring that
+        # whitespace, strings, escape characters, etc are handled correctly.
+        values = Rex::Parser::Arguments.from_s(value)
         values.each do |value|
           if (value =~ %r{^file://(.*)}) || (value =~ /^file:(.*)/)
             file = Regexp.last_match(1)
@@ -142,7 +146,7 @@ module Msf
     # @return [Hash] A hash where keys match the required datastore options associated with
     #   the smb uri value
     def parse_smb_uri(value, datastore)
-      uri = URI.parse(value)
+      uri = ::Addressable::URI.parse(value)
       result = {}
 
       result['RHOSTS'] = uri.hostname
@@ -159,7 +163,7 @@ module Msf
         result['SMBUser'] = uri.user
       end
       if uri.password
-        result['SMBPass'] = uri.password
+        result['SMBPass'] = CGI.unescape(uri.password)
       end
 
       # Handle paths of the format:
@@ -183,7 +187,7 @@ module Msf
     # @return [Hash] A hash where keys match the required datastore options associated with
     #   the http uri value
     def parse_http_uri(value, datastore)
-      uri = URI.parse(value)
+      uri = ::Addressable::URI.parse(value)
       result = {}
       # nil VHOST for now, this value will be calculated and overridden later
       result['VHOST'] = nil
@@ -200,7 +204,7 @@ module Msf
 
       result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
       result['HttpUsername'] = uri.user if uri.user
-      result['HttpPassword'] = uri.password if uri.password
+      result['HttpPassword'] = CGI.unescape(uri.password) if uri.password
 
       result
     end

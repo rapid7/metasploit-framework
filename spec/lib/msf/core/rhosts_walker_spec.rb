@@ -209,6 +209,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '127.0.0.0/30' },
         { 'RHOSTS' => 'https://example.com:9000/foo' },
         { 'RHOSTS' => 'cidr:/30:https://user:pass@multiple_ips.example.com:9000/foo' },
+        { 'RHOSTS' => '"http://user:this is a password@multiple_ips.example.com:9000/foo"' },
       ].each do |test|
         it "validates #{test['RHOSTS']} as being valid" do
           expect(described_class.new(test['RHOSTS']).valid?).to be true
@@ -224,8 +225,9 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '' },
         { 'RHOSTS' => '-1' },
         { 'RHOSTS' => 'http:|' },
-        { 'RHOSTS' => '127.0.0.1 http:|' },
-        { 'RHOSTS' => '127.0.0.1 http:| 127.0.0.1' },
+        { 'RHOSTS' => '127.0.0.1 http:' },
+        { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1' },
+        { 'RHOSTS' => '"http://127.0.0.1' },
       ].each do |test|
         it "validates #{test['RHOSTS']} as being invalid" do
           expect(described_class.new(test['RHOSTS']).valid?).to be false
@@ -271,9 +273,9 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => nil, 'expected' => [] },
       { 'RHOSTS' => '', 'expected' => [] },
       { 'RHOSTS' => '-1', 'expected' => [] },
-      { 'RHOSTS' => 'http:|', 'expected' => [Msf::RhostsWalker::Error.new('http:|')] },
-      { 'RHOSTS' => '127.0.0.1 http:|', 'expected' => [Msf::RhostsWalker::Error.new('http:|')] },
-      { 'RHOSTS' => '127.0.0.1 http:| 127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('http:|')] },
+      { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
+      { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
+      { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:'), Msf::RhostsWalker::Error.new('https:')] },
     ].each do |test|
       it "handles the input #{test['RHOSTS'].inspect} as having the errors #{test['expected']}" do
         aux_mod.datastore['RHOSTS'] = test['RHOSTS']
@@ -382,6 +384,17 @@ RSpec.describe Msf::RhostsWalker do
       expected = [
         { 'RHOSTS' => '198.51.100.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' },
         { 'RHOSTS' => '203.0.113.1', 'RPORT' => 80, 'VHOST' => 'multiple_ips.example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/foo' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
+    end
+
+    it 'handles values wrapped in quotes as atomic values' do
+      http_mod.datastore['RHOSTS'] = '127.0.0.1 "http://user:this is a password@example.com" http://user:password@example.com'
+      expected = [
+        { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'this is a password', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'password', 'TARGETURI' => '/' }
       ]
       expect(each_host_for(http_mod)).to have_datastore_values(expected)
       expect(each_error_for(http_mod)).to be_empty
@@ -571,12 +584,30 @@ RSpec.describe Msf::RhostsWalker do
       end
     end
 
+    # According to the URI grammar, the userinfo non-terminal symbol should not contain spaces, or reserved
+    # characters such as `@` etc. To provide a nicer user experience, we try to gloss over this implementation detail,
+    # so users can copy arbitrary password values and it should work as expected
+    # https://datatracker.ietf.org/doc/html/rfc3986#appendix-A
+    #
+    # Note that by default the Ruby URI module honors the semantics of this specification, whilst Addressable::URI handles
+    # this scenario in a more intuitive way for end users
+    context 'when userinfo contains reserved characters ' do
+      it 'handles complex passwords' do
+        http_mod.datastore['RHOSTS'] = '"http://user:a b c p4$$w0rd@123@!@example.com/"'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => 'user', 'HttpPassword' => 'a b c p4$$w0rd@123@!', 'TARGETURI' => '/' }
+        ]
+        expect(each_error_for(http_mod)).to be_empty
+        expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      end
+    end
+
     # TODO: Discuss adding a test for the datastore containing an existing TARGETURI,and running with a HTTP url without a path. Should the TARGETURI be overridden to '/', '', or unaffected, and the default value is used instead?
 
     it 'enumerates a combination of all syntaxes' do
       temp_file_a = create_tempfile("\n192.0.2.0\n\n\n127.0.0.5\n\nhttp://user:pass@example.com:9000/foo\ncidr:/30:https://user:pass@multiple_ips.example.com:9000/foo")
       temp_file_b = create_tempfile("https://www.example.com/\n127.0.0.1\ncidr:/31:http://127.0.0.1/tomcat/manager\nfile:#{temp_file_a}")
-      http_mod.datastore['RHOSTS'] = "127.0.0.1, cidr:/31:http://192.0.2.0/tomcat/manager, https://192.0.2.0:8080/manager/html file:#{temp_file_b} :/"
+      http_mod.datastore['RHOSTS'] = "127.0.0.1 cidr:/31:http://192.0.2.0/tomcat/manager https://192.0.2.0:8080/manager/html file:#{temp_file_b}"
       expected = [
         { 'RHOSTS' => '127.0.0.1', 'RPORT' => 3000, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/default_app' },
         { 'RHOSTS' => '192.0.2.0', 'RPORT' => 80, 'VHOST' => nil, 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'TARGETURI' => '/tomcat/manager' },
@@ -598,8 +629,9 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '203.0.113.2', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' },
         { 'RHOSTS' => '203.0.113.3', 'RPORT' => 9000, 'VHOST' => 'multiple_ips.example.com', 'SSL' => true, 'HttpUsername' => 'user', 'HttpPassword' => 'pass', 'TARGETURI' => '/foo' }
       ]
-      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+
       expect(each_error_for(http_mod)).to be_empty
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
     end
   end
 end
