@@ -26,9 +26,9 @@ module Metasploit
           num2 = inp.length
           num = 17
           ret = ''
-          charset_0 = 'cromanwqxfzpgedkvstjhyilu'.split('')
-          xyz = 'zxWyZxzvwYzxZXxxZWWyWxYXz'.split('')
-          charset_1 = 'cf2tln3yuVkDr7oPaQ8bsSd4x'.split('')
+          charset_0 = 'cromanwqxfzpgedkvstjhyilu'.chars
+          xyz = 'zxWyZxzvwYzxZXxxZWWyWxYXz'.chars
+          charset_1 = 'cf2tln3yuVkDr7oPaQ8bsSd4x'.chars
 
           (0..num2 - 1).each do |i|
             num5 = inp[i].ord
