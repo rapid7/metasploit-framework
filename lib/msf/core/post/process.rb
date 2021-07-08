@@ -51,6 +51,20 @@ module Msf::Post::Process
     end
   end
 
+  def powershell_get_processes
+    processes = []
+    get_process = cmd_exec('Get-Process | Format-Table Id, Name').split("\n")
+    3.times { get_process.delete_at(0) }
+    get_process.each do |p|
+      properties = p.split
+      process = {}
+      process['id'] = p[0].to_i
+      process['name'] = p[1..-1].join(" ")
+      processes.push(process)
+    end
+    return processes
+  end
+
   def meterpreter_get_processes
     begin
       return session.sys.process.get_processes.map { |p| p.slice('name', 'pid') }
