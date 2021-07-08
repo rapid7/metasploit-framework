@@ -66,6 +66,9 @@ due to how these payloads are synchronized. If the session closes, dies, or the 
 DLL can be used again otherwise a new DLL will need to be created for each simultaneously active session. One DLL can
 however be used to establish multiple sessions simultaneously so long as each session is on a different target.
 
+If this value is a UNC path, it will automatically be converted to use the `\??\UNC\` prefix instead of `\\` to bypass
+the path check in certain scenarios.
+
 ### ReconnectDelay
 *This is an advanced option.*
 

