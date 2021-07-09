@@ -88,6 +88,7 @@ class MetasploitModule < Msf::Auxiliary
       vprint_status("Received #{status} with FID = 0")
 
       os = simple.client.peer_native_os.dup
+      details[:os] = os.dup
       if status == 'STATUS_INSUFF_SERVER_RESOURCES'
         if datastore['CHECK_ARCH']
           case dcerpc_getarch
@@ -167,7 +168,7 @@ class MetasploitModule < Msf::Auxiliary
     rescue ::Rex::Proto::SMB::Exceptions::LoginError
       print_error("An SMB Login Error occurred while connecting to the IPC$ tree.")
     rescue ::Exception => e
-      vprint_error("#{e.class}: #{e.message}")
+      print_error("#{e.class}: #{e.message}")
     ensure
       disconnect
     end
