@@ -163,28 +163,7 @@ module ModuleCommandDispatcher
   end
 
   def cmd_check_help
-    print_line('Usage: check [option] [IP Range]')
-    print_line
-    print_line('Options:')
-    print_line('-h  You are looking at it.')
-    print_line
-    print_line('Examples:')
-    print_line('')
-    print_line('Normally, if a RHOST is already specified, you can just run check.')
-    print_line('But here are different ways to use the command:')
-    print_line
-    print_line('Against a single host:')
-    print_line('check 192.168.1.123')
-    print_line
-    print_line('Against a range of IPs:')
-    print_line('check 192.168.1.1-192.168.1.254')
-    print_line
-    print_line('Against a range of IPs loaded from a file:')
-    print_line('check file:///tmp/ip_list.txt')
-    print_line
-    print_line('Against a URL, this overrides the RPORT/TARGETURI options:')
-    print_line('check http://www.example.com/foo')
-    print_line
+    print_module_run_or_check_usage(command: :check)
     print_line('Multi-threaded checks:')
     print_line('1. set THREADS 10')
     print_line('2. check')
