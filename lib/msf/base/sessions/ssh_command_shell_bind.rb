@@ -144,13 +144,19 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     condition = ConditionVariable.new
     ssh_channel = msf_channel = nil
 
-    if params.proto == 'tcp' && !params.server
+    if params.proto == 'tcp'
+      if params.server
+        raise ::Rex::BindFailed.new(params.localhost, params.localport, reason: 'TCP server sockets are not supported by SSH sessions.')
+      end
+
       ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, params.peerhost, :long, params.peerport, :string, params.localhost, :long, params.localport) do |new_channel|
         msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, params)
         mutex.synchronize {
           condition.signal
         }
       end
+    elsif params.proto == 'udp'
+      raise ::Rex::ConnectionError.new(params.peerhost, params.peerport, reason: 'UDP sockets are not supported by SSH sessions.')
     end
 
     raise ::Rex::ConnectionError.new if ssh_channel.nil?
@@ -166,7 +172,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       condition.wait(mutex, params.timeout)
     }
 
-    raise ::Rex::ConnectionError.new if msf_channel.nil?
+    raise ::Rex::ConnectionError.new(params.peerhost, params.peerport) if msf_channel.nil?
 
     sock = msf_channel.lsock
 
