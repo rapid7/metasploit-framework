@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => ['smashery'],
         'Platform' => ['win'],
-        'SessionTypes' => ['meterpreter' ]
+        'SessionTypes' => ['meterpreter' ],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
       )
     )
     register_options([

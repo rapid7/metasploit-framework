@@ -2,7 +2,7 @@
 
 This module dumps the memory for any process on the system and retrieves it for later analysis.
 The user must have sufficient permissions to read the memory of that process. Low-privilege users
-should be able to read any of their own processes. High-privilege users should be able to read 
+should be able to read any of their own processes. High-privilege users should be able to read
 any unprotected process.
 
 This module only works on a Meterpreter session on Windows.
@@ -24,11 +24,14 @@ This module only works on a Meterpreter session on Windows.
 
 ### DUMP_PATH
 
-The path that the memory dump will be temporarily stored at. This file is then downloaded and deleted at the end of the run. This file should be in a writable location, and should not already exist.
+The path that the memory dump will be temporarily stored at. This file is then
+downloaded and deleted at the end of the run. This file should be in a writable
+location, and should not already exist.
 
 ### PID
 
-The ID of the process to dump. To find the PID, in your Meterpreter session, type `ps`. To find a process by name, type `ps | <process name>`.
+The ID of the process to dump. To find the PID, in your Meterpreter session,
+type `ps`. To find a process by name, type `ps | <process name>`.
 
 ### DUMP_TYPE
 
@@ -36,11 +39,19 @@ Two options are provided for creating a memory dump:
 
 - Full
 
-This option retrieves the entire memory address space, including all DLLs, EXEs and memory mapped files. For dumping LSASS for offline analysis, this option seems to be preferable. However, the file size can be significantly larger than the Standard option.
+This option retrieves the entire memory address space, including all DLLs, EXEs
+and memory mapped files. For dumping LSASS for offline analysis, this option
+seems to be preferable. However, the file size can be significantly larger than
+the Standard option.
 
 - Standard
 
-This option retrieves most data from the process, with the exception of DLLs, EXEs and memory mapped files. As a result, some analysis tools may have trouble with automated analysis, however any sensitive information such as passwords which are stored in memory should be part of this dump. This data could possibly be retrieved using a tool such as `strings`. The file size should be significantly smaller than the Full option.
+This option retrieves most data from the process, with the exception of DLLs,
+EXEs and memory mapped files. As a result, some analysis tools may have trouble
+with automated analysis, however any sensitive information such as passwords
+which are stored in memory should be part of this dump. This data could
+possibly be retrieved using a tool such as `strings`. The file size should be
+significantly smaller than the Full option.
 
 ## Scenarios
 
