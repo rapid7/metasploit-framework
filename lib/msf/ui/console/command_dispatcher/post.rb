@@ -56,10 +56,10 @@ class Post
   alias cmd_rexploit cmd_rerun
 
   def cmd_run_help
-    print_line "Usage: run [options]"
-    print_line
-    print_line "Launches a post exploitation module."
-    print @@auxiliary_opts.usage
+    print_module_run_or_check_usage(
+      command: :run,
+      description: 'Launches a post exploitation module.'
+    )
   end
 
   #

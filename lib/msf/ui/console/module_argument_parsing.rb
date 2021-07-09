@@ -63,6 +63,32 @@ module ModuleArgumentParsing
     parse_opts(@@exploit_opts, args, help_cmd: help_cmd)&.except(:action)
   end
 
+  def print_module_run_or_check_usage(command:, description: nil, options: @@module_opts)
+    description ||= command == :check ? 'Check if the target is vulnerable' : "Run the current #{name.downcase} module"
+
+    is_http_mod = mod.is_a?(Msf::Exploit::Remote::HttpClient)
+    is_smb_mod = mod.is_a?(Msf::Exploit::Remote::SMB::Client) || mod.options.include?('SMBUser')
+
+    print_line("Usage: #{command} [options] [RHOSTS]")
+    print_line('')
+    print_line(description)
+    print_line(options.usage)
+    print_line('Examples:')
+    print_line('')
+    print_line("    #{command} 192.168.1.123")
+    print_line("    #{command} 192.168.1.1-192.168.1.254")
+    print_line("    #{command} file:///tmp/rhost_list.txt")
+    print_line("    #{command} http://192.168.1.123/foo") if is_http_mod
+    print_line("    #{command} http://user:pass@192.168.1.123/foo") if is_http_mod
+    print_line("    #{command} HttpTrace=true http://192.168.1.123/foo") if is_http_mod
+    print_line("    #{command} smb://192.168.1.123") if is_smb_mod
+    print_line("    #{command} smb://user:pass@192.168.1.123") if is_smb_mod
+    print_line("    #{command} LPATH=/tmp/foo.txt smb://user:pass@192.168.1.123/share_name/foo.txt") if is_smb_mod && mod.options.include?('RPATH')
+    print_line('')
+    print_line('Learn more at https://github.com/rapid7/metasploit-framework/wiki/Using-Metasploit')
+    print_line('')
+  end
+
   protected
 
   def parse_opts(opts, args, help_cmd:, action: nil)
@@ -87,6 +113,7 @@ module ModuleArgumentParsing
         result[:nop] = val
       when '-o'
         if val.nil?
+          print_error('Missing OptionStr value')
           help_cmd.call result
           return
         end
@@ -120,6 +147,7 @@ module ModuleArgumentParsing
         elsif resembles_rhost_value?(val)
           append_datastore_option(datastore_options, 'RHOSTS', val)
         else
+          print_error("Invalid argument #{val}")
           help_cmd.call result
           return
         end

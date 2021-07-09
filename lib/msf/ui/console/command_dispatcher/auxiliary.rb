@@ -123,10 +123,7 @@ class Auxiliary
   alias cmd_exploit_tabs cmd_run_tabs
 
   def cmd_run_help
-    print_line "Usage: run [options]"
-    print_line
-    print_line "Launches an auxiliary module."
-    print @@module_opts_with_action_support.usage
+    print_module_run_or_check_usage(command: :run, options: @@module_opts)
   end
 
   alias cmd_exploit_help cmd_run_help

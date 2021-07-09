@@ -58,10 +58,7 @@ module ModuleActionCommands
   end
 
   def cmd_action_help(action)
-    print_line "Usage: " + action.downcase + " [options]"
-    print_line
-    print_line "Launches a specific module action."
-    print @@module_opts.usage
+    print_module_run_or_check_usage(command: action.downcase, description: 'Launches a specific module action')
   end
 
   #
