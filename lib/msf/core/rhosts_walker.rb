@@ -115,6 +115,13 @@ module Msf
                 http_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
               )
             end
+          elsif value.start_with?('mysql:')
+            mysql_options = parse_mysql_uri(value, datastore)
+            Rex::Socket::RangeWalker.new(mysql_options['RHOSTS']).each_ip do |ip|
+              results << datastore.merge(
+                mysql_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
+              )
+            end
           elsif value =~ /^cidr:(.*)/
             range, value = Regexp.last_match(1).split(':', 2)
 
@@ -206,6 +213,24 @@ module Msf
       result['HttpUsername'] = uri.user if uri.user
       result['HttpPassword'] = CGI.unescape(uri.password) if uri.password
 
+      result
+    end
+
+    # Parses a uri mysql connection string such as mysql://user:password@example.com into a hash
+    # which can safely be merged with a [Msf::DataStore] datastore for setting mysql options.
+    #
+    # @param value [String] the mysql uri connection string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the http uri value
+    def parse_mysql_uri(value, _datastore)
+      uri = ::Addressable::URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      result['RPORT'] = uri.port || 3306
+
+      result['USERNAME'] = uri.user if uri.user
+      result['PASSWORD'] = CGI.unescape(uri.password) if uri.password
       result
     end
   end
