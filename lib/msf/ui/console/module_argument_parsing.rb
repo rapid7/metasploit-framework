@@ -68,6 +68,7 @@ module ModuleArgumentParsing
 
     is_http_mod = mod.is_a?(Msf::Exploit::Remote::HttpClient)
     is_smb_mod = mod.is_a?(Msf::Exploit::Remote::SMB::Client) || mod.options.include?('SMBUser')
+    is_mysql_mod = mod.is_a?(Msf::Exploit::Remote::MYSQL)
 
     print_line("Usage: #{command} [options] [RHOSTS]")
     print_line('')
@@ -81,6 +82,8 @@ module ModuleArgumentParsing
     print_line("    #{command} http://192.168.1.123/foo") if is_http_mod
     print_line("    #{command} http://user:pass@192.168.1.123/foo") if is_http_mod
     print_line("    #{command} HttpTrace=true http://192.168.1.123/foo") if is_http_mod
+    print_line("    #{command} mysql://user:pass@192.168.1.123") if is_mysql_mod
+    print_line("    #{command} SQL='select version()' mysql://user:pass@192.168.1.123") if is_mysql_mod && mod.options.include?('SQL')
     print_line("    #{command} smb://192.168.1.123") if is_smb_mod
     print_line("    #{command} smb://user:pass@192.168.1.123") if is_smb_mod
     print_line("    #{command} LPATH=/tmp/foo.txt smb://user:pass@192.168.1.123/share_name/foo.txt") if is_smb_mod && mod.options.include?('RPATH')

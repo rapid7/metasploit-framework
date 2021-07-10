@@ -18,7 +18,8 @@ RSpec::Matchers.define :have_datastore_values do |expected|
   def http_options_for(datastores)
     http_keys = %w[RHOSTS RPORT VHOST SSL HttpUsername HttpPassword TARGETURI URI]
     smb_keys = %w[RHOSTS RPORT SMBDomain SMBUser SMBPass SMBSHARE RPATH]
-    required_keys = http_keys + smb_keys
+    mysql_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
+    required_keys = http_keys + smb_keys + mysql_keys
     datastores.map do |datastore|
       # Slice the datastore options that we care about, ignoring other values that just add noise such as VERBOSE/WORKSPACE/etc.
       datastore.to_h.slice(*required_keys)
@@ -70,7 +71,7 @@ RSpec.describe Msf::RhostsWalker do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(nil)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     mod
   end
@@ -100,7 +101,29 @@ RSpec.describe Msf::RhostsWalker do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(nil)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:mysql_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::MYSQL
+
+      def initialize
+        super(
+          'Name' => 'mock http module',
+          'Description' => 'mock http module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     mod
   end
@@ -129,7 +152,7 @@ RSpec.describe Msf::RhostsWalker do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(nil)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     mod
   end
@@ -159,7 +182,7 @@ RSpec.describe Msf::RhostsWalker do
     mod = mod_klass.new
     datastore = Msf::ModuleDataStore.new(mod)
     allow(mod).to receive(:framework).and_return(nil)
-    allow(mod).to receive(:datastore).and_return(datastore)
+    mod.send(:datastore=, datastore)
     datastore.import_options(mod.options)
     mod
   end
@@ -599,6 +622,17 @@ RSpec.describe Msf::RhostsWalker do
         ]
         expect(each_error_for(http_mod)).to be_empty
         expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      end
+    end
+
+    context 'when using the mysql scheme' do
+      it 'enumerates mysql schemes' do
+        mysql_mod.datastore['RHOSTS'] = '"mysql://user:a b c@example.com/"'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' }
+        ]
+        expect(each_error_for(mysql_mod)).to be_empty
+        expect(each_host_for(mysql_mod)).to have_datastore_values(expected)
       end
     end
 
