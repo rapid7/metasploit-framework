@@ -11,7 +11,7 @@ require 'rex/powershell'
 ###
 module MetasploitModule
 
-  CachedSize = 1829
+  CachedSize = 1920
 
   include Msf::Payload::Windows::Exec_x64
   include Msf::Payload::Windows::Powershell
