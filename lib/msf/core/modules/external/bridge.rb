@@ -238,12 +238,33 @@ class Msf::Modules::External::GoBridge < Msf::Modules::External::Bridge
   end
 end
 
+class Msf::Modules::External::RustBridge < Msf::Modules::External::Bridge
+  def self.applies?(module_name)
+    module_name.match? /\.crs$/
+  end
+
+  def initialize(module_path, framework: nil)
+    super
+    self.cmd = ['cargo', 'script', self.path]
+  end
+
+  def handle_exception(error)
+    case error
+    when Errno::ENOENT
+      LoadError.new('Failed to execute external Go module. Please ensure you have Go installed on your environment.')
+    else
+      super
+    end
+  end
+end
+
 class Msf::Modules::External::Bridge
 
   LOADERS = [
     Msf::Modules::External::PyBridge,
     Msf::Modules::External::RbBridge,
     Msf::Modules::External::GoBridge,
+    Msf::Modules::External::RustBridge,
     Msf::Modules::External::Bridge
   ]
 
