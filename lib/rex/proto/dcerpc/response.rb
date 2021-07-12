@@ -50,7 +50,6 @@ class Response
     uuid = Rex::Proto::DCERPC::UUID
     data = self.raw
 
-
     if(not data)
       raise Rex::Proto::DCERPC::Exceptions::InvalidPacket, 'DCERPC response packet is incomplete'
     end
@@ -174,7 +173,7 @@ class Response
       self.status = data.unpack('CCCCNvvVVvCCV')
 
       # Put the application data into self.stub_data
-      self.stub_data = data[stub_offset..self.frag_len - self.auth_len]
+      self.stub_data = data[data.length - self.alloc_hint, 0xffff]
       # End of FAULT
     end
 
