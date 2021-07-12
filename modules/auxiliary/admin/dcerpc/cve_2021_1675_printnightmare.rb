@@ -240,7 +240,7 @@ class MetasploitModule < Msf::Auxiliary
         'Name' => 'Print Spooler Remote DLL Injection',
         'Description' => %q{
           The print spooler service can be abused by an authenticated remote attacker to load a DLL through a crafted
-          DCERPC request, resulting in remote code execution as NT AUTHORITY\SYSTEM. This modules uses the MS-RPRN
+          DCERPC request, resulting in remote code execution as NT AUTHORITY\SYSTEM. This module uses the MS-RPRN
           vector which requires the Print Spooler service to be running.
         },
         'Author' => [
