@@ -1123,7 +1123,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/powershell_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
