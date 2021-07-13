@@ -309,7 +309,6 @@ class MetasploitModule < Msf::Auxiliary
       end
       return Exploit::CheckCode::Safe("The DCERPC bind failed with error #{nt_status.name} (#{nt_status.description}).")
     end
-    vprint_status("Bound to #{handle} ...")
 
     arch = dcerpc_getarch
     # see: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rprn/e81cbc09-ab05-4a32-ae4a-8ec57b436c43
