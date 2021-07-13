@@ -31,10 +31,11 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @cid = cid
       @ssh_channel = ssh_channel
       @params = params
+      @mutex = Mutex.new
 
       ssh_channel.on_close do |ch|
         dlog("ssh_channel#on_close closing sock")
-        rsock.close
+        close
       end
 
       ssh_channel.on_data do |ch, data|
@@ -44,7 +45,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
       ssh_channel.on_eof do |ch|
         dlog("ssh_channel#on_eof closing sock")
-        rsock.close
+        rsock.shutdown(Socket::SHUT_WR)
       end
 
       lsock.extend(Rex::Post::Channel::SocketAbstraction::SocketInterface)
@@ -61,12 +62,15 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     end
 
     def close
-      return if @cid.nil?
+      @mutex.synchronize {
+        return if closed?
+        cid = @cid
+        @cid = nil
+      }
 
+      @client.remove_channel(cid)
       cleanup_abstraction
       @ssh_channel.close
-      @client.remove_channel(@cid)
-      @cid = nil
     end
 
     #
@@ -178,6 +182,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     # Notify now that we've created the socket
     notify_socket_created(self, sock, params)
+
     sock
   end
 
