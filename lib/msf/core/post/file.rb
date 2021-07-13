@@ -162,7 +162,7 @@ module Msf::Post::File
       return false unless stat
       return stat.file?
     elsif session.type == 'powershell'
-      return cmd_exec("(Get-Item #{path}).PSIsContainer")&.include?("False")
+      return cmd_exec("(Get-Item \"#{path}\").PSIsContainer")&.include?("False")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -250,7 +250,7 @@ module Msf::Post::File
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     elsif session.type == 'powershell'
-      return cmd_exec("Test-Path #{path}")&.include?("True")
+      return cmd_exec("Test-Path \"#{path}\"")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -475,7 +475,7 @@ module Msf::Post::File
       if session.type == "meterpreter"
         session.fs.file.delete(remote) if exist?(remote)
       elsif session.type == 'powershell'
-        cmd_exec("Remove-Item #{remote} -Force")
+        cmd_exec("Remove-Item \"#{remote}\" -Force")
       else
         if session.platform == 'windows'
           cmd_exec("del /q /f \"#{remote}\"")
@@ -497,7 +497,7 @@ module Msf::Post::File
       if session.type == "meterpreter"
         session.fs.dir.rmdir(remote) if exist?(remote)
       elsif session.type == 'powershell'
-        cmd_exec("Remove-Item -Path #{remote} -Force –Recurse")
+        cmd_exec("Remove-Item -Path \"#{remote}\" -Force –Recurse")
       else
         if session.platform == 'windows'
           cmd_exec("rd /s /q \"#{remote}\"")
