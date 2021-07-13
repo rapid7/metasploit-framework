@@ -6,33 +6,33 @@
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
 
-  def initialize(info = ({ }))
+  def initialize(info = {})
     super(
       update_info(
         info,
-          'Name' => 'ZoomEye Search',
-          'Description' => %q{
-            The module use the ZoomEye API to search ZoomEye. ZoomEye is a search
-            engine for cyberspace that lets the user find specific network
-            components(ip, services, etc.).
-            Mind to enclose the whole request with quotes and limit the span of filters:
-            `set zoomeye_dork 'country:"france"+some+query'`
+        'Name' => 'ZoomEye Search',
+        'Description' => %q{
+          The module use the ZoomEye API to search ZoomEye. ZoomEye is a search
+          engine for cyberspace that lets the user find specific network
+          components(ip, services, etc.).
+          Mind to enclose the whole request with quotes and limit the span of filters:
+          `set zoomeye_dork 'country:"france"+some+query'`
 
-            Setting facets will output a simple report on the overall search. It's values are:
-            Host search: app, device, service, os, port, country, city
-            Web search: webapp, component, framework, frontend, server, waf, os, country, city
+          Setting facets will output a simple report on the overall search. It's values are:
+          Host search: app, device, service, os, port, country, city
+          Web search: webapp, component, framework, frontend, server, waf, os, country, city
 
-            Possible filters values are:
-            Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
-            Web search: app, header, keywords, desc, title, ip, site, city, country
-          },
-          'Author' => [ 'Nixawk', 'Yvain' ],
-          'References' => [
-            ['URL', 'https://github.com/zoomeye/SDK'],
-            ['URL', 'https://www.zoomeye.org/api/doc'],
-            ['URL', 'https://www.zoomeye.org/help/manual']
-          ],
-          'License' => MSF_LICENSE
+          Possible filters values are:
+          Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
+          Web search: app, header, keywords, desc, title, ip, site, city, country
+        },
+        'Author' => [ 'Nixawk', 'Yvain' ],
+        'References' => [
+          ['URL', 'https://github.com/zoomeye/SDK'],
+          ['URL', 'https://www.zoomeye.org/api/doc'],
+          ['URL', 'https://www.zoomeye.org/help/manual']
+        ],
+        'License' => MSF_LICENSE
       )
     )
     register_options(
@@ -46,7 +46,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false])
       ]
-  )
+    )
   end
 
   # save output to file
@@ -71,7 +71,7 @@ class MetasploitModule < Msf::Auxiliary
     # See more: https://www.zoomeye.org/api/doc#login
 
     access_token = ''
-    @cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, { }, true)
+    @cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
     @cli.connect
 
     data = { 'username' => username, 'password' => password }
