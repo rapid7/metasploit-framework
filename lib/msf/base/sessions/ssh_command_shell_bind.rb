@@ -120,11 +120,21 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     attr_reader :params
   end
 
-  def initialize(ssh_connection, rstream, opts = {})
+  #
+  # Create a sessions instance from an SshConnection. This will handle creating
+  # a new command stream.
+  #
+  # @param ssh_connection [Net::SSH::Connection] The SSH connection to create a
+  #   session instance for.
+  # @param opts [Hash] Optional parameters to pass to the session object.
+  def initialize(ssh_connection, opts = {})
     @ssh_connection = ssh_connection
     @sock = ssh_connection.transport.socket
+
     initialize_channels
     @channel_ticker = 0
+
+    rstream = Net::SSH::CommandStream.new(ssh_connection).lsock
     super(rstream, opts)
   end
 
@@ -197,19 +207,6 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   attr_reader :sock
   attr_reader :ssh_connection
 
-  #
-  # Create a sessions instance from an SshConnection. This will handle creating
-  # a new command stream.
-  #
-  # @param ssh_connection [Net::SSH::Connection] The SSH connection to create a
-  #   session instance for.
-  # @param opts [Hash] Optional parameters to pass to the session object.
-  #
-  # @return [SshCommandShellBind] A new session instance.
-  def self.from_ssh_socket(ssh_connection, opts = {})
-    command_stream = Net::SSH::CommandStream.new(ssh_connection)
-    self.new(ssh_connection, command_stream.lsock, opts)
-  end
 end
 
 end

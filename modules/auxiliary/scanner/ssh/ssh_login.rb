@@ -61,7 +61,7 @@ class MetasploitModule < Msf::Auxiliary
     platform = scanner.get_platform(result.proof)
 
     # Create a new session
-    sess = Msf::Sessions::SshCommandShellBind.from_ssh_socket(scanner.ssh_socket)
+    sess = Msf::Sessions::SshCommandShellBind.new(scanner.ssh_socket)
 
     merge_me = {
       'USERPASS_FILE' => nil,

@@ -74,7 +74,7 @@ class MetasploitModule < Msf::Auxiliary
     return unless scanner.ssh_socket
 
     # Create a new session
-    sess = Msf::Sessions::SshCommandShellBind.from_ssh_socket(scanner.ssh_socket)
+    sess = Msf::Sessions::SshCommandShellBind.new(scanner.ssh_socket)
 
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
