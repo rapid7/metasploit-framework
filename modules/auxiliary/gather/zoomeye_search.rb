@@ -195,7 +195,6 @@ class MetasploitModule < Msf::Auxiliary
           if page_result['matches'].nil?
             next
           end
-
           results[page] = page_result
           page += 1
         end
