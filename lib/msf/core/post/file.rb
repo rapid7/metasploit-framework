@@ -497,7 +497,7 @@ module Msf::Post::File
       if session.type == "meterpreter"
         session.fs.dir.rmdir(remote) if exist?(remote)
       elsif session.type == 'powershell'
-        cmd_exec("Remove-Item -Path \"#{remote}\" -Force –Recurse")
+        cmd_exec("Remove-Item -Path \"#{remote}\" -Force -Recurse")
       else
         if session.platform == 'windows'
           cmd_exec("rd /s /q \"#{remote}\"")
