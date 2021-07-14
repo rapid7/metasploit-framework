@@ -14,6 +14,14 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   class TcpClientChannel
     include Rex::IO::StreamAbstraction
 
+    module SocketInterface
+      include Rex::Post::Channel::SocketAbstraction::SocketInterface
+
+      def type?
+        'tcp'
+      end
+    end
+
     #
     # Create a new TcpClientChannel instance.
     #
@@ -34,7 +42,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @mutex = Mutex.new
 
       ssh_channel.on_close do |ch|
-        dlog("ssh_channel#on_close closing sock")
+        dlog("ssh_channel#on_close closing the sock")
         close
       end
 
@@ -44,14 +52,14 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       end
 
       ssh_channel.on_eof do |ch|
-        dlog("ssh_channel#on_eof closing sock")
+        dlog("ssh_channel#on_eof shutting down the socket")
         rsock.shutdown(Socket::SHUT_WR)
       end
 
-      lsock.extend(Rex::Post::Channel::SocketAbstraction::SocketInterface)
+      lsock.extend(SocketInterface)
       lsock.channel = self
 
-      rsock.extend(Rex::Post::Channel::SocketAbstraction::SocketInterface)
+      rsock.extend(SocketInterface)
       rsock.channel = self
 
       client.add_channel(self)
@@ -62,9 +70,9 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     end
 
     def close
+      cid = @cid
       @mutex.synchronize {
         return if closed?
-        cid = @cid
         @cid = nil
       }
 
@@ -73,12 +81,20 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       @ssh_channel.close
     end
 
+    def close_write
+      if closed?
+        raise IOError, "Channel has been closed.", caller
+      end
+
+      @ssh_channel.eof!
+    end
+
     #
     # Read *length* bytes from the channel. If the operation times out, the data
     # that was read will be returned or nil if no data was read.
     #
     def read(length = nil)
-      if @cid.nil?
+      if closed?
         raise IOError, 'Channel has been closed.', caller
       end
 
@@ -103,7 +119,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     # @param [Integer] length An optional length to truncate *data* to before
     #   sending it.
     def write(buf, length = nil)
-      if @cid.nil?
+      if closed?
         raise IOError, 'Channel has been closed.', caller
       end
 
@@ -176,7 +192,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
     raise ::Rex::ConnectionError.new if ssh_channel.nil?
 
     ssh_channel.on_open_failed do |ch, code, desc|
-      wlog("failed to open SSH channel (code=#{code.inspect}, description=#{desc.inspect})")
+      wlog("failed to open SSH channel (code: #{code.inspect}, description: #{desc.inspect})")
       mutex.synchronize {
         condition.signal
       }
