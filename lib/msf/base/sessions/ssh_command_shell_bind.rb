@@ -11,6 +11,14 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
   include Msf::Session::Comm
   include Rex::Post::Channel::Container
 
+  # see: https://datatracker.ietf.org/doc/html/rfc4254#section-5.1
+  module ChannelFailureReason
+    SSH_OPEN_ADMINISTRATIVELY_PROHIBITED        = 1
+    SSH_OPEN_CONNECT_FAILED                     = 2
+    SSH_OPEN_UNKNOWN_CHANNEL_TYPE               = 3
+    SSH_OPEN_RESOURCE_SHORTAGE                  = 4
+  end
+
   class TcpClientChannel
     include Rex::IO::StreamAbstraction
 
@@ -180,6 +188,7 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       end
 
       ssh_channel = @ssh_connection.open_channel('direct-tcpip', :string, params.peerhost, :long, params.peerport, :string, params.localhost, :long, params.localport) do |new_channel|
+        dlog("new direct-tcpip channel opened to #{Rex::Socket.is_ipv6?(params.peerhost) ? '[' + params.peerhost + ']' : params.peerhost}:#{params.peerport}")
         msf_channel = TcpClientChannel.new(self, @channel_ticker += 1, new_channel, params)
         mutex.synchronize {
           condition.signal
@@ -191,7 +200,9 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
 
     raise ::Rex::ConnectionError.new if ssh_channel.nil?
 
+    failure_reason_code = nil
     ssh_channel.on_open_failed do |ch, code, desc|
+      failure_reason_code = code
       wlog("failed to open SSH channel (code: #{code.inspect}, description: #{desc.inspect})")
       mutex.synchronize {
         condition.signal
@@ -202,7 +213,22 @@ class SshCommandShellBind < Msf::Sessions::CommandShell
       condition.wait(mutex, params.timeout)
     }
 
-    raise ::Rex::ConnectionError.new(params.peerhost, params.peerport) if msf_channel.nil?
+    if msf_channel.nil?
+      ssh_channel.close
+
+      raise ::Rex::ConnectionTimeout.new(params.peerhost, params.peerport) if failure_reason_code.nil?
+
+      case failure_reason_code
+      when ChannelFailureReason::SSH_OPEN_ADMINISTRATIVELY_PROHIBITED
+        reason = 'The SSH channel request was administratively prohibited.'
+      when ChannelFailureReason::SSH_OPEN_UNKNOWN_CHANNEL_TYPE
+        reason = 'The SSH channel type is not supported.'
+      when ChannelFailureReason::SSH_OPEN_RESOURCE_SHORTAGE
+        reason = 'The SSH channel request was denied because of a resource shortage.'
+      end
+
+      raise ::Rex::ConnectionError.new(params.peerhost, params.peerport, reason: reason)
+    end
 
     sock = msf_channel.lsock
 
