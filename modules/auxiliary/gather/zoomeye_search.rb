@@ -193,7 +193,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     facet_data = results['facets']
-    unless facets.empty?
+    unless facets.nil?
       parse_facets(facets, facet_data)
     end
     print_status("Total:#{results['total']} Current: #{page * 20}")
