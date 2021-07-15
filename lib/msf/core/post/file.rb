@@ -162,7 +162,7 @@ module Msf::Post::File
       return false unless stat
       return stat.file?
     elsif session.type == 'powershell'
-      return cmd_exec("(Get-Item \"#{path}\").PSIsContainer")&.include?("False")
+      return cmd_exec("Test-Path \"#{path}\" -PathType leaf")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
