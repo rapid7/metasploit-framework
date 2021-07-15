@@ -38,34 +38,9 @@ module Msf::Post::Process
   def get_processes
     if session.type == 'meterpreter'
       meterpreter_get_processes
-    elsif session.type == 'powershell'
-      powershell_get_processes
     else
       shell_get_processes
     end
-  end
-
-  def session_has_process_ext
-    begin
-      return !!(session.sys and session.sys.process)
-    rescue NoMethodError
-      return false
-    end
-  end
-
-  def powershell_get_processes
-    processes = []
-    get_process = cmd_exec('Get-Process | Format-Table Id, Name').split("\n")
-    3.times { get_process.delete_at(0) }
-    get_process.delete_at(-1)
-    get_process.each do |p|
-      properties = p.split
-      process = {}
-      process['pid'] = properties[0].to_i
-      process['name'] = properties[1..-1].join(" ").strip
-      processes.push(process)
-    end
-    return processes
   end
 
   def meterpreter_get_processes
