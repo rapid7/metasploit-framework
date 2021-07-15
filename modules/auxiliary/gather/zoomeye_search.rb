@@ -17,7 +17,10 @@ class MetasploitModule < Msf::Auxiliary
             The module use the ZoomEye API to search ZoomEye.ZoomEye is a cyberspace search engine,
             users can search for network devices using a browser.
             },
-            "Author" => ['wh0am1i'],
+            'Author' => [
+              'Nixawk', # Original
+              'wh0am1i' # Rewrite
+            ],
             "References" => [
               ["URL", "https://www.zoomeye.org/api/doc"],
               ["URL", "https://github.com/knownsec/ZoomEye-python"]
@@ -201,7 +204,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
 end
-
 
 
 
