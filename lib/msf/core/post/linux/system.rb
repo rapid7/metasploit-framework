@@ -33,11 +33,12 @@ module System
       version = read_file('/etc/system-release').gsub(/\n|\\n|\\l/,'').strip
       if version.include? 'CentOS'
         system_data[:distro] = 'centos'
-        system_data[:version] = version
+      elsif version.include? 'Fedora'
+        system_data[:distro] = 'fedora'
       else
         system_data[:distro] = 'amazon'
-        system_data[:version] = version
       end
+      system_data[:version] = version
 
     # Alpine
     elsif etc_files.include?('alpine-release')

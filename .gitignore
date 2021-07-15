@@ -21,6 +21,8 @@ Gemfile.local.lock
 config/database.yml
 # target config file for testing
 features/support/targets.yml
+# Generated test files
+spec/dummy
 # simplecov coverage data
 coverage
 doc/
@@ -93,7 +95,6 @@ docker-compose.local*
 # Ignore python bytecode
 *.pyc
 rspec.failures
-
 
 #Ignore any base disk store files
 db/modules_metadata_base.pstore

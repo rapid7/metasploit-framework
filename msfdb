@@ -131,29 +131,39 @@ end
 
 def status_db
   update_db_port
-  @db_driver.status
-end
 
-def started_db
-  @db_driver.start
+  case @db_driver.status
+  when DatabaseStatus::RUNNING
+    puts "Database started"
+  when DatabaseStatus::INACTIVE
+    puts "Database found, but is not running"
+  when DatabaseStatus::NEEDS_INIT
+    puts "Database found, but needs initialized"
+  when DatabaseStatus::NOT_FOUND
+    puts "No database found"
+  end
 end
 
 def start_db
-  if !Dir.exist?(@db)
-    print_error "No database found at #{@db}."
-    print_error "Has the database been initialized with \"msfdb init\" or \"msfdb init --component database\"?"
+  case @db_driver.status
+  when DatabaseStatus::NOT_FOUND
+    print_error 'No database found.'
+    return
+  when DatabaseStatus::NEEDS_INIT
+    print_error 'Has the database been initialized with "msfdb init" or "msfdb init --component database"?'
     return
   end
 
   update_db_port
+  db_started = @db_driver.start
 
-  if !started_db
+  if !db_started
     last_log = tail("#{@db}/log")
     puts last_log
     if last_log =~ /not compatible/
       puts 'Please attempt to upgrade the database manually using pg_upgrade.'
     end
-    print_error "Your database may be corrupt. Try reinitializing."
+    print_error 'Your database may be corrupt. Try reinitializing.'
   end
 end
 
@@ -167,13 +177,29 @@ def restart_db
 end
 
 def init_db
+  case @db_driver.status
+  when DatabaseStatus::RUNNING
+    puts 'Existing database running'
+    return
+  when DatabaseStatus::INACTIVE
+    puts 'Existing database found, attempting to start it'
+    @db_driver.start
+    return
+  end
+
+  if @db_driver.exists? && !@options[:delete_existing_data]
+    if !load_db_config
+      puts 'Failed to load existing database config. Please reinit and overwrite the file.'
+      return
+    end
+  end
+
   # Generate new database passwords if not already assigned
   @msf_pass ||= pw_gen
   @msftest_pass ||= pw_gen
 
   @db_driver.init(@msf_pass, @msftest_pass)
   write_db_config
-
 
   puts 'Creating initial database schema'
   Dir.chdir(@framework) do
@@ -312,6 +338,13 @@ class WebServicePIDStatus
   RUNNING = 0
   INACTIVE = 1
   NO_PID_FILE = 2
+end
+
+class DatabaseStatus
+  RUNNING = 0
+  INACTIVE = 1
+  NOT_FOUND = 2
+  NEEDS_INIT = 3
 end
 
 def web_service_pid
@@ -626,14 +659,14 @@ def run_msfconsole_command(cmd)
 end
 
 def persist_data_service
-  puts 'Persisting data service credentials in msfconsole'
+  puts 'Persisting http web data service credentials in msfconsole'
   # execute msfconsole commands to add and persist the data service connection
   cmd = "./msfconsole -qx '#{get_db_connect_command}; db_save; exit'"
   run_msfconsole_command(cmd)
 end
 
 def clear_default_data_service
-  puts 'Clearing data service credentials in msfconsole'
+  puts 'Clearing http web data service credentials in msfconsole'
   # execute msfconsole commands to clear the default data service connection
   cmd = "./msfconsole -qx 'db_disconnect --clear; exit'"
   run_msfconsole_command(cmd)
@@ -941,6 +974,10 @@ end
 def prompt_for_component(command)
   if command == :status || command == :delete
     return :all
+  end
+
+  if command == :stop && web_service_pid_status != WebServicePIDStatus::RUNNING
+    return :database
   end
 
   enable_webservice = ask_yn("Would you like to #{command} the webservice? (Not Required)", default: 'no')

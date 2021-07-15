@@ -7,7 +7,12 @@ module Shell
 
 class HistoryManager
 
+  MAX_HISTORY = 2000
+
   @@contexts = []
+
+  @@write_mutex = Mutex.new
+  @@write_queue = {}
 
   def self.inspect
     "#<HistoryManager stack size: #{@@contexts.length}>"
@@ -47,6 +52,10 @@ class HistoryManager
     end
   end
 
+  def self.flush
+    sleep 0.1 until @@write_queue.empty?
+  end
+
   class << self
     private
 
@@ -56,31 +65,32 @@ class HistoryManager
 
     def load_history_file(history_file)
       clear_readline
-
-      if File.exist?(history_file)
-        File.readlines(history_file).each do |e|
-          Readline::HISTORY << e.chomp
+      if commands = from_storage_queue(history_file)
+        commands.reverse.each do |c|
+          Readline::HISTORY << c
+        end
+      else
+        if File.exist?(history_file)
+          File.readlines(history_file).each do |e|
+            Readline::HISTORY << e.chomp
+          end
         end
       end
-
-      @@original_history_length = Readline::HISTORY.length
     end
 
-    def store_history_file(history_file, skip: 0)
+    def store_history_file(history_file)
       cmds = []
-      history_diff = Readline::HISTORY.length - skip
+      history_diff = Readline::HISTORY.length < MAX_HISTORY ? Readline::HISTORY.length : MAX_HISTORY
       history_diff.times do
         cmds.push(Readline::HISTORY.pop)
       end
 
-      File.open(history_file, 'a+') do |f|
-        f.puts(cmds.reverse)
-      end
+      write_history_file(history_file, cmds)
     end
 
     def switch_context(new_context, old_context=nil)
       if old_context&.fetch(:history_file, nil)
-        store_history_file(old_context[:history_file], skip: @@original_history_length)
+        store_history_file(old_context[:history_file])
       end
 
       if new_context&.fetch(:history_file, nil)
@@ -88,8 +98,31 @@ class HistoryManager
       else
         clear_readline
       end
+    rescue SignalException => e
+      clear_readline
     end
 
+    def write_history_file(history_file, cmds)
+      @@write_mutex.synchronize do
+        @@write_queue[history_file] = cmds
+      end
+
+      Rex::ThreadFactory.spawn("#{history_file} Writer", false) do
+        File.open(history_file, 'w+') do |f|
+          f.puts(cmds.reverse)
+        end
+
+        @@write_mutex.synchronize do
+          @@write_queue.delete(history_file)
+        end
+      end
+    end
+
+    def from_storage_queue(history_file)
+      @@write_mutex.synchronize do
+        @@write_queue[history_file]
+      end
+    end
   end
 end
 

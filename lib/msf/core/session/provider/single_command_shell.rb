@@ -59,22 +59,23 @@ module SingleCommandShell
         loop do
           if (tmp = shell_read(-1))
             buf << tmp
-
             # see if we have the wanted idx
-            parts = buf.split("\n#{token}", -1).map { |part| "#{part}\n" }
-
-            if parts.length == parts_needed
-              # cause another prompt to appear (just in case)
-              shell_write("\n")
-              return parts[wanted_idx]
+            unless buf.nil?
+              # normalize the line endings following the token and parse them
+              buf.gsub!("#{token}\n", "#{token}\r\n")
+              parts = buf.split("#{token}\r\n", -1)
+              if parts.length == parts_needed
+                # cause another prompt to appear (just in case)
+                shell_write("\n")
+                return parts[wanted_idx]
+              end
             end
           end
         end
       end
-    rescue
-      # nothing, just continue
+    rescue Timeout::Error
+      # This is expected in many cases
     end
-
     # failed to get any data or find the token!
     nil
   end
@@ -132,8 +133,6 @@ module SingleCommandShell
     # NOTE: if the session echoes input we don't need to echo the token twice.
     shell_write(cmd + "&echo #{token}\n")
     res = shell_read_until_token(token, 1, timeout)
-    # I would like a better way to do this, but I don't know of one
-    res.reverse!.chomp!.reverse! # the presence of a leading newline is not consistent
     res
   end
 
