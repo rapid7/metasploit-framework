@@ -475,9 +475,9 @@ module Msf::Post::File
   def rm_f(*remote_files)
     remote_files.each do |remote|
       if session.type == "meterpreter"
-        session.fs.file.delete(remote) if exist?(remote)
+        session.fs.file.delete(remote) if file?(remote)
       elsif session.type == 'powershell'
-        cmd_exec("Remove-Item \"#{remote}\" -Force")
+        cmd_exec("Remove-Item \"#{remote}\" -Force") if file?(remote)
       else
         if session.platform == 'windows'
           cmd_exec("del /q /f \"#{remote}\"")
