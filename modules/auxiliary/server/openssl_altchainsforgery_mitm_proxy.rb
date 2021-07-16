@@ -99,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
     root_ca_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
     root_ca_cert.add_extension(extension_factory.create_extension('keyUsage', 'keyCertSign,cRLSign', true))
     root_ca_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-    root_ca_cert.sign(root_ca_key, OpenSSL::Digest::SHA1.new)
+    root_ca_cert.sign(root_ca_key, OpenSSL::Digest.new('SHA1'))
 
     inter_ca_name = OpenSSL::X509::Name.parse('/C=US/O=Intermediate Inc./CN=Intermediate CA')
     inter_ca_key = OpenSSL::PKey::RSA.new(2048)
@@ -115,11 +115,11 @@ class MetasploitModule < Msf::Auxiliary
     inter_ca_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:TRUE', true))
     inter_ca_cert.add_extension(extension_factory.create_extension('keyUsage', 'keyCertSign,cRLSign', true))
     inter_ca_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-    inter_ca_cert.sign(root_ca_key, OpenSSL::Digest::SHA1.new)
+    inter_ca_cert.sign(root_ca_key, OpenSSL::Digest.new('SHA1'))
 
     subinter_ca_cert = OpenSSL::X509::Certificate.new(File.read(datastore['CACERT']))
     subinter_ca_cert.issuer = inter_ca_name
-    subinter_ca_cert.sign(inter_ca_key, OpenSSL::Digest::SHA1.new)
+    subinter_ca_cert.sign(inter_ca_key, OpenSSL::Digest.new('SHA1'))
     leaf_key = OpenSSL::PKey::RSA.new(File.read(datastore['KEY']), datastore['PASSPHRASE'])
     leaf_cert = OpenSSL::X509::Certificate.new(File.read(datastore['CERT']))
 
@@ -137,7 +137,7 @@ class MetasploitModule < Msf::Auxiliary
     fake_cert.add_extension(extension_factory.create_extension('basicConstraints', 'CA:FALSE', true))
     fake_cert.add_extension(extension_factory.create_extension('keyUsage', 'digitalSignature,nonRepudiation,keyEncipherment'))
     fake_cert.add_extension(extension_factory.create_extension('subjectKeyIdentifier', 'hash'))
-    fake_cert.sign(leaf_key, OpenSSL::Digest::SHA1.new)
+    fake_cert.sign(leaf_key, OpenSSL::Digest.new('SHA1'))
 
     context = OpenSSL::SSL::SSLContext.new
     context.cert = fake_cert

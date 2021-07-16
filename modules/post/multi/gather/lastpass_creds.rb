@@ -282,15 +282,14 @@ class MetasploitModule < Msf::Post
     return nil if encrypted_data.blank?
 
     if encrypted_data.include?("|") # Use CBC
-      decipher = OpenSSL::Cipher.new("AES-256-CBC")
+      decipher = OpenSSL::Cipher.new("AES-256-CBC").decrypt
       decipher.iv = Rex::Text.decode_base64(encrypted_data[1, 24]) # Discard ! and |
       encrypted_data = encrypted_data[26..-1] # Take only the data part
     else # Use ECB
-      decipher = OpenSSL::Cipher.new("AES-256-ECB")
+      decipher = OpenSSL::Cipher.new("AES-256-ECB").decrypt
     end
 
     begin
-      decipher.decrypt
       decipher.key = key
       decrypted_data = decipher.update(Rex::Text.decode_base64(encrypted_data)) + decipher.final
     rescue OpenSSL::Cipher::CipherError => e
@@ -517,7 +516,7 @@ class MetasploitModule < Msf::Post
         begin
           decipher = OpenSSL::Cipher.new("AES-256-CBC")
           decipher.decrypt
-          decipher.key = OpenSSL::Digest::SHA256.hexdigest("peanuts")
+          decipher.key = OpenSSL::Digest.hexdigest('SHA256', "peanuts")
           decipher.iv = " " * 16
           session_cookie_value = session_cookie_value[3..-1] # Discard v10
           session_cookie_value = decipher.update(session_cookie_value) + decipher.final
@@ -625,7 +624,7 @@ class MetasploitModule < Msf::Post
   end
 
   def pbkdf2(password, salt, iterations, key_length)
-    digest = OpenSSL::Digest::SHA256.new
+    digest = OpenSSL::Digest.new('SHA256')
     OpenSSL::PKCS5.pbkdf2_hmac(password, salt, iterations, key_length, digest).unpack 'H*'
   end
 
@@ -726,13 +725,12 @@ class MetasploitModule < Msf::Post
     return nil if key.blank? || encrypted_data.blank?
 
     if encrypted_data[0] == "!" # Apply CBC
-      decipher = OpenSSL::Cipher.new("AES-256-CBC")
+      decipher = OpenSSL::Cipher.new("AES-256-CBC").decrypt
       decipher.iv = encrypted_data[1, 16] # Discard !
       encrypted_data = encrypted_data[17..-1]
     else # Apply ECB
-      decipher = OpenSSL::Cipher.new("AES-256-ECB")
+      decipher = OpenSSL::Cipher.new("AES-256-ECB").decrypt
     end
-    decipher.decrypt
     decipher.key = [key].pack "H*"
 
     begin

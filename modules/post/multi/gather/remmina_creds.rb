@@ -47,6 +47,7 @@ class MetasploitModule < Msf::Post
 
   def decrypt(secret, data)
     c = OpenSSL::Cipher.new('des3')
+    c.decrypt
     key_data = Base64.decode64(secret)
     # the key is the first 24 bytes of the secret
     c.key = key_data[0, 24]
@@ -54,7 +55,6 @@ class MetasploitModule < Msf::Post
     c.iv = key_data[24, 8]
     # passwords less than 16 characters are padded with nulls
     c.padding = 0
-    c.decrypt
     p = c.update(Base64.decode64(data))
     p << c.final
     # trim null-padded, < 16 character passwords

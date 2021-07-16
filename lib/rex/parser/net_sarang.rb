@@ -24,8 +24,8 @@ module Rex
           self.username = username
           self.sid = sid
           self.master_password = master_password
-          md5 = OpenSSL::Digest::MD5.new
-          sha256 = OpenSSL::Digest::SHA256.new
+          md5 = OpenSSL::Digest.new('MD5')
+          sha256 = OpenSSL::Digest.new('SHA256')
           if (self.version > 0) && (self.version < 5.1)
             self.key = (type == 'Xshell') ? md5.digest('!X@s#h$e%l^l&') : md5.digest('!X@s#c$e%l^l&')
           elsif (self.version >= 5.1) && (self.version <= 5.2)
@@ -50,7 +50,7 @@ module Rex
           if (version < 5.1)
             return Rex::Text.encode_base64(cipher)
           else
-            sha256 = OpenSSL::Digest::SHA256.new
+            sha256 = OpenSSL::Digest.new('SHA256')
             checksum = sha256.digest(string)
             ciphertext = cipher
             return Rex::Text.encode_base64(ciphertext + checksum)

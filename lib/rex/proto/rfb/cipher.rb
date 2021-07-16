@@ -92,7 +92,7 @@ class Cipher
 
     shared_key = dh.compute_key(dh_peer.pub_key)
 
-    md5 = OpenSSL::Digest::MD5.new
+    md5 = OpenSSL::Digest.new('MD5')
     key_digest = md5.digest(shared_key)
 
     cipher = OpenSSL::Cipher.new("aes-128-ecb")

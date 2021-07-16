@@ -134,9 +134,9 @@ class MetasploitModule < Msf::Post
     config_passphrase = datastore['PASSPHRASE'] || nil
     key = OpenSSL::Digest::SHA256.new(config_passphrase).digest
     aes = OpenSSL::Cipher.new('AES-256-CBC')
+    aes.decrypt
     aes.key = key
     aes.padding = 0
-    aes.decrypt
     aes.iv = iv
     padded_plain_bytes = aes.update([ciphertext].pack('H*'))
     plain_bytes_length = padded_plain_bytes[0, 4].unpack1('l') # bytes to int little-endian format.

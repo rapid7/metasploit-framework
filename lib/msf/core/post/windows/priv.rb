@@ -313,6 +313,7 @@ module Msf::Post::Windows::Priv
       end
 
       rc4 = OpenSSL::Cipher.new("rc4")
+      rc4.decrypt
       rc4.key = md5x.digest
       lsa_key  = rc4.update(pol[12,48])
       lsa_key << rc4.final
@@ -363,6 +364,7 @@ module Msf::Post::Windows::Priv
     end
 
     aes = OpenSSL::Cipher.new("aes-256-cbc")
+    aes.decrypt
     aes.key = sha256x.digest
 
     vprint_status("digest #{sha256x.digest.unpack("H*")[0]}")
@@ -370,7 +372,7 @@ module Msf::Post::Windows::Priv
     decrypted_data = ''
 
     (60...policy_secret.length).step(16) do |i|
-      aes.decrypt
+      aes.reset
       aes.padding = 0
       decrypted_data << aes.update(policy_secret[i,16])
     end
@@ -396,7 +398,7 @@ module Msf::Post::Windows::Priv
       block_key = key[j..j+6]
       des_key = convert_des_56_to_64(block_key)
       d1 = OpenSSL::Cipher.new('des-ecb')
-
+      d1.decrypt
       d1.padding = 0
       d1.key = des_key
       d1o = d1.update(enc_block)

@@ -264,9 +264,9 @@ class MetasploitModule < Msf::Post
 
   def decrypt_hash_vista(edata, nlkm, ch)
     aes = OpenSSL::Cipher.new('aes-128-cbc')
+    aes.decrypt
     aes.key = nlkm[16...32]
     aes.padding = 0
-    aes.decrypt
     aes.iv = ch
 
     decrypted = ""

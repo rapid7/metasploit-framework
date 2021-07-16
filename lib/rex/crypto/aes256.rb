@@ -9,7 +9,7 @@ module Rex
       # @param key [String] Secret key.
       # @return [String] The encrypted string.
       def self.encrypt_aes256(iv, key, value)
-        aes = OpenSSL::Cipher::AES256.new(:CBC)
+        aes = OpenSSL::Cipher.new('aes-256-cbc')
         aes.encrypt
         aes.iv = iv
         aes.key = key
@@ -22,7 +22,7 @@ module Rex
       # @param key [String] Secret key.
       # @return [String] The decrypted string.
       def self.decrypt_aes256(iv, key, value)
-        aes = OpenSSL::Cipher::AES256.new(:CBC)
+        aes = OpenSSL::Cipher.new('aes-256-cbc')
         aes.decrypt
         aes.iv = iv
         aes.key = key

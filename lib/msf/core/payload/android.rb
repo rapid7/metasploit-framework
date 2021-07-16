@@ -103,7 +103,7 @@ module Msf::Payload::Android
     cert.not_after = Time.at(0x78045d81 + rand(0x7fffffff - 0x78045d81))
 
     # If this line is left out, signature verification fails on OSX.
-    cert.sign(key, OpenSSL::Digest::SHA1.new)
+    cert.sign(key, OpenSSL::Digest.new('SHA1'))
 
     jar.sign(key, cert, [cert])
   end
