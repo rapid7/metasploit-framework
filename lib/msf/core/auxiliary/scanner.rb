@@ -57,8 +57,8 @@ def run
   @show_progress = datastore['ShowProgress']
   @show_percent  = datastore['ShowProgressPercent'].to_i
 
-  ar             = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
-  @range_count   = ar.length || 0
+  rhosts_walker  = Msf::RhostsWalker.new(self.datastore['RHOSTS'], self.datastore).to_enum
+  @range_count   = rhosts_walker.count || 0
   @range_done    = 0
   @range_percent = 0
 
@@ -108,17 +108,20 @@ def run
         # Stop scanning if we hit a fatal error
         break if has_fatal_errors?
 
-        host = ar.next_host
-        break if not host
+        begin
+          datastore = rhosts_walker.next
+        rescue StopIteration
+          datastore = nil
+        end
+        break unless datastore
 
-        @tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{host[:address]}", false, host.dup) do |thr_host|
-          targ = thr_host[:address]
+        @tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{datastore['RHOST']}", false, datastore.dup) do |thr_datastore|
+          targ = thr_datastore['RHOST']
           nmod = self.replicant
-          nmod.datastore['RHOST'] = thr_host[:address]
-          nmod.datastore['VHOST'] = thr_host[:hostname] if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
+          nmod.datastore = thr_datastore
 
           begin
-            res << {thr_host[:address] => nmod.run_host(targ)}
+            res << { targ => nmod.run_host(targ) }
           rescue ::Rex::BindFailed
             if datastore['CHOST']
               @scan_errors << "The source IP (CHOST) value of #{datastore['CHOST']} was not usable"
@@ -175,7 +178,7 @@ def run
 
     size = run_batch_size()
 
-    ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
+    rhosts_walker = Msf::RhostsWalker.new(self.datastore['RHOSTS'], self.datastore).to_enum
 
     while(true)
       nohosts = false
@@ -189,12 +192,16 @@ def run
 
         # Create batches from each set
         while (batch.length < size)
-          ip = ar.next_ip
-          if (not ip)
+          begin
+            datastore = rhosts_walker.next
+          rescue StopIteration
+            datastore = nil
+          end
+          if (not datastore)
             nohosts = true
             break
           end
-          batch << ip
+          batch << datastore['RHOST']
         end
 
         # Create a thread for each batch

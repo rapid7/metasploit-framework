@@ -111,10 +111,13 @@ class MetasploitModule < Msf::Auxiliary
     print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
 
     if datastore["USER_FILE"].blank? && datastore["USERNAME"].blank?
-      # Ghetto abuse of the way OptionValidateError expects an array of
-      # option names instead of a string message like every sane
-      # subclass of Exception.
-      raise Msf::OptionValidateError, ["At least one of USER_FILE or USERNAME must be given"]
+      validation_reason = "At least one of USER_FILE or USERNAME must be given"
+      raise Msf::OptionValidateError.new(
+        {
+          "USER_FILE" => validation_reason,
+          "USERNAME" => validation_reason
+        }
+      )
     end
 
     keys = KeyCollection.new(

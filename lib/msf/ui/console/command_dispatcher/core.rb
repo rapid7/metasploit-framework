@@ -1700,7 +1700,6 @@ class Core
   # Sets a name to a value in a context aware environment.
   #
   def cmd_set(*args)
-
     # Figure out if these are global variables
     global = false
 
@@ -1753,8 +1752,13 @@ class Core
     end
 
     # Set the supplied name to the supplied value
-    name  = args[0]
-    value = args[1, args.length-1].join(' ')
+    name, *values_array = args
+    if name.casecmp?('RHOST') || name.casecmp?('RHOSTS')
+      # Wrap any values which contain spaces in quotes to ensure it's parsed correctly later
+      value = values_array.map { |value| value.include?(' ') ? "\"#{value}\"" : value }.join(' ')
+    else
+      value = values_array.join(' ')
+    end
 
     # Set PAYLOAD
     if name.upcase == 'PAYLOAD' && active_module && (active_module.exploit? || active_module.evasion?)
