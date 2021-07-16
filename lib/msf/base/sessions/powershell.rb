@@ -30,7 +30,7 @@ class Msf::Sessions::PowerShell < Msf::Sessions::CommandShell
   # Returns the session platform.
   #
   def platform
-    "win"
+    "windows"
   end
 
   #

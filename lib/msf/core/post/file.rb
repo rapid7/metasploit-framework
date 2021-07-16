@@ -49,6 +49,8 @@ module Msf::Post::File
   def pwd
     if session.type == "meterpreter"
       return session.fs.dir.getwd
+    elsif session.type == 'powershell'
+      return cmd_exec('(Get-Location).Path').strip
     else
       if session.platform == 'windows'
         # XXX: %CD% only exists on XP and newer, figure something out for NT4
@@ -159,6 +161,8 @@ module Msf::Post::File
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.file?
+    elsif session.type == 'powershell'
+      return cmd_exec("Test-Path \"#{path}\" -PathType leaf")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -245,6 +249,8 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
+    elsif session.type == 'powershell'
+      return cmd_exec("Test-Path \"#{path}\"")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -469,7 +475,9 @@ module Msf::Post::File
   def rm_f(*remote_files)
     remote_files.each do |remote|
       if session.type == "meterpreter"
-        session.fs.file.delete(remote) if exist?(remote)
+        session.fs.file.delete(remote) if file?(remote)
+      elsif session.type == 'powershell'
+        cmd_exec("Remove-Item \"#{remote}\" -Force") if file?(remote)
       else
         if session.platform == 'windows'
           cmd_exec("del /q /f \"#{remote}\"")
@@ -490,6 +498,8 @@ module Msf::Post::File
     remote_dirs.each do |remote|
       if session.type == "meterpreter"
         session.fs.dir.rmdir(remote) if exist?(remote)
+      elsif session.type == 'powershell'
+        cmd_exec("Remove-Item -Path \"#{remote}\" -Force -Recurse")
       else
         if session.platform == 'windows'
           cmd_exec("rd /s /q \"#{remote}\"")
