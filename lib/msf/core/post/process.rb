@@ -38,6 +38,8 @@ module Msf::Post::Process
   def get_processes
     if session.type == 'meterpreter'
       meterpreter_get_processes
+    elsif session.type == 'powershell'
+      shell_get_processes
     else
       shell_get_processes
     end
