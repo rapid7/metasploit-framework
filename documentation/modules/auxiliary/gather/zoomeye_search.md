@@ -12,7 +12,7 @@ You can register for a free account here: https://sso.telnet404.com/accounts/reg
 - [ ] Start `msfconsole`
 - [ ] Do `use auxiliary/gather/zoomeye_search`
 - [ ] Do `set APIKEY  [APIKEY]`, replacing `[APIKEY]` with you ZoomEye API Key
-- [ ] Do `set DORK [DORK]`, replacing `[DORK]`  with ZoomEye search keywork(dork)
+- [ ] Do `set ZOOMEYE_DORK [DORK]`, replacing `[DORK]`  with ZoomEye search keywork(dork)
 - [ ] Do `run`
 - [ ] If the execution is successful, we will see the asset data returned by ZoomEye
 
@@ -47,17 +47,17 @@ Module options (auxiliary/gather/zoomeye_search):
    ----      ---------------  --------  -----------
    APIKEY                     yes       The ZoomEye API KEY
    DATABASE  false            no        Add search results to the database
-   DORK                       yes       The ZoomEye dork
+   ZOOMEYE_DORK               yes       The ZoomEye dork
    FACETS                     no        Query the distribution of the full data of the dork
    OUTFILE   false            no        A filename to store ZoomEye search raw data
-   PAGE      1                yes       Max amount of pages to collect
+   MAXPAGE      1             yes       Max amount of pages to collect
    RESOURCE  host             yes       ZoomEye Resource Type (Accepted: host, web)
 
 
 msf6 auxiliary(gather/zoomeye_search) > set APIKEY 01234567-acbd-00000-1111-22222222222
 APIKEY => 01234567-acbd-00000-1111-22222222222
-msf6 auxiliary(gather/zoomeye_search) > set DORK 'app:"Microsoft Office SharePoint"'
-DORK => app:"Microsoft Office SharePoint"
+msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"Microsoft Office SharePoint"'
+ZOOMEYE_DORK => app:"Microsoft Office SharePoint"
 msf6 auxiliary(gather/zoomeye_search) > set RESOURCE host
 RESOURCE => host
 msf6 auxiliary(gather/zoomeye_search) > set FACETS city,country

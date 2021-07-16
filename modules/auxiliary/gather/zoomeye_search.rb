@@ -1,13 +1,14 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-# rewrite zoomeye search module 2021/07/14
-#
 ##
 
+require 'net/https'
+require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
+  include Msf::Exploit::Remote::HttpClient
 
   def initialize(info = {})
     super(update_info(
@@ -30,14 +31,15 @@ class MetasploitModule < Msf::Auxiliary
     register_options(
       [
         OptString.new('APIKEY', [true, 'The ZoomEye API KEY']),
-        OptString.new('DORK', [true, 'The ZoomEye dork']),
+        OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
         OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
         OptString.new('FACETS', [false, 'Query the distribution of the full data of the dork']),
-        OptInt.new('PAGE', [true, 'Max amount of pages to collect', 1]),
+        OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false]),
         OptBool.new('OUTFILE', [false, 'A filename to store ZoomEye search raw data']),
       ]
     )
+    deregister_http_client_options
   end
 
   def zoomeye_resolvable?
@@ -56,35 +58,28 @@ class MetasploitModule < Msf::Auxiliary
     # param: resource, string, search type host or web
     # param: page, int, page num
     # param: facet, string, query the distribution of the full data of the dork
-    request = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
-    request.connect
-
-    begin
-      response = request.request_cgi({
-                                       "uri" => "/#{resource}/search",
-                                       "method" => 'GET',
-                                       "headers" => {"API-KEY" => "#{apikey}"},
-                                       "vars_get" => {
-                                         "query" => dork,
-                                         "page" => page,
-                                         "facets" => facet
-                                       }
-                                     })
-      result = request.send_recv(response)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-      print_error("HTTP Connection Failed")
+    res = send_request_cgi({
+                             'method' => 'GET',
+                             'rhost' => 'api.zoomeye.org',
+                             'rport' => 443,
+                             'uri' => "/#{resource}/search",
+                             'SSL' => true,
+                             'headers' => {"API-KEY" => "#{apikey}"},
+                             'vars_get' => {
+                               'query' => dork,
+                               'page' => page,
+                               'facet' => facet
+                             }
+                           })
+    if res && res.code == 401
+      fail_with(Failure::NoAccess, "401 Unauthorized. Your ZoomEye API Key is invalid")
     end
-
-    unless result
-      print_error("Server Error")
+    if res
+      results = ActiveSupport::JSON.decode(res.body)
+      return results
+    else
+      return 'Server error!'
     end
-
-    result_json = result.get_json_document
-
-    if result_json.key?('error')
-      fail_with(Failure::BadConfig, "401 Unauthorized. Your ZoomEye API Key is invalid")
-    end
-    return result_json
   end
 
   def parse_web_resource(data)
@@ -155,10 +150,11 @@ class MetasploitModule < Msf::Auxiliary
     end
   end
 
-  def save_raw_data(dork, data, page)
+  def save_raw_data(dork, data)
     filename = dork.gsub(/[^a-zA-Z ]/,'_')
-    ::File.open("#{filename}_#{page}.json", "wb") do |f|
+    ::File.open("#{filename}.json", "wb") do |f|
       f.write(ActiveSupport::JSON.encode(data))
+      print_status("Save ZoomEye Result in #{filename}.json")
     end
 
   end
@@ -169,9 +165,9 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    dork = datastore['DORK']
+    dork = datastore['ZOOMEYE_DORK']
     resource = datastore['RESOURCE']
-    page = datastore['PAGE']
+    page = datastore['MAXPAGE']
     apikey = datastore['APIKEY']
     facets = datastore['FACETS']
     current_page = 1
@@ -181,7 +177,6 @@ class MetasploitModule < Msf::Auxiliary
       unless results && results.key?('matches')
         fail_with(Failure::NotFound, "Not Found #{dork} from ZoomEye!")
       end
-      save_raw_data(dork, results, current_page) if datastore['OUTFILE']
       resp_data.append (results)
       current_page += 1
     end
@@ -199,8 +194,8 @@ class MetasploitModule < Msf::Auxiliary
     unless facets.nil?
       parse_facets(facets, facet_data)
     end
+    save_raw_data(dork, resp_data) if datastore['OUTFILE']
     print_status("Total:#{results['total']} Current: #{page * 20}")
-    print_status("Save ZoomEye search result Done") if datastore['OUTFILE']
     end
 
 end

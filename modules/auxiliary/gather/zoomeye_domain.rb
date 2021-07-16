@@ -1,11 +1,14 @@
 ##
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
-#
 ##
+
+require 'net/https'
+require 'uri'
 
 class MetasploitModule < Msf::Auxiliary
     include Msf::Auxiliary::Report
+    include Msf::Exploit::Remote::HttpClient
 
     def initialize(info={})
         super(update_info(
@@ -26,13 +29,14 @@ class MetasploitModule < Msf::Auxiliary
         register_options(
           [
             OptString.new('APIKEY', [true, 'The ZoomEye API KEY']),
-            OptString.new('QUERY', [true, 'The ZoomEye dork']),
-            OptInt.new('PAGE', [true, "Max amount of pages to collect", 1]),
+            OptString.new('ZOOMEYE_DORK', [true, 'The ZoomEye dork']),
+            OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1]),
             OptInt.new("SOURCE", [true, "Domain search type", 0]),
             OptBool.new('OUTFILE', [false, 'A filename to store ZoomEye search raw data']),
-            OptBool.new('DATABSE', [false, 'Add search results to the database'])
+            OptBool.new('DATABASE', [false, 'Add search results to the database'])
           ]
         )
+        deregister_http_client_options
     end
 
     def zoomeye_resolvable?
@@ -65,43 +69,37 @@ class MetasploitModule < Msf::Auxiliary
         print_line("#{tab}")
     end
 
-    def save_raw_data(query, data, page)
+    def save_raw_data(query, data)
         filename = query.gsub(/[^a-zA-Z ]/,'_')
-        ::File.open("#{filename}_#{page}.json", "wb") do |f|
+        ::File.open("#{filename}.json", "wb") do |f|
             f.write(ActiveSupport::JSON.encode(data))
+            print_status("Save ZoomEye Result in #{filename}.json")
         end
     end
 
     def domain_search(apikey, query, page, s_type)
-        request = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
-        request.connect
-
-        begin
-            response = request.request_cgi({
-                                             "uri" => "/domain/search",
-                                             "method" => 'GET',
-                                             "headers" => {"API-KEY" => "#{apikey}"},
-                                             "vars_get" => {
-                                               "q" => query,
-                                               "page" => page,
-                                               "type" => s_type
-                                             }
-                                           })
-            result = request.send_recv(response)
-        rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-            print_error("HTTP Connection Failed")
+        res = send_request_cgi({
+                           'method' => 'GET',
+                           'rhost' => 'api.zoomeye.org',
+                           'rport' => 443,
+                           'uri' => '/domain/search',
+                           'SSL' => true,
+                           'headers' => {"API-KEY" => "#{apikey}"},
+                           'vars_get' => {
+                             'q' => query,
+                             'page' => page,
+                             'type' => s_type
+                           }
+                         })
+        if res && res.code == 401
+            fail_with(Failure::NoAccess, "401 Unauthorized. Your ZoomEye API Key is invalid")
         end
-
-        unless result
-            print_error("Server Error")
+        if res
+            results = ActiveSupport::JSON.decode(res.body)
+            return results
+        else
+            return 'Server error!'
         end
-
-        result_json = result.get_json_document
-
-        if result_json.key?('error')
-            fail_with(Failure::BadConfig, "401 Unauthorized. Your ZoomEye API Key is invalid")
-        end
-        return result_json
     end
 
     def run
@@ -109,22 +107,21 @@ class MetasploitModule < Msf::Auxiliary
             print_error("Unable to resolve api.zoomeye.org")
             return
         end
-        query = datastore['QUERY']
+        query = datastore['ZOOMEYE_DORK']
         apikey = datastore['APIKEY']
-        page = datastore['PAGE']
+        page = datastore['MAXPAGE']
         s_type = datastore['SOURCE']
         current_page = 1
         all_data = []
         while current_page <= page
             results = domain_search(apikey, query, current_page, s_type)
-
-            save_raw_data(query, results, current_page) if datastore['OUTFILE']
             all_data.append(results)
             current_page += 1
         end
         all_data.each do |match|
             parse_domain_info(match['list'])
         end
+        save_raw_data(query, all_data) if datastore['OUTFILE']
         print_status("Total: #{results['total']}, Current #{page * 30} ")
     end
 end

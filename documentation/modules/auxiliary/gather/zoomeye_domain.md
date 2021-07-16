@@ -12,7 +12,7 @@ You can register for a free account here: https://sso.telnet404.com/accounts/reg
 - [ ] Start `msfconsole`
 - [ ] Do `use auxiliary/gather/zoomeye_domian`
 - [ ] Do `set APIKEY  [APIKEY]`, replacing `[APIKEY]` with you ZoomEye API Key
-- [ ] Do `set QUERY [QUERY]`, replacing `[QUERY]`  with ZoomEye search keywork(dork)
+- [ ] Do `set ZOOMEYE_DORK [DORK]`, replacing `[DORK]`  with ZoomEye search keywork(dork)
 - [ ] Do `run`
 - [ ] If the execution is successful, we will see the asset data returned by ZoomEye
 
@@ -21,7 +21,7 @@ You can register for a free account here: https://sso.telnet404.com/accounts/reg
 
 **APIKEY**(Required parameters): The ZoomEye API Key, need to be obtained from [ZoomEye](https://www.zoomeye.org).
 
-**QUERY**(Required parameters): The domain name to be searched.
+**ZOOMEYE_DORK**(Required parameters): The domain name to be searched.
 
 **SOURCE**(Required parameters, default 0): Search type, 1 is the subdomain name, 0 is the associated domain name
 
@@ -29,7 +29,7 @@ You can register for a free account here: https://sso.telnet404.com/accounts/reg
 
 **OUTFILE**(Optional parameters): Save the results returned by ZoomEye to a file, optional parameters, and the file name is the keyword you searched for.
 
-**PAGE**(Required parameters, default 1): Number of pages to get data.
+**MAXPAGE**(Required parameters, default 1): Number of pages to get data.
 
 
 ### Scenarios
@@ -37,23 +37,22 @@ Take google.com as an example here
 ```
 msf6 auxiliary(gather/zoomeye_domain) > set APIKEY 01234567-acbd-00000-1111-22222222222
 APIKEY => 01234567-acbd-00000-1111-22222222222
-msf6 auxiliary(gather/zoomeye_domain) > set QUERY google.com
+msf6 auxiliary(gather/zoomeye_domain) > set ZOOMEYE_DORK google.com
 QUERY => google.com
 msf6 auxiliary(gather/zoomeye_domain) > set SOURCE 0
 SOURCE => 0
-msf6 auxiliary(gather/zoomeye_domain) > set QUERY google.comInterrupt: use the 'exit' command to quit
 msf6 auxiliary(gather/zoomeye_domain) > show options
 
 Module options (auxiliary/gather/zoomeye_domain):
 
-   Name     Current Setting                       Required  Description
-   ----     ---------------                       --------  -----------
-   APIKEY   01234567-acbd-00000-1111-22222222222  yes       The ZoomEye API KEY
-   DATABSE  false                                 no        Add search results to the database
-   OUTFILE  false                                  no        A filename to store ZoomEye search raw data
-   PAGE     1                                     yes       Max amount of pages to collect
-   QUERY    google.com                            yes       The ZoomEye dork
-   SOURCE   0                                     yes       Domain search type
+   Name          Current Setting                       Required  Description
+   ----          ---------------                       --------  -----------
+   APIKEY        01234567-acbd-00000-1111-22222222222  yes       The ZoomEye API KEY
+   DATABASE      false                                 no        Add search results to the database
+   MAXPAGE       1                                     yes       Max amount of pages to collect
+   OUTFILE       true                                  no        A filename to store ZoomEye search raw data
+   SOURCE        0                                     yes       Domain search type
+   ZOOMEYE_DORK  google.com                            yes       The ZoomEye dork
 
 msf6 auxiliary(gather/zoomeye_domain) > run
 
