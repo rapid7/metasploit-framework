@@ -264,8 +264,8 @@ class MetasploitModule < Msf::Auxiliary
         ],
         'Notes' => {
           'AKA' => [ 'PrintNightmare' ],
-          'Stability' => [CRASH_SAFE],
-          'Reliability' => [],
+          'Stability' => [CRASH_SERVICE_DOWN],
+          'Reliability' => [UNRELIABLE_SESSION],
           'SideEffects' => [
             ARTIFACTS_ON_DISK # the dll will be copied to the remote server
           ]
