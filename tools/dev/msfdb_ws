@@ -2,7 +2,8 @@
 # -*- coding: binary -*-
 #
 # Starts the HTTP DB Service interface
-# TODO: This functionality exists within the top level msfdb.rb, and should be merged
+# TODO: This functionality exists within the top level msfdb.rb, and should be merged.
+# Note that this file is currently called by RSpec when REMOTE_DB is set
 
 require 'optparse'
 

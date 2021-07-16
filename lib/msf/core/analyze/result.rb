@@ -69,7 +69,12 @@ class Msf::Analyze::Result
   end
 
   def determine_prerequisites
-    @mod = @framework.modules.create(@mod.fullname)
+    mod_detail = @framework.modules.create(@mod.fullname)
+    if mod_detail.nil?
+      @required << :module_not_loadable
+      return
+    end
+    @mod = mod_detail
 
     if @mod.respond_to?(:session_types) && @mod.session_types
       @required << :session
@@ -89,7 +94,7 @@ class Msf::Analyze::Result
       @mod.datastore[k] = v
     end
 
-    target_idx = @mod.auto_targeted_index(@host)
+    target_idx = @mod.respond_to?(:auto_targeted_index) ? @mod.auto_targeted_index(@host) : nil
     if target_idx
       @datastore['target'] = target_idx
       @mod.datastore['target'] = target_idx
@@ -181,6 +186,8 @@ class Msf::Analyze::Result
   def missing_message
     @missing.map do |m|
       case m
+      when :module_not_loadable
+        "module not loadable"
       when :os_match
         "operating system does not match"
       when :session, "SESSION"

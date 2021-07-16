@@ -9,22 +9,56 @@ require 'rack/protection'
 # response contract. These test should help catch such scenarios.
 RSpec.describe "Metasploit's json-rpc" do
   include Rack::Test::Methods
+  include_context 'Msf::DBManager'
   include_context 'Metasploit::Framework::Spec::Constants cleaner'
-  include_context 'Msf::Framework#threads cleaner'
 
-  let(:app) { subject }
   let(:health_check_url) { '/api/v1/health' }
   let(:rpc_url) { '/api/v1/json-rpc' }
-  let(:framework) { app.settings.framework }
   let(:module_name) { 'scanner/ssl/openssl_heartbleed' }
   let(:a_valid_result_uuid) { { result: hash_including({ uuid: match(/\w+/) }) } }
-  let(:app) do
-    # Lazy load to ensure that the json rpc app doesn't create an instance of framework out of band
-    ::Msf::WebServices::JsonRpcApp.new
-  end
+  let(:app) { ::Msf::WebServices::JsonRpcApp.new }
 
   before(:example) do
-    allow(framework.db).to receive(:active).and_return(false)
+    framework.modules.add_module_path(File.join(FILE_FIXTURES_PATH, 'json_rpc'))
+    app.settings.framework = framework
+  end
+
+  after(:example) do
+    # Sinatra's settings are implemented as a singleton, and must be explicitly reset between runs
+    app.settings.dispatchers.clear
+  end
+
+  def report_host(host)
+    post rpc_url, {
+      jsonrpc: '2.0',
+      method: 'db.report_host',
+      id: 1,
+      params: [
+        host
+      ]
+    }.to_json
+  end
+
+  def report_vuln(vuln)
+    post rpc_url, {
+      jsonrpc: '2.0',
+      method: 'db.report_vuln',
+      id: 1,
+      params: [
+        vuln
+      ]
+    }.to_json
+  end
+
+  def analyze_host(host)
+    post rpc_url, {
+      jsonrpc: '2.0',
+      method: 'db.analyze_host',
+      id: 1,
+      params: [
+        host
+      ]
+    }.to_json
   end
 
   def create_job
@@ -186,6 +220,8 @@ RSpec.describe "Metasploit's json-rpc" do
 
   describe 'Running a check job and verifying results' do
     context 'when the module returns check code safe' do
+      include_context 'Msf::Framework#threads cleaner'
+
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do
           ::Msf::Exploit::CheckCode::Safe
@@ -221,6 +257,8 @@ RSpec.describe "Metasploit's json-rpc" do
     end
 
     context 'when the check command raises a known msf error' do
+      include_context 'Msf::Framework#threads cleaner'
+
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do |mod|
           mod.fail_with(Msf::Module::Failure::UnexpectedReply, 'Expected failure reason')
@@ -252,6 +290,8 @@ RSpec.describe "Metasploit's json-rpc" do
     end
 
     context 'when the check command has an unexpected error' do
+      include_context 'Msf::Framework#threads cleaner'
+
       before(:each) do
         allow_any_instance_of(::Msf::Auxiliary::Scanner).to receive(:check) do
           res = nil
@@ -370,6 +410,133 @@ RSpec.describe "Metasploit's json-rpc" do
           id: 1
         }
         expect(last_json_response).to include(expected_error_response)
+      end
+    end
+  end
+
+  describe 'analyze' do
+    let(:host_ip) { '192.0.2.2' }
+    let(:host) do
+      {
+        workspace: 'default',
+        host: host_ip,
+        state: 'alive',
+        os_name: 'Windows',
+        os_flavor: 'Enterprize',
+        os_sp: 'SP2',
+        os_lang: 'English',
+        arch: 'ARCH_X86',
+        mac: '97-42-51-F2-A7-A7',
+        scope: 'eth2',
+        virtual_host: 'VMWare'
+      }
+    end
+
+    let(:vuln) do
+      {
+        workspace: 'default',
+        host: host_ip,
+        name: 'Exploit Name',
+        info: 'Human readable description of the vuln',
+        refs: vuln_refs
+      }
+    end
+
+    context 'when there are modules available' do
+      let(:vuln_refs) do
+        %w[
+          CVE-2017-0143
+          CVE-2016-3088
+        ]
+      end
+
+      before(:each) do
+        framework.modules.add_module_path('./modules')
+      end
+
+      it 'returns the list of known modules associated with a reported host' do
+        report_host(host)
+        expect(last_response).to be_ok
+
+        report_vuln(vuln)
+        expect(last_response).to be_ok
+
+        expected_response = {
+          jsonrpc: '2.0',
+          result: {
+            host: [
+              {
+                address: '192.0.2.2',
+                modules: [
+                  {
+                    mname: 'exploit/multi/http/apache_activemq_upload_jsp',
+                    mtype: 'exploit'
+                  },
+                  {
+                    mtype: 'exploit',
+                    mname: 'exploit/windows/smb/ms17_010_eternalblue',
+                  },
+                  {
+                    mtype: 'exploit',
+                    mname: 'exploit/windows/smb/ms17_010_eternalblue_win8',
+                  },
+                  {
+                    mtype: 'exploit',
+                    mname: 'exploit/windows/smb/ms17_010_psexec',
+                  },
+                  {
+                    mtype: 'exploit',
+                    mname: 'exploit/windows/smb/smb_doublepulsar_rce',
+                  }
+                ]
+              }
+            ]
+          },
+          id: 1
+        }
+
+        analyze_host(
+          {
+            workspace: 'default',
+            host: host_ip
+          }
+        )
+        expect(last_json_response).to include(expected_response)
+      end
+    end
+
+    context 'when there are no modules found' do
+      let(:vuln_refs) do
+        ['CVE-NO-MATCHING-MODULES-1234']
+      end
+
+      it 'returns an empty list of modules' do
+        report_host(host)
+        expect(last_response).to be_ok
+
+        report_vuln(vuln)
+        expect(last_response).to be_ok
+
+        expected_response = {
+          jsonrpc: '2.0',
+          result: {
+            host: [
+              {
+                address: '192.0.2.2',
+                modules: []
+              }
+            ]
+          },
+          id: 1
+        }
+
+        analyze_host(
+          {
+            workspace: 'default',
+            host: host_ip
+          }
+        )
+        expect(last_json_response).to include(expected_response)
       end
     end
   end
