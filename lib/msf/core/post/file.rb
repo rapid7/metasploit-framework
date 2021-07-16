@@ -819,6 +819,51 @@ protected
     line_max
   end
 
+  # @param root [string] the directory path to search in
+  # @param glob [string] the pattern to search for
+  # @param recurse [boolean] to specify recursive search, by default true  
+  # @return [Array] return an array of hashes with file size, name and path
+  def search( root=nil, glob='*.*', recurse=true )
+    matches = []
+
+    if session.type == 'meterpreter'
+      begin
+        return session.fs.file.search(root, glob, recurse)
+      rescue ::Rex::Post::Meterpreter::RequestError => e
+        return matches
+      end
+
+    elsif session.type == 'powershell'
+      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{glob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
+      list.each do |file_info|
+        file_info = file_info.split
+        attrib = {}
+        attrib['name'] = file_info[0]
+        attrib['size'] = file_info[1].to_i
+        attrib['path'] = file_info[2]
+        matches << attrib
+      end
+
+    elsif session.platform == 'windows'
+      #cmdcode  
+    else
+      if command_exists?('find')
+        list = cmd_exec("find \"#{root}\" #{recurse ? '' : '-maxdepth 1'} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
+        list.split("\n").each do |file|
+          size, full_path = file.split
+          attrib = {}
+          attrib['size'] = size.to_i
+          attrib['name'] = (full_path.match /[^\/]+$/).to_s
+          attrib['path'] = full_path.chomp(attrib['name'])
+          matches << attrib
+        end
+      end
+    end
+    matches
+  end
+
+  # @param filename [String]
+  # @return [Stat] stat object of the specified file
   def stat(filename)
     if session.type == 'meterpreter'
       return session.fs.file.stat(filename)
