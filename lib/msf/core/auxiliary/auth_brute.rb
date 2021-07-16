@@ -18,7 +18,7 @@ module Auxiliary::AuthBrute
       OptPath.new('USER_FILE', [ false, "File containing usernames, one per line" ]),
       OptPath.new('PASS_FILE', [ false, "File containing passwords, one per line" ]),
       OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
-      OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
+      OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5, anything above 5 is interpreted as minutes", 5]),
       OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
       OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", false]),
       OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
@@ -582,7 +582,8 @@ module Auxiliary::AuthBrute
       when 2; 1
       when 3; 0.5
       when 4; 0.1
-      else; 0
+      when 5; 0
+      else; 60 * datastore['BRUTEFORCE_SPEED'].to_i
     end
   end
 
