@@ -75,7 +75,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Raises a RequestError if +root+ is not a directory.
   #
-  def File.search( root=nil, glob="*.*", recurse=true, timeout=-1 )
+  def File.search( root=nil, glob="*.*", recurse=true, startdate="default_startDate", enddate="default_endDate", timeout=-1)
 
     files = ::Array.new
 
@@ -87,6 +87,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
     request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
+    request.add_tlv( TLV_TYPE_SEARCH_FROM_DATE, startdate)
+    request.add_tlv( TLV_TYPE_SEARCH_TO_DATE, enddate)
 
     # we set the response timeout to -1 to wait indefinitely as a
     # search could take an indeterminate amount of time to complete.
@@ -96,7 +98,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
         files << {
           'path' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_PATH).chomp( self.separator )),
           'name' => client.unicode_filter_encode(results.get_tlv_value(TLV_TYPE_FILE_NAME)),
-          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE)
+          'size' => results.get_tlv_value(TLV_TYPE_FILE_SIZE),
+	      'date' => results.get_tlv_value(TLV_TYPE_SEARCH_DATE)
         }
       end
     end
@@ -545,4 +548,3 @@ protected
 end
 
 end; end; end; end; end; end
-
