@@ -1,6 +1,7 @@
 ## Descriptions
 
 This auxiliary module will brute-force a WordPress installation and first determine valid usernames and then perform a password-guessing attack. WordPress and WordPress MU before 2.8.1 exhibit different behavior for a failed login attempt depending on whether the user account exists, which allows remote attackers to enumerate valid usernames. NOTE: The vendor reportedly disputes the significance of this issue, indicating that the behavior exists for "user convenience." More infomation can be found in [CVE-2009-2335](https://www.cvedetails.com/cve/cve-2009-2335).
+On the other hand, If you wish to brute force in parallel Wordpress, for login enumeration or valid passwords, you could use also tools like thc-hydra (http://www.thc.org/thc-hydra) or foofus medusa (http://foofus.net/goons/jmk/medusa/medusa.html). But sometimes these tools may cause denial of service.
 
 ## Verification Steps
 
