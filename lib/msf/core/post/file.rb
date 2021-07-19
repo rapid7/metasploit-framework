@@ -35,7 +35,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       session.fs.dir.chdir(e_path)
     elsif session.type == 'powershell'
-      session.shell_command_token("cd \"#{e_path}\"")
+      cmd_exec("Set-Location -Path \"#{e_path}\"")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
@@ -133,7 +133,7 @@ module Msf::Post::File
       return false unless stat
       return stat.directory?
     elsif session.type == 'powershell'
-      return cmd_exec("Test-Path -Path \"#{path}\" -PathType Container")
+      return cmd_exec("Test-Path -Path \"#{path}\" -PathType Container").include?('True')
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
@@ -364,7 +364,7 @@ module Msf::Post::File
 
     if session.type == 'powershell'
       return cmd_exec("Get-Content \"#{file_name}\"")
-
+    end
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
     end
@@ -551,7 +551,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       return (session.fs.file.cp(src_file, dst_file).result == 0)
     elsif session.type == 'powershell'
-      cmd_exec("Copy-Item \"#{src_file}\" -Destination \"#{dst_file}\""}
+      cmd_exec("Copy-Item \"#{src_file}\" -Destination \"#{dst_file}\"")
     else
       if session.platform == 'windows'
         cmd_exec(%Q|copy /y "#{src_file}" "#{dst_file}"|) =~ /copied/
