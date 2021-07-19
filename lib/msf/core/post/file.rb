@@ -34,6 +34,8 @@ module Msf::Post::File
     e_path = expand_path(path) rescue path
     if session.type == "meterpreter"
       session.fs.dir.chdir(e_path)
+    elsif session.type == 'powershell'
+      session.shell_command_token("cd \"#{e_path}\"")
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
@@ -107,6 +109,8 @@ module Msf::Post::File
     if session.type == 'meterpreter'
       # behave like mkdir -p and don't throw an error if the directory exists
       result = session.fs.dir.mkdir(path) unless directory?(path)
+    elsif session.type == 'powershell'
+      result = cmd_exec("New-Item \"#{path}\" -itemtype directory")
     else
       if session.platform == 'windows'
         result = cmd_exec("mkdir \"#{path}\"")
@@ -128,6 +132,8 @@ module Msf::Post::File
       stat = session.fs.file.stat(path) rescue nil
       return false unless stat
       return stat.directory?
+    elsif session.type == 'powershell'
+      return cmd_exec("Test-Path -Path \"#{path}\" -PathType Container")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\\*\" ( echo true )")
@@ -147,6 +153,8 @@ module Msf::Post::File
   def expand_path(path)
     if session.type == "meterpreter"
       return session.fs.file.expand_path(path)
+    elsif session.type == 'powershell'
+      return cmd_exec("(Resolve-Path #{path}).Path")
     else
       return cmd_exec("echo #{path}")
     end
@@ -354,7 +362,10 @@ module Msf::Post::File
 
     return unless %w[shell powershell].include?(session.type)
 
-    if session.platform == 'windows' || session.platform == 'win'
+    if session.type == 'powershell'
+      return cmd_exec("Get-Content \"#{file_name}\"")
+
+    if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
     end
 
@@ -539,6 +550,8 @@ module Msf::Post::File
   def copy_file(src_file, dst_file)
     if session.type == "meterpreter"
       return (session.fs.file.cp(src_file, dst_file).result == 0)
+    elsif session.type == 'powershell'
+      cmd_exec("Copy-Item \"#{src_file}\" -Destination \"#{dst_file}\""}
     else
       if session.platform == 'windows'
         cmd_exec(%Q|copy /y "#{src_file}" "#{dst_file}"|) =~ /copied/
