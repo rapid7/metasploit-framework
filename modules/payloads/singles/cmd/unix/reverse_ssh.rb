@@ -24,7 +24,7 @@ module MetasploitModule
       'Platform'    => 'unix',
       'Arch'        => ARCH_CMD,
       'Handler'     => Msf::Handler::ReverseSsh,
-      'Session'     => Msf::Sessions::SshCommandShell,
+      'Session'     => Msf::Sessions::SshCommandShellReverse,
       'PayloadType' => 'cmd',
       'RequiredCmd' => 'ssh',
       'Payload'     => { 'Offsets' => {}, 'Payload' => '' }

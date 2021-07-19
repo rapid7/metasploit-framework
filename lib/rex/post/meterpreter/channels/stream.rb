@@ -29,6 +29,7 @@ class Stream < Rex::Post::Meterpreter::Channel
 
   module SocketInterface
     include Rex::Post::Meterpreter::SocketAbstraction::SocketInterface
+
     def type?
       'tcp'
     end

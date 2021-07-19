@@ -13,7 +13,7 @@ module Msf::Sessions
 #  Author:  RageLtMan
 #
 ###
-class SshCommandShell < Msf::Sessions::CommandShell
+class SshCommandShellReverse < Msf::Sessions::CommandShell
 
   #
   # This interface supports basic interaction.

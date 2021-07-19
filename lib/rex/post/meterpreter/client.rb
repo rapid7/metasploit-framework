@@ -3,10 +3,10 @@
 require 'socket'
 require 'openssl'
 
+require 'rex/post/channel'
 require 'rex/post/meterpreter/extension_mapper'
 require 'rex/post/meterpreter/client_core'
 require 'rex/post/meterpreter/channel'
-require 'rex/post/meterpreter/channel_container'
 require 'rex/post/meterpreter/dependencies'
 require 'rex/post/meterpreter/object_aliases'
 require 'rex/post/meterpreter/packet'
@@ -35,8 +35,8 @@ end
 ###
 class Client
 
+  include Rex::Post::Channel::Container
   include Rex::Post::Meterpreter::PacketDispatcher
-  include Rex::Post::Meterpreter::ChannelContainer
   include Rex::Post::Meterpreter::PivotContainer
 
   #

@@ -29,7 +29,7 @@ module Auxiliary::CommandShell
   end
 
 
-  def start_session(obj, info, ds_merge, crlf = false, sock = nil)
+  def start_session(obj, info, ds_merge, crlf = false, sock = nil, sess = nil)
     if crlf
       # Windows telnet server requires \r\n line endings and it doesn't
       # seem to affect anything else.
@@ -37,7 +37,7 @@ module Auxiliary::CommandShell
     end
 
     sock ||= obj.sock
-    sess = Msf::Sessions::CommandShell.new(sock)
+    sess ||= Msf::Sessions::CommandShell.new(sock)
     sess.set_from_exploit(obj)
     sess.info = info
 
