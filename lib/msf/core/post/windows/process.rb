@@ -61,13 +61,18 @@ module Process
   #   then the value will be passed as is. If the value is nil, it'll be passed as a NULL pointer.
   # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of a random EXE from the
   #   process_list array will be launched to host the injected DLL.
-  # @param is_wow64  [Boolean] If set, the process that is spawned needs to be WoW64 compatiable. Otherwise
-  #   spawn the default binary.
-  def execute_dll(rdll_path, param=nil, pid=nil, is_wow64=false)
+  def execute_dll(rdll_path, param=nil, pid=nil)
     process_list = ['msiexec', 'netsh', 'userinit']
     if pid.nil?
+      # Get a random process from the process list to spawn.
       process_cmd = process_list.sample
-      if is_wow64
+
+      # Use Rex's PeParsey as per Spencer's suggestion to determine the true architecture of the DLL we are injecting.
+      pe = Rex::PeParsey::Pe.new_from_file(rdll_path, true)
+      arch = pe.hdr.file['Machine'].value
+
+      # If the DLL is x86 but the host architecture is x64, then launch a 32 bit WoW64 binary to inject into.
+      if (arch == Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386) && (session.arch == ARCH_x64)
         windir = session.sys.config.getenv('windir')
         process_cmd = "#{windir}\\SysWOW64\\#{process_cmd}.exe"
       end
