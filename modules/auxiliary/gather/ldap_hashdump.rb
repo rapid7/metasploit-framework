@@ -39,7 +39,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Notes' => {
           'Stability' => [CRASH_SAFE],
-          'SideEffects' => [IOC_IN_LOGS]
+          'SideEffects' => [IOC_IN_LOGS],
+          'Reliability' => []
         }
       )
     )
@@ -220,7 +221,7 @@ class MetasploitModule < Msf::Auxiliary
       @rhost, # host
       ldif, # data
       nil, # filename
-      "Base DN: #{base_dn}" # info
+      "Base DN: #{base_dn.gsub(/[^[:print:]]/, '')}" # info, remove null char from base_dn
     )
 
     unless ldif_filename
@@ -298,6 +299,8 @@ class MetasploitModule < Msf::Auxiliary
          hash.start_with?('*****') ||
          hash.start_with?(/yyyyyy/i) ||
          hash == '*' ||
+         hash.end_with?('*LK*', # account locked
+                        '*NP*') || # password has never been set
          # reject {SASL} pass-through
          hash =~ /{sasl}/i ||
          hash.start_with?(/xxxxx/i) ||
@@ -345,8 +348,13 @@ class MetasploitModule < Msf::Auxiliary
         elsif hash.start_with?(/{crypt}/i) && hash.length == 20
           # handle {crypt}traditional_crypt case, i.e. explicitly set the hash format
           hash.slice!(/{crypt}/i)
-          hash_format = 'descrypt' # FIXME: what is the right jtr_hash - des,crypt or descrypt ?
-        # identify_hash returns des,crypt, while JtR acceppts descrypt
+          # FIXME: what is the right jtr_hash - des,crypt or descrypt ?
+          # identify_hash returns des,crypt, while JtR acceppts descrypt
+          hash_format = 'descrypt'
+        # TODO: not sure if we shall slice the prefixes here or in the JtR/Hashcat formatter
+        # elsif hash.start_with?(/{sha256}/i)
+        #  hash.slice!(/{sha256}/i)
+        #  hash_format = 'raw-sha256'
         else
           # handle vcenter vmdir binary hash format
           if hash[0].ord == 1 && hash.length == 81

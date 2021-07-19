@@ -190,6 +190,8 @@ module Metasploit
             '111'
           when 'raw-sha512'
             '1700'
+          when 'raw-sha256'
+            '1400'
           when 'raw-sha1'
             '100'
           when 'raw-md5'
