@@ -121,7 +121,7 @@ class RemoteShell(_msf_impacket.RemoteShell):
         command = self._shell + data
         if self._noOutput is False:
             command += ' 1> ' + '\\\\127.0.0.1\\%s' % self._share + self._output  + ' 2>&1'
-        self.__win32Process.Create(command.decode('utf-8'), self._pwd, None)
+        self.__win32Process.Create(command, self._pwd, None)
         self.get_output()
 
 
