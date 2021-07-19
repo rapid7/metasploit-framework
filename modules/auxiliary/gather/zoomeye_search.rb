@@ -170,15 +170,13 @@ class MetasploitModule < Msf::Auxiliary
     page = datastore['MAXPAGE']
     apikey = datastore['APIKEY']
     facets = datastore['FACETS']
-    current_page = 1
     resp_data = []
-    while current_page <= page
+    1.upto(datastore['MAXPAGE']) do |current_page|
       results = search_dork(apikey, dork, resource, current_page, facets)
       unless results && results.key?('matches')
         fail_with(Failure::NotFound, "Not Found #{dork} from ZoomEye!")
       end
       resp_data.append (results)
-      current_page += 1
     end
 
     resp_data.each do |item|

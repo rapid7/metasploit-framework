@@ -54,19 +54,21 @@ class MetasploitModule < Msf::Auxiliary
           "Indent" => 1,
           "Columns" => ['IP', 'NAME', 'TIMESTAMP']
         )
-        data.each do |item|
-            name = item['name']
-            timestamp = item['timestamp']
-            ip = item['ip']
+        data.each do |match|
+            match['list'].each do |item|
+                name = item['name']
+                timestamp = item['timestamp']
+                ip = item['ip']
 
-            tab << [ip, name, timestamp]
+                tab << [ip, name, timestamp]
 
-            report_host(:host => ip,
-                        :name => name,
-                        :comments => 'Added from ZoomEye Domain Search',
-                        ) if datastore['DATABASE']
+                report_host(:host => ip,
+                            :name => name,
+                            :comments => 'Added from ZoomEye Domain Search',
+                            ) if datastore['DATABASE']
+            end
+            print_line("#{tab}")
         end
-        print_line("#{tab}")
     end
 
     def save_raw_data(query, data)
@@ -111,17 +113,15 @@ class MetasploitModule < Msf::Auxiliary
         apikey = datastore['APIKEY']
         page = datastore['MAXPAGE']
         s_type = datastore['SOURCE']
-        current_page = 1
         all_data = []
-        while current_page <= page
+        1.upto(datastore['MAXPAGE']) do |current_page|
             results = domain_search(apikey, query, current_page, s_type)
             all_data.append(results)
-            current_page += 1
         end
-        all_data.each do |match|
-            parse_domain_info(match['list'])
-        end
+
+        parse_domain_info(all_data)
+
         save_raw_data(query, all_data) if datastore['OUTFILE']
-        print_status("Total: #{results['total']}, Current #{page * 30} ")
+        print_status("Total: #{all_data[0]['total']}, Current #{page * 30}")
     end
 end
