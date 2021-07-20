@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   # are needed when there's no database
   spec.add_runtime_dependency 'metasploit-model', '~> 3.1.0'
   # Needed for Meterpreter
-  spec.add_runtime_dependency 'metasploit-payloads', '2.0.47'
+  spec.add_runtime_dependency 'metasploit-payloads', '2.0.48'
   # Needed for the next-generation POSIX Meterpreter
   spec.add_runtime_dependency 'metasploit_payloads-mettle', '1.0.10'
   # Needed by msfgui and other rpc components
@@ -120,6 +120,8 @@ Gem::Specification.new do |spec|
   end
   # Gem for handling Cookies
   spec.add_runtime_dependency 'http-cookie'
+   # Needed for some modules (polkit_auth_bypass.rb)
+  spec.add_runtime_dependency 'unix-crypt'
 
   #
   # File Parsing Libraries

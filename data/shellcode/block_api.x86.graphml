@@ -595,21 +595,15 @@
     <edge source="block.0x1000" target="block.0x100f"/>
     <edge source="block.0x100f" target="block.0x1018"/>
     <edge source="block.0x1018" target="block.0x101f"/>
-    <edge source="block.0x1018" target="block.0x1021"/>
     <edge source="block.0x101f" target="block.0x1021"/>
-    <edge source="block.0x1021" target="block.0x1018"/>
     <edge source="block.0x1021" target="block.0x1029"/>
     <edge source="block.0x1029" target="block.0x103a"/>
-    <edge source="block.0x1029" target="block.0x1086"/>
     <edge source="block.0x103a" target="block.0x1045"/>
     <edge source="block.0x1045" target="block.0x1049"/>
-    <edge source="block.0x1045" target="block.0x1085"/>
     <edge source="block.0x1049" target="block.0x1051"/>
-    <edge source="block.0x1051" target="block.0x1051"/>
     <edge source="block.0x1051" target="block.0x105d"/>
-    <edge source="block.0x105d" target="block.0x1045"/>
     <edge source="block.0x105d" target="block.0x1065"/>
+    <edge source="block.0x1065" target="block.0x1085"/>
     <edge source="block.0x1085" target="block.0x1086"/>
-    <edge source="block.0x1086" target="block.0x100f"/>
   </graph>
 </graphml>

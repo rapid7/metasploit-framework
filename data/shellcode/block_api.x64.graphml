@@ -642,23 +642,16 @@
     <edge source="block.0x1000" target="block.0x1017"/>
     <edge source="block.0x1017" target="block.0x1023"/>
     <edge source="block.0x1023" target="block.0x102b"/>
-    <edge source="block.0x1023" target="block.0x102d"/>
     <edge source="block.0x102b" target="block.0x102d"/>
     <edge source="block.0x102d" target="block.0x1036"/>
-    <edge source="block.0x102d" target="block.0x1023"/>
     <edge source="block.0x1036" target="block.0x104b"/>
-    <edge source="block.0x1036" target="block.0x10bd"/>
     <edge source="block.0x104b" target="block.0x1056"/>
-    <edge source="block.0x104b" target="block.0x10bd"/>
     <edge source="block.0x1056" target="block.0x1064"/>
     <edge source="block.0x1064" target="block.0x1066"/>
-    <edge source="block.0x1064" target="block.0x10bc"/>
     <edge source="block.0x1066" target="block.0x1073"/>
-    <edge source="block.0x1073" target="block.0x1073"/>
     <edge source="block.0x1073" target="block.0x1082"/>
-    <edge source="block.0x1082" target="block.0x1064"/>
     <edge source="block.0x1082" target="block.0x108c"/>
+    <edge source="block.0x108c" target="block.0x10bc"/>
     <edge source="block.0x10bc" target="block.0x10bd"/>
-    <edge source="block.0x10bd" target="block.0x1017"/>
   </graph>
 </graphml>
