@@ -1,7 +1,5 @@
 # -*- coding: binary -*-
 
-# require 'msf/core'
-# require 'msf/core/exploit/tcp'
 require 'metasploit/framework/login_scanner/base'
 require 'metasploit/framework/login_scanner/rex_socket'
 require 'metasploit/framework/tcp/client'
@@ -10,6 +8,7 @@ module Metasploit
   module Framework
     module LoginScanner
       class X3
+
         include Metasploit::Framework::LoginScanner::Base
         include Metasploit::Framework::LoginScanner::RexSocket
         include Metasploit::Framework::Tcp::Client
@@ -19,35 +18,29 @@ module Metasploit
 
         def encrypt_pass(inp)
           # check if it's already encrypted
-          if inp.include?('CRYPT:')
-            return inp
-          end
+          return inp if inp.start_with?('CRYPT:')
 
           num2 = inp.length
           num = 17
           ret = ''
-          charset_0 = 'cromanwqxfzpgedkvstjhyilu'.chars
+          charset0 = 'cromanwqxfzpgedkvstjhyilu'.chars
           xyz = 'zxWyZxzvwYzxZXxxZWWyWxYXz'.chars
-          charset_1 = 'cf2tln3yuVkDr7oPaQ8bsSd4x'.chars
+          charset1 = 'cf2tln3yuVkDr7oPaQ8bsSd4x'.chars
 
           (0..num2 - 1).each do |i|
             num5 = inp[i].ord
-            num7 = num5.to_f / num.to_f
+            num7 = num5.to_f / num
             num10 = (num5 % num)
             num11 = xyz[i].ord
             num12 = num11 - num7
-            if num12.to_i != num12
-              num12 += 1
-            end
+            num12 += 1 if num12.to_i != num12
             ret << num12.to_i.chr
-            ret << charset_0[num10].ord.chr
-            off = charset_0.find_index(ret.split('').to_a[-1])
-            if off & 1 == 0
-              ret << charset_1[off].ord.chr
-            end
+            ret << charset0[num10].ord.chr
+            off = charset0.find_index(ret.split('').to_a[-1])
+            ret << charset1[off].ord.chr if (off & 1).zero?
           end
-          ret = 'CRYPT:' + ret
-          return ret
+
+          "CRYPT:#{ret}"
         end
 
         def attempt_login(credential)
@@ -77,8 +70,6 @@ module Metasploit
           auth_buffer << t_auth_buffer.length
           auth_buffer << t_auth_buffer
 
-          # add the password
-
           begin
             connect
             select([sock], nil, nil, 0.4)
@@ -86,10 +77,11 @@ module Metasploit
             if enc_pass
               sock.put(auth_buffer)
               result_options[:proof] = sock.get_once(1024, 2)
-              if result_options[:proof] && result_options[:proof].length == 4
-                if result_options[:proof].chars != ["\xFF","\xFF","\xFF","\xFF"]
-                  result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
-                end
+
+              if result_options[:proof] && result_options[:proof].length == 4 && (result_options[:proof].chars != [
+                "\xFF", "\xFF", "\xFF", "\xFF"
+              ])
+                result_options[:status] = Metasploit::Model::Login::Status::SUCCESSFUL
               end
             end
           rescue Rex::ConnectionError, EOFError, Timeout::Error, Errno::EPIPE => e
@@ -111,6 +103,7 @@ module Metasploit
           self.connection_timeout ||= 5
           self.port ||= DEFAULT_PORT
         end
+
       end
     end
   end

