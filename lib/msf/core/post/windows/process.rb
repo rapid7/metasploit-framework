@@ -72,7 +72,7 @@ module Process
       arch = pe.hdr.file['Machine'].value
 
       # If the DLL is x86 but the host architecture is x64, then launch a 32 bit WoW64 binary to inject into.
-      if (arch == Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386) && (session.arch == ARCH_x64)
+      if (arch == Rex::PeParsey::PeBase::IMAGE_FILE_MACHINE_I386) && (session.sys.config.sysinfo['Architecture'] == ARCH_X64)
         windir = session.sys.config.getenv('windir')
         process_cmd = "#{windir}\\SysWOW64\\#{process_cmd}.exe"
       end
