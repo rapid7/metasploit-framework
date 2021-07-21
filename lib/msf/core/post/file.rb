@@ -155,7 +155,7 @@ module Msf::Post::File
     if session.type == "meterpreter"
       return session.fs.file.expand_path(path)
     elsif session.type == 'powershell'
-      return cmd_exec("$ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(\"#{path}\")")
+      return cmd_exec("[Environment]::ExpandEnvironmentVariables(\"#{path}\")")
     else
       return cmd_exec("echo #{path}")
     end
