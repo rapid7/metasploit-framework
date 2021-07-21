@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Auxiliary
           ['URL', 'https://www.zoomeye.org/api/doc'],
           ['URL', 'https://github.com/knownsec/ZoomEye-python']
         ],
-        'License' => MSF_LICENSE
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [ACCOUNT_LOCKOUTS]
+        }
       )
     )
     register_options(

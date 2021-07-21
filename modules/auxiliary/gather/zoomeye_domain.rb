@@ -24,7 +24,12 @@ class MetasploitModule < Msf::Auxiliary
             ['URL', 'https://www.zoomeye.org/api/doc'],
             ['URL', 'https://github.com/knownsec/ZoomEye-python']
           ],
-          'License' => MSF_LICENSE
+          'License' => MSF_LICENSE,
+          'Notes' => {
+            'Stability' => [CRASH_SAFE],
+            'Reliability' => [REPEATABLE_SESSION],
+            'SideEffects' => [ACCOUNT_LOCKOUTS]
+          }
         )
       )
 
@@ -41,6 +46,7 @@ class MetasploitModule < Msf::Auxiliary
     deregister_http_client_options
   end
 
+  # Check to see if api.zoomeye.org resolves properly
   def zoomeye_resolvable?
     begin
       Rex::Socket.resolv_to_dotted('api.zoomeye.org')
@@ -50,7 +56,9 @@ class MetasploitModule < Msf::Auxiliary
     true
   end
 
+  # parse ZoomEye data
   def parse_domain_info(data)
+    # param: data, ZoomEye raw data
     tab = Rex::Text::Table.new(
       'Header' => 'Web Search Result',
       'Indent' => 1,
@@ -75,6 +83,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def save_raw_data(query, data)
+    # save zoomeye data to local
     filename = query.gsub(/[^a-zA-Z ]/, '_')
     ::File.open("#{filename}.json", 'wb') do |f|
       f.write(ActiveSupport::JSON.encode(data))
@@ -83,6 +92,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def domain_search(apikey, query, page, s_type)
+    # param: apikey, the ZoomEye API Key
+    # param: query, the domain name you need to query
+    # param: page, get the number of pages
+    # param: s_type, search type
     res = send_request_cgi({
       'method' => 'GET',
       'rhost' => 'api.zoomeye.org',
@@ -117,11 +130,12 @@ class MetasploitModule < Msf::Auxiliary
     page = datastore['MAXPAGE']
     s_type = datastore['SOURCE']
     all_data = []
+    # Get the data of each page in a loop
     1.upto(datastore['MAXPAGE']) do |current_page|
       results = domain_search(apikey, query, current_page, s_type)
       all_data.append(results)
     end
-
+    # parse data from ZoomEye Api return
     parse_domain_info(all_data)
 
     save_raw_data(query, all_data) if datastore['OUTFILE']
