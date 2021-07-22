@@ -65,13 +65,13 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def check_vuln_firmware
-    res = send_request_cgi({ 'uri' => '/MNU_access_login_top.htm' })
+    res = send_request_cgi({ 'uri' => '/currentsetting.htm' })
     if res.nil?
       return Exploit::CheckCode::Unknown('Connection timed out.')
     end
 
     data = res.to_s
-    firmware_version = data.match(%r{<b>Firmware Version</b><br>V(\d+\.\d+\.\d+\.\d+)})
+    firmware_version = data.match(/Firmware=V(\d+\.\d+\.\d+\.\d+)(_(\d+\.\d+\.\d+))?/)
     if firmware_version.nil?
       return Exploit::CheckCode::Unknown('Could not retrieve firmware version!')
     end
