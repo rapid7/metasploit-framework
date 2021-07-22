@@ -100,7 +100,7 @@ class Server
   #
   def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {},
                  comm = nil, ssl_cert = nil, ssl_compression = false,
-                 ssl_cipher = nil)
+                 ssl_cipher = nil, ssl_version = nil)
     self.listen_host     = listen_host
     self.listen_port     = port
     self.ssl             = ssl
@@ -109,6 +109,7 @@ class Server
     self.ssl_cert        = ssl_cert
     self.ssl_compression = ssl_compression
     self.ssl_cipher      = ssl_cipher
+    self.ssl_version     = ssl_version
     self.listener        = nil
     self.resources       = {}
     self.server_name     = DefaultServer
@@ -142,14 +143,15 @@ class Server
   def start
 
     self.listener = Rex::Socket::TcpServer.create(
-      'LocalHost' => self.listen_host,
-      'LocalPort' => self.listen_port,
-      'Context'   => self.context,
-      'SSL'       => self.ssl,
-      'SSLCert'   => self.ssl_cert,
+      'LocalHost'      => self.listen_host,
+      'LocalPort'      => self.listen_port,
+      'Context'        => self.context,
+      'SSL'            => self.ssl,
+      'SSLCert'        => self.ssl_cert,
       'SSLCompression' => self.ssl_compression,
-      'SSLCipher' => self.ssl_cipher,
-      'Comm'      => self.comm
+      'SSLCipher'      => self.ssl_cipher,
+      'SSLVersion'     => self.ssl_version,
+      'Comm'           => self.comm
     )
 
     # Register callbacks
@@ -272,7 +274,7 @@ class Server
   end
 
   attr_accessor :listen_port, :listen_host, :server_name, :context, :comm
-  attr_accessor :ssl, :ssl_cert, :ssl_compression, :ssl_cipher
+  attr_accessor :ssl, :ssl_cert, :ssl_compression, :ssl_cipher, :ssl_version
   attr_accessor :listener, :resources
 
 protected

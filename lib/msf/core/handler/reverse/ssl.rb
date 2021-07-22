@@ -9,7 +9,8 @@ module Msf
           super
           register_advanced_options(
             [
-              OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"])
+              OptPath.new('HandlerSSLCert', [false, "Path to a SSL certificate in unified PEM format"]),
+              Opt::SSLVersion,
             ], Msf::Handler::Reverse::SSL)
 
         end
