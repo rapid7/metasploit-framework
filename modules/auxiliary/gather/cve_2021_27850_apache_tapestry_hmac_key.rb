@@ -28,6 +28,10 @@ class MetasploitModule < Msf::Auxiliary
           [
             [ 'CVE', '2021-27850']
           ],
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE ],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        },
         'DisclosureDate' => '2021-04-15'
       )
     )
