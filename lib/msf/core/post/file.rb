@@ -548,13 +548,14 @@ module Msf::Post::File
   #
   # @param src_file [String] Remote source file name to copy
   # @param dst_file [String] The name for the remote destination file
+  # @return [Boolean] Return true on success and false on failure
   def copy_file(src_file, dst_file)
     return false if directory?(dst_file) or directory?(src_file)
     verification_token = Rex::Text.rand_text_alpha_upper(8)
     if session.type == "meterpreter"
       begin
         return (session.fs.file.cp(src_file, dst_file).result == 0)
-      rescue # when the source file is not present meterpreter will raise an error
+      rescue Rex::Post::Meterpreter::RequestError => e # when the source file is not present meterpreter will raise an error
         return false
       end
     elsif session.type == 'powershell'
