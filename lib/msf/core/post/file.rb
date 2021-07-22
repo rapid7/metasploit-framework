@@ -39,7 +39,7 @@ module Msf::Post::File
     else
       session.shell_command_token("cd \"#{e_path}\"")
     end
-    return
+    nil
   end
 
   #
