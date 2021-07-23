@@ -3,14 +3,20 @@
 module Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-        stdapi_sys_config_getenv
-        stdapi_sys_process_close
-        stdapi_sys_process_execute
-      } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_close
+              stdapi_sys_process_execute
+            ]
+          }
+        }
+      )
+    )
   end
 
   def clear_screen

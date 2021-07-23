@@ -24,10 +24,20 @@ module Msf::Post::Windows::Priv
   UAC_DEFAULT = 5
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_config_* stdapi_sys_process_* stdapi_registry_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_*
+              stdapi_sys_process_*
+              stdapi_registry_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   #

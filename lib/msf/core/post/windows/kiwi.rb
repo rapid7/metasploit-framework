@@ -7,10 +7,18 @@ module Windows
 module Kiwi
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ kiwi_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              kiwi_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   def load_kiwi

@@ -9,10 +9,20 @@ module Msf
         include Msf::Post::Common
 
         def initialize(info = {})
-          super(update_info(
-            info,
-            'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_fs_delete_dir stdapi_railgun_api* stdapi_sys_process_* } } }
-          ))
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_fs_delete_dir
+                    stdapi_railgun_api*
+                    stdapi_sys_process_*
+                  ]
+                }
+              }
+            )
+          )
         end
 
         class String16 < BinData::String
