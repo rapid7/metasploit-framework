@@ -62,7 +62,7 @@ module Process
   # @param pid       [Integer] The process ID to inject to, if unspecified, a new instance of a random EXE from the
   #   process_list array will be launched to host the injected DLL.
   def execute_dll(rdll_path, param=nil, pid=nil)
-    process_list = ['msiexec', 'netsh', 'userinit']
+    process_list = ['msiexec', 'netsh']
     if pid.nil?
       # Get a random process from the process list to spawn.
       process_cmd = process_list.sample
