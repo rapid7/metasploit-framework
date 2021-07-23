@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'rex/post/meterpreter/extension_mapper'
+require 'rex/post/meterpreter/core_ids'
 
 module Rex
 module Post
