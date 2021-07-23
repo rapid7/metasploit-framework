@@ -85,10 +85,18 @@ module LDAP
   }
 
     def initialize(info = {})
-      super(update_info(
-        info,
-        'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_railgun_* } } }
-      ))
+      super(
+        update_info(
+          info,
+          'Compat' => {
+            'Meterpreter' => {
+              'Commands' => %w[
+                stdapi_railgun_*
+              ]
+            }
+          }
+        )
+      )
 
       register_options(
       [

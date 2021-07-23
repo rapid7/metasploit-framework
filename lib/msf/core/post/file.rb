@@ -8,21 +8,27 @@ module Msf::Post::File
   include Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-        core_channel_*
-        stdapi_fs_chdir
-        stdapi_fs_delete_dir
-        stdapi_fs_delete_file
-        stdapi_fs_file_expand_path
-        stdapi_fs_file_move
-        stdapi_fs_getwd
-        stdapi_fs_ls
-        stdapi_fs_mkdir
-        stdapi_fs_stat
-      } } }
-    ))
+    super(
+      update_info(
+        info,
+          'Compat' => {
+            'Meterpreter' => {
+              'Commands' => %w[
+                core_channel_*
+                stdapi_fs_chdir
+                stdapi_fs_delete_dir
+                stdapi_fs_delete_file
+                stdapi_fs_file_expand_path
+                stdapi_fs_file_move
+                stdapi_fs_getwd
+                stdapi_fs_ls
+                stdapi_fs_mkdir
+                stdapi_fs_stat
+              ]
+            }
+          }
+        )
+      )
   end
 
   #

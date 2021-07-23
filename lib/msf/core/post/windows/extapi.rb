@@ -7,10 +7,18 @@ module Windows
 module ExtAPI
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ extapi_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   def load_extapi
