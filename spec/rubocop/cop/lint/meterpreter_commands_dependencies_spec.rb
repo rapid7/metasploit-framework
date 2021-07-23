@@ -36,7 +36,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'verifies that if no compat node is present and no method calls that it will not generate anything/alter the file' do
+  it 'verifies that if no compat node is present and no method calls are present that nothing will be generated/alter the file' do
     expect_no_offenses(<<~RUBY)
       class DummyModule
         def initialize
@@ -117,7 +117,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'verifies that is the command list has a command present but no corresponding call, the command should be removed' do
+  it 'verifies that if the command list has a command present but no corresponding call, the command should be removed' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize
@@ -172,7 +172,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'generates a list of meterpreter command dependencies based off meterpreter api calls in modules that currently have an empty commands array' do
+  it 'generates a list of meterpreter command dependencies based off the meterpreter api calls, in modules that currently have an empty commands array' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize
@@ -229,7 +229,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'removes a redundant command from the list of meterpreter command dependencies based off meterpreter api calls in modules that currently have a command that is no longer required' do
+  it 'removes a redundant command from the list of meterpreter command dependencies f there is no longer an associated api call present in the module' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -363,7 +363,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'ensures there are not duplicate entries in the commands list' do
+  it 'ensures there are no duplicate entries in the commands list' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -429,7 +429,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'handles when there are two or more identical method calls ' do
+  it 'ensures that even with two identical api calls present in a module, that only one command will be generated' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize(info = {})
@@ -664,7 +664,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'verifies that if `update_info(` is missing that the method calls are matched and added to the commands array ' do
+  it 'verifies that if `update_info(` is missing, that it will be appended appropriately' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize
@@ -974,7 +974,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
-  it 'verifies if a there is no initialise method, that it should be generated and appended appropriately' do
+  it 'verifies if a there is an initialise method, if no initialise present, it should be generated and appended appropriately' do
     expect_offense(<<~RUBY)
       class DummyModule
             ^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
@@ -1085,7 +1085,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
         end
 
         def run
-          some_helper_method(session)         
+          some_helper_method(session)
         end
 
         def some_helper_method(session)
@@ -1117,7 +1117,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
         end
 
         def run
-          some_helper_method(session)         
+          some_helper_method(session)
         end
 
         def some_helper_method(session)
@@ -1189,114 +1189,114 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
 
   it 'handles `abrt_raceabrt_priv_esc.rb` edge cases that were not being matched for unknown reasons' do
     expect_offense(<<~RUBY)
-      class DummyModule
-        def initialize(info = {})
-            super(update_info(info,
-              'Name'           => 'ABRT raceabrt Privilege Escalation',
-              'Description'    => %q{
-                This module attempts to gain root privileges on Linux systems with
-                a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
-                as the crash handler.
-        
-                A race condition allows local users to change ownership of arbitrary
-                files (CVE-2015-3315). This module uses a symlink attack on
-                `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
-                then adds a new user with UID=0 GID=0 to gain root privileges.
-                Winning the race could take a few minutes.
-        
-                This module has been tested successfully on:
-        
-                abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
-                abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
-                abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
-                abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
-                abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
-              },
-              'License'        => MSF_LICENSE,
-              'Author'         =>
-                [
-                  'Tavis Ormandy', # Discovery and C exploit
-                  'bcoles' # Metasploit
-                ],
-              'DisclosureDate' => '2015-04-14',
-              'Platform'       => [ 'linux' ],
-              'Arch'           => [ ARCH_X86, ARCH_X64 ],
-              'SessionTypes'   => [ 'shell', 'meterpreter' ],
-              'Compat' => {
-                'Meterpreter' => {
-                  'Commands' => %w[
-                  ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-                    stdapi_sys_process_*
-                    ^^^^^^^^^^^^^^^^^^^^ Compatibility command does not have an associated method call.
-                  ]
-                }
-              }
-            )
-          )
-        end
-        def run
-          session.sys.process.execute 'shell', "command"
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-          passwd_stat = session.fs.file.stat(@chown_file).stathash
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-        end
-      end
+            class DummyModule
+              def initialize(info = {})
+                  super(update_info(info,
+                    'Name'           => 'ABRT raceabrt Privilege Escalation',
+                    'Description'    => %q{
+                      This module attempts to gain root privileges on Linux systems with
+                      a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+                      as the crash handler.
+
+                      A race condition allows local users to change ownership of arbitrary
+                      files (CVE-2015-3315). This module uses a symlink attack on
+                      `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
+                      then adds a new user with UID=0 GID=0 to gain root privileges.
+                      Winning the race could take a few minutes.
+
+                      This module has been tested successfully on:
+
+                      abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
+                      abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
+                      abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
+                      abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
+                      abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
+                    },
+                    'License'        => MSF_LICENSE,
+                    'Author'         =>
+                      [
+                        'Tavis Ormandy', # Discovery and C exploit
+                        'bcoles' # Metasploit
+                      ],
+                    'DisclosureDate' => '2015-04-14',
+                    'Platform'       => [ 'linux' ],
+                    'Arch'           => [ ARCH_X86, ARCH_X64 ],
+                    'SessionTypes'   => [ 'shell', 'meterpreter' ],
+                    'Compat' => {
+                      'Meterpreter' => {
+                        'Commands' => %w[
+                        ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                          stdapi_sys_process_*
+                          ^^^^^^^^^^^^^^^^^^^^ Compatibility command does not have an associated method call.
+                        ]
+                      }
+                    }
+                  )
+                )
+              end
+              def run
+                session.sys.process.execute 'shell', "command"
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                passwd_stat = session.fs.file.stat(@chown_file).stathash
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+              end
+            end
     RUBY
 
     expect_correction(<<~RUBY)
-      class DummyModule
-        def initialize(info = {})
-            super(update_info(info,
-              'Name'           => 'ABRT raceabrt Privilege Escalation',
-              'Description'    => %q{
-                This module attempts to gain root privileges on Linux systems with
-                a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
-                as the crash handler.
-        
-                A race condition allows local users to change ownership of arbitrary
-                files (CVE-2015-3315). This module uses a symlink attack on
-                `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
-                then adds a new user with UID=0 GID=0 to gain root privileges.
-                Winning the race could take a few minutes.
-        
-                This module has been tested successfully on:
-        
-                abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
-                abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
-                abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
-                abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
-                abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
-              },
-              'License'        => MSF_LICENSE,
-              'Author'         =>
-                [
-                  'Tavis Ormandy', # Discovery and C exploit
-                  'bcoles' # Metasploit
-                ],
-              'DisclosureDate' => '2015-04-14',
-              'Platform'       => [ 'linux' ],
-              'Arch'           => [ ARCH_X86, ARCH_X64 ],
-              'SessionTypes'   => [ 'shell', 'meterpreter' ],
-              'Compat' => {
-                'Meterpreter' => {
-                  'Commands' => %w[
-                    stdapi_fs_stat
-                    stdapi_sys_process_execute
-                  ]
-                }
-              }
-            )
-          )
-        end
-        def run
-          session.sys.process.execute 'shell', "command"
-          passwd_stat = session.fs.file.stat(@chown_file).stathash
-        end
-      end
+            class DummyModule
+              def initialize(info = {})
+                  super(update_info(info,
+                    'Name'           => 'ABRT raceabrt Privilege Escalation',
+                    'Description'    => %q{
+                      This module attempts to gain root privileges on Linux systems with
+                      a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+                      as the crash handler.
+
+                      A race condition allows local users to change ownership of arbitrary
+                      files (CVE-2015-3315). This module uses a symlink attack on
+                      `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
+                      then adds a new user with UID=0 GID=0 to gain root privileges.
+                      Winning the race could take a few minutes.
+
+                      This module has been tested successfully on:
+
+                      abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
+                      abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
+                      abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
+                      abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
+                      abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
+                    },
+                    'License'        => MSF_LICENSE,
+                    'Author'         =>
+                      [
+                        'Tavis Ormandy', # Discovery and C exploit
+                        'bcoles' # Metasploit
+                      ],
+                    'DisclosureDate' => '2015-04-14',
+                    'Platform'       => [ 'linux' ],
+                    'Arch'           => [ ARCH_X86, ARCH_X64 ],
+                    'SessionTypes'   => [ 'shell', 'meterpreter' ],
+                    'Compat' => {
+                      'Meterpreter' => {
+                        'Commands' => %w[
+                          stdapi_fs_stat
+                          stdapi_sys_process_execute
+                        ]
+                      }
+                    }
+                  )
+                )
+              end
+              def run
+                session.sys.process.execute 'shell', "command"
+                passwd_stat = session.fs.file.stat(@chown_file).stathash
+              end
+            end
     RUBY
   end
 
-  it 'tracks the use of processes' do
+  it 'tracks the use of processes when api calls are being called against a process variable' do
     expect_offense(<<~RUBY)
       class DummyModule
         def initialize
@@ -1695,118 +1695,117 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
         ^{keyword}^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
       EOF
 
-      code_snippet_without_error_lines = (
+      code_snippet_without_error_lines =
         code_snippet_with_errors
-          .lines
-          .reject { |line| line.lstrip.start_with?('^{keyword}') || line.lstrip.start_with?('_{keyword}')}
-          .join
-          .gsub('%{keyword}', keyword)
-      )
+        .lines
+        .reject { |line| line.lstrip.start_with?('^{keyword}') || line.lstrip.start_with?('_{keyword}') }
+        .join
+        .gsub('%{keyword}', keyword)
 
       expect_offense(<<~RUBY, keyword: keyword)
-        class DummyModule
-              ^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-          def run
-  #{code_snippet_with_errors}
-          end
-        end
+              class DummyModule
+                    ^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                def run
+        #{code_snippet_with_errors}
+                end
+              end
       RUBY
 
       expect_correction(<<~RUBY)
-        class DummyModule
-          def initialize(info = {})
-            super(
-              update_info(
-                info,
-                'Compat' => {
-                  'Meterpreter' => {
-                    'Commands' => %w[
-                      android_*
-                      appapi_app_install
-                      core_channel_close
-                      core_channel_eof
-                      core_channel_open
-                      core_channel_read
-                      core_channel_tell
-                      core_channel_write
-                      espia_image_get_dev_screen
-                      extapi_adsi_domain_query
-                      extapi_pageant_send_query
-                      extapi_wmi_query
-                      incognito_impersonate_token
-                      incognito_list_tokens
-                      kiwi_exec_cmd
-                      lanattacks_add_tftp_file
-                      lanattacks_dhcp_log
-                      lanattacks_reset_dhcp
-                      lanattacks_set_dhcp_option
-                      lanattacks_start_dhcp
-                      lanattacks_start_tftp
-                      lanattacks_stop_dhcp
-                      lanattacks_stop_tftp
-                      peinjector_inject_shellcode
-                      priv_elevate_getsystem
-                      priv_fs_get_file_mace
-                      priv_fs_set_file_mace
-                      priv_passwd_get_sam_hashes
-                      stdapi_fs_*
-                      stdapi_fs_chmod
-                      stdapi_fs_delete_dir
-                      stdapi_fs_delete_file
-                      stdapi_fs_file_copy
-                      stdapi_fs_file_expand_path
-                      stdapi_fs_file_move
-                      stdapi_fs_getwd
-                      stdapi_fs_ls
-                      stdapi_fs_md5
-                      stdapi_fs_mkdir
-                      stdapi_fs_mount_show
-                      stdapi_fs_search
-                      stdapi_fs_separator
-                      stdapi_fs_sha1
-                      stdapi_fs_stat
-                      stdapi_net_config_add_route
-                      stdapi_net_config_get_interfaces
-                      stdapi_net_config_get_routes
-                      stdapi_net_resolve_host
-                      stdapi_railgun_*
-                      stdapi_registry_check_key_exists
-                      stdapi_registry_create_key
-                      stdapi_registry_delete_key
-                      stdapi_registry_enum_key_direct
-                      stdapi_registry_enum_value_direct
-                      stdapi_registry_load_key
-                      stdapi_registry_open_key
-                      stdapi_registry_open_remote_key
-                      stdapi_registry_query_value_direct
-                      stdapi_registry_set_value_direct
-                      stdapi_registry_unload_key
-                      stdapi_sys_config_driver_list
-                      stdapi_sys_config_getenv
-                      stdapi_sys_config_getprivs
-                      stdapi_sys_config_getsid
-                      stdapi_sys_config_getuid
-                      stdapi_sys_config_rev2self
-                      stdapi_sys_config_steal_token
-                      stdapi_sys_config_sysinfo
-                      stdapi_sys_power_exitwindows
-                      stdapi_sys_process_attach
-                      stdapi_sys_process_execute
-                      stdapi_sys_process_get_processes
-                      stdapi_sys_process_getpid
-                      stdapi_sys_process_kill
-                      stdapi_webcam_*
-                    ]
-                  }
-                }
-              )
-            )
-          end
+              class DummyModule
+                def initialize(info = {})
+                  super(
+                    update_info(
+                      info,
+                      'Compat' => {
+                        'Meterpreter' => {
+                          'Commands' => %w[
+                            android_*
+                            appapi_app_install
+                            core_channel_close
+                            core_channel_eof
+                            core_channel_open
+                            core_channel_read
+                            core_channel_tell
+                            core_channel_write
+                            espia_image_get_dev_screen
+                            extapi_adsi_domain_query
+                            extapi_pageant_send_query
+                            extapi_wmi_query
+                            incognito_impersonate_token
+                            incognito_list_tokens
+                            kiwi_exec_cmd
+                            lanattacks_add_tftp_file
+                            lanattacks_dhcp_log
+                            lanattacks_reset_dhcp
+                            lanattacks_set_dhcp_option
+                            lanattacks_start_dhcp
+                            lanattacks_start_tftp
+                            lanattacks_stop_dhcp
+                            lanattacks_stop_tftp
+                            peinjector_inject_shellcode
+                            priv_elevate_getsystem
+                            priv_fs_get_file_mace
+                            priv_fs_set_file_mace
+                            priv_passwd_get_sam_hashes
+                            stdapi_fs_*
+                            stdapi_fs_chmod
+                            stdapi_fs_delete_dir
+                            stdapi_fs_delete_file
+                            stdapi_fs_file_copy
+                            stdapi_fs_file_expand_path
+                            stdapi_fs_file_move
+                            stdapi_fs_getwd
+                            stdapi_fs_ls
+                            stdapi_fs_md5
+                            stdapi_fs_mkdir
+                            stdapi_fs_mount_show
+                            stdapi_fs_search
+                            stdapi_fs_separator
+                            stdapi_fs_sha1
+                            stdapi_fs_stat
+                            stdapi_net_config_add_route
+                            stdapi_net_config_get_interfaces
+                            stdapi_net_config_get_routes
+                            stdapi_net_resolve_host
+                            stdapi_railgun_*
+                            stdapi_registry_check_key_exists
+                            stdapi_registry_create_key
+                            stdapi_registry_delete_key
+                            stdapi_registry_enum_key_direct
+                            stdapi_registry_enum_value_direct
+                            stdapi_registry_load_key
+                            stdapi_registry_open_key
+                            stdapi_registry_open_remote_key
+                            stdapi_registry_query_value_direct
+                            stdapi_registry_set_value_direct
+                            stdapi_registry_unload_key
+                            stdapi_sys_config_driver_list
+                            stdapi_sys_config_getenv
+                            stdapi_sys_config_getprivs
+                            stdapi_sys_config_getsid
+                            stdapi_sys_config_getuid
+                            stdapi_sys_config_rev2self
+                            stdapi_sys_config_steal_token
+                            stdapi_sys_config_sysinfo
+                            stdapi_sys_power_exitwindows
+                            stdapi_sys_process_attach
+                            stdapi_sys_process_execute
+                            stdapi_sys_process_get_processes
+                            stdapi_sys_process_getpid
+                            stdapi_sys_process_kill
+                            stdapi_webcam_*
+                          ]
+                        }
+                      }
+                    )
+                  )
+                end
 
-          def run
-  #{code_snippet_without_error_lines}
-          end
-        end
+                def run
+        #{code_snippet_without_error_lines}
+                end
+              end
       RUBY
     end
   end
@@ -1833,12 +1832,12 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     # Handle wildcard matchers, i.e. `stdapi_railgun_*`
     api_commands_handled_via_wildcards = []
     autocorrected_meterpreter_command_names.each do |command|
-      if command.end_with?('_*')
-        prefix = command.gsub("_*", "")
-        api_commands_without_matchers.each do |unmatched_command|
-          if unmatched_command.start_with?(prefix)
-            api_commands_handled_via_wildcards << unmatched_command
-          end
+      next unless command.end_with?('_*')
+
+      prefix = command.gsub('_*', '')
+      api_commands_without_matchers.each do |unmatched_command|
+        if unmatched_command.start_with?(prefix)
+          api_commands_handled_via_wildcards << unmatched_command
         end
       end
     end
@@ -1847,46 +1846,45 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
 
     # Remove known core command ids
     ignored_core_command_ids = [
-       "core_channel_interact",
-       "core_channel_seek",
-       "core_console_write",
-       "core_enumextcmd",
-       "core_get_session_guid",
-       "core_loadlib",
-       "core_machine_id",
-       "core_migrate",
-       "core_native_arch",
-       "core_negotiate_tlv_encryption",
-       "core_patch_url",
-       "core_pivot_add",
-       "core_pivot_remove",
-       "core_pivot_session_died",
-       "core_set_session_guid",
-       "core_set_uuid",
-       "core_shutdown",
-       "core_transport_add",
-       "core_transport_change",
-       "core_transport_getcerthash",
-       "core_transport_list",
-       "core_transport_next",
-       "core_transport_prev",
-       "core_transport_remove",
-       "core_transport_setcerthash",
-       "core_transport_set_timeouts",
-       "core_transport_sleep",
-       "core_pivot_session_new",
+      'core_channel_interact',
+      'core_channel_seek',
+      'core_console_write',
+      'core_enumextcmd',
+      'core_get_session_guid',
+      'core_loadlib',
+      'core_machine_id',
+      'core_migrate',
+      'core_native_arch',
+      'core_negotiate_tlv_encryption',
+      'core_patch_url',
+      'core_pivot_add',
+      'core_pivot_remove',
+      'core_pivot_session_died',
+      'core_set_session_guid',
+      'core_set_uuid',
+      'core_shutdown',
+      'core_transport_add',
+      'core_transport_change',
+      'core_transport_getcerthash',
+      'core_transport_list',
+      'core_transport_next',
+      'core_transport_prev',
+      'core_transport_remove',
+      'core_transport_setcerthash',
+      'core_transport_set_timeouts',
+      'core_transport_sleep',
+      'core_pivot_session_new',
     ]
 
     api_commands_without_matchers -= ignored_core_command_ids
 
     # Remove additional command ids
     other_ignored_command_ids = [
-      "stdapi_net_tcp_channel_open",
-      "stdapi_net_socket_tcp_shutdown"
+      'stdapi_net_tcp_channel_open',
+      'stdapi_net_socket_tcp_shutdown'
     ]
 
     api_commands_without_matchers -= other_ignored_command_ids
     expect(api_commands_without_matchers).to be_empty
   end
 end
-

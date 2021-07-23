@@ -637,6 +637,7 @@ module RuboCop
               'process.thread.open.suspend'
             ],
             stdapi_sys_process_thread_terminate: [
+              'process.thread.open.terminate'
             ],
             stdapi_sys_process_wait: [
               'client.sys.thread.process.wait'

@@ -44,7 +44,7 @@ jobs:
           --health-retries 5
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ruby:
           - 2.5
