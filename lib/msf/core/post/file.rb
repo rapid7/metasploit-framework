@@ -370,8 +370,9 @@ module Msf::Post::File
     return unless %w[shell powershell].include?(session.type)
 
     if session.type == 'powershell'
-      return cmd_exec("Get-Content \"#{file_name}\"")
+      return powershell_read_file(file_name)
     end
+
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
     end
@@ -578,6 +579,10 @@ module Msf::Post::File
 
 protected
 
+  def powershell_read_file(file_name)
+    b64_data= cmd_exec("[convert]::ToBase64String(([IO.File]::ReadAllBytes(\"#{file_name}\")))")
+    return Base64.decode64(b64_data)    
+  end
   # Checks to see if there are non-ansi or newline characters in a given string
   #
   # @param data [String] String to check for non-ansi or newline chars
