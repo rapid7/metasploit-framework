@@ -568,9 +568,9 @@ module Msf::Post::File
       cmd_exec("Copy-Item \"#{src_file}\" -Destination \"#{dst_file}\"; if($?){echo #{verification_token}}").include?(verification_token)
     else
       if session.platform == 'windows'
-        cmd_exec(%Q|copy /y "#{src_file}" "#{dst_file}"|) =~ /copied/
+        cmd_exec(%Q|copy /y "#{src_file}" "#{dst_file}" & if not errorlevel 1 echo #{verification_token}|).include?(verification_token)
       else
-        cmd_exec(%Q|cp -f "#{src_file}" "#{dst_file}"|).empty?
+        cmd_exec(%Q|cp -f "#{src_file}" "#{dst_file}" && echo #{verification_token}|).include?(verification_token)
       end
     end
   end
