@@ -14,6 +14,8 @@ module RuboCop
         CLIENT_OR_SESSION = '{(lvar {:session :client}) (send nil? {:session :client})}'.freeze
         # Since a created process can have any name, match on anything
         PROCESS = '{(lvar _) (send nil? _)}'.freeze
+        # Covering calls that are made with `self.`
+        SELF = '(self)'.freeze
 
         # Matchers for identifying what is current present in each module, so we can append required section at a later point
         def_node_matcher :find_nested_update_info_node, <<~PATTERN
@@ -233,6 +235,8 @@ module RuboCop
             node_matcher << CLIENT_OR_SESSION
           elsif target == 'process'
             node_matcher << PROCESS
+          elsif target == 'self'
+            node_matcher << SELF
           else
             raise "Unknown target in expression #{value}"
           end
@@ -248,7 +252,7 @@ module RuboCop
         def mappings
           return @mappings if @mappings
 
-          # Example of expressions to commands
+          # Expressions to commands
           expressions_to_commands = {
             'session.fs.file.upload': [
               'stdapi_fs_separator',
@@ -279,9 +283,16 @@ module RuboCop
               'core_channel_read',
               'core_channel_eof',
               'core_channel_close'
+            ],
+            "session.fs.file.new": [
+              'core_channel_open',
+              'core_channel_read',
+              'core_channel_write',
+              'core_channel_eof'
             ]
           }
 
+          # Commands to expressions
           core_channel_ids = {
             core_channel_close: [
             ],
@@ -299,6 +310,7 @@ module RuboCop
             core_channel_tell: [
             ],
             core_channel_write: [
+              'session.fs.file.new'
             ],
             core_console_write: [
             ],
@@ -307,14 +319,20 @@ module RuboCop
             core_get_session_guid: [
             ],
             core_loadlib: [
+              'session.core.load_library'
             ],
             core_machine_id: [
+              'client.core.machine_id'
             ],
             core_migrate: [
+              'session.core.migrate'
             ],
             core_native_arch: [
+              'self.core.native_arch',
+              'client.native_arch'
             ],
             core_negotiate_tlv_encryption: [
+              'session.core.negotiate_tlv_encryption'
             ],
             core_patch_url: [
             ],
@@ -325,39 +343,46 @@ module RuboCop
             core_pivot_session_died: [
             ],
             core_set_session_guid: [
+              'session.core.set_session_guid'
             ],
             core_set_uuid: [
+              'self.core.set_uuid'
             ],
             core_shutdown: [
+              'session.core.shutdown'
             ],
             core_transport_add: [
+              'client.core.transport_add'
             ],
             core_transport_change: [
+              'session.core.transport_change'
             ],
             core_transport_getcerthash: [
             ],
             core_transport_list: [
+              'client.core.transport_list'
             ],
             core_transport_next: [
+              'client.core.transport_next'
             ],
             core_transport_prev: [
+              'client.core.transport_prev'
             ],
             core_transport_remove: [
+              'client.core.transport_remove'
             ],
             core_transport_setcerthash: [
             ],
             core_transport_set_timeouts: [
             ],
             core_transport_sleep: [
+              'client.core.transport_sleep'
             ],
             core_pivot_session_new: [
             ]
           }
 
           stdapi_command_ids = {
-            "stdapi_fs_*": [
-              'session.fs.file.new'
-            ],
             stdapi_fs_chdir: [
               'session.fs.dir.chdir'
             ],
@@ -368,7 +393,8 @@ module RuboCop
               'session.fs.dir.rmdir'
             ],
             stdapi_fs_delete_file: [
-              'session.fs.file.rm'
+              'session.fs.file.rm',
+              'session.fs.file.delete'
             ],
             stdapi_fs_file_copy: [
               'session.fs.file.copy'
@@ -1071,7 +1097,9 @@ module RuboCop
                 "#{meterpreter_whitespace}}" \
 
               if !nodes[:compat_node].value.children.last.nil?
-                corrector.insert_after(nodes[:compat_node].value.children.last, new_hash)
+                new_hash_if_compat_has_value = ','
+                new_hash_if_compat_has_value << new_hash
+                corrector.insert_after(nodes[:compat_node].value.children.last, new_hash_if_compat_has_value)
               else
                 alt_new_hash = '{'
                 alt_new_hash << new_hash

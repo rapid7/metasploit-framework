@@ -1043,7 +1043,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
               'Payload'        => {
                 'Compat'       =>
                 {
-                  'PayloadType' => 'cmd'
+                  'PayloadType' => 'cmd',
                   'Meterpreter' => {
                     'Commands' => %w[
                       stdapi_fs_delete_file
@@ -1189,110 +1189,110 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
 
   it 'handles `abrt_raceabrt_priv_esc.rb` edge cases that were not being matched for unknown reasons' do
     expect_offense(<<~RUBY)
-            class DummyModule
-              def initialize(info = {})
-                  super(update_info(info,
-                    'Name'           => 'ABRT raceabrt Privilege Escalation',
-                    'Description'    => %q{
-                      This module attempts to gain root privileges on Linux systems with
-                      a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
-                      as the crash handler.
+      class DummyModule
+        def initialize(info = {})
+            super(update_info(info,
+              'Name'           => 'ABRT raceabrt Privilege Escalation',
+              'Description'    => %q{
+                This module attempts to gain root privileges on Linux systems with
+                a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+                as the crash handler.
 
-                      A race condition allows local users to change ownership of arbitrary
-                      files (CVE-2015-3315). This module uses a symlink attack on
-                      `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
-                      then adds a new user with UID=0 GID=0 to gain root privileges.
-                      Winning the race could take a few minutes.
+                A race condition allows local users to change ownership of arbitrary
+                files (CVE-2015-3315). This module uses a symlink attack on
+                `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
+                then adds a new user with UID=0 GID=0 to gain root privileges.
+                Winning the race could take a few minutes.
 
-                      This module has been tested successfully on:
+                This module has been tested successfully on:
 
-                      abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
-                      abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
-                      abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
-                      abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
-                      abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
-                    },
-                    'License'        => MSF_LICENSE,
-                    'Author'         =>
-                      [
-                        'Tavis Ormandy', # Discovery and C exploit
-                        'bcoles' # Metasploit
-                      ],
-                    'DisclosureDate' => '2015-04-14',
-                    'Platform'       => [ 'linux' ],
-                    'Arch'           => [ ARCH_X86, ARCH_X64 ],
-                    'SessionTypes'   => [ 'shell', 'meterpreter' ],
-                    'Compat' => {
-                      'Meterpreter' => {
-                        'Commands' => %w[
-                        ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-                          stdapi_sys_process_*
-                          ^^^^^^^^^^^^^^^^^^^^ Compatibility command does not have an associated method call.
-                        ]
-                      }
-                    }
-                  )
-                )
-              end
-              def run
-                session.sys.process.execute 'shell', "command"
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-                passwd_stat = session.fs.file.stat(@chown_file).stathash
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
-              end
-            end
+                abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
+                abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
+                abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
+                abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
+                abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
+              },
+              'License'        => MSF_LICENSE,
+              'Author'         =>
+                [
+                  'Tavis Ormandy', # Discovery and C exploit
+                  'bcoles' # Metasploit
+                ],
+              'DisclosureDate' => '2015-04-14',
+              'Platform'       => [ 'linux' ],
+              'Arch'           => [ ARCH_X86, ARCH_X64 ],
+              'SessionTypes'   => [ 'shell', 'meterpreter' ],
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                  ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                    stdapi_sys_process_*
+                    ^^^^^^^^^^^^^^^^^^^^ Compatibility command does not have an associated method call.
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          session.sys.process.execute 'shell', "command"
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          passwd_stat = session.fs.file.stat(@chown_file).stathash
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        end
+      end
     RUBY
 
     expect_correction(<<~RUBY)
-            class DummyModule
-              def initialize(info = {})
-                  super(update_info(info,
-                    'Name'           => 'ABRT raceabrt Privilege Escalation',
-                    'Description'    => %q{
-                      This module attempts to gain root privileges on Linux systems with
-                      a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
-                      as the crash handler.
+      class DummyModule
+        def initialize(info = {})
+            super(update_info(info,
+              'Name'           => 'ABRT raceabrt Privilege Escalation',
+              'Description'    => %q{
+                This module attempts to gain root privileges on Linux systems with
+                a vulnerable version of Automatic Bug Reporting Tool (ABRT) configured
+                as the crash handler.
 
-                      A race condition allows local users to change ownership of arbitrary
-                      files (CVE-2015-3315). This module uses a symlink attack on
-                      `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
-                      then adds a new user with UID=0 GID=0 to gain root privileges.
-                      Winning the race could take a few minutes.
+                A race condition allows local users to change ownership of arbitrary
+                files (CVE-2015-3315). This module uses a symlink attack on
+                `/var/tmp/abrt/*/maps` to change the ownership of `/etc/passwd`,
+                then adds a new user with UID=0 GID=0 to gain root privileges.
+                Winning the race could take a few minutes.
 
-                      This module has been tested successfully on:
+                This module has been tested successfully on:
 
-                      abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
-                      abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
-                      abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
-                      abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
-                      abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
-                    },
-                    'License'        => MSF_LICENSE,
-                    'Author'         =>
-                      [
-                        'Tavis Ormandy', # Discovery and C exploit
-                        'bcoles' # Metasploit
-                      ],
-                    'DisclosureDate' => '2015-04-14',
-                    'Platform'       => [ 'linux' ],
-                    'Arch'           => [ ARCH_X86, ARCH_X64 ],
-                    'SessionTypes'   => [ 'shell', 'meterpreter' ],
-                    'Compat' => {
-                      'Meterpreter' => {
-                        'Commands' => %w[
-                          stdapi_fs_stat
-                          stdapi_sys_process_execute
-                        ]
-                      }
-                    }
-                  )
-                )
-              end
-              def run
-                session.sys.process.execute 'shell', "command"
-                passwd_stat = session.fs.file.stat(@chown_file).stathash
-              end
-            end
+                abrt 2.1.11-12.el7 on RHEL 7.0 x86_64;
+                abrt 2.1.5-1.fc19 on Fedora Desktop 19 x86_64;
+                abrt 2.2.1-1.fc19 on Fedora Desktop 19 x86_64;
+                abrt 2.2.2-2.fc20 on Fedora Desktop 20 x86_64;
+                abrt 2.3.0-3.fc21 on Fedora Desktop 21 x86_64.
+              },
+              'License'        => MSF_LICENSE,
+              'Author'         =>
+                [
+                  'Tavis Ormandy', # Discovery and C exploit
+                  'bcoles' # Metasploit
+                ],
+              'DisclosureDate' => '2015-04-14',
+              'Platform'       => [ 'linux' ],
+              'Arch'           => [ ARCH_X86, ARCH_X64 ],
+              'SessionTypes'   => [ 'shell', 'meterpreter' ],
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_fs_stat
+                    stdapi_sys_process_execute
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          session.sys.process.execute 'shell', "command"
+          passwd_stat = session.fs.file.stat(@chown_file).stathash
+        end
+      end
     RUBY
   end
 
@@ -1481,8 +1481,69 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
+  it 'verifies that `self.` calls are supported' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                  ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          self.core.native_arch
+          ^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    core_native_arch
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          self.core.native_arch
+        end
+      end
+    RUBY
+  end
+
   it 'handles lots of examples' do
-    %w[client].each do |keyword|
+    %w[client session].each do |keyword|
       code_snippet_with_errors = <<-EOF
         %{keyword}.fs.file.rm(
         ^{keyword}^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
@@ -1693,6 +1754,38 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
         ^{keyword}^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
         %{keyword}.net.config.add_route(*args)
         ^{keyword}^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.migrate
+        ^{keyword}^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.load_library
+        ^{keyword}^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.shutdown
+        ^{keyword}^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.net.socket.create
+        ^{keyword}^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.machine_id
+        ^{keyword}^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.migrate
+        ^{keyword}^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.native_arch
+        ^{keyword}^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.negotiate_tlv_encryption
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.set_session_guid
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_add
+        ^{keyword}^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_change
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_list
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_next
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_prev
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_remove
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        %{keyword}.core.transport_sleep
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
       EOF
 
       code_snippet_without_error_lines =
@@ -1728,6 +1821,20 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
                             core_channel_read
                             core_channel_tell
                             core_channel_write
+                            core_loadlib
+                            core_machine_id
+                            core_migrate
+                            core_native_arch
+                            core_negotiate_tlv_encryption
+                            core_set_session_guid
+                            core_shutdown
+                            core_transport_add
+                            core_transport_change
+                            core_transport_list
+                            core_transport_next
+                            core_transport_prev
+                            core_transport_remove
+                            core_transport_sleep
                             espia_image_get_dev_screen
                             extapi_adsi_domain_query
                             extapi_pageant_send_query
@@ -1748,7 +1855,6 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
                             priv_fs_get_file_mace
                             priv_fs_set_file_mace
                             priv_passwd_get_sam_hashes
-                            stdapi_fs_*
                             stdapi_fs_chmod
                             stdapi_fs_delete_dir
                             stdapi_fs_delete_file
@@ -1846,42 +1952,30 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
 
     # Remove known core command ids
     ignored_core_command_ids = [
-      'core_channel_interact',
-      'core_channel_seek',
-      'core_console_write',
-      'core_enumextcmd',
-      'core_get_session_guid',
-      'core_loadlib',
-      'core_machine_id',
-      'core_migrate',
-      'core_native_arch',
-      'core_negotiate_tlv_encryption',
-      'core_patch_url',
-      'core_pivot_add',
-      'core_pivot_remove',
-      'core_pivot_session_died',
-      'core_set_session_guid',
-      'core_set_uuid',
-      'core_shutdown',
-      'core_transport_add',
-      'core_transport_change',
-      'core_transport_getcerthash',
-      'core_transport_list',
-      'core_transport_next',
-      'core_transport_prev',
-      'core_transport_remove',
-      'core_transport_setcerthash',
-      'core_transport_set_timeouts',
-      'core_transport_sleep',
-      'core_pivot_session_new',
+      "core_channel_interact",
+      "core_channel_seek",
+      "core_console_write",
+      "core_enumextcmd",
+      "core_get_session_guid",
+      "core_patch_url",
+      "core_pivot_add",
+      "core_pivot_remove",
+      "core_pivot_session_died",
+      "core_pivot_session_new",
+      "core_set_uuid",
+      "core_transport_getcerthash",
+      "core_transport_set_timeouts",
+      "core_transport_setcerthash",
+      "stdapi_railgun_memread",
+      "stdapi_railgun_memwrite"
     ]
 
     api_commands_without_matchers -= ignored_core_command_ids
 
     # Remove additional command ids
     other_ignored_command_ids = [
-      'stdapi_net_tcp_channel_open',
-      'stdapi_net_socket_tcp_shutdown'
+      'stdapi_net_socket_tcp_shutdown',
+      'stdapi_net_tcp_channel_open'
     ]
 
     api_commands_without_matchers -= other_ignored_command_ids
