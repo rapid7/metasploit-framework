@@ -91,6 +91,7 @@ module LDAP
           'Compat' => {
             'Meterpreter' => {
               'Commands' => %w[
+                extapi_adsi_domain_query
                 stdapi_railgun_*
               ]
             }

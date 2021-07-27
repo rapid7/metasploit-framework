@@ -15,9 +15,13 @@ module Msf
               'Compat' => {
                 'Meterpreter' => {
                   'Commands' => %w[
+                    core_native_arch
                     stdapi_fs_delete_dir
-                    stdapi_railgun_api*
-                    stdapi_sys_process_*
+                    stdapi_railgun_*
+                    stdapi_sys_process_attach
+                    stdapi_sys_process_close
+                    stdapi_sys_process_memory_allocate
+                    stdapi_sys_process_memory_write
                   ]
                 }
               }

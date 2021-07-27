@@ -13,7 +13,6 @@ module ExtAPI
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              extapi_*
             ]
           }
         }

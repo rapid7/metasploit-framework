@@ -17,9 +17,11 @@ module WMIC
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              extapi_clipboard_[gs]et_data
-              stdapi_railgun_api*
-              stdapi_sys_process_*
+              extapi_clipboard_get_data
+              extapi_clipboard_set_data
+              stdapi_railgun_*
+              stdapi_sys_process_close
+              stdapi_sys_process_execute
             ]
           }
         }

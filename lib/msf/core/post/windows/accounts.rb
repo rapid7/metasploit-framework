@@ -53,8 +53,8 @@ module Msf
               'Compat' => {
                 'Meterpreter' => {
                   'Commands' => %w[
-                    stdapi_sys_process_*
                     stdapi_railgun_*
+                    stdapi_sys_process_attach
                   ]
                 }
               }

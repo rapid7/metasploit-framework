@@ -19,7 +19,7 @@ module Msf::Post::Windows::Runas
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              stdapi_railgun_api*
+              stdapi_railgun_*
             ]
           }
         }
