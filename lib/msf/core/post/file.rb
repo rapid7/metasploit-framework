@@ -370,7 +370,7 @@ module Msf::Post::File
     return unless %w[shell powershell].include?(session.type)
 
     if session.type == 'powershell'
-      return powershell_read_file(file_name)
+      return _read_file_powershell(file_name)
     end
 
     if session.platform == 'windows'
@@ -579,7 +579,7 @@ module Msf::Post::File
 
 protected
 
-  def powershell_read_file(file_name)
+  def _read_file_powershell(file_name)
     b64_data= cmd_exec("[convert]::ToBase64String(([IO.File]::ReadAllBytes(\"#{file_name}\")))")
     return Base64.decode64(b64_data)    
   end
