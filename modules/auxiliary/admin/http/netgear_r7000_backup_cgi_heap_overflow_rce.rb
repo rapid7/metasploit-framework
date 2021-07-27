@@ -335,8 +335,7 @@ class MetasploitModule < Msf::Auxiliary
 
     firmware_version = Rex::Version.new(firmware_version[1])
     if firmware_version != Rex::Version.new('1.0.11.116')
-      print_error('Sorry but at this point in time only version 1.0.11.116 of the R7000 firmware is exploitable with this module!')
-      return
+      fail_with(Failure::NoTarget, 'Sorry but at this point in time only version 1.0.11.116 of the R7000 firmware is exploitable with this module!')
     end
 
     unless fake_logins_to_ease_heap # Set the heap to a more predictable state via a series of fake logins.
