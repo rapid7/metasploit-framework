@@ -4,6 +4,7 @@ require 'filesize'
 require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
 require 'date'
+require 'time'
 
 module Rex
 module Post
@@ -141,10 +142,14 @@ class Console::CommandDispatcher::Stdapi::Fs
 
   def vali_date(str)
     date_format = '%Y-%m-%dT%H:%M:%S'
-    DateTime.strptime(str, date_format)
-    true
+    result = DateTime.strptime(str, date_format)
+    return result.strftime("%s").to_i
   rescue
-    false
+    date_format = '%Y-%m-%d'
+    result = DateTime.strptime(str, date_format)
+    return result.strftime("%s").to_i
+  rescue
+    return -1
   end
 
   def cmd_search(*args)
@@ -155,14 +160,16 @@ class Console::CommandDispatcher::Stdapi::Fs
     files   = []
     startDate = nil
     endDate = nil
+    sd = 0
+    ed = 0
 
     opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ],
-      "-a" => [ true,  "Find files modified after timestamp.  Format: YYYY-mm-ddTHH:MM:SS"],
-      "-b" => [ true,  "Find files modified before timestamp. Format: YYYY-mm-ddTHH:MM:SS"]
+      "-a" => [ true,  "Find files modified after timestamp.  Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"],
+      "-b" => [ true,  "Find files modified before timestamp. Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"]
     )
 
     opts.parse(args) { | opt, idx, val |
@@ -185,19 +192,21 @@ class Console::CommandDispatcher::Stdapi::Fs
       end
     }
     if startDate.to_s.empty?
-        startDate = ''
+        startDate = 0
     else
-        if !vali_date(startDate)
-            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-ddTHH:MM:SS\" , e.g. >search -a \"2000-04-30T16:58:31\" ")
+        sd = vali_date(startDate)
+        if sd < 0
+            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-dd\" , e.g. >search -a \"2000-04-30\" ")
             return
         end
     end
 
     if endDate.to_s.empty?
-        endDate = ''
+        endDate = 0
     else
-        if !vali_date(endDate)
-            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-ddTHH:MM:SS\" , e.g. >search -b \"2000-04-30T16:58:31\" ")
+        ed = vali_date(endDate)
+        if ed < 0
+            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-dd\" , e.g. >search -b \"2000-04-30\" ")
             return
         end
     end
@@ -206,9 +215,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       return
     end
 
-
     globs.uniq.each do |glob|
-      files += client.fs.file.search(root, glob, recurse, startDate, endDate)
+      files += client.fs.file.search(root, glob, recurse, timeout=-1, startDate:sd, endDate:ed)
     end
 
 
@@ -216,23 +224,25 @@ class Console::CommandDispatcher::Stdapi::Fs
       print_line("No files matching your search were found.")
       return
     end
+  
+    results_table = Rex::Text::Table.new(
+        'WordWrap'   => false,
+        'Width'      => 120,
+        'Header'     => 'Found',
+        'Indent'     => 0,
+        'SortIndex'  => 0,
+        'Columns'    => ['Path', 'Size', 'Modified'],
+    )
 
-    print_line("Found #{files.length} result#{ files.length > 1 ? 's' : '' }...")
-    print_line("%-50s    %10s    %s" % ["FILEPATH","SIZE","MODIFIED (REMOTE UTC)"])
-    print_line("="*80)
     files.each do | file |
-      datekeys = file['date'].unpack("sS5L")
-      datestr = "%04d-%02d-%02d %02d:%02d:%02d\n" % [datekeys[0], datekeys[1], datekeys[2], datekeys[3], datekeys[4], datekeys[5]]
+      datets = DateTime.strptime(file['mtime'].to_s,'%s')
+      datestr = datets.strftime('%Y-%m-%d %H:%M:%S')
       filestr ="#{file['path']}#{ file['path'].empty? ? '' : client.fs.file.separator}#{file['name']}"
       if file['size'] > 0
-        print("%-50s    %10s    %s" \
-        % [filestr,file['size'],datestr])
-      else
-        print("    #{file['path']}#{ file['path'].empty? ? '' : client.fs.file.separator }#{file['name']}\n")
+        results_table << [filestr, file['size'], datestr]
       end
-      print("-" * 80 + "\n")
     end
-
+    print_line results_table.to_s
   end
 
   #
