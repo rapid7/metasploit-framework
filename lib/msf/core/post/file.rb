@@ -580,8 +580,16 @@ module Msf::Post::File
 protected
 
   def _read_file_powershell(file_name)
-    b64_data= cmd_exec("[convert]::ToBase64String(([IO.File]::ReadAllBytes(\"#{file_name}\")))")
-    return Base64.decode64(b64_data)    
+    puts file_name
+    b64_data= cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
+      $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
+      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{file_name}\");\
+      $gzipstream.Write($get_bytes, 0 , $get_bytes.Length);\
+      $gzipstream.Close();\
+      [Convert]::ToBase64String($mstream.ToArray())")
+    puts b64_data
+    uncompressed_file = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read
+    return uncompressed_file
   end
   # Checks to see if there are non-ansi or newline characters in a given string
   #
