@@ -10,6 +10,17 @@ module Msf
   #
   ###
   class RhostsWalker
+    SUPPORTED_SCHEMAS = %w[
+      cidr
+      file
+      http
+      https
+      mysql
+      postgres
+      smb
+      ssh
+    ].freeze
+    private_constant :SUPPORTED_SCHEMAS
 
     ###
     # An error which additionally keeps track of a particular rhost substring which resulted in an error when enumerating
@@ -101,27 +112,6 @@ module Msf
                 results << result
               end
             end
-          elsif value.start_with?('smb:')
-            smb_options = parse_smb_uri(value, datastore)
-            Rex::Socket::RangeWalker.new(smb_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(
-                smb_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
-              )
-            end
-          elsif value.start_with?('http:') || value.start_with?('https:')
-            http_options = parse_http_uri(value, datastore)
-            Rex::Socket::RangeWalker.new(http_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(
-                http_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
-              )
-            end
-          elsif value.start_with?('mysql:')
-            mysql_options = parse_mysql_uri(value, datastore)
-            Rex::Socket::RangeWalker.new(mysql_options['RHOSTS']).each_ip do |ip|
-              results << datastore.merge(
-                mysql_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
-              )
-            end
           elsif value =~ /^cidr:(.*)/
             range, value = Regexp.last_match(1).split(':', 2)
 
@@ -131,6 +121,14 @@ module Msf
               Rex::Socket::RangeWalker.new(host_with_cidr).each_ip do |rhost|
                 results << result.merge('RHOSTS' => rhost, 'TODO_RHOST_SCHEMA_VALUE' => value)
               end
+            end
+          elsif value =~ /^(?<schema>\w+):.*/ && SUPPORTED_SCHEMAS.include?(Regexp.last_match(:schema))
+            parse_method = "parse_#{Regexp.last_match(:schema)}_uri"
+            parsed_options = send(parse_method, value, datastore)
+            Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
+              results << datastore.merge(
+                parsed_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
+              )
             end
           else
             Rex::Socket::RangeWalker.new(value).each_host do |rhost|
@@ -146,7 +144,7 @@ module Msf
       end
     end
 
-    # Parses an smb string such as smb://domain;user:pass@domain/share_name/file.txt into a hash which can safely be
+    # Parses a string such as smb://domain;user:pass@domain/share_name/file.txt into a hash which can safely be
     # merged with a [Msf::DataStore] datastore for setting smb options.
     #
     # @param value [String] the http string
@@ -166,12 +164,11 @@ module Msf
         domain, user = uri.user.split(';')
         result['SMBDomain'] = domain
         result['SMBUser'] = user
+        set_username(datastore, result, user)
       elsif uri.user
-        result['SMBUser'] = uri.user
+        set_username(datastore, result, uri.user)
       end
-      if uri.password
-        result['SMBPass'] = CGI.unescape(uri.password)
-      end
+      set_password(datastore, result, uri.password) if uri.password
 
       # Handle paths of the format:
       #    /
@@ -187,12 +184,12 @@ module Msf
       result
     end
 
-    # Parses an http string such as http://example.com into a hash which can safely be
+    # Parses a string such as http://example.com into a hash which can safely be
     # merged with a [Msf::DataStore] datastore for setting http options.
     #
     # @param value [String] the http string
     # @return [Hash] A hash where keys match the required datastore options associated with
-    #   the http uri value
+    #   the uri value
     def parse_http_uri(value, datastore)
       uri = ::Addressable::URI.parse(value)
       result = {}
@@ -210,27 +207,115 @@ module Msf
       result['URI'] = target_uri if datastore.options.include?('URI')
 
       result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
-      result['HttpUsername'] = uri.user if uri.user
-      result['HttpPassword'] = CGI.unescape(uri.password) if uri.password
+      set_username(datastore, result, uri.user) if uri.user
+      set_password(datastore, result, uri.password) if uri.password
 
       result
     end
+    alias parse_https_uri parse_http_uri
 
-    # Parses a uri mysql connection string such as mysql://user:password@example.com into a hash
+    # Parses a uri string such as mysql://user:password@example.com into a hash
     # which can safely be merged with a [Msf::DataStore] datastore for setting mysql options.
     #
-    # @param value [String] the mysql uri connection string
+    # @param value [String] the uri string
     # @return [Hash] A hash where keys match the required datastore options associated with
-    #   the http uri value
-    def parse_mysql_uri(value, _datastore)
+    #   the uri value
+    def parse_mysql_uri(value, datastore)
       uri = ::Addressable::URI.parse(value)
       result = {}
 
       result['RHOSTS'] = uri.hostname
       result['RPORT'] = uri.port || 3306
 
-      result['USERNAME'] = uri.user if uri.user
-      result['PASSWORD'] = CGI.unescape(uri.password) if uri.password
+      has_database_specified = !uri.path.blank? && uri.path != '/'
+      if datastore.options.include?('DATABASE') && has_database_specified
+        result['DATABASE'] = uri.path[1..-1]
+      end
+
+      set_username(datastore, result, uri.user) if uri.user
+      set_password(datastore, result, uri.password) if uri.password
+      result
+    end
+
+    # Parses a uri string such as postgres://user:password@example.com into a hash
+    # which can safely be merged with a [Msf::DataStore] datastore for setting mysql options.
+    #
+    # @param value [String] the uri string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the uri value
+    def parse_postgres_uri(value, datastore)
+      uri = ::Addressable::URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      result['RPORT'] = uri.port || 5432
+
+      has_database_specified = !uri.path.blank? && uri.path != '/'
+      if datastore.options.include?('DATABASE') && has_database_specified
+        result['DATABASE'] = uri.path[1..-1]
+      end
+      set_username(datastore, result, uri.user) if uri.user
+      set_password(datastore, result, uri.password) if uri.password
+
+      result
+    end
+
+    # Parses a uri string such as ssh://user:password@example.com into a hash
+    # which can safely be merged with a [Msf::DataStore] datastore for setting mysql options.
+    #
+    # @param value [String] the uri string
+    # @return [Hash] A hash where keys match the required datastore options associated with
+    #   the uri value
+    def parse_ssh_uri(value, datastore)
+      uri = ::Addressable::URI.parse(value)
+      result = {}
+
+      result['RHOSTS'] = uri.hostname
+      result['RPORT'] = uri.port || 22
+
+      set_username(datastore, result, uri.user) if uri.user
+      set_password(datastore, result, uri.password) if uri.password
+
+      result
+    end
+
+    protected
+
+    def set_username(datastore, result, username)
+      # Preference setting application specific values first
+      username_set = false
+      option_names = %w[SMBUser FtpUser Username user USERNAME username]
+      option_names.each do |option_name|
+        if datastore.options.include?(option_name)
+          result[option_name] = username
+          username_set = true
+        end
+      end
+
+      # Only set basic auth HttpUsername as a fallback
+      if !username_set && datastore.options['HttpUsername']
+        result['HttpUsername'] = username
+      end
+
+      result
+    end
+
+    def set_password(datastore, result, password)
+      # Preference setting application specific values first
+      password_set = false
+      password_option_names = %w[SMBPass FtpPass Password pass PASSWORD password]
+      password_option_names.each do |option_name|
+        if datastore.options.include?(option_name)
+          result[option_name] = password
+          password_set = true
+        end
+      end
+
+      # Only set basic auth HttpPassword as a fallback
+      if !password_set && datastore.options['HttpPassword']
+        result['HttpPassword'] = password
+      end
+
       result
     end
   end

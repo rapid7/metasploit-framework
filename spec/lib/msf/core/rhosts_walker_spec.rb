@@ -19,7 +19,9 @@ RSpec::Matchers.define :have_datastore_values do |expected|
     http_keys = %w[RHOSTS RPORT VHOST SSL HttpUsername HttpPassword TARGETURI URI]
     smb_keys = %w[RHOSTS RPORT SMBDomain SMBUser SMBPass SMBSHARE RPATH]
     mysql_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
-    required_keys = http_keys + smb_keys + mysql_keys
+    postgres_keys = %w[RHOSTS RPORT USERNAME PASSWORD DATABASE]
+    ssh_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
+    required_keys = http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys
     datastores.map do |datastore|
       # Slice the datastore options that we care about, ignoring other values that just add noise such as VERBOSE/WORKSPACE/etc.
       datastore.to_h.slice(*required_keys)
@@ -112,8 +114,59 @@ RSpec.describe Msf::RhostsWalker do
 
       def initialize
         super(
-          'Name' => 'mock http module',
-          'Description' => 'mock http module',
+          'Name' => 'mock mysql module',
+          'Description' => 'mock mysql module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+
+        register_options(
+          [
+            Msf::OptString.new('DATABASE', [true, 'The database to use', 'information_schema'])
+          ]
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:postgres_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Exploit::Remote::Postgres
+
+      def initialize
+        super(
+          'Name' => 'mock postgres module',
+          'Description' => 'mock postgres module',
+          'Author' => ['Unknown'],
+          'License' => MSF_LICENSE
+        )
+      end
+    end
+
+    mod = mod_klass.new
+    datastore = Msf::ModuleDataStore.new(mod)
+    allow(mod).to receive(:framework).and_return(nil)
+    mod.send(:datastore=, datastore)
+    datastore.import_options(mod.options)
+    mod
+  end
+
+  let(:ssh_mod) do
+    mod_klass = Class.new(Msf::Auxiliary) do
+      include Msf::Auxiliary::AuthBrute
+      include Msf::Exploit::Remote::SSH::Options
+
+      def initialize
+        super(
+          'Name' => 'mock ssh module',
+          'Description' => 'mock ssh module',
           'Author' => ['Unknown'],
           'License' => MSF_LICENSE
         )
@@ -423,6 +476,29 @@ RSpec.describe Msf::RhostsWalker do
       expect(each_error_for(http_mod)).to be_empty
     end
 
+    it 'preferences setting user/passwords fields over basic auth credentials' do
+      http_mod.datastore.import_options(
+        Msf::OptionContainer.new(
+          [
+            Msf::OptString.new('USERNAME', [true, 'The username to authenticate as', 'admin']),
+            Msf::OptString.new('PASSWORD', [true, 'The password for the specified username', 'admin'])
+          ]
+        ),
+        http_mod.class,
+        true
+      )
+      # http_mod.datastore['RHOSTS'] = 'http://example.com/ http://user@example.com/ http://user:password@example.com http://:@example.com'
+      http_mod.datastore['RHOSTS'] = 'http://example.com/ http://user@example.com/ http://user:password@example.com http://:@example.com'
+      expected = [
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'USERNAME' => 'admin', 'PASSWORD' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'USERNAME' => 'user', 'PASSWORD' => 'admin', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'USERNAME' => 'user', 'PASSWORD' => 'password', 'TARGETURI' => '/' },
+        { 'RHOSTS' => '192.0.2.2', 'RPORT' => 80, 'VHOST' => 'example.com', 'SSL' => false, 'HttpUsername' => '', 'HttpPassword' => '', 'USERNAME' => '', 'PASSWORD' => '', 'TARGETURI' => '/' }
+      ]
+      expect(each_host_for(http_mod)).to have_datastore_values(expected)
+      expect(each_error_for(http_mod)).to be_empty
+    end
+
     it 'enumerates a cidr scheme with a single http value' do
       http_mod.datastore['RHOSTS'] = 'cidr:/30:http://127.0.0.1:3000/foo/bar'
       expected = [
@@ -627,15 +703,40 @@ RSpec.describe Msf::RhostsWalker do
 
     context 'when using the mysql scheme' do
       it 'enumerates mysql schemes' do
-        mysql_mod.datastore['RHOSTS'] = '"mysql://user:a b c@example.com/"'
+        mysql_mod.datastore['RHOSTS'] = 'mysql://mysql:@example.com "mysql://user:a b c@example.com/" "mysql://user:a+b+c=@example.com:9001/database_name"'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' }
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'mysql', 'PASSWORD' => '', 'DATABASE' => 'information_schema' },
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 3306, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'information_schema'  },
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'SSL' => false, 'USERNAME' => 'user', 'PASSWORD' => 'a+b+c=', 'DATABASE' => 'database_name'  }
         ]
         expect(each_error_for(mysql_mod)).to be_empty
         expect(each_host_for(mysql_mod)).to have_datastore_values(expected)
       end
     end
 
+    context 'when using the postgres scheme' do
+      it 'enumerates postgres schemes' do
+        postgres_mod.datastore['RHOSTS'] = 'postgres://postgres:@example.com "postgres://user:a b c@example.com/" "postgres://user:a b c@example.com:9001/database_name"'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'postgres', 'PASSWORD' => '', 'DATABASE' => 'template1' },
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 5432, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'template1' },
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 9001, 'USERNAME' => 'user', 'PASSWORD' => 'a b c', 'DATABASE' => 'database_name' }
+        ]
+        expect(each_error_for(postgres_mod)).to be_empty
+        expect(each_host_for(postgres_mod)).to have_datastore_values(expected)
+      end
+    end
+
+    context 'when using the ssh scheme' do
+      it 'enumerates ssh schemes' do
+        ssh_mod.datastore['RHOSTS'] = '"ssh://user:a b c@example.com/"'
+        expected = [
+          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 22, 'USERNAME' => 'user', 'PASSWORD' => 'a b c' }
+        ]
+        expect(each_error_for(ssh_mod)).to be_empty
+        expect(each_host_for(ssh_mod)).to have_datastore_values(expected)
+      end
+    end
     # TODO: Discuss adding a test for the datastore containing an existing TARGETURI,and running with a HTTP url without a path. Should the TARGETURI be overridden to '/', '', or unaffected, and the default value is used instead?
 
     it 'enumerates a combination of all syntaxes' do
