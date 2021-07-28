@@ -146,6 +146,10 @@ module Msf
                 job_id = val
               when "-p"
                 job_list = build_range_array(val)
+                if job_list.blank?
+                  print_error('Please specify valid job identifier(s)')
+                  return
+                end
                 job_list.each do |job_id|
                   add_persist_job(job_id)
                 end
@@ -223,12 +227,13 @@ module Msf
               end
 
               # Stop the job by job id.
-              job_list.map(&:to_s).each do |job|
-                if framework.jobs.key?(job)
-                  print_status("Stopping job #{job}")
-                  framework.jobs.stop_job(job)
+              job_list.map(&:to_s).each do |job_id|
+                job_id = job_id.to_i < 0 ? framework.jobs.keys[job_id.to_i] : job_id
+                if framework.jobs.key?(job_id)
+                  print_status("Stopping job #{job_id}")
+                  framework.jobs.stop_job(job_id)
                 else
-                  print_error("Invalid job identifier: #{job}")
+                  print_error("Invalid job identifier: #{job_id}")
                 end
               end
             end
