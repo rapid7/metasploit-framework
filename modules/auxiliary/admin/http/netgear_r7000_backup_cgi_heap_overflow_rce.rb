@@ -313,7 +313,7 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status('Sending 10th and final packet...')
 
-    res = send_request_cgi({
+    send_request_cgi({
       'method' => 'POST',
       'uri' => '/genierestore.cgi',
       'ctype' => "multipart/form-data; boundary=#{post_data.bound}",
