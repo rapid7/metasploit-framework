@@ -9,7 +9,7 @@ class MetasploitModule < Msf::Post
     super(
       update_info(
         info,
-        'Name' => 'Windows SAM secrets leak - HiveNightmare aka SeriousSAM',
+        'Name' => 'Windows SAM secrets leak - HiveNightmare',
         'Description' => %q{
           Due to mismanagement of SAM and SYSTEM hives in Windows 10, it is possible for an unprivileged
           user to read those files. But, as they are locked while Windows is running we are not able
@@ -36,12 +36,15 @@ class MetasploitModule < Msf::Post
         'SessionTypes' => [ 'meterpreter' ],
         'Notes' =>
           {
+            'AKA' => [ 'HiveNightmare', 'SeriousSAM' ],
+            'Reliability' => [ ],
+            'SideEffects' => [ ],
             'Stability' => [ CRASH_SAFE ]
           }
       )
     )
     register_options([
-      OptInt.new('NBRE_ITER', [true, 'Number of iterations on Shadow Copy file index', 10]),
+      OptInt.new('ITERATIONS', [true, 'Number of iterations on Shadow Copy file index', 10]),
       OptInt.new('FILE_INDEX', [false, 'Optional index parameter to retrieve a specific Shadow Copy file', nil])
     ])
   end
@@ -101,7 +104,7 @@ class MetasploitModule < Msf::Post
         loot_files(handle, datastore['FILE_INDEX'])
       end
     else
-      fail_with(Failure::BadConfig, 'Please specify an iteration number greater than 0!') unless datastore['NBRE_ITER'] > 0
+      fail_with(Failure::BadConfig, 'Please specify an iteration number greater than 0!') unless datastore['ITERATIONS'] > 0
 
       most_recent_time = nil
       most_recent_shadow_copy = nil
