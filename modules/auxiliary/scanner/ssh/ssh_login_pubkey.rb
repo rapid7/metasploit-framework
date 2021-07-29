@@ -175,7 +175,13 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id) if datastore['CreateSession']
+          if datastore['CreateSession']
+            if credential_core.is_a? Metasploit::Credential::Core
+              session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
+            else
+              session_setup(result, scanner, ssh_key.fingerprint, nil)
+            end
+          end
           if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
             msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
             msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"
