@@ -119,7 +119,7 @@ module Msf
             parse(value, datastore).each do |result|
               host_with_cidr = result['RHOSTS'] + range
               Rex::Socket::RangeWalker.new(host_with_cidr).each_ip do |rhost|
-                results << result.merge('RHOSTS' => rhost, 'TODO_RHOST_SCHEMA_VALUE' => value)
+                results << result.merge('RHOSTS' => rhost, 'UNPARSED_RHOSTS' => value)
               end
             end
           elsif value =~ /^(?<schema>\w+):.*/ && SUPPORTED_SCHEMAS.include?(Regexp.last_match(:schema))
@@ -127,12 +127,13 @@ module Msf
             parsed_options = send(parse_method, value, datastore)
             Rex::Socket::RangeWalker.new(parsed_options['RHOSTS']).each_ip do |ip|
               results << datastore.merge(
-                parsed_options.merge('RHOSTS' => ip, 'TODO_RHOST_SCHEMA_VALUE' => value)
+                parsed_options.merge('RHOSTS' => ip, 'UNPARSED_RHOSTS' => value)
               )
             end
           else
             Rex::Socket::RangeWalker.new(value).each_host do |rhost|
               overrides = {}
+              overrides['UNPARSED_RHOSTS'] = value
               overrides['RHOSTS'] = rhost[:address]
               overrides['VHOST'] = rhost[:hostname] if datastore.options.include?('VHOST') && datastore['VHOST'].blank?
               results << datastore.merge(overrides)

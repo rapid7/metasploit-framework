@@ -228,7 +228,7 @@ module Msf
             unless option.valid?(datastore[name])
               error_options << name
               if rhosts_count > 1
-                error_reasons[name] << "for rhosts value #{datastore['TODO_RHOST_SCHEMA_VALUE']}"
+                error_reasons[name] << "for rhosts value #{datastore['UNPARSED_RHOSTS']}"
               end
             end
           end
