@@ -37,6 +37,9 @@ module Msf
       end
     end
 
+    class InvalidCIDRURIError < StandardError
+    end
+
     def initialize(value = '', datastore = Msf::ModuleDataStore.new(nil))
       @value = value
       @datastore = datastore
@@ -113,11 +116,13 @@ module Msf
               end
             end
           elsif value =~ /^cidr:(.*)/
-            range, value = Regexp.last_match(1).split(':', 2)
+            cidr, child_value = Regexp.last_match(1).split(':', 2)
+            # Validate cidr syntax matches ipv6 '%scope_id/mask_part' or ipv4 '/mask_part'
+            raise InvalidCIDRURIError unless cidr =~ %r{^(%\w+)?/\d{1,3}$}
 
             # Parse the values, then apply range walker over the result
-            parse(value, datastore).each do |result|
-              host_with_cidr = result['RHOSTS'] + range
+            parse(child_value, datastore).each do |result|
+              host_with_cidr = result['RHOSTS'] + cidr
               Rex::Socket::RangeWalker.new(host_with_cidr).each_ip do |rhost|
                 results << result.merge('RHOSTS' => rhost, 'UNPARSED_RHOSTS' => value)
               end

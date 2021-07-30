@@ -344,7 +344,7 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'https://example.com:9000/foo', 'expected' => [] },
       { 'RHOSTS' => 'cidr:/30:https://user:pass@multiple_ips.example.com:9000/foo', 'expected' => [] },
 
-      # # Edge cases
+      # Edge cases
       { 'expected' => [] },
       { 'RHOSTS' => nil, 'expected' => [] },
       { 'RHOSTS' => '', 'expected' => [] },
@@ -352,6 +352,12 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:'), Msf::RhostsWalker::Error.new('https:')] },
+
+      # cidr validation
+      { 'RHOSTS' => 'cidr:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:127.0.0.1')] },
+      { 'RHOSTS' => 'cidr:abc/127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:abc/127.0.0.1')] },
+      { 'RHOSTS' => 'cidr:/1000:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:/1000:127.0.0.1')] },
+      { 'RHOSTS' => 'cidr:%eth2:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:%eth2:127.0.0.1')] },
     ].each do |test|
       it "handles the input #{test['RHOSTS'].inspect} as having the errors #{test['expected']}" do
         aux_mod.datastore['RHOSTS'] = test['RHOSTS']
