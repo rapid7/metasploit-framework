@@ -262,10 +262,9 @@ class SessionManager < Hash
     session = nil
     sid = sid.to_i
 
-    if sid > 0
-      session = self[sid]
-    elsif sid == -1
-      sid = self.keys.max
+    if sid < 0
+      session = self[self.keys.sort[sid]]
+    elsif sid > 0
       session = self[sid]
     end
 
@@ -292,4 +291,3 @@ protected
 end
 
 end
-
