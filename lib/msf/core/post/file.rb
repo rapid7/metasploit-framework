@@ -586,7 +586,7 @@ protected
     chunk_size = 1024 * 1024
     loop do
       stop = start + chunk_size
-      stop = eof - 1 if stop >= eof
+      stop = eof if stop > eof
       data << _read_file_powershell_fragement(start, stop, filename)
       start += chunk_size
       break if start >= eof
@@ -597,7 +597,7 @@ protected
   def _read_file_powershell_fragement(start, stop, filename)
     b64_data= cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
       $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
-      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{start}..#{stop}];\
+      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{start}..#{stop - 1}];\
       $gzipstream.Write($get_bytes, 0 , $get_bytes.Length);\
       $gzipstream.Close();\
       [Convert]::ToBase64String($mstream.ToArray())")
