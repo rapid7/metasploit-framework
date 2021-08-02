@@ -124,19 +124,12 @@ jobs:
                 },
               },
               issues: {
-                // Termux issues are usually user error. However they may describe issues within modules/framework itself,
-                // and for this reason they are not closed automatically.
                 termux: {
-                  close: false,
+                  close: true,
                   comment: `
-                    Termux is not officially supported. https://github.com/rapid7/metasploit-framework/issues/11023
+                    Metasploit installation on Termux is not supported. Refer to the following for more information:
 
-                    However, Metasploit reportedly does work with Termux.
-
-                    Refer to the following for more information:
-
-                    * https://wiki.termux.com/wiki/Metasploit_Framework
-                    * termux/termux-packages/issues/715
+                    * https://github.com/rapid7/metasploit-framework/issues/11023
                   `
                 },
                 // Used for issues that have had low effort applied, haven't followed the issue template, and there's not enough
