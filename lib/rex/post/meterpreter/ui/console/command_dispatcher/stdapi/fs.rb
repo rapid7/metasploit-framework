@@ -168,8 +168,8 @@ class Console::CommandDispatcher::Stdapi::Fs
       "-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
       "-f" => [ true,  "A file pattern glob to search for. (e.g. *secret*.doc?)" ],
       "-r" => [ true,  "Recursively search sub directories. (Default: #{recurse})" ],
-      "-a" => [ true,  "Find files modified after timestamp.  Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"],
-      "-b" => [ true,  "Find files modified before timestamp. Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"]
+      "-a" => [ true,  "Find files modified after timestamp (UTC).  Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"],
+      "-b" => [ true,  "Find files modified before timestamp (UTC). Format: YYYY-mm-dd or YYYY-mm-ddTHH:MM:SS"]
     )
 
     opts.parse(args) { | opt, idx, val |
@@ -196,7 +196,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     else
         sd = vali_date(startDate)
         if sd < 0
-            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-dd\" , e.g. >search -a \"2000-04-30\" ")
+            print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -a \"2000-04-30\" ")
             return
         end
     end
@@ -206,7 +206,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     else
         ed = vali_date(endDate)
         if ed < 0
-            print_error("Bad time specification or invalid time.  You must use this datetime format: \"YYYY-mm-dd\" , e.g. >search -b \"2000-04-30\" ")
+            print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -b \"2000-04-30\" ")
             return
         end
     end
