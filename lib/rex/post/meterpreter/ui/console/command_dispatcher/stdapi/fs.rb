@@ -231,7 +231,7 @@ class Console::CommandDispatcher::Stdapi::Fs
         'Header'     => 'Found',
         'Indent'     => 0,
         'SortIndex'  => 0,
-        'Columns'    => ['Path', 'Size', 'Modified'],
+        'Columns'    => ['Path', 'Size', 'Modified (UTC)'],
     )
 
     files.each do | file |
