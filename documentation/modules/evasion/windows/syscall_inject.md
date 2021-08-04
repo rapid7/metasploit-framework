@@ -2,6 +2,9 @@
 This module lets you create a Windows executable that injects a specific payload/shellcode in memory bypassing EDR/AVs Windows API hooking technique via direct syscalls achieved by Mingw's inline assembly.
 Mingw needs (x86_64) to be installed on the system and in the PATH enviroment variable.
 
+The technique used is based on Sorting by System Call Address, by enumerating all Zw* stubs in the EAT of NTDLL.dll and then sorting them by address, it still works even if syscall indices were overwritten by AVs.
+[For more details](https://www.mdsec.co.uk/2020/12/bypassing-user-mode-hooks-and-direct-invocation-of-system-calls-for-red-teams/)
+
 ## Verification Steps
 steps using a meterpreter/reverse_tcp payload on a 64-bits target:
 
@@ -113,3 +116,4 @@ meterpreter > exit
 
 [*] 192.168.225.76 - Meterpreter session 1 closed.  Reason: User exit
 ```
+

