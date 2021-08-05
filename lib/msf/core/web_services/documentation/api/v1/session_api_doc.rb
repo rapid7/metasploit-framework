@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module SessionApiDoc
+module Msf::WebServices::Documentation::Api::V1::SessionApiDoc
   include Swagger::Blocks
 
 # Swagger documentation for sessions model
@@ -42,14 +42,14 @@ module SessionApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -76,7 +76,7 @@ module SessionApiDoc
     #   end
     #
     #   response 200 do
-    #     key :description, RootApiDoc::DEFAULT_RESPONSE_200
+    #     key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
     #     schema do
     #       key :type, :object
     #       key :'$ref', :Session
@@ -110,14 +110,14 @@ module SessionApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

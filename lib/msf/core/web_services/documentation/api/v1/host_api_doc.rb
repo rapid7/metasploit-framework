@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module HostApiDoc
+module Msf::WebServices::Documentation::Api::V1::HostApiDoc
   include Swagger::Blocks
 
   HOST_DESC = 'The IP address of the host.'
@@ -62,7 +62,7 @@ module HostApiDoc
 # Swagger documentation for Host model
   swagger_schema :Host do
     key :required, [:address, :name]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :address, type: :string, description: HOST_DESC, example: HOST_EXAMPLE
     property :mac, type: :string, description: MAC_DESC, example: MAC_EXAMPLE
     property :comm, type: :string, description: COMM_DESC
@@ -75,7 +75,7 @@ module HostApiDoc
     property :os_family, type: :string, description: OS_FAMILY_DESC, example: OS_FAMILY_EXAMPLE
     property :arch, type: :string, description: ARCH_DESC, enum: ARCH_ENUM
     property :detected_arch, type: :string, description: DETECTED_ARCH_DESC
-    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :workspace_id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_ID_DESC
     property :purpose, type: :string, description: PURPOSE_DESC
     property :info, type: :string, description: INFO_DESC
     property :comments, type: :string, description: COMMENTS_DESC
@@ -87,8 +87,8 @@ module HostApiDoc
     property :host_detail_count, type: :integer, format: :int32, description: HOST_DETAIL_COUNT_DESC
     property :exploit_attempt_count, type: :integer, format: :int32, description: EXPLOIT_ATTEMPT_COUNT_DESC
     property :cred_count, type: :integer, format: :int32, description: CRED_COUNT_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/hosts' do
@@ -114,14 +114,14 @@ module HostApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -139,7 +139,7 @@ module HostApiDoc
         key :description, 'The attributes to assign to the host.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: HOST_EXAMPLE
           property :mac, type: :string, description: MAC_DESC, example: MAC_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
@@ -167,7 +167,7 @@ module HostApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Host
@@ -176,14 +176,14 @@ module HostApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -210,14 +210,14 @@ module HostApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -250,14 +250,14 @@ module HostApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -291,14 +291,14 @@ module HostApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

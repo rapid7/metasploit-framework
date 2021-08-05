@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module LootApiDoc
+module Msf::WebServices::Documentation::Api::V1::LootApiDoc
   include Swagger::Blocks
 
   HOST_ID_DESC = 'The ID of the host record this loot is associated with.'
@@ -26,8 +26,8 @@ module LootApiDoc
 # Swagger documentation for loot model
   swagger_schema :Loot do
     key :required, [:name, :ltype, :path]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
-    property :workspace_id, type: :integer, format: :int32, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
+    property :workspace_id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_ID_DESC
     property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
     property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
     property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE
@@ -37,8 +37,8 @@ module LootApiDoc
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC
     property :module_run_id, type: :integer, format: :int32, description: MODULE_RUN_ID_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/loots' do
@@ -62,14 +62,14 @@ module LootApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -87,8 +87,8 @@ module LootApiDoc
         key :description, 'The attributes to assign to the loot.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
-          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, description: HOST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::HOST_EXAMPLE
           property :service,  '$ref': :Service
           property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
           property :path, type: :string, description: CREATE_PATH_DESC, example: CREATE_PATH_EXAMPLE, required: true
@@ -100,7 +100,7 @@ module LootApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Loot
@@ -109,14 +109,14 @@ module LootApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -143,14 +143,14 @@ module LootApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -183,14 +183,14 @@ module LootApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -210,7 +210,7 @@ module LootApiDoc
         key :description, 'The updated attributes to overwrite to the loot.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
           property :service_id, type: :integer, format: :int32, description: SERVICE_ID_DESC
           property :ltype, type: :string, description: LTYPE_DESC, example: LTYPE_EXAMPLE, required: true
@@ -222,7 +222,7 @@ module LootApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Loot
@@ -231,14 +231,14 @@ module LootApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

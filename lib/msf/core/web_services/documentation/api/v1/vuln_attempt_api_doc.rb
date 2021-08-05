@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module VulnAttemptApiDoc
+module Msf::WebServices::Documentation::Api::V1::VulnAttemptApiDoc
   include Swagger::Blocks
 
   VULN_ID_DESC = 'The ID of the vuln record associated with this vuln attempt was exploiting.'
@@ -18,7 +18,7 @@ module VulnAttemptApiDoc
 # Swagger documentation for vuln_attempts model
   swagger_schema :VulnAttempt do
     key :required, [:vuln_id]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :vuln_id, type: :integer, format: :int32, description: VULN_ID_DESC
     property :session_id, type: :integer, format: :int32, description: SESSION_ID_DESC
     property :loot_id, type: :integer, format: :int32, description: LOOT_ID_DESC
@@ -51,14 +51,14 @@ module VulnAttemptApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -76,7 +76,7 @@ module VulnAttemptApiDoc
         key :description, 'The attributes to assign to the vuln attempt.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :vuln_id, type: :integer, format: :int32, description: VULN_ID_DESC
           property :attempted_at, type: :string, format: :date_time, description: ATTEMPTED_AT_DESC
           property :exploited, type: :boolean, description: EXPLOITED_DESC
@@ -88,7 +88,7 @@ module VulnAttemptApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :VulnAttempt
@@ -97,14 +97,14 @@ module VulnAttemptApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -137,14 +137,14 @@ module VulnAttemptApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module NmapApiDoc
+module Msf::WebServices::Documentation::Api::V1::NmapApiDoc
   include Swagger::Blocks
 
   swagger_path '/api/v1/nmaps' do
@@ -14,7 +14,7 @@ module NmapApiDoc
         key :name, :body
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
           property :filename, type: :string, required: true, description: 'The name of the file you are uploading.'
           property :data, type: :string, required: true, description: 'The Base64 encoded contents of the Nmap XML file.'
         end
@@ -30,14 +30,14 @@ module NmapApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

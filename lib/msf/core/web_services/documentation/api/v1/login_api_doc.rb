@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module LoginApiDoc
+module Msf::WebServices::Documentation::Api::V1::LoginApiDoc
   include Swagger::Blocks
 
   CORE_ID_DESC = 'The ID of the Metasploit::Credential::Core object this login is associated with.'
@@ -33,14 +33,14 @@ module LoginApiDoc
 # Swagger documentation for Login model
   swagger_schema :Login do
     key :required, [:address, :name]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :core_id, type: :integer, format: :int32, required: true, description: CORE_ID_DESC
     property :service_id, type: :integer, format: :int32, required: true, description: SERVICE_ID_DESC
     property :access_level, type: :string, description: ACCESS_LEVEL_DESC, example: ACCESS_LEVEL_EXAMPLE
     property :status, type: :string, description: STATUS_DESC, required: true, enum: STATUS_ENUM
     property :last_attempted_at, type: :string, format: :date_time, description: LAST_ATTEMPTED_AT_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/logins' do
@@ -62,14 +62,14 @@ module LoginApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -87,7 +87,7 @@ module LoginApiDoc
         key :description, 'The attributes to assign to the login.'
         key :required, true
         schema do
-          property :workspace_id, type: :integer, format: :int32, required: true, description: RootApiDoc::WORKSPACE_ID_DESC
+          property :workspace_id, type: :integer, format: :int32, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_ID_DESC
           property :core, '$ref' => :Credential, required: true, description: CORE_DESC
           property :last_attempted_at, type: :string, format: :date_time, required: true, description: LAST_ATTEMPTED_AT_DESC
           property :address, type: :string, format: :ipv4, required: true, description: ADDRESS_DESC, example: ADDRESS_EXAMPLE
@@ -100,7 +100,7 @@ module LoginApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Login
@@ -109,14 +109,14 @@ module LoginApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -143,7 +143,7 @@ module LoginApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
@@ -177,14 +177,14 @@ module LoginApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -209,7 +209,7 @@ module LoginApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Login
@@ -218,14 +218,14 @@ module LoginApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
