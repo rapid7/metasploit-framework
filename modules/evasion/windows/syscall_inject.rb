@@ -408,16 +408,16 @@ class MetasploitModule < Msf::Evasion
 
   def filler
     %(
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
-            char* #{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
+            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
         )
   end
 
