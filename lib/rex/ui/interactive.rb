@@ -131,6 +131,7 @@ protected
   #
   attr_accessor :orig_suspend
   attr_accessor :orig_usr1
+  attr_accessor :orig_winch
 
   #
   # Stub method that is meant to handler interaction
@@ -261,6 +262,31 @@ protected
     end
   end
 
+  def handle_winch
+    if orig_winch.nil?
+      begin
+        self.orig_winch = Signal.trap("WINCH") do
+          Thread.new { _winch }.join
+        end
+      rescue
+      end
+    end
+  end
+
+  def restore_winch
+    begin
+      if orig_winch
+        Signal.trap("WINCH", orig_winch)
+      else
+        Signal.trap("WINCH", "DEFAULT")
+      end
+      self.orig_winch = nil
+    rescue
+    end
+  end
+
+  def _winch
+  end
 
   def restore_usr1
     begin

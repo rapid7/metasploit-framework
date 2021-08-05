@@ -14,6 +14,7 @@ module Console::InteractiveChannel
 
   include Rex::Ui::Interactive
 
+  attr_accessor :raw
   #
   # Interacts with self.
   #
@@ -21,8 +22,16 @@ module Console::InteractiveChannel
     # If the channel has a left-side socket, then we can interact with it.
     if (self.lsock)
       self.interactive(true)
-
-      interact_stream(self)
+      if raw
+        _winch
+        handle_winch
+        _local_fd.raw do
+          interact_stream(self)
+        end
+        restore_winch
+      else
+        interact_stream(self)
+      end
 
       self.interactive(false)
     else
@@ -67,7 +76,11 @@ module Console::InteractiveChannel
   # Reads data from local input and writes it remotely.
   #
   def _stream_read_local_write_remote(channel)
-    data = user_input.gets
+    if raw
+      data = user_input.getch
+    else
+      data = user_input.gets
+    end
     return if not data
 
     self.on_command_proc.call(data.strip) if self.on_command_proc
@@ -90,6 +103,18 @@ module Console::InteractiveChannel
   #
   def _remote_fd(stream)
     self.lsock
+  end
+
+  attr_accessor :rows
+  attr_accessor :cols
+
+  def _winch
+    rows, cols = ::IO.console.winsize
+    unless rows == self.rows && cols == self.cols
+      set_term_size(rows, cols)
+      self.rows = rows
+      self.cols = cols
+    end
   end
 
   attr_accessor :on_log_proc

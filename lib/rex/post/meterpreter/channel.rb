@@ -158,6 +158,13 @@ class Channel
     }
   end
 
+  def set_term_size(rows, columns)
+    request = Packet.create_request(COMMAND_ID_CORE_SET_TERM_SIZE)
+    request.add_tlv(TLV_TYPE_UINT, rows)
+    request.add_tlv(TLV_TYPE_UINT, columns)
+    self.client.send_packet(request)
+  end
+
   ##
   #
   # Channel interaction
@@ -222,7 +229,6 @@ class Channel
   # Writes data to the remote half of the channel.
   #
   def _write(buf, length = nil, addends = nil)
-
     if self.cid.nil?
       raise IOError, "Channel has been closed.", caller
     end

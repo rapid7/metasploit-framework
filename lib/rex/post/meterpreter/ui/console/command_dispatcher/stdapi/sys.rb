@@ -33,6 +33,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-r" => [ false, "raw mode"                ],
     "-z" => [ false, "Execute process in a subshell"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
@@ -42,6 +43,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   @@shell_opts = Rex::Parser::Arguments.new(
     "-h" => [ false, "Help menu."                                          ],
     "-l" => [ false, "List available shells (/etc/shells)."                ],
+    "-i" => [ false, "Drop into a fully interactive shell."                ],
     "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
 
   #
@@ -202,6 +204,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
+    raw = false
     subshell = false
 
     @@execute_opts.parse(args) { |opt, idx, val|
@@ -230,6 +233,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           use_thread_token = true
         when "-s"
           session = val.to_i
+        when "-r"
+          raw = true
         when "-z"
           subshell = true
       end
@@ -255,7 +260,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line("Channel #{p.channel.cid} created.") if (p.channel)
 
     if (interact and p.channel)
-      shell.interact_with_channel(p.channel)
+      shell.interact_with_channel(p.channel, raw: raw)
     end
   end
 
@@ -288,6 +293,7 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_shell(*args)
     use_pty = false
+    raw = false
     sh_path = '/bin/bash'
 
     @@shell_opts.parse(args) do |opt, idx, val|
@@ -307,6 +313,8 @@ class Console::CommandDispatcher::Stdapi::Sys
         end
 
         return true
+      when '-i'
+        raw = true
       when '-t'
         use_pty = true
         # XXX: No other options must follow
@@ -330,11 +338,13 @@ class Console::CommandDispatcher::Stdapi::Sys
     when 'android'
       cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
-      if use_pty && pty_shell(sh_path)
+      args = []
+      args << '-r' if raw
+      if use_pty && pty_shell(sh_path, args)
         return true
       end
 
-      cmd_execute('-f', '/bin/sh', '-c', '-i')
+      cmd_execute('-f', '/bin/sh', '-c', '-i', *args)
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
       # must special-case COMSPEC to return the system-specific shell.
@@ -354,12 +364,12 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   # Spawn a PTY shell
   #
-  def pty_shell(sh_path)
+  def pty_shell(sh_path, args)
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     # Python Meterpreter calls pty.openpty() - No need for other methods
     if client.arch == 'python'
-      cmd_execute('-f', sh_path, '-c', '-i')
+      cmd_execute('-f', sh_path, '-c', '-i', *args)
       return true
     end
 
@@ -410,7 +420,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd.prepend('env TERM=xterm HISTFILE= ')
 
     print_status(cmd)
-    cmd_execute('-f', cmd, '-c', '-i', '-z')
+    cmd_execute('-f', cmd, '-c', '-i', '-z', *args)
 
     true
   end
