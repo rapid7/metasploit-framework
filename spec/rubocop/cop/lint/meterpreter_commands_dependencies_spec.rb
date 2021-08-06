@@ -1542,6 +1542,142 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     RUBY
   end
 
+  it 'verifies that railgun is being handled correctly if we have a memread or memwrite call' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                  ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          client.railgun
+          ^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          client.railgun.memread
+          ^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          ^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          session.railgun.shell32
+          ^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          client.railgun.util
+          ^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          ^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_railgun_*
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          client.railgun
+          client.railgun.memread
+          session.railgun.shell32
+          client.railgun.util
+        end
+      end
+    RUBY
+  end
+
+  it 'verifies that railgun is being handled correctly if we do not have a memread or memwrite call' do
+    expect_offense(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                  ^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          client.railgun
+          ^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+          session.railgun.shell32
+          ^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        end
+      end
+    RUBY
+
+    expect_correction(<<~RUBY)
+      class DummyModule
+        def initialize(info = {})
+          super(
+            update_info(
+              info,
+              'Name' => 'Simple module name',
+              'Description' => 'Lorem ipsum dolor sit amet',
+              'Author' => [ 'example1', 'example2' ],
+              'License' => MSF_LICENSE,
+              'Platform' => 'win',
+              'Arch' => ARCH_X86,
+              'DisclosureDate' => 'January 5',
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_railgun_api*
+                  ]
+                }
+              }
+            )
+          )
+        end
+        def run
+          client.railgun
+          session.railgun.shell32
+        end
+      end
+    RUBY
+  end
+
   it 'handles lots of examples' do
     %w[client session].each do |keyword|
       code_snippet_with_errors = <<-EOF
@@ -1591,6 +1727,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
         ^{keyword}^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
         %{keyword}.railgun.memread(@addresses['AcroRd32.exe'] + target['AdobeCollabSyncTrigger'], target['AdobeCollabSyncTriggerSignature'].length)
         ^{keyword}^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
+        ^{keyword}^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
         %{keyword}.sys.process.open
         ^{keyword}^^^^^^^^^^^^^^^^^ Convert meterpreter api calls into meterpreter command dependencies.
         %{keyword}.net.socket.create
@@ -1923,7 +2060,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
 
     # This allows entire libraries to be ignore if the commands are being called with a wildcard
     autocorrected_meterpreter_command_names.each do |command|
-      ignored_commands << command if command.end_with?('_*')
+      ignored_commands << command if command.end_with?('*')
     end
 
     invalid_autocorrected_command_names = autocorrected_meterpreter_command_names - valid_meterpreter_command_names - ignored_commands
@@ -1938,9 +2075,9 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
     # Handle wildcard matchers, i.e. `stdapi_railgun_*`
     api_commands_handled_via_wildcards = []
     autocorrected_meterpreter_command_names.each do |command|
-      next unless command.end_with?('_*')
+      next unless command.end_with?('*')
 
-      prefix = command.gsub('_*', '')
+      prefix = command.gsub('*', '')
       api_commands_without_matchers.each do |unmatched_command|
         if unmatched_command.start_with?(prefix)
           api_commands_handled_via_wildcards << unmatched_command
@@ -1965,9 +2102,7 @@ RSpec.describe RuboCop::Cop::Lint::MeterpreterCommandDependencies, :config do
       "core_set_uuid",
       "core_transport_getcerthash",
       "core_transport_set_timeouts",
-      "core_transport_setcerthash",
-      "stdapi_railgun_memread",
-      "stdapi_railgun_memwrite"
+      "core_transport_setcerthash"
     ]
 
     api_commands_without_matchers -= ignored_core_command_ids

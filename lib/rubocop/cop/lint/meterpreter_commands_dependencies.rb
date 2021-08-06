@@ -472,6 +472,11 @@ module RuboCop
             stdapi_net_tcp_channel_open: [
             ],
             "stdapi_railgun_*": [
+              'client.railgun.memread',
+              'session.railgun.memwrite',
+              'session.railgun.util'
+            ],
+            "stdapi_railgun_api*": [
               'client.railgun'
             ],
             stdapi_registry_check_key_exists: [
@@ -1031,6 +1036,7 @@ module RuboCop
                 @current_frame.identified_commands << command
               end
             end
+
             # Add an offense, but don't provide an autocorrect.
             # There will be a final autocorrect to fix all issues
             commands.each do |command|
@@ -1045,6 +1051,11 @@ module RuboCop
 
         def autocorrector
           lambda do |corrector|
+            # Removes the railgun_api call if we are already calling railgun in its entirety.
+            if @current_frame.identified_commands.include?("stdapi_railgun_*") && @current_frame.identified_commands.include?("stdapi_railgun_api*")
+              @current_frame.identified_commands -= ["stdapi_railgun_api*"]
+            end
+
             # Handles modules that no longer have api calls with the code but have a commands list present
             if @current_frame.identified_commands.empty? && !@current_frame.current_commands.empty?
               # White spacing handling based of node offsets
