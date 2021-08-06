@@ -1037,6 +1037,11 @@ module RuboCop
               end
             end
 
+            # Removes the railgun_api call if we are already calling railgun in its entirety.
+            if @current_frame.identified_commands.include?("stdapi_railgun_*") && @current_frame.identified_commands.include?("stdapi_railgun_api*")
+              add_offense(node)
+            end
+
             # Add an offense, but don't provide an autocorrect.
             # There will be a final autocorrect to fix all issues
             commands.each do |command|
@@ -1053,7 +1058,15 @@ module RuboCop
           lambda do |corrector|
             # Removes the railgun_api call if we are already calling railgun in its entirety.
             if @current_frame.identified_commands.include?("stdapi_railgun_*") && @current_frame.identified_commands.include?("stdapi_railgun_api*")
-              @current_frame.identified_commands -= ["stdapi_railgun_api*"]
+              require "pry"; binding.pry
+              array_node = nodes[:commands_node].children[1]
+              commands_whitespace = offset(nodes[:commands_node])
+              array_whitespace = commands_whitespace + '  '
+
+              filtered_array = @current_frame.identified_commands -= ["stdapi_railgun_api*"]
+
+              new_array = "%w[\n#{array_whitespace}#{filtered_array.join("\n#{array_whitespace}")}\n#{commands_whitespace}]"
+              corrector.replace(array_node, new_array)
             end
 
             # Handles modules that no longer have api calls with the code but have a commands list present
