@@ -22,29 +22,27 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   # Options used by the 'execute' command.
   #
-  @@execute_opts = Rex::Parser::Arguments.new(
-    "-a" => [ true,  "The arguments to pass to the command."		   ],
-    "-c" => [ false, "Channelized I/O (required for interaction)."		   ], # -i sets -c
-    "-f" => [ true,  "The executable command to run."			   ],
-    "-h" => [ false, "Help menu."						   ],
-    "-H" => [ false, "Create the process hidden from view."			   ],
-    "-i" => [ false, "Interact with the process after creating it."		   ],
-    "-m" => [ false, "Execute from memory."					   ],
-    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
-    "-t" => [ false, "Execute process with currently impersonated thread token"],
-    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
-    "-r" => [ false, "raw mode"                ],
-    "-z" => [ false, "Execute process in a subshell"	   ],
-    "-s" => [ true,  "Execute process in a given session as the session user"  ])
+  @@default_execute_opts = { "-a" => [true, "The arguments to pass to the command."],
+           "-c" => [false, "Channelized I/O (required for interaction)."], # -i sets -c
+           "-f" => [true, "The executable command to run."],
+           "-h" => [false, "Help menu."],
+           "-H" => [false, "Create the process hidden from view."],
+           "-i" => [false, "Interact with the process after creating it."],
+           "-m" => [false, "Execute from memory."],
+           "-d" => [true, "The 'dummy' executable to launch when using -m."],
+           "-t" => [false, "Execute process with currently impersonated thread token"],
+           "-k" => [false, "Execute process on the meterpreters current desktop"],
+           "-z" => [ false, "Execute process in a subshell"	   ],
+           "-s" => [true, "Execute process in a given session as the session user"] }
+  @@execute_opts = Rex::Parser::Arguments.new(@@default_execute_opts)
 
   #
   # Options used by the 'shell' command.
   #
-  @@shell_opts = Rex::Parser::Arguments.new(
-    "-h" => [ false, "Help menu."                                          ],
-    "-l" => [ false, "List available shells (/etc/shells)."                ],
-    "-i" => [ false, "Drop into a fully interactive shell."                ],
-    "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
+  @@default_shell_opts = { "-h" => [false, "Help menu."],
+                           "-l" => [false, "List available shells (/etc/shells)."],
+                           "-t" => [true, "Spawn a PTY shell (/bin/bash if no argument given)."] }
+  @@shell_opts = Rex::Parser::Arguments.new(@@default_shell_opts) # ssh(1) -t
 
   #
   # Options used by the 'reboot' command.
@@ -105,6 +103,19 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-h" => [ false, "Help menu."						   ],
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
     "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
+
+  def self.enable_fully_interactive!
+    expanded_shell_opts = @@default_shell_opts.merge({ "-i" => [ false, "Drop into a fully interactive shell."] })
+    expanded_execute_opts = @@default_execute_opts.merge({ "-r" => [false, "raw mode"] })
+
+    @@shell_opts = Rex::Parser::Arguments.new(expanded_shell_opts)
+    @@execute_opts = Rex::Parser::Arguments.new(expanded_execute_opts)
+  end
+
+  def self.disable_fully_interactive!
+    @@shell_opts = Rex::Parser::Arguments.new(@@default_shell_opts)
+    @@execute_opts = Rex::Parser::Arguments.new(@@default_execute_opts)
+  end
 
   #
   # List of supported commands.

@@ -14,11 +14,17 @@ module Msf
 
     CONFIG_KEY = 'framework/features'
     WRAPPED_TABLES = 'wrapped_tables'
+    FULLY_INTERACTIVE_SHELLS = 'fully_interactive_shells'
     DEFAULTS = [
       {
         name: WRAPPED_TABLES,
         description: 'When enabled Metasploit will wordwrap all tables to fit into the available terminal width',
         default_value: true
+      }.freeze,
+      {
+        name: FULLY_INTERACTIVE_SHELLS,
+        description: 'When enabled you will have the option to drop into a fully interactive shell from within meterpreter',
+        default_value: false
       }.freeze
     ].freeze
 
@@ -66,11 +72,18 @@ module Msf
 
       @flag_lookup[name][:user_preference] = value
 
-      if name == WRAPPED_TABLES
+      case name
+      when WRAPPED_TABLES
         if value
           Rex::Text::Table.wrap_tables!
         else
           Rex::Text::Table.unwrap_tables!
+        end
+      when FULLY_INTERACTIVE_SHELLS
+        if value
+          Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys.enable_fully_interactive!
+        else
+          Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys.disable_fully_interactive!
         end
       end
     end
