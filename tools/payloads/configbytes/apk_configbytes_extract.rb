@@ -12,17 +12,14 @@ require 'open3'
 require 'nokogiri'
 require 'fileutils'
 
-def run_cmd(bin, args, verbose)
+def run_cmd(args, verbose)
   begin
-    path = Rex::FileUtils.find_full_path(bin)
-    cmd = [path, args].join(" ")
-    stdin, stdout, stderr = Open3.popen3(cmd)
-
     if verbose
-      $stdout.puts "[+] Running: #{cmd}"
-      $stdout.puts stdout.read + stderr.read
+      $stdout.puts "[+] Running: #{args.join(" ")}"
     end
-
+    
+    stdin, stdout, stderr = Open3.popen3(*args)
+    $stdout.puts stdout.read + stderr.read if verbose
     return stdout.read + stderr.read
   rescue Errno::ENOENT
     return nil
@@ -157,26 +154,28 @@ begin
   File.rename(temp_apk, zip_file)
 
   $stdout.puts "[+] Using unzip on zip file for dex file"
-  unzip_cmd = run_cmd("unzip", "#{temp_dir}temp.zip -d #{temp_dir}", verbose)
+  run_cmd(["unzip", zip_file, "-d", temp_dir], verbose)
 
   $stdout.puts "[+] Using d2j-dex2jar on dex file to create jar file"
   dex_file = "#{temp_dir}classes.dex"
-  d2j_cmd =  run_cmd("d2j-dex2jar", "-o #{temp_dir}classes.jar #{dex_file}", verbose)
+  jar_file = "#{temp_dir}classes.jar"
+  run_cmd(["d2j-dex2jar", "-o", jar_file, dex_file], verbose)
 
   $stdout.puts "[+] Using unzip on jar file for class files"
   classes_dir = "#{temp_dir}classes/"
   FileUtils.mkdir_p classes_dir
-  unzip_jar_cmd = run_cmd("unzip", "#{temp_dir}classes.jar -d #{classes_dir}", verbose)
+  run_cmd(["unzip", jar_file, "-d", classes_dir], verbose)
 
   $stdout.puts "[+] Using apktool to read AndroidManifest"
-  apktool_cmd = run_cmd("apktool", "d #{apk} -o #{temp_dir}decompile/", verbose)
+  decompile_dir = "#{temp_dir}decompile/"
+  run_cmd(["apktool", "d", apk, "-o", decompile_dir], verbose)
 
-  amanifest = parse_manifest("#{temp_dir}decompile/AndroidManifest.xml")
+  amanifest = parse_manifest("#{decompile_dir}AndroidManifest.xml")
   package_path = amanifest.xpath("//manifest").first['package'].gsub(/\./, "/")
   $stdout.puts "[+] Package path found: #{package_path}"
 
   # DEFAULT METERPRETER PAYLOAD
-  payload_file = "#{classes_dir}#{package_path}/Payload.class"
+  default_payload_file = "#{classes_dir}#{package_path}/Payload.class"
 
   # CREATING SEARCHABLE PAYLOAD
   class_file = File.join("#{classes_dir}#{package_path}/?????", "?????.class")
@@ -188,12 +187,12 @@ begin
   FileUtils.mkdir_p java_dir
   fernflower_jar = options[:jar]
 
-  if File.exist?(payload_file) # SEARCH DEFAULT METASPLOIT APK
+  if File.exist?(default_payload_file) # SEARCH DEFAULT METASPLOIT APK
     $stdout.puts "[+] Using fernflower to change class file to java file"
-    fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{payload_file} #{java_dir}", verbose)
+    run_cmd(["java", "-jar", fernflower_jar, default_payload_file, java_dir], verbose)
 
-    payload_file = File.dirname(payload_file)
-    $stdout.puts "[+] Class Path: #{payload_file}"
+    default_payload_file = File.dirname(default_payload_file)
+    $stdout.puts "[+] Class Path: #{default_payload_file}"
 
     java_file ="#{java_dir}Payload.java"
     $stdout.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
@@ -203,7 +202,7 @@ begin
     $stdout.puts "[+] Looking for Backdoored Metasploit Payload Classes"
     $stdout.puts "[+] Using fernflower to change class files to java files"
     for class_file in class_files
-      fernflower_cmd =  run_cmd("java", "-jar #{fernflower_jar} #{class_file} #{java_dir}", verbose)
+      run_cmd(["java", "-jar", fernflower_jar, class_file, java_dir], verbose)
     end
 
     class_path = File.dirname(class_file)
