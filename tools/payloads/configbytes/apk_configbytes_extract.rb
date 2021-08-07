@@ -6,6 +6,7 @@ class HelpError < StandardError; end
 class UsageError < ExtractError; end
 
 require 'rex'
+require 'zip'
 require 'tmpdir'
 require 'optparse'
 require 'open3'
@@ -23,6 +24,31 @@ def run_cmd(args, verbose)
     return stdout.read + stderr.read
   rescue Errno::ENOENT
     return nil
+  end
+end
+
+def extract_file(file, ext, path, verbose)
+  begin
+    Zip.warn_invalid_date = false
+    Zip.sort_entries = true
+    Zip::File.open(file) do |entries|
+      entries.each do |entry|
+        file_path = File.join(path, entry.name)
+        case ext
+        when ".dex"
+          if entry.name.match(ext)
+            $stdout.puts "[+] Extracting: #{file_path}" if verbose
+            entries.extract(entry, file_path)
+          end
+          
+        when ".class"
+          $stdout.puts "[+] Extracting: #{file_path}" if verbose
+          entries.extract(entry, file_path)
+        end
+      end
+    end
+  rescue ::Exception => e
+    $stderr.puts "[-] Error: #{e.message}"
   end
 end
 
@@ -48,7 +74,7 @@ end
 
 def check_tools(verbose)
   # CHECK IF ALL TOOLS ARE INCLUDED BEFORE STARTING
-  tools = ["unzip", "d2j-dex2jar", "java", "apktool"]
+  tools = ["d2j-dex2jar", "java", "apktool"]
 
   tools.each do |tool|
     path = Rex::FileUtils.find_full_path(tool)
@@ -122,10 +148,10 @@ end
 begin
   options = parse_args(ARGV)
 rescue HelpError => e
-  $stderr.puts e.message
+  $stderr.puts "[-] Error: #{e.message}"
   exit(1)
 rescue ExtractError => e
-  $stderr.puts "Error: #{e.message}"
+  $stderr.puts "[-] Error: #{e.message}"
   exit(1)
 end
 
@@ -153,18 +179,18 @@ begin
   $stdout.puts "[+] Renaming apk file to zip file"
   File.rename(temp_apk, zip_file)
 
-  $stdout.puts "[+] Using unzip on zip file for dex file"
-  run_cmd(["unzip", zip_file, "-d", temp_dir], verbose)
+  $stdout.puts "[+] Extracting zip file for dex file"
+  extract_file(zip_file, ".dex", temp_dir, verbose)
 
   $stdout.puts "[+] Using d2j-dex2jar on dex file to create jar file"
   dex_file = "#{temp_dir}classes.dex"
   jar_file = "#{temp_dir}classes.jar"
   run_cmd(["d2j-dex2jar", "-o", jar_file, dex_file], verbose)
 
-  $stdout.puts "[+] Using unzip on jar file for class files"
+  $stdout.puts "[+] Extracting jar file for class files"
   classes_dir = "#{temp_dir}classes/"
   FileUtils.mkdir_p classes_dir
-  run_cmd(["unzip", jar_file, "-d", classes_dir], verbose)
+  extract_file(jar_file, ".class", classes_dir, verbose)
 
   $stdout.puts "[+] Using apktool to read AndroidManifest"
   decompile_dir = "#{temp_dir}decompile/"
@@ -226,5 +252,5 @@ begin
   unless options[:keep] then FileUtils.remove_entry temp_dir end
 
 rescue ::Exception => e
-  $stderr.puts "Error: #{e.class}: #{e.message}\n#{e.backtrace * "\n"}"
+  $stderr.puts "[-] Error: #{e.message}"
 end
