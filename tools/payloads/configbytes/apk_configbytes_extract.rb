@@ -15,10 +15,7 @@ require 'fileutils'
 
 def run_cmd(args, verbose)
   begin
-    if verbose
-      $stdout.puts "[+] Running: #{args.join(" ")}"
-    end
-    
+    print_status("Running: #{args.join(" ")}") if verbose
     stdin, stdout, stderr = Open3.popen3(*args)
     $stdout.puts stdout.read + stderr.read if verbose
     return stdout.read + stderr.read
@@ -37,19 +34,27 @@ def extract_file(file, ext, path, verbose)
         case ext
         when ".dex"
           if entry.name.match(ext)
-            $stdout.puts "[+] Extracting: #{file_path}" if verbose
+            print_status("Extracting: #{file_path}") if verbose
             entries.extract(entry, file_path)
           end
           
         when ".class"
-          $stdout.puts "[+] Extracting: #{file_path}" if verbose
+          print_status("Extracting: #{file_path}") if verbose
           entries.extract(entry, file_path)
         end
       end
     end
   rescue ::Exception => e
-    $stderr.puts "[-] Error: #{e.message}"
+    print_error("Error: #{e.message}")
   end
+end
+
+def print_status(msg)
+  $stdout.puts "[+] #{msg}"
+end
+
+def print_error(msg)
+  $stderr.puts "[-] #{msg}"
 end
 
 def parse_manifest(manifest_file)
@@ -61,15 +66,16 @@ end
 
 def extract_data(java_file, text_file)
   file_data = File.read(java_file)
-  mid = file_data.split("[]{")
-  bytes = mid[1].split("}")
-  bytes[0]
+  unless file_data.empty?
+    mid = file_data.split("[]{")
+    bytes = mid[1].split("}")
 
-  File.open(text_file, 'wb') do |f|
-    f.write(bytes[0])
+    File.open(text_file, 'wb') do |f|
+      f.write(bytes[0])
+    end
+
+    print_status("Saved as: #{text_file}")
   end
-
-  $stdout.puts "[+] Saved as: #{text_file}"
 end
 
 def check_tools(verbose)
@@ -79,9 +85,9 @@ def check_tools(verbose)
   tools.each do |tool|
     path = Rex::FileUtils.find_full_path(tool)
     if path && ::File.file?(path)
-      $stdout.puts "[+] Tool present: #{path}" if verbose
+      print_status("Tool present: #{path}") if verbose
     else
-      raise RuntimeError, "[-] #{tool} command not found."
+      raise RuntimeError, "#{tool} command not found."
     end
   end
 end
@@ -148,10 +154,10 @@ end
 begin
   options = parse_args(ARGV)
 rescue HelpError => e
-  $stderr.puts "[-] Error: #{e.message}"
+  print_error("Error: #{e.message}")
   exit(1)
 rescue ExtractError => e
-  $stderr.puts "[-] Error: #{e.message}"
+  print_error("Error: #{e.message}")
   exit(1)
 end
 
@@ -164,7 +170,7 @@ begin
   temp_dir << "/"
 
   if options[:out].nil?
-    $stdout.puts "[-] No output option selected, working in #{temp_dir}"
+    print_status("No output option selected, working in #{temp_dir}")
     output = "#{temp_dir}configbytes.txt"
     options[:keep] = true
   else
@@ -176,29 +182,29 @@ begin
   temp_apk = "#{temp_dir}temp.apk"
   FileUtils.cp(apk, temp_apk)
 
-  $stdout.puts "[+] Renaming apk file to zip file"
+  print_status("Renaming apk file to zip file")
   File.rename(temp_apk, zip_file)
 
-  $stdout.puts "[+] Extracting zip file for dex file"
+  print_status("Extracting zip file for dex file")
   extract_file(zip_file, ".dex", temp_dir, verbose)
 
-  $stdout.puts "[+] Using d2j-dex2jar on dex file to create jar file"
+  print_status("Using d2j-dex2jar on dex file to create jar file")
   dex_file = "#{temp_dir}classes.dex"
   jar_file = "#{temp_dir}classes.jar"
   run_cmd(["d2j-dex2jar", "-o", jar_file, dex_file], verbose)
 
-  $stdout.puts "[+] Extracting jar file for class files"
+  print_status("Extracting jar file for class files")
   classes_dir = "#{temp_dir}classes/"
   FileUtils.mkdir_p classes_dir
   extract_file(jar_file, ".class", classes_dir, verbose)
 
-  $stdout.puts "[+] Using apktool to read AndroidManifest"
+  print_status("Using apktool to read AndroidManifest")
   decompile_dir = "#{temp_dir}decompile/"
   run_cmd(["apktool", "d", apk, "-o", decompile_dir], verbose)
 
   amanifest = parse_manifest("#{decompile_dir}AndroidManifest.xml")
   package_path = amanifest.xpath("//manifest").first['package'].gsub(/\./, "/")
-  $stdout.puts "[+] Package path found: #{package_path}"
+  print_status("Package path found: #{package_path}")
 
   # DEFAULT METERPRETER PAYLOAD
   default_payload_file = "#{classes_dir}#{package_path}/Payload.class"
@@ -214,32 +220,32 @@ begin
   fernflower_jar = options[:jar]
 
   if File.exist?(default_payload_file) # SEARCH DEFAULT METASPLOIT APK
-    $stdout.puts "[+] Using fernflower to change class file to java file"
+    print_status("Using fernflower to change class file to java file")
     run_cmd(["java", "-jar", fernflower_jar, default_payload_file, java_dir], verbose)
 
     default_payload_file = File.dirname(default_payload_file)
-    $stdout.puts "[+] Class Path: #{default_payload_file}"
+    print_status("Class Path: #{default_payload_file}")
 
     java_file ="#{java_dir}Payload.java"
-    $stdout.puts "[+] Metasploit Payload Class found!\n[+] #{java_file}"
+    print_status("Metasploit Payload Class found!: #{java_file}")
     extract_data(java_file, output)
 
   elsif !searchable_payload.nil? # SEARCHING APK WTIH METERPRETER INJECTION
-    $stdout.puts "[+] Looking for Backdoored Metasploit Payload Classes"
-    $stdout.puts "[+] Using fernflower to change class files to java files"
+    print_status("Looking for Backdoored Metasploit Payload Classes")
+    print_status("Using fernflower to change class files to java files")
     for class_file in class_files
       run_cmd(["java", "-jar", fernflower_jar, class_file, java_dir], verbose)
     end
 
     class_path = File.dirname(class_file)
-    $stdout.puts "[+] Class Path: #{class_path}"
+    print_status("Class Path: #{class_path}")
 
     java_file = File.join("#{java_dir}", "?????.java")
     java_files = Dir.glob(java_file)
 
     for java_file in java_files
       if File.read("#{java_file}").include? "byte"
-        $stdout.puts "[+] Metasploit Backdoored Payload Class found!\n[+] #{java_file}"
+        print_status("Metasploit Backdoored Payload Class found!: #{java_file}")
         extract_data(java_file, output)
       end
     end
@@ -252,5 +258,5 @@ begin
   unless options[:keep] then FileUtils.remove_entry temp_dir end
 
 rescue ::Exception => e
-  $stderr.puts "[-] Error: #{e.message}"
+  print_error("Error: #{e.message}")
 end
