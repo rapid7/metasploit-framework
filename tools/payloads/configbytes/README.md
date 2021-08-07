@@ -58,17 +58,16 @@ as configbytes.txt
     Saved as: /tmp/payload.apk
     
     root@kali:~/git/metasploit-framework# tools/payloads/configbytes/apk_configbytes_extract.rb -a /tmp/payload.apk -j /root/fernflower.jar
-    [-] No output option selected, working in /tmp/d20210622-3759-55s3ej/
+    [+] No output option selected, working in /tmp/d20210622-3759-55s3ej/
     [+] Renaming apk file to zip file
-    [+] Using unzip on zip file for dex file
+    [+] Extracting zip file for dex file
     [+] Using d2j-dex2jar on dex file to create jar file
-    [+] Using unzip on jar file for class files
+    [+] Extracting jar file for class files
     [+] Using apktool to read AndroidManifest
     [+] Package path found: com/metasploit/stage
     [+] Using fernflower to change class file to java file
     [+] Class Path: /tmp/d20210622-3759-55s3ej/classes/com/metasploit/stage
-    [+] Metasploit Payload Class found!
-    [+] /tmp/d20210622-3759-55s3ej/java/Payload.java
+    [+] Metasploit Payload Class found!: /tmp/d20210622-3759-55s3ej/java/Payload.java
     [+] Saved as: /tmp/d20210622-3759-55s3ej/configbytes.txt
     
     root@kali:~/git/metasploit-framework# file /tmp/d20210622-3759-55s3ej/configbytes.txt
@@ -116,16 +115,15 @@ as configbytes.txt
     
     root@kali:~/git/metasploit-framework# tools/payloads/configbytes/apk_configbytes_extract.rb -a /tmp/sp_injected.apk -j /root/fernflower.jar -o /root/sp_configbytes.txt
     [+] Renaming apk file to zip file
-    [+] Using unzip on zip file for dex file
+    [+] Extracting zip file for dex file
     [+] Using d2j-dex2jar on dex file to create jar file
-    [+] Using unzip on jar file for class files
+    [+] Extracting jar file for class files
     [+] Using apktool to read AndroidManifest
     [+] Package path found: com/ezequielc/successplanner
     [+] Looking for Backdoored Metasploit Payload Classes
     [+] Using fernflower to change class files to java files
     [+] Class Path: /tmp/d20210622-4256-1yq1f6k/classes/com/ezequielc/successplanner/sycxe
-    [+] Metasploit Backdoored Payload Class found!
-    [+] /tmp/d20210622-4256-1yq1f6k/java/Wlsba.java
+    [+] Metasploit Backdoored Payload Class found! :/tmp/d20210622-4256-1yq1f6k/java/Wlsba.java
     [+] Saved as: /root/sp_configbytes.txt
 
     root@kali:~/git/metasploit-framework# file /root/sp_configbytes.txt
@@ -136,5 +134,5 @@ as configbytes.txt
 ### In the end
 apk_configbytes_extract will save configbytes of an apk in a seperate file, preferably a text file
 (see [Payload 
-Class](https://github.com/rapid7/metasploit-payloads/blob/master/java/androidpayload/app/src/com/metasploit/stage/Payload.java#L32))
+Class](https://github.com/rapid7/metasploit-payloads/blob/1a763c6a547002f22016f10a620e975cd0c942b7/java/androidpayload/app/src/com/metasploit/stage/Payload.java#L32))
 
