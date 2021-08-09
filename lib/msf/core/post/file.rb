@@ -594,7 +594,7 @@ protected
     return data
   end
 
-  def _read_file_powershell_fragement(start, stop, filename)
+  def _read_file_powershell_fragment(filename, chunk_size, offset=0)
     b64_data= cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
       $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
       $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{start}..#{stop - 1}];\
