@@ -582,7 +582,7 @@ protected
   def _read_file_powershell(filename)
     data = ''
     offset = 0
-    chunk_size = 1024
+    chunk_size = 65536
     loop do
       chunk = _read_file_powershell_fragment(filename, chunk_size, offset)
       break if chunk.nil?
