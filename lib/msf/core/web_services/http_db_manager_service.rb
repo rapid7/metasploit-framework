@@ -25,7 +25,7 @@ class Msf::WebServices::HttpDBManagerService
 
   def start_http_server(opts)
 
-    Rack::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, opts) do |server|
+    Rack::Handler::Thin.run(Msf::WebServices::MetasploitApiApp, **opts) do |server|
 
       if opts[:ssl] && opts[:ssl] = true
         print_good('SSL Enabled')
