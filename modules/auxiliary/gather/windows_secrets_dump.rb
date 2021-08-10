@@ -674,7 +674,7 @@ class MetasploitModule < Msf::Auxiliary
         jtr_hash = "M$#{username}##{cache_data.enc_hash.to_hex}:#{dns_domain_name}:#{logon_domain_name}"
       end
       credential_opts[:jtr_format] = identify_hash(jtr_hash)
-      unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, credential_opts)
+      unless report_creds("#{logon_domain_name}\\#{username}", jtr_hash, **credential_opts)
         vprint_bad("Error when reporting #{logon_domain_name}\\#{username} hash (#{credential_opts[:jtr_format]} format)")
       end
       hashes << "#{logon_domain_name}\\#{username}:#{jtr_hash}\n"
@@ -912,13 +912,13 @@ class MetasploitModule < Msf::Auxiliary
         realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
         realm_value: domain
       }
-      unless report_creds(print_name, ntlm_hash, credential_opts)
+      unless report_creds(print_name, ntlm_hash, **credential_opts)
         vprint_bad("Error when reporting #{print_name} NTLM hash")
       end
 
       raw_passwd = secret_item.unpack('H*')[0]
       credential_opts[:type] = :password
-      unless report_creds(print_name, raw_passwd, credential_opts)
+      unless report_creds(print_name, raw_passwd, **credential_opts)
         vprint_bad("Error when reporting #{print_name} raw password hash")
       end
       secret = "#{print_name}:plain_password_hex:#{raw_passwd}\n"
@@ -929,7 +929,7 @@ class MetasploitModule < Msf::Auxiliary
       else
         credential_opts[:type] = :nonreplayable_hash
         extra_secret.each do |sec|
-          unless report_creds(print_name, sec, credential_opts)
+          unless report_creds(print_name, sec, **credential_opts)
             vprint_bad("Error when reporting #{print_name} machine kerberos key #{sec}")
           end
           sec.prepend("#{print_name}:")
