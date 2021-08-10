@@ -45,7 +45,7 @@ PATH
       openvas-omp
       packetfu
       patch_finder
-      pcaprub
+      pcaprub (= 0.12.4)
       pdf-reader
       pg
       puma
@@ -286,7 +286,7 @@ GEM
     parser (3.0.2.0)
       ast (~> 2.4.1)
     patch_finder (1.0.2)
-    pcaprub (0.13.0)
+    pcaprub (0.12.4)
     pdf-reader (2.5.0)
       Ascii85 (~> 1.0)
       afm (~> 0.2.1)
