@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module PayloadApiDoc
+module Msf::WebServices::Documentation::Api::V1::PayloadApiDoc
   include Swagger::Blocks
 
   NAME_DESC = 'A name for the payload.'
@@ -24,8 +24,8 @@ module PayloadApiDoc
 # Swagger documentation for payloads model
   swagger_schema :Payload do
     key :required, [:ntype]
-    property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_EXAMPLE
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :name, type: :string, description: NAME_DESC
     property :uuid, type: :string, description: UUID_DESC, example: UUID_EXAMPLE
     property :timestamp, type: :integer, description: TIMESTAMP_DESC, example: TIMESTAMP_EXAMPLE
@@ -36,8 +36,8 @@ module PayloadApiDoc
     property :raw_payload, type: :string, description: RAW_PAYLOAD_DESC
     property :raw_payload_hash, type: :string, description: RAW_PAYLOAD_HASH_DESC
     property :build_opts, type: :string, description: BUILD_OPTS_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/payloads' do
@@ -61,14 +61,14 @@ module PayloadApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -101,7 +101,7 @@ module PayloadApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Payload
@@ -110,14 +110,14 @@ module PayloadApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -144,14 +144,14 @@ module PayloadApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -184,14 +184,14 @@ module PayloadApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -216,7 +216,7 @@ module PayloadApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Payload
@@ -225,14 +225,14 @@ module PayloadApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

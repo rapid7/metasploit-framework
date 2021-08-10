@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module ServiceApiDoc
+module Msf::WebServices::Documentation::Api::V1::ServiceApiDoc
   include Swagger::Blocks
 
   HOST_DESC = 'The host where this service is running.'
@@ -19,15 +19,15 @@ module ServiceApiDoc
 # Swagger documentation for Service model
   swagger_schema :Service do
     key :required, [:id, :port, :proto]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
     property :port, type: :string, description: PORT_DESC, example: PORT_EXAMPLE
     property :proto, type: :string, description: PROTO_DESC, enum: PROTO_ENUM
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
     property :state, type: :string, description: STATE_DESC, enum: STATE_ENUM
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/services' do
@@ -51,14 +51,14 @@ module ServiceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -76,8 +76,8 @@ module ServiceApiDoc
         key :description, 'The attributes to assign to the service.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
-          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::HOST_EXAMPLE
           property :port, type: :string, required: true, description: PORT_DESC, example: PORT_EXAMPLE
           property :proto, type: :string, required: true, description: PROTO_DESC, enum: PROTO_ENUM
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
@@ -87,7 +87,7 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Service
@@ -96,14 +96,14 @@ module ServiceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -130,14 +130,14 @@ module ServiceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -171,14 +171,14 @@ module ServiceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -203,7 +203,7 @@ module ServiceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Service
@@ -212,14 +212,14 @@ module ServiceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module SessionEventApiDoc
+module Msf::WebServices::Documentation::Api::V1::SessionEventApiDoc
   include Swagger::Blocks
 
   SESSION_ID_DESC = 'The ID of the session record that caused this event.'
@@ -16,14 +16,14 @@ module SessionEventApiDoc
 # Swagger documentation for session events model
   swagger_schema :SessionEvent do
     key :required, [:etype, :session_id]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :session_id, type: :integer, format: :int32, description: SESSION_ID_DESC
     property :etype, type: :string, description: ETYPE_DESC, enum: ETYPE_ENUM
     property :command, type: :string, description: COMMAND_DESC
     property :output, type: :string, description: OUTPUT_DESC
     property :local_path, type: :string, description: LOCAL_PATH_DESC, example: LOCAL_PATH_EXAMPLE
     property :remote_path, type: :string, description: REMOTE_PATH_DESC, example: REMOTE_PATH_EXAMPLE
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
   end
 
   swagger_path '/api/v1/session-events' do
@@ -35,8 +35,8 @@ module SessionEventApiDoc
       parameter do
         key :name, :limit
         key :in, :query
-        key :description, RootApiDoc::LIMIT_DESC
-        key :example, RootApiDoc::LIMIT_DEFAULT
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::LIMIT_DESC
+        key :example, Msf::WebServices::Documentation::Api::V1::RootApiDoc::LIMIT_DEFAULT
         key :type, :integer
         key :format, :int32
         key :required, false
@@ -45,8 +45,8 @@ module SessionEventApiDoc
       parameter do
         key :name, :offset
         key :in, :query
-        key :description, RootApiDoc::OFFSET_DESC
-        key :example, RootApiDoc::OFFSET_DEFAULT
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::OFFSET_DESC
+        key :example, Msf::WebServices::Documentation::Api::V1::RootApiDoc::OFFSET_DEFAULT
         key :type, :integer
         key :format, :int32
         key :required, false
@@ -55,10 +55,10 @@ module SessionEventApiDoc
       parameter do
         key :name, :order
         key :in, :query
-        key :description, RootApiDoc::ORDER_DESC
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::ORDER_DESC
         key :type, :string
         key :required, false
-        key :enum, RootApiDoc::ORDER_ENUM
+        key :enum, Msf::WebServices::Documentation::Api::V1::RootApiDoc::ORDER_ENUM
       end
 
       response 200 do
@@ -74,14 +74,14 @@ module SessionEventApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -109,7 +109,7 @@ module SessionEventApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :SessionEvent
@@ -118,14 +118,14 @@ module SessionEventApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -158,14 +158,14 @@ module SessionEventApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

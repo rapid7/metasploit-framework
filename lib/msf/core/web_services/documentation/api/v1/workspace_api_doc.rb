@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module WorkspaceApiDoc
+module Msf::WebServices::Documentation::Api::V1::WorkspaceApiDoc
   include Swagger::Blocks
 
   NAME_DESC = 'The name of the workspace. This is the unique identifier for determining which workspace is being accessed.'
@@ -14,15 +14,15 @@ module WorkspaceApiDoc
 # Swagger documentation for workspaces model
   swagger_schema :Workspace do
     key :required, [:name]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :name, type: :string, description: NAME_DESC
     property :boundary, type: :string, description: BOUNDARY_DESC, example: BOUNDARY_EXAMPLE
     property :description, type: :string, description: DESCRIPTION_DESC
     property :owner_id, type: :integer, format: :int32, description: OWNER_ID_DESC
     property :limit_to_network, type: :boolean, description: LIMIT_TO_NETWORK_DESC
     property :import_fingerprint, type: :boolean, description: IMPORT_FINGERPRINT_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/workspaces' do
@@ -44,14 +44,14 @@ module WorkspaceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -74,7 +74,7 @@ module WorkspaceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Workspace
@@ -83,14 +83,14 @@ module WorkspaceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -117,14 +117,14 @@ module WorkspaceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -157,14 +157,14 @@ module WorkspaceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -189,7 +189,7 @@ module WorkspaceApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Workspace
@@ -198,14 +198,14 @@ module WorkspaceApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

@@ -1,7 +1,7 @@
 require 'swagger/blocks'
 
 # TODO: Complete this documentation when the credential model is fully implemented in the API.
-module CredentialApiDoc
+module Msf::WebServices::Documentation::Api::V1::CredentialApiDoc
   include Swagger::Blocks
 
   ORIGIN_ID_DESC = 'The ID of the origin record associated with this credential.'
@@ -74,13 +74,13 @@ module CredentialApiDoc
 # Swagger documentation for Credential model
   swagger_schema :Credential do
     key :required, [:origin_id]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :origin_id, type: :integer, format: :int32, description: ORIGIN_ID_DESC
     property :origin_type, type: :string, description: ORIGIN_TYPE_DESC, enum: ORIGIN_TYPE_CLASS_ENUM
     property :private_id, type: :integer, format: :int32, description: PRIVATE_ID_DESC
     property :public_id, type: :integer, format: :int32, description: PUBLIC_ID_DESC
     property :realm_id, type: :integer, format: :int32, description: REALM_ID_DESC
-    property :workspace_id, type: :integer, format: :int32, required: true, description: RootApiDoc::WORKSPACE_ID_DESC
+    property :workspace_id, type: :integer, format: :int32, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_ID_DESC
     property :logins_count, type: :integer, format: :int32, description: LOGINS_COUNT_DESC
     property :logins do
       key :type, :array
@@ -90,36 +90,36 @@ module CredentialApiDoc
     end
     property :public, '$ref': :Public
     property :private, '$ref': :Private
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :Public do
     key :required, [:username, :type]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :username, type: :string, description: USERNAME_DESC, example: USERNAME_EXAMPLE
     property :type, type: :string, description: PUBLIC_TYPE_DESC, enum: PUBLIC_TYPE_ENUM
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :Private do
     key :required, [:data, :type]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
     property :type, type: :string, description: PRIVATE_TYPE_DESC, enum: PRIVATE_TYPE_CLASS_ENUM
     property :jtr_format, type: :string, description: JTR_FORMAT_DESC, example: JTR_FORMAT_EXAMPLE
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :Realm do
     key :required, [:key, :value]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :key, type: :string, description: KEY_DESC, example: KEY_EXAMPLE
     property :value, type: :string, description: VALUE_DESC, example: VALUE_EXAMPLE
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/credentials' do
@@ -182,14 +182,14 @@ module CredentialApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -207,7 +207,7 @@ module CredentialApiDoc
         key :description, 'The attributes to assign to the credential.'
         key :required, true
         schema do
-          property :workspace_id, type: :integer, format: :int32, required: true, description: RootApiDoc::WORKSPACE_ID_DESC
+          property :workspace_id, type: :integer, format: :int32, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_ID_DESC
           property :username, type: :string, description: USERNAME_DESC, example: USERNAME_EXAMPLE
           property :private_data, type: :string, description: DATA_DESC, example: DATA_EXAMPLE
           property :private_type, type: :string, description: PRIVATE_TYPE_DESC, enum: PRIVATE_TYPE_ENUM
@@ -227,7 +227,7 @@ module CredentialApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Credential
@@ -236,14 +236,14 @@ module CredentialApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -268,14 +268,14 @@ module CredentialApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -312,14 +312,14 @@ module CredentialApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -344,7 +344,7 @@ module CredentialApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :'$ref', :Credential
@@ -353,14 +353,14 @@ module CredentialApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

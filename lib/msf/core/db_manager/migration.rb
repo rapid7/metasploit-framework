@@ -34,7 +34,7 @@ module Msf::DBManager::Migration
     ActiveRecord::Migration.verbose = verbose
     ActiveRecord::Base.connection_pool.with_connection do
       begin
-        context = ActiveRecord::MigrationContext.new(gather_engine_migration_paths)
+        context = ActiveRecord::MigrationContext.new(gather_engine_migration_paths, ActiveRecord::SchemaMigration)
         if context.needs_migration?
           ran = context.migrate
         end

@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module AuthApiDoc
+module Msf::WebServices::Documentation::Api::V1::AuthApiDoc
   include Swagger::Blocks
 
   MESSAGE_DESC = 'The status of the authentication request.'
@@ -42,14 +42,14 @@ module AuthApiDoc
       end
 
       response 401 do
-        key :description, 'Invalid username or password. ' + RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, 'Invalid username or password. ' + Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

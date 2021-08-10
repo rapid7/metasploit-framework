@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module RootApiDoc
+module Msf::WebServices::Documentation::Api::V1::RootApiDoc
   include Swagger::Blocks
 
   ID_DESC = 'The primary key used to identify this object in the database.'

@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module ModuleSearchApiDoc
+module Msf::WebServices::Documentation::Api::V1::ModuleSearchApiDoc
   include Swagger::Blocks
 
   AKA_DESC = 'Filter modules with a matching AKA name.'
@@ -168,14 +168,14 @@ module ModuleSearchApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

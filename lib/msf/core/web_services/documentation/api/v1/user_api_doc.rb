@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module UserApiDoc
+module Msf::WebServices::Documentation::Api::V1::UserApiDoc
   include Swagger::Blocks
 
   USERNAME_DESC = 'The username of the user.'
@@ -29,13 +29,13 @@ module UserApiDoc
 # Swagger documentation for User model
   swagger_schema :User do
     key :required, [:username, :password]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :username, type: :string, description: USERNAME_DESC, example: USERNAME_EXAMPLE
     property :crypted_password, type: :string, description: CRYPTED_PASSWORD_DESC, example: CRYPTED_PASSWORD_EXAMPLE
     property :password_salt, type: :string, description: PASSWORD_SALT_DESC
     property :persistence_token, type: :string, description: PERSISTENCE_TOKEN_DESC, example: PERSISTENCE_TOKEN_EXAMPLE
-    property :created_at, type: :string, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
     property :fullname, type: :string, description: FULLNAME_DESC, example: FULLNAME_EXAMPLE
     property :email, type: :string, description: EMAIL_DESC, example: EMAIL_EXAMPLE
     property :phone, type: :string, description: PHONE_DESC, example: PHONE_EXAMPLE
@@ -63,14 +63,14 @@ module UserApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -99,7 +99,7 @@ module UserApiDoc
       end
 
       response 200 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_200
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_200
         schema do
           property :data do
             key :type, :array
@@ -111,14 +111,14 @@ module UserApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

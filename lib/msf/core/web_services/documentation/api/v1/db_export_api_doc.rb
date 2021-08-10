@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module DbExportApiDoc
+module Msf::WebServices::Documentation::Api::V1::DbExportApiDoc
   include Swagger::Blocks
 
   swagger_path '/api/v1/db-export' do
@@ -37,14 +37,14 @@ module DbExportApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end

@@ -1,6 +1,6 @@
 require 'swagger/blocks'
 
-module VulnApiDoc
+module Msf::WebServices::Documentation::Api::V1::VulnApiDoc
   include Swagger::Blocks
 
   HOST_ID_DESC = 'The ID of host record associated with this vuln.'
@@ -22,7 +22,7 @@ module VulnApiDoc
 # Swagger documentation for vulns model
   swagger_schema :Vuln do
     key :required, [:host_id, :name]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :host_id, type: :integer, format: :int32, description: HOST_ID_DESC
     property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
     property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
@@ -37,17 +37,17 @@ module VulnApiDoc
         key :'$ref', :Ref
       end
     end
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_schema :Ref do
     key :required, [:name]
-    property :id, type: :integer, format: :int32, description: RootApiDoc::ID_DESC
+    property :id, type: :integer, format: :int32, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::ID_DESC
     property :ref_id, type: :integer, format: :int32, description: REF_ID_DESC
     property :name, type: :string, required: true, description: REF_NAME_DESC
-    property :created_at, type: :string, format: :date_time, description: RootApiDoc::CREATED_AT_DESC
-    property :updated_at, type: :string, format: :date_time, description: RootApiDoc::UPDATED_AT_DESC
+    property :created_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::CREATED_AT_DESC
+    property :updated_at, type: :string, format: :date_time, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::UPDATED_AT_DESC
   end
 
   swagger_path '/api/v1/vulns' do
@@ -71,14 +71,14 @@ module VulnApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -96,8 +96,8 @@ module VulnApiDoc
         key :description, 'The attributes to assign to the vuln.'
         key :required, true
         schema do
-          property :workspace, type: :string, required: true, description: RootApiDoc::WORKSPACE_POST_DESC, example: RootApiDoc::WORKSPACE_POST_EXAMPLE
-          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: RootApiDoc::HOST_EXAMPLE
+          property :workspace, type: :string, required: true, description: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::WORKSPACE_POST_EXAMPLE
+          property :host, type: :string, format: :ipv4, required: true, description: HOST_DESC, example: Msf::WebServices::Documentation::Api::V1::RootApiDoc::HOST_EXAMPLE
           property :name, type: :string, description: NAME_DESC, example: NAME_EXAMPLE
           property :info, type: :string, description: INFO_DESC, example: INFO_EXAMPLE
           property :refs do
@@ -121,14 +121,14 @@ module VulnApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -155,14 +155,14 @@ module VulnApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -195,14 +195,14 @@ module VulnApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
@@ -236,14 +236,14 @@ module VulnApiDoc
       end
 
       response 401 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_401
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_401
         schema do
           key :'$ref', :AuthErrorModel
         end
       end
 
       response 500 do
-        key :description, RootApiDoc::DEFAULT_RESPONSE_500
+        key :description, Msf::WebServices::Documentation::Api::V1::RootApiDoc::DEFAULT_RESPONSE_500
         schema do
           key :'$ref', :ErrorModel
         end
