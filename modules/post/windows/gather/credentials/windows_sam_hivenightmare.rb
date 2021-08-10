@@ -110,7 +110,7 @@ class MetasploitModule < Msf::Post
       most_recent_shadow_copy = nil
       index_most_recent_shadow_copy = -1
 
-      for i in 0..datastore['NBRE_ITER']
+      for i in 0..datastore['ITERATIONS']
         handle = check_path("\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy#{i}\\Windows\\System32\\config\\SAM")
 
         next unless handle
