@@ -412,7 +412,7 @@ RSpec.describe "Metasploit's json-rpc" do
   end
 
   describe 'analyze' do
-    let(:host_ip) { '192.0.2.2' }
+    let(:host_ip) { Faker::Internet.private_ip_v4_address }
     let(:host) do
       {
         workspace: 'default',
@@ -464,7 +464,7 @@ RSpec.describe "Metasploit's json-rpc" do
             result: {
               host: [
                 {
-                  address: '192.0.2.2',
+                  address: host_ip,
                   modules: [
                     {
                       mname: 'exploit/multi/http/apache_activemq_upload_jsp',
@@ -514,7 +514,7 @@ RSpec.describe "Metasploit's json-rpc" do
             result: {
               host: [
                 {
-                  address: '192.0.2.2',
+                  address: host_ip,
                   modules: [
                     {
                       mname: 'exploit/multi/http/apache_activemq_upload_jsp',
@@ -570,7 +570,7 @@ RSpec.describe "Metasploit's json-rpc" do
           result: {
             host: [
               {
-                address: '192.0.2.2',
+                address: host_ip,
                 modules: []
               }
             ]
