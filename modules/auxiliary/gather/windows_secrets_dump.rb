@@ -41,7 +41,12 @@ class MetasploitModule < Msf::Auxiliary
         'References' =>
         [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
-        ]
+        ],
+        'Notes' => {
+          'Reliability' => [],
+          'Stability' => [],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        }
       )
     )
 

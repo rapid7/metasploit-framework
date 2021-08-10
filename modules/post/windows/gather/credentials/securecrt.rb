@@ -27,7 +27,12 @@ class MetasploitModule < Msf::Post
           'Kali-Team <kali-team[at]qq.com>' # Metasploit module
         ],
         'Platform' => [ 'win' ],
-        'SessionTypes' => [ 'meterpreter' ]
+        'SessionTypes' => [ 'meterpreter' ],
+        'Notes' => {
+          'Reliability' => [],
+          'Stability' => [],
+          'SideEffects' => [ IOC_IN_LOGS ]
+        }
       )
     )
     register_options(
