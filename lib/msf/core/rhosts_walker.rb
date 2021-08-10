@@ -181,7 +181,8 @@ module Msf
       #    /share_name
       #    /share_name/file
       #    /share_name/dir/file
-      if uri.path
+      has_path_specified = !uri.path.blank? && uri.path != '/'
+      if has_path_specified
         _preceding_slash, share, *rpath = uri.path.split('/')
         result['SMBSHARE'] = share if datastore.options.include?('SMBSHARE')
         result['RPATH'] = rpath.join('/') if datastore.options.include?('RPATH')

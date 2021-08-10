@@ -226,7 +226,7 @@ RSpec.describe Msf::RhostsWalker do
 
         register_options(
           [
-            Msf::OptString.new('SMBShare', [true, 'Target share', '']),
+            Msf::OptString.new('SMBSHARE', [true, 'Target share', 'default_share_value']),
           ]
         )
       end
@@ -681,9 +681,12 @@ RSpec.describe Msf::RhostsWalker do
       end
 
       it 'enumerates smb schemes for when the module has SMBSHARE and RPATHS available' do
-        smb_share_mod.datastore['RHOSTS'] = 'smb://user@example.com/share_name/path/to/file.txt'
+        smb_share_mod.datastore['RHOSTS'] = 'smb://user@example.com smb://user@example.com/ smb://user@example.com/share_name smb://user@example.com/share_name/path/to/file.txt'
         expected = [
-          { 'RHOSTS' => '192.0.2.2', 'RPORT' => 445, 'SSL' => false, 'SMBDomain' => '.', 'SMBPass' => '', 'SMBUser' => 'user', 'RPATH' => 'path/to/file.txt' }
+          {"RHOSTS"=>"192.0.2.2", "RPORT"=>445, "SSL"=>false, "SMBDomain"=>".", "SMBUser"=>"user", "SMBPass"=>"", "SMBSHARE"=>"default_share_value", "RPATH"=>nil},
+          {"RHOSTS"=>"192.0.2.2", "RPORT"=>445, "SSL"=>false, "SMBDomain"=>".", "SMBUser"=>"user", "SMBPass"=>"", "SMBSHARE"=>"default_share_value", "RPATH"=>nil},
+          {"RHOSTS"=>"192.0.2.2", "RPORT"=>445, "SSL"=>false, "SMBDomain"=>".", "SMBUser"=>"user", "SMBPass"=>"", "SMBSHARE"=>"share_name", "RPATH"=>""},
+          {"RHOSTS"=>"192.0.2.2", "RPORT"=>445, "SSL"=>false, "SMBDomain"=>".", "SMBUser"=>"user", "SMBPass"=>"", "SMBSHARE"=>"share_name", "RPATH"=>"path/to/file.txt"}
         ]
         expect(each_host_for(smb_share_mod)).to have_datastore_values(expected)
       end
