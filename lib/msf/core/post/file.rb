@@ -580,16 +580,15 @@ module Msf::Post::File
 protected
 
   def _read_file_powershell(filename)
-    eof = cmd_exec("[System.IO.File]::ReadAllBytes(\"#{filename}\").Length").strip.to_i
     data = ''
-    start = 0
-    chunk_size = 1024 * 1024
+    offset = 0
+    chunk_size = 1024
     loop do
-      stop = start + chunk_size
-      stop = eof if stop > eof
-      data << _read_file_powershell_fragement(start, stop, filename)
-      start += chunk_size
-      break if start >= eof
+      chunk = _read_file_powershell_fragment(filename, chunk_size, offset)
+      break if chunk.nil?
+      data << chunk
+      offset += chunk_size
+      break if chunk.length < chunk_size
     end
     return data
   end
@@ -597,12 +596,13 @@ protected
   def _read_file_powershell_fragment(filename, chunk_size, offset=0)
     b64_data= cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
       $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
-      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{start}..#{stop - 1}];\
+      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{offset}..#{offset + chunk_size -1}];\
       $gzipstream.Write($get_bytes, 0 , $get_bytes.Length);\
       $gzipstream.Close();\
       [Convert]::ToBase64String($mstream.ToArray())")
-    uncompressed_fragement = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read
-    return uncompressed_fragement
+    return nil if b64_data.empty?
+    uncompressed_fragment = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read
+    return uncompressed_fragment
   end
 
   # Checks to see if there are non-ansi or newline characters in a given string
