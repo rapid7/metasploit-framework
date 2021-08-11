@@ -251,9 +251,20 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is readable
   #
   def readable?(path)
+    verification_token = Rex::Text::rand_text_alpha(8)
+
+    if session.type == 'powershell'
+      if file?(path)
+        return cmd_exec("[System.IO.File]::OpenRead(\"#{path}\");if($?){echo\
+          #{verification_token}}").include?(verification_token)
+      elsif directory?(path)
+        return cmd_exec("Get-ChildItem -Path \"#{path}\"; if($?) {echo #{verification_token}}").include?(verification_token)
+      end
+  	end
+
     raise "`readable?' method does not support Windows systems" if session.platform == 'windows'
 
-    cmd_exec("test -r '#{path}' && echo true").to_s.include? 'true'
+    cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
   end
 
   #
