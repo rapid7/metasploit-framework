@@ -254,6 +254,7 @@ module Msf::Post::File
     verification_token = Rex::Text::rand_text_alpha(8)
 
     if session.type == 'powershell'
+      return false if exists?(path)
       if file?(path)
         return cmd_exec("[System.IO.File]::OpenRead(\"#{path}\");if($?){echo\
           #{verification_token}}").include?(verification_token)
