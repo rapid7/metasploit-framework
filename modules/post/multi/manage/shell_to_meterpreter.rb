@@ -163,7 +163,7 @@ class MetasploitModule < Msf::Post
       else
         if (have_powershell?) && (datastore['WIN_TRANSFER'] != 'VBS')
           vprint_status("Transfer method: Powershell")
-          psh_opts = { :encode_final_payload => true, :persist => false, :prepend_sleep => 1 }
+          psh_opts = { :persist => false, :prepend_sleep => 1 }
           unless session.type == 'shell'
             psh_opts[:remove_comspec] = true
           end
