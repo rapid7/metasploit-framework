@@ -33,6 +33,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
     "-t" => [ false, "Execute process with currently impersonated thread token"],
     "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-z" => [ false, "Execute process in a subshell"	   ],
     "-s" => [ true,  "Execute process in a given session as the session user"  ])
 
   #
@@ -201,6 +202,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd_args    = nil
     cmd_exec    = nil
     use_thread_token = false
+    subshell = false
 
     @@execute_opts.parse(args) { |opt, idx, val|
       case opt
@@ -228,6 +230,8 @@ class Console::CommandDispatcher::Stdapi::Sys
           use_thread_token = true
         when "-s"
           session = val.to_i
+        when "-z"
+          subshell = true
       end
     }
 
@@ -244,6 +248,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       'Session'     => session,
       'Hidden'      => hidden,
       'InMemory'    => (from_mem) ? dummy_exec : nil,
+      'Subshell' => subshell,
       'UseThreadToken' => use_thread_token)
 
     print_line("Process #{p.pid} created.")
@@ -405,7 +410,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     cmd.prepend('env TERM=xterm HISTFILE= ')
 
     print_status(cmd)
-    cmd_execute('-f', cmd, '-c', '-i')
+    cmd_execute('-f', cmd, '-c', '-i', '-z')
 
     true
   end
