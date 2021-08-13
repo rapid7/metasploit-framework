@@ -48,7 +48,7 @@ module Msf
 
           artifact_child[:xml_search].each do |xml_split|
             xml_split[:xml].each do |xml_string|
-              xml_file.xpzath(xml_string.to_s).each do |xml_match|
+              xml_file.xpath(xml_string.to_s).each do |xml_match|
                 vprint_status(xml_split[:extraction_description].to_s)
                 print_good xml_match.to_s
                 credential_array << xml_match.to_s
