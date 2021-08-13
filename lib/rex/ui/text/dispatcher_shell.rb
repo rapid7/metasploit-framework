@@ -28,6 +28,29 @@ module DispatcherShell
   ###
   module CommandDispatcher
 
+    module ClassMethods
+      #
+      # Check whether or not the command dispatcher is capable of handling the
+      # specified command. The command may still be disabled through some means
+      # at runtime.
+      #
+      # @param [String] name The name of the command to check.
+      # @return [Boolean] true if the dispatcher can handle the command.
+      def has_command?(name)
+        self.method_defined?("cmd_#{name}")
+      end
+
+      def included(base)
+        # Propagate the included hook
+        CommandDispatcher.included(base)
+      end
+    end
+
+    def self.included(base)
+      # Install class methods so they are inheritable
+      base.extend(ClassMethods)
+    end
+
     #
     # Initializes the command dispatcher mixin.
     #
@@ -539,7 +562,7 @@ module DispatcherShell
   # If the command is unknown...
   #
   def unknown_command(method, line)
-    print_error("Unknown command: #{method}.")
+    print_error("Unknown command: #{method}")
   end
 
   #

@@ -3,14 +3,20 @@
 module Msf::Post::Common
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-        stdapi_sys_config_getenv
-        stdapi_sys_process_close
-        stdapi_sys_process_execute
-      } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_getenv
+              stdapi_sys_process_close
+              stdapi_sys_process_execute
+            ]
+          }
+        }
+      )
+    )
   end
 
   def clear_screen
@@ -72,7 +78,7 @@ module Msf::Post::Common
   #
   # Returns a (possibly multi-line) String.
   #
-  def cmd_exec(cmd, args=nil, time_out=15)
+  def cmd_exec(cmd, args=nil, time_out=15, opts = {})
     case session.type
     when /meterpreter/
       #
@@ -98,7 +104,12 @@ module Msf::Post::Common
       end
 
       session.response_timeout = time_out
-      o = session.sys.process.capture_output(cmd, args, {'Hidden' => true, 'Channelized' => true, 'Subshell' => true }, time_out)
+      opts = {
+        'Hidden' => true,
+        'Channelized' => true,
+        'Subshell' => true
+      }.merge(opts)
+      o = session.sys.process.capture_output(cmd, args, opts, time_out)
     when /powershell/
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)

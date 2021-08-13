@@ -83,7 +83,7 @@ RSpec.shared_examples_for 'Msf::ModuleManager::Cache' do
     end
 
     let(:class_or_module) do
-      double('Class<Msf::Module> or Module', :parent => namespace_module)
+      double('Class<Msf::Module> or Module', :module_parent => namespace_module)
     end
 
     let(:namespace_module) do

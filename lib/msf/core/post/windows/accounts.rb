@@ -47,10 +47,19 @@ module Msf
         ].freeze
 
         def initialize(info = {})
-          super(update_info(
-            info,
-            'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_process_* stdapi_railgun_* } } }
-          ))
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    stdapi_sys_process_*
+                    stdapi_railgun_*
+                  ]
+                }
+              }
+            )
+          )
         end
 
         ##

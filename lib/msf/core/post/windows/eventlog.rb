@@ -6,10 +6,19 @@ module Windows
 module Eventlog
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ stdapi_sys_config_sysinfo stdapi_sys_eventlog_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              stdapi_sys_config_sysinfo
+              stdapi_sys_eventlog_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   #

@@ -73,8 +73,8 @@ class MetasploitModule < Msf::Auxiliary
   def session_setup(result, scanner, fingerprint, cred_core_private_id)
     return unless scanner.ssh_socket
 
-    # Create a new session from the socket
-    conn = Net::SSH::CommandStream.new(scanner.ssh_socket)
+    # Create a new session
+    sess = Msf::Sessions::SshCommandShellBind.new(scanner.ssh_socket)
 
     # Clean up the stored data - need to stash the keyfile into
     # a datastore for later reuse.
@@ -88,8 +88,8 @@ class MetasploitModule < Msf::Auxiliary
       'KEY_PATH'             => nil
     }
 
-    info = "SSH #{result.credential.public}:#{fingerprint} (#{ip}:#{rport})"
-    s = start_session(self, info, merge_me, false, conn.lsock)
+    info = "#{proto_from_fullname} #{result.credential.public}:#{fingerprint} (#{ Rex::Socket.is_ipv6?(ip) ? '[' + ip + ']' : ip }:#{rport})"
+    s = start_session(self, info, merge_me, false, sess.rstream, sess)
     self.sockets.delete(scanner.ssh_socket.transport.socket)
 
     # Set the session platform
@@ -175,7 +175,13 @@ class MetasploitModule < Msf::Auxiliary
           create_credential_login(credential_data)
           tmp_key = result.credential.private
           ssh_key = SSHKey.new tmp_key
-          session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id) if datastore['CreateSession']
+          if datastore['CreateSession']
+            if credential_core.is_a? Metasploit::Credential::Core
+              session_setup(result, scanner, ssh_key.fingerprint, credential_core.private_id)
+            else
+              session_setup(result, scanner, ssh_key.fingerprint, nil)
+            end
+          end
           if datastore['GatherProof'] && scanner.get_platform(result.proof) == 'unknown'
             msg = "While a session may have opened, it may be bugged.  If you experience issues with it, re-run this module with"
             msg << " 'set gatherproof false'.  Also consider submitting an issue at github.com/rapid7/metasploit-framework with"

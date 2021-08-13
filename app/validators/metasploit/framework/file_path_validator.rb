@@ -7,7 +7,7 @@ module Metasploit
 
       def validate_each(record, attribute, value)
         unless value && ::File.file?(value)
-          record.errors[attribute] << (options[:message] || "is not a valid path to a regular file")
+          record.errors.add(attribute, (options[:message] || "is not a valid path to a regular file"))
         end
       end
     end

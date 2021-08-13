@@ -1113,7 +1113,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/powershell_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_bind_tcp'
   end
@@ -1123,7 +1123,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                               'singles/cmd/windows/powershell_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'cmd/windows/powershell_reverse_tcp'
   end
@@ -4907,7 +4907,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/x64/powershell_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_bind_tcp'
   end
@@ -4917,7 +4917,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/x64/powershell_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/x64/powershell_reverse_tcp'
   end
@@ -5188,7 +5188,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/powershell_bind_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_bind_tcp'
   end
@@ -5198,7 +5198,7 @@ RSpec.describe 'modules/payloads', :content do
                           ancestor_reference_names: [
                             'singles/windows/powershell_reverse_tcp'
                           ],
-                          dynamic_size: false,
+                          dynamic_size: true,
                           modules_pathname: modules_pathname,
                           reference_name: 'windows/powershell_reverse_tcp'
   end

@@ -37,6 +37,10 @@ class Console::CommandDispatcher::Stdapi
 
   include Console::CommandDispatcher
 
+  def self.has_command?(name)
+    Dispatchers.any? { |klass| klass.has_command?(name) }
+  end
+
   #
   # Initializes an instance of the stdapi command interaction.
   #

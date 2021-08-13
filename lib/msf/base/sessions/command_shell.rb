@@ -328,22 +328,33 @@ class CommandShell
     print_error("Can not pop up an interactive shell")
   end
 
+  def self.binary_exists(binary, platform: nil, &block)
+    if block.call('command -v command').to_s.strip == 'command'
+      binary_path = block.call("command -v '#{binary}' && echo true").to_s.strip
+    else
+      binary_path = block.call("which '#{binary}' && echo true").to_s.strip
+    end
+    return nil unless binary_path.include?('true')
+
+    binary_path.split("\n")[0].strip # removes 'true' from stdout
+  end
+
   #
   # Returns path of a binary in PATH env.
   #
   def binary_exists(binary)
-    print_status("Trying to find binary(#{binary}) on target machine")
-    if shell_command_token('command -v command').to_s.strip == 'command'
-      binary_path = shell_command_token("command -v '#{binary}' && echo true").to_s.strip
-    else
-      binary_path = shell_command_token("which '#{binary}' && echo true").to_s.strip
+    print_status("Trying to find binary '#{binary}' on the target machine")
+
+    binary_path = self.class.binary_exists(binary, platform: platform) do |command|
+      shell_command_token(command)
     end
-    unless binary_path.include?("true")
+
+    if binary_path.nil?
       print_error("#{binary} not found")
-      return nil
+    else
+      print_status("Found #{binary} at #{binary_path}")
     end
-    binary_path = binary_path.split("\n")[0].strip  #removes 'true' from stdout
-    print_status("Found #{binary} at #{binary_path}")
+
     return binary_path
   end
 

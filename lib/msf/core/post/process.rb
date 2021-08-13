@@ -36,18 +36,12 @@ module Msf::Post::Process
   # Gets the `pid` and `name` of the processes on the remote system
   #
   def get_processes
-    if session_has_process_ext
+    if session.type == 'meterpreter'
       meterpreter_get_processes
+    elsif session.type == 'powershell'
+      shell_get_processes
     else
       shell_get_processes
-    end
-  end
-
-  def session_has_process_ext
-    begin
-      return !!(session.sys and session.sys.process)
-    rescue NoMethodError
-      return false
     end
   end
 

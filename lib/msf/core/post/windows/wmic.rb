@@ -11,10 +11,20 @@ module WMIC
   include Msf::Post::Windows::ExtAPI
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ extapi_clipboard_[gs]et_data stdapi_railgun_api* stdapi_sys_process_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              extapi_clipboard_[gs]et_data
+              stdapi_railgun_api*
+              stdapi_sys_process_*
+            ]
+          }
+        }
+      )
+    )
 
     register_options([
                          OptString.new('SMBUser', [ false, 'The username to authenticate as' ]),

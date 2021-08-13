@@ -61,7 +61,8 @@ class MsfAutoload
       "#{__dir__}/msf/base.rb",
       "#{__dir__}/rex/post/",
       "#{__dir__}/rex/post.rb",
-      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb"
+      "#{__dir__}/rex/proto/ssh/hrr_rb_ssh.rb",
+      "#{__dir__}/rex/proto/ssh/connection.rb"
     ]
   end
 
@@ -295,7 +296,6 @@ class MsfAutoload
     [
       { path: "#{__dir__}/msf/", namespace: Msf },
       { path: "#{__dir__}/rex/", namespace: Rex },
-      { path: "#{__dir__}/../app/validators/" },
     ]
   end
 

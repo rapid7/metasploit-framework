@@ -12,12 +12,23 @@ module Msf
         include Msf::Post::Windows::Priv
 
         def initialize(info = {})
-          super(update_info(
-            info,
-            'Compat' => { 'Meterpreter' => { 'Commands' => %w{
-              core_migrate stdapi_sys_config_getprivs stdapi_sys_config_getuid stdapi_sys_process_* incognito_impersonate_token priv_elevate_getsystem
-            } } }
-          ))
+          super(
+            update_info(
+              info,
+              'Compat' => {
+                'Meterpreter' => {
+                  'Commands' => %w[
+                    core_migrate
+                    stdapi_sys_config_getprivs
+                    stdapi_sys_config_getuid
+                    stdapi_sys_process_*
+                    incognito_impersonate_token
+                    priv_elevate_getsystem
+                  ]
+                }
+              }
+            )
+          )
         end
 
         # Identifies the Windows Service matching the SQL Server instance name

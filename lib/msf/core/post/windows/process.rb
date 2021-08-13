@@ -8,12 +8,22 @@ module Windows
 module Process
 
   include Msf::Post::Windows::ReflectiveDLLInjection
+  include Msf::Post::Process
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Compat' => { 'Meterpreter' => { 'Commands' => %w{ core_channel_* stdapi_sys_process_* } } }
-    ))
+    super(
+      update_info(
+        info,
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              core_channel_*
+              stdapi_sys_process_*
+            ]
+          }
+        }
+      )
+    )
   end
 
   # Checks the architecture of a payload and PID are compatible
