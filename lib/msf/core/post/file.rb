@@ -80,7 +80,7 @@ module Msf::Post::File
     end
 
     if session.platform == 'windows'
-      return session.shell_command_token("dir /b \"#{directory}\"").split(/[\r\n]+/)
+      return session.shell_command_token("dir /b \"#{directory}\"")&.split(/[\r\n]+/)
     end
 
     if command_exists?('ls')
