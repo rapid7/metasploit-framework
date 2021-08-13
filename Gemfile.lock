@@ -331,7 +331,7 @@ GEM
       io-console (~> 0.5)
     rex-arch (0.1.14)
       rex-text
-    rex-bin_tools (0.1.7)
+    rex-bin_tools (0.1.8)
       metasm
       rex-arch
       rex-core
