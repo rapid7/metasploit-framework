@@ -209,10 +209,13 @@ module Msf
       result['SSL'] = is_ssl
 
       # Both `TARGETURI` and `URI` are used as datastore options to denote the path on a uri
-      target_uri = uri.path.present? ? uri.path : '/'
-      result['TARGETURI'] = target_uri if datastore.options.include?('TARGETURI')
-      result['PATH'] = target_uri if datastore.options.include?('PATH')
-      result['URI'] = target_uri if datastore.options.include?('URI')
+      has_path_specified = !uri.path.blank? # && uri.path != '/' - Note HTTP path parsing differs to the other protocol's parsing
+      if has_path_specified
+        target_uri = uri.path.present? ? uri.path : '/'
+        result['TARGETURI'] = target_uri if datastore.options.include?('TARGETURI')
+        result['PATH'] = target_uri if datastore.options.include?('PATH')
+        result['URI'] = target_uri if datastore.options.include?('URI')
+      end
 
       result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
       set_username(datastore, result, uri.user) if uri.user
@@ -301,7 +304,7 @@ module Msf
       end
 
       # Only set basic auth HttpUsername as a fallback
-      if !username_set && datastore.options['HttpUsername']
+      if !username_set && datastore.options.include?('HttpUsername')
         result['HttpUsername'] = username
       end
 
@@ -320,7 +323,7 @@ module Msf
       end
 
       # Only set basic auth HttpPassword as a fallback
-      if !password_set && datastore.options['HttpPassword']
+      if !password_set && datastore.options.include?('HttpPassword')
         result['HttpPassword'] = password
       end
 
