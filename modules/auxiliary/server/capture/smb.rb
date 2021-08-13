@@ -65,6 +65,13 @@ class MetasploitModule < Msf::Auxiliary
         str.each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
       end
 
+      def process_ntlm_type1(type1_msg)
+        @client_os_version = type1_msg.os_version
+        # TODO: discern mapping +major+ and +minor+ to human-readable OS names.
+        # major, minor, build, ntlm_revision = type1_msg.os_version.unpack('CCnN')
+        super
+      end
+
       def process_ntlm_type3(type3_msg)
         username = "#{type3_msg.domain.encode}\\#{type3_msg.user.encode}"
         _, client = ::Socket.unpack_sockaddr_in(@server_client.getpeername)
@@ -88,15 +95,16 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless hash_type.nil?
-          puts "[SMB] #{hash_type} Client   : #{client}"
-          puts "[SMB] #{hash_type} Username : #{username}"
-          puts "[SMB] #{hash_type} Hash     : #{combined_hash}"
+          puts "[SMB] #{hash_type} Client     : #{client}"
+          # puts "[SMB] #{hash_type} Client OS  : #{@client_os_version}"
+          puts "[SMB] #{hash_type} Username   : #{username}"
+          puts "[SMB] #{hash_type} Hash       : #{combined_hash}"
           puts
 
           if @provider.listener
             jtr_format = type3_msg.ntlm_version == :ntlmv1 ? 'netntlm' : 'netntlmv2'
             @provider.listener.on_cred(client, combined_hash, jtr_format, username,
-                                       @server_challenge, client_hash, type3_msg.domain.encode)
+                                       @server_challenge, client_hash, type3_msg.domain.encode, @client_os_version)
           end
         end
 
@@ -114,33 +122,40 @@ class MetasploitModule < Msf::Auxiliary
     attr_reader :listener
   end
 
-  def on_cred(address, combined_hash, jtr_format, username, server_challenge, client_hash, domain)
-    origin = create_credential_origin_service(
-      {
-        address: address,
-        port: datastore['SRVPORT'],
-        service_name: 'smb',
-        protocol: 'tcp',
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      }
-    )
+  def on_cred(address, combined_hash, jtr_format, username, server_challenge, client_hash, domain, client_os_version)
+    if active_db?
+      origin = create_credential_origin_service(
+        {
+          address: address,
+          port: datastore['SRVPORT'],
+          service_name: 'smb',
+          protocol: 'tcp',
+          module_fullname: fullname,
+          workspace_id: myworkspace_id
+        }
+      )
 
-    create_credential(
-      {
-        origin: origin,
-        origin_type: :service,
-        address: address,
-        service_name: 'smb',
-        port: datastore['SRVPORT'],
-        private_data: combined_hash,
-        private_type: :nonreplayable_hash,
-        jtr_format: jtr_format,
-        username: username,
-        module_fullname: fullname,
-        workspace_id: myworkspace_id
-      }
-    )
+      # TODO: Re-implement when +client_os_version+ can be determined.
+      # found_host = framework.db.hosts.find_by(address: address)
+      # found_host.os_name = client_os_version
+      # found_host.save!
+
+      create_credential(
+        {
+          origin: origin,
+          origin_type: :service,
+          address: address,
+          service_name: 'smb',
+          port: datastore['SRVPORT'],
+          private_data: combined_hash,
+          private_type: :nonreplayable_hash,
+          jtr_format: jtr_format,
+          username: username,
+          module_fullname: fullname,
+          workspace_id: myworkspace_id
+        }
+      )
+    end
 
     if datastore['JOHNPWFILE']
       # JTR NTLM hash format NTLMv1
