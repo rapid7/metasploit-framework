@@ -211,6 +211,7 @@ module Msf
       # Both `TARGETURI` and `URI` are used as datastore options to denote the path on a uri
       target_uri = uri.path.present? ? uri.path : '/'
       result['TARGETURI'] = target_uri if datastore.options.include?('TARGETURI')
+      result['PATH'] = target_uri if datastore.options.include?('PATH')
       result['URI'] = target_uri if datastore.options.include?('URI')
 
       result['VHOST'] = uri.hostname unless Rex::Socket.is_ip_addr?(uri.hostname)
