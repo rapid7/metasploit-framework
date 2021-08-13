@@ -51,7 +51,6 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN_NAME', [ true, 'The domain name used during smb exchange.', 'anonymous' ])
       ]
     )
-
   end
 
   class HashCaptureNTLMProvider < RubySMB::Gss::Provider::NTLM
@@ -122,7 +121,7 @@ class MetasploitModule < Msf::Auxiliary
     attr_reader :listener
   end
 
-  def on_cred(address, combined_hash, jtr_format, username, server_challenge, client_hash, domain, client_os_version)
+  def on_cred(address, combined_hash, jtr_format, username, server_challenge, client_hash, domain, _client_os_version)
     if active_db?
       origin = create_credential_origin_service(
         {
@@ -135,9 +134,9 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      # TODO: Re-implement when +client_os_version+ can be determined.
+      # TODO: Re-implement when +_client_os_version+ can be determined.
       # found_host = framework.db.hosts.find_by(address: address)
-      # found_host.os_name = client_os_version
+      # found_host.os_name = _client_os_version
       # found_host.save!
 
       create_credential(
@@ -230,7 +229,7 @@ class MetasploitModule < Msf::Auxiliary
 
     server.run do
       print_line
-      print_good "Received SMB connection on Auth Capture Server!"
+      print_good 'Received SMB connection on Auth Capture Server!'
       true
     end
   end
