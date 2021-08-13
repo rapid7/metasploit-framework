@@ -882,7 +882,7 @@ protected
       end
 
     elsif session.platform == 'windows'
-      #cmdcode  
+      return _search_windows(root, glob, recurse)  
     else
       if command_exists?('find')
         list = cmd_exec("find \"#{root}\" #{recurse ? '' : '-maxdepth 1'} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
@@ -898,6 +898,30 @@ protected
     end
     matches
   end
+
+def _search_windows(root=nil, glob='*.*', recurse=true)
+  matches = []
+  last_pwd = pwd.strip
+  cd(root)
+  data=cmd_exec("dir #{glob} /s ").split("\r\n\r\n ")
+  data.delete_at(0)
+  data.delete_at(-1)
+  data.each do |dirs|
+    file = dirs.split("\r\n")
+    file.delete_at(1)
+    file.delete_at(-1)
+    directory = file[0].split[2..-1].join(" ")
+    file[1..-1].each do |each_file|
+      file_info = {}
+      file_info['dir'] = directory
+      file_info['size'] = each_file.split[3]
+      file_info['name'] = each_file.split[4..-1].join(" ")
+      matches << file_info
+    end
+  end
+  cd(last_pwd)
+  matches
+end
 
   # @param filename [String]
   # @return [Stat] stat object of the specified file
