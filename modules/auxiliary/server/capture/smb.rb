@@ -66,8 +66,8 @@ class MetasploitModule < Msf::Auxiliary
 
       def process_ntlm_type1(type1_msg)
         @client_os_version = type1_msg.os_version
-        # TODO: discern mapping +major+ and +minor+ to human-readable OS names.
-        # major, minor, build, ntlm_revision = type1_msg.os_version.unpack('CCnN')
+        # TODO: write method for mapping +major+ and +minor+ OS values to human-readable OS names.
+        # @client_os_version = ::NTLM::OSVersion.read(type1_msg.os_version)
         super
       end
 

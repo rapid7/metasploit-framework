@@ -7,10 +7,13 @@ Microsoft provides an article on how to detect, disable, and enable SMB in vario
 [here](https://support.microsoft.com/en-us/help/2696547/detect-enable-disable-smbv1-smbv2-smbv3-in-windows-and-windows-server), which can be useful during testing.
 
 1. Start msfconsole
-2. Do: ```use auxiliary/server/capture/smb```
-3. Do: ```run```
-4. Connect to above server with your SMB client of choice
-5. Observe the capturing of hash, after the submssion of login details
+2. Connect DB
+3. Do: ```use auxiliary/server/capture/smb```
+4. Do: ```run```
+5. Connect to above server with your SMB client of choice
+6. Observe the capturing of hash
+7. `creds`
+8. check hash has been stored in DB correctly
 
 ## Options
 
