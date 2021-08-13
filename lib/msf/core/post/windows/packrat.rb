@@ -14,14 +14,19 @@ module Msf
 
         include Msf::Post::File
         include Msf::Post::Windows::UserProfiles
-
 		  
         # Check to see if the application base folder exists on the remote system.
         def parent_folder_available?(path, dir, application)
           parent_folder = dir.split('\\').first
-          dirs = session.fs.dir.foreach(path).collect
+          dirs = session.fs.dir.foreach(path).collect				
+			
           return dirs.include? parent_folder 
         end
+		  
+		def artifact_folder_available?(path, dir, application, artifact_child)
+			parent_folder_path = "#{path}#{session.fs.file.separator}#{dir}"
+			return directory?(parent_folder_path)
+		end
 
         def find_files(userprofile, application, artifact, path, dir)
           file_directory = "#{path}\\#{dir}"
@@ -43,7 +48,7 @@ module Msf
 
           artifact_child[:xml_search].each do |xml_split|
             xml_split[:xml].each do |xml_string|
-              xml_file.xpath(xml_string.to_s).each do |xml_match|
+              xml_file.xpzath(xml_string.to_s).each do |xml_match|
                 vprint_status(xml_split[:extraction_description].to_s)
                 print_good xml_match.to_s
                 credential_array << xml_match.to_s
@@ -187,12 +192,23 @@ module Msf
 
             # Check if the applications's base folder exists in user's directory on the remote computer.
             if parent_folder_available?(path, dir, application)
-              print_status("#{application.capitalize}'s parent folder found")
+              vprint_status("#{application.capitalize}'s base folder found")
             else
-              vprint_error("#{application.capitalize}'s parent folder not found in #{userprofile['UserName']}'s user directory\n")
+              vprint_error("#{application.capitalize}'s base folder not found in #{userprofile['UserName']}'s user directory\n")
               # skip non-existing file
                 next
             end
+			  
+			#Check the availability of the folder containing the artifact of interest.
+			if artifact_folder_available?(path, dir, application, artifact_child)
+				vprint_status("Found the folder containing specified artifact for #{artifact}.")
+			else
+				vprint_error("Could not find the folder for the specified artifact #{artifact} at #{dir}.\n")
+				# skip non-existing file
+                next
+			end
+			 
+ 
 
             # Get the files that matches the pre-defined artifact name
             found_files = find_files(userprofile, application, artifact, path, dir)

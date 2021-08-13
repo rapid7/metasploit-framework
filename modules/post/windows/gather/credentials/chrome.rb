@@ -45,7 +45,7 @@ class MetasploitModule < Msf::Post
                               "sql_search": [
                                 {
                                   "sql_description": "Database Commands which exports Chrome's Cookie data",
-                                  "sql_table": 'cookiess',
+                                  "sql_table": 'cookies',
                                   "sql_column": 'host_key, name, path'
                                 }
                               ]
