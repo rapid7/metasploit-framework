@@ -871,64 +871,78 @@ protected
       end
 
     elsif session.type == 'powershell'
-      list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{glob} | where {! $_.PSIsContainer} | Format-Table Name, Length, Directory").split("\n")
-      list.each do |file_info|
-        file_info = file_info.split
-        attrib = {}
-        attrib['name'] = file_info[0]
-        attrib['size'] = file_info[1].to_i
-        attrib['path'] = file_info[2]
-        matches << attrib
-      end
+      return _search_powershell(root, glob, recurse)
 
     elsif session.platform == 'windows'
-      return _search_windows(root, glob, recurse)  
+      return _search_windows(root, glob, recurse)
+
     else
-      if command_exists?('find')
-        list = cmd_exec("find \"#{root}\" #{recurse ? '' : '-maxdepth 1'} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
-        list.split("\n").each do |file|
-          size, full_path = file.split
-          attrib = {}
-          attrib['size'] = size.to_i
-          attrib['name'] = (full_path.match /[^\/]+$/).to_s
-          attrib['path'] = full_path.chomp(attrib['name'])
-          matches << attrib
-        end
-      end
+      return _search_unix(root, glob, recurse)
     end
-    matches
   end
 
-def _search_windows(root=nil, glob='*.*', recurse=true)
-  begin
-    matches = []
-    last_pwd = pwd.strip
-    cd(root)
-    data=cmd_exec("dir #{glob} #{recurse ? "/s" : ""} ").split("\r\n\r\n ")
-    data.delete_at(0)
-    data.delete_at(-1) if recurse
-    data.each do |dirs|
-      file = dirs.split("\r\n")
-      file.delete_at(1)
-      file.delete_at(-1)
-      file.delete_at(-1) unless recurse
-      directory = file[0].split[2..-1].join(" ")
-      file[1..-1].each do |each_file|
-        file_info = {}
-        file_info['dir'] = directory
-        next if each_file.split[3].match? /(DIR|JUNCTION)/
-        file_info['size'] = each_file.split[3]
-        file_info['name'] = each_file.split[4..-1].join(" ")
-        matches << file_info
+
+  def _search_windows(root=nil, glob='*.*', recurse=true)
+    begin
+      matches = []
+      last_pwd = pwd.strip
+      cd(root)
+      data=cmd_exec("dir #{glob} #{recurse ? "/s" : ""} ").split("\r\n\r\n ")
+      data.delete_at(0)
+      data.delete_at(-1) if recurse
+      data.each do |dirs|
+        file = dirs.split("\r\n")
+        file.delete_at(1)
+        file.delete_at(-1)
+        file.delete_at(-1) unless recurse
+        directory = file[0].split[2..-1].join(" ")
+        file[1..-1].each do |each_file|
+          file_info = {}
+          file_info['dir'] = directory
+          next if each_file.split[3].match? /(DIR|JUNCTION)/
+          file_info['size'] = each_file.split[3]
+          file_info['name'] = each_file.split[4..-1].join(" ")
+          matches << file_info
+        end
       end
+      cd(last_pwd)
+      matches
+    rescue
+  	  cd(last_pwd)
+      return []
     end
-    cd(last_pwd)
-    matches
-  rescue
-  	cd(last_pwd)
-    return []
   end
-end
+
+  def _search_powershell(root=nil, glob='*.*', recurse=true)
+    matches = []
+    list = cmd_exec("Get-ChildItem #{recurse ? '-Recurse': ''} -Path #{root} -Filter #{glob} | where {! $_.PSIsContainer} | Format-Table  Name, Length, Directory").split("\n")
+    3.times { list.delete_at(0) }
+    list.delete_at(-1)
+    list.each do |file_info|
+      file_info = file_info.split
+      attrib = {}
+      attrib['name'] = file_info[0]
+      attrib['size'] = file_info[1].to_i
+      attrib['path'] = file_info[2]
+      matches << attrib
+    end
+    return matches
+  end
+
+  def _search_unix(root=nil, glob='*.*', recurse=true)
+  	matches = []
+    raise "Cannot perform a search on the target system because 'find` command is not present" unless command_exists?('find')
+    list = cmd_exec("find \"#{root}\" #{recurse ? '' : '-maxdepth 1'} -type f -name \"#{glob}\" -exec du -b {} + 2>/dev/null")
+    list.split("\n").each do |file|
+      size, full_path = file.split
+      attrib = {}
+      attrib['size'] = size.to_i
+      attrib['name'] = (full_path.match /[^\/]+$/).to_s
+      attrib['path'] = full_path.chomp(attrib['name'])
+      matches << attrib
+    end
+    return matches
+  end
 
   # @param filename [String]
   # @return [Stat] stat object of the specified file
