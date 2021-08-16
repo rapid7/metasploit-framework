@@ -17,7 +17,7 @@ class MetasploitModule < Msf::Auxiliary
         This module provides a SMB service that can be used to capture the
         challenge-response password hashes of SMB client systems. Responses
         sent by this service have by default a random 8 byte challenge string
-        of format `\x11\x22\x33\x44\x55\x66\x77\x881, allowing for easy cracking using
+        of format `\x11\x22\x33\x44\x55\x66\x77\x88`, allowing for easy cracking using
         Cain & Abel (NTLMv1) or John the ripper (with jumbo patch).
 
         To exploit this, the target system must try to authenticate to this
@@ -51,6 +51,8 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('DOMAIN_NAME', [ true, 'The domain name used during smb exchange.', 'anonymous' ])
       ]
     )
+
+    deregister_options('SMBServerIdleTimeout')
   end
 
   class HashCaptureNTLMProvider < RubySMB::Gss::Provider::NTLM
@@ -117,7 +119,7 @@ class MetasploitModule < Msf::Auxiliary
           end
         end
 
-        WindowsError::NTStatus::STATUS_ACCESS_DENIED
+        ::WindowsError::NTStatus::STATUS_ACCESS_DENIED
       end
     end
 
@@ -245,7 +247,12 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def cleanup
-    @rsock.close
+    begin
+      @rsock.close if @rsock
+    rescue => e
+      elog('Failed closing SMB server socket', error: e)
+    end
+
     super
   end
 end
