@@ -887,7 +887,7 @@ protected
       matches = []
       last_pwd = pwd.strip
       cd(root)
-      data=cmd_exec("dir #{glob} #{recurse ? "/s" : ""} ").split("\r\n\r\n ")
+      data=cmd_exec("dir \"#{glob}\" #{recurse ? "/s" : ""} ").split("\r\n\r\n ")
       data.delete_at(0)
       data.delete_at(-1) if recurse
       data.each do |dirs|
