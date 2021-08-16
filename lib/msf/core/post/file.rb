@@ -581,14 +581,30 @@ module Msf::Post::File
 protected
 
   def _write_file_powershell(file_name, data)
-    compressed_data = Rex::Text.gzip(data)
-    encoded_data = Base64.strict_encode64(compressed_data)
+    offset = 0
+    chunk_size = 2048
+    loop do
+      chunk = data.slice(offset..offset+chunk_size)
+      length = chunk.length
+      compressed_chunk = Rex::Text.gzip(chunk)
+      encoded_chunk = Base64.strict_encode64(compressed_chunk)
+      _write_file_powershell_fragment(file_name, encoded_chunk, length)
+      offset += chunk_size + 1
+      break if offset > data.length
+    end
+  end
+
+  def _write_file_powershell_fragment(file_name, encoded_data, length)
     pwsh_code = %($encoded=\"#{encoded_data}\";
     $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
     $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
-    $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{data.length});
+    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::Append)
+    $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
     $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
-    [System.IO.File]::WriteAllBytes('#{file_name}',$file_bytes);)
+    $filename.Write($file_bytes, 0, $file_bytes.Length);
+    $filename.Close();
+    $mstream.Close();
+    $reader.Close();)
     cmd_exec(pwsh_code)
   end
 
