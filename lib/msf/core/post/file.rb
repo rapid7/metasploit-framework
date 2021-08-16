@@ -396,6 +396,8 @@ module Msf::Post::File
       fd = session.fs.file.new(file_name, "wb")
       fd.write(data)
       fd.close
+    elsif session.type == 'powershell'
+      _write_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
@@ -577,6 +579,18 @@ module Msf::Post::File
   alias :cp_file :copy_file
 
 protected
+
+  def _write_file_powershell(file_name, data)
+    compressed_data = Rex::Text.gzip(data)
+    encoded_data = Base64.strict_encode64(compressed_data)
+    pwsh_code = %($encoded=\"#{encoded_data}\";
+    $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
+    $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
+    $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{data.length});
+    $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
+    [System.IO.File]::WriteAllBytes('#{file_name}',$file_bytes);)
+    cmd_exec(pwsh_code)
+  end
 
   # Checks to see if there are non-ansi or newline characters in a given string
   #
