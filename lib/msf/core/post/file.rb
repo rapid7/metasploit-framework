@@ -692,6 +692,31 @@ module Msf::Post::File
     return uncompressed_fragment
   end
 
+  #
+  # Return a list of the Windows Drives
+  #
+  def get_drives
+    if session.type != "meterpreter" && session.platform != 'windows'
+      return false
+    end
+    bitmask = session.railgun.kernel32.GetLogicalDrives()["return"]
+    drives = []
+    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    (0..25).each do |i|
+      test = letters[i,1]
+      rem = bitmask % (2**(i+1))
+
+      if rem > 0
+        drives << test
+        bitmask = bitmask - rem
+      end
+    end
+
+    drives
+  end
+
+protected
+
   # Checks to see if there are non-ansi or newline characters in a given string
   #
   # @param data [String] String to check for non-ansi or newline chars

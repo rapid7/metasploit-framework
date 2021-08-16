@@ -33,24 +33,6 @@ class MetasploitModule < Msf::Post
     )
   end
 
-  def get_drives
-    # #All Credit Goes to mubix for this railgun-FU
-    a = client.railgun.kernel32.GetLogicalDrives()["return"]
-    drives = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    (0..25).each do |i|
-      test = letters[i, 1]
-      rem = a % (2**(i + 1))
-
-      if rem > 0
-        drives << test
-        a = a - rem
-      end
-    end
-
-    return drives
-  end
-
   def download_files(location, file_type)
     sysdriv = client.sys.config.getenv('SYSTEMDRIVE')
     sysnfo = client.sys.config.sysinfo['OS']

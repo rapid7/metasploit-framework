@@ -12,6 +12,7 @@
 #    http://msu-nftc.org
 
 class MetasploitModule < Msf::Post
+  include Msf::Post::File
 
   def initialize(info = {})
     super(
@@ -78,21 +79,8 @@ class MetasploitModule < Msf::Post
       print_device(devname)
     end
 
-    # Props to Rob Fuller (mubix at room362.com) for logical drive enumeration code:
-    bitmask = client.railgun.kernel32.GetLogicalDrives()["return"]
-    drives = []
-    letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    (0..25).each do |i|
-      test = letters[i, 1]
-      rem = bitmask % (2**(i + 1))
-      if rem > 0
-        drives << test
-        bitmask = bitmask - rem
-      end
-    end
-
     print_line ("<Logical Drives:>")
-    drives.each do |i|
+    get_drives.each do |i|
       devname = "\\\\.\\#{i}:"
       print_device(devname)
     end
