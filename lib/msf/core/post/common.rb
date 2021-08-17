@@ -27,18 +27,18 @@ module Msf::Post::Common
     return nil unless session
 
     case session.type
-    when 'meterpreter'
+    when /meterpreter/
       session.sock.peerhost
-    when 'shell'
+    when /(shell|powershell)/
       session.session_host
     end
   end
 
   def rport
     case session.type
-    when 'meterpreter'
+    when /meterpreter/
       session.sock.peerport
-    when 'shell'
+    when /(shell|powershell)/
       session.session_port
     end
   end
@@ -167,9 +167,11 @@ module Msf::Post::Common
   #
   def get_env(env)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenv(env)
-    when /shell/
+    when 'powershell'
+      return cmd_exec("echo $env:#{env}").strip
+    when 'shell'
       if session.platform == 'windows'
         if env[0,1] == '%'
           unless env[-1,1] == '%'
@@ -199,7 +201,7 @@ module Msf::Post::Common
     case session.type
     when /meterpreter/
       return session.sys.config.getenvs(*envs)
-    when /shell/
+    when /(shell|powershell)/
       result = {}
       envs.each do |env|
         res = get_env(env)
@@ -217,12 +219,15 @@ module Msf::Post::Common
   # @return [Boolean]
   #
   def command_exists?(cmd)
-    if session.platform == 'windows'
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if session.type == 'powershell'
+      cmd_exec("try {if(Get-Command #{cmd}) {echo #{verification_token}}} catch {}").include?(verification_token)
+    elsif session.platform == 'windows'
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/where_1
       # https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/if
-      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo true").to_s.include? 'true'
+      cmd_exec("cmd /c where /q #{cmd} & if not errorlevel 1 echo #{verification_token}").to_s.include?(verification_token)
     else
-      cmd_exec("command -v #{cmd} || which #{cmd} && echo true").to_s.split("\n")[-1] == 'true'
+      cmd_exec("command -v #{cmd} || which #{cmd} && echo #{verification_token}").include?(verification_token)
     end
   rescue
     raise "Unable to check if command `#{cmd}' exists"
