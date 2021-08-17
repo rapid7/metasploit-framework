@@ -844,6 +844,7 @@ class ReadableText
     end
 
     sinfo = session.info.to_s
+    sinfo = sinfo.gsub(/[\r\n\t]+/, ' ')
     # Arbitrarily cut info at 80 columns
     if sinfo.length > 80
       sinfo = "#{sinfo[0,77]}..."

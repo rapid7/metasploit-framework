@@ -92,6 +92,27 @@ class CommandShell
     session = self
 
     if datastore['AutoVerifySession']
+      session_info = ''
+
+      # Read the initial output and mash it into a single line
+      # Timeout set to 1 to read in banner of all payload responses (may capture prompt as well)
+      # Encoding is not forced to support non ASCII shells
+      if session.info.nil? or session.info.empty?
+        banner = shell_read(-1, 1)
+        if banner && !banner.empty?
+          banner.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n, "_")
+          banner.strip!
+
+          banner = """
+Shell Banner:
+#{banner}
+-----
+          """
+
+          session_info = banner
+        end
+      end
+
       token = Rex::Text.rand_text_alphanumeric(8..24)
       response = shell_command("echo #{token}", 3)
       unless response&.include?(token)
@@ -100,6 +121,10 @@ class CommandShell
         session.kill
         return nil
       end
+
+      # Only populate +session.info+ with a captured banner if the shell is responsive and verified
+      session.info = session_info
+      session
     end
   end
 
@@ -729,20 +754,6 @@ class CommandShell
   # Execute any specified auto-run scripts for this session
   #
   def process_autoruns(datastore)
-    # Read the initial output and mash it into a single line
-    if (not self.info or self.info.empty?)
-      initial_output = shell_read(-1, 0.01)
-      if (initial_output)
-        initial_output.force_encoding("ASCII-8BIT") if initial_output.respond_to?(:force_encoding)
-        initial_output.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-        initial_output.gsub!(/[\r\n\t]+/, ' ')
-        initial_output.strip!
-
-        # Set the inital output to .info
-        self.info = initial_output
-      end
-    end
-
     if datastore['InitialAutoRunScript'] && !datastore['InitialAutoRunScript'].empty?
       args = Shellwords.shellwords( datastore['InitialAutoRunScript'] )
       print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
@@ -779,6 +790,13 @@ protected
   #
   def _interact_stream
     fds = [rstream.fd, user_input.fd]
+
+    # Displays +info+ on all session startups
+    # +info+ is set to the shell banner and initial prompt in the +bootstrap+ method
+    user_output.print("#{self.info}\n") if (self.info && !self.info.empty?) && self.interacting
+
+    run_single(('').chomp("\n"))
+
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
       next unless sd
