@@ -6,7 +6,7 @@ key. This module has been tested successfully on a Win2k8 R2 Domain Controller.
 
 ### Test Environment
 
-This vulnerability was patched in 2014 but Group Policy Prefence files can still be found in modern environments. Because of that it is
+This vulnerability was patched in 2014 but Group Policy Preference files can still be found in modern environments. Because of that it is
 necessary to have a means to test this vulnerability in a contrived way.
 
 Starting from a Windows Server that has been configured as an Active Directory Domain Controller:
