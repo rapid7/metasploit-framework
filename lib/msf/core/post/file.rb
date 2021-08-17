@@ -590,7 +590,7 @@ protected
     loop do
       _write_file_powershell_fragment(file_name, data, offset, chunk_size)
       offset += chunk_size + 1
-      break if offset > data.length
+      break if offset >= data.length
     end
   end
 
