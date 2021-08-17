@@ -254,11 +254,11 @@ module Msf::Post::File
     verification_token = Rex::Text::rand_text_alpha(8)
     return false unless exists?(path)
     if session.type == 'powershell'
-      if file?(path)
+      unless directory?(path)
         return cmd_exec("[System.IO.File]::OpenRead(\"#{path}\");if($?){echo\
           #{verification_token}}").include?(verification_token)
-      elsif directory?(path)
-        return cmd_exec("Get-ChildItem -Path \"#{path}\"; if($?) {echo #{verification_token}}").include?(verification_token)
+      else
+        return cmd_exec("[System.IO.Directory]::GetFiles('#{path}'); if($?) {echo #{verification_token}}").include?(verification_token)
       end
     end
 
