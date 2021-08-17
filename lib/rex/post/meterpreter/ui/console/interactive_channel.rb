@@ -23,12 +23,10 @@ module Console::InteractiveChannel
     if (self.lsock)
       self.interactive(true)
       if raw
-        _winch
-        handle_winch
+        update_term_size
         _local_fd.raw do
           interact_stream(self)
         end
-        restore_winch
       else
         interact_stream(self)
       end
@@ -109,6 +107,10 @@ module Console::InteractiveChannel
   attr_accessor :cols
 
   def _winch
+    update_term_size
+  end
+
+  def update_term_size
     rows, cols = ::IO.console.winsize
     unless rows == self.rows && cols == self.cols
       set_term_size(rows, cols)

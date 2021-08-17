@@ -44,6 +44,8 @@ module Interactive
 
     handle_usr1
 
+    handle_winch
+
     # As long as we're interacting...
     while (self.interacting == true)
 
@@ -69,6 +71,8 @@ module Interactive
 
       # Restore the suspend handler
       restore_suspend
+
+      restore_winch
 
       # If we've hit eof, call the interact complete handler
       _interact_complete if (eof == true)

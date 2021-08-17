@@ -20,31 +20,6 @@ class Console::CommandDispatcher::Stdapi::Sys
   include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
-  # Options used by the 'execute' command.
-  #
-  @@default_execute_opts = { "-a" => [true, "The arguments to pass to the command."],
-           "-c" => [false, "Channelized I/O (required for interaction)."], # -i sets -c
-           "-f" => [true, "The executable command to run."],
-           "-h" => [false, "Help menu."],
-           "-H" => [false, "Create the process hidden from view."],
-           "-i" => [false, "Interact with the process after creating it."],
-           "-m" => [false, "Execute from memory."],
-           "-d" => [true, "The 'dummy' executable to launch when using -m."],
-           "-t" => [false, "Execute process with currently impersonated thread token"],
-           "-k" => [false, "Execute process on the meterpreters current desktop"],
-           "-z" => [ false, "Execute process in a subshell"	   ],
-           "-s" => [true, "Execute process in a given session as the session user"] }
-  @@execute_opts = Rex::Parser::Arguments.new(@@default_execute_opts)
-
-  #
-  # Options used by the 'shell' command.
-  #
-  @@default_shell_opts = { "-h" => [false, "Help menu."],
-                           "-l" => [false, "List available shells (/etc/shells)."],
-                           "-t" => [true, "Spawn a PTY shell (/bin/bash if no argument given)."] }
-  @@shell_opts = Rex::Parser::Arguments.new(@@default_shell_opts) # ssh(1) -t
-
-  #
   # Options used by the 'reboot' command.
   #
   @@reboot_opts = Rex::Parser::Arguments.new(
@@ -104,17 +79,45 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
     "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
-  def self.enable_fully_interactive!
-    expanded_shell_opts = @@default_shell_opts.merge({ "-i" => [ false, "Drop into a fully interactive shell."] })
-    expanded_execute_opts = @@default_execute_opts.merge({ "-r" => [false, "raw mode"] })
-
-    @@shell_opts = Rex::Parser::Arguments.new(expanded_shell_opts)
-    @@execute_opts = Rex::Parser::Arguments.new(expanded_execute_opts)
+  #
+  # Options used by the 'shell' command.
+  #
+  def shell_opts
+    default_shell_opts = {
+      '-h' => [false, 'Help menu.'],
+      '-l' => [false, 'List available shells (/etc/shells).'],
+      '-t' => [true, 'Spawn a PTY shell (/bin/bash if no argument given).']
+    }
+    if Msf::FeatureManager.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      Rex::Parser::Arguments.new(default_shell_opts.merge({ '-i' => [ false, 'Drop into a fully interactive shell.'] }))
+    else
+      Rex::Parser::Arguments.new(default_shell_opts)
+    end
   end
 
-  def self.disable_fully_interactive!
-    @@shell_opts = Rex::Parser::Arguments.new(@@default_shell_opts)
-    @@execute_opts = Rex::Parser::Arguments.new(@@default_execute_opts)
+  #
+  # Options used by the 'execute' command.
+  #
+  def execute_opts
+    default_execute_opts = {
+      '-a' => [true, 'The arguments to pass to the command.'],
+      '-c' => [false, 'Channelized I/O (required for interaction).'], # -i sets -c
+      '-f' => [true, 'The executable command to run.'],
+      '-h' => [false, 'Help menu.'],
+      '-H' => [false, 'Create the process hidden from view.'],
+      '-i' => [false, 'Interact with the process after creating it.'],
+      '-m' => [false, 'Execute from memory.'],
+      '-d' => [true, "The 'dummy' executable to launch when using -m."],
+      '-t' => [false, 'Execute process with currently impersonated thread token'],
+      '-k' => [false, 'Execute process on the meterpreters current desktop'],
+      '-z' => [false, 'Execute process in a subshell'],
+      '-s' => [true, 'Execute process in a given session as the session user']
+    }
+    if Msf::FeatureManager.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      Rex::Parser::Arguments.new(default_execute_opts.merge({ '-r' => [false, 'raw mode'] }))
+    else
+      Rex::Parser::Arguments.new(default_execute_opts)
+    end
   end
 
   #
@@ -218,7 +221,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     raw = false
     subshell = false
 
-    @@execute_opts.parse(args) { |opt, idx, val|
+    execute_opts.parse(args) { |opt, idx, val|
       case opt
         when "-a"
           cmd_args = val
@@ -278,11 +281,11 @@ class Console::CommandDispatcher::Stdapi::Sys
   def cmd_execute_help
     print_line("Usage: execute -f file [options]")
     print_line("Executes a command on the remote machine.")
-    print @@execute_opts.usage
+    print execute_opts.usage
   end
 
   def cmd_execute_tabs(str, words)
-    return @@execute_opts.fmt.keys if words.length == 1
+    return execute_opts.fmt.keys if words.length == 1
     []
   end
 
@@ -290,11 +293,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     print_line 'Usage: shell [options]'
     print_line
     print_line 'Opens an interactive native shell.'
-    print_line @@shell_opts.usage
+    print_line shell_opts.usage
   end
 
   def cmd_shell_tabs(str, words)
-    return @@shell_opts.fmt.keys if words.length == 1
+    return shell_opts.fmt.keys if words.length == 1
     []
   end
 
@@ -307,7 +310,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     raw = false
     sh_path = '/bin/bash'
 
-    @@shell_opts.parse(args) do |opt, idx, val|
+    shell_opts.parse(args) do |opt, idx, val|
       case opt
       when '-h'
         cmd_shell_help

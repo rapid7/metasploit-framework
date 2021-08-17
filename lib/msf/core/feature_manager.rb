@@ -72,18 +72,11 @@ module Msf
 
       @flag_lookup[name][:user_preference] = value
 
-      case name
-      when WRAPPED_TABLES
+      if name == WRAPPED_TABLES
         if value
           Rex::Text::Table.wrap_tables!
         else
           Rex::Text::Table.unwrap_tables!
-        end
-      when FULLY_INTERACTIVE_SHELLS
-        if value
-          Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys.enable_fully_interactive!
-        else
-          Rex::Post::Meterpreter::Ui::Console::CommandDispatcher::Stdapi::Sys.disable_fully_interactive!
         end
       end
     end
