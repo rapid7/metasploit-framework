@@ -225,6 +225,10 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if session.type == 'powershell' && file?(path)
+      return  cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
+    end
     raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
     cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
@@ -582,23 +586,23 @@ protected
 
   def _write_file_powershell(file_name, data)
     offset = 0
-    chunk_size = 2048
+    chunk_size = 16256
     loop do
-      chunk = data.slice(offset..offset+chunk_size)
-      length = chunk.length
-      compressed_chunk = Rex::Text.gzip(chunk)
-      encoded_chunk = Base64.strict_encode64(compressed_chunk)
-      _write_file_powershell_fragment(file_name, encoded_chunk, length)
+      _write_file_powershell_fragment(file_name, data, offset, chunk_size)
       offset += chunk_size + 1
       break if offset > data.length
     end
   end
 
-  def _write_file_powershell_fragment(file_name, encoded_data, length)
-    pwsh_code = %($encoded=\"#{encoded_data}\";
+  def _write_file_powershell_fragment(file_name, data, offset, chunk_size)
+  	chunk = data[offset..offset+chunk_size]
+  	length = chunk.length
+  	compressed_chunk = Rex::Text.gzip(chunk)
+  	encoded_chunk = Base64.strict_encode64(compressed_chunk)
+    pwsh_code = %($encoded=\"#{encoded_chunk}\";
     $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
     $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
-    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::Append)
+    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{offset == 0 ? "Create" : "Append"})
     $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
     $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
     $filename.Write($file_bytes, 0, $file_bytes.Length);
