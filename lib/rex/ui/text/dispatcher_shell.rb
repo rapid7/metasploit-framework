@@ -397,46 +397,47 @@ module DispatcherShell
     str_match = str.match(/[^\\]([\\]{2})*\s+$/)
     str_trail = (str_match.nil?) ? '' : str_match[0]
 
-    split_str = shellsplitex(str)
     # Split the line up by whitespace into words
+    split_str = shellsplitex(str)
 
-    # Append an empty word if we had trailing whitespace
-    split_str[:words] << '' if str_trail.length > 0
-
-    # Place the word list into an instance variable
-    self.tab_words = split_str[:words]
+    # Append an empty token if we had trailing whitespace
+    split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
+    # Place the preceding word list into an instance variable
+    self.tab_words = split_str[:tokens][0...-1].map { |word| word[:value] }
 
     # Pop the last word and pass it to the real method
-    tab_complete_stub(self.tab_words.pop, quote: split_str[:quote])
+    tab_complete_stub(str, split_str)
   end
 
   # Performs tab completion of a command, if supported
   # Current words can be found in self.tab_words
   #
-  def tab_complete_stub(str, quote: nil)
+  def tab_complete_stub(original_str, split_str)
+    *_preceding_tokens, current_token = split_str[:tokens]
+    return nil unless current_token
+
     items = []
+    return nil unless current_token
 
-    return nil if not str
-
-    # puts "Words(#{tab_words.join(", ")}) Partial='#{str}'"
+    current_word = current_token[:value]
 
     # Next, try to match internal command or value completion
     # Enumerate each entry in the dispatcher stack
     dispatcher_stack.each { |dispatcher|
 
       # If no command is set and it supports commands, add them all
-      if (tab_words.empty? and dispatcher.respond_to?('commands'))
+      if tab_words.empty? and dispatcher.respond_to?('commands')
         items.concat(dispatcher.commands.keys)
       end
 
       # If the dispatcher exports a tab completion function, use it
-      if(dispatcher.respond_to?('tab_complete_helper'))
-        res = dispatcher.tab_complete_helper(str, tab_words)
+      if dispatcher.respond_to?('tab_complete_helper')
+        res = dispatcher.tab_complete_helper(current_word, tab_words)
       else
-        res = tab_complete_helper(dispatcher, str, tab_words)
+        res = tab_complete_helper(dispatcher, current_word, tab_words)
       end
 
-      if (res.nil?)
+      if res.nil?
         # A nil response indicates no optional arguments
         return [''] if items.empty?
       else
@@ -446,13 +447,19 @@ module DispatcherShell
     }
 
     # Match based on the partial word
-    items.find_all { |word|
-      word.downcase.start_with?(str.downcase)
-    # Prepend the rest of the command (or it all gets replaced!)
-    }.map { |word|
-      word = quote.nil? ? word.gsub(' ', '\ ') : quote.dup << word << quote.dup
-      tab_words.dup.push(word).join(' ')
-    }
+    matches = items.find_all do |word|
+      word.downcase.start_with?(current_word.downcase)
+    end
+
+    # Prepend the preceding string of the command (or it all gets replaced!)
+    preceding_str = original_str[0...current_token[:begin]]
+    quote = split_str[:unbalanced_quote]
+    matches_with_preceding_words_appended = matches.map do |word|
+      word = quote.nil? ? word.gsub(' ', '\ ') : "#{quote}#{word}#{quote}"
+      preceding_str + word
+    end
+
+    matches_with_preceding_words_appended
   end
 
   #
@@ -662,51 +669,32 @@ module DispatcherShell
   # This code was originally taken from https://github.com/ruby/ruby/blob/93420d34aaf8c30f11a66dd08eb186da922c831d/lib/shellwords.rb#L88
   #
   def shellsplitex(line)
-    quote = nil
-    words = []
+    unbalanced_quote = nil
+    tokens = []
     field = String.new
-    regexp = %r{
-      \G\s*(?>(?<word>[^\s\'\"]+)             # Words within str
+    current_field_begin = nil
 
-      |                                       # OR
+    line.scan(/\G(\s*)(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do |preceding_whitespace, word, sq, dq, esc, garbage, sep|
+      next if unbalanced_quote.present?
 
-      '(?<sq>[^\']*)'                         # Text between single quotes
-
-      |                                       # OR
-
-      "(?<dq>(?:[^\"\\]|\\.)*)"               # Text between double quotes
-
-      |                                       # OR
-
-      (?<esc>\\.?)                            # Escapes used on special characters
-
-      |                                       # OR
-
-      (?<garbage>\S))                         # Anything that wasn't already matched, expect whitespace
-
-      (?<sep>\s|\z)?                          # Separators
-    }ix
-
-    line.scan(regexp) do
-      |word, sq, dq, esc, garbage, sep|
+      current_field_begin ||= Regexp.last_match.begin(0) + preceding_whitespace.length
       if garbage
-        if quote.nil?
-          quote = garbage
-        else
-          field << garbage
-        end
-        next
+        quote_start_begin = Regexp.last_match.begin(0)
+        unbalanced_quote = garbage
+        field << line[quote_start_begin + 1..-1]
+        break
       end
 
       field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
-      field << sep unless quote.nil? || sep.nil?
-      if quote.nil? && sep
-        words << field
+      if sep
+        tokens << { begin: current_field_begin, value: field }
+        current_field_begin = nil
         field = String.new
       end
     end
-    words << field unless quote.nil?
-    {:quote => quote, :words => words}
+    tokens << { begin: current_field_begin, value: field } if unbalanced_quote
+
+    { unbalanced_quote: unbalanced_quote, tokens: tokens }
   end
 
   attr_accessor :dispatcher_stack # :nodoc:
