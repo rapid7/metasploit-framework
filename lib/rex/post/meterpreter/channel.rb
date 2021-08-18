@@ -159,7 +159,12 @@ class Channel
   end
 
   def set_term_size(rows, columns)
-    request = Packet.create_request(COMMAND_ID_CORE_SET_TERM_SIZE)
+    if self.cid.nil?
+      raise IOError, 'Channel has been closed.', caller
+    end
+
+    request = Packet.create_request(Extensions::Stdapi::COMMAND_ID_STDAPI_SET_TERM_SIZE)
+    request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
     request.add_tlv(TLV_TYPE_UINT, rows)
     request.add_tlv(TLV_TYPE_UINT, columns)
     self.client.send_packet(request)

@@ -88,7 +88,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       '-l' => [false, 'List available shells (/etc/shells).'],
       '-t' => [true, 'Spawn a PTY shell (/bin/bash if no argument given).']
     }
-    if Msf::FeatureManager.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
       Rex::Parser::Arguments.new(default_shell_opts.merge({ '-i' => [ false, 'Drop into a fully interactive shell.'] }))
     else
       Rex::Parser::Arguments.new(default_shell_opts)
@@ -113,7 +113,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       '-z' => [false, 'Execute process in a subshell'],
       '-s' => [true, 'Execute process in a given session as the session user']
     }
-    if Msf::FeatureManager.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
       Rex::Parser::Arguments.new(default_execute_opts.merge({ '-r' => [false, 'raw mode'] }))
     else
       Rex::Parser::Arguments.new(default_execute_opts)
