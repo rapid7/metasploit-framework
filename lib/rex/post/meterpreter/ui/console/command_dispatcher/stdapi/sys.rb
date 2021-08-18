@@ -89,7 +89,9 @@ class Console::CommandDispatcher::Stdapi::Sys
       '-t' => [true, 'Spawn a PTY shell (/bin/bash if no argument given).']
     }
     if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
-      Rex::Parser::Arguments.new(default_shell_opts.merge({ '-i' => [ false, 'Drop into a fully interactive shell.'] }))
+      Rex::Parser::Arguments.new(default_shell_opts.merge(
+        { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`'] }
+      ))
     else
       Rex::Parser::Arguments.new(default_shell_opts)
     end
@@ -352,13 +354,11 @@ class Console::CommandDispatcher::Stdapi::Sys
     when 'android'
       cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
-      args = []
-      args << '-r' if raw
-      if use_pty && pty_shell(sh_path, args)
+      if use_pty && pty_shell(sh_path, raw: raw)
         return true
       end
 
-      cmd_execute('-f', '/bin/sh', '-c', '-i', *args)
+      cmd_execute('-f', '/bin/sh', '-c', '-i')
     else
       # Then this is a multi-platform meterpreter (e.g., php or java), which
       # must special-case COMSPEC to return the system-specific shell.
@@ -367,7 +367,7 @@ class Console::CommandDispatcher::Stdapi::Sys
       # If that failed for whatever reason, guess it's unix
       path = (path && !path.empty?) ? path : '/bin/sh'
 
-      if use_pty && path == '/bin/sh' && pty_shell(sh_path)
+      if use_pty && path == '/bin/sh' && pty_shell(sh_path, raw: raw)
         return true
       end
 
@@ -378,7 +378,9 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   # Spawn a PTY shell
   #
-  def pty_shell(sh_path, args)
+  def pty_shell(sh_path, raw: false)
+    args = []
+    args << '-r' if raw
     sh_path = client.fs.file.exist?(sh_path) ? sh_path : '/bin/sh'
 
     # Python Meterpreter calls pty.openpty() - No need for other methods
