@@ -27,18 +27,18 @@ module Msf::Post::Common
     return nil unless session
 
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       session.sock.peerhost
-    when /(shell|powershell)/
+    when 'shell', 'powershell'
       session.session_host
     end
   end
 
   def rport
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       session.sock.peerport
-    when /(shell|powershell)/
+    when 'shell', 'powershell'
       session.session_port
     end
   end
@@ -80,7 +80,7 @@ module Msf::Post::Common
   #
   def cmd_exec(cmd, args=nil, time_out=15, opts = {})
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       #
       # The meterpreter API requires arguments to come separately from the
       # executable path. This has no effect on Windows where the two are just
@@ -110,14 +110,14 @@ module Msf::Post::Common
         'Subshell' => true
       }.merge(opts)
       o = session.sys.process.capture_output(cmd, args, opts, time_out)
-    when /powershell/
+    when 'powershell'
       if args.nil? || args.empty?
         o = session.shell_command("#{cmd}", time_out)
       else
         o = session.shell_command("#{cmd} #{args}", time_out)
       end
       o.chomp! if o
-    when /shell/
+    when 'shell'
       if args.nil? || args.empty?
         o = session.shell_command_token("#{cmd}", time_out)
       else
@@ -131,7 +131,7 @@ module Msf::Post::Common
 
   def cmd_exec_get_pid(cmd, args=nil, time_out=15)
     case session.type
-      when /meterpreter/
+      when 'meterpreter'
         if args.nil? and cmd =~ /[^a-zA-Z0-9\/._-]/
           args = ""
         end
@@ -199,9 +199,9 @@ module Msf::Post::Common
   #
   def get_envs(*envs)
     case session.type
-    when /meterpreter/
+    when 'meterpreter'
       return session.sys.config.getenvs(*envs)
-    when /(shell|powershell)/
+    when 'shell', 'powershell'
       result = {}
       envs.each do |env|
         res = get_env(env)
