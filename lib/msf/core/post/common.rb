@@ -214,10 +214,14 @@ module Msf::Post::Common
     nil
   end
 
+  # Checks if the specified command can be executed by the session. It should be
+  # noted that not all commands correspond to a binary file on disk. For example,
+  # a bash shell session will provide the `eval` command when there is no `eval`
+  # binary on disk. Likewise, a Powershell session will provide the `Get-Item`
+  # command when there is no `Get-Item` executable on disk.
   #
-  # Checks if the `cmd` is installed on the system
-  # @return [Boolean]
-  #
+  # @param [String] cmd the command to check
+  # @return [Boolean] true when the command exists
   def command_exists?(cmd)
     verification_token = Rex::Text.rand_text_alpha_upper(8)
     if session.type == 'powershell'
