@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
   def check_path(ip, path)
     vprint_status("Trying to download \\\\#{ip}\\#{path}...")
     begin
-      fd = simple.open("\\#{path}", 'ro')
+      fd = simple.open(path, 'ro')
       print_good "Found Policy Share on #{ip}"
       smb_download(ip, fd, path)
     rescue ::RubySMB::Error::UnexpectedStatusCode => e
@@ -66,7 +66,9 @@ class MetasploitModule < Msf::Auxiliary
       when 'STATUS_INSUFF_SERVER_RESOURCES'
         vprint_error("Host rejected with insufficient resources!")
       when 'STATUS_OBJECT_NAME_INVALID'
-        vprint_error("opening \\#{path} bad filename")
+        vprint_error("opening #{path.inspect} bad filename")
+      else
+        vprint_error("Server responded unexpected status code: #{e.status_code.name.inspect}")
       end
     ensure
       fd.close unless fd.nil?
