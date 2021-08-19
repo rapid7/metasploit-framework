@@ -531,11 +531,12 @@ module Msf::Post::File
   alias :dir_rm :rm_rf
 
   #
-  # Renames a remote file and returns true on success and false
-  # on failure
+  # Renames a remote file. If the new file path is a directory, the file will be
+  # moved into that directory with the same name.
   #
   # @param old_file [String] Remote file name to move
   # @param new_file [String] The new name for the remote file
+  # @return [Boolean] Return true on success and false on failure
   def rename_file(old_file, new_file)
 
     verification_token = Rex::Text.rand_text_alphanumeric(8)
