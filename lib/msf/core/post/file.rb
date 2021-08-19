@@ -537,24 +537,35 @@ module Msf::Post::File
   alias :dir_rm :rm_rf
 
   #
-  # Rename a remote file.
+  # Renames a remote file. If the new file path is a directory, the file will be
+  # moved into that directory with the same name.
   #
   # @param old_file [String] Remote file name to move
   # @param new_file [String] The new name for the remote file
+  # @return [Boolean] Return true on success and false on failure
   def rename_file(old_file, new_file)
+
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
     if session.type == "meterpreter"
-      return (session.fs.file.mv(old_file, new_file).result == 0)
-    else
-      if session.platform == 'windows'
-        cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
-      else
-        cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
+      begin
+        new_file = new_file + session.fs.file.separator + session.fs.file.basename(old_file) if directory?(new_file)
+        return (session.fs.file.mv(old_file, new_file).result == 0)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        return false
       end
+    elsif session.type == 'powershell'
+      cmd_exec("Move-Item \"#{old_file}\" \"#{new_file}\" -Force; if($?){echo #{verification_token}}").include?(verification_token)
+    elsif session.platform == 'windows'
+      return false unless file?(old_file) # adding this because when the old_file is not present it hangs for a while, should be removed after this issue is fixed.
+      cmd_exec(%Q|move #{directory?(new_file) ? "" : "/y"} "#{old_file}" "#{new_file}" & if not errorlevel 1 echo #{verification_token}|).include?(verification_token)
+    else
+      cmd_exec(%Q|mv #{directory? ? "" : "-f"} "#{old_file}" "#{new_file}" && echo #{verification_token}|).include?(verification_token)
     end
   end
   alias :move_file :rename_file
   alias :mv_file :rename_file
 
+  #
   #
   # Copy a remote file.
   #
