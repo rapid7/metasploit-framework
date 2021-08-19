@@ -38,8 +38,14 @@ class EvasionDriver
   # current evasion module.  Assumes that target_idx is valid.
   #
   def compatible_payload?(payload)
-    evasion_platform = evasion.targets[target_idx].platform || evasion.platform
-    return ((payload.platform & evasion_platform).empty? == false)
+    target = evasion.targets[target_idx]
+    evasion_platform = target.platform || evasion.platform
+    evasion_arch = target.arch || evasion.arch
+
+    supported_platforms = payload.platform & evasion_platform
+    supported_arch = payload.arch & evasion_arch
+
+    !supported_platforms.empty? && !supported_arch.empty?
   end
 
   def validate
