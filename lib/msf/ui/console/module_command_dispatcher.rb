@@ -87,7 +87,7 @@ module ModuleCommandDispatcher
           nmod = mod.replicant
           nmod.datastore['RHOST'] = thr_host[:address].dup
           nmod.datastore['VHOST'] = thr_host[:hostname].dup if nmod.options.include?('VHOST') && nmod.datastore['VHOST'].blank?
-          Msf::Simple::Framework.simplify_module(nmod, false)
+          Msf::Simple::Framework.simplify_module(nmod)
           check_simple(nmod)
         }
       end
