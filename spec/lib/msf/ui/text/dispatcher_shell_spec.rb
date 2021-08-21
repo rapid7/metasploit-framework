@@ -10,10 +10,10 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
     dummy_class.new(prompt, prompt_char)
   end
 
-  let(:mock_dispatcher) do
+  def mock_dispatcher_for(completions:)
     dispatcher = double :mock_dispatcher
     allow(dispatcher).to receive(:tab_complete_helper) do |_current_word, _preceding_words|
-      ['username=']
+      completions
     end
     dispatcher
   end
@@ -21,7 +21,7 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
   describe '#tab_complete' do
     let(:dispatcher_stack) do
       [
-        mock_dispatcher
+        mock_dispatcher_for(completions: completions)
       ]
     end
 
@@ -29,31 +29,74 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       allow(subject).to receive(:dispatcher_stack).and_return(dispatcher_stack)
     end
 
-    [
-      { input: '', expected: nil },
-      { input: '      ', expected: ['      username='] },
-      { input: '      u', expected: ['      username='] },
-      { input: 'password=abc user', expected: ['password=abc username='] },
-      { input: 'password=a\\ b\\ c user', expected: ['password=a\\ b\\ c username='] },
-      { input: "'password=a b c' user", expected: ["'password=a b c' username="] },
-      { input: "password='a b c' user", expected: ["password='a b c' username="] },
-      { input: "password='a b c'       user", expected: ["password='a b c'       username="] },
-      { input: 'username=', expected: ['username='] },
-      { input: 'password=abc ', expected: ['password=abc username='] }
-    ].each do |test|
-      it "provides completion for #{test[:input].inspect}" do
-        expect(subject.tab_complete(test[:input])).to eql(test[:expected])
+    context 'when tab completing options' do
+      let(:completions) { ['username=', 'password='] }
+      [
+        { input: '', expected: nil },
+        { input: '      ', expected: ['      username=', '      password='] },
+        { input: '      u', expected: ['      username='] },
+        { input: 'password=abc user', expected: ['password=abc username='] },
+        { input: 'password=a\\ b\\ c user', expected: ['password=a\\ b\\ c username='] },
+        { input: "'password=a b c' user", expected: ["'password=a b c' username="] },
+        { input: "password='a b c' user", expected: ["password='a b c' username="] },
+        { input: "password='a b c'       user", expected: ["password='a b c'       username="] },
+        { input: 'username=', expected: ['username='] },
+        { input: 'password=abc ', expected: ['password=abc username=', 'password=abc password='] }
+      ].each do |test|
+        it "provides completion for #{test[:input].inspect}" do
+          expect(subject.tab_complete(test[:input])).to eql(test[:expected])
+        end
+      end
+    end
+
+    context 'when tab completing paths' do
+      context 'when the paths are relative' do
+        let(:completions) { ['$Recycle.Bin', 'Program Files (x86)', 'Program Files', 'Documents and Settings'] }
+
+        [
+          { input: '', expected: nil },
+          { input: 'cd  ', expected: ['cd  $Recycle.Bin', 'cd  Program\\ Files\\ (x86)', 'cd  Program\\ Files', 'cd  Documents\\ and\\ Settings'] },
+          { input: 'cd  P', expected: ['cd  Program\\ Files\\ (x86)', 'cd  Program\\ Files'] },
+          { input: "cd  'Progra", expected: ["cd  'Program Files (x86)'", "cd  'Program Files'"] },
+          { input: 'cd  "Program"', expected: ['cd  "Program Files (x86)"', 'cd  "Program Files"'] },
+          { input: "cd  'Program Files", expected: ["cd  'Program Files (x86)'", "cd  'Program Files'"] },
+          { input: "cd  'Program\\ Files", expected: [] },
+          { input: "cd  'Program\\\\ Files", expected: [] },
+          { input: 'cd  Program\\ Files', expected: ['cd  Program\\ Files\\ (x86)', 'cd  Program\\ Files'] },
+        ].each do |test|
+          it "provides completion for #{test[:input].inspect}" do
+            expect(subject.tab_complete(test[:input])).to eql(test[:expected])
+          end
+        end
+      end
+
+      context 'when the paths are absolute' do
+        let(:completions) { ['C:\\$Recycle.Bin', 'C:\\Program Files (x86)', 'C:\\Program Files', 'C:\\Documents and Settings'] }
+
+        [
+          { input: '', expected: nil },
+          { input: 'cd  ', expected: ['cd  C:\\\\$Recycle.Bin', 'cd  C:\\\\Program\\ Files\\ (x86)', 'cd  C:\\\\Program\\ Files', 'cd  C:\\\\Documents\\ and\\ Settings'] },
+          { input: 'cd  C:', expected: ['cd  C:\\\\$Recycle.Bin', 'cd  C:\\\\Program\\ Files\\ (x86)', 'cd  C:\\\\Program\\ Files', 'cd  C:\\\\Documents\\ and\\ Settings'] },
+          { input: "cd  'C:\\Progra", expected: ["cd  'C:\\Program Files (x86)'", "cd  'C:\\Program Files'"] },
+          { input: 'cd  "C:\\Program"', expected: ['cd  "C:\\Program Files (x86)"', 'cd  "C:\\Program Files"'] },
+          { input: "cd  'C:\\Program Files", expected: ["cd  'C:\\Program Files (x86)'", "cd  'C:\\Program Files'"] },
+          { input: "cd  'C:\\Program\\ Files", expected: [] },
+          { input: "cd  'C:\\Program\\\\ Files", expected: [] },
+          { input: 'cd  C:\\\\Program\\ Files', expected: ['cd  C:\\\\Program\\ Files\\ (x86)', 'cd  C:\\\\Program\\ Files'] },
+        ].each do |test|
+          it "provides completion for #{test[:input].inspect}" do
+            expect(subject.tab_complete(test[:input])).to eql(test[:expected])
+          end
+        end
       end
     end
   end
 
-  # Tests added to verify regex correctly returns correct values in various situations
   describe '#shellsplitex' do
     [
       {
         input: '',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
           ]
         }
@@ -63,7 +106,6 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
         input: '        ',
         focus: true,
         expected: {
-          unbalanced_quote: nil,
           tokens: [
           ]
         }
@@ -73,10 +115,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
         input: 'foo       bar',
         focus: true,
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'foo' },
-            { begin: 10, value: 'bar' }
+            { begin: 0, value: 'foo', quote: nil },
+            { begin: 10, value: 'bar', quote: nil }
           ]
         }
       },
@@ -84,9 +125,8 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' }
+            { begin: 0, value: 'dir', quote: nil }
           ]
         }
       },
@@ -94,10 +134,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "/"',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: '/' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: '/', quote: '"' }
           ]
         }
       },
@@ -105,10 +144,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "/',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: '/' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: '/', quote: '"' }
           ]
         }
       },
@@ -116,10 +154,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "/Program',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: '/Program' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: '/Program', quote: '"' }
           ]
         }
       },
@@ -127,10 +164,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "/Program/',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: '/Program/' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: '/Program/', quote: '"' }
           ]
         }
       },
@@ -138,10 +174,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir C:\\Pro',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:Pro' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:Pro', quote: nil }
           ]
         }
       },
@@ -149,10 +184,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "C:\\Pro"',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\Pro' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\Pro', quote: '"' }
           ]
         }
       },
@@ -160,10 +194,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: "dir 'C:\\Pro'",
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\Pro' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\Pro', quote: "'" }
           ]
         }
       },
@@ -171,10 +204,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: "dir 'C:\\ProgramData\\jim\\bob.rb'",
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\ProgramData\\jim\\bob.rb' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\ProgramData\\jim\\bob.rb', quote: "'" }
           ]
         }
       },
@@ -182,10 +214,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: "dir 'C:\\ProgramData\\jim\\'",
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\ProgramData\\jim\\' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\ProgramData\\jim\\', quote: "'" }
           ]
         }
       },
@@ -193,10 +224,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "C:\\Pro',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\Pro' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\Pro', quote: '"' }
           ]
         }
       },
@@ -204,10 +234,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "C: \\Pro',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C: \\Pro' }
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C: \\Pro', quote: '"' }
           ]
         }
       },
@@ -215,10 +244,49 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'dir "C:\\Program F',
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'dir' },
-            { begin: 4, value: 'C:\\Program F' },
+            { begin: 0, value: 'dir', quote: nil },
+            { begin: 4, value: 'C:\\Program F', quote: '"' },
+          ]
+        }
+      },
+
+      {
+        input: 'cd  C:\\\\Program\\ F',
+        expected: {
+          tokens: [
+            { begin: 0, value: 'cd', quote: nil },
+            { begin: 4, value: 'C:\\Program F', quote: nil },
+          ]
+        }
+      },
+
+      {
+        input: 'cd  "C:\\Program F',
+        expected: {
+          tokens: [
+            { begin: 0, value: 'cd', quote: nil },
+            { begin: 4, value: 'C:\\Program F', quote: '"' },
+          ]
+        }
+      },
+
+      {
+        input: "cd  'C:\\\\Program F",
+        expected: {
+          tokens: [
+            { begin: 0, value: 'cd', quote: nil },
+            { begin: 4, value: 'C:\\Program F', quote: "'" },
+          ]
+        }
+      },
+
+      {
+        input: "cd  'Progra",
+        expected: {
+          tokens: [
+            { begin: 0, value: 'cd', quote: nil },
+            { begin: 4, value: 'Progra', quote: "'" },
           ]
         }
       },
@@ -226,10 +294,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: 'pass=a\\ b\\ c user',
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'pass=a b c' },
-            { begin: 13, value: 'user' },
+            { begin: 0, value: 'pass=a b c', quote: nil },
+            { begin: 13, value: 'user', quote: nil },
           ]
         }
       },
@@ -237,10 +304,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: "'pass=a b' username=\"",
         expected: {
-          unbalanced_quote: '"',
           tokens: [
-            { begin: 0, value: 'pass=a b' },
-            { begin: 11, value: 'username=' },
+            { begin: 0, value: 'pass=a b', quote: "'" },
+            { begin: 11, value: 'username=', quote: '"' },
           ]
         }
       },
@@ -248,10 +314,9 @@ RSpec.describe Rex::Ui::Text::DispatcherShell do
       {
         input: "pass='a b' user",
         expected: {
-          unbalanced_quote: nil,
           tokens: [
-            { begin: 0, value: 'pass=a b' },
-            { begin: 11, value: 'user' },
+            { begin: 0, value: 'pass=a b', quote: "'" },
+            { begin: 11, value: 'user', quote: nil },
           ]
         }
       },

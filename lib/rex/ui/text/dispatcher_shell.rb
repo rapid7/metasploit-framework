@@ -402,6 +402,7 @@ module DispatcherShell
 
     # Append an empty token if we had trailing whitespace
     split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
+
     # Place the preceding word list into an instance variable
     self.tab_words = split_str[:tokens][0...-1].map { |word| word[:value] }
 
@@ -453,9 +454,9 @@ module DispatcherShell
 
     # Prepend the preceding string of the command (or it all gets replaced!)
     preceding_str = original_str[0...current_token[:begin]]
-    quote = split_str[:unbalanced_quote]
+    quote = current_token[:quote]
     matches_with_preceding_words_appended = matches.map do |word|
-      word = quote.nil? ? word.gsub(' ', '\ ') : "#{quote}#{word}#{quote}"
+      word = quote.nil? ? word.gsub('\\') { '\\\\' }.gsub(' ', '\\ ') : "#{quote}#{word}#{quote}"
       preceding_str + word
     end
 
@@ -669,32 +670,30 @@ module DispatcherShell
   # This code was originally taken from https://github.com/ruby/ruby/blob/93420d34aaf8c30f11a66dd08eb186da922c831d/lib/shellwords.rb#L88
   #
   def shellsplitex(line)
-    unbalanced_quote = nil
     tokens = []
-    field = String.new
-    current_field_begin = nil
+    field_value = String.new
+    field_begin = nil
 
     line.scan(/\G(\s*)(?>([^\s\\\'\"]+)|'([^\']*)'|"((?:[^\"\\]|\\.)*)"|(\\.?)|(\S))(\s|\z)?/m) do |preceding_whitespace, word, sq, dq, esc, garbage, sep|
-      next if unbalanced_quote.present?
-
-      current_field_begin ||= Regexp.last_match.begin(0) + preceding_whitespace.length
+      field_begin ||= Regexp.last_match.begin(0) + preceding_whitespace.length
       if garbage
-        quote_start_begin = Regexp.last_match.begin(0)
-        unbalanced_quote = garbage
-        field << line[quote_start_begin + 1..-1]
+        quote_start_begin = Regexp.last_match.begin(0) + preceding_whitespace.length
+        field_quote = garbage
+        field_value << line[quote_start_begin + 1..-1].gsub('\\\\', '\\')
+
+        tokens << { begin: field_begin, value: field_value, quote: field_quote }
         break
       end
 
-      field << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
+      field_value << (word || sq || (dq && dq.gsub(/\\([$`"\\\n])/, '\\1')) || esc.gsub(/\\(.)/, '\\1'))
       if sep
-        tokens << { begin: current_field_begin, value: field }
-        current_field_begin = nil
-        field = String.new
+        tokens << { begin: field_begin, value: field_value, quote: ((sq && "'") || (dq && '"') || nil) }
+        field_value = String.new
+        field_begin = nil
       end
     end
-    tokens << { begin: current_field_begin, value: field } if unbalanced_quote
 
-    { unbalanced_quote: unbalanced_quote, tokens: tokens }
+    { tokens: tokens }
   end
 
   attr_accessor :dispatcher_stack # :nodoc:
