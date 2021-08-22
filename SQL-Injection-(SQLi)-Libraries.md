@@ -11,8 +11,8 @@ SQL Injection library support was added in 2020 by @red0xff during the Google Su
 
 |                     | MySQL/MariaDB | SQLite | Postgres |
 |---------------------|---------------|--------|----------|
-| Boolean Based Blind | X             | X      |          |
-| Time Based Blind    | X             | X      |          |
+| Boolean Based Blind | X             | X      | X        |
+| Time Based Blind    | X             | X      | X        |
 |                     |               |        |          |
 
 ## How to use in a module
@@ -32,7 +32,7 @@ end
 ```
 
 `dbms` can be set to either `Common` if the DB isn't know, or one of the other databases and methods if it is known ahead of time such as `SQLitei::BooleanBasedBlind`
-`sqli_opts` is a hash containing all of the options: https://github.com/red0xff/metasploit-framework/blob/master/lib/msf/core/exploit/sqli/common.rb#L10
+`sqli_opts` is a hash containing all of the options: https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/sqli/common.rb#L12
 
 ## Notes
 
