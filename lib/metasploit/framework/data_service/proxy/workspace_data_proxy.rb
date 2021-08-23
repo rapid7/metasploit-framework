@@ -36,8 +36,9 @@ module WorkspaceDataProxy
 
   def workspace
     begin
-      if @current_workspace
-        @current_workspace
+      valid_workspace = find_workspace(@current_workspace.name) if @current_workspace
+      if valid_workspace
+        @current_workspace = valid_workspace
       else
         # This is mostly a failsafe to prevent bad things from happening. @current_workspace should always be set
         # outside of here, but this will save us from crashes/infinite loops if that happens
