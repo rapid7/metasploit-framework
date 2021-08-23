@@ -20,6 +20,39 @@ class Console::CommandDispatcher::Stdapi::Sys
   include Rex::Post::Meterpreter::Extensions::Stdapi
 
   #
+  # Options used by the 'execute' command.
+  #
+  @@execute_opts = Rex::Parser::Arguments.new(
+    "-a" => [ true,  "The arguments to pass to the command."		   ],
+    "-c" => [ false, "Channelized I/O (required for interaction)."		   ], # -i sets -c
+    "-f" => [ true,  "The executable command to run."			   ],
+    "-h" => [ false, "Help menu."						   ],
+    "-H" => [ false, "Create the process hidden from view."			   ],
+    "-i" => [ false, "Interact with the process after creating it."		   ],
+    "-m" => [ false, "Execute from memory."					   ],
+    "-d" => [ true,  "The 'dummy' executable to launch when using -m."	   ],
+    "-t" => [ false, "Execute process with currently impersonated thread token"],
+    "-k" => [ false, "Execute process on the meterpreters current desktop"	   ],
+    "-z" => [ false, "Execute process in a subshell"	   ],
+    "-s" => [ true,  "Execute process in a given session as the session user"  ])
+
+  @@execute_opts_with_raw_mode = Rex::Parser::Arguments.new(@@execute_opts.fmt.merge(
+    { '-r' => [ false, 'Raw mode'] }
+  ))
+
+  #
+  # Options used by the 'shell' command.
+  #
+  @@shell_opts = Rex::Parser::Arguments.new(
+    "-h" => [ false, "Help menu."                                          ],
+    "-l" => [ false, "List available shells (/etc/shells)."                ],
+    "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
+
+  @@shell_opts_with_fully_interactive_shell = Rex::Parser::Arguments.new(@@shell_opts.fmt.merge(
+    { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`'] }
+  ))
+
+  #
   # Options used by the 'reboot' command.
   #
   @@reboot_opts = Rex::Parser::Arguments.new(
@@ -79,49 +112,22 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-c" => [ false, "Continues suspending or resuming even if an error is encountered"],
     "-r" => [ false, "Resumes the target processes instead of suspending"	   ])
 
-  #
-  # Options used by the 'shell' command.
-  #
+
   def shell_opts
-    default_shell_opts = {
-      '-h' => [false, 'Help menu.'],
-      '-l' => [false, 'List available shells (/etc/shells).'],
-      '-t' => [true, 'Spawn a PTY shell (/bin/bash if no argument given).']
-    }
-    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
-      Rex::Parser::Arguments.new(default_shell_opts.merge(
-        { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`'] }
-      ))
-    else
-      Rex::Parser::Arguments.new(default_shell_opts)
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@shell_opts_with_fully_interactive_shell
     end
+
+    @@shell_opts
   end
 
-  #
-  # Options used by the 'execute' command.
-  #
   def execute_opts
-    default_execute_opts = {
-      '-a' => [true, 'The arguments to pass to the command.'],
-      '-c' => [false, 'Channelized I/O (required for interaction).'], # -i sets -c
-      '-f' => [true, 'The executable command to run.'],
-      '-h' => [false, 'Help menu.'],
-      '-H' => [false, 'Create the process hidden from view.'],
-      '-i' => [false, 'Interact with the process after creating it.'],
-      '-m' => [false, 'Execute from memory.'],
-      '-d' => [true, "The 'dummy' executable to launch when using -m."],
-      '-t' => [false, 'Execute process with currently impersonated thread token'],
-      '-k' => [false, 'Execute process on the meterpreters current desktop'],
-      '-z' => [false, 'Execute process in a subshell'],
-      '-s' => [true, 'Execute process in a given session as the session user']
-    }
-    if Msf::FeatureManager.instance.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
-      Rex::Parser::Arguments.new(default_execute_opts.merge({ '-r' => [false, 'raw mode'] }))
-    else
-      Rex::Parser::Arguments.new(default_execute_opts)
+    if client.framework.features.enabled?(Msf::FeatureManager::FULLY_INTERACTIVE_SHELLS)
+      return @@execute_opts_with_raw_mode
     end
-  end
 
+    @@execute_opts
+  end
   #
   # List of supported commands.
   #
