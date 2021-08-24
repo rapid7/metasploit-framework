@@ -49,7 +49,7 @@ class Console::CommandDispatcher::Stdapi::Sys
     "-t" => [ true,  "Spawn a PTY shell (/bin/bash if no argument given)." ]) # ssh(1) -t
 
   @@shell_opts_with_fully_interactive_shell = Rex::Parser::Arguments.new(@@shell_opts.fmt.merge(
-    { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`'] }
+    { '-i' => [ false, 'Drop into a fully interactive shell. (Only used in conjunction with `-t`).'] }
   ))
 
   #
