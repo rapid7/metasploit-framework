@@ -5,6 +5,7 @@
 
 require 'ruby_smb'
 require 'ruby_smb/gss/provider/ntlm'
+require 'metasploit/framework/hashes/identify'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Auxiliary::Report
@@ -47,8 +48,8 @@ class MetasploitModule < Msf::Auxiliary
       [
         OptString.new('CAINPWFILE', [ false, 'Name of file to store Cain&Abel hashes in. Only supports NTLMv1 hashes. Can be a path.', nil ]),
         OptString.new('JOHNPWFILE', [ false, 'Name of file to store JohnTheRipper hashes in. Supports NTLMv1 and NTLMv2 hashes, each of which is stored in separate files. Can also be a path.', nil ]),
-        OptString.new('CHALLENGE', [ false, 'The 8 byte server challenge. If unset or not a valid 16 character hexadecimal pattern, a random challenge is used instead.' ]),
-        OptString.new('DOMAIN_NAME', [ true, 'The domain name used during SMB exchange.', 'anonymous' ]),
+        OptString.new('CHALLENGE', [ false, 'The 8 byte server challenge. Set values must be a valid 16 character hexadecimal pattern. If unset a valid random challenge is used.' ], regex: /^([a-fA-F0-9]{16})$/),
+        OptString.new('SMBDomain', [ true, 'The domain name used during SMB exchange.', 'anonymous'], aliases: ['DOMAIN_NAME']),
         OptInt.new('TIMEOUT', [ true, 'Seconds that the server socket will wait for a response after the client has initiated communication.', 5])
       ]
     )
@@ -57,7 +58,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   class HashCaptureNTLMProvider < RubySMB::Gss::Provider::NTLM
-    def initialize(allow_anonymous: nil, default_domain: nil, listener: nil)
+    def initialize(allow_anonymous: false, default_domain: 'WORKGROUP', listener: nil)
       super(allow_anonymous: allow_anonymous, default_domain: default_domain)
       @listener = listener
     end
@@ -104,7 +105,7 @@ class MetasploitModule < Msf::Auxiliary
           @provider.listener.print_line
 
           if @provider.listener
-            jtr_format = type3_msg.ntlm_version == :ntlmv1 ? 'netntlm' : 'netntlmv2'
+            jtr_format = type3_msg.ntlm_version == :ntlmv1 ? JTR_NTLMV1 : JTR_NTLMV2
             @provider.listener.on_cred(
               {
                 address: client,
@@ -205,26 +206,22 @@ class MetasploitModule < Msf::Auxiliary
     )
 
     # Set domain name for all future server responses
-    ntlm_provider.dns_domain = datastore['DOMAIN_NAME']
-    ntlm_provider.dns_hostname = datastore['DOMAIN_NAME']
-    ntlm_provider.netbios_domain = datastore['DOMAIN_NAME']
-    ntlm_provider.netbios_hostname = datastore['DOMAIN_NAME']
+    ntlm_provider.dns_domain = datastore['SMBDomain']
+    ntlm_provider.dns_hostname = datastore['SMBDomain']
+    ntlm_provider.netbios_domain = datastore['SMBDomain']
+    ntlm_provider.netbios_hostname = datastore['SMBDomain']
 
     if datastore['CHALLENGE']
-      if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
-        # Set challenge for all future server responses
+      # Set challenge for all future server responses
 
-        chall = proc { [datastore['CHALLENGE']].pack('H*') }
-        ntlm_provider.generate_server_challenge(&chall)
-      else
-        print_warning("#{datastore['CHALLENGE']} is not a valid 16 character hexadecimal pattern, using a random pattern instead.")
-      end
+      chall = proc { [datastore['CHALLENGE']].pack('H*') }
+      ntlm_provider.generate_server_challenge(&chall)
     end
 
     if datastore['JOHNPWFILE']
       print_status("JTR hashes will be split into two files depending on the hash format.")
-      print_status("#{build_jtr_file_name('netntlm')} for NTLMv1 hashes.")
-      print_status("#{build_jtr_file_name('netntlmv2')} for NTLMv2 hashes.")
+      print_status("#{build_jtr_file_name(JTR_NTLMV1)} for NTLMv1 hashes.")
+      print_status("#{build_jtr_file_name(JTR_NTLMV2)} for NTLMv2 hashes.")
       print_line
     end
 
