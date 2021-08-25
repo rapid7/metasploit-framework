@@ -179,7 +179,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     # Cain & Abel doesn't support import of NTLMv2 hashes
-    if datastore['CAINPWFILE'] && creds[:jtr_format] == 'netntlm'
+    if datastore['CAINPWFILE'] && creds[:jtr_format] == JTR_NTLMV1
       # Cain&Abel hash format
       # Username:Domain:Challenge:LMHash:NTLMHash
       File.open(File.expand_path(datastore['CAINPWFILE'], Msf::Config.install_root), 'ab') do |f|
