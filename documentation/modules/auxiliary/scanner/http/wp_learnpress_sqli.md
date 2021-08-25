@@ -15,12 +15,12 @@ sqlmap -u 'http://<IP>/wp-admin/post-new.php?post_type=lp_order' --cookie '<cook
 ## Verification Steps
 
 1. Install the plugin, use defaults
-1. Start msfconsole
-1. Do: `use auxiliary/scanner/http/wp_learnpress_sqli`
-1. Do: `set username <username>`
-1. Do: `set password <password>`
-1. Do: `run`
-1. You should get the users and hashes returned.
+2. Start msfconsole
+3. Do: `use auxiliary/scanner/http/wp_learnpress_sqli`
+4. Do: `set username <username>`
+5. Do: `set password <password>`
+6. Do: `run`
+7. You should get the users and hashes returned.
 
 ## Options
 
@@ -30,7 +30,7 @@ This action lists `COUNT` users and password hashes.
 
 ## COUNT
 
-If acation `List Users` is selected (default), this is the number of users to enumerate.
+If action `List Users` is selected (default), this is the number of users to enumerate.
 The larger this list, the more time it will take.  Defaults to `3`.
 
 ### PASSWORD

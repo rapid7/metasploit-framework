@@ -48,7 +48,7 @@ class MetasploitModule < Msf::Auxiliary
       )
     )
     register_options [
-      OptInt.new('COUNT', [false, 'Number of users to enumerate', 1]),
+      OptInt.new('COUNT', [false, 'Number of users to enumerate', 3]),
       OptString.new('USERNAME', [true, 'Valid Username for login', '']),
       OptString.new('PASSWORD', [true, 'Valid Password for login', ''])
     ]
