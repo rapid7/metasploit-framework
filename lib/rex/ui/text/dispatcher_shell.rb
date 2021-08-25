@@ -379,7 +379,6 @@ module DispatcherShell
     self.dispatcher_stack = []
 
     # Initialize the tab completion array
-    self.tab_words = []
     self.on_command_proc = nil
   end
 
@@ -403,28 +402,23 @@ module DispatcherShell
     # Append an empty token if we had trailing whitespace
     split_str[:tokens] << { begin: str.length, value: '' } if str_trail.length > 0
 
-    # Place the preceding word list into an instance variable
-    self.tab_words = split_str[:tokens][0...-1].map { |word| word[:value] }
-
     # Pop the last word and pass it to the real method
     tab_complete_stub(str, split_str)
   end
 
   # Performs tab completion of a command, if supported
-  # Current words can be found in self.tab_words
   #
   def tab_complete_stub(original_str, split_str)
-    *_preceding_tokens, current_token = split_str[:tokens]
+    *preceding_tokens, current_token = split_str[:tokens]
     return nil unless current_token
 
     items = []
-    return nil unless current_token
-
     current_word = current_token[:value]
+    tab_words = preceding_tokens.map { |word| word[:value] }
 
     # Next, try to match internal command or value completion
     # Enumerate each entry in the dispatcher stack
-    dispatcher_stack.each { |dispatcher|
+    dispatcher_stack.each do |dispatcher|
 
       # If no command is set and it supports commands, add them all
       if tab_words.empty? and dispatcher.respond_to?('commands')
@@ -442,13 +436,17 @@ module DispatcherShell
         # A nil response indicates no optional arguments
         return [''] if items.empty?
       else
-        # Otherwise we add the completion items to the list
-        items.concat(res)
+        if res.second == :override_completions
+          return res.first
+        else
+          # Otherwise we add the completion items to the list
+          items.concat(res)
+        end
       end
-    }
+    end
 
     # Match based on the partial word
-    matches = items.find_all do |word|
+    matches = items.select do |word|
       word.downcase.start_with?(current_word.downcase)
     end
 
@@ -467,20 +465,16 @@ module DispatcherShell
   # Provide command-specific tab completion
   #
   def tab_complete_helper(dispatcher, str, words)
-    items = []
-
     tabs_meth = "cmd_#{words[0]}_tabs"
     # Is the user trying to tab complete one of our commands?
-    if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
+    if dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth)
       res = dispatcher.send(tabs_meth, str, words)
       return [] if res.nil?
-      items.concat(res)
-    else
-      # Avoid the default completion list for known commands
-      return []
+      return res
     end
 
-    return items
+    # Avoid the default completion list for unknown commands
+    []
   end
 
   #
@@ -697,7 +691,6 @@ module DispatcherShell
   end
 
   attr_accessor :dispatcher_stack # :nodoc:
-  attr_accessor :tab_words # :nodoc:
   attr_accessor :busy # :nodoc:
   attr_accessor :blocked # :nodoc:
 
