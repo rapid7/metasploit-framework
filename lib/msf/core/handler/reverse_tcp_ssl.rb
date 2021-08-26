@@ -54,11 +54,12 @@ module ReverseTcpSsl
       begin
 
         self.listener_sock = Rex::Socket::SslTcpServer.create(
-          'LocalHost' => ip,
-          'LocalPort' => local_port,
-          'Comm'      => comm,
-          'SSLCert'   => datastore['HandlerSSLCert'],
-          'Context'   =>
+          'LocalHost'  => ip,
+          'LocalPort'  => local_port,
+          'Comm'       => comm,
+          'SSLCert'    => datastore['HandlerSSLCert'],
+          'SSLVersion' => datastore['SSLVersion'],
+          'Context'    =>
             {
               'Msf'        => framework,
               'MsfPayload' => self,
