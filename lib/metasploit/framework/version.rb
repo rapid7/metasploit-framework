@@ -30,7 +30,7 @@ module Metasploit
         end
       end
 
-      VERSION = "6.1.0"
+      VERSION = "6.1.2"
       MAJOR, MINOR, PATCH = VERSION.split('.').map { |x| x.to_i }
       PRERELEASE = 'dev'
       HASH = get_hash

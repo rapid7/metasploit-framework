@@ -64,7 +64,7 @@ module Msf::Post::File
       if session.platform == 'windows'
         # XXX: %CD% only exists on XP and newer, figure something out for NT4
         # and 2k
-        return session.shell_command_token("echo %CD%")
+        return session.shell_command_token("echo %CD%").to_s.strip
       else
         if command_exists?("pwd")
           return session.shell_command_token("pwd").to_s.strip
@@ -84,8 +84,14 @@ module Msf::Post::File
       return session.fs.dir.entries(directory)
     end
 
+    if session.type == 'powershell'
+      dir = session.shell_command_token("Get-ChildItem \"#{directory}\" | Format-Table Name").split(/[\r\n]+/)
+      dir.slice!(0..2) if dir.length > 2
+      return dir
+    end
+
     if session.platform == 'windows'
-      return session.shell_command_token("dir #{directory}").split(/[\r\n]+/)
+      return session.shell_command_token("dir /b \"#{directory}\"")&.split(/[\r\n]+/)
     end
 
     if command_exists?('ls')
@@ -255,9 +261,20 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is readable
   #
   def readable?(path)
+    verification_token = Rex::Text::rand_text_alpha(8)
+    return false unless exists?(path)
+    if session.type == 'powershell'
+      unless directory?(path)
+        return cmd_exec("[System.IO.File]::OpenRead(\"#{path}\");if($?){echo\
+          #{verification_token}}").include?(verification_token)
+      else
+        return cmd_exec("[System.IO.Directory]::GetFiles('#{path}'); if($?) {echo #{verification_token}}").include?(verification_token)
+      end
+    end
+
     raise "`readable?' method does not support Windows systems" if session.platform == 'windows'
 
-    cmd_exec("test -r '#{path}' && echo true").to_s.include? 'true'
+    cmd_exec("test -r '#{path}' && echo #{verification_token}").to_s.include?(verification_token)
   end
 
   #
@@ -374,8 +391,9 @@ module Msf::Post::File
     return unless %w[shell powershell].include?(session.type)
 
     if session.type == 'powershell'
-      return cmd_exec("Get-Content \"#{file_name}\"")
+      return _read_file_powershell(file_name)
     end
+
     if session.platform == 'windows'
       return session.shell_command_token("type \"#{file_name}\"")
     end
@@ -537,24 +555,35 @@ module Msf::Post::File
   alias :dir_rm :rm_rf
 
   #
-  # Rename a remote file.
+  # Renames a remote file. If the new file path is a directory, the file will be
+  # moved into that directory with the same name.
   #
   # @param old_file [String] Remote file name to move
   # @param new_file [String] The new name for the remote file
+  # @return [Boolean] Return true on success and false on failure
   def rename_file(old_file, new_file)
+
+    verification_token = Rex::Text.rand_text_alphanumeric(8)
     if session.type == "meterpreter"
-      return (session.fs.file.mv(old_file, new_file).result == 0)
-    else
-      if session.platform == 'windows'
-        cmd_exec(%Q|move /y "#{old_file}" "#{new_file}"|) =~ /moved/
-      else
-        cmd_exec(%Q|mv -f "#{old_file}" "#{new_file}"|).empty?
+      begin
+        new_file = new_file + session.fs.file.separator + session.fs.file.basename(old_file) if directory?(new_file)
+        return (session.fs.file.mv(old_file, new_file).result == 0)
+      rescue Rex::Post::Meterpreter::RequestError => e
+        return false
       end
+    elsif session.type == 'powershell'
+      cmd_exec("Move-Item \"#{old_file}\" \"#{new_file}\" -Force; if($?){echo #{verification_token}}").include?(verification_token)
+    elsif session.platform == 'windows'
+      return false unless file?(old_file) # adding this because when the old_file is not present it hangs for a while, should be removed after this issue is fixed.
+      cmd_exec(%Q|move #{directory?(new_file) ? "" : "/y"} "#{old_file}" "#{new_file}" & if not errorlevel 1 echo #{verification_token}|).include?(verification_token)
+    else
+      cmd_exec(%Q|mv #{directory? ? "" : "-f"} "#{old_file}" "#{new_file}" && echo #{verification_token}|).include?(verification_token)
     end
   end
   alias :move_file :rename_file
   alias :mv_file :rename_file
 
+  #
   #
   # Copy a remote file.
   #
@@ -584,6 +613,7 @@ module Msf::Post::File
 
 protected
 
+
   def _write_file_powershell(file_name, data)
     offset = 0
     chunk_size = 16256
@@ -610,6 +640,32 @@ protected
     $mstream.Close();
     $reader.Close();)
     cmd_exec(pwsh_code)
+
+  def _read_file_powershell(filename)
+    data = ''
+    offset = 0
+    chunk_size = 65536
+    loop do
+      chunk = _read_file_powershell_fragment(filename, chunk_size, offset)
+      break if chunk.nil?
+      data << chunk
+      offset += chunk_size
+      break if chunk.length < chunk_size
+    end
+    return data
+  end
+
+  def _read_file_powershell_fragment(filename, chunk_size, offset=0)
+    b64_data= cmd_exec("$mstream = [System.IO.MemoryStream]::new();\
+      $gzipstream = [System.IO.Compression.GZipStream]::new($mstream, [System.IO.Compression.CompressionMode]::Compress);\
+      $get_bytes = [System.IO.File]::ReadAllBytes(\"#{filename}\")[#{offset}..#{offset + chunk_size -1}];\
+      $gzipstream.Write($get_bytes, 0 , $get_bytes.Length);\
+      $gzipstream.Close();\
+      [Convert]::ToBase64String($mstream.ToArray())")
+    return nil if b64_data.empty?
+    uncompressed_fragment = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read
+    return uncompressed_fragment
+
   end
 
   # Checks to see if there are non-ansi or newline characters in a given string
