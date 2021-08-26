@@ -59,7 +59,7 @@ class Auxiliary
     begin
       mod_with_opts.validate
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod_with_opts, e)
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
       return false
     end
 
@@ -98,7 +98,7 @@ class Auxiliary
     rescue ::Interrupt
       print_error("Auxiliary interrupted by the console user")
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(running_mod, e)
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(running_mod, e)
     rescue ::Exception => e
       print_error("Auxiliary failed: #{e.class} #{e}")
       if(e.class.to_s != 'Msf::OptionValidateError')

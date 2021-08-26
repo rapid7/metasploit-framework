@@ -143,7 +143,7 @@ module ModuleCommandDispatcher
     begin
       mod_with_opts.validate
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod_with_opts, e)
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod_with_opts, e)
       return false
     end
 

@@ -306,6 +306,7 @@ RSpec.describe Msf::RhostsWalker do
         { 'RHOSTS' => '127.0.0.1 http:' },
         { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1' },
         { 'RHOSTS' => '"http://127.0.0.1' },
+        { 'RHOSTS' => 'unknown_protocol://127.0.0.1' },
       ].each do |test|
         it "validates #{test['RHOSTS']} as being invalid" do
           expect(described_class.new(test['RHOSTS']).valid?).to be false
@@ -331,6 +332,7 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'http:|', 'expected' => 0 },
       { 'RHOSTS' => '127.0.0.1 http:|', 'expected' => 1 },
       { 'RHOSTS' => '127.0.0.1 http:| 127.0.0.1', 'expected' => 2 },
+      { 'RHOSTS' => '127.0.0.1 unknown_protocol://127.0.0.1 ftpz://127.0.0.1', 'expected' => 1 },
     ].each do |test|
       it "counts #{test['RHOSTS'].inspect} as being #{test['expected']}" do
         expect(described_class.new(test['RHOSTS'], aux_mod.datastore).count).to eq(test['expected'])
@@ -354,6 +356,7 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:'), Msf::RhostsWalker::Error.new('https:')] },
+      { 'RHOSTS' => 'unknown_protocol://127.0.0.1 127.0.0.1', 'expected' => [ Msf::RhostsWalker::Error.new('unknown_protocol://127.0.0.1')] },
 
       # cidr validation
       { 'RHOSTS' => 'cidr:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:127.0.0.1')] },

@@ -92,7 +92,8 @@ module Evasion
       evasion.error = $!
       raise $!
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+      evasion.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       evasion.error = e
       evasion.print_error("evasion failed: #{e}")

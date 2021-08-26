@@ -134,7 +134,8 @@ protected
       mod.cleanup
       return
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+      mod.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")

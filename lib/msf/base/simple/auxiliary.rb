@@ -206,7 +206,8 @@ protected
       end
       return
     rescue ::Msf::OptionValidateError => e
-      ::Msf::Simple::Exception.print_option_validate_error(mod, e)
+      mod.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Auxiliary failed: #{e.class} #{e}")
