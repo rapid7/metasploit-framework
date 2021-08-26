@@ -59,6 +59,13 @@ set lport 5000
 run
 ```
 
+Traditionally, you can also specify multiple RHOSTS separated by spaces or with a CIDR subnet mask:
+
+```
+set rhosts 127.0.0.1 127.0.0.2
+set rhosts 127.0.0.1/24
+```
+
 This document describes a modern approach to setting multiple options in a command. This workflow will not only make it easier to use `reverse-i-search` with `CTRL+R` in Metasploit's console, but it will also make it easier to share cheat sheets amongst pentesters.
 
 ### URI support for RHOSTS
