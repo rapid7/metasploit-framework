@@ -187,7 +187,7 @@ module Kernel
   # @return [Boolean]
   #
   def unprivileged_bpf_disabled?
-    unprivileged_bpf_disabled = cmd_exec('cat /proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip
+    unprivileged_bpf_disabled = read_file('/proc/sys/kernel/unprivileged_bpf_disabled').to_s.strip
     return (unprivileged_bpf_disabled == '1' || unprivileged_bpf_disabled == '2')
   rescue
     raise 'Could not determine kernel.unprivileged_bpf_disabled status'
