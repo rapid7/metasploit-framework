@@ -33,7 +33,7 @@ class Creds
   end
 
   def allowed_cred_types
-    %w(password ntlm hash)
+    %w(password ntlm hash) + Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
   end
 
   #
@@ -147,7 +147,7 @@ class Creds
     print_line "  -p,--port <portspec>  List creds with logins on services matching this port spec"
     print_line "  -s <svc names>        List creds matching comma-separated service names"
     print_line "  -u,--user <text>      List users that match this text"
-    print_line "  -t,--type <type>      List creds that match the following types: #{allowed_cred_types.join(',')}"
+    print_line "  -t,--type <type>      List creds of the specified type: password, ntlm, hash or any valid JtR format"
     print_line "  -O,--origins <IP>     List creds that match these origins"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -v,--verbose          Don't truncate long password hashes"
@@ -181,7 +181,6 @@ class Creds
     print_line "  creds -p 22-25,445  # nmap port specification"
     print_line "  creds -s ssh,smb    # All creds associated with a login on SSH or SMB services"
     print_line "  creds -t ntlm       # All NTLM creds"
-    print_line "  creds -j md5        # All John the Ripper hash type MD5 creds"
     print_line
 
     print_line "Example, deleting:"
@@ -406,6 +405,9 @@ class Creds
                Metasploit::Credential::PasswordHash
              when 'ntlm'
                Metasploit::Credential::NTLMHash
+             when *Metasploit::Credential::NonreplayableHash::VALID_JTR_FORMATS
+               opts[:jtr_format] = ptype
+               Metasploit::Credential::NonreplayableHash
              else
                print_error("Unrecognized credential type #{ptype} -- must be one of #{allowed_cred_types.join(',')}")
                return
@@ -433,7 +435,6 @@ class Creds
     matched_cred_ids = []
 
     query.each do |core|
-
       # Exclude non-blank username creds if that's what we're after
       if user == "" && core.public && !(core.public.username.blank?)
         next

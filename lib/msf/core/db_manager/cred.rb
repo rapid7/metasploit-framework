@@ -16,7 +16,11 @@ module Msf::DBManager::Cred
       query = query.includes(logins: [ :service, { service: :host } ])
 
       if opts[:type].present?
-        query = query.where('"metasploit_credential_privates"."type" = ?', opts[:type] )
+        query = query.where('"metasploit_credential_privates"."type" = ?', opts[:type])
+      end
+
+      if opts[:jtr_format].present?
+        query = query.where('"metasploit_credential_privates"."jtr_format" = ?', opts[:jtr_format])
       end
 
       if opts[:svcs].present?
