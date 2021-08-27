@@ -34,7 +34,7 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [
         'hdm',                 # Author of original module
-        'zeroSteiner',         # Creator of RubySMB::Server
+        'Spencer McIntyre',    # Creator of RubySMB::Server
         'agalway-r7',          # Port of existing module to use RUBYSMB::Server
         'sjanusz-r7',          # Port of existing module to use RUBYSMB::Server
       ],
@@ -76,7 +76,6 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       def process_ntlm_type3(type3_msg)
-        username = "#{type3_msg.domain.encode}\\#{type3_msg.user.encode}"
         _, client = ::Socket.unpack_sockaddr_in(@server_client.getpeername)
 
         hash_type = nil
@@ -100,7 +99,7 @@ class MetasploitModule < Msf::Auxiliary
         unless hash_type.nil?
           @provider.listener.print_line "[SMB] #{hash_type} Client     : #{client}"
           # @provider.listener.print_line "[SMB] #{hash_type} Client OS  : #{@client_os_version}"
-          @provider.listener.print_line "[SMB] #{hash_type} Username   : #{username}"
+          @provider.listener.print_line "[SMB] #{hash_type} Username   : #{type3_msg.domain.encode}\\#{type3_msg.user.encode}"
           @provider.listener.print_line "[SMB] #{hash_type} Hash       : #{combined_hash}"
           @provider.listener.print_line
 
@@ -111,11 +110,13 @@ class MetasploitModule < Msf::Auxiliary
                 address: client,
                 combined_hash: combined_hash,
                 jtr_format: jtr_format,
-                username: username,
+                username: type3_msg.user.encode,
                 server_challenge: @server_challenge,
                 client_hash: client_hash,
                 domain: type3_msg.domain.encode,
-                client_os_version: @client_os_version
+                client_os_version: @client_os_version,
+                realm_key: Metasploit::Model::Realm::Key::ACTIVE_DIRECTORY_DOMAIN,
+                realm_value: type3_msg.domain.encode
               }
             )
           end
@@ -165,7 +166,9 @@ class MetasploitModule < Msf::Auxiliary
           jtr_format: creds[:jtr_format],
           username: creds[:username],
           module_fullname: fullname,
-          workspace_id: myworkspace_id
+          workspace_id: myworkspace_id,
+          realm_key: creds[:realm_key],
+          realm_value: creds[:realm_value]
         }
       )
     end
