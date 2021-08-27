@@ -35,6 +35,11 @@ Part of send\_request\_cgi functionality is the ability to collect, edit, and se
 
 A HttpCookieJar is a collection of [HttpCookie](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/remote/http/http_cookie.rb). The Jar can be populated manually with it's `add` method, or automatically via the `keep_cookies` option that can be passed to [send\_request\_cgi](https://github.com/rapid7/metasploit-framework/blob/92d981fff2b4a40324969fd1d1744219589b5fa3/lib/msf/core/exploit/remote/http_client.rb#L385).
 
+If you need to clear the cookie jar (for instance, using a 2nd login), try:
+
+```ruby
+cookie_jar.clear
+```
 
 ### `keep_cookies` option
 
