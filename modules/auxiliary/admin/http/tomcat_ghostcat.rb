@@ -28,16 +28,14 @@ class MetasploitModule < Msf::Auxiliary
           It is likely that users upgrading to 9.0.31, 8.5.51 or 7.0.100 or later will need to make small changes
           to their configurations.
         },
-        'Author' =>
-          [
-            'A Security Researcher of Chaitin Tech', # POC
-            'SunCSR Team' # Metasploit Module
-          ],
+        'Author' => [
+          'A Security Researcher of Chaitin Tech', # POC
+          'SunCSR Team' # Metasploit Module
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['CVE', '2020-1938']
-          ],
+        'References' => [
+          ['CVE', '2020-1938']
+        ],
         'DisclosureDate' => '2020-02-20'
       )
     )

@@ -24,10 +24,9 @@ class MetasploitModule < Msf::Auxiliary
           'Johannes Moritz', # CVE
           'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
         ],
-        'References' =>
-          [
-            [ 'CVE', '2021-27850']
-          ],
+        'References' => [
+          [ 'CVE', '2021-27850']
+        ],
         'Notes' => {
           'Stability' => [ CRASH_SAFE ],
           'Reliability' => [ REPEATABLE_SESSION ],

@@ -31,10 +31,9 @@ class MetasploitModule < Msf::Post
           ['URL', 'https://medium.com/@mattshockl/cve-2020-9934-bypassing-the-os-x-transparency-consent-and-control-tcc-framework-for-4e14806f1de8'],
           ['URL', 'https://github.com/mattshockl/CVE-2020-9934'],
         ],
-        'Notes' =>
-          {
-            'SideEffects' => [ ARTIFACTS_ON_DISK, SCREEN_EFFECTS ]
-          },
+        'Notes' => {
+          'SideEffects' => [ ARTIFACTS_ON_DISK, SCREEN_EFFECTS ]
+        },
         'Platform' => [ 'osx' ],
         'SessionTypes' => [ 'shell', 'meterpreter' ]
       )

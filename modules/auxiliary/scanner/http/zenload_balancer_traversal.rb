@@ -19,15 +19,13 @@ class MetasploitModule < Msf::Auxiliary
           parameter which allows a malicious actor to load arbitrary file path.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Basim Alabdullah', # Vulnerability discovery
-            'Dhiraj Mishra'     # Metasploit module
-          ],
-        'References' =>
-          [
-            ['EDB', '48308']
-          ],
+        'Author' => [
+          'Basim Alabdullah', # Vulnerability discovery
+          'Dhiraj Mishra'     # Metasploit module
+        ],
+        'References' => [
+          ['EDB', '48308']
+        ],
         'DisclosureDate' => '2020-04-10'
       )
     )

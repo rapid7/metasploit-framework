@@ -26,25 +26,23 @@ class MetasploitModule < Msf::Auxiliary
           3.0.0-171222, and 2.70.0-170921.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'h00die', # msf module
-            'Matthew Aberegg', # edb/discovery cve 2020
-            'Michael Burkey', # edb/discovery cve 2020
-            'Federico Fernandez', # cve 2019
-            'Alejandro Parodi' # credited in cve 2019 writeup
-          ],
-        'References' =>
-          [
-            # CVE-2020-11455
-            ['EDB', '48297'], # CVE-2020-11455
-            ['CVE', '2020-11455'],
-            ['URL', 'https://github.com/LimeSurvey/LimeSurvey/commit/daf50ebb16574badfb7ae0b8526ddc5871378f1b'],
-            # CVE-2019-9960
-            ['CVE', '2019-9960'],
-            ['URL', 'https://www.secsignal.org/en/news/cve-2019-9960-arbitrary-file-download-in-limesurvey/'],
-            ['URL', 'https://github.com/LimeSurvey/LimeSurvey/commit/1ed10d3c423187712b8f6a8cb2bc9d5cc3b2deb8']
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'Matthew Aberegg', # edb/discovery cve 2020
+          'Michael Burkey', # edb/discovery cve 2020
+          'Federico Fernandez', # cve 2019
+          'Alejandro Parodi' # credited in cve 2019 writeup
+        ],
+        'References' => [
+          # CVE-2020-11455
+          ['EDB', '48297'], # CVE-2020-11455
+          ['CVE', '2020-11455'],
+          ['URL', 'https://github.com/LimeSurvey/LimeSurvey/commit/daf50ebb16574badfb7ae0b8526ddc5871378f1b'],
+          # CVE-2019-9960
+          ['CVE', '2019-9960'],
+          ['URL', 'https://www.secsignal.org/en/news/cve-2019-9960-arbitrary-file-download-in-limesurvey/'],
+          ['URL', 'https://github.com/LimeSurvey/LimeSurvey/commit/1ed10d3c423187712b8f6a8cb2bc9d5cc3b2deb8']
+        ],
         'DisclosureDate' => '2020-04-02'
       )
     )

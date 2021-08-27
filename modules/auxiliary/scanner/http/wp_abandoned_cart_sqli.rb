@@ -22,18 +22,16 @@ class MetasploitModule < Msf::Auxiliary
           wp_woocommerce_session cookie is required, which has at least one item in the
           cart.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'WPDeeply', # Discovery and PoC
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'WPDeeply', # Discovery and PoC
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['WPVDB', '10461'],
-            ['URL', 'https://wpdeeply.com/woocommerce-abandoned-cart-before-5-8-2-sql-injection/'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
-          ],
+        'References' => [
+          ['WPVDB', '10461'],
+          ['URL', 'https://wpdeeply.com/woocommerce-abandoned-cart-before-5-8-2-sql-injection/'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2413885']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
         ],

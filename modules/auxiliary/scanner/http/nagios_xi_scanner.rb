@@ -23,13 +23,12 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => [ 'Erik Wynter' ], # @wyntererik
       'License' => MSF_LICENSE,
-      'References' =>
-        [
-          ['CVE', '2019-15949'],
-          ['CVE', '2020-5791'],
-          ['CVE', '2020-5792'],
-          ['CVE', '2020-35578']
-        ]
+      'References' => [
+        ['CVE', '2019-15949'],
+        ['CVE', '2020-5791'],
+        ['CVE', '2020-5792'],
+        ['CVE', '2020-35578']
+      ]
     )
     register_options [
       OptString.new('VERSION', [false, 'Nagios XI version to check against existing exploit modules', nil])

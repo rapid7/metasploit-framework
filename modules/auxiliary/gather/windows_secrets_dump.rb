@@ -33,13 +33,11 @@ class MetasploitModule < Msf::Auxiliary
           implement yet. It will be done in a next iteration.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-        [
+        'Author' => [
           'Alberto Solino', # Original Impacket code
           'Christophe De La Fuente', # MSf module
         ],
-        'References' =>
-        [
+        'References' => [
           ['URL', 'https://github.com/SecureAuthCorp/impacket/blob/master/examples/secretsdump.py'],
         ]
       )

@@ -18,29 +18,26 @@ class MetasploitModule < Msf::Post
           stored in `store_loot`, you can dump the hashes with some external scripts like secretsdump.py
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Kevin Beaumont', # Discovery and original POC on www.github.com
-            'romarroca', # POC on www.github.com
-            'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
-          ],
-        'References' =>
-          [
-            ['CVE', '2021-36934'],
-            ['URL', 'https://github.com/GossiTheDog/HiveNightmare'],
-            ['URL', 'https://isc.sans.edu/diary/Summer+of+SAM+-+incorrect+permissions+on+Windows+1011+hives/27652'],
-            ['URL', 'https://github.com/romarroca/SeriousSam']
-          ],
+        'Author' => [
+          'Kevin Beaumont', # Discovery and original POC on www.github.com
+          'romarroca', # POC on www.github.com
+          'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
+        ],
+        'References' => [
+          ['CVE', '2021-36934'],
+          ['URL', 'https://github.com/GossiTheDog/HiveNightmare'],
+          ['URL', 'https://isc.sans.edu/diary/Summer+of+SAM+-+incorrect+permissions+on+Windows+1011+hives/27652'],
+          ['URL', 'https://github.com/romarroca/SeriousSam']
+        ],
         'DisclosureDate' => '2021-07-20',
         'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'Notes' =>
-          {
-            'AKA' => [ 'HiveNightmare', 'SeriousSAM' ],
-            'Reliability' => [ ],
-            'SideEffects' => [ ],
-            'Stability' => [ CRASH_SAFE ]
-          }
+        'Notes' => {
+          'AKA' => [ 'HiveNightmare', 'SeriousSAM' ],
+          'Reliability' => [ ],
+          'SideEffects' => [ ],
+          'Stability' => [ CRASH_SAFE ]
+        }
       )
     )
     register_options([
