@@ -542,27 +542,19 @@ class Creds
     else
       if output_file.end_with? '.jtr'
         hashlist = ::File.open(output_file, "wb")
-        ['Metasploit::Credential::NonreplayableHash',
-         'Metasploit::Credential::PostgresMD5',
-         'Metasploit::Credential::NTLMHash'].each do |type|
-          framework.db.creds(type: type).each do |core|
-            formatted = hash_to_jtr(core)
-            unless formatted.nil?
-              hashlist.puts formatted
-            end
+        query.each do |core|
+          formatted = hash_to_jtr(core)
+          unless formatted.nil?
+            hashlist.puts formatted
           end
         end
         hashlist.close
       elsif output_file.end_with? '.hcat'
         hashlist = ::File.open(output_file, "wb")
-        ['Metasploit::Credential::NonreplayableHash',
-         'Metasploit::Credential::PostgresMD5',
-         'Metasploit::Credential::NTLMHash'].each do |type|
-          framework.db.creds(type: type).each do |core|
-            formatted = hash_to_hashcat(core)
-            unless formatted.nil?
-              hashlist.puts formatted
-            end
+        query.each do |core|
+          formatted = hash_to_hashcat(core)
+          unless formatted.nil?
+            hashlist.puts formatted
           end
         end
         hashlist.close
