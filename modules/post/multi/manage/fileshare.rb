@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'timwr'],
         'Platform' => [ 'linux', 'win', 'osx' ],
-        'SessionTypes' => [ 'meterpreter' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ],
         'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
         'Notes' =>
           {
@@ -50,9 +50,8 @@ class MetasploitModule < Msf::Post
     contents = []
     if file_path == '/' && session.platform == 'windows'
       get_drives.each do |drive|
-        fname = "#{drive}:/"
-        furl = uripath + fname
-        contents << [furl, fname]
+        furl = uripath + drive
+        contents << [furl, drive]
       end
       return contents
     end
@@ -98,16 +97,18 @@ class MetasploitModule < Msf::Post
     end
 
     print_status("Request uri: #{request_uri} file_path: #{file_path} from #{cli.peerhost}")
-    if file?(file_path)
+    root_dir = (file_path == '/')
+
+    if file?(file_path) && !root_dir
       # Download the file
       data = read_file(file_path)
       send_response(cli, data, { 'Content-Type' => 'application/octet-stream', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
       return
-    elsif directory?(file_path)
+    elsif directory?(file_path) || root_dir
       # List the directory
       body = "<h2>Directory listing for #{CGI.escapeHTML(file_path)}</h2><hr>"
       body << "<ul>\n"
-      if file_path != '/'
+      unless root_dir
         basedir = request_uri[0, request_uri.chomp('/').rindex('/')]
         if basedir.blank?
           basedir = '/'
