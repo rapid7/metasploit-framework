@@ -71,12 +71,12 @@ class MetasploitModule < Msf::Post
     contents
   end
 
-  def on_request_uri(cli, request)
+  def handle_response(cli, request_uri)
     uripath = get_resource.chomp('/')
 
     # Convert http://127.0.0.1/URIPATH/file/ -> /file
-    if request.uri != uripath && request.uri.starts_with?(uripath)
-      file_path = request.uri[uripath.length, request.uri.length].chomp('/')
+    if request_uri != uripath && request_uri.starts_with?(uripath)
+      file_path = request_uri[uripath.length, request_uri.length].chomp('/')
     end
     if file_path.blank?
       file_path = '/'
@@ -97,40 +97,48 @@ class MetasploitModule < Msf::Post
       file_path = '/'
     end
 
-    print_status("Request uri: #{request.uri} file_path: #{file_path} from #{cli.peerhost}")
+    print_status("Request uri: #{request_uri} file_path: #{file_path} from #{cli.peerhost}")
     if file?(file_path)
       # Download the file
       data = read_file(file_path)
       send_response(cli, data, { 'Content-Type' => 'application/octet-stream', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
       return
-    end
-
-    # List the directory
-    body = "<h2>Directory listing for #{CGI.escapeHTML(file_path)}</h2><hr>"
-    body << "<ul>\n"
-    if file_path != '/'
-      basedir = request.uri[0, request.uri.chomp('/').rindex('/')]
-      if basedir.blank?
-        basedir = '/'
+    elsif directory?(file_path)
+      # List the directory
+      body = "<h2>Directory listing for #{CGI.escapeHTML(file_path)}</h2><hr>"
+      body << "<ul>\n"
+      if file_path != '/'
+        basedir = request_uri[0, request_uri.chomp('/').rindex('/')]
+        if basedir.blank?
+          basedir = '/'
+        end
+        body << "<li><a href=\"#{CGI.escapeHTML(basedir)}\">..</a>\n"
       end
-      body << "<li><a href=\"#{CGI.escapeHTML(basedir)}\">..</a>\n"
+      list_path(file_path, uripath).each do |furl, fname|
+        body << "<li><a href=\"#{CGI.escapeHTML(furl)}\">#{CGI.escapeHTML(fname)}</a>\n"
+      end
+      body << "</ul>\n"
+      html = %(<html>
+  <head>
+  <META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+  <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+  <title>Metasploit File Sharing</title>
+  </head>
+  <body>
+  #{body}
+  </body>
+  </style>
+  </html>
+      )
+      send_response(cli, html, { 'Content-Type' => 'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
+    else
+      send_not_found(cli)
     end
-    list_path(file_path, uripath).each do |furl, fname|
-      body << "<li><a href=\"#{CGI.escapeHTML(furl)}\">#{CGI.escapeHTML(fname)}</a>\n"
-    end
-    body << "</ul>\n"
-    html = %(<html>
-<head>
-<META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
-<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
-<title>Metasploit File Sharing</title>
-</head>
-<body>
-#{body}
-</body>
-</style>
-</html>
-    )
-    send_response(cli, html, { 'Content-Type' => 'text/html', 'Cache-Control' => 'no-cache, no-store, must-revalidate', 'Pragma' => 'no-cache', 'Expires' => '0' })
+  end
+
+  def on_request_uri(cli, request)
+    handle_response(cli, request.uri)
+  rescue ::Rex::Post::Meterpreter::RequestError
+    cli.send_response(create_response(500, 'Unknown error'))
   end
 end
