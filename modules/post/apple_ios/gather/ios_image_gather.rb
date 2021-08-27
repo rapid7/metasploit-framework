@@ -7,18 +7,21 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          =>  'iOS Image Gatherer',
-      'Description'   =>  %q{
-        This module collects images from iPhones.
-        Module was tested on iOS 10.3.3 on an iPhone 5.
-      },
-      'License'       =>  MSF_LICENSE,
-      'Author'        =>  [ 'Shelby Pace' ], # Metasploit Module
-      'Platform'      =>  [ 'apple_ios' ],
-      'SessionTypes'  =>  [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'iOS Image Gatherer',
+        'Description' => %q{
+          This module collects images from iPhones.
+          Module was tested on iOS 10.3.3 on an iPhone 5.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Shelby Pace' ], # Metasploit Module
+        'Platform' => [ 'apple_ios' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def enum_img(f_path)

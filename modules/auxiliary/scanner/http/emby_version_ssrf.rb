@@ -18,11 +18,10 @@ class MetasploitModule < Msf::Auxiliary
       'License' => MSF_LICENSE,
       'Disclosure Date' => '2020-10-01',
       'RelatedModules' => ['auxiliary/scanner/http/emby_ssrf_scanner'],
-      'References' =>
-              [
-                ['CVE', '2020-26948'],
-                ['URL', 'https://github.com/btnz-k/emby_ssrf']
-              ]
+      'References' => [
+        ['CVE', '2020-26948'],
+        ['URL', 'https://github.com/btnz-k/emby_ssrf']
+      ]
     )
 
     register_options(

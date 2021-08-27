@@ -26,11 +26,10 @@ class MetasploitModule < Msf::Auxiliary
           'MR_ME', # Amazing POC on www.exploit-db.com
           'Yann Castel (yann.castel[at]orange.com)' # Metasploit module
         ],
-        'References' =>
-          [
-            [ 'CVE', '2019-15975'],
-            [ 'EDB', '48018']
-          ],
+        'References' => [
+          [ 'CVE', '2019-15975'],
+          [ 'EDB', '48018']
+        ],
         'DisclosureDate' => '2020-06-01',
         'DefaultOptions' => { 'SSL' => true },
         'Notes' => {

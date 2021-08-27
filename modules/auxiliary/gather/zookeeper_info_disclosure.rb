@@ -16,14 +16,12 @@ class MetasploitModule < Msf::Auxiliary
         'Description' => %q{
           Apache ZooKeeper server service runs on TCP 2181 and by default, it is accessible without any authentication. This module targets Apache ZooKeeper service instances to extract information about the system environment, and service statistics.
         },
-        'References' =>
-          [
-            ['URL', 'https://zooKeeper.apache.org/doc/current/zookeeperAdmin.html']
-          ],
-        'Author' =>
-          [
-            'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
-          ],
+        'References' => [
+          ['URL', 'https://zooKeeper.apache.org/doc/current/zookeeperAdmin.html']
+        ],
+        'Author' => [
+          'Karn Ganeshen <KarnGaneshen[at]gmail.com>'
+        ],
         'DisclosureDate' => '2020-10-14',
         'License' => MSF_LICENSE,
         'DefaultOptions' => { 'VERBOSE' => true }

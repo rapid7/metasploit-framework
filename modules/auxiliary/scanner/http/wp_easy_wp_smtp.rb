@@ -20,20 +20,18 @@ class MetasploitModule < Msf::Auxiliary
           Combining these items, it's possible to request a password reset for an account, then view the debug file to determine
           the link that was emailed out, and reset the user's password.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            # this was an 0day
-          ],
+        'Author' => [
+          'h00die', # msf module
+          # this was an 0day
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['URL', 'https://wordpress.org/support/topic/security-issue-with-debug-log/'],
-            ['URL', 'https://blog.nintechnet.com/wordpress-easy-wp-smtp-plugin-fixed-zero-day-vulnerability/'],
-            ['URL', 'https://plugins.trac.wordpress.org/changeset/2432768/easy-wp-smtp'],
-            ['WPVDB', '10494'],
-            ['CVE', '2020-35234']
-          ],
+        'References' => [
+          ['URL', 'https://wordpress.org/support/topic/security-issue-with-debug-log/'],
+          ['URL', 'https://blog.nintechnet.com/wordpress-easy-wp-smtp-plugin-fixed-zero-day-vulnerability/'],
+          ['URL', 'https://plugins.trac.wordpress.org/changeset/2432768/easy-wp-smtp'],
+          ['WPVDB', '10494'],
+          ['CVE', '2020-35234']
+        ],
         'DisclosureDate' => '2020-12-06'
       )
     )

@@ -23,18 +23,16 @@ class MetasploitModule < Msf::Auxiliary
           preventing successful exploitation.
           Teamviewer 15.4.4445, and 8.0.16642 were succssfully tested against.
         },
-        'Author' =>
-          [
-            'Jeffrey Hofmann <me@jeffs.sh>', # Vuln discovery, PoC, etc
-            'h00die' # msf module
-          ],
+        'Author' => [
+          'Jeffrey Hofmann <me@jeffs.sh>', # Vuln discovery, PoC, etc
+          'h00die' # msf module
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            [ 'URL', 'https://jeffs.sh/CVEs/CVE-2020-13699.txt' ],
-            [ 'CVE', '2020-13699' ],
-            [ 'URL', 'https://community.teamviewer.com/t5/Announcements/Statement-on-CVE-2020-13699/td-p/98448' ]
-          ],
+        'References' => [
+          [ 'URL', 'https://jeffs.sh/CVEs/CVE-2020-13699.txt' ],
+          [ 'CVE', '2020-13699' ],
+          [ 'URL', 'https://community.teamviewer.com/t5/Announcements/Statement-on-CVE-2020-13699/td-p/98448' ]
+        ],
         'Notes' => {
           'SideEffects' => [IOC_IN_LOGS]
         }

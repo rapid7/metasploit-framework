@@ -20,21 +20,19 @@ class MetasploitModule < Msf::Auxiliary
           prior to 3.2.6.8 is affected by an authenticated SQL injection via the
           current_items parameter of the post-new.php page.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'Omri Herscovici', # Discovery and PoC
-            'Sagi Tzadik', # Discovery and PoC
-            'nhattruong' # edb poc
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'Omri Herscovici', # Discovery and PoC
+          'Sagi Tzadik', # Discovery and PoC
+          'nhattruong' # edb poc
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['CVE', '2020-6010'],
-            ['URL', 'https://research.checkpoint.com/2020/e-learning-platforms-getting-schooled-multiple-vulnerabilities-in-wordpress-most-popular-learning-management-system-plugins/'],
-            ['EDB', '50137'],
-            ['WPVDB', '10208']
-          ],
+        'References' => [
+          ['CVE', '2020-6010'],
+          ['URL', 'https://research.checkpoint.com/2020/e-learning-platforms-getting-schooled-multiple-vulnerabilities-in-wordpress-most-popular-learning-management-system-plugins/'],
+          ['EDB', '50137'],
+          ['WPVDB', '10208']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }]
         ],

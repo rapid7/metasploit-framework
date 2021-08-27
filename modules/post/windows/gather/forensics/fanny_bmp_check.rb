@@ -24,8 +24,7 @@ class MetasploitModule < Msf::Post
         'Author' => ['William M.'],
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter', 'shell'],
-        'References' =>
-        [
+        'References' => [
           ['URL', 'https://securelist.com/a-fanny-equation-i-am-your-father-stuxnet/68787'],
           ['CVE', '2010-2568']
         ]

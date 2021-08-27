@@ -20,16 +20,14 @@ class MetasploitModule < Msf::Post
           unit and send CAN bus frames into the Multimedia CAN (M-Can) of the vehicle.
         },
         'SessionTypes' => ['meterpreter'],
-        'Author' =>
-          [
-            'Gianpiero Costantino',
-            'Ilaria Matteucci'
-          ],
-        'References' =>
-          [
-            ['CVE', '2020-8539'],
-            ['URL', 'https://sowhat.iit.cnr.it/pdf/IIT-20-2020.pdf']
-          ],
+        'Author' => [
+          'Gianpiero Costantino',
+          'Ilaria Matteucci'
+        ],
+        'References' => [
+          ['CVE', '2020-8539'],
+          ['URL', 'https://sowhat.iit.cnr.it/pdf/IIT-20-2020.pdf']
+        ],
         'Actions' => [
           [ 'TOGGLE_RADIO_MUTE', { 'Description' => 'It mutes/umutes the radio' } ],
           [ 'REDUCE_RADIO_VOLUME', { 'Description' => 'It decreases the radio volume' } ],
