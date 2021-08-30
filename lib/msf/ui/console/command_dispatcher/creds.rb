@@ -295,6 +295,23 @@ class Creds
     end
   end
 
+  def service_from_origin(core)
+    # Depending on the origin of the cred, there may or may not be a way to retrieve the associated service
+    case core.origin
+    when Metasploit::Credential::Origin::Service
+      return core.origin.service
+    end
+  end
+
+  def build_service_info(service)
+    if service.name.present?
+      info = "#{service.port}/#{service.proto} (#{service.name})"
+    else
+      info = "#{service.port}/#{service.proto}"
+    end
+    info
+  end
+
   def creds_search(*args)
     host_ranges   = []
     origin_ranges = []
@@ -441,7 +458,17 @@ class Creds
       end
 
       if core.logins.empty?
-        next if host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
+        service = service_from_origin(core)
+
+        if service.nil?
+          next if host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
+
+          host = ''
+          service_info = ''
+        else
+          host = service.host.address
+          service_info = build_service_info(service)
+        end
 
         matched_cred_ids << core.id
         public_val = core.public ? core.public.username : ""
@@ -454,9 +481,9 @@ class Creds
         jtr_val = core.private ? core.private.jtr_format : ""
 
         tbl << [
-          "", # host
-          origin, # origin
-          "", # service
+          host,
+          origin,
+          service_info,
           public_val,
           private_val,
           realm_val,
@@ -477,11 +504,7 @@ class Creds
           row = [ service.host.address ]
           row << origin
           rhosts << service.host.address
-          if service.name.present?
-            row << "#{service.port}/#{service.proto} (#{service.name})"
-          else
-            row << "#{service.port}/#{service.proto}"
-          end
+          row << build_service_info(service)
 
           matched_cred_ids << core.id
           public_val = core.public ? core.public.username : ""

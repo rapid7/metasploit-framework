@@ -12,6 +12,9 @@
 #  https://openwall.info/wiki/john/sample-hashes
 #  QNX formats -> https://moar.so/blog/qnx-password-hash-formats.html
 
+JTR_NTLMV1 = 'netntlm'
+JTR_NTLMV2 = 'netntlmv2'
+
 def identify_hash(hash)
   hash = hash.to_s.strip
   case
