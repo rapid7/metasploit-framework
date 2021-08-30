@@ -323,9 +323,7 @@ class Creds
     set_rhosts = false
     truncate = true
 
-    #cred_table_columns = [ 'host', 'port', 'user', 'pass', 'type', 'proof', 'active?' ]
     cred_table_columns = [ 'host', 'origin' , 'service', 'public', 'private', 'realm', 'private_type', 'JtR Format' ]
-    user = nil
     delete_count = 0
     search_term = nil
 
@@ -338,6 +336,7 @@ class Creds
           return
         end
         output_file = ::File.expand_path(output_file)
+        truncate = false
       when '-p', '--port'
         unless (arg_port_range(args.shift, port_ranges, true))
           return
@@ -358,16 +357,12 @@ class Creds
         svcs = service.split(/[\s]*,[\s]*/)
         opts[:svcs] = svcs
       when '-P', '--password'
-        pass = args.shift
-        opts[:pass] = pass
-        if (!pass)
+        if !(opts[:pass] = args.shift)
           print_error('Argument required for -P')
           return
         end
       when '-u', '--user'
-        user = args.shift
-        opts[:user] = user
-        if (!user)
+        if !(opts[:user] = args.shift)
           print_error('Argument required for -u')
           return
         end
@@ -432,57 +427,52 @@ class Creds
       'SearchTerm' => search_term
     }
 
-    tbl = Rex::Text::Table.new(tbl_opts)
+
     opts[:workspace] = framework.db.workspace
     query = framework.db.creds(opts)
     matched_cred_ids = []
 
-    query.each do |core|
-      # Exclude non-blank username creds if that's what we're after
-      if user == "" && core.public && !(core.public.username.blank?)
-        next
+    if output_file&.ends_with?('.hcat')
+      output_file = ::File.open(output_file, 'wb')
+      output_formatter = method(:hash_to_hashcat)
+    elsif output_file&.ends_with?('.jtr')
+      output_file = ::File.open(output_file, 'wb')
+      output_formatter = method(:hash_to_jtr)
+    else
+      output_file = ::File.open(output_file, 'wb') unless output_file.blank?
+      tbl = Rex::Text::Table.new(tbl_opts)
+    end
+
+    filtered_query(query, opts, origin_ranges, host_ranges) do |core, service, origin|
+      matched_cred_ids << core.id
+
+      if output_file && output_formatter
+        formatted = output_formatter.call(core)
+        output_file.puts(formatted) unless formatted.blank?
       end
 
-      # Exclude non-blank password creds if that's what we're after
-      if pass == "" && core.private && !(core.private.data.blank?)
-        next
-      end
-
-      origin = ''
-      if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
-        service = framework.db.services(id: core.origin.service_id).first
-        origin = service.host.address
-      elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
-        session = framework.db.sessions(id: core.origin.session_id).first
-        origin = session.host.address
-      end
-
-      if origin_ranges.present? && !origin_ranges.any? { |range| range.include?(origin) }
-        next
-      end
-
-      if core.logins.empty?
-        service = service_from_origin(core)
+      unless tbl.nil?
+        public_val = core.public ? core.public.username : ''
+        private_val = core.private ? core.private.to_s : ''
+        if truncate && private_val.to_s.length > 87
+          private_val = "#{private_val[0,87]} (TRUNCATED)"
+        end
+        realm_val = core.realm ? core.realm.value : ''
+        human_val = core.private ? core.private.class.model_name.human : ''
+        if human_val == ''
+          jtr_val = '' #11433, private can be nil
+        else
+          jtr_val = core.private.jtr_format ? core.private.jtr_format : ''
+        end
 
         if service.nil?
-          next if host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
-
           host = ''
           service_info = ''
         else
           host = service.host.address
+          rhosts << host unless host.blank?
           service_info = build_service_info(service)
         end
-
-        matched_cred_ids << core.id
-        public_val = core.public ? core.public.username : ""
-        private_val = core.private ? core.private.to_s : ""
-        if truncate && private_val.length > 87
-          private_val = "#{private_val[0,87]} (TRUNCATED)"
-        end
-        realm_val = core.realm ? core.realm.value : ""
-        human_val = core.private ? core.private.class.model_name.human : ""
-        jtr_val = core.private ? core.private.jtr_format : ""
 
         tbl << [
           host,
@@ -494,78 +484,20 @@ class Creds
           human_val, #private type
           jtr_val
         ]
-      else
-        core.logins.each do |login|
-          service = framework.db.services(id: login.service_id).first
-          # If none of this Core's associated Logins is for a host within
-          # the user-supplied RangeWalker, then we don't have any reason to
-          # print it out. However, we treat the absence of ranges as meaning
-          # all hosts.
-          if host_ranges.present? && !host_ranges.any? { |range| range.include?(service.host.address) }
-            next
-          end
-
-          row = [ service.host.address ]
-          row << origin
-          rhosts << service.host.address
-          row << build_service_info(service)
-
-          matched_cred_ids << core.id
-          public_val = core.public ? core.public.username : ""
-          private_val = core.private ? core.private.to_s : ""
-          if truncate && private_val.to_s.length > 87
-            private_val = "#{private_val[0,87]} (TRUNCATED)"
-          end
-          realm_val = core.realm ? core.realm.value : ""
-          human_val = core.private ? core.private.class.model_name.human : ""
-          if human_val == ""
-            jtr_val = "" #11433, private can be nil
-          else
-            jtr_val = core.private.jtr_format ? core.private.jtr_format : ""
-          end
-
-          row += [
-            public_val,
-            private_val,
-            realm_val,
-            human_val,
-            jtr_val
-          ]
-          tbl << row
-        end
       end
-    end
-    if mode == :delete
-      result = framework.db.delete_credentials(ids: matched_cred_ids)
-      delete_count = result.size
     end
 
     if output_file.nil?
-      print_line(tbl.to_s)
+      print_line(tbl.to_s) if tbl
     else
-      if output_file.end_with? '.jtr'
-        hashlist = ::File.open(output_file, "wb")
-        query.each do |core|
-          formatted = hash_to_jtr(core)
-          unless formatted.nil?
-            hashlist.puts formatted
-          end
-        end
-        hashlist.close
-      elsif output_file.end_with? '.hcat'
-        hashlist = ::File.open(output_file, "wb")
-        query.each do |core|
-          formatted = hash_to_hashcat(core)
-          unless formatted.nil?
-            hashlist.puts formatted
-          end
-        end
-        hashlist.close
-      else #csv
-        # create the output file
-        ::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-      end
-      print_status("Wrote creds to #{output_file}")
+      output_file.write(tbl.to_csv) if output_formatter.nil? && tbl
+      output_file.close
+      print_status("Wrote creds to #{output_file.path}")
+    end
+
+    if mode == :delete
+      result = framework.db.delete_credentials(ids: matched_cred_ids)
+      delete_count = result.size
     end
 
     # Finally, handle the case where the user wants the resulting list
@@ -591,6 +523,55 @@ class Creds
       tabs = []
     end
     return tabs
+  end
+
+  protected
+
+  def filtered_query(query, opts, origin_ranges, host_ranges)
+    query.each do |core|
+      # Exclude non-blank username creds if that's what we're after
+      if opts[:user] == '' && core.public && !(core.public.username.blank?)
+        next
+      end
+
+      # Exclude non-blank password creds if that's what we're after
+      if opts[:pass] == '' && core.private && !(core.private.data.blank?)
+        next
+      end
+
+      origin = ''
+      if core.origin.kind_of?(Metasploit::Credential::Origin::Service)
+        service = framework.db.services(id: core.origin.service_id).first
+        origin = service.host.address
+      elsif core.origin.kind_of?(Metasploit::Credential::Origin::Session)
+        session = framework.db.sessions(id: core.origin.session_id).first
+        origin = session.host.address
+      end
+
+      if origin_ranges.present? && !origin_ranges.any? { |range| range.include?(origin) }
+        next
+      end
+
+      if core.logins.empty?
+        service = service_from_origin(core)
+        next if service.nil? && host_ranges.present? # If we're filtering by login IP and we're here there's no associated login, so skip
+
+        yield core, service, origin
+      else
+        core.logins.each do |login|
+          service = framework.db.services(id: login.service_id).first
+          # If none of this Core's associated Logins is for a host within
+          # the user-supplied RangeWalker, then we don't have any reason to
+          # print it out. However, we treat the absence of ranges as meaning
+          # all hosts.
+          if host_ranges.present? && !host_ranges.any? { |range| range.include?(service.host.address) }
+            next
+          end
+
+          yield core, service, origin
+        end
+      end
+    end
   end
 
 end
