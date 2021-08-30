@@ -149,6 +149,7 @@ class Creds
     print_line "  -u,--user <text>      List users that match this text"
     print_line "  -t,--type <type>      List creds of the specified type: password, ntlm, hash or any valid JtR format"
     print_line "  -O,--origins <IP>     List creds that match these origins"
+    print_line "     --realm            List creds that match this realm"
     print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
     print_line "  -v,--verbose          Don't truncate long password hashes"
 
@@ -387,6 +388,8 @@ class Creds
         opts[:search_term] = search_term
       when '-v', '--verbose'
         truncate = false
+      when '--realm'
+        opts[:realm] = args.shift
       else
         # Anything that wasn't an option is a host to search for
         unless (arg_host_range(arg, host_ranges))
