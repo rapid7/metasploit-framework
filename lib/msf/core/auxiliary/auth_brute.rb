@@ -25,6 +25,7 @@ module Auxiliary::AuthBrute
       OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",false]),
       OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
+      OptBool.new('DB_SKIP_EXISTING', [false,"Skip existing username/password couples stored in the current database",false]),
       OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
     ], Auxiliary::AuthBrute)
 
@@ -43,6 +44,43 @@ module Auxiliary::AuthBrute
         be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
         this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
     ], Auxiliary::AuthBrute)
+  end
+
+  def build_credential_collection(opts)
+    cred_collection = Metasploit::Framework::CredentialCollection.new({
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      user_file: datastore['USER_FILE'],
+      userpass_file: datastore['USERPASS_FILE'],
+      user_as_pass: datastore['USER_AS_PASS'],
+    }.merge(opts))
+
+    cred_collection.filter = -> (cred) do
+      return true unless datastore['DB_SKIP_EXISTING']
+      return true unless framework.db.active
+
+      cred_type =
+        case cred.private_type
+        when :ntlm_hash
+          'Metasploit::Credential::NTLMHash'
+        when :password
+          'Metasploit::Credential::Password'
+        when :ssh_key
+          'Metasploit::Credential::SSHKey'
+        else
+          return true # not a private type that we can filter on
+        end
+
+      # cred[@public, @private, @private_type[:password], @realm]
+      framework.db.creds(
+        type: cred_type,
+        workspace: myworkspace.name,
+        public: cred.public,
+        private: cred.private
+      ).length == 0
+    end
+
+    cred_collection
   end
 
   def setup
@@ -611,7 +649,7 @@ module Auxiliary::AuthBrute
     print_brute :level => :vgood, :msg => msg
   end
 
-  # Provides a consistant way to display messages about AuthBrute-mixed modules.
+  # Provides a consistent way to display messages about AuthBrute-mixed modules.
   # Acceptable opts are fairly self-explanatory, but :level can be tricky.
   #
   # It can be one of status, good, error, or line (and corresponds to the usual
