@@ -63,6 +63,7 @@ class MetasploitModule < Msf::Auxiliary
           request = self.http_client.request_cgi(
             'uri' => self.uri,
             'method' => 'POST',
+            'agent' => 'Microsoft WinRM Client',
             'ctype' => 'application/soap+xml;charset=UTF-8',
             'data' => message
           )
@@ -84,24 +85,6 @@ class MetasploitModule < Msf::Auxiliary
 
       def init_rex_transport(opts)
         RexHttpTransport.new(opts)
-      end
-    end
-
-    module PowerShell
-      def send_command(command, _arguments)
-        command_id = SecureRandom.uuid.to_s.upcase
-        message = MessageFactory.create_pipeline_message(@runspace_id, command_id, command)
-        fragmenter.fragment(message) do |fragment|
-          command_args = [connection_opts, shell_id, command_id, fragment]
-          if fragment.start_fragment
-            resp_doc = transport.send_request(WinRM::WSMV::CreatePipeline.new(*command_args).build)
-            command_id = REXML::XPath.first(resp_doc, "//*[local-name() = 'CommandId']").text
-          else
-            transport.send_request(WinRM::WSMV::SendData.new(*command_args).build)
-          end
-        end
-
-        command_id
       end
     end
 

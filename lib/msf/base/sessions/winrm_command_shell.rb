@@ -57,7 +57,6 @@ module Msf::Sessions
       # that was read will be returned or nil if no data was read.
       #
       def read(length = nil)
-        print_good "proof 2"
         if closed?
           raise IOError, 'Channel has been closed.', caller
         end
@@ -88,16 +87,11 @@ module Msf::Sessions
         if !length.nil? && buf.length >= length
           buf = buf[0..length]
         end
-        begin
-          self.shell.run(buf) do |stdout, stderr|
-            stdout&.each_line do |line|
-              self.rsock.syswrite("#{line.rstrip!}\n")
-            end
-            self.rsock.syswrite(stderr)
+        self.shell.run(buf) do |stdout, stderr|
+          stdout&.each_line do |line|
+            self.rsock.syswrite("#{line.rstrip!}\n")
           end
-        rescue Exception => err
-          print_good(err.message)
-          print_good(err.backtrace)
+          self.rsock.syswrite(stderr)
         end
 
         prompt
