@@ -21,7 +21,7 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Author' => [ 'timwr'],
         'Platform' => [ 'linux', 'win', 'osx' ],
-        'SessionTypes' => [ 'meterpreter', 'shell' ],
+        'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ],
         'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
         'Notes' =>
           {
