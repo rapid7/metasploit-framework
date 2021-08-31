@@ -43,7 +43,7 @@ class MetasploitModule < Msf::Auxiliary
         OptString.new('FACETS', [false, 'A comma-separated list of properties to get summary information on query', nil]),
         OptEnum.new('RESOURCE', [true, 'ZoomEye Resource Type', 'host', ['host', 'web']]),
         OptInt.new('MAXPAGE', [true, 'Max amount of pages to collect', 1]),
-        OptString.new('OUTFILE', [false, 'A filename to store the list of IPs']),
+        OptString.new('OUTFILE', [false, 'Path to the file to store the resulting table of info']),
         OptBool.new('DATABASE', [false, 'Add search results to the database', false])
       ]
     )
@@ -154,7 +154,7 @@ class MetasploitModule < Msf::Auxiliary
     if results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = 'No results.'
       if !results[first_page]['error'].to_s.empty?
-        msg << " Error: #{results[0]['error']}"
+        msg << " Error: #{results[first_page]['error']}"
       end
       print_error(msg)
       return
