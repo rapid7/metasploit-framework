@@ -23,12 +23,11 @@ class MetasploitModule < Msf::Post
         'Platform' => [ 'linux', 'win', 'osx' ],
         'SessionTypes' => [ 'meterpreter', 'shell', 'powershell' ],
         'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
-        'Notes' =>
-          {
-            'Reliability' => [ ],
-            'SideEffects' => [ ],
-            'Stability' => [ CRASH_SAFE ]
-          }
+        'Notes' => {
+          'Reliability' => [ ],
+          'SideEffects' => [ ],
+          'Stability' => [ CRASH_SAFE ]
+        }
       )
     )
   end
