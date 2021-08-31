@@ -15,11 +15,11 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize(info = {})
     super(update_info(info,
-      'Name'		=> 'MySQL Login Utility',
-      'Description'	=> 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
-      'Author'		=> [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
-      'License'		=> MSF_LICENSE,
-      'References'      =>
+      'Name'        => 'MySQL Login Utility',
+      'Description' => 'This module simply queries the MySQL instance for a specific user/pass (default is root with blank).',
+      'Author'      => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
+      'License'     => MSF_LICENSE,
+      'References'  =>
         [
           [ 'CVE', '1999-0502'] # Weak password
         ],
@@ -47,16 +47,10 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     begin
       if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
-        cred_collection = Metasploit::Framework::CredentialCollection.new(
-            blank_passwords: datastore['BLANK_PASSWORDS'],
-            pass_file: datastore['PASS_FILE'],
-            password: datastore['PASSWORD'],
-            user_file: datastore['USER_FILE'],
-            userpass_file: datastore['USERPASS_FILE'],
+        cred_collection = build_credential_collection(
             username: datastore['USERNAME'],
-            user_as_pass: datastore['USER_AS_PASS'],
+            password: datastore['PASSWORD']
         )
-
         cred_collection = prepend_db_passwords(cred_collection)
 
         scanner = Metasploit::Framework::LoginScanner::MySQL.new(

@@ -46,12 +46,11 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(ip)
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
-      username: 'admin'
+    cred_collection = build_credential_collection(
+      username: 'admin',
+      password: datastore['PASSWORD']
     )
+    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::MyBookLive.new(
       configure_http_login_scanner(

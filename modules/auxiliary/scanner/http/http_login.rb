@@ -140,16 +140,10 @@ class MetasploitModule < Msf::Auxiliary
 
     print_status("Attempting to login to #{target_url}#{extra_info}")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['HttpPassword'],
-      user_file: datastore['USER_FILE'],
-      userpass_file: datastore['USERPASS_FILE'],
+    cred_collection = build_credential_collection(
       username: datastore['HttpUsername'],
-      user_as_pass: datastore['USER_AS_PASS'],
+      password: datastore['HttpPassword']
     )
-
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::HTTP.new(

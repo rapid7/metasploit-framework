@@ -55,7 +55,10 @@ class MetasploitModule < Msf::Auxiliary
       ]
     )
 
-    deregister_options('PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY')
+    deregister_options(
+      'PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS','USERPASS_FILE','PASSWORD_SPRAY',
+      'DB_ALL_CREDS', 'DB_ALL_PASS', 'DB_SKIP_EXISTING'
+    )
 
     @good_key = ''
     @strip_passwords = true

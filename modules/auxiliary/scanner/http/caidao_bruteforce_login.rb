@@ -43,14 +43,13 @@ class MetasploitModule < Msf::Auxiliary
 
   def scanner(ip)
     @scanner ||= lambda {
-      cred_collection = Metasploit::Framework::CredentialCollection.new(
-        blank_passwords: datastore['BLANK_PASSWORDS'],
-        pass_file:       datastore['PASS_FILE'],
-        password:        datastore['PASSWORD'],
+      cred_collection = build_credential_collection(
         # The LoginScanner API refuses to run if there's no username, so we give it a fake one.
         # But we will not be reporting this to the database.
-        username:        'caidao'
+        username: 'caidao',
+        password: datastore['PASSWORD']
       )
+      cred_collection = prepend_db_passwords(cred_collection)
 
       return Metasploit::Framework::LoginScanner::Caidao.new(
         configure_http_login_scanner(

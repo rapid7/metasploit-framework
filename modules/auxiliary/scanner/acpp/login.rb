@@ -52,9 +52,7 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
+    cred_collection = build_credential_collection(
       password: datastore['PASSWORD'],
       username: '<BLANK>'
     )

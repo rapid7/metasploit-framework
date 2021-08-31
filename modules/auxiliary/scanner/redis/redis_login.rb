@@ -59,15 +59,12 @@ class MetasploitModule < Msf::Auxiliary
       return
     end
 
-    cred_collection = Metasploit::Framework::CredentialCollection.new(
-      blank_passwords: datastore['BLANK_PASSWORDS'],
-      pass_file: datastore['PASS_FILE'],
-      password: datastore['PASSWORD'],
+    cred_collection = build_credential_collection(
       # The LoginScanner API refuses to run if there's no username, so we give it a fake one.
       # But we will not be reporting this to the database.
-      username: 'redis'
+      username: 'redis',
+      password: datastore['PASSWORD']
     )
-
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::Redis.new(
