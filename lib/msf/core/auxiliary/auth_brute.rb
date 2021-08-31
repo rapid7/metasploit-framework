@@ -46,6 +46,13 @@ module Auxiliary::AuthBrute
     ], Auxiliary::AuthBrute)
   end
 
+  # Build a new CredentialCollection instance configured based on the datastore options. Any options passed in will take
+  # precedence over the datastore. Usernames and passwords will be prepended to the credential collection if their
+  # respective datastore options are configured appropriately. Finally the resulting CredentialCollection will be
+  # configured to perform any necessary filtering per the DB_SKIP_EXISTING option.
+  #
+  # @param [Hash] opts the options with which to build the CredentialCollection instance
+  # @return [Metasploit::Framework::CredentialCollection] the built CredentialCollection
   def build_credential_collection(opts)
     cred_collection = Metasploit::Framework::CredentialCollection.new({
       blank_passwords: datastore['BLANK_PASSWORDS'],

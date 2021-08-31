@@ -122,6 +122,13 @@ module Metasploit::Framework
       prepended_creds.empty? && !has_privates?
     end
 
+    # Returns true when a filter is defined
+    #
+    # @return [Boolean]
+    def filtered?
+      !self.filter.nil?
+    end
+
     # Returns true when there are any private values set
     #
     # @return [Boolean]
