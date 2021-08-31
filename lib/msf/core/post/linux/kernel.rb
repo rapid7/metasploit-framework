@@ -59,7 +59,9 @@ module Kernel
   # @return [Array]
   #
   def kernel_config
-    output = read_file('/boot/config-`uname -r`')
+   return unless cmd_exec('test -r /boot/config-`uname -r` && echo true').include? 'true'
+    output = cmd_exec("cat /boot/config-`uname -r`").to_s.strip
+    return if output.empty?
     config = output.split("\n").map(&:strip).reject(&:empty?).reject {|i| i.start_with? '#'}
     config
   rescue
@@ -280,7 +282,7 @@ module Kernel
   # @return [Boolean]
   #
   def yama_installed?
-    ptrace_scope = read_file('/proc/sys/kernel/yama/ptrace_scope').to_s
+    ptrace_scope = read_file('/proc/sys/kernel/yama/ptrace_scope').to_s.strip
     return true if ptrace_scope =~ /\A\d\z/
     false
   rescue
