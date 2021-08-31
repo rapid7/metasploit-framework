@@ -15,22 +15,20 @@ module Msf::Sessions
 
       attr_accessor :lsock, :rsock
 
-      attr_accessor :shell, :closed, :conn
-
       module PeerInfo
         include ::Rex::IO::Stream
         attr_accessor :peerinfo
         attr_accessor :localinfo
       end
       
-      def initialize(conn, addr, port)
-        self.conn = conn
-        self.shell = conn.shell(:powershell)
+      def initialize(shell, addr, port)
+        self.shell = shell
 
         initialize_abstraction
         self.lsock.extend(PeerInfo)
         self.lsock.peerinfo = "[#{addr}]:#{port}"
-        self.lsock.localinfo = "[127.0.0.1]"
+        self.lsock.localinfo = "WinRM Client"
+        prompt
       end
      
      def closed?
@@ -48,6 +46,10 @@ module Msf::Sessions
           raise IOError, 'Channel has been closed.', caller
         end
         self.close
+      end
+
+      def prompt
+        self.rsock.write("PS> ")
       end
 
       #
@@ -87,7 +89,7 @@ module Msf::Sessions
           buf = buf[0..length]
         end
         begin
-          output = self.shell.run(buf) do |stdout, stderr|
+          self.shell.run(buf) do |stdout, stderr|
             stdout&.each_line do |line|
               self.rsock.syswrite("#{line.rstrip!}\n")
             end
@@ -97,18 +99,43 @@ module Msf::Sessions
           print_good(err.message)
           print_good(err.backtrace)
         end
+
+        prompt
         
         buf.length
       end
+      protected
+        attr_accessor :shell, :closed
     end 
+
+    def commands
+      {
+        'help'       => 'Help menu',
+        'background' => 'Backgrounds the current shell session',
+        'sessions'   => 'Quickly switch to another session',
+        'resource'   => 'Run a meta commands script stored in a local file',
+        'irb'        => 'Open an interactive Ruby shell on the current session',
+        'pry'        => 'Open the Pry debugger on the current session',
+        'exit'       => 'Exit the shell'
+      }
+    end
+
+    def cmd_exit
+      wrapper.close
+    end
+
     #
     # Create a session instance from a shell ID.
     #
-    # @param conn [WinRM::Connection] A connection to a WinRM service
+    # @param shell [WinRM::Shells::Base] A WinRM shell object
     # @param opts [Hash] Optional parameters to pass to the session object.
-    def initialize(conn, opts = {})
-      wrapper = WinrmSocketWrapper.new(conn, 'here',42)
-      super(wrapper.lsock, opts)
+    def initialize(shell, addr, port, opts = {})
+      self.wrapper = WinrmSocketWrapper.new(shell, addr, port)
+      super(self.wrapper.lsock, opts)
     end
+
+protected
+		attr_accessor :wrapper
+
   end
 end
