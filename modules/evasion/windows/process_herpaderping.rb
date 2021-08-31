@@ -42,14 +42,12 @@ class MetasploitModule < Msf::Evasion
 
           The source code is based on Johnny Shaw's PoC (https://github.com/jxy-s/herpaderping).
         },
-        'Author' =>
-        [
+        'Author' => [
           'Johnny Shaw', # Research and PoC
           'Christophe De La Fuente' # MSF Module
         ],
         'License' => MSF_LICENSE,
-        'References' =>
-        [
+        'References' => [
           [ 'URL', 'https://jxy-s.github.io/herpaderping/' ],
           [ 'URL', 'https://github.com/jxy-s/herpaderping' ],
         ],

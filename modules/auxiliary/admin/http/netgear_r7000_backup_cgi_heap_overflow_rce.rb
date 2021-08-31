@@ -36,17 +36,15 @@ class MetasploitModule < Msf::Auxiliary
         'Targets' => [
           [ 'Netgear R7000 Firmware Version 1.0.11.116', {} ]
         ],
-        'Notes' =>
-          {
-            'Reliability' => [ REPEATABLE_SESSION ],
-            'Stability' => [ CRASH_SERVICE_DOWN ],
-            'SideEffects' => [ CONFIG_CHANGES ]
-          },
-        'References' =>
-          [
-            [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-netgear-nighthawk-r7000-httpd-preauth-rce/'],
-            [ 'CVE', '2021-31802']
-          ],
+        'Notes' => {
+          'Reliability' => [ REPEATABLE_SESSION ],
+          'Stability' => [ CRASH_SERVICE_DOWN ],
+          'SideEffects' => [ CONFIG_CHANGES ]
+        },
+        'References' => [
+          [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-netgear-nighthawk-r7000-httpd-preauth-rce/'],
+          [ 'CVE', '2021-31802']
+        ],
         'DisclosureDate' => '2021-04-21'
       )
       )

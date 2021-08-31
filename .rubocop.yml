@@ -15,6 +15,7 @@ AllCops:
 
 require:
   - ./lib/rubocop/cop/layout/module_hash_on_new_line.rb
+  - ./lib/rubocop/cop/layout/module_hash_values_on_same_line.rb
   - ./lib/rubocop/cop/layout/module_description_indentation.rb
   - ./lib/rubocop/cop/layout/extra_spacing_with_bindata_ignored.rb
   - ./lib/rubocop/cop/lint/module_disclosure_date_format.rb
@@ -146,6 +147,9 @@ Style/SwapValues:
   Enabled: false
 
 Layout/ModuleHashOnNewLine:
+  Enabled: true
+
+Layout/ModuleHashValuesOnSameLine:
   Enabled: true
 
 Layout/ModuleDescriptionIndentation:

@@ -23,11 +23,10 @@ module MetasploitModule
         'Session' => Msf::Sessions::CommandShell,
         'PayloadType' => 'cmd',
         'RequiredCmd' => 'tclsh',
-        'Payload' =>
-          {
-            'Offsets' => {},
-            'Payload' => ''
-          }
+        'Payload' => {
+          'Offsets' => {},
+          'Payload' => ''
+        }
       )
     )
   end

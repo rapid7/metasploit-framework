@@ -22,19 +22,17 @@ class MetasploitModule < Msf::Auxiliary
           parameters, and thus must be encoded,
           and magic_quotes is applied at the server.
         },
-        'Author' =>
-          [
-            'h00die', # msf module
-            'SunCSR', # edb module
-            'Callum Murphy <callum.a.murphy.77@gmail.com>' # full disclosure
-          ],
+        'Author' => [
+          'h00die', # msf module
+          'SunCSR', # edb module
+          'Callum Murphy <callum.a.murphy.77@gmail.com>' # full disclosure
+        ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['EDB', '48457'],
-            ['CVE', '2020-11530'],
-            ['URL', 'https://seclists.org/fulldisclosure/2020/May/26']
-          ],
+        'References' => [
+          ['EDB', '48457'],
+          ['CVE', '2020-11530'],
+          ['URL', 'https://seclists.org/fulldisclosure/2020/May/26']
+        ],
         'Actions' => [
           ['List Users', { 'Description' => 'Queries username, password hash for COUNT users' }],
         ],

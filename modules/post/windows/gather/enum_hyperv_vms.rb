@@ -18,10 +18,9 @@ class MetasploitModule < Msf::Post
         'License' => MSF_LICENSE,
         'Platform' => ['win'],
         'SessionTypes' => ['meterpreter'],
-        'Author' =>
-          [
-            'gwillcox-r7' # Metasploit post module
-          ],
+        'Author' => [
+          'gwillcox-r7' # Metasploit post module
+        ],
         'Notes' => {
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],

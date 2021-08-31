@@ -33,28 +33,26 @@ class MetasploitModule < Msf::Auxiliary
           Radek Domanski).
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-        [
+        'Author' => [
           'Pedro Ribeiro <pedrib[at]gmail.com>', # Twitter: @pedrib1337. Vulnerability discovery and Metasploit module
           'Radek Domanski <radek.domanski[at]gmail.com>', # Twitter: @RabbitPro. Vulnerability discovery and Metasploit module
           'gwillcox-r7' # Minor general updates plus updated implementation of the check method to identify a wider range of vulnerable targets.
         ],
-        'References' =>
-          [
-            [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
-            [ 'URL', 'https://kb.netgear.com/000061982/Security-Advisory-for-Multiple-Vulnerabilities-on-Some-Routers-Mobile-Routers-Modems-Gateways-and-Extenders'],
-            [ 'CVE', '2020-10923'],
-            [ 'CVE', '2020-10924'],
-            [ 'ZDI', '20-703'],
-            [ 'ZDI', '20-704']
-          ],
-        'Notes' => # Note that reliability isn't included here, as technically the exploit can only
-            # only be run once, after which the service crashes.
-            {
-              'SideEffects' => [ CONFIG_CHANGES ], # This module will change the configuration by
-              # resetting the router to the default factory password.
-              'Stability' => [ CRASH_SERVICE_DOWN ] # This module will crash the target service after it is run.
-            },
+        'References' => [
+          [ 'URL', 'https://github.com/pedrib/PoC/blob/master/advisories/Pwn2Own/Tokyo_2019/tokyo_drift/tokyo_drift.md'],
+          [ 'URL', 'https://kb.netgear.com/000061982/Security-Advisory-for-Multiple-Vulnerabilities-on-Some-Routers-Mobile-Routers-Modems-Gateways-and-Extenders'],
+          [ 'CVE', '2020-10923'],
+          [ 'CVE', '2020-10924'],
+          [ 'ZDI', '20-703'],
+          [ 'ZDI', '20-704']
+        ],
+        # Note that reliability isn't included here, as technically the exploit can only
+        # only be run once, after which the service crashes.
+        'Notes' => {
+          'SideEffects' => [ CONFIG_CHANGES ], # This module will change the configuration by
+          # resetting the router to the default factory password.
+          'Stability' => [ CRASH_SERVICE_DOWN ] # This module will crash the target service after it is run.
+        },
         'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
         'DisclosureDate' => '2020-06-15',
         'DefaultTarget' => 0

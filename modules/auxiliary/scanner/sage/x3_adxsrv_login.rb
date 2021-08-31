@@ -26,10 +26,9 @@ class MetasploitModule < Msf::Auxiliary
       },
       'Author' => ['Jonathan Peterson <deadjakk[at]shell.rip>'], # @deadjakk
       'License' => MSF_LICENSE,
-      'References' =>
-        [
-          ['URL', 'https://www.rapid7.com/blog/post/2021/07/07/cve-2020-7387-7390-multiple-sage-x3-vulnerabilities/']
-        ]
+      'References' => [
+        ['URL', 'https://www.rapid7.com/blog/post/2021/07/07/cve-2020-7387-7390-multiple-sage-x3-vulnerabilities/']
+      ]
       )
 
     register_options(
