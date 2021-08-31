@@ -100,9 +100,9 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     cred_collection = build_credential_collection(
-      password: datastore['SMBPass'],
-      username: datastore['SMBUser'],
       realm: domain,
+      username: datastore['SMBUser'],
+      password: datastore['SMBPass']
     )
     cred_collection = prepend_db_passwords(cred_collection)
     cred_collection = prepend_db_hashes(cred_collection)

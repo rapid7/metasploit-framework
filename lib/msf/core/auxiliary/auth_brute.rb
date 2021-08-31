@@ -25,7 +25,7 @@ module Auxiliary::AuthBrute
       OptBool.new('DB_ALL_CREDS', [false,"Try each user/password couple stored in the current database",false]),
       OptBool.new('DB_ALL_USERS', [false,"Add all users in the current database to the list",false]),
       OptBool.new('DB_ALL_PASS', [false,"Add all passwords in the current database to the list",false]),
-      OptBool.new('DB_SKIP_EXISTING', [false,"Skip existing username/password couples stored in the current database",false]),
+      OptEnum.new('DB_SKIP_EXISTING', [false,"Skip existing credentials stored in the current database", 'none', %w[ none user user&realm ]]),
       OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
     ], Auxiliary::AuthBrute)
 
@@ -55,29 +55,38 @@ module Auxiliary::AuthBrute
       user_as_pass: datastore['USER_AS_PASS'],
     }.merge(opts))
 
-    cred_collection.filter = -> (cred) do
-      return true unless datastore['DB_SKIP_EXISTING']
-      return true unless framework.db.active
+    # only define the filter if any filtering needs to take place
+    unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
+      cred_collection.filter = -> (cred) do
+        return true unless datastore['DB_SKIP_EXISTING']
+        return true unless framework.db.active
+        opts = { workspace: myworkspace.name }
 
-      cred_type =
-        case cred.private_type
-        when :ntlm_hash
-          'Metasploit::Credential::NTLMHash'
-        when :password
-          'Metasploit::Credential::Password'
-        when :ssh_key
-          'Metasploit::Credential::SSHKey'
+        opts[:type] =
+          case cred.private_type
+          when :ntlm_hash
+            'Metasploit::Credential::NTLMHash'
+          when :password
+            'Metasploit::Credential::Password'
+          when :ssh_key
+            'Metasploit::Credential::SSHKey'
+          else
+            return true # not a private type that we can filter on
+          end
+
+        case datastore['DB_SKIP_EXISTING']
+        when 'user'
+          opts[:user] = cred.public
+        when 'user&realm'
+          opts[:user] = cred.public
+          opts[:realm] = cred.realm
         else
-          return true # not a private type that we can filter on
+          return true
         end
 
-      # cred[@public, @private, @private_type[:password], @realm]
-      framework.db.creds(
-        type: cred_type,
-        workspace: myworkspace.name,
-        public: cred.public,
-        private: cred.private
-      ).length == 0
+        # cred[@public, @private, @private_type[:password], @realm]
+        framework.db.creds(opts).length == 0
+      end
     end
 
     cred_collection
