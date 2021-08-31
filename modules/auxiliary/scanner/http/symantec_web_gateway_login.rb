@@ -43,7 +43,6 @@ class MetasploitModule < Msf::Auxiliary
         username: datastore['USERNAME'],
         password: datastore['PASSWORD']
       )
-      cred_collection = prepend_db_passwords(cred_collection)
 
       return Metasploit::Framework::LoginScanner::SymantecWebGateway.new(
         configure_http_login_scanner(

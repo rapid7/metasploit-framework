@@ -39,7 +39,6 @@ class MetasploitModule < Msf::Auxiliary
         username: datastore['USERNAME'],
         password: datastore['PASSWORD']
       )
-      cred_collection = prepend_db_passwords(cred_collection)
 
       if datastore['TRYDEFAULT']
         # Add the default username and password

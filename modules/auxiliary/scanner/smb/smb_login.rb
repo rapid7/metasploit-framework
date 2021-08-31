@@ -104,9 +104,7 @@ class MetasploitModule < Msf::Auxiliary
       username: datastore['SMBUser'],
       password: datastore['SMBPass']
     )
-    cred_collection = prepend_db_passwords(cred_collection)
     cred_collection = prepend_db_hashes(cred_collection)
-    cred_collection = prepend_db_usernames(cred_collection)
 
     @scanner.cred_details = cred_collection
 

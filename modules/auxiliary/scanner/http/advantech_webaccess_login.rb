@@ -42,7 +42,6 @@ class MetasploitModule < Msf::Auxiliary
         username: datastore['USERNAME'],
         password: datastore['PASSWORD']
       )
-      cred_collection = prepend_db_passwords(cred_collection)
 
       if datastore['TRYDEFAULT']
         print_status("Default credential admin:[empty] added to the credential queue for testing.")

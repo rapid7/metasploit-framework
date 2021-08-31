@@ -49,7 +49,6 @@ class MetasploitModule < Msf::Auxiliary
         username: 'caidao',
         password: datastore['PASSWORD']
       )
-      cred_collection = prepend_db_passwords(cred_collection)
 
       return Metasploit::Framework::LoginScanner::Caidao.new(
         configure_http_login_scanner(

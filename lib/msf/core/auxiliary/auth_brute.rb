@@ -55,6 +55,9 @@ module Auxiliary::AuthBrute
       user_as_pass: datastore['USER_AS_PASS'],
     }.merge(opts))
 
+    cred_collection = prepend_db_usernames(cred_collection)
+    cred_collection = prepend_db_passwords(cred_collection)
+
     # only define the filter if any filtering needs to take place
     unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
       cred_collection.filter = -> (cred) do

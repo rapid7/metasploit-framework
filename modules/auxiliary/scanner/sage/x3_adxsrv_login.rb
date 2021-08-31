@@ -48,7 +48,6 @@ class MetasploitModule < Msf::Auxiliary
       password: datastore['PASSWORD'],
       username: datastore['USERNAME']
     )
-    cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::X3.new(
       host: ip,
