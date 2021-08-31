@@ -15,7 +15,7 @@ module Msf::Sessions
 
       attr_accessor :lsock, :rsock
 
-      attr_accessor :shell_id, :exploit_module
+      attr_accessor :shell, :closed, :conn
 
       module PeerInfo
         include ::Rex::IO::Stream
@@ -23,9 +23,9 @@ module Msf::Sessions
         attr_accessor :localinfo
       end
       
-      def initialize(shell_id, exploit_module, addr, port)
-        self.shell_id = shell_id
-        self.exploit_module = exploit_module
+      def initialize(conn, addr, port)
+        self.conn = conn
+        self.shell = conn.shell(:powershell)
 
         initialize_abstraction
         self.lsock.extend(PeerInfo)
@@ -34,19 +34,20 @@ module Msf::Sessions
       end
      
      def closed?
-        false # TODO
+        self.closed
       end
 
       def close
-        print_good "proof 3"
         cleanup_abstraction
+        self.shell.close
+        self.closed = true
       end
 
       def close_write
         if closed?
           raise IOError, 'Channel has been closed.', caller
         end
-        #TODO
+        self.close
       end
 
       #
@@ -55,7 +56,6 @@ module Msf::Sessions
       #
       def read(length = nil)
         print_good "proof 2"
-        raise IOError, 'Proof 2'
         if closed?
           raise IOError, 'Channel has been closed.', caller
         end
@@ -86,41 +86,29 @@ module Msf::Sessions
         if !length.nil? && buf.length >= length
           buf = buf[0..length]
         end
-
-        
-        
-        print_good("Running #{buf} with #{self.shell_id}")
-        timeout=20
         begin
-          resp = exploit_module.send_winrm_request(exploit_module.winrm_cmd_msg(buf, self.shell_id),timeout)
-          print_good(resp)
-          cmd_id = exploit_module.winrm_get_cmd_id(resp)
-          print_good("Got command with #{cmd_id}")
-          resp = exploit_module.send_winrm_request(exploit_module.winrm_cmd_recv_msg(self.shell_id,cmd_id),timeout)
-          streams = exploit_module.winrm_get_cmd_streams(resp)
-          print_good("Got streams")
-          resp = exploit_module.send_winrm_request(exploit_module.winrm_terminate_cmd_msg(self.shell_id,cmd_id),timeout)
-          print_good(streams['stdout'])
-        rescue Exception => error
-          print_good(error.message)
-          print_good(error.backtrace)
-          self.rsock.syswrite("got em")
+          output = self.shell.run(buf) do |stdout, stderr|
+            stdout&.each_line do |line|
+              self.rsock.syswrite("#{line.rstrip!}\n")
+            end
+            self.rsock.syswrite(stderr)
+          end
+        rescue Exception => err
+          print_good(err.message)
+          print_good(err.backtrace)
         end
-
+        
         buf.length
       end
     end 
     #
     # Create a session instance from a shell ID.
     #
-    # @param shell_id [String] The WinRM-specified ID of the shell object
+    # @param conn [WinRM::Connection] A connection to a WinRM service
     # @param opts [Hash] Optional parameters to pass to the session object.
-    def initialize(shell_id, exploit_module, opts = {})
-      wrapper = WinrmSocketWrapper.new(shell_id, exploit_module, 'here',42)
+    def initialize(conn, opts = {})
+      wrapper = WinrmSocketWrapper.new(conn, 'here',42)
       super(wrapper.lsock, opts)
     end
-
-    
-
   end
 end

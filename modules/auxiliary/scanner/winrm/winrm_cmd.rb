@@ -35,26 +35,23 @@ class MetasploitModule < Msf::Auxiliary
     def warn(msg)
       vprint_warning(msg)
     end
+  end
 
+  class WinRMRexTransport < WinRM::HTTP::HttpTransport
   end
 
   def run_host(ip)
     rhost = datastore['RHOST']
     rport = datastore['RPORT']
-    endpoint = "http://#{rhost}:#{rport}}"
-    overrides = {
-      endpoint: endpoint,
-      user: datastore['USERNAME'],
-      password: datastore['PASSWORD']
-    }
-    opts = WinRM::ConnectionOpts.create_with_defaults(overrides)
-    rex_transport = nil
-    logger = LogProxy.new()
-    cmd_shell = WinRM::Shells::Cmd.new(opts, rex_transport, logger)
-    cmd_shell.run("whoami")
+    endpoint = "http://#{rhost}:#{rport}/wsman"
+    conn = WinRM::Connection.new(
+                endpoint: endpoint,
+                user: datastore['USERNAME'],
+                password: datastore['PASSWORD'],
+                :no_ssl_peer_verification => true
+            )
 
-    shell_id = winrm_get_shell_id(resp)
-    session_setup(shell_id) if datastore['CreateSession']
+    session_setup(conn) if datastore['CreateSession']
     # TODO
 
     #return unless streams.class == Hash
@@ -64,8 +61,8 @@ class MetasploitModule < Msf::Auxiliary
     #print_good "Results saved to #{path}"
   end
 
-  def session_setup(shell_id)
-    sess = Msf::Sessions::WinrmCommandShell.new(shell_id,self)
+  def session_setup(conn)
+    sess = Msf::Sessions::WinrmCommandShell.new(conn)
     info = "AAAAAAAAAAAAAAAAAAAAA"
     merge_me = {
       'USERNAME' => datastore['USERNAME'],
