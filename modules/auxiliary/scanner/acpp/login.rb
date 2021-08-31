@@ -39,6 +39,7 @@ class MetasploitModule < Msf::Auxiliary
       # there is no username, so remove all of these options
       'DB_ALL_USERS',
       'DB_ALL_CREDS',
+      'DB_SKIP_EXISTING',
       'PASSWORD_SPRAY',
       'USERNAME',
       'USERPASS_FILE',
@@ -52,11 +53,11 @@ class MetasploitModule < Msf::Auxiliary
   def run_host(ip)
     vprint_status("#{ip}:#{rport} - Starting ACPP login sweep")
 
-    cred_collection = build_credential_collection(
-      password: datastore['PASSWORD'],
-      username: '<BLANK>'
+    cred_collection = Metasploit::Framework::PrivateCredentialCollection.new(
+      blank_passwords: datastore['BLANK_PASSWORDS'],
+      pass_file: datastore['PASS_FILE'],
+      password: datastore['PASSWORD']
     )
-
     cred_collection = prepend_db_passwords(cred_collection)
 
     scanner = Metasploit::Framework::LoginScanner::ACPP.new(
