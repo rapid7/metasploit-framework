@@ -119,6 +119,18 @@ module Console::InteractiveChannel
     end
   end
 
+  def set_term_size(rows, columns)
+    if self.cid.nil?
+      raise IOError, 'Channel has been closed.', caller
+    end
+
+    request = Packet.create_request(Extensions::Stdapi::COMMAND_ID_STDAPI_SYS_SET_TERM_SIZE)
+    request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+    request.add_tlv(Extensions::Stdapi::TLV_TYPE_TERMINAL_ROWS, rows)
+    request.add_tlv(Extensions::Stdapi::TLV_TYPE_TERMINAL_COLUMNS, columns)
+    self.client.send_packet(request)
+  end
+
   attr_accessor :on_log_proc
 
 end
