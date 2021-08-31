@@ -43,7 +43,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     allow(mod).to receive(:framework).and_return(framework)
     allow(mod).to receive(:datastore).and_return(datastore)
     datastore.import_options(mod.options)
-    Msf::Simple::Framework.simplify_module(mod, false)
+    Msf::Simple::Framework.simplify_module(mod)
     mod
   end
 
@@ -90,7 +90,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     allow(mod).to receive(:framework).and_return(framework)
     allow(mod).to receive(:datastore).and_return(datastore)
     datastore.import_options(mod.options)
-    Msf::Simple::Framework.simplify_module(mod, false)
+    Msf::Simple::Framework.simplify_module(mod)
     mod
   end
 
@@ -141,7 +141,7 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Auxiliary do
     allow(mod).to receive(:framework).and_return(framework)
     allow(mod).to receive(:datastore).and_return(datastore)
     datastore.import_options(mod.options)
-    Msf::Simple::Framework.simplify_module(mod, false)
+    Msf::Simple::Framework.simplify_module(mod)
     mod
   end
 

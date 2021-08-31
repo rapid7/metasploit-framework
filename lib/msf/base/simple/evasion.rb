@@ -13,7 +13,7 @@ module Evasion
     begin
       # Clone the module to prevent changes to the original instance
 
-      Msf::Simple::Framework.simplify_module( evasion, false )
+      Msf::Simple::Framework.simplify_module(evasion)
       yield(evasion) if block_given?
 
       # Import options from the OptionStr or Option hash.
