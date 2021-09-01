@@ -78,7 +78,7 @@ RUN pip install requests
 
 ENV GOPATH=$TOOLS_HOME/go
 ENV GOROOT=$TOOLS_HOME/bin/go
-ENV PATH==${PATH}:${GOPATH}/bin:${GOROOT}/bin
+ENV PATH=${PATH}:${GOPATH}/bin:${GOROOT}/bin
 
 WORKDIR $APP_HOME
 

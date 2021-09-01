@@ -1,4 +1,4 @@
-#/bin/sh -ex
+#!/bin/sh -ex
 
 if [ ! -f "msfconsole" ]; then
   echo "Missing 'msfconsole' the tool should only be run from the root of the repository.'"
@@ -17,4 +17,4 @@ IMG='metasploitframework/metasploit-framework:latest'
 docker run --rm=true --tty \
   --volume=`pwd`:/r7-source \
   --workdir=/r7-source ${IMG} \
-  /bin/sh -c ./tools/automation/cache/buildNewCache.sh
+  /bin/sh -c ./tools/automation/cache/build_new_cache.sh
