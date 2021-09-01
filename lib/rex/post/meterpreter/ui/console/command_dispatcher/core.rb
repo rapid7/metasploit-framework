@@ -1319,6 +1319,10 @@ class Console::CommandDispatcher::Core
         # Use the remote side, then load the client-side
         if (client.core.use(modulenameprovided) == true)
           add_extension_client(md)
+
+          if md == 'stdapi' && !client.exploit_datastore['AutoLoadStdapi'] && client.exploit_datastore['AutoSystemInfo']
+            client.load_session_info
+          end
         end
       rescue => ex
         print_line

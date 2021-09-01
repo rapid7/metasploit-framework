@@ -1142,6 +1142,8 @@ class Console::CommandDispatcher::Stdapi::Sys
   #
   def cmd_sysinfo(*args)
     info = client.sys.config.sysinfo(refresh: true)
+    client.update_session_info
+
     width = "Meterpreter".length
     info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
