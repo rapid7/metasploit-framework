@@ -149,9 +149,9 @@ RSpec.describe Msf::Ui::Console::CommandDispatcher::Creds do
         context 'with an invalid type' do
           it 'should print the list of valid types' do
             creds.cmd_creds('-t', 'asdf')
-            expect(@error).to match_array [
-              'Unrecognized credential type asdf -- must be one of password,ntlm,hash'
-            ]
+            expect(@error.first).to start_with(
+              'Unrecognized credential type asdf -- must be one of password,ntlm,hash,'
+            )
           end
         end
 
