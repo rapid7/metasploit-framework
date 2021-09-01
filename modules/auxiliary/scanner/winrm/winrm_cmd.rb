@@ -4,6 +4,7 @@
 ##
 
 require 'winrm'
+require 'winrm/wsmv/write_stdin'
 
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::WinRM
@@ -29,15 +30,6 @@ class MetasploitModule < Msf::Auxiliary
       ])
   end
 
-  class LogProxy
-    def debug(msg)
-      print_line(msg)
-    end
-    def warn(msg)
-      vprint_warning(msg)
-    end
-  end
-
   class RexWinRMConnection < WinRM::Connection
     class MessageFactory < WinRM::PSRP::MessageFactory
       def self.create_pipeline_message(runspace_pool_id, pipeline_id, command)
@@ -47,6 +39,84 @@ class MetasploitModule < Msf::Auxiliary
           XMLTemplate.render('create_pipeline', cmdlet: command[:cmdlet], args: command[:args]),
           pipeline_id
         )
+      end
+    end
+
+class ShellFactory < WinRM::Shells::ShellFactory
+    
+      class StdinShell < WinRM::Shells::Cmd
+        class ReceiveResponseReader < WinRM::WSMV::ReceiveResponseReader
+          # Reads streams and returns decoded output
+          # @param wsmv_message [WinRM::WSMV::Base] A wsmv message to send to endpoint
+          # @yieldparam [string] standard out response text
+          # @yieldparam [string] standard error response text 
+          # @yieldreturn [WinRM::Output] The command output                                                           
+          def read_output(wsmv_message)
+            program_terminated = false
+            with_output do |output|                                                                                   
+              read_response(wsmv_message, false) do |stream, doc|
+                handled_out = handle_stream(stream, output, doc)
+                if command_done?(doc, true)
+                  program_terminated = true
+                end
+                yield handled_out if handled_out && block_given?
+              end
+            end                                                                                                       
+            if program_terminated
+              print_good("Command done")
+            end
+          end
+        end
+        def create_proc
+          self.command_id = send_command("powershell.exe",[])
+        end
+      
+        def with_command_shell(input, arguments = [])
+          tries ||= 2
+      
+          open unless shell_id
+          create_proc unless command_id
+          send_stdin(input)
+          yield shell_id, self.command_id
+        rescue WinRM::WinRMWSManFault => e
+          raise unless FAULTS_FOR_RESET.include?(e.fault_code) && (tries -= 1) > 0
+      
+          reset_on_error(e)
+          retry
+        end
+      
+        def send_stdin(input)
+          stdin_msg = WinRM::WSMV::WriteStdin.new(
+            connection_opts, 
+            shell_uri: shell_uri,
+            shell_id: shell_id,
+            command_id: command_id,
+            stdin: input
+          )
+          result = transport.send_request(stdin_msg.build)
+          result
+        rescue WinRM::WinRMWSManFault => e
+          raise unless [ERROR_OPERATION_ABORTED, SHELL_NOT_FOUND].include?(e.fault_code)
+        rescue WinRM::WinRMHTTPTransportError => t
+          # dont let the cleanup raise so we dont lose any errors from the command
+          logger.info("[WinRM] #{t.status_code} returned in cleanup with error: #{t.message}")
+        end
+
+        def response_reader
+          @response_reader ||= ReceiveResponseReader.new(transport, logger)
+        end
+
+        protected
+          attr_accessor :command_id
+      end
+    
+      def create_shell(shell_type, shell_opts = {})
+        args = [
+          @connection_opts,
+          @transport,
+          @logger
+        ]
+        StdinShell.new(*args) if shell_type == :stdin
       end
     end
 
@@ -88,8 +158,8 @@ class MetasploitModule < Msf::Auxiliary
       end
     end
 
-    def initialize(connection_opts)
-      super(connection_opts)
+    def shell_factory
+      @shell_factory ||= ShellFactory.new(@connection_opts, transport, logger)
     end
 
     def transport
@@ -106,7 +176,7 @@ class MetasploitModule < Msf::Auxiliary
     uri = datastore['URI']
     ssl = datastore['SSL']
     schema = ssl ? 'https' : 'http'
-    endpoint = "#{schema}://#{rhost}:#{rport}/#{uri}"
+    endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
     conn = RexWinRMConnection.new(
                 endpoint: endpoint,
                 host: rhost,
@@ -119,11 +189,11 @@ class MetasploitModule < Msf::Auxiliary
                 :no_ssl_peer_verification => true
             )
 
-    shell = conn.shell(:powershell)
+    shell = conn.shell(:stdin)
 
     if datastore['CreateSession']
       # Send a meaningless command to determine if the creds are correct
-      comment = "#{Rex::Text.rand_text_alpha(16)}"
+      comment = "##{Rex::Text.rand_text_alpha(16)}"
       shell.run(comment)
       session_setup(shell,rhost,rport,endpoint)
     else
@@ -157,9 +227,6 @@ class MetasploitModule < Msf::Auxiliary
     }
 
     start_session(self, info, merge_me,false,sess.rstream,sess)
-    # NEEDED???
-    host_info = {os_name: 'Windows'}
-    report_host(host_info)
   end
 
 

@@ -28,7 +28,6 @@ module Msf::Sessions
         self.lsock.extend(PeerInfo)
         self.lsock.peerinfo = "[#{addr}]:#{port}"
         self.lsock.localinfo = "WinRM Client"
-        prompt
       end
      
      def closed?
@@ -36,6 +35,7 @@ module Msf::Sessions
       end
 
       def close
+        print_error('Closed')
         cleanup_abstraction
         self.shell.close
         self.closed = true
@@ -46,10 +46,6 @@ module Msf::Sessions
           raise IOError, 'Channel has been closed.', caller
         end
         self.close
-      end
-
-      def prompt
-        self.rsock.write("PS> ")
       end
 
       #
@@ -87,15 +83,16 @@ module Msf::Sessions
         if !length.nil? && buf.length >= length
           buf = buf[0..length]
         end
+      begin
         self.shell.run(buf) do |stdout, stderr|
-          stdout&.each_line do |line|
-            self.rsock.syswrite("#{line.rstrip!}\n")
-          end
-          self.rsock.syswrite(stderr)
+          self.rsock.syswrite(stdout) if stdout
+          self.rsock.syswrite(stderr) if stderr
         end
+      rescue Exception => err
+        print_error(err.message)
+        print_error(err.backtrace)
+      end
 
-        prompt
-        
         buf.length
       end
       protected
@@ -110,12 +107,7 @@ module Msf::Sessions
         'resource'   => 'Run a meta commands script stored in a local file',
         'irb'        => 'Open an interactive Ruby shell on the current session',
         'pry'        => 'Open the Pry debugger on the current session',
-        'exit'       => 'Exit the shell'
       }
-    end
-
-    def cmd_exit
-      wrapper.close
     end
 
     #
