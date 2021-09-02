@@ -43,55 +43,98 @@ class MetasploitModule < Msf::Auxiliary
     end
 
 class ShellFactory < WinRM::Shells::ShellFactory
-    
       class StdinShell < WinRM::Shells::Cmd
         class ReceiveResponseReader < WinRM::WSMV::ReceiveResponseReader
+          def send_get_output_message(message)
+            # Overridden without retry loop
+            @transport.send_request(message)
+          end
+
           # Reads streams and returns decoded output
           # @param wsmv_message [WinRM::WSMV::Base] A wsmv message to send to endpoint
           # @yieldparam [string] standard out response text
-          # @yieldparam [string] standard error response text 
-          # @yieldreturn [WinRM::Output] The command output                                                           
+          # @yieldparam [string] standard error response text
+          # @yieldreturn [WinRM::Output] The command output
           def read_output(wsmv_message)
             program_terminated = false
-            with_output do |output|                                                                                   
+            with_output do |output|
               read_response(wsmv_message, false) do |stream, doc|
                 handled_out = handle_stream(stream, output, doc)
-                if command_done?(doc, true)
-                  program_terminated = true
-                end
                 yield handled_out if handled_out && block_given?
               end
-            end                                                                                                       
-            if program_terminated
-              print_good("Command done")
+            end
+          end
+
+          # Reads streams sent in one or more receive response messages
+          # @param wsmv_message [WinRM::WSMV::Base] A wsmv message to send to endpoint
+          # @param wait_for_done_state whether to poll for a CommandState of Done
+          # @yieldparam [Hash] Hash representation of stream with type and text
+          # @yieldparam [REXML::Document] Complete SOAP envelope returned to wsmv_message
+          def read_response(wsmv_message, wait_for_done_state = false)
+            resp_doc = nil
+            until command_done?(resp_doc, wait_for_done_state)
+              logger.debug('[WinRM] Waiting for output...')
+              resp_doc = send_get_output_message(wsmv_message.build)
+              logger.debug('[WinRM] Processing output')
+              read_streams(resp_doc) do |stream|
+                yield stream, resp_doc
+              end
+            end
+
+            if command_done?(resp_doc, true)
+              raise EOFError.new('Program terminated')
             end
           end
         end
+
         def create_proc
           self.command_id = send_command("powershell.exe",[])
         end
-      
+
         def with_command_shell(input, arguments = [])
           tries ||= 2
-      
-          open unless shell_id
-          create_proc unless command_id
           send_stdin(input)
           yield shell_id, self.command_id
         rescue WinRM::WinRMWSManFault => e
           raise unless FAULTS_FOR_RESET.include?(e.fault_code) && (tries -= 1) > 0
-      
+
           reset_on_error(e)
           retry
         end
-      
+
+        def cleanup_shell
+          cleanup_command(command_id)
+        end
+
+        # Runs the specified command with optional arguments
+        # @param block [&block] The optional callback for any realtime output
+        # @yieldparam [string] standard out response text
+        # @yieldparam [string] standard error response text
+        # @yieldreturn [WinRM::Output] The command output
+        def read_stdout(&block)
+          open unless shell_id
+          create_proc unless command_id
+          begin
+            response_reader.read_output(command_output_message(shell_id, command_id), &block)
+          rescue WinRM::WinRMWSManFault => err
+            if err.fault_code == '2150858793'
+              yield nil, nil
+            else
+              raise
+            end
+          end
+        end
+
         def send_stdin(input)
+          open unless shell_id
+          create_proc unless command_id
+
           stdin_msg = WinRM::WSMV::WriteStdin.new(
-            connection_opts, 
+            connection_opts,
             shell_uri: shell_uri,
             shell_id: shell_id,
             command_id: command_id,
-            stdin: input
+            stdin: input,
           )
           result = transport.send_request(stdin_msg.build)
           result
@@ -102,6 +145,7 @@ class ShellFactory < WinRM::Shells::ShellFactory
           logger.info("[WinRM] #{t.status_code} returned in cleanup with error: #{t.message}")
         end
 
+
         def response_reader
           @response_reader ||= ReceiveResponseReader.new(transport, logger)
         end
@@ -109,14 +153,15 @@ class ShellFactory < WinRM::Shells::ShellFactory
         protected
           attr_accessor :command_id
       end
-    
+
       def create_shell(shell_type, shell_opts = {})
         args = [
           @connection_opts,
           @transport,
           @logger
         ]
-        StdinShell.new(*args) if shell_type == :stdin
+        return StdinShell.new(*args) if shell_type == :stdin
+        super(shell_type, shell_opts)
       end
     end
 
@@ -135,10 +180,9 @@ class ShellFactory < WinRM::Shells::ShellFactory
             'method' => 'POST',
             'agent' => 'Microsoft WinRM Client',
             'ctype' => 'application/soap+xml;charset=UTF-8',
-            'data' => message
+            'data' => message,
           )
           response = self.http_client.send_recv(request)
-
           WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
         end
         protected
@@ -186,18 +230,17 @@ class ShellFactory < WinRM::Shells::ShellFactory
                 user: datastore['USERNAME'],
                 password: datastore['PASSWORD'],
                 transport: :rex,
-                :no_ssl_peer_verification => true
+                :no_ssl_peer_verification => true,
+                :operation_timeout => 1
             )
 
-    shell = conn.shell(:stdin)
 
     if datastore['CreateSession']
-      # Send a meaningless command to determine if the creds are correct
-      comment = "##{Rex::Text.rand_text_alpha(16)}"
-      shell.run(comment)
+      shell = conn.shell(:stdin)
       session_setup(shell,rhost,rport,endpoint)
     else
       begin
+        shell = conn.shell(:powershell)
         path = store_loot("winrm.cmd_results", "text/plain", ip, nil, "winrm_cmd_results.txt", "WinRM CMD Results")
         f = File.open(path,'wb')
         output = shell.run(datastore['CMD']) do |stdout,stderr|
