@@ -360,6 +360,10 @@ class Console::CommandDispatcher::Stdapi::Sys
     when 'android'
       cmd_execute('-f', '/system/bin/sh', '-c', '-i')
     when 'linux', 'osx'
+      if raw && !use_pty
+        print_warning("Note: To use the fully interactive shell you must use a pty, i.e. %grnshell -it%clr")
+        return false
+      end
       if use_pty && pty_shell(sh_path, raw: raw)
         return true
       end
