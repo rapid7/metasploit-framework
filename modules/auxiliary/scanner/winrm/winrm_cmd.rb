@@ -150,6 +150,15 @@ class ShellFactory < WinRM::Shells::ShellFactory
           @response_reader ||= ReceiveResponseReader.new(transport, logger)
         end
 
+        def open_shell
+          msg = WinRM::WSMV::CreateShell.new(connection_opts, shell_opts)
+          resp_doc = transport.send_request(msg.build)
+          self.owner = REXML::XPath.first(resp_doc, "//rsp:Owner").text
+          REXML::XPath.first(resp_doc, "//*[@Name='ShellId']").text
+        end
+
+        attr_accessor :owner
+
         protected
           attr_accessor :command_id
       end
@@ -269,7 +278,7 @@ class ShellFactory < WinRM::Shells::ShellFactory
     sess.platform = 'windows'
     username = datastore['USERNAME']
     password = datastore['PASSWORD']
-    info = "WinRM #{username}:#{password} (#{endpoint})"
+    info = "WinRM #{username}:#{password} (#{shell.owner})"
     merge_me = {
       'USERNAME' => username,
       'PASSWORD' => password
