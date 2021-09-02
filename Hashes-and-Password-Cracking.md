@@ -82,6 +82,8 @@ This section will cover the differences between the two crackers.  This is not a
 | mysql-sha1                  | mysql-sha1              | 300                     |
 | sha512($p.$s) - vmware ldap | dynamic_82              | 1710                    |
 | md5 (raw, unicode)          | Raw-MD5u                | 30 (with an empty salt) |
+| NetNTLMv1                   | netntlm                 | 5500                    |
+| NetNTLMv2                   | netntlmv2               | 5600                    |
 
 While Metasploit standardizes with the JtR format, the hashcat [library](https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb) includes the `jtr_format_to_hashcat_format` function to translate from jtr to hashcat.
 
@@ -98,6 +100,16 @@ Each crack mode is a set of rules which apply to that specific mode.  The idea b
 ### Hashcat Optimized Kernel
 
 Hashcat contains a `-O` flag which uses an optimized kernel.  From internal testing it looks to be >200% faster, with a password length tradeoff.  For more information see https://github.com/rapid7/metasploit-framework/pull/12790
+
+### Exporting Passwords and Hashes
+
+Hashes can be exported to three different file formats by using the `creds` command and specifying an output file with the `-o` option. When the file ends in `.jtr` or `.hcat` the John the Ripper or Hashcat formats will be used respectively. Any other file suffix will result in the data being exported in a CSV format.
+
+**Warning:** When exporting in either the John the Ripper or Hashcat formats, any hashes that can not be handled by the formatter will be omitted. See the [Adding a New Hash](#Adding-a-New-Hash) section for details on updating the formatters.
+
+Exported hashes can be filtered by a few fields like the username, and realm. One additional useful field is the hash type which can be specified with the `-t/--type` option. The type can be `password`, `ntlm`, `hash` or any of the John the Ripper format names such as `netntlmv2`.
+
+Example to export all NetNTLMv2 secrets for the WORKGROUP realm for use with John the Ripper: `creds --realm WORKGROUP --type netntlmv2 -o /path/to/netntlmv2_hashes.jtr`
 
 # Example Hashes
 
