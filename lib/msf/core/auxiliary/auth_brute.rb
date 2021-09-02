@@ -62,8 +62,16 @@ module Auxiliary::AuthBrute
       user_as_pass: datastore['USER_AS_PASS'],
     }.merge(opts))
 
-    cred_collection = prepend_db_usernames(cred_collection)
-    cred_collection = prepend_db_passwords(cred_collection)
+    if framework.db.active
+      cred_collection = prepend_db_usernames(cred_collection)
+      cred_collection = prepend_db_passwords(cred_collection)
+    else
+      ignored = %w{ DB_ALL_CREDS DB_ALL_PASS DB_ALL_USERS }.select { |option| datastore[option] }
+      ignored << 'DB_SKIP_EXISTING' unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
+      unless ignored.empty?
+        print_warning("No active DB -- The following option#{ ignored.length == 1 ? '' : 's'} will be ignored: #{ ignored.join(', ') }")
+      end
+    end
 
     # only define the filter if any filtering needs to take place
     unless datastore['DB_SKIP_EXISTING'].blank? || datastore['DB_SKIP_EXISTING'] == 'none'
