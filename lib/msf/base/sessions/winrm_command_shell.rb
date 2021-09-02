@@ -117,6 +117,7 @@ module Msf::Sessions
     # @param opts [Hash] Optional parameters to pass to the session object.
     def initialize(shell, addr, port, opts = {})
       self.shell = shell
+      
       wrapper = WinrmSocketWrapper.new(shell, addr, port)
       super(wrapper.lsock, opts)
     end

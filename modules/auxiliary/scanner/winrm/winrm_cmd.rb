@@ -231,12 +231,15 @@ class ShellFactory < WinRM::Shells::ShellFactory
                 password: datastore['PASSWORD'],
                 transport: :rex,
                 :no_ssl_peer_verification => true,
-                :operation_timeout => 1
+                :operation_timeout => 1,
+                :retry_delay => 1
             )
 
 
     if datastore['CreateSession']
       shell = conn.shell(:stdin)
+      # Coerce a message to be sent; will throw an exception if it fails
+      shell.send_stdin('')
       session_setup(shell,rhost,rport,endpoint)
     else
       begin
@@ -251,8 +254,10 @@ class ShellFactory < WinRM::Shells::ShellFactory
           print_error(stderr) if stderr
         end
         f.close
-
         print_good "Results saved to #{path}"
+      rescue
+        File.delete(path)
+        raise
       ensure
         shell.close
       end
