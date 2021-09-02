@@ -7,16 +7,16 @@ activerecord, 6.1.4.1, MIT
 activesupport, 6.1.4.1, MIT
 addressable, 2.8.0, "Apache 2.0"
 afm, 0.2.2, MIT
-arel-helpers, 2.12.0, MIT
+arel-helpers, 2.12.1, MIT
 ast, 2.4.2, MIT
-aws-eventstream, 1.1.1, "Apache 2.0"
-aws-partitions, 1.491.0, "Apache 2.0"
-aws-sdk-core, 3.119.1, "Apache 2.0"
-aws-sdk-ec2, 1.258.0, "Apache 2.0"
-aws-sdk-iam, 1.59.0, "Apache 2.0"
-aws-sdk-kms, 1.46.0, "Apache 2.0"
-aws-sdk-s3, 1.99.0, "Apache 2.0"
-aws-sigv4, 1.2.4, "Apache 2.0"
+aws-eventstream, 1.2.0, "Apache 2.0"
+aws-partitions, 1.494.0, "Apache 2.0"
+aws-sdk-core, 3.120.0, "Apache 2.0"
+aws-sdk-ec2, 1.261.0, "Apache 2.0"
+aws-sdk-iam, 1.60.0, "Apache 2.0"
+aws-sdk-kms, 1.48.0, "Apache 2.0"
+aws-sdk-s3, 1.101.0, "Apache 2.0"
+aws-sigv4, 1.3.0, "Apache 2.0"
 bcrypt, 3.1.16, MIT
 bcrypt_pbkdf, 1.1.0, MIT
 bindata, 2.4.10, ruby
@@ -28,7 +28,7 @@ coderay, 1.1.3, MIT
 concurrent-ruby, 1.0.5, MIT
 cookiejar, 0.3.3, unknown
 crass, 1.0.6, MIT
-daemons, 1.4.0, MIT
+daemons, 1.4.1, MIT
 diff-lcs, 1.4.4, "MIT, Artistic-2.0, GPL-2.0+"
 dnsruby, 1.61.7, "Apache 2.0"
 docile, 1.4.0, MIT
@@ -41,7 +41,7 @@ eventmachine, 1.2.7, "ruby, GPL-2.0"
 factory_bot, 6.2.0, MIT
 factory_bot_rails, 6.2.0, MIT
 faker, 2.19.0, MIT
-faraday, 1.7.0, MIT
+faraday, 1.7.1, MIT
 faraday-em_http, 1.0.0, MIT
 faraday-em_synchrony, 1.0.0, MIT
 faraday-excon, 1.1.0, MIT
@@ -51,7 +51,7 @@ faraday-net_http_persistent, 1.2.0, MIT
 faraday-patron, 1.0.0, MIT
 faraday-rack, 1.0.0, MIT
 faye-websocket, 0.11.1, "Apache 2.0"
-ffi, 1.15.3, "New BSD"
+ffi, 1.15.4, "New BSD"
 filesize, 0.2.0, MIT
 fivemat, 1.3.7, MIT
 gssapi, 1.3.1, MIT
@@ -60,7 +60,7 @@ hashery, 2.1.2, "Simplified BSD"
 hrr_rb_ssh, 0.4.2, "Apache 2.0"
 hrr_rb_ssh-ed25519, 0.4.2, "Apache 2.0"
 http-cookie, 1.0.4, MIT
-http_parser.rb, 0.7.0, MIT
+http_parser.rb, 0.8.0, MIT
 httpclient, 2.8.3, ruby
 i18n, 1.8.10, MIT
 io-console, 0.5.9, "ruby, Simplified BSD"
@@ -75,9 +75,9 @@ memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.2, "New BSD"
 metasploit-credential, 5.0.3, "New BSD"
-metasploit-framework, 6.1.3, "New BSD"
+metasploit-framework, 6.1.4, "New BSD"
 metasploit-model, 4.0.2, "New BSD"
-metasploit-payloads, 2.0.50, "3-clause (or ""modified"") BSD"
+metasploit-payloads, 2.0.54, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.3, "New BSD"
 metasploit_payloads-mettle, 1.0.10, "3-clause (or ""modified"") BSD"
 method_source, 1.0.0, MIT
@@ -94,7 +94,7 @@ net-ssh, 6.1.0, MIT
 network_interface, 0.0.2, MIT
 nexpose, 7.3.0, "New BSD"
 nio4r, 2.5.8, MIT
-nokogiri, 1.12.3, MIT
+nokogiri, 1.12.4, MIT
 nori, 2.6.0, MIT
 octokit, 4.21.0, MIT
 openssl-ccm, 1.2.2, MIT
@@ -104,7 +104,7 @@ packetfu, 1.1.13, BSD
 parallel, 1.20.1, MIT
 parser, 3.0.2.0, MIT
 patch_finder, 1.0.2, "New BSD"
-pcaprub, 0.13.0, LGPL-2.1
+pcaprub, 0.12.4, LGPL-2.1
 pdf-reader, 2.5.0, MIT
 pg, 1.2.3, "Simplified BSD"
 pry, 0.13.1, MIT
