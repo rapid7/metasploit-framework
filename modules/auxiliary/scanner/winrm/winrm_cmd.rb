@@ -266,6 +266,7 @@ class ShellFactory < WinRM::Shells::ShellFactory
 
   def session_setup(shell,rhost,rport,endpoint)
     sess = Msf::Sessions::WinrmCommandShell.new(shell,rhost,rport)
+    sess.platform = 'windows'
     username = datastore['USERNAME']
     password = datastore['PASSWORD']
     info = "WinRM #{username}:#{password} (#{endpoint})"
@@ -274,9 +275,30 @@ class ShellFactory < WinRM::Shells::ShellFactory
       'PASSWORD' => password
     }
 
-    start_session(self, info, merge_me,false,sess.rstream,sess)
+    start_session(self, info, merge_me,false,nil,sess)
   end
 
+  def start_session(obj, info, ds_merge, crlf = false, sock = nil, sess = nil)
+    sess.set_from_exploit(obj)
+    sess.info = info
+
+    # Clean up the stored data
+    sess.exploit_datastore.merge!(ds_merge)
+
+    framework.sessions.register(sess)
+    sess.process_autoruns(datastore)
+
+    # Notify the framework that we have a new session opening up...
+    # Don't let errant event handlers kill our session
+    begin
+      framework.events.on_session_open(sess)
+    rescue ::Exception => e
+      wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+      wlog("Call Stack\n#{e.backtrace.join("\n")}")
+    end
+
+    sess
+  end
 
 end
 
