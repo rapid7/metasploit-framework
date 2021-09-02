@@ -182,7 +182,6 @@ class MetasploitModule < Msf::Auxiliary
           facets_tbl << [name.to_s, (f['name']).to_s, (f['count']).to_s]
         end
       end
-      print_line(facets_tbl.to_s)
     else
       print_status("Total: #{results[first_page]['total']} on #{tpages} " \
         "pages. Showing: #{maxpage} page(s)")
@@ -220,9 +219,8 @@ class MetasploitModule < Msf::Auxiliary
             hostname = match['portinfo']['hostname']
             os = match['portinfo']['os']
             service = match['portinfo']['app']
-            name = match['portinfo']['name']
             version = match['portinfo']['version']
-            info = match['portinfo']['extrainfo']
+            info = match['portinfo']['info']
             if datastore['DATABASE']
               report_host(host: ip,
                           name: hostname,
@@ -232,7 +230,6 @@ class MetasploitModule < Msf::Auxiliary
             if datastore['DATABASE']
               report_service(host: ip,
                              port: port,
-                             proto: name,
                              name: "#{service}:#{version}",
                              info: info)
             end
@@ -260,6 +257,10 @@ class MetasploitModule < Msf::Auxiliary
         print_line(tbl2.to_s)
         save_output(tbl2) if datastore['OUTFILE']
       end
+    end
+    if datastore['FACETS']
+      print_line(facets_tbl.to_s)
+      save_output(facets_tbl) if datastore['OUTFILE']
     end
   end
 end
