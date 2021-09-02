@@ -133,6 +133,9 @@ protected
       mod.print_error("Post interrupted by the console user")
       mod.cleanup
       return
+    rescue ::Msf::OptionValidateError => e
+      mod.error = e
+      ::Msf::Ui::Formatter::OptionValidateError.print_error(mod, e)
     rescue ::Exception => e
       mod.error = e
       mod.print_error("Post failed: #{e.class} #{e}")

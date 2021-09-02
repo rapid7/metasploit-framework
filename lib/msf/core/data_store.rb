@@ -140,6 +140,8 @@ class DataStore < Hash
     }
   end
 
+  # TODO: Doesn't normalize data in the same vein as:
+  # https://github.com/rapid7/metasploit-framework/pull/6644
   def import_option(key, val, imported = true, imported_by = nil, option = nil)
     self.store(key, val)
 
@@ -169,7 +171,7 @@ class DataStore < Hash
   def to_h
     datastore_hash = {}
     self.keys.each do |k|
-      datastore_hash[k.to_s] = self[k].to_s
+      datastore_hash[k.to_s] = self[k]
     end
     datastore_hash
   end

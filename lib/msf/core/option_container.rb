@@ -124,7 +124,7 @@ module Msf
     def add_options(opts, owner = nil, advanced = false, evasion = false)
       return false if (opts == nil)
 
-      if (opts.kind_of?(Array))
+      if opts.kind_of?(Array)
         add_options_array(opts, owner, advanced, evasion)
       else
         add_options_hash(opts, owner, advanced, evasion)
@@ -153,9 +153,9 @@ module Msf
     # Adds an option.
     #
     def add_option(option, name = nil, owner = nil, advanced = false, evasion = false)
-      if (option.kind_of?(Array))
+      if option.kind_of?(Array)
         option = option.shift.new(name, option)
-      elsif (!option.kind_of?(OptBase))
+      elsif !option.kind_of?(OptBase)
         raise ArgumentError,
           "The option named #{name} did not come in a compatible format.",
           caller
@@ -192,15 +192,10 @@ module Msf
     #
     # Make sures that each of the options has a value of a compatible
     # format and that all the required options are set.
-    #
     def validate(datastore)
-      errors = []
-
-      each_pair { |name, option|
-        if (!option.valid?(datastore[name]))
-          errors << name
-          # If the option is valid, normalize its format to the correct type.
-        elsif ((val = option.normalize(datastore[name])) != nil)
+      # First mutate the datastore and normalize all valid values before validating permutations of RHOST/etc.
+      each_pair do |name, option|
+        if option.valid?(datastore[name]) && (val = option.normalize(datastore[name])) != nil
           # This *will* result in a module that previously used the
           # global datastore to have its local datastore set, which
           # means that changing the global datastore and re-running
@@ -210,14 +205,54 @@ module Msf
           # things in corner cases.
           datastore[name] = val
         end
-      }
-
-      if (errors.empty? == false)
-        raise Msf::OptionValidateError.new(errors),
-          "One or more options failed to validate: #{errors.join(', ')}.", caller
       end
 
-      return true
+      # Validate all permutations of rhost combinations
+      if include?('RHOSTS')
+        error_options = Set.new
+        error_reasons = Hash.new do |hash, key|
+          hash[key] = []
+        end
+        rhosts_walker = Msf::RhostsWalker.new(datastore['RHOSTS'], datastore)
+        rhosts_count = rhosts_walker.count
+        unless rhosts_walker.valid?
+          invalid_values = rhosts_walker.to_enum(:errors).take(5).map(&:value)
+          error_options << 'RHOSTS'
+          if invalid_values.any?
+            error_reasons['RHOSTS'] << "unexpected values: #{invalid_values.join(', ')}"
+          end
+        end
+
+        rhosts_walker.each do |datastore|
+          each_pair do |name, option|
+            unless option.valid?(datastore[name])
+              error_options << name
+              if rhosts_count > 1
+                error_reasons[name] << "for rhosts value #{datastore['UNPARSED_RHOSTS']}"
+              end
+            end
+          end
+        end
+
+        unless error_options.empty?
+          raise Msf::OptionValidateError.new(error_options.to_a, reasons: error_reasons),
+                "One or more options failed to validate: #{error_options.to_a.join(', ')}."
+        end
+      else
+        error_options = []
+        each_pair do |name, option|
+          unless option.valid?(datastore[name])
+            error_options << name
+          end
+        end
+
+        unless error_options.empty?
+          raise Msf::OptionValidateError.new(error_options),
+                "One or more options failed to validate: #{error_options.join(', ')}."
+        end
+      end
+
+      true
     end
 
     #
@@ -280,7 +315,6 @@ module Msf
     protected
 
     attr_writer :sorted # :nodoc:
-
   end
 
 end

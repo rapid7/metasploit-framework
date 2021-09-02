@@ -38,6 +38,8 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run_host(_ip)
+    validate_lpaths!
+    validate_rpaths!
     begin
       vprint_status("Connecting to the server...")
       connect

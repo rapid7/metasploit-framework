@@ -26,6 +26,12 @@ module MetasploitModule
         'Payload' => { 'Offsets' => {}, 'Payload' => '' }
       )
     )
+
+    register_options(
+      [
+        Msf::OptString.new('REQUIRED_PAYLOAD_OPTION', [true, 'A required option for this payload', '123-123'], regex: /\d{3}-\d{3}/)
+      ]
+    )
   end
 
   def wait_for_session(_t = wfs_delay)
