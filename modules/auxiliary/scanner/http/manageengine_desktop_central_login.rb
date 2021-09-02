@@ -29,11 +29,10 @@ class MetasploitModule < Msf::Auxiliary
 
   # Initializes CredentialCollection and ManageEngineDesktopCentral
   def init(ip)
-    cred_collection = build_credential_collection(
+    @cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
-    @cred_collection = prepend_db_passwords(cred_collection)
 
     @scanner = Metasploit::Framework::LoginScanner::ManageEngineDesktopCentral.new(
       configure_http_login_scanner(

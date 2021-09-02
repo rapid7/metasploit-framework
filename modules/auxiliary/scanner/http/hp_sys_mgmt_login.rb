@@ -71,11 +71,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def init_loginscanner(ip)
-    cred_collection = build_credential_collection(
+    @cred_collection = build_credential_collection(
       username: datastore['HttpUsername'],
       password: datastore['HttpPassword']
     )
-    @cred_collection = prepend_db_passwords(cred_collection)
 
     @scanner = Metasploit::Framework::LoginScanner::Smh.new(
       configure_http_login_scanner(

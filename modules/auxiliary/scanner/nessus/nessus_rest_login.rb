@@ -37,11 +37,10 @@ class MetasploitModule < Msf::Auxiliary
 
   # Initializes CredentialCollection and Nessus Scanner
   def init(ip)
-    cred_collection = build_credential_collection(
+    @cred_collection = build_credential_collection(
       password:        datastore['PASSWORD'],
       username:        datastore['USERNAME']
     )
-    @cred_collection = prepend_db_passwords(cred_collection)
 
     @scanner = Metasploit::Framework::LoginScanner::Nessus.new(
         host: ip,

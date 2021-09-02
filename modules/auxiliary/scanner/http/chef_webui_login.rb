@@ -130,11 +130,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def init_loginscanner(ip)
-    cred_collection = build_credential_collection(
+    @cred_collection = build_credential_collection(
       username: datastore['USERNAME'],
       password: datastore['PASSWORD']
     )
-    @cred_collection = prepend_db_passwords(cred_collection)
 
     # Always try the default first
     @cred_collection.prepend_cred(
