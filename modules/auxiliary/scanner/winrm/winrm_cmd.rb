@@ -87,6 +87,16 @@ class ShellFactory < WinRM::Shells::ShellFactory
           end
         end
 
+        # We create our own empty finalizers because the built-in one triggers a
+        # request using the Rex HTTP client, which segfaults; possibly because it
+        # creates a thread, or something else that is not allowed in a finalizer.
+        # In this situation (observed only when the user quits MSF with active sessions),
+        # we'll just let the shell continue.
+        def remove_finalizer
+        end
+        def add_finalizer
+        end
+
         def create_proc
           self.command_id = send_command("powershell.exe",[])
         end
