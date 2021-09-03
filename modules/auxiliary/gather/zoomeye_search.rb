@@ -26,7 +26,11 @@ class MetasploitModule < Msf::Auxiliary
           Host search: app, ver, device, os, service, ip, cidr, hostname, port, city, country, asn
           Web search: app, header, keywords, desc, title, ip, site, city, country
         },
-        'Author' => [ 'Nixawk', 'Yvain' ],
+        'Author' => [
+          'Nixawk', # Original Author
+          'Yvain', # Initial improvements
+          'Grant Willcox' # Additional fixes to refine searches, fix broken functionality, and improve quality of info saved
+        ],
         'References' => [
           ['URL', 'https://github.com/zoomeye/SDK'],
           ['URL', 'https://www.zoomeye.org/api/doc'],
@@ -107,7 +111,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       res = @cli.send_recv(req)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET
       print_error('HTTP Connection Failed')
     end
 
@@ -194,6 +198,7 @@ class MetasploitModule < Msf::Auxiliary
           if page_result['matches'].nil?
             next
           end
+
           results[page] = page_result
           page += 1
         end
@@ -201,7 +206,7 @@ class MetasploitModule < Msf::Auxiliary
       tbl1 = Rex::Text::Table.new(
         'Header' => 'Host search',
         'Indent' => 1,
-        'Columns' => ['IP:Port', 'City', 'Country', 'Hostname', 'OS', 'Service:Version', 'Info']
+        'Columns' => ['IP:Port', 'Protocol', 'City', 'Country', 'Hostname', 'OS', 'service', 'AppName', 'Version', 'Info']
       )
       tbl2 = Rex::Text::Table.new(
         'Header' => 'Web search',
@@ -215,10 +220,12 @@ class MetasploitModule < Msf::Auxiliary
           country = match['geoinfo']['country']['names']['en']
           if resource.include?('host')
             ip = match['ip']
+            protocol = match['protocol']['transport']
             port = match['portinfo']['port']
             hostname = match['portinfo']['hostname']
             os = match['portinfo']['os']
-            service = match['portinfo']['app']
+            app = match['portinfo']['app']
+            service = match['portinfo']['service']
             version = match['portinfo']['version']
             info = match['portinfo']['info']
             if datastore['DATABASE']
@@ -230,10 +237,11 @@ class MetasploitModule < Msf::Auxiliary
             if datastore['DATABASE']
               report_service(host: ip,
                              port: port,
-                             name: "#{service}:#{version}",
-                             info: info)
+                             proto: protocol,
+                             name: service,
+                             info: "App is #{app} running version: #{version}")
             end
-            tbl1 << ["#{ip}:#{port}", city, country, hostname, os, "#{service}:#{version}", info]
+            tbl1 << ["#{ip}:#{port}", protocol, city, country, hostname, os, service, app, version, info]
           else
             ips = match['ip']
             site = match['site']
@@ -242,11 +250,14 @@ class MetasploitModule < Msf::Auxiliary
             webapp = match['webapp']
             wa_info = webapp.map { |wa| "#{wa['name']}:#{wa['version']}" }
             if datastore['DATABASE']
-              report_host(host: ip,
-                          name: site,
-                          comments: 'Added from Zoomeye')
+              for ip in ips
+                report_host(host: ip, name: site, comments: 'Added from Zoomeye')
+              end
+            else
+              for ip in ips
+                tbl2 << [ip, site, city, country, db_info, wa_info]
+              end
             end
-            tbl2 << [ips, site, city, country, db_info, wa_info]
           end
         end
       end
