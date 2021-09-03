@@ -23,8 +23,13 @@ RSpec::Matchers.define :have_datastore_values do |expected|
     ssh_keys = %w[RHOSTS RPORT USERNAME PASSWORD]
     required_keys = http_keys + smb_keys + mysql_keys + postgres_keys + ssh_keys
     datastores.map do |datastore|
+      # Workaround: Manually convert the datastore to a hash ourselves as `datastore.to_h` coerces all datatypes into strings
+      # which prevents this test suite from validating types correctly. i.e. The tests need to ensure that RPORT is correctly
+      # set as an integer class etc.
+      datastore_hash = datastore.keys.each_with_object({}) { |key, hash| hash[key] = datastore[key] }
+
       # Slice the datastore options that we care about, ignoring other values that just add noise such as VERBOSE/WORKSPACE/etc.
-      datastore.to_h.slice(*required_keys)
+      datastore_hash.slice(*required_keys)
     end
   end
 end
