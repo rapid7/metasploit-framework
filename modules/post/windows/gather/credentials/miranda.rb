@@ -10,6 +10,40 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Packrat
 
+  ARTIFACTS =
+    {
+      application: 'miranda',
+      app_category: 'chats',
+      gatherable_artifacts: [
+        {
+          filetypes: 'logins',
+          path: 'AppData',
+          dir: 'Miranda',
+          artifact_file_name: 'Home.dat',
+          description: "Miranda's multi saved chat protocol Username, (coded Passwords)",
+          credential_type: 'text',
+          regex_search: [
+            {
+              extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
+              extraction_type: 'credentials',
+              regex: [
+                '(?i-mx:password.*)',
+                '(?i-mx:username.*)'
+              ]
+            },
+            {
+              extraction_description: 'searches for Email TO/FROM address',
+              extraction_type: 'Email addresses',
+              regex: [
+                '(?i-mx:to:.*)',
+                '(?i-mx:from:.*)'
+              ]
+            }
+          ]
+        }
+      ]
+    }.freeze
+
   def initialize(info = {})
     super(
       update_info(
@@ -35,40 +69,7 @@ class MetasploitModule < Msf::Post
           'Stability' => [CRASH_SAFE],
           'Reliability' => [],
           'SideEffects' => []
-        },
-        'artifacts' =>
-          {
-            application: 'miranda',
-            app_category: 'chats',
-            gatherable_artifacts: [
-              {
-                filetypes: 'logins',
-                path: 'AppData',
-                dir: 'Miranda',
-                artifact_file_name: 'Home.dat',
-                description: "Miranda's multi saved chat protocol Username, (coded Passwords)",
-                credential_type: 'text',
-                regex_search: [
-                  {
-                    extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
-                    extraction_type: 'credentials',
-                    regex: [
-                      '(?i-mx:password.*)',
-                      '(?i-mx:username.*)'
-                    ]
-                  },
-                  {
-                    extraction_description: 'searches for Email TO/FROM address',
-                    extraction_type: 'Email addresses',
-                    regex: [
-                      '(?i-mx:to:.*)',
-                      '(?i-mx:from:.*)'
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
+        }
       )
     )
 
@@ -78,7 +79,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('STORE_LOOT', [false, 'Store artifacts into loot database', true]),
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
         # enumerates the options based on the artifacts that are defined below
-        OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', module_info['artifacts'][:gatherable_artifacts].map { |k| k[:filetypes] }.uniq.unshift('All')])
+        OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', ARTIFACTS[:gatherable_artifacts].map { |k| k[:filetypes] }.uniq.unshift('All')])
       ]
     )
   end

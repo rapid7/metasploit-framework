@@ -4,46 +4,45 @@
 # This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
+ARTIFACTS =
+  {
+    application: 'incredimail',
+    app_category: 'emails',
+    gatherable_artifacts: [
+      {
+        filetypes: 'email_logs',
+        path: 'LocalAppData',
+        dir: 'IM',
+        artifact_file_name: 'msg.iml',
+        description: 'IncrediMail sent and received emails',
+        credential_type: 'text',
+        regex_search: [
+          {
+            extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
+            extraction_type: 'credentials',
+            regex: [
+              '(?i-mx:password.*)',
+              '(?i-mx:username.*)'
+            ]
+          },
+          {
+            extraction_description: 'searches for Email TO/FROM address',
+            extraction_type: 'Email addresses',
+            regex: [
+              '(?i-mx:to:.*)',
+              '(?i-mx:from:.*)'
+            ]
+          }
+        ]
+      }
+    ]
+  }.freeze
 
 class MetasploitModule < Msf::Post
   # this associative array defines the artifacts known to PackRat
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Packrat
-
-  ARTIFACTS =
-    {
-      application: 'incredimail',
-      app_category: 'emails',
-      gatherable_artifacts: [
-        {
-          filetypes: 'email_logs',
-          path: 'LocalAppData',
-          dir: 'IM',
-          artifact_file_name: 'msg.iml',
-          description: 'IncrediMail sent and received emails',
-          credential_type: 'text',
-          regex_search: [
-            {
-              extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
-              extraction_type: 'credentials',
-              regex: [
-                '(?i-mx:password.*)',
-                '(?i-mx:username.*)'
-              ]
-            },
-            {
-              extraction_description: 'searches for Email TO/FROM address',
-              extraction_type: 'Email addresses',
-              regex: [
-                '(?i-mx:to:.*)',
-                '(?i-mx:from:.*)'
-              ]
-            }
-          ]
-        }
-      ]
-    }.freeze
 
   def initialize(info = {})
     super(
@@ -81,7 +80,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
         # enumerates the options based on the artifacts that are defined below
         OptEnum.new('ARTIFACTS', [
-          false, 'Type of artifacts to collect', 'All', module_info['artifacts'][:gatherable_artifacts].map do |k|
+          false, 'Type of artifacts to collect', 'All', ARTIFACTS[:gatherable_artifacts].map do |k|
                                                           k[:filetypes]
                                                         end.uniq.unshift('All')
         ])

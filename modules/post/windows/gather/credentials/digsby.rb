@@ -79,7 +79,7 @@ class MetasploitModule < Msf::Post
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
         # enumerates the options based on the artifacts that are defined below
         OptEnum.new('ARTIFACTS', [
-          false, 'Type of artifacts to collect', 'All', module_info['artifacts'][:gatherable_artifacts].map do |k|
+          false, 'Type of artifacts to collect', 'All', ARTIFACTS[:gatherable_artifacts].map do |k|
                                                           k[:filetypes]
                                                         end.uniq.unshift('All')
         ])
