@@ -130,7 +130,7 @@ module Msf
                 results << result.merge('RHOSTS' => rhost, 'UNPARSED_RHOSTS' => value)
               end
             end
-          elsif value =~ /^(?<schema>\w+):.*/
+          elsif value =~ /^(?<schema>\w+):.*/ && SUPPORTED_SCHEMAS.include?(Regexp.last_match(:schema))
             schema = Regexp.last_match(:schema)
             raise InvalidSchemaError unless SUPPORTED_SCHEMAS.include?(schema)
 
