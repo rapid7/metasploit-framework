@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
@@ -82,7 +82,7 @@ try:
              - Invalid Username (Response code 404 with Header X-CasErrorCode: UserNotFound)
             Note this behaviour appears to be limited to Office365, MS Exchange does not appear to be affected.
             Microsoft Security Response Center stated on 2017-06-28 that this issue does not "meet the bar for security
-            servicing". As such it is not expected to be fixed any time soon. 
+            servicing". As such it is not expected to be fixed any time soon.
         ''',
         'authors': [
             'Oliver Morton (GrimHacker) <grimhacker@grimhacker.com>'
