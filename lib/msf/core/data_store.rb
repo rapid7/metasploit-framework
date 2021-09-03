@@ -168,10 +168,13 @@ class DataStore < Hash
     return str
   end
 
+  # Override Hash's to_h method so we can include the original case of each key
+  # (failing to do this breaks a number of places in framework and pro that use
+  # serialized datastores)
   def to_h
     datastore_hash = {}
     self.keys.each do |k|
-      datastore_hash[k.to_s] = self[k]
+      datastore_hash[k.to_s] = self[k].to_s
     end
     datastore_hash
   end
