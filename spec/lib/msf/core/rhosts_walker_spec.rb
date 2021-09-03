@@ -356,7 +356,10 @@ RSpec.describe Msf::RhostsWalker do
       { 'RHOSTS' => 'http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http:', 'expected' => [Msf::RhostsWalker::Error.new('http:')] },
       { 'RHOSTS' => '127.0.0.1 http: 127.0.0.1 https:', 'expected' => [Msf::RhostsWalker::Error.new('http:'), Msf::RhostsWalker::Error.new('https:')] },
-      { 'RHOSTS' => 'unknown_protocol://127.0.0.1 127.0.0.1', 'expected' => [ Msf::RhostsWalker::Error.new('unknown_protocol://127.0.0.1')] },
+      # Unknown protocols aren't validated, as there may be potential ambiguity over ipv6 addresses
+      # which may technically start with a 'schema': AAA:1450:4009:822::2004. The existing rex socket
+      # range walker will silently drop this value though, and it may be treated as an overall error.
+      { 'RHOSTS' => 'unknown_protocol://127.0.0.1 127.0.0.1', 'expected' => [ ] },
 
       # cidr validation
       { 'RHOSTS' => 'cidr:127.0.0.1', 'expected' => [Msf::RhostsWalker::Error.new('cidr:127.0.0.1')] },
