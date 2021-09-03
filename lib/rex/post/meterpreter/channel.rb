@@ -158,6 +158,7 @@ class Channel
     }
   end
 
+
   ##
   #
   # Channel interaction
@@ -222,7 +223,6 @@ class Channel
   # Writes data to the remote half of the channel.
   #
   def _write(buf, length = nil, addends = nil)
-
     if self.cid.nil?
       raise IOError, "Channel has been closed.", caller
     end

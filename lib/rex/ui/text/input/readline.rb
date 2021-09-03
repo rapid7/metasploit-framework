@@ -82,6 +82,13 @@ begin
       end
     end
 
+    def getch()
+      begin
+        self.fd.getch
+      rescue ::Errno::EINTR
+        retry
+      end
+    end
     #
     # Stick readline into a low-priority thread so that the scheduler doesn't slow
     # down other background threads. This is important when there are many active
