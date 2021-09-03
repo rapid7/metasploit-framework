@@ -571,7 +571,7 @@ module Msf::Post::File
       return false unless file?(old_file) # adding this because when the old_file is not present it hangs for a while, should be removed after this issue is fixed.
       cmd_exec(%Q|move #{directory?(new_file) ? "" : "/y"} "#{old_file}" "#{new_file}" & if not errorlevel 1 echo #{verification_token}|).include?(verification_token)
     else
-      cmd_exec(%Q|mv #{directory? ? "" : "-f"} "#{old_file}" "#{new_file}" && echo #{verification_token}|).include?(verification_token)
+      cmd_exec(%Q|mv #{directory?(new_file) ? "" : "-f"} "#{old_file}" "#{new_file}" && echo #{verification_token}|).include?(verification_token)
     end
   end
   alias :move_file :rename_file
