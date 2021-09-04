@@ -1,4 +1,4 @@
-GSoC Project Ideas in no particular order. When you've picked one, take a look at [[GSoC-2018-Student-Proposal]] for how to make a proposal.
+GSoC Project Ideas in no particular order.
 
 Mentors: @busterb, @zerosteiner, @timwr, @asoto-r7, @jmartin-r7, @pbarry-r7, @mkienow-r7, @jbarnett-r7
 
