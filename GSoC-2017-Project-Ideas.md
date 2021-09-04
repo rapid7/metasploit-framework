@@ -1,4 +1,4 @@
-GSoC Project Ideas in no particular order. When you've picked one, take a look at [[GSoC-2017-Student-Proposal]] for how to make a proposal.
+GSoC Project Ideas in no particular order. When you've picked one, take a look at [[GSoC 2017 Student Proposal]] for how to make a proposal.
 
 
 ### Submit your own
