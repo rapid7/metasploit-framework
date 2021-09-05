@@ -93,6 +93,7 @@ class MetasploitModule < Msf::Auxiliary
                       transport: :rex,
                       :no_ssl_peer_verification => true,
                       :operation_timeout => 1,
+                      :http_timeout => 20, # For the underlying HTTP client
                       :retry_delay => 1
                  )
             shell = conn.shell(:stdin)
@@ -109,7 +110,7 @@ class MetasploitModule < Msf::Auxiliary
   end
 
 def session_setup(shell,rhost,rport,endpoint)
-    sess = Msf::Sessions::WinrmCommandShell.new(shell,rhost,rport)
+    sess = Msf::Sessions::WinrmCommandShell.new(shell)
     sess.platform = 'windows'
     username = datastore['USERNAME']
     password = datastore['PASSWORD']

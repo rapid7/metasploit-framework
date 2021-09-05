@@ -223,6 +223,10 @@ class SessionManager < Hash
       end
     end
 
+    if session.respond_to?("on_registered")
+      session.on_registered
+    end
+
     return next_sid
   end
 

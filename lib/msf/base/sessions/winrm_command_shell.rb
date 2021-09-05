@@ -22,12 +22,15 @@ module Msf::Sessions
     end
 
     #
-    # Create a session instance from a shell ID.
+    # Create an MSF command shell from a WinRM shell object
     #
     # @param shell [WinRM::Shells::Base] A WinRM shell object
     # @param opts [Hash] Optional parameters to pass to the session object.
-    def initialize(shell, addr, port, opts = {})
+    def initialize(shell, opts = {})
       self.shell = shell
+      # To buffer input received while a session is backgrounded, we stick responses in a list
+      @buffer_mutex = Mutex.new
+      @buffer = []
       super(nil, opts)
     end
 
@@ -45,6 +48,7 @@ module Msf::Sessions
 
     def cleanup
       begin
+        stop_keep_alive_loop
         shell.cleanup_shell
       rescue WinRM::WinRMWSManFault => err
         print_error('Shell may not have terminated cleanly')
@@ -59,15 +63,14 @@ module Msf::Sessions
       while self.interacting
         sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
         begin
+          @buffer_mutex.synchronize {
+            @buffer.each { |buf| user_output.print(buf) }
+            @buffer = []
+          }
           if sd 
             run_single((user_input.gets || '').chomp("\n"))
           end
-
-          # We may receive output at any time, so ask every time, even if no input
-          shell.read_stdout do |stdout, stderr|
-            user_output.print(stdout) if stdout
-            user_output.print(stderr) if stderr
-          end
+          
         rescue WinRM::WinRMWSManFault => err
           print_error(err.fault_description)
           shell_close
@@ -76,12 +79,52 @@ module Msf::Sessions
       end
     end
 
+    def on_registered
+      start_keep_alive_loop
+    end
+
+    def start_keep_alive_loop
+      self.keep_alive_thread = framework.threads.spawn("WinRM-shell-keepalive", false, self.shell) do |thr_shell|
+        loop do
+          tmp_buffer = []
+          shell.read_stdout do |stdout, stderr|
+            tmp_buffer << stdout if stdout
+            tmp_buffer << stderr if stderr
+          end
+          @buffer_mutex.synchronize {
+            @buffer.concat(tmp_buffer)
+          }
+          sleep(1)
+        rescue WinRM::WinRMWSManFault => err
+          print_error(err.fault_description)
+          detected_shell_ended
+        rescue EOFError
+          # Shell has been terminated
+          detected_shell_ended
+        rescue Rex::HostUnreachable => err
+          detected_shell_ended(err.message)
+        rescue StandardError => err
+          detected_shell_ended(err.message)
+        end
+      end
+    end
+
+    def detected_shell_ended(reason="")
+      self.interacting = false
+      framework.events.on_session_interact_completed()
+      framework.sessions.deregister(self, reason)
+    end
+
+    def stop_keep_alive_loop
+      self.keep_alive_thread.kill
+    end
+
     def tunnel_to_s
       'WinRM'
     end
 
 protected
-		attr_accessor :shell
+		attr_accessor :shell, :keep_alive_thread
 
   end
 end

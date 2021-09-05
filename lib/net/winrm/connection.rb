@@ -5,6 +5,7 @@
 
 require 'winrm'
 require 'winrm/wsmv/write_stdin'
+
 module Net
   module MsfWinRM
     class RexWinRMConnection < WinRM::Connection
@@ -33,7 +34,6 @@ module Net
             # @yieldparam [string] standard error response text
             # @yieldreturn [WinRM::Output] The command output
             def read_output(wsmv_message)
-              program_terminated = false
               with_output do |output|
                 read_response(wsmv_message, false) do |stream, doc|
                   handled_out = handle_stream(stream, output, doc)
@@ -166,20 +166,22 @@ module Net
           # rubocop:disable Lint/
           def initialize(opts)
             self.http_client = Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], opts[:user], opts[:password])
-    
+            @mutex = Mutex.new
             self.uri = opts[:uri]
           end
     
           def send_request(message)
-            request = self.http_client.request_cgi(
-              'uri' => self.uri,
-              'method' => 'POST',
-              'agent' => 'Microsoft WinRM Client',
-              'ctype' => 'application/soap+xml;charset=UTF-8',
-              'data' => message,
-            )
-            response = self.http_client.send_recv(request)
-            WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
+            @mutex.synchronize {
+              request = self.http_client.request_cgi(
+                'uri' => self.uri,
+                'method' => 'POST',
+                'agent' => 'Microsoft WinRM Client',
+                'ctype' => 'application/soap+xml;charset=UTF-8',
+                'data' => message,
+              )
+              response = self.http_client.send_recv(request)
+              WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
+            }
           end
           protected
             attr_accessor :http_client, :uri
