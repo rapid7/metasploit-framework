@@ -22,4 +22,4 @@ int main(void) {
 }
 ```
 
-To compile, use [Metasploit::Framework::Compiler::Windows.compile_c](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Metasploit%3A%3AFramework%3A%3ACompiler%3A%3AWindows-to-compile-C-code).
+To compile, use [[Metasploit::Framework::Compiler::Windows.compile_c|How to use Metasploit Framework Compiler Windows to compile C code]].

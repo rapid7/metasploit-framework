@@ -10,7 +10,7 @@
 
 The Meterpreter that we have known and loved for years has always had the ability to specify the type of transport that is to be used for the session. `reverse_tcp` and `reverse_https` are the favorites. Previously,  the flexibility for transport selection is only available at the time the payloads are created, or when the exploit is launched, effectively locking the Meterpreter session into a single type of transport for the lifetime of the session.
 
-Recent modifications to Meterpreter have changed this. Meterpreter has a new [configuration system](https://github.com/rapid7/metasploit-framework/wiki/Meterpreter%27s-Configuration) that supports multiple transports and it now supports the addition of new transports while the session is still running. With the extra transports configured, Meterpreter allows the user to cycle through those transports without shutting down the session.
+Recent modifications to Meterpreter have changed this. Meterpreter has a new [[configuration system|Meterpreter-Configuration]] that supports multiple transports and it now supports the addition of new transports while the session is still running. With the extra transports configured, Meterpreter allows the user to cycle through those transports without shutting down the session.
 
 Not only that, but Meterpreter will cycle through these transports automatically when communication fails. For more information on the session resiliency features, please view the [Meterpreter Reliable Network Communication][].
 

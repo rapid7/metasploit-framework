@@ -2,7 +2,7 @@ This document talks about how to parse an HTTP response body in the cleanest way
 
 ## Getting a response
 
-To get a response, you can either use [Rex::Proto::Http::Client](https://github.com/rapid7/metasploit-framework/wiki/How-to-send-an-HTTP-request-using-Rex%3A%3AProto%3A%3AHttp%3A%3AClient), or the [HttpClient](https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient) mixin to make an HTTP request. If you are writing a module, you should use the mixin.
+To get a response, you can either use [[Rex::Proto::Http::Client|How to send an HTTP request using Rex Proto Http Client]], or the [[HttpClient|How to Send an HTTP Request Using HttpClient]] mixin to make an HTTP request. If you are writing a module, you should use the mixin.
 
 The following is an example of using the #send_request_cgi method from HttpClient:
 
@@ -195,5 +195,5 @@ json = res.get_json_document
 ## References
 
 * http://www.nokogiri.org/tutorials/parsing_an_html_xml_document.html
-* https://github.com/rapid7/metasploit-framework/wiki/How-to-send-an-HTTP-request-using-Rex%3A%3AProto%3A%3AHttp%3A%3AClient
-* https://github.com/rapid7/metasploit-framework/wiki/How-to-Send-an-HTTP-Request-Using-HTTPClient
+* [[How to send an HTTP request using Rex Proto Http Client]]
+* [[How to Send an HTTP Request Using HttpClient]]

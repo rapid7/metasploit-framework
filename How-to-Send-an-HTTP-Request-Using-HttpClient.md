@@ -251,4 +251,4 @@ You do not need to manually do basic auth in your request, because HttpClient sh
 
 ## References
 
-https://github.com/rapid7/metasploit-framework/wiki/How-to-send-an-HTTP-request-using-Rex%3A%3AProto%3A%3AHttp%3A%3AClient
+* [[How to send an HTTP request using Rex Proto Http Client]]

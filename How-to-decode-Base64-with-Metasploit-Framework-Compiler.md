@@ -24,4 +24,4 @@ int main() {
 }
 ```
 
-To compile, use [How to use Metasploit::Framework::Compiler::Windows to compile C code](https://github.com/rapid7/metasploit-framework/wiki/How-to-use-Metasploit%3A%3AFramework%3A%3ACompiler%3A%3AWindows-to-compile-C-code)
+To compile, use [[How to use Metasploit::Framework::Compiler::Windows to compile C code|How to use Metasploit Framework Compiler Windows to compile C code]]
