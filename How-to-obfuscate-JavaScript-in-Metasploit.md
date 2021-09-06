@@ -8,7 +8,7 @@ arrr[0]["src"] = "a";
 
 To avoid getting flagged, there are some common evasive tricks we can try. For example, you can manually modify the code a little bit to make it not recognizable by any signatures. Or if the antivirus relies on cached webpages to scan for exploits, it is possible to make the browser not cache your exploit so you stay undetected. Or in this case, you can obfuscate your code, which is what this writeup will focus on.
 
-In Metasploit, there are three common ways to obfuscate your JavaScript. The first one is simply by using the ```rand_text_alpha``` method (in [Rex](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/text.rb#L1223)) to randomize your variables. The second one is by using the [ObfuscateJS](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/obfuscatejs.rb) class. And the third option is the [JSObfu](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/jsobfu.rb) class.
+In Metasploit, there are three common ways to obfuscate your JavaScript. The first one is simply by using the ```rand_text_alpha``` method (in [Rex](https://github.com/rapid7/rex-text/blob/3bb11cb5c9997096a82a4e160fcb31c152385a9a/lib/rex/text/rand.rb#L127-L132)) to randomize your variables. The second one is by using the [ObfuscateJS](https://github.com/rapid7/rex-exploitation/blob/f3058a0737ba89fd116f99a8381a409bba6a53fa/lib/rex/exploitation/obfuscatejs.rb) class. And the third option is the [JSObfu](https://github.com/rapid7/rex-exploitation/blob/f3058a0737ba89fd116f99a8381a409bba6a53fa/lib/rex/exploitation/jsobfu.rb) class.
 
 ## The rand_text_alpha trick
 
@@ -60,7 +60,7 @@ arrr[0]["src"] = "a";
 obfu = ::Rex::Exploitation::ObfuscateJS.new(js)
 ```
 
-```obfu``` should return a [Rex::Exploitation::ObfuscateJS](https://github.com/rapid7/metasploit-framework/blob/master/lib/rex/exploitation/obfuscatejs.rb) object. It allows you to do a lot of things, you can really just call ```methods```, or look at the source to see what methods are available (with additional API documentation). But for demo purposes, we'll showcase the most common one: the ```obfuscate``` method.
+```obfu``` should return a [Rex::Exploitation::ObfuscateJS](https://github.com/rapid7/rex-exploitation/blob/f3058a0737ba89fd116f99a8381a409bba6a53fa/lib/rex/exploitation/obfuscatejs.rb) object. It allows you to do a lot of things, you can really just call ```methods```, or look at the source to see what methods are available (with additional API documentation). But for demo purposes, we'll showcase the most common one: the ```obfuscate``` method.
 
 To actually obfuscate, you need to call the ```obfuscate``` method. This method accepts a symbols argument that allows you to manually specify what symbol names (variables, methods, classes, etc) to obfuscate, it should be in a hash like this:
 
@@ -191,7 +191,7 @@ And finally, let's try to obfuscate a few times to see how that goes:
 
 **Using JSObfu for module development**
 
-When you are writing a module, you should not call Rex directly like the above examples. Instead, you should be using the ```#js_obfuscate``` method found in [JSObfu mixin](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/jsobfu.rb). When you're using JavaScript in your module, always do write it like this:
+When you are writing a module, you should not call Rex directly like the above examples. Instead, you should be using the ```#js_obfuscate``` method found in [JSObfu mixin](https://github.com/rapid7/rex-exploitation/blob/f3058a0737ba89fd116f99a8381a409bba6a53fa/lib/rex/exploitation/jsobfu.rb). When you're using JavaScript in your module, always do write it like this:
 
 ```ruby
 # This returns a Rex::Exploitation::JSObfu object

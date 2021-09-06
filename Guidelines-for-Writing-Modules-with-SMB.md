@@ -87,8 +87,9 @@ connect(versions: [1])
 
 2. **NetBIOS session, negotiation and authentication**
 
-The actual negotiation and authentication are handled by `smb_login`. This retrieves the NetBIOS name, user name, password and domain from the `SMBName`, `SMBUser`, `SMBPass` and `SMBDomain` options set by the operator, respectively. Other options can be set and are defined in [MSF SMB client](https://github.com/rapid7/metasploit-framework/blob/6.x/lib/msf/core/exploit/smb/client.rb#L32). Under the hood, `smb_login` establishes the NetBIOS session (if needed), negotiates the protocol version/dialect and sets the SMB Session up using NTLM challenge-response authentication protocol.  
-If, for whatever reason, the authentication options cannot be retrieved from the user options, it is still possible to provide them manually by calling `simple.login()` directly (see [SimpleClient#login](https://github.com/rapid7/metasploit-framework/blob/6.x/lib/rex/proto/smb/simpleclient.rb#L63))
+The actual negotiation and authentication are handled by `smb_login`. This retrieves the NetBIOS name, user name, password and domain from the `SMBName`, `SMBUser`, `SMBPass` and `SMBDomain` options set by the operator, respectively. Other options can be set and are defined in [MSF SMB client](https://github.com/rapid7/metasploit-framework/blob/a7d255bbe5537822c614ede71933fdc6597dd369/lib/msf/core/exploit/remote/smb/client.rb). Under the hood, `smb_login` establishes the NetBIOS session (if needed), negotiates the protocol version/dialect and sets the SMB Session up using NTLM challenge-response authentication protocol.
+
+If, for whatever reason, the authentication options cannot be retrieved from the user options, it is still possible to provide them manually by calling `simple.login()` directly (see [SimpleClient#login](https://github.com/rapid7/metasploit-framework/blob/a7d255bbe5537822c614ede71933fdc6597dd369/lib/rex/proto/smb/simple_client.rb#L55))
 ```ruby
 simple.login(name, user, pass)
 ```
@@ -111,7 +112,7 @@ file = smb_open(file_path, 'o')
 print_status("File content: #{file.read}")
 file.close
 ```
-See [SimpleClient#open](https://github.com/rapid7/metasploit-framework/blob/6.x/lib/rex/proto/smb/simpleclient.rb#L197) and [RubySMB::Dispositions](https://github.com/rapid7/ruby_smb/blob/master/lib/ruby_smb/dispositions.rb) for details about the `smb_open` mode argument.
+See [SimpleClient#open](https://github.com/rapid7/metasploit-framework/blob/a7d255bbe5537822c614ede71933fdc6597dd369/lib/rex/proto/smb/simple_client.rb#L189) and [RubySMB::Dispositions](https://github.com/rapid7/ruby_smb/blob/a8af935d1f4b5fb57fc7c13490ca75bdacf032b9/lib/ruby_smb/dispositions.rb) for details about the `smb_open` mode argument.
 
 * write to a file
 ```ruby
@@ -159,7 +160,7 @@ Following the same workflow described above:
 dispatcher = RubySMB::Dispatcher::Socket.new(sock)
 ```
 * initialize the client
-SMB versions 1, 2 and 3 will be negotiated by default. Use `smb1`, `smb2` and `smb3` keyword arguments to disable a version (`false` value). See [RubySMB::Client#initialize](https://github.com/rapid7/ruby_smb/blob/master/lib/ruby_smb/client.rb#L265) for more initialization options
+SMB versions 1, 2 and 3 will be negotiated by default. Use `smb1`, `smb2` and `smb3` keyword arguments to disable a version (`false` value). See [RubySMB::Client#initialize](https://github.com/rapid7/ruby_smb/blob/a8af935d1f4b5fb57fc7c13490ca75bdacf032b9/lib/ruby_smb/client.rb#L281) for more initialization options
 ```ruby
 client = RubySMB::Client.new(dispatcher, username: datastore['SMBUser'], password: datastore['SMBPass'], domain: datastore['SMBDomain'])
 ```
@@ -188,7 +189,7 @@ tree = client.tree_connect(\\\\<host>\\<share>)
 file_path = 'file/path/relative/to/the/share/root'
 ```
 
-* read a file (see [RubySMB::SMB1::Tree](https://github.com/rapid7/ruby_smb/blob/master/lib/ruby_smb/smb1/tree.rb#L76) and [RubySMB::SMB2::Tree](https://github.com/rapid7/ruby_smb/blob/master/lib/ruby_smb/smb2/tree.rb#L60) for details)
+* read a file (see [RubySMB::SMB1::Tree](https://github.com/rapid7/ruby_smb/blob/a8af935d1f4b5fb57fc7c13490ca75bdacf032b9/lib/ruby_smb/smb1/tree.rb#L83) and [RubySMB::SMB2::Tree](https://github.com/rapid7/ruby_smb/blob/a8af935d1f4b5fb57fc7c13490ca75bdacf032b9/lib/ruby_smb/smb2/tree.rb#L67) for details)
 ```ruby
 file = tree.open_file(filename: file_path)
 data = file.read

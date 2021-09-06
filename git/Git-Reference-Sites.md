@@ -9,11 +9,9 @@ The following sites are great references for Git padawans and jedi alike:
 * [The Git Community Book](http://book.git-scm.com): A free book put together by the Git community for those new to Git.
 * [Git Magic](http://www-cs-students.stanford.edu/~blynn/gitmagic/): Another free Git book put together by a Stanford CS student.
 * [Git Ready](http://gitready.com): A collection of Git tips and tricks.
-* [Why Git is Better Than X](http://whygitisbetterthanx.com): In case you still need convincing, this site breaks down Git vs. other popular SCM packages.
 * [The Git Parable](http://tom.preston-werner.com/2009/05/19/the-git-parable.html): A story by GitHub founder Tom Preston-Werner that reveals the underlying principles behind Git's construction. A great starting point for understanding the nature of Git.
 * [Git is Easier Than You Think](http://nfarina.com/post/9868516270/git-is-simpler): A nice tutorial that breaks down one Git user's experience switching from Subversion.
 * [PeepCode: Git](http://peepcode.com/products/git): A one-hour (not-free) screencast covering Git basics. Well-made and easy to follow.
-* [Git - The Simple Guide](http://rogerdudler.github.com/git-guide/): A simple introductory guide to getting up and running with Git.
 * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html): Another great post from Scott Chacon describing a GitHub-based workflow for projects.
 * [Getting Started with GitHub](http://pragprog.com/screencasts/v-scgithub/insider-guide-to-github): Also from GitHub's own Scott Chacon, this two-part screencast (one free and one paid) will walk you through the basics of using GitHub.
 

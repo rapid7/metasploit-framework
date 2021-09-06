@@ -28,7 +28,7 @@ In the past, Meterpreter has required that the stager (or stage0 as some like to
 
 ### Loading configuration in Windows Meterpreter
 
-Stage 1 of loading Windows Meterpreter now utilises a new loader, called `meterpreter_loader` ([Win x86](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/meterpreter_loader.rb), [Win x64](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/x64/meterpreter_loader.rb)), which does the following:
+Stage 1 of loading Windows Meterpreter now utilises a new loader, called `meterpreter_loader` ([Win x86](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/meterpreter_loader.rb), [Win x64](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/windows/x64/meterpreter_loader_x64.rb)), which does the following:
 
 * Loads the `metsrv` DLL from disk.
 * Patches the DOS header of the DLL so that it contains executable shellcode that correctly initializes `metsrv` and calculates the location that points to the end of `metsrv` in memory. It also takes any existing socket value (found in `edi` or `rdi` depending on the architecture) and writes that directly to the configuration (more on this later).
