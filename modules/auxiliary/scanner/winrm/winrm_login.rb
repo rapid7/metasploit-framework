@@ -92,8 +92,8 @@ class MetasploitModule < Msf::Auxiliary
                       password: result.credential.private,
                       transport: :rex,
                       :no_ssl_peer_verification => true,
-                      :operation_timeout => 1,
-                      :http_timeout => 20, # For the underlying HTTP client
+                      :operation_timeout => 1, # For the WinRM server
+                      :timeout => 20, # For the underlying HTTP client
                       :retry_delay => 1,
                       :realm => result.credential.realm,
                  )

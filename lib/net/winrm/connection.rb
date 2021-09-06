@@ -166,6 +166,7 @@ module Net
           # rubocop:disable Lint/
           def initialize(opts)
             self.http_client = Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], opts[:user], opts[:password])
+            self.timeout = opts[:timeout]
             @mutex = Mutex.new
             self.uri = opts[:uri]
             if opts[:realm]
@@ -175,6 +176,7 @@ module Net
 
           def ntlm_transform_response(ntlm_client, response)
             # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
+            return nil unless response
             return response.body if response.headers['Content-Type'].first =~ %r{\Aapplication\/soap\+xml}i
             return '' if response.body.empty?
 
@@ -217,7 +219,7 @@ module Net
                 opts['ntlm_transform_response'] = method(:ntlm_transform_response)
               end
               request = self.http_client.request_cgi(opts)
-              response = self.http_client.send_recv(request,-1,true)
+              response = self.http_client.send_recv(request,self.timeout,true)
               if response
                 WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
               else
@@ -234,7 +236,7 @@ module Net
             _send_request(message)
           end
           protected
-            attr_accessor :http_client, :uri
+            attr_accessor :http_client, :uri, :timeout
 
             # Need to send an empty first request to potentially set up an encryption
             # channel - required if allowUnencrypted is set to false, which is the case
