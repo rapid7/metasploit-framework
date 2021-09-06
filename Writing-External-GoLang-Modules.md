@@ -13,24 +13,26 @@ Contributing modules in [GO](https://golang.org/) can be achieved in a few simpl
 
 #### 3. Setup
 * Initialize your module with the module metadata:
->
-    import "metasploit/module"
-    func main() {
-      metadata := &module.Metadata{
-        Name: "<module name",
-        Description: "<describe>",
-        Authors: []string{"<author 1>", "<author 2>"},
-        Date: "<date module written",
-        Type:"<module type>",
-        Privileged:  <true|false>,
-        References:  []module.Reference{},
-        Options: map[string]module.Option{	
-          "<option 1":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},		
-          "<option 2":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},
-      }}
+```go
+import "metasploit/module"
+func main() {
+  metadata := &module.Metadata{
+    Name: "<module name",
+    Description: "<describe>",
+    Authors: []string{"<author 1>", "<author 2>"},
+    Date: "<date module written",
+    Type:"<module type>",
+    Privileged:  <true|false>,
+    References:  []module.Reference{},
+    Options: map[string]module.Option{	
+      "<option 1":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},		
+      "<option 2":     {Type: "<type>", Description: "<description>", Required: <true|false>, Default: "<default>"},
+  }}
 
-      module.Init(metadata, <the entry method to your module>)
-    }
+  module.Init(metadata, <the entry method to your module>)
+}
+```
+
 **[FULL EXAMPLE](https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/msmail/exchange_enum.go)**
 
 **_Note: Above does not outline the full potential list of metadata options_**
