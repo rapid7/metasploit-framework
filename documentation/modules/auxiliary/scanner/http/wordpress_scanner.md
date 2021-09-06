@@ -81,6 +81,18 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 ## Options
 
+### Exploitable
+
+Only sans for themes and plugins which Metasploit has a module for.  Defaults to `true`
+
+### Exploitable_themes
+
+Which list of exploitable themes to use. Default is `data/wordlists/wp-exploitable-themes.txt`
+
+### Exploitable_plugins
+
+Which list of exploitable plugins use. Default is `data/wordlists/wp-exploitable-plugins.txt`
+
 ### PLUGINS
 
 If plugins should be scanned. Defaults to `true`
@@ -123,133 +135,187 @@ msf5 auxiliary(scanner/http/wordpress_scanner) >
 
 ```
 
-### Wordpress 5.4.2 with Plugin and Theme Enumeration
+### Wordpress 5.4.2 with Plugin and Theme Enumeration, Exploitable True
 
 ```
 msf6 > use auxiliary/scanner/http/wordpress_scanner
-[*] Using auxiliary/scanner/http/wordpress_scanner
-msf6 auxiliary(scanner/http/wordpress_scanner) > set rhosts 1.1.1.1
-rhosts => 1.1.1.1
+msf6 auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
+rhosts => 192.168.2.144
 msf6 auxiliary(scanner/http/wordpress_scanner) > run
 
-[*] Trying 1.1.1.1
-[+] 1.1.1.1 - Detected Wordpress 5.4.2
-[*] 1.1.1.1 - Enumerating Themes
-[*] 1.1.1.1 - Progress      0/19226 (0.0%)
-[*] 1.1.1.1 - Progress   1000/19226 (5.2%)
-[*] 1.1.1.1 - Progress   2000/19226 (10.4%)
-[*] 1.1.1.1 - Progress   3000/19226 (15.6%)
-[*] 1.1.1.1 - Progress   4000/19226 (20.8%)
-[*] 1.1.1.1 - Progress   5000/19226 (26.0%)
-[*] 1.1.1.1 - Progress   6000/19226 (31.2%)
-[*] 1.1.1.1 - Progress   7000/19226 (36.4%)
-[*] 1.1.1.1 - Progress   8000/19226 (41.61%)
-[*] 1.1.1.1 - Progress   9000/19226 (46.81%)
-[*] 1.1.1.1 - Progress  10000/19226 (52.01%)
-[*] 1.1.1.1 - Progress  11000/19226 (57.21%)
-[*] 1.1.1.1 - Progress  12000/19226 (62.41%)
-[*] 1.1.1.1 - Progress  13000/19226 (67.61%)
-[*] 1.1.1.1 - Progress  14000/19226 (72.81%)
-[*] 1.1.1.1 - Progress  15000/19226 (78.01%)
-[*] 1.1.1.1 - Progress  16000/19226 (83.22%)
-[*] 1.1.1.1 - Progress  17000/19226 (88.42%)
-[+] 1.1.1.1 - Detected theme: twentynineteen version 1.5
-[+] 1.1.1.1 - Detected theme: twentyseventeen version 2.3
-[*] 1.1.1.1 - Progress  18000/19226 (93.62%)
-[*] 1.1.1.1 - Progress  19000/19226 (98.82%)
-[*] 1.1.1.1 - Finished scanning themes
-[*] 1.1.1.1 - Enumerating plugins
-[*] 1.1.1.1 - Progress      0/80624 (0.0%)
-[*] 1.1.1.1 - Progress   1000/80624 (1.24%)
-[*] 1.1.1.1 - Progress   2000/80624 (2.48%)
-[+] 1.1.1.1 - Detected plugin: akismet version 4.1.5
-[*] 1.1.1.1 - Progress   3000/80624 (3.72%)
-[*] 1.1.1.1 - Progress   4000/80624 (4.96%)
-[*] 1.1.1.1 - Progress   5000/80624 (6.2%)
-[*] 1.1.1.1 - Progress   6000/80624 (7.44%)
-[*] 1.1.1.1 - Progress   7000/80624 (8.68%)
-[*] 1.1.1.1 - Progress   8000/80624 (9.92%)
-[*] 1.1.1.1 - Progress   9000/80624 (11.16%)
-[*] 1.1.1.1 - Progress  10000/80624 (12.4%)
-[*] 1.1.1.1 - Progress  11000/80624 (13.64%)
-[*] 1.1.1.1 - Progress  12000/80624 (14.88%)
-[*] 1.1.1.1 - Progress  13000/80624 (16.12%)
-[+] 1.1.1.1 - Detected plugin: contact-form-7 version 5.1.9
-[*] 1.1.1.1 - Progress  14000/80624 (17.36%)
-[*] 1.1.1.1 - Progress  15000/80624 (18.6%)
-[*] 1.1.1.1 - Progress  16000/80624 (19.84%)
-[*] 1.1.1.1 - Progress  17000/80624 (21.08%)
-[*] 1.1.1.1 - Progress  18000/80624 (22.32%)
-[+] 1.1.1.1 - Detected plugin: drag-and-drop-multiple-file-upload-contact-form-7 version 1.3.3.2
-[*] 1.1.1.1 - Progress  19000/80624 (23.56%)
-[*] 1.1.1.1 - Progress  20000/80624 (24.8%)
-[+] 1.1.1.1 - Detected plugin: email-subscribers version 4.2.2
-[*] 1.1.1.1 - Progress  21000/80624 (26.04%)
-[*] 1.1.1.1 - Progress  22000/80624 (27.28%)
-[*] 1.1.1.1 - Progress  23000/80624 (28.52%)
-[*] 1.1.1.1 - Progress  24000/80624 (29.76%)
-[*] 1.1.1.1 - Progress  25000/80624 (31.0%)
-[*] 1.1.1.1 - Progress  26000/80624 (32.24%)
-[*] 1.1.1.1 - Progress  27000/80624 (33.48%)
-[*] 1.1.1.1 - Progress  28000/80624 (34.72%)
-[*] 1.1.1.1 - Progress  29000/80624 (35.96%)
-[*] 1.1.1.1 - Progress  30000/80624 (37.2%)
-[*] 1.1.1.1 - Progress  31000/80624 (38.45%)
-[*] 1.1.1.1 - Progress  32000/80624 (39.69%)
-[*] 1.1.1.1 - Progress  33000/80624 (40.93%)
-[*] 1.1.1.1 - Progress  34000/80624 (42.17%)
-[*] 1.1.1.1 - Progress  35000/80624 (43.41%)
-[+] 1.1.1.1 - Detected plugin: loginizer version 1.6.3
-[*] 1.1.1.1 - Progress  36000/80624 (44.65%)
-[*] 1.1.1.1 - Progress  37000/80624 (45.89%)
-[*] 1.1.1.1 - Progress  38000/80624 (47.13%)
-[*] 1.1.1.1 - Progress  39000/80624 (48.37%)
-[*] 1.1.1.1 - Progress  40000/80624 (49.61%)
-[*] 1.1.1.1 - Progress  41000/80624 (50.85%)
-[*] 1.1.1.1 - Progress  42000/80624 (52.09%)
-[*] 1.1.1.1 - Progress  43000/80624 (53.33%)
-[*] 1.1.1.1 - Progress  44000/80624 (54.57%)
-[*] 1.1.1.1 - Progress  45000/80624 (55.81%)
-[*] 1.1.1.1 - Progress  46000/80624 (57.05%)
-[*] 1.1.1.1 - Progress  47000/80624 (58.29%)
-[*] 1.1.1.1 - Progress  48000/80624 (59.53%)
-[*] 1.1.1.1 - Progress  49000/80624 (60.77%)
-[*] 1.1.1.1 - Progress  50000/80624 (62.01%)
-[*] 1.1.1.1 - Progress  51000/80624 (63.25%)
-[*] 1.1.1.1 - Progress  52000/80624 (64.49%)
-[*] 1.1.1.1 - Progress  53000/80624 (65.73%)
-[*] 1.1.1.1 - Progress  54000/80624 (66.97%)
-[*] 1.1.1.1 - Progress  55000/80624 (68.21%)
-[+] 1.1.1.1 - Detected plugin: simple-file-list version 4.2.2
-[*] 1.1.1.1 - Progress  56000/80624 (69.45%)
-[*] 1.1.1.1 - Progress  57000/80624 (70.69%)
-[*] 1.1.1.1 - Progress  58000/80624 (71.93%)
-[*] 1.1.1.1 - Progress  59000/80624 (73.17%)
-[*] 1.1.1.1 - Progress  60000/80624 (74.41%)
-[*] 1.1.1.1 - Progress  61000/80624 (75.65%)
-[*] 1.1.1.1 - Progress  62000/80624 (76.9%)
-[*] 1.1.1.1 - Progress  63000/80624 (78.14%)
-[*] 1.1.1.1 - Progress  64000/80624 (79.38%)
-[*] 1.1.1.1 - Progress  65000/80624 (80.62%)
-[*] 1.1.1.1 - Progress  66000/80624 (81.86%)
-[*] 1.1.1.1 - Progress  67000/80624 (83.1%)
-[*] 1.1.1.1 - Progress  68000/80624 (84.34%)
-[*] 1.1.1.1 - Progress  69000/80624 (85.58%)
-[*] 1.1.1.1 - Progress  70000/80624 (86.82%)
-[*] 1.1.1.1 - Progress  71000/80624 (88.06%)
-[*] 1.1.1.1 - Progress  72000/80624 (89.3%)
-[*] 1.1.1.1 - Progress  73000/80624 (90.54%)
-[*] 1.1.1.1 - Progress  74000/80624 (91.78%)
-[*] 1.1.1.1 - Progress  75000/80624 (93.02%)
-[*] 1.1.1.1 - Progress  76000/80624 (94.26%)
-[*] 1.1.1.1 - Progress  77000/80624 (95.5%)
-[*] 1.1.1.1 - Progress  78000/80624 (96.74%)
-[*] 1.1.1.1 - Progress  79000/80624 (97.98%)
-[*] 1.1.1.1 - Progress  80000/80624 (99.22%)
-[*] 1.1.1.1 - Finished scanning plugins
-[*] 1.1.1.1 - Finished all scans
+[*] Trying 192.168.2.144
+[+] 192.168.2.144 - Detected Wordpress 5.4.4
+[*] 192.168.2.144 - Enumerating Themes
+[*] 192.168.2.144 - Progress  0/2 (0.0%)
+[*] 192.168.2.144 - Finished scanning themes
+[*] 192.168.2.144 - Enumerating plugins
+[*] 192.168.2.144 - Progress   0/44 (0.0%)
+[+] 192.168.2.144 - Detected plugin: backup version 1.5.8
+[+] 192.168.2.144 - Detected plugin: simple-file-list version 4.2.2
+[+] 192.168.2.144 - Detected plugin: drag-and-drop-multiple-file-upload-contact-form-7 version 1.3.3.2
+[+] 192.168.2.144 - Detected plugin: loginizer version 1.6.3
+[+] 192.168.2.144 - Detected plugin: email-subscribers version 4.2.2
+[+] 192.168.2.144 - Detected plugin: learnpress version 3.2.6.7
+[+] 192.168.2.144 - Detected plugin: boldgrid-backup version 1.14.9
+[+] 192.168.2.144 - Detected plugin: easy-wp-smtp version 1.4.1
+[+] 192.168.2.144 - Detected plugin: woocommerce-abandoned-cart version You
+[*] 192.168.2.144 - Finished scanning plugins
+[*] 192.168.2.144 - Finished all scans
 [*] Scanned 1 of 1 hosts (100% complete)
 [*] Auxiliary module execution completed
+
+```
+
+### Wordpress 5.4.2 with Plugin and Theme Enumeration, Exploitable False
+
+```
+msf6 > use auxiliary/scanner/http/wordpress_scanner
+msf6 auxiliary(scanner/http/wordpress_scanner) > set rhosts 192.168.2.144
+rhosts => 192.168.2.144
+msf6 auxiliary(scanner/http/wordpress_scanner) > set exploitable false
+exploitable => false
+msf6 auxiliary(scanner/http/wordpress_scanner) > run
+
+[*] Trying 192.168.2.144
+[+] 192.168.2.144 - Detected Wordpress 5.4.4
+[*] 192.168.2.144 - Enumerating Themes
+[*] 192.168.2.144 - Progress      0/22140 (0.0%)
+[*] 192.168.2.144 - Progress   1000/22140 (4.51%)
+[*] 192.168.2.144 - Progress   2000/22140 (9.03%)
+[*] 192.168.2.144 - Progress   3000/22140 (13.55%)
+[*] 192.168.2.144 - Progress   4000/22140 (18.06%)
+[*] 192.168.2.144 - Progress   5000/22140 (22.58%)
+[*] 192.168.2.144 - Progress   6000/22140 (27.1%)
+[*] 192.168.2.144 - Progress   7000/22140 (31.61%)
+[*] 192.168.2.144 - Progress   8000/22140 (36.13%)
+[*] 192.168.2.144 - Progress   9000/22140 (40.65%)
+[*] 192.168.2.144 - Progress  10000/22140 (45.16%)
+[*] 192.168.2.144 - Progress  11000/22140 (49.68%)
+[*] 192.168.2.144 - Progress  12000/22140 (54.2%)
+[*] 192.168.2.144 - Progress  13000/22140 (58.71%)
+[*] 192.168.2.144 - Progress  14000/22140 (63.23%)
+[*] 192.168.2.144 - Progress  15000/22140 (67.75%)
+[*] 192.168.2.144 - Progress  16000/22140 (72.26%)
+[*] 192.168.2.144 - Progress  17000/22140 (76.78%)
+[*] 192.168.2.144 - Progress  18000/22140 (81.3%)
+[*] 192.168.2.144 - Progress  19000/22140 (85.81%)
+[+] 192.168.2.144 - Detected theme: twentynineteen version 1.5
+[+] 192.168.2.144 - Detected theme: twentyseventeen version 2.3
+[*] 192.168.2.144 - Progress  20000/22140 (90.33%)
+[+] 192.168.2.144 - Detected theme: twentytwenty version 1.2
+[*] 192.168.2.144 - Progress  21000/22140 (94.85%)
+[*] 192.168.2.144 - Progress  22000/22140 (99.36%)
+[*] 192.168.2.144 - Finished scanning themes
+[*] 192.168.2.144 - Enumerating plugins
+[*] 192.168.2.144 - Progress      0/91829 (0.0%)
+[*] 192.168.2.144 - Progress   1000/91829 (1.08%)
+[*] 192.168.2.144 - Progress   2000/91829 (2.17%)
+[*] 192.168.2.144 - Progress   3000/91829 (3.26%)
+[+] 192.168.2.144 - Detected plugin: akismet version 4.1.5
+[*] 192.168.2.144 - Progress   4000/91829 (4.35%)
+[*] 192.168.2.144 - Progress   5000/91829 (5.44%)
+[*] 192.168.2.144 - Progress   6000/91829 (6.53%)
+[+] 192.168.2.144 - Detected plugin: backup version 1.5.8
+[*] 192.168.2.144 - Progress   7000/91829 (7.62%)
+[*] 192.168.2.144 - Progress   8000/91829 (8.71%)
+[*] 192.168.2.144 - Progress   9000/91829 (9.8%)
+[+] 192.168.2.144 - Detected plugin: boldgrid-backup version 1.14.9
+[*] 192.168.2.144 - Progress  10000/91829 (10.88%)
+[*] 192.168.2.144 - Progress  11000/91829 (11.97%)
+[*] 192.168.2.144 - Progress  12000/91829 (13.06%)
+[*] 192.168.2.144 - Progress  13000/91829 (14.15%)
+[*] 192.168.2.144 - Progress  14000/91829 (15.24%)
+[*] 192.168.2.144 - Progress  15000/91829 (16.33%)
+[+] 192.168.2.144 - Detected plugin: contact-form-7 version 5.1.9
+[*] 192.168.2.144 - Progress  16000/91829 (17.42%)
+[*] 192.168.2.144 - Progress  17000/91829 (18.51%)
+[*] 192.168.2.144 - Progress  18000/91829 (19.6%)
+[*] 192.168.2.144 - Progress  19000/91829 (20.69%)
+[*] 192.168.2.144 - Progress  20000/91829 (21.77%)
+[+] 192.168.2.144 - Detected plugin: drag-and-drop-multiple-file-upload-contact-form-7 version 1.3.3.2
+[*] 192.168.2.144 - Progress  21000/91829 (22.86%)
+[+] 192.168.2.144 - Detected plugin: duplicator version 1.3.26
+[*] 192.168.2.144 - Progress  22000/91829 (23.95%)
+[+] 192.168.2.144 - Detected plugin: easy-wp-smtp version 1.4.1
+[*] 192.168.2.144 - Progress  23000/91829 (25.04%)
+[+] 192.168.2.144 - Detected plugin: email-subscribers version 4.2.2
+[*] 192.168.2.144 - Progress  24000/91829 (26.13%)
+[*] 192.168.2.144 - Progress  25000/91829 (27.22%)
+[*] 192.168.2.144 - Progress  26000/91829 (28.31%)
+[*] 192.168.2.144 - Progress  27000/91829 (29.4%)
+[*] 192.168.2.144 - Progress  28000/91829 (30.49%)
+[*] 192.168.2.144 - Progress  29000/91829 (31.58%)
+[*] 192.168.2.144 - Progress  30000/91829 (32.66%)
+[*] 192.168.2.144 - Progress  31000/91829 (33.75%)
+[+] 192.168.2.144 - Detected plugin: gotmls version 4.20.59
+[*] 192.168.2.144 - Progress  32000/91829 (34.84%)
+[*] 192.168.2.144 - Progress  33000/91829 (35.93%)
+[*] 192.168.2.144 - Progress  34000/91829 (37.02%)
+[*] 192.168.2.144 - Progress  35000/91829 (38.11%)
+[*] 192.168.2.144 - Progress  36000/91829 (39.2%)
+[*] 192.168.2.144 - Progress  37000/91829 (40.29%)
+[+] 192.168.2.144 - Detected plugin: learnpress version 3.2.6.7
+[*] 192.168.2.144 - Progress  38000/91829 (41.38%)
+[*] 192.168.2.144 - Progress  39000/91829 (42.47%)
+[+] 192.168.2.144 - Detected plugin: loginizer version 1.6.3
+[*] 192.168.2.144 - Progress  40000/91829 (43.55%)
+[*] 192.168.2.144 - Progress  41000/91829 (44.64%)
+[*] 192.168.2.144 - Progress  42000/91829 (45.73%)
+[*] 192.168.2.144 - Progress  43000/91829 (46.82%)
+[*] 192.168.2.144 - Progress  44000/91829 (47.91%)
+[*] 192.168.2.144 - Progress  45000/91829 (49.0%)
+[*] 192.168.2.144 - Progress  46000/91829 (50.09%)
+[*] 192.168.2.144 - Progress  47000/91829 (51.18%)
+[*] 192.168.2.144 - Progress  48000/91829 (52.27%)
+[*] 192.168.2.144 - Progress  49000/91829 (53.36%)
+[*] 192.168.2.144 - Progress  50000/91829 (54.44%)
+[*] 192.168.2.144 - Progress  51000/91829 (55.53%)
+[*] 192.168.2.144 - Progress  52000/91829 (56.62%)
+[*] 192.168.2.144 - Progress  53000/91829 (57.71%)
+[*] 192.168.2.144 - Progress  54000/91829 (58.8%)
+[*] 192.168.2.144 - Progress  55000/91829 (59.89%)
+[*] 192.168.2.144 - Progress  56000/91829 (60.98%)
+[*] 192.168.2.144 - Progress  57000/91829 (62.07%)
+[*] 192.168.2.144 - Progress  58000/91829 (63.16%)
+[*] 192.168.2.144 - Progress  59000/91829 (64.24%)
+[*] 192.168.2.144 - Progress  60000/91829 (65.33%)
+[*] 192.168.2.144 - Progress  61000/91829 (66.42%)
+[+] 192.168.2.144 - Detected plugin: simple-file-list version 4.2.2
+[*] 192.168.2.144 - Progress  62000/91829 (67.51%)
+[*] 192.168.2.144 - Progress  63000/91829 (68.6%)
+[*] 192.168.2.144 - Progress  64000/91829 (69.69%)
+[*] 192.168.2.144 - Progress  65000/91829 (70.78%)
+[*] 192.168.2.144 - Progress  66000/91829 (71.87%)
+[*] 192.168.2.144 - Progress  67000/91829 (72.96%)
+[*] 192.168.2.144 - Progress  68000/91829 (74.05%)
+[*] 192.168.2.144 - Progress  69000/91829 (75.13%)
+[*] 192.168.2.144 - Progress  70000/91829 (76.22%)
+[*] 192.168.2.144 - Progress  71000/91829 (77.31%)
+[*] 192.168.2.144 - Progress  72000/91829 (78.4%)
+[*] 192.168.2.144 - Progress  73000/91829 (79.49%)
+[*] 192.168.2.144 - Progress  74000/91829 (80.58%)
+[*] 192.168.2.144 - Progress  75000/91829 (81.67%)
+[*] 192.168.2.144 - Progress  76000/91829 (82.76%)
+[*] 192.168.2.144 - Progress  77000/91829 (83.85%)
+[*] 192.168.2.144 - Progress  78000/91829 (84.94%)
+[+] 192.168.2.144 - Detected plugin: woocommerce version 4.8.0
+[+] 192.168.2.144 - Detected plugin: woocommerce-abandoned-cart version You
+[*] 192.168.2.144 - Progress  79000/91829 (86.02%)
+[+] 192.168.2.144 - Detected plugin: wordpress-popular-posts version 5.3.2
+[*] 192.168.2.144 - Progress  80000/91829 (87.11%)
+[*] 192.168.2.144 - Progress  81000/91829 (88.2%)
+[*] 192.168.2.144 - Progress  82000/91829 (89.29%)
+[*] 192.168.2.144 - Progress  83000/91829 (90.38%)
+[*] 192.168.2.144 - Progress  84000/91829 (91.47%)
+[*] 192.168.2.144 - Progress  85000/91829 (92.56%)
+[*] 192.168.2.144 - Progress  86000/91829 (93.65%)
+[+] 192.168.2.144 - Detected plugin: wp-super-cache version 1.7.1
+[*] 192.168.2.144 - Progress  87000/91829 (94.74%)
+[*] 192.168.2.144 - Progress  88000/91829 (95.83%)
+[*] 192.168.2.144 - Progress  89000/91829 (96.91%)
+[*] 192.168.2.144 - Progress  90000/91829 (98.0%)
+[*] 192.168.2.144 - Finished scanning plugins
+[*] 192.168.2.144 - Finished all scans
 msf6 auxiliary(scanner/http/wordpress_scanner) > notes
 
 Notes
