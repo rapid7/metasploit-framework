@@ -16,7 +16,7 @@ Configuring this amount of options is cumbersome and time consuming on a per mod
 
 Although it is is possible to globally setting common values with the `setg` command - and to individually override the ports on a per module basis, it is still an arduous task:
 
-```ruby
+```
 setg RHOSTS x.x.x.x
 use module/foo
 set RPORT yyy
@@ -27,7 +27,7 @@ run
 
 It is currently verbose when running modules against multiple targets, with independent ports and target paths. This must be done manually:
 
-```ruby
+```
 use module/foo
 set RHOST target1
 set TARGETURI /jenkins
@@ -50,7 +50,7 @@ So far there’s three main potential approaches to add URL support to msfconsol
 
 Combining the module target options into one would help reduce the amount of steps required to configure a module:
 
-```ruby
+```
 set TARGETS https://user:password@target_app:4343
 ```
 
@@ -60,7 +60,7 @@ When the user views the options for a given module, it will be consolidated. The
 
 Multiple options are available for configuring the module options:
 
-```ruby
+```
 msf5 exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -87,7 +87,7 @@ Exploit target:
 
  Multiple options are consolidated into a single TARGETS field:
 
-```ruby
+```
 msf5 exploit(multi/http/tomcat_mgr_upload) > options
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -108,7 +108,7 @@ Exploit target:
 
 It is now possible to run an individual module against different hosts, paths, and ports:
 
-```ruby
+```
 use exploit/multi/http/jenkins_script_console
 set TARGETS http://target1:9000/jenkins, http://target2:8080/admin/jenkins
 check
@@ -116,7 +116,7 @@ check
 
 It is now possible to run an individual module against different hosts, paths, and ports:
 
-```ruby
+```
 use auxiliary/scanner/http/title
 set TARGETS https://google.com http://example.com
 run
@@ -124,13 +124,13 @@ run
 
 It would still be possible to use IPv4/IPv6/CIDR syntax directly:
 
-```ruby
+```
 set TARGETS 192.168.1.5:139
 ```
 
 However - it is no longer clear how to use CIDR notation and set path information, other than making up a new syntax:
 
-```ruby
+```
 set TARGETS https://10.0.0.0/24:8080/some/app
 ```
 
@@ -155,7 +155,7 @@ set TARGETS https://10.0.0.0/24:8080/some/app
     - `RPORT = 139`
 - The modules additionally lose the descriptive metadata for the significance of fields, such as `TARGETURI`:
 
-```ruby
+```
 Module options (exploit/multi/http/jenkins_script_console):
 
    Name       Current Setting  Required  Description
@@ -169,7 +169,7 @@ Module options (exploit/multi/http/jenkins_script_console):
 
 The `RHOSTS` field is updated to support a URL formats:
 
-```ruby
+```
 set RHOSTS http://target1:9000/jenkins
 ```
 
@@ -177,7 +177,7 @@ set RHOSTS http://target1:9000/jenkins
 
 The multiple options are still available to the user, there is no change to this behavior:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -198,13 +198,13 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 The use of RHOSTS continues to be a valid option name:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo
 ```
 
 The options are now individually updated with corresponding values:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -224,7 +224,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 If the user wishes to update an individual option, the rhost's value will be recomputed:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo
 set TARGETURI /bar
 
@@ -244,7 +244,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 The user can set multiple RHOSTS, with each option being comma delimited within the options table:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo http://b.site.com/bar
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -263,7 +263,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 The user can continue to set override individual options uniformly:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo http://b.site.com/bar
 set TARGETURI /new
 
@@ -283,7 +283,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 The user can set new path values individually:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo http://b.site.com/bar
 set TARGETURI /abc /xyz
 
@@ -303,7 +303,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 **Alternatively:** The above scenario is intuitive when used with multiple RHOSTS, however when a single RHOST is used the user may intend for setting TARGETURI to behave differently. In this scenario the user may expect two scans to be ran against the single target:
 
-```ruby
+```
 set RHOSTS https://a.site.com/foo
 set TARGETURI /abc /xyz
 
@@ -323,7 +323,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 It's still possible to use the CIDR range notation, but the support remains closer to the current Metasploit console workflow:
 
-```ruby
+```
 set RHOSTS 192.168.100.0/22
 set TARGETURI /tomcat
 set SSL true
@@ -362,7 +362,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 Metasploit console will now support setting a single `RHOST_URL` value. Note that this wouldn't show as an option to the user, but would be used as a 'macro' to populate the existing datastore values:
 
-```ruby
+```
 set RHOST_URL https://a.site.com/foo
 
 Module options (exploit/multi/http/tomcat_mgr_upload):
@@ -381,7 +381,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 After this convenience option has been set, it is now possible to use the normal workflow of msfconsole to set further options:
 
-```ruby
+```
 set RURL https://a.site.com/foo
 set TARGETURI /bar
 set SSL FALSE
@@ -404,7 +404,7 @@ Module options (exploit/multi/http/tomcat_mgr_upload):
 
 Similarly this functionality would set all options of the global store as expected:
 
-```ruby
+```
 setg RHOST_URL https://a.site.com/foo
 setg
 
@@ -462,7 +462,7 @@ Global
 
 [Routersploit](https://github.com/threat9/routersploit) is a Python exploitation framework for embedded devices. The interactive console allows the user to specify a TARGET option. This value can only be configured with a valid IPv4/IPv6 address:
 
-```ruby
+```
 rsf > use exploits/routers/2wire/
 rsf (2Wire Gateway Auth Bypass) > show options
 
@@ -483,7 +483,7 @@ Module options:
 
 With a module that supports a configurable path:
 
-```ruby
+```
 rsf > use exploits/generic/shellshock
 rsf (Shellshock) > show options
 
@@ -509,7 +509,7 @@ Module options:
 
 [Empire](https://github.com/EmpireProject/Empire) is a now retired post exploitation framework for windows. The interactive console provides both a Host configuration, as well as the ability to individually configure options:
 
-```ruby
+```
 (Empire) > listeners
 [!] No listeners currently active 
 (Empire: listeners) > uselistener http
@@ -581,7 +581,7 @@ Category: client_serverAuthors:
 
 Likewise, updating the individual port will be reflected in the Host option:
 
-```ruby
+```
 (Empire: listeners/http) > set Port 1234
 (Empire: listeners/http) > info
     Name: HTTP[S]

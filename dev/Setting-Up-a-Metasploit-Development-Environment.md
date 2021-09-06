@@ -105,7 +105,7 @@ Congratulations! You have now set up a development environment and the latest ve
 
 ## Optional: Set up the REST API and PostgreSQL database
 
-The following optional section describes how to manually install PostgreSQL and set up the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.  Click to expand.
+The following optional section describes how to manually install PostgreSQL and set up the Metasploit database.  Alternatively, use our Omnibus installer which handles this more reliably.
 
 1. Confirm that the PostgreSQL server and client are installed:
 
@@ -135,22 +135,22 @@ Congratulations! You have now set up the [Metasploit Web Service (REST API)][msf
 
 ## Optional: Tips to speed up common workflows
 
-The following section is optional but may improve your efficiency.  Click to expand.
+The following section is optional but may improve your efficiency.
 
-- Making sure you're in the right directory to run `msfconsole` can become tedious, so consider using the following Bash alias:
+Making sure you're in the right directory to run `msfconsole` can become tedious, so consider using the following Bash alias:
 
 ```bash
 echo 'alias msfconsole="pushd $HOME/git/metasploit-framework && ./msfconsole && popd"' >> ~/.bash_aliases
 ```
 
- - Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
+Consider generating a GPG key to sign your commits.  Read about [why][git-horror] and [how][signing-howto]. Once you have done this, consider enabling automatic signing of all your commits with the following command:
 
 ```
 cd *path to your cloned MSF repository on disk*
 git config commit.gpgsign true
 ```
 
- - Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
+Developers tend to customize their own [git aliases] to speed up common commands, but here are a few common ones:
 
 ```rc
 [alias]
@@ -165,20 +165,20 @@ c = commit -S --edit
 b= blame -w
 ```
 
- - If you plan on working with other contributor's pull requests, you may run the following script which makes it easier to do so:
+If you plan on working with other contributor's pull requests, you may run the following script which makes it easier to do so:
 
 ```
 tools/dev/add_pr_fetch.rb
 ```
 
-  After running the above script, you can `checkout` other pull requests more easily:
+After running the above script, you can `checkout` other pull requests more easily:
 
 ```
 git fetch upstream
 git checkout fixes-to-pr-12345 upstream/pr/12345
 ```
 
- - If you're writing test cases (which you should), then make sure [rspec] works:
+If you're writing test cases (which you should), then make sure [rspec] works:
 
 ```bash
 rake spec

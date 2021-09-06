@@ -11,10 +11,10 @@ Linux distributions, such as Debian and Kali Linux, use [postgresql-common (Mult
 * Determine the current version of PostgreSQL on the system when multiple versions might be installed in parallel.
 * The port number used for the server when `pg_createcluster` is run without a port number option defaults to the "next free port starting from 5432". If we don't specify the port number when calling `pg_createcluster` we can scrape the port number from the `pg_lsclusters` output.
 
-    ```
-    PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_lsclusters --no-header | awk '/^9.6/ { if ($2 == "msf") { print $3; } }'
-    5433
-    ```
+```
+PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_lsclusters --no-header | awk '/^9.6/ { if ($2 == "msf") { print $3; } }'
+5433
+```
 
 ### Notes
 
@@ -25,7 +25,7 @@ Debian's [postgresql-common (Multi-Version/Multi-Cluster PostgreSQL architecture
     * `pg_createcluster [options] version name [-- initdb options]`
 * `pg_ctlcluster`: wrapper for `pg_ctl`, control the cluster postgres server
     * pg_ctlcluster [options] cluster-version cluster-name action -- [pg_ctl options]
-    * where action = start|stop|restart|reload|promote
+    * where action is one of start, stop, restart, reload, promote
 * `pg_dropcluster`: remove a cluster and its configuration
     * pg_dropcluster [--stop] cluster-version cluster-name
 * `pg_wrapper`: wrapper for PostgreSQL client commands
@@ -57,7 +57,7 @@ PG_CLUSTER_CONF_ROOT
 
 #### Working Solution
 
-* Create cluster ("initdb") to set up the necessary configuration structure:
+Create cluster ("initdb") to set up the necessary configuration structure:
 
 Note, running `mkdir -p $HOME/.local/etc/postgresql;` before the `pg_createcluster` command didn't stop the "install: cannot change owner and permissions of ‘/home/msfdev/.local/etc/postgresql/9.6’: Operation not permitted" message from appearing. This appears to be a warning only and doesn't seem to affect cluster creation.
 
@@ -72,7 +72,7 @@ socket /home/msfdev/.local/var/run/postgresql
 port 5433
 ```
 
-* Check cluster was successfully created and appears in the list of all available clusters:
+Check cluster was successfully created and appears in the list of all available clusters:
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_lsclusters
@@ -80,13 +80,13 @@ Ver Cluster Port Status Owner Data directory Log file
 9.6 msf 5433 down msfdev /home/msfdev/msf-db-datadir /home/msfdev/.local/var/log/postgresql/postgresql-version-msf.log
 ```
 
-* Start postmaster server for the cluster ("pg_ctl"):
+Start postmaster server for the cluster ("pg_ctl"):
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_ctlcluster 9.6 msf start
 ```
 
-* Check that the cluster was successfully started:
+Check that the cluster was successfully started:
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_lsclusters
@@ -94,7 +94,7 @@ Ver Cluster Port Status Owner Data directory Log file
 9.6 msf 5433 online msfdev /home/msfdev/msf-db-datadir /home/msfdev/.local/var/log/postgresql/postgresql-version-msf.log
 ```
 
-* Perform `msfdb`'s `write_db_config` method work by manually creating the `~/.msf4/database.yml` file.
+Perform `msfdb`'s `write_db_config` method work by manually creating the `~/.msf4/database.yml` file:
 
 ```
 development: &pgsql
@@ -116,7 +116,7 @@ test:
   password: Password123
 ```
 
-* Create database users:
+Create database users:
 
 Note, these steps are from `msfdb`'s `init_db` method. The following example only creates the main MSF user account and not the test account.
 
@@ -130,16 +130,16 @@ ALTER ROLE
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql createdb --cluster 9.6/msf -O msf -h 127.0.0.1 -U msf -E UTF-8 -T template0 msf
 ```
 
-* Perform `msfdb`'s `write_db_client_auth_config` method work, except it needs to write the `pg_hba.conf` file now stored in under `PG_CLUSTER_CONF_ROOT` and inside the `version/cluster-name` directory. In this example that location is: `$HOME/.local/etc/postgresql/9.6/msf/pg_hba.conf`.
+Perform `msfdb`'s `write_db_client_auth_config` method work, except it needs to write the `pg_hba.conf` file now stored in under `PG_CLUSTER_CONF_ROOT` and inside the `version/cluster-name` directory. In this example that location is: `$HOME/.local/etc/postgresql/9.6/msf/pg_hba.conf`.
 
-* Perform `msfdb`'s `restart_db` method work, by stopping and then starting the server. Stop and then start postmaster server for the cluster ("pg_ctl"):
+Perform `msfdb`'s `restart_db` method work, by stopping and then starting the server. Stop and then start postmaster server for the cluster ("pg_ctl"):
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_ctlcluster 9.6 msf stop
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_ctlcluster 9.6 msf start
 ```
 
-* Check that the cluster was successfully started:
+Check that the cluster was successfully started:
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_lsclusters
@@ -147,7 +147,7 @@ Ver Cluster Port Status Owner Data directory Log file
 9.6 msf 5433 online msfdev /home/msfdev/msf-db-datadir /home/msfdev/.local/var/log/postgresql/postgresql-version-msf.log
 ```
 
-* Create initial database schema:
+Create initial database schema:
 
 Note, these steps are from `msfdb`'s `init_db` method.
 
@@ -156,7 +156,7 @@ cd ~/metasploit-framework
 bundle exec rake db:migrate
 ```
 
-* Start `msfconsole` and verify postgresql connection using the `db_status` command:
+Start `msfconsole` and verify postgresql connection using the `db_status` command:
 
 ```
 # disable or remove ~/.msf4/config if it is configured to auto connect to a data service
@@ -167,7 +167,7 @@ msf5 > db_status
 [*] Connected to msf. Connection type: postgresql.
 ```
 
-* Drop (delete) the cluster:
+Drop (delete) the cluster:
 
 ```
 PG_CLUSTER_CONF_ROOT=$HOME/.local/etc/postgresql pg_dropcluster 9.6 msf

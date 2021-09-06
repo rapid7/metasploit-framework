@@ -1,3 +1,4 @@
+
 In mid-2015, a new feature was added to many HTTP and TCP Metasploit payloads: Payload UUIDs. A Payload UUID is a 16-byte value that encodes an 8-byte identifier, a 1-byte architecture ID, a 1-byte platform ID, a 4-byte timestamp, and two additional bytes for obfuscation. The [source code comments](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/payload/uuid.rb) go into more detail.
 
 In the case of HTTP payloads, the 16-byte UUID value is encoded in [base64url](https://tools.ietf.org/html/rfc4648#section-5) format resulting in a 22-byte string. This value is always placed in the beginning of the URL used by the payload. TCP payloads send the 16-byte raw value over the socket once a connection is established.

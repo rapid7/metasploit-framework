@@ -1,4 +1,4 @@
-This is an update of the original blog post about how to get Oracle support working with Metasploit and Kali Linux, found here: http://leonjza.github.io/blog/2014/08/17/kali-linux-oracle-support/
+This is an update of the original blog post about how to get Oracle support working with Metasploit and Kali Linux, found [here](https://leonjza.github.io/blog/2014/08/17/kali-linux-oracle-support/).
 
 Due to licensing issues, we cannot ship Oracle's proprietary client access libraries by default. As a result, you may see this error when running a Metasploit module:
 

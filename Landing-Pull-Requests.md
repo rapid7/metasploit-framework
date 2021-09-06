@@ -104,6 +104,7 @@ You can `git fetch` a remote any time, and you'll get access to the latest chang
 # Branching from PRs
 
 A manageable strategy for dealing with outstanding PRs is to start pre-merge testing on the pull request in isolation. For example, to work on PR #1217, we would:
+
 ````
 $ git checkout upstream/pr/1217
 Note: checking out 'upstream/pr/1217'.
@@ -120,6 +121,7 @@ do so (now or later) by using -b with the checkout command again. Example:
 HEAD is now at 9e499e5... Make BindTCP test more robust
 ((no branch)) todb@mazikeen:~/git/rapid7/metasploit-framework
 ```
+
 ```
 $ git checkout -b landing-1217
 ````

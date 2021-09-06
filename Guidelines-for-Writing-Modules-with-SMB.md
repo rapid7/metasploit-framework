@@ -139,10 +139,13 @@ Since Metasploit 6, two new options were introduced to control version negotiati
 ### Using RubySMB client directly
 
 This mixin is not required but can be useful to expose the SMB related options to the operator:
+
 ```ruby
 include Msf::Exploit::Remote::SMB::Client::Authenticated
 ```
+
 An alternative is to register the options we need in `initialize`:
+
 ```ruby
 register_options([
   OptString.new('SMBUser', [ false, 'The username to authenticate as', '']),
@@ -226,7 +229,8 @@ client.disconnect!
 
 ### Using the default MSF client
 
-*modules/exploits/windows/smb/msf_smb_client_test.rb*
+`modules/exploits/windows/smb/msf_smb_client_test.rb`
+
 ```ruby
 ##
 # This module requires Metasploit: https://metasploit.com/download
@@ -283,7 +287,8 @@ class MetasploitModule < Msf::Exploit::Remote
 end
 ```
 
-* msfconsole output:
+msfconsole output:
+
 ```
 msf6 exploit(windows/smb/msf_smb_client_test) > options
 
@@ -326,7 +331,8 @@ msf6 exploit(windows/smb/msf_smb_client_test) > run
 
 ### Using RubySMB client directly
 
-*modules/exploits/windows/smb/ruby_smb_client_test.rb*
+`modules/exploits/windows/smb/ruby_smb_client_test.rb`
+
 ```ruby
 ##
 # This module requires Metasploit: https://metasploit.com/download
@@ -356,12 +362,12 @@ class MetasploitModule < Msf::Exploit::Remote
       )
     )
 
-  register_options([
-    OptString.new('SMBUser', [ false, 'The username to authenticate as', '']),
-    OptString.new('SMBPass', [ false, 'The password for the specified username', '']),
-    OptString.new('SMBDomain',  [ false, 'The Windows domain to use for authentication', '.']),
-  ])
-end
+    register_options([
+      OptString.new('SMBUser', [ false, 'The username to authenticate as', '']),
+      OptString.new('SMBPass', [ false, 'The password for the specified username', '']),
+      OptString.new('SMBDomain',  [ false, 'The Windows domain to use for authentication', '.']),
+    ])
+  end
 
   def exploit
     sock = connect
@@ -398,7 +404,8 @@ end
 end
 ```
 
-* msfconsole output:
+msfconsole output:
+
 ```
 msf6 exploit(windows/smb/ruby_smb_client_test) > options
 

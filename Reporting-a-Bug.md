@@ -49,7 +49,7 @@ Get this with the `version` command in msfconsole (or `git log -1 --pretty=oneli
 Did you install Metasploit with...
 - [ ] Kali package via apt
 - [ ] Omnibus installer (nightly)
-- [ ] Commercial installer (from http://www.rapid7.com/products/metasploit/download.jsp)
+- [ ] Commercial installer (from <https://www.rapid7.com/products/metasploit/download/>)
 - [ ] Source install (please specify Ruby version)
 
 This list isn't intended to be exhaustive—it's simply the bare minimum set of details we need to reproduce and diagnose your bug. You should feel free to include as much detailed information as you need to help us understand how you got the results you did. 

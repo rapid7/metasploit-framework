@@ -27,73 +27,85 @@ The Metasploit features that require a connected database include:
 
 All of the above features can also be logically separated within workspaces. By using the `workspace` command, you can place the results of certain operations in different workspaces. This helps keep any data generated or recorded during your use of Metasploit organized and easy to follow.
 
-
 ## Using msfdb
 
 Using msfdb is simple. If you are starting the database for the first time navigate to the folder Metasploit is saved to, and run `./msfdb init`.
-> Creating database at /Users/your_current_account_name/.msf4/db
-> Starting database at /Users/your_current_account_name/.msf4/db...success
-> Creating database users
-> Writing client authentication configuration file /Users/your_current_account_name/.msf4/db/pg_hba.conf
-> Starting database at /Users/your_current_account_name/.msf4/db...success
-> Creating initial database schema
+```
+Creating database at /Users/your_current_account_name/.msf4/db
+Starting database at /Users/your_current_account_name/.msf4/db...success
+Creating database users
+Writing client authentication configuration file /Users/your_current_account_name/.msf4/db/pg_hba.conf
+Starting database at /Users/your_current_account_name/.msf4/db...success
+Creating initial database schema
+```
 
 This looks like a lot of information, but all it's saying is that it's creating the database Metasploit will use to store information.
 
 msfdb then needs to establish the credentials that are used in the Web Service. The Web Service is how Metasploit connects to the database we have just created. The first prompt asks you what username you want to use to connect to the database.
 
-> [?] Initial MSF web service account username? [your_current_account_name]:
+```
+[?] Initial MSF web service account username? [your_current_account_name]:
+```
 
 Then the password used to authenticate to the Web Service:
 
-> [?] Initial MSF web service account password? (Leave blank for random password):
+```
+[?] Initial MSF web service account password? (Leave blank for random password):
+```
 
 Hitting `enter` for both these prompts will setup up the Web Service correctly. You can change these defaults and use a specific username and password if you want, but it's not necessary.
 
 After these two prompts are dealt with, your Web Service will start!
 
-> Generating SSL key and certificate for MSF web service
-> Attempting to start MSF web service...success
-> MSF web service started and online
-> Creating MSF web service user your_current_account_name
-> 
->     ############################################################
->     ##              MSF Web Service Credentials               ##
->     ##                                                        ##
->     ##        Please store these credentials securely.        ##
->     ##    You will need them to connect to the webservice.    ##
->     ############################################################
->
-> MSF web service username: your_current_account_name
-> MSF web service password: super_secret_password
-> MSF web service user API token: super_secret_api_token
->
->
-> MSF web service configuration complete
-> The web service has been configured as your default data service in msfconsole with the name "local-https-data-service"
-> 
-> If needed, manually reconnect to the data service in msfconsole using the command:
-> db_connect --token super_secret_api_token --cert /Users/your_current_account_name/.msf4/msf-ws-cert.pem --skip-verify https://localhost:5443
-> 
-> The username and password are credentials for the API account:
-> https://localhost:5443/api/v1/auth/account  
+```
+Generating SSL key and certificate for MSF web service
+Attempting to start MSF web service...success
+MSF web service started and online
+Creating MSF web service user your_current_account_name
+ 
+    ############################################################
+    ##              MSF Web Service Credentials               ##
+    ##                                                        ##
+    ##        Please store these credentials securely.        ##
+    ##    You will need them to connect to the webservice.    ##
+    ############################################################
+
+MSF web service username: your_current_account_name
+MSF web service password: super_secret_password
+MSF web service user API token: super_secret_api_token
+
+
+MSF web service configuration complete
+The web service has been configured as your default data service in msfconsole with the name "local-https-data-service"
+ 
+If needed, manually reconnect to the data service in msfconsole using the command:
+db_connect --token super_secret_api_token --cert /Users/your_current_account_name/.msf4/msf-ws-cert.pem --skip-verify https://localhost:5443
+ 
+The username and password are credentials for the API account:
+https://localhost:5443/api/v1/auth/account
+```
 
 Again, this is a lot of information to process, but it's not nearly as complicated as it looks. The Username, Password, and API token used to connect to the Web Service is displayed: 
 
-> MSF web service username: your_current_account_name
-> MSF web service password: super_secret_password
-> MSF web service user API token: super_secret_api_token
+```
+MSF web service username: your_current_account_name
+MSF web service password: super_secret_password
+MSF web service user API token: super_secret_api_token
+```
 
 Followed by instructions on how to connect to your database with Metasploit via the Web Service: 
 
-> If needed, manually reconnect to the data service in msfconsole using the command:
-> db_connect --token super_secret_api_token --cert /Users/your_current_account_name/.msf4/msf-ws-cert.pem --skip-verify https://localhost:5443
+```
+If needed, manually reconnect to the data service in msfconsole using the command:
+db_connect --token super_secret_api_token --cert /Users/your_current_account_name/.msf4/msf-ws-cert.pem --skip-verify https://localhost:5443
+```
 
 And the URL you can visit with your browser in order to connect to the Web Service  This is useful for checking if the Web Service is running:
 
-> The username and password are credentials for the API account:
-> https://localhost:5443/api/v1/auth/account
-
+```
+The username and password are credentials for the API account:
+https://localhost:5443/api/v1/auth/account
+```
 
 All this information is loaded by Metasploit automatically at startup from the ~/.msf4 folder. You should copy the credentials to a file in case you need them in the future. If you forget or lose the credentials but you can always run `./msfdb reinit` and reset the Web Service authentication details. **Just make sure to say no to the prompt asking you if you want to delete the Database contents!**
 
@@ -108,7 +120,6 @@ The commands for msfdb are as follows:
 *   `./msfdb stop`     Stop the database & web service. 
 *   `./msfdb restart`  The same as running `./msfdb stop` followed immediately by `./msfdb start`.
 
-
 ## msfdb errors
 
 In the case of any of the above commands printing either a stack trace or error, your first step should be to run `./msfdb reinit` (again making sure to say no to the prompt asking you if you want to delete the Database contents) and reattempt the command that caused the error. If the error persists, copy the command you executed, the output generated, and paste it into an [error ticket](https://github.com/rapid7/metasploit-framework/issues/new). 
@@ -117,8 +128,8 @@ In the case of any of the above commands printing either a stack trace or error,
 That's it for the simple high level explanation of how to setup a database for metasploit. If that wasn't enough detail for you you can check out our more in depth explanation [here](https://github.com/rapid7/metasploit-framework/wiki/Metasploit-Web-Service).
 
 If you want to get started hacking but don't know how to, here are a few guides we really like:
-* [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf) | A great, easy to follow guide on how to set up Metasploit and Metasploitable (Our intentionally vulnerable Linux virtual machine used to for security training) for VMs. Also has a fantastic guide on penetration testing Metasploitable 2, from information gathering right up to exploitation.      
-* [Offensive Security: Metasploit Unleashed](https://www.offensive-security.com/metasploit-unleashed/) | Still dealing with Metasploitable 2, this guide covers similar content as the [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf), but with much more detail.
+* [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf) - A great, easy to follow guide on how to set up Metasploit and Metasploitable (Our intentionally vulnerable Linux virtual machine used to for security training) for VMs. Also has a fantastic guide on penetration testing Metasploitable 2, from information gathering right up to exploitation.
+* [Offensive Security: Metasploit Unleashed](https://www.offensive-security.com/metasploit-unleashed/) - Still dealing with Metasploitable 2, this guide covers similar content as the [The easiest metasploit guide you'll ever read](https://www.exploit-db.com/docs/english/44040-the-easiest-metasploit-guide-you%E2%80%99ll-ever-read.pdf), but with much more detail.
 
 However, if you're confident in your knowledge of Metasploit and just want to get stuck in, then get stuck in! Good luck, be nice and have fun.
 

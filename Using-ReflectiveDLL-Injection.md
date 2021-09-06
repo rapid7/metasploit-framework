@@ -1,6 +1,4 @@
-**Update:** This is kept here mostly for backup purposes. There is now a template available at 
-<https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template>
-that should help you in your efforts a lot more.
+**Update:** This is kept here mostly for backup purposes. There is now a [reflective dll template](https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template) available that should help you in your efforts a lot more.
 
 ## Using the ReflectiveDll loader in a metasploit module.
 
@@ -13,7 +11,7 @@ Use Visual studio 2013 and make a standard, empty DLL.  Do not attempt to add th
 When you make the DLL, make sure that you have at least three files: A header file with the function declarations, a c(pp) file with the functions that ‘do’ the exploit, and a DllMain file with the `DllMain` function.  I find that testing the DLL outside the reflective loader helps tremendously, so in the header file, I declare my working function as an `extern`, C-style function:
 `extern "C" __declspec (dllexport) void PrivEsc(void);`
 
-I think using C as the language over cpp would make life marginally easier, as you can combine the source code into one project.  Using cpp meant I needed to have separate projects, or at least using my limited compiler knowledge that’s how I got it to work.  I noticed OJ was able to extend his c project (https://github.com/rapid7/metasploit-framework/tree/master/external/source/exploits/capcom_sys_exec) to include the reflectiveloader, but I could not seem to do the same for my cpp project.
+I think using C as the language over cpp would make life marginally easier, as you can combine the source code into one project.  Using cpp meant I needed to have separate projects, or at least using my limited compiler knowledge that’s how I got it to work.  I noticed OJ was able to extend his c project ([exploits/capcom_sys_exec](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/local/capcom_sys_exec.rb)) to include the reflectiveloader, but I could not seem to do the same for my cpp project.
 
 Store your project in `external/source/exploits/<identifier>/<projectname>`. That’s not written in stone.  The project I just finished had both DLL and EXE, so I have `external/source/exploits/<identifier>/dll` and `external/source/exploits/<identifier>/exe`.  Just don't be a jerk and do something hard to follow.  Your requirements may differ, and we're not super particular as long as it makes sense.  I suggest the identifier to make life easier, then a project name because you’ll be bringing the reflective loader project into the identifier folder, and at least I like to have some separation between the two.
 
@@ -33,22 +31,22 @@ When you copy the RefelctiveDLL code into your project, you are going to replace
 
 I also noticed and appreciated that others structured the code into two parts: Exploit and Exploiter.  Exploiter does the heavy lifting with functions, and Exploit calls the functions and runs the shellcode after the exploit completes.  For example, I made a privesc and the code required to accomplish the elevation was bundled in a function called `PrivEsc` contained within my `Exploiter.cpp` file.  The Exploit file was very simple in comparison:
 
-```
+```c
 #include <Windows.h>
 #include "Exploit.h"
 #include "Exploiter.h"
 
 static VOID ExecutePayload(LPVOID lpPayload)
 {
-	VOID(*lpCode)() = (VOID(*)())lpPayload;
-	lpCode();
-	return;
+  VOID(*lpCode)() = (VOID(*)())lpPayload;
+  lpCode();
+  return;
 }
 
 VOID Exploit(LPVOID lpPayload)
 {
-	PrivEsc();
-	ExecutePayload(lpPayload);
+  PrivEsc();
+  ExecutePayload(lpPayload);
 }
 ```
 
@@ -58,30 +56,29 @@ All the `Exploit.cpp` needs to do is give a clear way for me to run the code I w
 
 Sure enough, if you check out the `ReflectiveDll.c` file, you can see that it is really straightforward and should look a lot like your previous `DllMain` function, except there's a function call in `DLL_PROCESS_ATTACH`:
 
-```
+```c
 #include "ReflectiveLoader.h"
 #include "Exploit.h"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 {
-	BOOL bReturnValue = TRUE;
-	switch (dwReason)
-	{
-	case DLL_QUERY_HMODULE:
-		if (lpReserved != NULL)
-			*(HMODULE *)lpReserved = hAppInstance;
-		break;
-	case DLL_PROCESS_ATTACH:
-		hAppInstance = hinstDLL;
-		//MessageBox(0, "In DLLMain", "Status", MB_OK);
-		Exploit(lpReserved);
-		break;
-	case DLL_PROCESS_DETACH:
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-		break;
-	}
-	return bReturnValue;
+  BOOL bReturnValue = TRUE;
+  switch (dwReason) {
+    case DLL_QUERY_HMODULE:
+      if (lpReserved != NULL)
+        *(HMODULE *)lpReserved = hAppInstance;
+      break;
+    case DLL_PROCESS_ATTACH:
+      hAppInstance = hinstDLL;
+      // MessageBox(0, "In DLLMain", "Status", MB_OK);
+      Exploit(lpReserved);
+      break;
+    case DLL_PROCESS_DETACH:
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+      break;
+  }
+  return bReturnValue;
 }
 ```
 
@@ -94,7 +91,7 @@ OK, so at this point, you’ve got a DLL with a function that does something you
 ### Now that we have the binary, we need to execute it on target- Enter Framework!
 
 ## Step 4: Adding the framework module
-Once you’ve got the DLL working and have it compiling with ReflectiveLoader, you have to make a framework module to use it. OJ’s <https://github.com/rapid7/metasploit-framework/blob/a7d255bbe5537822c614ede71933fdc6597dd369/modules/exploits/windows/local/capcom_sys_exec.rb> is a great place to start looking as an examples; it is super easy and simple to read, so let's review:
+Once you’ve got the DLL working and have it compiling with ReflectiveLoader, you have to make a framework module to use it. OJ’s [exploits/capcom_sys_exec](https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/local/capcom_sys_exec.rb) is a great place to start looking as an examples; it is super easy and simple to read, so let's review:
 
 (1) Make sure you have a handle to a process…. The easiest way be able to get a handle to a process is to launch your own:
 `notepad_process = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true})`

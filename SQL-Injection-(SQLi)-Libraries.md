@@ -1,11 +1,13 @@
 SQL Injection library support was added in 2020 by @red0xff during the Google Summer of Code.
 
-# Supported Databases
+## Supported Databases
+
 * MySQL/MariaDB ([#13596](https://github.com/rapid7/metasploit-framework/pull/13596))
 * SQLite ([#13847](https://github.com/rapid7/metasploit-framework/pull/13847))
 * PostgreSQL ([#14067](https://github.com/rapid7/metasploit-framework/pull/14067))
 
-# Supported Techniques
+## Supported Techniques
+
 * Boolean Based Blind
 * Time Based Blind
 
@@ -13,26 +15,25 @@ SQL Injection library support was added in 2020 by @red0xff during the Google Su
 |---------------------|---------------|--------|----------|
 | Boolean Based Blind | X             | X      | X        |
 | Time Based Blind    | X             | X      | X        |
-|                     |               |        |          |
 
 ## How to use in a module
 
 You'll need to start off by including the library.
 
-```
+```ruby
 include Msf::Exploit::SQLi
 ```
 
 Next we create our SQLi object:
 
-```
+```ruby
 sqli = create_sqli(dbms: MySQLi::Common, opts: sqli_opts) do |payload|
   # Here is where we write in what to do each request using #{payload} as the spot to inject
 end
 ```
 
 `dbms` can be set to either `Common` if the DB isn't know, or one of the other databases and methods if it is known ahead of time such as `SQLitei::BooleanBasedBlind`
-`sqli_opts` is a hash containing all of the options: <https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/sqli/common.rb#L12>
+`sqli_opts` is a hash containing all of the [options](https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/sqli/common.rb#L12).
 
 ## Notes
 
@@ -42,7 +43,7 @@ end
 
 ### magic_quotes bypass
 
-**CAN ONLY RETURN 1 COLUMN AT A TIME**
+*CAN ONLY RETURN ONE COLUMN AT A TIME*
 
 At times, PHP will use `magic_quotes` to escape `'` and `"`.  This may cause problems in the SQL injection. You'll know its a problem, because you'll see log items like this:
 
@@ -58,10 +59,10 @@ However, the query was similar to this:
 
 The query was sent without the escapes, however they were added.  The solution is to avoid quotes at all.  To do this, we will need to use  the `hex` encoder
 
-```
-      if payload.include?("''")
-        payload.gsub!("''", 'hex(0x00)')
-      end
+```ruby
+if payload.include?("''")
+  payload.gsub!("''", 'hex(0x00)')
+end
 ```
 
 This will convert all instances of `''` which were previously being escaped to `\'\'` to `hex(0x00)` which does not get altered.

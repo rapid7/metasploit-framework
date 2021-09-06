@@ -95,7 +95,7 @@ Description:
   If this module loads, you know you're doing it right.
 
 References:
-  http://cvedetails.com/cve/1970-0001/
+  https://cvedetails.com/cve/1970-0001/
 
 msf exploit(test_module) > exploit
 

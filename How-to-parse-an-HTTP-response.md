@@ -194,6 +194,6 @@ json = res.get_json_document
 
 ## References
 
-* http://www.nokogiri.org/tutorials/parsing_an_html_xml_document.html
+* <https://nokogiri.org/tutorials/parsing_an_html_xml_document.html>
 * [[How to send an HTTP request using Rex Proto Http Client]]
 * [[How to Send an HTTP Request Using HttpClient]]

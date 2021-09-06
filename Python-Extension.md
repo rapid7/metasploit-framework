@@ -307,7 +307,7 @@ Session Expiry  : @ 2015-12-20 11:06:52
 ```
 This stageless initialisation feature allows for long-running Python scripts to be run before Meterpreter even calls home. This is really handy in so many ways, so get creative and show us how awesome this can be.
 
-# FAQ
+## FAQ
 
 > Does the extension do dynamic resolution of Python libraries at runtime?
 
@@ -334,7 +334,7 @@ Please do, making good use of the Github issues feature. Better still, create a 
   [transport]: https://github.com/rapid7/metasploit-framework/wiki/Meterpreter-Transport-Control
   [inveigh]: https://github.com/Kevin-Robertson/Inveigh
 
-# Currently Loadable Native Libraries
+## Currently Loadable Native Libraries
 
 ```
 __future__

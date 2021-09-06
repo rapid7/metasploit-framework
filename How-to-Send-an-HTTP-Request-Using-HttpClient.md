@@ -17,14 +17,14 @@ Here's a basic example of how to use `send_request_raw`:
 Here's a very basic example for `send_request_cgi`:
 
 ```ruby
-	send_request_cgi({
-		'method'   => 'GET',
-		'uri'      => '/hello_world.php',
-		'vars_get' => {
-			'param_1' => 'abc',
-			'param_2' => '123'
-		}
-	})
+send_request_cgi({
+  'method' => 'GET',
+  'uri' => '/hello_world.php',
+  'vars_get' => {
+    'param_1' => 'abc',
+    'param_2' => '123'
+  }
+})
 ```
 
 **Please note**: `send_request_raw` and `send_request_cgi` will return a `nil` if there's a timeout, so please make sure to account for that condition when you handle the return value.
@@ -47,16 +47,16 @@ Shown below is the request used to login to a gitlab account in the [gitlab\_fil
 
 ```ruby
 res = @http_client.send_request_cgi({
-        'method' => 'POST',
-        'uri' => '/users/sign_in',
-        'keep_cookies' => true,
-        'vars_post' => {
-          'utf8' => '✓',
-          'authenticity_token' => csrf_token,
-          'user[login]' => username,
-          'user[password]' => password,
-          'user[remember_me]' => 0
-        }
+  'method' => 'POST',
+  'uri' => '/users/sign_in',
+  'keep_cookies' => true,
+  'vars_post' => {
+    'utf8' => '✓',
+    'authenticity_token' => csrf_token,
+    'user[login]' => username,
+    'user[password]' => password,
+    'user[remember_me]' => 0
+  }
 })
 ```
 The cookies returned by the server with a successful login need to be attached to all future requests, so `'keep_cookies' => true,` is used to add all returned cookies to the HttpClient CookieJar and attach them to all subsequent requests. 
@@ -101,7 +101,7 @@ res = send_request_cgi({
 ```
 The above code would create an identical cookie header to the one used in the previous example, save for a random ordering of the name value pairs. This shouldn't affect how the server would read the cookies, but it's still worth keeping in mind if you've somehow found a vuln reliant on the order of cookies in a header.
 
-### `expire_cookies` option
+### expire_cookies
 
 `send_request_cgi` will call `cleanup` on `cookie_jar` before iot is used to populate a request with cookies. `cleanup` will remove any expired cookies permenetly from the jar, affecting all future requests.
 
@@ -129,10 +129,11 @@ Before you send a HTTP request, you will most likely have to do some URI parsing
 Example:
 
 ```ruby
-	register_options(
-		[
-			OptString.new('TARGETURI', [true, 'The base path to XXX application', '/xxx_v1/'])
-		], self.class)
+register_options(
+  [
+    OptString.new('TARGETURI', [true, 'The base path to XXX application', '/xxx_v1/'])
+  ]
+)
 ```
 
 **2** - Load your TARGETURI with [`target_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#target_uri-instance_method), that way the URI input validation will kick in, and then you get a real `URI` object:
@@ -140,7 +141,7 @@ Example:
 In this example, we'll just load the path:
 
 ```ruby
-	uri = target_uri.path
+uri = target_uri.path
 ```
 
 **3** - When you want to join another URI, always use [`normalize_uri`](https://rapid7.github.io/metasploit-framework/api/Msf/Exploit/Remote/HttpClient.html#normalize_uri-instance_method):
@@ -148,8 +149,8 @@ In this example, we'll just load the path:
 Example:
 
 ```ruby
-	# Returns: "/xxx_v1/admin/upload.php"
-	uri = normalize_uri(uri, 'admin', 'upload.php')
+# Returns: "/xxx_v1/admin/upload.php"
+uri = normalize_uri(uri, 'admin', 'upload.php')
 ```
 
 **4** - When you're done normalizing the URI, you're ready to use `send_request_cgi` or `send_request_raw`
@@ -163,49 +164,52 @@ Please note: The `normalize_uri` method will always follow these rules:
 ## Full Example
 
 ```ruby
+require 'msf/core'
 
-	require 'msf/core'
+class MetasploitModule < Msf::Auxiliary
 
-	class MetasploitModule < Msf::Auxiliary
+  include Msf::Exploit::Remote::HttpClient
 
-		include Msf::Exploit::Remote::HttpClient
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'HttpClient Example',
+        'Description' => %q{
+          Do a send_request_cgi()
+        },
+        'Author' => [ 'sinn3r' ],
+        'License' => MSF_LICENSE
+      )
+    )
 
-		def initialize(info = {})
-			super(update_info(info,
-				'Name'           => 'HttpClient Example',
-				'Description'    => %q{
-					Do a send_request_cgi()
-				},
-				'Author'         => [ 'sinn3r' ],
-				'License'        => MSF_LICENSE
-			))
+    register_options(
+      [
+        OptString.new('TARGETURI', [true, 'The base path', '/'])
+      ]
+    )
+  end
 
-			register_options(
-				[
-					OptString.new('TARGETURI', [true, 'The base path', '/'])
-				], self.class)
-		end
+  def run
+    uri = target_uri.path
 
+    res = send_request_cgi({
+      'method' => 'GET',
+      'uri' => normalize_uri(uri, 'admin', 'index.php'),
+      'vars_get' => {
+        'p1' => 'This is param 1',
+        'p2' => 'This is param 2'
+      }
+    })
 
-		def run
-			uri = target_uri.path
+    if res && res.code == 200
+      print_good('I got a 200, awesome')
+    else
+      print_error('No 200, feeling blue')
+    end
+  end
+end
 
-			res = send_request_cgi({
-				'method'   => 'GET',
-				'uri'      => normalize_uri(uri, 'admin', 'index.php'),
-				'vars_get' => {
-					'p1' => "This is param 1",
-					'p2' => "This is param 2"
-				}
-			})
-
-			if res && res.code == 200
-				print_good("I got a 200, awesome")
-			else
-				print_error("No 200, feeling blue")
-			end
-		end
-	end
 ```
 
 ## Working with Burp Suite

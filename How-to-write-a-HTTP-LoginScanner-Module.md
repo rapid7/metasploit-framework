@@ -241,7 +241,7 @@ A basic auxiliary module template in our case would be something like this:
 
 ```ruby
 ##
-# This module requires Metasploit: http://metasploit.com/download
+# This module requires Metasploit: https://metasploit.com/download
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 

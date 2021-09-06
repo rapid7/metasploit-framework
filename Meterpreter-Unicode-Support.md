@@ -6,7 +6,7 @@ So far, the Filesystem operations on all Meterpreters have been converted to exp
 
 In the Windows C meterpreter, there are a couple of helper functions to simplify the conversion work:
 
-```
+```c
 wchar_t *utf8_to_wchar(const char *in);
 
 char *wchar_to_utf8(const wchar_t *in);
@@ -14,7 +14,7 @@ char *wchar_to_utf8(const wchar_t *in);
 
 These functions both allocate a new string as their return value, so the strings should be freed after use by the caller. Here is an example of a function expanding a path and performing the conversion to and from UTF-8:
 
-```
+```c
 char * fs_expand_path(const char *regular)
 {
         wchar_t expanded_path[FS_MAX_PATH];

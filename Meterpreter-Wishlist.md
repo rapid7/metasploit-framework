@@ -147,7 +147,7 @@ Related open tickets (slightly broader than Meterpreter):
  * Change web application traffic emulation fingerprints on the fly when using HTTP-based transports
  * [**DONE**] Sleeping for a specified period of time before reconnecting to Metasploit
  * [**DONE**] Automatic shutdown/cleanup after a specified amount of time has passed
- * Traffic shaping or malleable communications, especially for HTTP(S), can be very useful for blending in, or even for adversary simulation. See Maligno (OSS - http://www.encripto.no/tools/)
+ * Traffic shaping or malleable communications, especially for HTTP(S), can be very useful for blending in, or even for adversary simulation. See Maligno (OSS - <http://www.encripto.no/tools/>)
  * Malleable network signatures in general
  * Malleable file artefacts - Make Meterpreter look like PlugX / Poison Ivy / etc.
  * Stealthier network comms (C2 DLL inject into web browser)

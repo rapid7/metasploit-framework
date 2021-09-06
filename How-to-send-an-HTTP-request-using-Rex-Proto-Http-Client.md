@@ -99,7 +99,7 @@ req = cli.request_cgi({
 
 Here are examples of how to actually speak to an HTTP server with either #request_cgi or #request_raw:
 
-**#request_cgi**
+** request_cgi
 
 ```ruby
 cli = Rex::Proto::Http::Client.new(rhost),
@@ -109,7 +109,7 @@ res = cli.send_recv(req)
 cli.close
 ```
 
-**#request_raw**
+** request_raw
 
 ```ruby
 cli = Rex::Proto::Http::Client.new(rhost),
@@ -121,7 +121,7 @@ cli.close
 
 ## Configuring advanced options
 
-**Evasion Options**
+### Evasion Options
 
 Rex::Proto::Http::Client also comes with its own collection of evasion options. You can set them either when you're asking Rex::Proto::Http::ClientRequest to make the HTTP request, or you can set them with a #set_config method. The main difference is that if you are using #set_config, you should make these options user-configurable.
 
@@ -156,7 +156,7 @@ Rex::Proto::Http::Client also comes with its own collection of evasion options. 
 | header_folding | Boolean | false | HTTP::header_folding |
 | chunked_size | Fixnum | 0 | N/A |
 
-**NTLM Options**
+### NTLM Options
 
 HTTP authentication is automatic in Rex::Proto::Http::Client, and when it comes to the NTLM provider, it gets its own options. You MUST use the #set_config method to set them:
 

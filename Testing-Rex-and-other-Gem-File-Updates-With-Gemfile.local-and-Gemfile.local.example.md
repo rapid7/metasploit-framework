@@ -7,7 +7,7 @@ Often times when testing Gem file updates, particularly from other repositories 
 3. Go to the location of your git clone of Metasploit Framework and do `cp Gemfile.local.example Gemfile.local`. Ensure that no file named `Gemfile.local.lock` exists. If one does, remove it.
 4. Inside your `Gemfile.local` file, edit it so it looks something like the following:
 
-```
+```ruby
 ##
 # Example Gemfile.local file for Metasploit Framework
 #
@@ -43,7 +43,7 @@ end
 
 Notice in particular the final part of this code:
 
-```
+```ruby
 # Create a custom group
 group :local do
    gem 'rex-powershell', path: '/home/gwillcox/git/rex-powershell'

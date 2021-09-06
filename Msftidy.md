@@ -1,4 +1,4 @@
-# Description
+## Description
 
 # Checks
 ## File modes
@@ -99,22 +99,22 @@ This check checks for the old Metasploit license in the module header. You can u
 This check ensures only known CheckCodes are returned by the `check` function.
 
 ## vars_get
-When using `send_request_cgi` or `send_request_raw` the URL supplied should not contain GET Paramters. Please provide the Parameter via the `vars_get` hash.
-Example:
+When using `send_request_cgi` or `send_request_raw` the URL supplied should not contain GET Parameter. Please provide the Parameter via the `vars_get` hash.
+
 bad:
 ```ruby
 res = send_request_raw({
-    'uri'     => uri_base + '/upload.php?type=file&folder=' + folder
+  'uri' => uri_base + '/upload.php?type=file&folder=' + folder
 })
 ```
 
 good:
 ```ruby
 res = send_request_raw({
-    'uri'      => uri_base + '/upload.php',
-    'vars_get' => {
-        'type'   => 'file',
-        'folder' => folder
-    }
+  'uri' => uri_base + '/upload.php',
+  'vars_get' => {
+    'type' => 'file',
+    'folder' => folder
+  }
 })
 ```

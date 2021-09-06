@@ -89,28 +89,29 @@ Here we have a post module template. As you can see, there are some required fie
 ##
 
 class MetasploitModule < Msf::Post
-
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => '[Platform] [Module Category] [Software] [Function]',
-        'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => '[Platform] [Module Category] [Software] [Function]',
+        'Description' => %q{
           Say something that the user might want to know.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Name' ],
-        'Platform'      => [ 'win', 'linux', 'osx', 'unix', 'bsd', 'solaris' ],
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Name' ],
+        'Platform' => [ 'win', 'linux', 'osx', 'unix', 'bsd', 'solaris' ],
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
   end
 
   def run
     # Main method
   end
-
 end
 ```
 
-The **Name** field should begin with a platform, such as: Multi, Windows, Linux, OS X, etc. Followed by the module's category, such as: Gather, Manage, Recon, Capture, Wlan. Followed by the name of the software, and then finally a few wrods that describe the functionality of the module. A naming example: "Multi Gather RndFTP Credential Enumeration".
+The **Name** field should begin with a platform, such as: Multi, Windows, Linux, OS X, etc. Followed by the module's category, such as: Gather, Manage, Recon, Capture, Wlan. Followed by the name of the software, and then finally a few words that describe the functionality of the module. A naming example: "Multi Gather RndFTP Credential Enumeration".
 
 The **Description** field should explain what the module does, things to watch out for, specific requirements, the more the better. The goal is to let the user understand what he's using without the need to actually read the module's source and figure things out. And trust me, most of them don't.
 
