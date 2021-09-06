@@ -1,6 +1,6 @@
 Instead of embedding static Java serialized objects, Metasploit offers ysoserial-generated binaries with built-in randomization.  The benefits of using the Metasploit library include quicker module development, easier-to-read code, and future-proof Java serialized objects.
 
-To use the ysoserial libraries, let's look at an example from the [`shiro_rememberme_v124_deserialize`][2] module:
+To use the ysoserial libraries, let's look at an example from the [shiro_rememberme_v124_deserialize][2] module:
 
 ## Example code
 
@@ -49,9 +49,6 @@ This method will generate a serialized Java object that when loaded will execute
 ## Regenerating the ysoserial_payload JSON file (MAINTAINERS ONLY)
 
 **Neither module developers nor users need to concern themselves with the following.**
-
-<details>
-<summary>Click to expand</summary>
 
 On occasion, Metasploit maintainers may want to re-run the script generation to incorporate new Java serialized objects from the ysoserial tool.
 
@@ -170,7 +167,6 @@ DONE!  Successfully generated 0 static payloads and 22 dynamic payloads.  Skippe
 ```
 
 At completion, the `data/ysoserial_payloads.json` file is overwritten and the 22 dynamic payloads are ready for use within the framework.  Afterward, the developer should follow the standard `git` procedures to `add` and `commit` the new JSON file  before generating a pull request and landing the updated JSON into the framework's `master` branch.
-</details>
 
 [1]: https://github.com/pimps/ysoserial-modified/blob/e71f70dbc5e8c27d72873014ac5cb7766f4b5b94/src/main/java/ysoserial/payloads/util/CmdExecuteHelper.java#L11-L30
 [2]: https://github.com/rapid7/metasploit-framework/blob/d580e7d12218fbf62b190a0c0c6d25f43b8aa5be/modules/exploits/multi/http/shiro_rememberme_v124_deserialize.rb
