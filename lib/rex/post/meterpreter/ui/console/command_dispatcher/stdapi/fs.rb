@@ -158,8 +158,8 @@ class Console::CommandDispatcher::Stdapi::Fs
     recurse = true
     globs   = []
     files   = []
-    startDate = nil
-    endDate = nil
+    m_startDate = nil
+    m_endDate = nil
     sd = 0
     ed = 0
 
@@ -186,25 +186,25 @@ class Console::CommandDispatcher::Stdapi::Fs
         when "-r"
           recurse = false if val =~ /^(f|n|0)/i
         when "-a"
-          startDate = val
+          m_startDate = val
         when "-b"
-          endDate = val
+          m_endDate = val
       end
     }
-    if startDate.to_s.empty?
-        startDate = 0
+    if m_startDate.to_s.empty?
+        m_startDate = 0
     else
-        sd = vali_date(startDate)
+        sd = vali_date(m_startDate)
         if sd < 0
             print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -a \"2000-04-30\" ")
             return
         end
     end
 
-    if endDate.to_s.empty?
-        endDate = 0
+    if m_endDate.to_s.empty?
+        m_endDate = 0
     else
-        ed = vali_date(endDate)
+        ed = vali_date(m_endDate)
         if ed < 0
             print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -b \"2000-04-30\" ")
             return
@@ -216,7 +216,7 @@ class Console::CommandDispatcher::Stdapi::Fs
     end
 
     globs.uniq.each do |glob|
-      files += client.fs.file.search(root, glob, recurse, timeout=-1, startDate:sd, endDate:ed)
+      files += client.fs.file.search(root, glob, recurse, timeout=-1, m_startDate:sd, m_endDate:ed)
     end
 
 

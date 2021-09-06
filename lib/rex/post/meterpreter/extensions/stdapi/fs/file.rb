@@ -75,7 +75,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   #
   # Raises a RequestError if +root+ is not a directory.
   #
-  def File.search( root=nil, glob="*.*", recurse=true, timeout=-1, startDate:nil, endDate:nil)
+  def File.search( root=nil, glob="*.*", recurse=true, timeout=-1, m_startDate:nil, m_endDate:nil)
 
     files = ::Array.new
 
@@ -87,8 +87,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
     request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
     request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
     request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
-    request.add_tlv( TLV_TYPE_SEARCH_FROM_DATE, startDate)
-    request.add_tlv( TLV_TYPE_SEARCH_TO_DATE, endDate)
+    request.add_tlv( TLV_TYPE_SEARCH_M_START_DATE, m_startDate)
+    request.add_tlv( TLV_TYPE_SEARCH_M_END_DATE, m_endDate)
 
     # we set the response timeout to -1 to wait indefinitely as a
     # search could take an indeterminate amount of time to complete.
