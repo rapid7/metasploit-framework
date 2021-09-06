@@ -46,7 +46,9 @@ class MetasploitModule < Msf::Auxiliary
                 transport: :rex,
                 :no_ssl_peer_verification => true,
                 :operation_timeout => 1,
-                :retry_delay => 1
+                :timeout => 20,
+                :retry_delay => 1,
+                :realm => datastore['DOMAIN']
             )
 
     begin

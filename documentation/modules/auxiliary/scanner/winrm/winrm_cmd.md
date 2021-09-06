@@ -1,5 +1,5 @@
 ## Description
-This module creates a WinRM command shell. It needs login credentials to do so.
+This module runs a command over the WinRM protocol. It needs login credentials to do so.
 
 ## Verification Steps
 
