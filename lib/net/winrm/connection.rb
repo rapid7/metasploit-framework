@@ -168,6 +168,9 @@ module Net
             self.http_client = Rex::Proto::Http::Client.new(opts[:host], opts[:port], {}, opts[:ssl], opts[:ssl_version], opts[:proxies], opts[:user], opts[:password])
             @mutex = Mutex.new
             self.uri = opts[:uri]
+            if opts[:realm]
+              self.http_client.set_config('domain' => opts[:realm])
+            end
           end
     
           def send_request(message)
