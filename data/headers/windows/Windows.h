@@ -340,6 +340,11 @@ typedef struct _GUID {
   BYTE  Data4[8];
 } GUID;
 
+typedef struct _LIST_ENTRY {
+  struct _LIST_ENTRY *Flink;
+  struct _LIST_ENTRY *Blink;
+} LIST_ENTRY, *PLIST_ENTRY, PRLIST_ENTRY;
+
 typedef VOID (CALLBACK *LPOVERLAPPED_COMPLETION_ROUTINE)(DWORD,DWORD,LPOVERLAPPED);
 
 typedef enum _PROCESSINFOCLASS {

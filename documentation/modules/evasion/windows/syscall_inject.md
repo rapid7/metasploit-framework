@@ -21,7 +21,7 @@ steps using a meterpreter/reverse_tcp payload on a 64-bits target:
 ## Options
 
 ### CIPHER
-Encryption algorithm used to encrypt the payload. Available ones (XOR, RC4)
+Encryption algorithm used to encrypt the payload. Available ones (CHACHA, RC4)
 
 ### FILENAME
 Filename for the generated evasive file file. The default is random.
@@ -30,7 +30,7 @@ Filename for the generated evasive file file. The default is random.
 Adding random data such as names, emails and GUIDs to the final executable
 
 ### SLEEP
-Specify how much (time x 2) the program sleeps prior to execute the shellcode's thread (NtCreateThread).
+Specify how much the program sleeps in milliseconds prior to execute the shellcode's thread (NtCreateThread).
 NOTE: the longer the better chance to avoid being detected.
 
 ## Advanced

