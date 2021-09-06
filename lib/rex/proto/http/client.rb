@@ -195,6 +195,7 @@ class Client
     end
 
     self.conn = nil
+    self.ntlm_client = nil
   end
 
   #
@@ -224,8 +225,16 @@ class Client
   # @return (see #read_response)
   def _send_recv(req, t = -1, persist = false)
     @pipeline = persist
+    if req.opts['ntlm_transform_request'] and self.ntlm_client
+      req = req.opts['ntlm_transform_request'].call(self.ntlm_client, req)
+    end
+
     send_request(req, t)
+    
     res = read_response(t)
+    if req.opts['ntlm_transform_response'] and self.ntlm_client
+      req.opts['ntlm_transform_response'].call(self.ntlm_client, res)
+    end
     res.request = req.to_s if res
     res.peerinfo = peerinfo if res
     res
@@ -508,9 +517,11 @@ class Client
       opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
       r = request_cgi(opts)
       resp = _send_recv(r, to, true)
+
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
       end
+      self.ntlm_client = ntlm_client
       return resp
 
     rescue ::Errno::EPIPE, ::Timeout::Error
@@ -690,6 +701,11 @@ protected
   attr_accessor :ssl, :ssl_version # :nodoc:
 
   attr_accessor :hostname, :port # :nodoc:
+
+  #
+  # The established NTLM connection info
+  #
+  attr_accessor :ntlm_client
 
 end
 

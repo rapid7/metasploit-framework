@@ -172,22 +172,74 @@ module Net
               self.http_client.set_config('domain' => opts[:realm])
             end
           end
+
+          def ntlm_transform_response(ntlm_client, response)
+            # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
+            return response.body if response.headers['Content-Type'].first =~ %r{\Aapplication\/soap\+xml}i
+            return '' if response.body.empty?
+
+            str = response.body.force_encoding('BINARY')
+            str.sub!(%r{^.*Content-Type: application\/octet-stream\r\n(.*)--Encrypted.*$}m, '\1')
     
-          def send_request(message)
+            signature = str[4..19]
+            message = ntlm_client.session.unseal_message str[20..-1]
+            if ntlm_client.session.verify_signature(signature, message)
+              response.body = message
+              return
+            else
+              raise WinRMHTTPTransportError, 'Could not decrypt NTLM message.'
+            end
+          end
+
+          def ntlm_transform_request(ntlm_client, req)
+            return req if !req.opts['data']
+            req.opts['ctype'] = 'multipart/encrypted;protocol="application/HTTP-SPNEGO-session-encrypted";boundary="Encrypted Boundary"'
+            data = req.opts['data']
+            emessage = ntlm_client.session.seal_message data
+            signature = ntlm_client.session.sign_message data
+            edata = "\x10\x00\x00\x00#{signature}#{emessage}"
+
+            req.opts['data'] = body(edata,data.bytesize)
+            return req
+          end
+
+          def _send_request(message)
             @mutex.synchronize {
-              request = self.http_client.request_cgi(
+              opts = {
                 'uri' => self.uri,
                 'method' => 'POST',
                 'agent' => 'Microsoft WinRM Client',
                 'ctype' => 'application/soap+xml;charset=UTF-8',
-                'data' => message,
-              )
-              response = self.http_client.send_recv(request)
-              WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
+              }
+              if message
+                opts['data'] = message
+                opts['ntlm_transform_request'] = method(:ntlm_transform_request)
+                opts['ntlm_transform_response'] = method(:ntlm_transform_response)
+              end
+              request = self.http_client.request_cgi(opts)
+              response = self.http_client.send_recv(request,-1,true)
+              if response
+                WinRM::ResponseHandler.new(response.body, response.code).parse_to_xml
+              else
+                raise WinRM::WinRMHTTPTransportError.new("No response")
+              end
             }
+          end
+
+          def send_request(message)
+            unless self.first_request_sent
+              _send_request(nil)
+              self.first_request_sent = true
+            end
+            _send_request(message)
           end
           protected
             attr_accessor :http_client, :uri
+
+            # Need to send an empty first request to potentially set up an encryption
+            # channel - required if allowUnencrypted is set to false, which is the case
+            # by default
+            attr_accessor :first_request_sent
         end
     
         def create_transport(connection_opts)
