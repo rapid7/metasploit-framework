@@ -79,8 +79,8 @@ class MetasploitModule < Msf::Auxiliary
           rhost = result.host
           rport = result.port
           uri = datastore['URI']
-          ssl = datastore['SSL']
-          schema = ssl ? 'https' : 'http'
+          schema = result.service_name
+          ssl = schema == 'https' # Can't trust the datastore value, because the scanner does some *magic* to set it for us
           endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
           conn = Net::MsfWinRM::RexWinRMConnection.new(
                       endpoint: endpoint,
