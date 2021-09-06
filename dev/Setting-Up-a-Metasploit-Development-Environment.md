@@ -195,12 +195,12 @@ Finally, we welcome your feedback on this guide, so feel free to reach out to us
 [commercial-installer]:http://metasploit.com/download
 [open-source-installer]:https://github.com/rapid7/metasploit-framework/wiki/Nightly-Installers
 [kali-user-instructions]:https://docs.kali.org/general-use/starting-metasploit-framework-in-kali
-[parrot-user-instructions]:https://docs.parrotsec.org/doku.php/metasploit-framework#start-metasploit
+[parrot-user-instructions]:https://parrotsec.org/docs/installation.html
 [CONTRIBUTING.md]:https://github.com/rapid7/metasploit-framework/blob/master/CONTRIBUTING.md
 
 [Ubuntu]:https://www.ubuntu.com/download/desktop
 [Kali]:https://www.kali.org/downloads/
-[Parrot]:https://www.parrotsec.org/download-security.php
+[Parrot]:https://parrotsec.org/download/
 [ssh-key]:https://help.github.com/articles/generating-ssh-keys/
 [github-bootcamp]:https://help.github.com/articles/set-up-git/
 
