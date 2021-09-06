@@ -91,15 +91,15 @@ While Metasploit standardizes with the JtR format, the hashcat [library](https:/
 
 Each crack mode is a set of rules which apply to that specific mode.  The idea being any optimizations can be applied to that mode, and reset on other modes.  These modes include:
 
- * Incremental https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L188
- * Wordlist https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L206
- * Pin (mobile devices - hashcat specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L222
- * Normal (jtr specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L234
- * Single (jtr specific) https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L250
+ * Incremental <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L188>
+ * Wordlist <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L206>
+ * Pin (mobile devices - hashcat specific) <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L222>
+ * Normal (jtr specific) <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L234>
+ * Single (jtr specific) <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L250>
 
 ### Hashcat Optimized Kernel
 
-Hashcat contains a `-O` flag which uses an optimized kernel.  From internal testing it looks to be >200% faster, with a password length tradeoff.  For more information see https://github.com/rapid7/metasploit-framework/pull/12790
+Hashcat contains a `-O` flag which uses an optimized kernel.  From internal testing it looks to be >200% faster, with a password length tradeoff.  For more information see <https://github.com/rapid7/metasploit-framework/pull/12790>
 
 ### Exporting Passwords and Hashes
 
@@ -181,12 +181,12 @@ This data breaks down to the following table:
 
 Only hashes which were found in Metasploit were added to the hash id library, and the other functions.  New hashes are developed often, and new modules which find a new type of hash will most definitely be created.  So what are the steps to add a new hash type to Metasploit?
 
-1. Add a new identify algorithm to: https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/hashes/identify.rb .  You may want to consult external programs such as `hashid` or `hash-identifier` for suggestions.
-    1. Add the hash to the spec to ensure it works right now, and in future updates: https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/metasploit/framework/hashes/identify_spec.rb
-1. Make sure the hashes are saved in the DB in the JTR format.  A good source to identify what the hashes look like is available here: http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats
-1. If applicable, add it into the appropriate cracker module (or create a new one).  Example for Windows related hashes: https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/crack_windows.rb
-1. Find the hashcat hash mode, and add a JTR name to hashcat hash mode lookup: https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L129 
-1. If hashcat uses a different format for the hash string, add a JTR to hashcat hash format conversion to https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/hashcat/formatter.rb
+1. Add a new identify algorithm to: <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/hashes/identify.rb> .  You may want to consult external programs such as `hashid` or `hash-identifier` for suggestions.
+    1. Add the hash to the spec to ensure it works right now, and in future updates: <https://github.com/rapid7/metasploit-framework/blob/master/spec/lib/metasploit/framework/hashes/identify_spec.rb>
+1. Make sure the hashes are saved in the DB in the JTR format.  A good source to identify what the hashes look like is available here: <http://pentestmonkey.net/cheat-sheet/john-the-ripper-hash-formats>
+1. If applicable, add it into the appropriate cracker module (or create a new one).  Example for Windows related hashes: <https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/analyze/crack_windows.rb>
+1. Find the hashcat hash mode, and add a JTR name to hashcat hash mode lookup: <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/cracker.rb#L129>
+1. If hashcat uses a different format for the hash string, add a JTR to hashcat hash format conversion to <https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/password_crackers/hashcat/formatter.rb>
 1. Update this Wiki
-    1. add the JTR to hashcat conversion https://github.com/rapid7/metasploit-framework/wiki/Hashes-and-Password-Cracking#hash-setting
-    1. add example hash(es) https://github.com/rapid7/metasploit-framework/wiki/Hashes-and-Password-Cracking#example-hashes
+    1. add the JTR to hashcat conversion
+    1. add example hash(es)

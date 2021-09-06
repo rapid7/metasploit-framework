@@ -16,11 +16,11 @@ These packages integrate into your package manager and can be updated with the `
 
 ### Linux manual installation
 
-Linux packages are built nightly for .deb (i386, amd64, armhf, arm64) and .rpm (64-bit x86) systems. Debian/Ubuntu packages are available at https://apt.metasploit.com and CentOS/Redhat/Fedora packages are located at https://rpm.metasploit.com.
+Linux packages are built nightly for .deb (i386, amd64, armhf, arm64) and .rpm (64-bit x86) systems. Debian/Ubuntu packages are available at <https://apt.metasploit.com> and CentOS/Redhat/Fedora packages are located at <https://rpm.metasploit.com>.
 
 ### macOS manual installation
 
-The latest OS X installer package can also be downloaded directly here: https://osx.metasploit.com/metasploitframework-latest.pkg, with the last 10 builds archived at https://osx.metasploit.com/. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.
+The latest OS X installer package can also be downloaded directly here: <https://osx.metasploit.com/metasploitframework-latest.pkg>, with the last 10 builds archived at <https://osx.metasploit.com/>. Simply download and launch the installer to install Metaploit Framework with all of its dependencies.
 
 ## Installing Metasploit on Windows
 

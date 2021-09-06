@@ -199,7 +199,3 @@ js = js_obfuscate(your_code)
 ```
 
 Note that by default, even though your module is calling the #js_obfuscate method, obfuscation will not kick in unless the user sets the JsObfuscate datastore option. This option is an OptInt, which allows you to set the number of times to obfuscate (default is 0).
-
-## Reference(s)
-
-https://community.rapid7.com/community/metasploit/blog/2011/07/08/jsobfu

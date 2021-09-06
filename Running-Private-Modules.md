@@ -29,12 +29,12 @@ Once you have a directory to place it in, feel free to download or start writing
 External modules, most commonly written in Python/Go, need to additionally be marked as executable in order to be loaded by Metasploit.
 
 For full details:
-- https://github.com/rapid7/metasploit-framework/wiki/Writing-External-Python-Modules
-- https://github.com/rapid7/metasploit-framework/wiki/Writing-External-GoLang-Modules
+- [[Writing External Python Modules]]
+- [[Writing External GoLang Modules]]
 
 ## Test it all out
 
-If you already have msfconsole running, use a `reload_all` command to pick up your new modules. If not, just start msfconsole and they'll be picked up automatically. If you'd like to test with something generic, I have a module posted up as a gist, here: https://gist.github.com/todb-r7/5935519 , so let's give it a shot:
+If you already have msfconsole running, use a `reload_all` command to pick up your new modules. If not, just start msfconsole and they'll be picked up automatically. If you'd like to test with something generic, I have a module posted up as a gist, here: <https://gist.github.com/todb-r7/5935519>, so let's give it a shot:
 
 ````bash
 mkdir -p $HOME/.msf4/modules/exploits/test

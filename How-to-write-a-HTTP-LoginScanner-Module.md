@@ -231,7 +231,7 @@ The [exact statuses](https://github.com/rapid7/metasploit-model/blob/d4c4f444c79
 
 When you're done, your code will look something like this:
 
-https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/symantec_web_gateway.rb
+<https://github.com/rapid7/metasploit-framework/blob/master/lib/metasploit/framework/login_scanner/symantec_web_gateway.rb>
 
 ## Step 4: Write the auxiliary module
 
@@ -374,7 +374,7 @@ end
 ```
 
 At this point, you're pretty much done with the auxiliary module. It will probably look something like this:
-https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/http/symantec_web_gateway_login.rb
+<https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/http/symantec_web_gateway_login.rb>
 
 ## Test
 

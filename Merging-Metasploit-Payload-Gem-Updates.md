@@ -19,4 +19,4 @@ To do this, committers must:
 
 Done!
 
-A sample update PR/commit can be found here: https://github.com/rapid7/metasploit-framework/pull/7666/files
+A sample update PR/commit can be found here: <https://github.com/rapid7/metasploit-framework/pull/7666/files>

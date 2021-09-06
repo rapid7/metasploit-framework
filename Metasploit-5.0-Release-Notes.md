@@ -30,4 +30,4 @@ You can get Metasploit 5.0 by checking out the [5.0.0 tag](https://github.com/ra
 
 Need a primer on Framework architecture and usage? Take a look at [our wiki here](https://github.com/rapid7/metasploit-framework/wiki), and feel free to reach out to the broader community [on Slack](https://metasploit.com/slack). There are also myriad public and user-generated resources on Metasploit tips, tricks, and content, so if you can’t find something you want in our wiki, ask Google or the community what they recommend. 
 
-See all the ways to stay informed and get involved at https://metasploit.com.
+See all the ways to stay informed and get involved at <https://metasploit.com>.

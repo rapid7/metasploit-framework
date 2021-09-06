@@ -47,6 +47,5 @@ Once the mof file is uploaded, the Windows Management Service should pick that u
 
 ### References
 
-https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/wbemexec.rb
-
-https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/smb/ms10_061_spoolss.rb
+- <https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/wbemexec.rb>
+- <https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/windows/smb/ms10_061_spoolss.rb>

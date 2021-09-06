@@ -16,7 +16,7 @@ Difficulty: Varies
 
 ### Improve the web vulnerability API
 
-This would follow up on the Arachni plugin PR https://github.com/rapid7/metasploit-framework/pull/8618 and improve the Metasploit data model to better represent modern web vulnerabilities. This project would require knowledge of data models, types of modern web vulnerabilities, and experience with web app security scanners.
+This would follow up on the Arachni plugin PR <https://github.com/rapid7/metasploit-framework/pull/8618> and improve the Metasploit data model to better represent modern web vulnerabilities. This project would require knowledge of data models, types of modern web vulnerabilities, and experience with web app security scanners.
 
 Difficulty: 4/5
 

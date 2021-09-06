@@ -35,4 +35,4 @@ Note that if your exploit module uses ```on_new_session```, you are actually ove
 
 ## Reference
 
-https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/file_dropper.rb
+- <https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/exploit/file_dropper.rb>

@@ -172,6 +172,5 @@ $ git push origin my_awesome_branch
 
 ### References
 
-https://github.com/rapid7/metasploit-framework/tree/master/modules/post
-
-https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/post
+- <https://github.com/rapid7/metasploit-framework/tree/master/modules/post>
+- <https://github.com/rapid7/metasploit-framework/tree/master/lib/msf/core/post>

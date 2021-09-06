@@ -1,10 +1,10 @@
 **Note:** Final project proposals must be submitted through to Google through the GSoC Program Website, as stated in the [rules](https://summerofcode.withgoogle.com/rules/).
 
-Before submitting to the GSoC website, it is also helpful to solicit proposal feedback via one of the contact methods found on https://metasploit.com/contribute. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
+Before submitting to the GSoC website, it is also helpful to solicit proposal feedback via one of the contact methods found on <https://metasploit.com/contribute>. If you don't hear back right away on a proposal, don't give up! Contributors may be busy, or you may need to try again to get someone's attention (but don't spam).
 
 # Getting started
 Students interesting in GSoC, can start by reading Google's official guides.  
-https://developers.google.com/open-source/gsoc/help/student-advice
+<https://developers.google.com/open-source/gsoc/help/student-advice>
 
 Review all of the [student guide](https://google.github.io/gsocguides/student/) and carefully read the [proposal writing section](https://google.github.io/gsocguides/student/writing-a-proposal.html).
 

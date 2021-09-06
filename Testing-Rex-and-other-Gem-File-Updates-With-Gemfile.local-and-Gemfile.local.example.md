@@ -3,7 +3,7 @@ Often times when testing Gem file updates, particularly from other repositories 
 
 ## Instructions
 1. Set up a working Metasploit development setup as described at the [Setting Up a Development Environment](https://github.com/rapid7/metasploit-framework/wiki/Setting-Up-a-Metasploit-Development-Environment) wiki page. Be sure to set up your SSH keys as part of this setup.
-2. Clone whatever PR it is that you wish to work on. For example to work on https://github.com/rapid7/rex-text/pull/30, do `git clone git@github.com:rapid7/rex-text.git`, then `cd rex-text`, followed by `git checkout origin/pr/30`.
+2. Clone whatever PR it is that you wish to work on. For example to work on <https://github.com/rapid7/rex-text/pull/30>, do `git clone git@github.com:rapid7/rex-text.git`, then `cd rex-text`, followed by `git checkout origin/pr/30`.
 3. Go to the location of your git clone of Metasploit Framework and do `cp Gemfile.local.example Gemfile.local`. Ensure that no file named `Gemfile.local.lock` exists. If one does, remove it.
 4. Inside your `Gemfile.local` file, edit it so it looks something like the following:
 

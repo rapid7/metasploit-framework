@@ -27,4 +27,4 @@ The ```Msf::Auxiliary::AuthBrute``` mixin should no longer be used to write a lo
 
 ### Reference
 
-https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/auth_brute.rb
+- <https://github.com/rapid7/metasploit-framework/blob/master/lib/msf/core/auxiliary/auth_brute.rb>

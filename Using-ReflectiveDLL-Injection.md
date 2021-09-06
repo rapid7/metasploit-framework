@@ -1,5 +1,5 @@
 **Update:** This is kept here mostly for backup purposes. There is now a template available at 
-https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template 
+<https://github.com/rapid7/metasploit-framework/tree/c44fb61c9a8a9be54b99a36f2c09f162fc64d261/external/source/rdll_template>
 that should help you in your efforts a lot more.
 
 ## Using the ReflectiveDll loader in a metasploit module.
@@ -94,7 +94,7 @@ OK, so at this point, you’ve got a DLL with a function that does something you
 ### Now that we have the binary, we need to execute it on target- Enter Framework!
 
 ## Step 4: Adding the framework module
-Once you’ve got the DLL working and have it compiling with ReflectiveLoader, you have to make a framework module to use it. OJ’s https://github.com/rapid7/metasploit-framework/tree/master/external/source/exploits/capcom_sys_exec is a great place to start looking as an examples; it is super easy and simple to read, so let's review:
+Once you’ve got the DLL working and have it compiling with ReflectiveLoader, you have to make a framework module to use it. OJ’s <https://github.com/rapid7/metasploit-framework/blob/a7d255bbe5537822c614ede71933fdc6597dd369/modules/exploits/windows/local/capcom_sys_exec.rb> is a great place to start looking as an examples; it is super easy and simple to read, so let's review:
 
 (1) Make sure you have a handle to a process…. The easiest way be able to get a handle to a process is to launch your own:
 `notepad_process = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true})`
@@ -117,7 +117,7 @@ That function allocates memory in the process and loads up the DLL. There is a s
 
 Unfortunately, this is where my grasp of things gets tenuous because it departs from my experience of traditional DLL loading with LoadLibrary and GetProcAddress. We copied the DLL into the remote process memory, but we have not “loaded” it, so DLL_PROCESS_ATTACH is not executed.  That’s a good thing, as we have not yet provided the payload!
 
-I square this by basically treating it like process hollowing, but on a thread-level.  Watching OJ’s ReflectiveDll injection video might help: https://www.youtube.com/watch?v=ZKznMBWUQ_c
+I square this by basically treating it like process hollowing, but on a thread-level.  Watching OJ’s ReflectiveDll injection video might help: <https://www.youtube.com/watch?v=ZKznMBWUQ_c>
 
 You may want to watch it daily for a month or so.
 
