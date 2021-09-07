@@ -3,8 +3,6 @@ require 'tempfile'
 require 'filesize'
 require 'rex/post/meterpreter'
 require 'rex/post/meterpreter/extensions/stdapi/command_ids'
-require 'date'
-require 'time'
 
 module Rex
 module Post
@@ -136,32 +134,25 @@ class Console::CommandDispatcher::Stdapi::Fs
     "Stdapi: File system"
   end
 
+  def vali_date(str)
+    result = DateTime.parse(str)
+    return result.to_time.to_i
+  rescue
+    print_error("Bad date/time specification (#{str}). Use this format: \"YYYY-mm-dd\" or \"YYYY-mm-ddTHH:MM:SS\", e.g \"1970-01-01\"")
+    nil
+  end
+
   #
   # Search for files.
   #
-
-  def vali_date(str)
-    date_format = '%Y-%m-%dT%H:%M:%S'
-    result = DateTime.strptime(str, date_format)
-    return result.strftime("%s").to_i
-  rescue
-    date_format = '%Y-%m-%d'
-    result = DateTime.strptime(str, date_format)
-    return result.strftime("%s").to_i
-  rescue
-    return -1
-  end
-
   def cmd_search(*args)
 
     root    = nil
     recurse = true
     globs   = []
     files   = []
-    m_startDate = nil
-    m_endDate = nil
-    sd = 0
-    ed = 0
+    modified_start_date = nil
+    modified_end_date = nil
 
     opts = Rex::Parser::Arguments.new(
       "-h" => [ false, "Help Banner" ],
@@ -186,61 +177,47 @@ class Console::CommandDispatcher::Stdapi::Fs
         when "-r"
           recurse = false if val =~ /^(f|n|0)/i
         when "-a"
-          m_startDate = val
+          modified_start_date = vali_date(val)
+          return unless modified_start_date
         when "-b"
-          m_endDate = val
+          modified_end_date = vali_date(val)
+          return unless modified_end_date
       end
     }
-    if m_startDate.to_s.empty?
-        m_startDate = 0
-    else
-        sd = vali_date(m_startDate)
-        if sd < 0
-            print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -a \"2000-04-30\" ")
-            return
-        end
-    end
 
-    if m_endDate.to_s.empty?
-        m_endDate = 0
-    else
-        ed = vali_date(m_endDate)
-        if ed < 0
-            print_error("Bad time specification or invalid time.  Use this format: \"YYYY-mm-dd\" or  \"YYYY-mm-ddTHH:MM:SS\", e.g. >search -b \"2000-04-30\" ")
-            return
-        end
-    end
     if globs.empty?
       print_error("You must specify a valid file glob to search for, e.g. >search -f *.doc")
       return
     end
 
     globs.uniq.each do |glob|
-      files += client.fs.file.search(root, glob, recurse, timeout=-1, m_startDate:sd, m_endDate:ed)
+      files += client.fs.file.search(root, glob, recurse, -1, modified_start_date, modified_end_date)
     end
-
 
     if files.empty?
       print_line("No files matching your search were found.")
       return
     end
-  
+
+    header = "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..."
     results_table = Rex::Text::Table.new(
         'WordWrap'   => false,
         'Width'      => 120,
-        'Header'     => 'Found',
+        'Header'     => header,
         'Indent'     => 0,
         'SortIndex'  => 0,
-        'Columns'    => ['Path', 'Size', 'Modified (UTC)'],
+        'Columns'    => ['Path', 'Size (bytes)', 'Modified (UTC)'],
     )
 
     files.each do | file |
-      datets = DateTime.strptime(file['mtime'].to_s,'%s')
-      datestr = datets.strftime('%Y-%m-%d %H:%M:%S')
-      filestr ="#{file['path']}#{ file['path'].empty? ? '' : client.fs.file.separator}#{file['name']}"
-      if file['size'] > 0
-        results_table << [filestr, file['size'], datestr]
+      filestr = ''
+      unless file['path'].empty?
+        filestr += "#{file['path']}#{client.fs.file.separator}"
       end
+      filestr += file['name']
+      datestr = ''
+      datestr = Time.at(file['mtime']).to_s if file['mtime']
+      results_table << [filestr, file['size'], datestr]
     end
     print_line results_table.to_s
   end
