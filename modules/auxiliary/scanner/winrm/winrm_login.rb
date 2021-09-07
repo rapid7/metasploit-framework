@@ -90,7 +90,7 @@ class MetasploitModule < Msf::Auxiliary
                       ssl: ssl,
                       user: result.credential.public,
                       password: result.credential.private,
-                      transport: :rex,
+                      transport: :rexhttp,
                       :no_ssl_peer_verification => true,
                       :operation_timeout => 1, # For the WinRM server
                       :timeout => 20, # For the underlying HTTP client

@@ -104,6 +104,11 @@ module Net
             begin
               response_reader.read_output(command_output_message(shell_id, command_id), &block)
             rescue WinRM::WinRMWSManFault => err
+              # If no output is available before the wsman:OperationTimeout expires,
+              # the server MUST return a WSManFault with the Code attribute equal to
+              # 2150858793. When the client receives this fault, it SHOULD issue
+              # another Receive request.
+              # http://msdn.microsoft.com/en-us/library/cc251676.aspx
               if err.fault_code == '2150858793'
                 yield nil, nil
               else
@@ -171,6 +176,18 @@ module Net
             self.uri = opts[:uri]
             if opts[:realm]
               self.http_client.set_config('domain' => opts[:realm])
+            end
+          end
+
+          def peerinfo
+            if self.http_client and self.http_client.conn
+              self.http_client.conn.peerinfo
+            end
+          end
+
+          def localinfo
+            if self.http_client and self.http_client.conn
+                self.http_client.conn.localinfo
             end
           end
 
@@ -245,14 +262,14 @@ module Net
         end
     
         def create_transport(connection_opts)
-          raise NotImplementedError unless connection_opts[:transport] == :rex
+          raise NotImplementedError unless connection_opts[:transport] == :rexhttp
     
           super
         end
     
         private
     
-        def init_rex_transport(opts)
+        def init_rexhttp_transport(opts)
           RexHttpTransport.new(opts)
         end
       end

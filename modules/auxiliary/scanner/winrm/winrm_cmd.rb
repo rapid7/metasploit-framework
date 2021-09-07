@@ -43,9 +43,9 @@ class MetasploitModule < Msf::Auxiliary
                 ssl: ssl,
                 user: datastore['USERNAME'],
                 password: datastore['PASSWORD'],
-                transport: :rex,
+                transport: :rexhttp,
                 :no_ssl_peer_verification => true,
-                :operation_timeout => 1,
+                :operation_timeout => 0.5,
                 :timeout => 20,
                 :retry_limit => 1,
                 :realm => datastore['DOMAIN']

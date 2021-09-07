@@ -1,6 +1,5 @@
 # -*- coding: binary -*-
 
-require 'msf/util/signallable_event'
 require 'winrm'
 
 module Msf::Sessions
@@ -31,7 +30,7 @@ module Msf::Sessions
       # To buffer input received while a session is backgrounded, we stick responses in a list
       @buffer_mutex = Mutex.new
       @buffer = []
-      @check_stdin_event = Msf::Util::SignallableEvent.new
+      @check_stdin_event = Rex::Sync::Event.new(false, true)
       super(nil, opts)
     end
 
@@ -70,7 +69,7 @@ module Msf::Sessions
           }
           if sd 
             run_single((user_input.gets || '').chomp("\n"))
-            @check_stdin_event.signal()
+            @check_stdin_event.set()
           end
         rescue WinRM::WinRMWSManFault => err
           print_error(err.fault_description)
@@ -111,8 +110,10 @@ module Msf::Sessions
           end
 
           # Wait loop_delay seconds, or until an interactive thread wakes us up
-          @check_stdin_event.wait(loop_delay)
-          
+          begin
+            @check_stdin_event.wait(loop_delay)
+          rescue TimeoutError
+          end
           Thread.pass
         rescue WinRM::WinRMWSManFault => err
           print_error(err.fault_description)
@@ -138,8 +139,12 @@ module Msf::Sessions
       self.keep_alive_thread.kill
     end
 
-    def tunnel_to_s
-      'WinRM'
+    def tunnel_peer
+      self.shell.transport.peerinfo
+    end
+
+    def tunnel_local
+      self.shell.transport.localinfo
     end
 
 protected
