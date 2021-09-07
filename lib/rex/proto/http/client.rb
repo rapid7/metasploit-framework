@@ -530,7 +530,7 @@ class Client
   end
 
   def channel_binding()
-    if self.conn.peer_cert.nil?
+    if !self.conn.respond_to?(:peer_cert) or self.conn.peer_cert.nil?
       nil
     else
       Net::NTLM::ChannelBinding.create(OpenSSL::X509::Certificate.new(self.conn.peer_cert))
