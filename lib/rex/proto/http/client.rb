@@ -511,7 +511,7 @@ class Client
       ntlm_challenge = resp.headers['WWW-Authenticate'].scan(/#{provider}([A-Z0-9\x2b\x2f=]+)/ni).flatten[0]
       return resp unless ntlm_challenge
 
-      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge)
+      ntlm_message_3 = ntlm_client.init_context(ntlm_challenge, channel_binding)
 
       # Send the response
       opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
@@ -529,7 +529,14 @@ class Client
     end
   end
 
-  #
+  def channel_binding()
+    if self.conn.peer_cert.nil?
+      nil
+    else
+      Net::NTLM::ChannelBinding.create(OpenSSL::X509::Certificate.new(self.conn.peer_cert))
+    end
+  end
+
   # Read a response from the server
   #
   # Wait at most t seconds for the full response to be read in.
