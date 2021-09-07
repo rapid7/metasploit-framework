@@ -1,6 +1,6 @@
 # -*- coding: binary -*-
 
-require 'msf/core/exploit/remote/winrm'
+require 'msf/util/signallable_event'
 require 'winrm'
 
 module Msf::Sessions
@@ -31,6 +31,7 @@ module Msf::Sessions
       # To buffer input received while a session is backgrounded, we stick responses in a list
       @buffer_mutex = Mutex.new
       @buffer = []
+      @check_stdin_event = Msf::Util::SignallableEvent.new
       super(nil, opts)
     end
 
@@ -69,8 +70,8 @@ module Msf::Sessions
           }
           if sd 
             run_single((user_input.gets || '').chomp("\n"))
+            @check_stdin_event.signal()
           end
-          
         rescue WinRM::WinRMWSManFault => err
           print_error(err.fault_description)
           shell_close
@@ -85,16 +86,34 @@ module Msf::Sessions
 
     def start_keep_alive_loop
       self.keep_alive_thread = framework.threads.spawn("WinRM-shell-keepalive", false, self.shell) do |thr_shell|
+        loop_delay = 0.5
         loop do
           tmp_buffer = []
+          output_seen = false
           shell.read_stdout do |stdout, stderr|
+            if stdout or stderr
+              output_seen = true
+            end
             tmp_buffer << stdout if stdout
             tmp_buffer << stderr if stderr
           end
           @buffer_mutex.synchronize {
             @buffer.concat(tmp_buffer)
           }
-          sleep(1)
+
+          # If our last request received stdout, let's be ready for some more
+          if output_seen
+            loop_delay = 0.5
+          else
+            # Gradual backoff
+            loop_delay *= 4
+            loop_delay = [loop_delay, 30].min
+          end
+
+          # Wait loop_delay seconds, or until an interactive thread wakes us up
+          @check_stdin_event.wait(loop_delay)
+          
+          Thread.pass
         rescue WinRM::WinRMWSManFault => err
           print_error(err.fault_description)
           detected_shell_ended
