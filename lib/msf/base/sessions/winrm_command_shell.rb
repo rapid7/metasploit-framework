@@ -7,7 +7,7 @@ module Msf::Sessions
   # This class provides a session for WinRM client connections, where Metasploit
   # has authenticated to a remote WinRM instance.
   #
-  class WinrmCommandShell < Msf::Sessions::CommandShell
+  class WinrmCommandShell < Msf::Sessions::PowerShell
 
     def commands
       {
@@ -46,6 +46,26 @@ module Msf::Sessions
       end
     end
 
+  ##
+  # :category: Msf::Session::Provider::SingleCommandShell implementors
+  #
+  # Read from the command shell.
+  #
+  def shell_read(length=-1, timeout=1)
+    result = ""
+    @buffer_mutex.synchronize {
+      result = @buffer.join("")
+      @buffer = []
+      if length > -1 and result.length > length
+        # Return up to length, and keep the rest in the buffer
+        extra = result[length..-1]
+        result = result[0,length]
+        @buffer << extra
+      end
+    }
+    result
+  end
+
     def cleanup
       begin
         stop_keep_alive_loop
@@ -53,6 +73,9 @@ module Msf::Sessions
       rescue WinRM::WinRMWSManFault => err
         print_error('Shell may not have terminated cleanly')
       end
+    end
+
+    def abort_foreground
     end
 
     ##
@@ -63,10 +86,7 @@ module Msf::Sessions
       while self.interacting
         sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
         begin
-          @buffer_mutex.synchronize {
-            @buffer.each { |buf| user_output.print(buf) }
-            @buffer = []
-          }
+          user_output.print(shell_read)
           if sd 
             run_single((user_input.gets || '').chomp("\n"))
             @check_stdin_event.set()

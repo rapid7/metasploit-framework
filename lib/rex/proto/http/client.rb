@@ -529,7 +529,7 @@ class Client
     end
   end
 
-  def channel_binding()
+  def channel_binding
     if !self.conn.respond_to?(:peer_cert) or self.conn.peer_cert.nil?
       nil
     else

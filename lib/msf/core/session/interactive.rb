@@ -119,7 +119,7 @@ protected
         # If the current shell is not interactive, the ASCII Control Character will not work
         if !(self.platform=="windows" && self.type =="shell")
           print_status("Aborting foreground process in the shell session")
-          self.rstream.write("\u0003")
+          abort_foreground
         end
         return
       end
@@ -127,6 +127,10 @@ protected
       # The user hit ctrl-c while we were handling a ctrl-c. Ignore
     end
     true
+  end
+
+  def abort_foreground
+    self.rstream.write("\u0003")
   end
 
   def _usr1
