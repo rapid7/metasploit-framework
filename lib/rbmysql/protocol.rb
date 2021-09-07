@@ -179,16 +179,16 @@ class RbMysql
       @server_info = init_packet.server_version
       @server_version = init_packet.server_version.split(/\D/)[0,3].inject{|a,b|a.to_i*100+b.to_i}
       @thread_id = init_packet.thread_id
-      client_flags = CLIENT_LONG_PASSWORD | CLIENT_LONG_FLAG | CLIENT_TRANSACTIONS | CLIENT_PROTOCOL_41 | CLIENT_SECURE_CONNECTION
-      client_flags |= CLIENT_CONNECT_WITH_DB if db
-      client_flags |= flag
+      @client_flags = CLIENT_LONG_PASSWORD | CLIENT_LONG_FLAG | CLIENT_TRANSACTIONS | CLIENT_PROTOCOL_41 | CLIENT_SECURE_CONNECTION
+      @client_flags |= CLIENT_CONNECT_WITH_DB if db
+      @client_flags |= flag
       @charset = charset
       unless @charset
         @charset = Charset.by_number(init_packet.server_charset)
         @charset.encoding       # raise error if unsupported charset
       end
       netpw = encrypt_password passwd, init_packet.scramble_buff
-      write AuthenticationPacket.serialize(client_flags, 1024**3, @charset.number, user, netpw, db)
+      write AuthenticationPacket.serialize(@client_flags, 1024**3, @charset.number, user, netpw, db)
       raise ProtocolError, 'The old style password is not supported' if read.to_s == "\xfe"
       set_state :READY
     end
@@ -230,6 +230,9 @@ class RbMysql
           return res_packet.field_count
         end
         if res_packet.field_count.nil?      # LOAD DATA LOCAL INFILE
+          if @client_flags.to_i & CLIENT_LOCAL_FILES == 0
+            raise ProtocolError, 'Load data local infile forbidden'
+          end
           filename = res_packet.message
           File.open(filename){|f| write f}
           write nil  # EOF mark
