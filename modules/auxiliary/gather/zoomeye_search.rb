@@ -29,7 +29,7 @@ class MetasploitModule < Msf::Auxiliary
         'Author' => [
           'Nixawk', # Original Author
           'Yvain', # Initial improvements
-          'Grant Willcox' # Additional fixes to refine searches, fix broken functionality, and improve quality of info saved
+          'Grant Willcox' # Additional fixes to refine searches, improve quality of info saved and improve error handling.
         ],
         'References' => [
           ['URL', 'https://github.com/zoomeye/SDK'],
@@ -211,7 +211,7 @@ class MetasploitModule < Msf::Auxiliary
       tbl1 = Rex::Text::Table.new(
         'Header' => 'Host search',
         'Indent' => 1,
-        'Columns' => ['IP:Port', 'Protocol', 'City', 'Country', 'Hostname', 'OS', 'service', 'AppName', 'Version', 'Info']
+        'Columns' => ['IP:Port', 'Protocol', 'City', 'Country', 'Hostname', 'OS', 'Service', 'AppName', 'Version', 'Info']
       )
       tbl2 = Rex::Text::Table.new(
         'Header' => 'Web search',
@@ -252,17 +252,36 @@ class MetasploitModule < Msf::Auxiliary
             ips = match['ip']
             site = match['site']
             database = match['db']
-            db_info = database.map { |db| "#{db['name']}:#{db['version']}" }
+            if database.empty?
+              db_info = ""
+            else
+              db_info = database.map { |db|
+                if !db['name']&.empty? && !db['version']&.empty?
+                  "#{db['name']}:#{db['version']}"
+                else
+                  ""
+                end
+              }
+            end
             webapp = match['webapp']
-            wa_info = webapp.map { |wa| "#{wa['name']}:#{wa['version']}" }
+            if webapp.empty?
+              wa_info = ""
+            else
+              wa_info = webapp.map { |wa|
+                if !wa['name']&.empty? && !wa['version']&.empty?
+                  "#{wa['name']}:#{wa['version']}"
+                else
+                  ""
+                end
+              }
+            end
             if datastore['DATABASE']
               for ip in ips
                 report_host(host: ip, name: site, comments: 'Added from Zoomeye')
               end
-            else
-              for ip in ips
+            end
+            for ip in ips
                 tbl2 << [ip, site, city, country, db_info, wa_info]
-              end
             end
           end
         end

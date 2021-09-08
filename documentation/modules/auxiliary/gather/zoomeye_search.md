@@ -924,3 +924,137 @@ host            port  proto  name   state  info
 
 msf6 auxiliary(gather/zoomeye_search) >
 ```
+
+### Web Search With Database
+```
+msf6 payload(windows/x64/meterpreter/reverse_tcp) > use auxiliary/gather/zoomeye_search
+msf6 auxiliary(gather/zoomeye_search) > show options
+
+Module options (auxiliary/gather/zoomeye_search):
+
+   Name          Current Setting  Required  Description
+   ----          ---------------  --------  -----------
+   DATABASE      false            no        Add search results to the database
+   FACETS                         no        A comma-separated list of properties to get summary information on query
+   MAXPAGE       1                yes       Max amount of pages to collect
+   OUTFILE                        no        Path to the file to store the resulting table of info
+   PASSWORD                       yes       The ZoomEye password
+   RESOURCE      host             yes       ZoomEye Resource Type (Accepted: host, web)
+   USERNAME                       yes       The ZoomEye username
+   ZOOMEYE_DORK                   yes       The ZoomEye dork
+
+msf6 auxiliary(gather/zoomeye_search) > set RESOURCE web
+RESOURCE => web
+msf6 auxiliary(gather/zoomeye_search) > set ZOOMEYE_DORK 'app:"moxa OnCell G3470A-LTE-EU"'
+ZOOMEYE_DORK => app:"moxa OnCell G3470A-LTE-EU"
+msf6 auxiliary(gather/zoomeye_search) > set USERNAME mexig33784@mtlcz.com
+USERNAME => mexig33784@mtlcz.com
+msf6 auxiliary(gather/zoomeye_search) > set PASSWORD aNN9tMSs3e2fJ5U
+PASSWORD => aNN9tMSs3e2fJ5U
+msf6 auxiliary(gather/zoomeye_search) > set OUTFILE /tmp/web-test.txt
+OUTFILE => /tmp/web-test.txt
+msf6 auxiliary(gather/zoomeye_search) > show options
+
+Module options (auxiliary/gather/zoomeye_search):
+
+   Name          Current Setting                  Required  Description
+   ----          ---------------                  --------  -----------
+   DATABASE      false                            no        Add search results to the database
+   FACETS                                         no        A comma-separated list of properties to get summary information on q
+                                                            uery
+   MAXPAGE       1                                yes       Max amount of pages to collect
+   OUTFILE       /tmp/web-test.txt                no        Path to the file to store the resulting table of info
+   PASSWORD      aNN9tMSs3e2fJ5U                  yes       The ZoomEye password
+   RESOURCE      web                              yes       ZoomEye Resource Type (Accepted: host, web)
+   USERNAME      mexig33784@mtlcz.com             yes       The ZoomEye username
+   ZOOMEYE_DORK  app:"moxa OnCell G3470A-LTE-EU"  yes       The ZoomEye dork
+
+msf6 auxiliary(gather/zoomeye_search) > set DATABASE true
+DATABASE => true
+msf6 auxiliary(gather/zoomeye_search) > hosts -d
+
+Hosts
+=====
+
+address         mac  name                                         os_name  os_flavor  os_sp  purpose  info  comments
+-------         ---  ----                                         -------  ---------  -----  -------  ----  --------
+31.0.211.25          apn-31-0-211-25.static.gprs.plus.pl                                                    Added from Zoomeye
+46.74.36.255         046074036255.atmpu0002.highway.a1.net                                                  Added from Zoomeye
+80.251.198.20        80.251.198.20                                                                          Added from Zoomeye
+90.117.106.196       90-117-106-196.mobile.abo.orange.fr                                                    Added from Zoomeye
+90.117.110.29        90-117-110-29.mobile.abo.orange.fr                                                     Added from Zoomeye
+123.209.125.20       61438337164.mobile.telstra.com                                                         Added from Zoomeye
+178.182.239.27       178.182.239.27.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
+178.182.244.68       178.182.244.68.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
+
+[*] Deleted 8 hosts
+msf6 auxiliary(gather/zoomeye_search) > services -d
+Services
+========
+
+host  port  proto  name  state  info
+----  ----  -----  ----  -----  ----
+
+msf6 auxiliary(gather/zoomeye_search) > run
+
+[*] Logged in to zoomeye
+[*] Total: 9 on 1 pages. Showing: 1 page(s)
+Web search
+==========
+
+ IP              Site                                         City    Country    DB:Version  WebApp:Version
+ --              ----                                         ----    -------    ----------  --------------
+ 31.0.211.25     apn-31-0-211-25.static.gprs.plus.pl                  Poland
+ 46.74.36.255    046074036255.atmpu0002.highway.a1.net        Vienna  Austria
+ 80.251.198.20   80.251.198.20.bredband.3.dk                          Denmark
+ 80.251.198.20   80.251.198.20                                        Denmark
+ 90.117.106.196  90-117-106-196.mobile.abo.orange.fr                  France
+ 90.117.110.29   90-117-110-29.mobile.abo.orange.fr                   France
+ 123.209.125.20  61438337164.mobile.telstra.com               Sydney  Australia
+ 178.182.239.27  178.182.239.27.nat.umts.dynamic.t-mobile.pl          Poland
+ 178.182.244.68  178.182.244.68.nat.umts.dynamic.t-mobile.pl          Poland
+
+[*] Saved results in /tmp/web-test.txt
+[*] Auxiliary module execution completed
+msf6 auxiliary(gather/zoomeye_search) > hosts
+
+Hosts
+=====
+
+address         mac  name                                         os_name  os_flavor  os_sp  purpose  info  comments
+-------         ---  ----                                         -------  ---------  -----  -------  ----  --------
+31.0.211.25          apn-31-0-211-25.static.gprs.plus.pl                                                    Added from Zoomeye
+46.74.36.255         046074036255.atmpu0002.highway.a1.net                                                  Added from Zoomeye
+80.251.198.20        80.251.198.20                                                                          Added from Zoomeye
+90.117.106.196       90-117-106-196.mobile.abo.orange.fr                                                    Added from Zoomeye
+90.117.110.29        90-117-110-29.mobile.abo.orange.fr                                                     Added from Zoomeye
+123.209.125.20       61438337164.mobile.telstra.com                                                         Added from Zoomeye
+178.182.239.27       178.182.239.27.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
+178.182.244.68       178.182.244.68.nat.umts.dynamic.t-mobile.pl                                            Added from Zoomeye
+
+msf6 auxiliary(gather/zoomeye_search) > services
+Services
+========
+
+host  port  proto  name  state  info
+----  ----  -----  ----  -----  ----
+
+msf6 auxiliary(gather/zoomeye_search) > cat /tmp/web-test.txt
+[*] exec: cat /tmp/web-test.txt
+
+Web search
+==========
+
+ IP              Site                                         City    Country    DB:Version  WebApp:Version
+ --              ----                                         ----    -------    ----------  --------------
+ 31.0.211.25     apn-31-0-211-25.static.gprs.plus.pl                  Poland
+ 46.74.36.255    046074036255.atmpu0002.highway.a1.net        Vienna  Austria
+ 80.251.198.20   80.251.198.20.bredband.3.dk                          Denmark
+ 80.251.198.20   80.251.198.20                                        Denmark
+ 90.117.106.196  90-117-106-196.mobile.abo.orange.fr                  France
+ 90.117.110.29   90-117-110-29.mobile.abo.orange.fr                   France
+ 123.209.125.20  61438337164.mobile.telstra.com               Sydney  Australia
+ 178.182.239.27  178.182.239.27.nat.umts.dynamic.t-mobile.pl          Poland
+ 178.182.244.68  178.182.244.68.nat.umts.dynamic.t-mobile.pl          Poland
+msf6 auxiliary(gather/zoomeye_search) >
+```
