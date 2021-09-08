@@ -35,7 +35,14 @@ class MetasploitModule < Msf::Post
           ],
           'SessionTypes' => [ 'meterpreter', 'shell' ],
           'Platform' => 'android',
-          'DisclosureDate' => '2013-10-11'
+          'DisclosureDate' => '2013-10-11',
+          'Compat' => {
+            'Meterpreter' => {
+              'Commands' => %w[
+                android_*
+              ]
+            }
+          }
         }
       )
     )
