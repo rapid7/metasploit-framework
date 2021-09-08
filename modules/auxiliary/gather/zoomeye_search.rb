@@ -75,17 +75,22 @@ class MetasploitModule < Msf::Auxiliary
     # See more: https://www.zoomeye.org/api/doc#login
 
     access_token = ''
-    @cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
-    @cli.connect
+    begin
+      @cli = Rex::Proto::Http::Client.new('api.zoomeye.org', 443, {}, true)
+      @cli.connect
 
-    data = { 'username' => username, 'password' => password }
-    req = @cli.request_cgi({
-      'uri' => '/user/login',
-      'method' => 'POST',
-      'data' => data.to_json
-    })
+      data = { 'username' => username, 'password' => password }
+      req = @cli.request_cgi({
+        'uri' => '/user/login',
+        'method' => 'POST',
+        'data' => data.to_json
+      })
 
-    res = @cli.send_recv(req)
+      res = @cli.send_recv(req)
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionRefused
+      print_error('HTTP Connection Failed')
+      return
+    end
 
     unless res
       print_error('server_response_error')
@@ -111,7 +116,7 @@ class MetasploitModule < Msf::Auxiliary
       })
 
       res = @cli.send_recv(req)
-    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET
+    rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT, Errno::ECONNRESET, Rex::ConnectionRefused
       print_error('HTTP Connection Failed')
     end
 
@@ -144,7 +149,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     @zoomeye_token = login(datastore['USERNAME'], datastore['PASSWORD'])
-    if @zoomeye_token.blank?
+    if @zoomeye_token.blank? || @zoomeye_token.nil?
       print_error('Unable to login api.zoomeye.org')
       return
     else
@@ -155,7 +160,7 @@ class MetasploitModule < Msf::Auxiliary
     results = []
     results[first_page] = dork_search(resource, dork, 1, facets)
 
-    if results[first_page]['total'].nil? || results[first_page]['total'] == 0
+    if results[first_page].nil? || results[first_page]['total'].nil? || results[first_page]['total'] == 0
       msg = 'No results.'
       if !results[first_page]['error'].to_s.empty?
         msg << " Error: #{results[first_page]['error']}"
@@ -235,11 +240,12 @@ class MetasploitModule < Msf::Auxiliary
                           comments: 'Added from Zoomeye')
             end
             if datastore['DATABASE']
+              protocol = 'tcp' if ((protocol != 'tcp') || (protocol != 'udp'))
               report_service(host: ip,
                              port: port,
                              proto: protocol,
                              name: service,
-                             info: "App is #{app} running version: #{version}")
+                             info: "#{app} running version: #{version}")
             end
             tbl1 << ["#{ip}:#{port}", protocol, city, country, hostname, os, service, app, version, info]
           else
