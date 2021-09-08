@@ -640,6 +640,7 @@ protected
     $mstream.Close();
     $reader.Close();)
     cmd_exec(pwsh_code)
+  end
 
   def _read_file_powershell(filename)
     data = ''
