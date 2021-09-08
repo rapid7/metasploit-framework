@@ -42,7 +42,8 @@ class MetasploitModule < Msf::Auxiliary
         },
         'Notes' => {
           'Stability' => [SERVICE_RESOURCE_LOSS],
-          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES]
+          'SideEffects' => [IOC_IN_LOGS, CONFIG_CHANGES],
+          'Reliability' => []
         }
       )
     )
@@ -109,6 +110,10 @@ class MetasploitModule < Msf::Auxiliary
 
   # This will always return false, since the creds are invalid
   def auth_bypass(ldap)
+    # when datastore['BIND_DN'] has been provided in options,
+    # ldap_connect has already made a bind for us.
+    return if datastore['BIND_DN']
+
     ldap.bind(
       method: :simple,
       username: Rex::Text.rand_text_alphanumeric(8..42),
