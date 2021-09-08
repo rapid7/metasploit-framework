@@ -231,6 +231,10 @@ module Msf::Post::File
   # @return [Boolean] true if +path+ exists and is writable
   #
   def writable?(path)
+    verification_token = Rex::Text.rand_text_alpha_upper(8)
+    if session.type == 'powershell' && file?(path)
+      return  cmd_exec("$a=[System.IO.File]::OpenWrite('#{path}');if($?){echo #{verification_token}};$a.Close()").include?(verification_token)
+    end
     raise "`writable?' method does not support Windows systems" if session.platform == 'windows'
 
     cmd_exec("test -w '#{path}' && echo true").to_s.include? 'true'
@@ -414,6 +418,8 @@ module Msf::Post::File
       fd = session.fs.file.new(file_name, "wb")
       fd.write(data)
       fd.close
+    elsif session.type == 'powershell'
+      _write_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
@@ -607,6 +613,35 @@ module Msf::Post::File
 
 protected
 
+
+  def _write_file_powershell(file_name, data)
+    offset = 0
+    chunk_size = 16256
+    loop do
+      _write_file_powershell_fragment(file_name, data, offset, chunk_size)
+      offset += chunk_size + 1
+      break if offset >= data.length
+    end
+  end
+
+  def _write_file_powershell_fragment(file_name, data, offset, chunk_size)
+  	chunk = data[offset..offset+chunk_size]
+  	length = chunk.length
+  	compressed_chunk = Rex::Text.gzip(chunk)
+  	encoded_chunk = Base64.strict_encode64(compressed_chunk)
+    pwsh_code = %($encoded=\"#{encoded_chunk}\";
+    $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
+    $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
+    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{offset == 0 ? "Create" : "Append"})
+    $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
+    $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
+    $filename.Write($file_bytes, 0, $file_bytes.Length);
+    $filename.Close();
+    $mstream.Close();
+    $reader.Close();)
+    cmd_exec(pwsh_code)
+  end
+
   def _read_file_powershell(filename)
     data = ''
     offset = 0
@@ -631,6 +666,7 @@ protected
     return nil if b64_data.empty?
     uncompressed_fragment = Zlib::GzipReader.new(StringIO.new(Base64.decode64(b64_data))).read
     return uncompressed_fragment
+
   end
 
   # Checks to see if there are non-ansi or newline characters in a given string
