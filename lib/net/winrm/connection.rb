@@ -76,7 +76,7 @@ module Net
           end
     
           def create_proc
-            self.command_id = send_command("powershell.exe",[])
+            self.command_id = send_command("cmd.exe",[])
           end
     
           def with_command_shell(input, arguments = [])

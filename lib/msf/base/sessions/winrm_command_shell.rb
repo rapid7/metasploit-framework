@@ -7,7 +7,7 @@ module Msf::Sessions
   # This class provides a session for WinRM client connections, where Metasploit
   # has authenticated to a remote WinRM instance.
   #
-  class WinrmCommandShell < Msf::Sessions::PowerShell
+  class WinrmCommandShell < Msf::Sessions::CommandShell
 
     def commands
       {
