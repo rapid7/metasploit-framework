@@ -88,7 +88,7 @@ module Msf::Sessions
         begin
           user_output.print(shell_read)
           if sd 
-            run_single((user_input.gets || '').chomp("\n"))
+            run_single((user_input.gets || '').chomp("\n")+"\r")
             @check_stdin_event.set()
           end
         rescue WinRM::WinRMWSManFault => err
