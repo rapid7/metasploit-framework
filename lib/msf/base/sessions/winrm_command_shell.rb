@@ -76,6 +76,7 @@ module Msf::Sessions
     end
 
     def abort_foreground
+      shell.send_ctrl_c
     end
 
     ##

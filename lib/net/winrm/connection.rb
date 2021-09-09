@@ -5,6 +5,7 @@
 
 require 'winrm'
 require 'winrm/wsmv/write_stdin'
+require 'net/winrm/ctrl_c'
 
 module Net
   module MsfWinRM
@@ -115,6 +116,19 @@ module Net
                 raise
               end
             end
+          end
+
+          def send_ctrl_c
+            open unless shell_id
+            create_proc unless command_id
+
+            ctrl_c_msg = CtrlC.new(
+              connection_opts,
+              shell_uri: shell_uri,
+              shell_id: shell_id,
+              command_id: command_id
+            )
+            transport.send_request(ctrl_c_msg.build)
           end
     
           def send_stdin(input)
