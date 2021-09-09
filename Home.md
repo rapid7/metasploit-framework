@@ -66,7 +66,6 @@ Are you anxious to get your [Metasploit Development Environment](https://github.
 - [[How to XOR with Metasploit Framework Compiler]]
 - [[Using ReflectiveDll Injection]]
 - [[Oracle Usage]]
-- [[Rex Layout]]
 - [[Definition of Module Reliability, Side Effects, and Stability]]
 
 # Metasploit Payloads #
