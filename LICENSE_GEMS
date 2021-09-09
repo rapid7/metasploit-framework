@@ -10,7 +10,7 @@ afm, 0.2.2, MIT
 arel-helpers, 2.12.1, MIT
 ast, 2.4.2, MIT
 aws-eventstream, 1.2.0, "Apache 2.0"
-aws-partitions, 1.495.0, "Apache 2.0"
+aws-partitions, 1.498.0, "Apache 2.0"
 aws-sdk-core, 3.121.0, "Apache 2.0"
 aws-sdk-ec2, 1.261.0, "Apache 2.0"
 aws-sdk-iam, 1.60.0, "Apache 2.0"
@@ -74,8 +74,8 @@ loofah, 2.12.0, MIT
 memory_profiler, 1.0.0, MIT
 metasm, 1.0.5, LGPL-2.1
 metasploit-concern, 4.0.2, "New BSD"
-metasploit-credential, 5.0.3, "New BSD"
-metasploit-framework, 6.1.5, "New BSD"
+metasploit-credential, 5.0.4, "New BSD"
+metasploit-framework, 6.1.6, "New BSD"
 metasploit-model, 4.0.2, "New BSD"
 metasploit-payloads, 2.0.54, "3-clause (or ""modified"") BSD"
 metasploit_data_models, 5.0.3, "New BSD"
@@ -134,7 +134,7 @@ rex-java, 0.1.6, "New BSD"
 rex-mime, 0.1.6, "New BSD"
 rex-nop, 0.1.2, "New BSD"
 rex-ole, 0.1.7, "New BSD"
-rex-powershell, 0.1.92, "New BSD"
+rex-powershell, 0.1.93, "New BSD"
 rex-random_identifier, 0.1.7, "New BSD"
 rex-registry, 0.1.4, "New BSD"
 rex-rop_builder, 0.1.4, "New BSD"

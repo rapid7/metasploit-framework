@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    metasploit-framework (6.1.5)
+    metasploit-framework (6.1.6)
       actionpack (~> 6.0)
       activerecord (~> 6.0)
       activesupport (~> 6.0)
@@ -126,7 +126,7 @@ GEM
       activerecord (>= 3.1.0, < 7)
     ast (2.4.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.495.0)
+    aws-partitions (1.498.0)
     aws-sdk-core (3.121.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -242,7 +242,7 @@ GEM
       activemodel (~> 6.0)
       activesupport (~> 6.0)
       railties (~> 6.0)
-    metasploit-credential (5.0.3)
+    metasploit-credential (5.0.4)
       metasploit-concern
       metasploit-model
       metasploit_data_models (>= 5.0.0)
@@ -369,7 +369,7 @@ GEM
       rex-arch
     rex-ole (0.1.7)
       rex-text
-    rex-powershell (0.1.92)
+    rex-powershell (0.1.93)
       rex-random_identifier
       rex-text
       ruby-rc4
