@@ -10,17 +10,6 @@ require 'net/winrm/ctrl_c'
 module Net
   module MsfWinRM
     class RexWinRMConnection < WinRM::Connection
-      class MessageFactory < WinRM::PSRP::MessageFactory
-        def self.create_pipeline_message(runspace_pool_id, pipeline_id, command)
-          WinRM::PSRP::Message.new(
-            runspace_pool_id,
-            WinRM::PSRP::Message::MESSAGE_TYPES[:create_pipeline],
-            XMLTemplate.render('create_pipeline', cmdlet: command[:cmdlet], args: command[:args]),
-            pipeline_id
-          )
-        end
-      end
-    
       class ShellFactory < WinRM::Shells::ShellFactory
         class StdinShell < WinRM::Shells::Cmd
           class ReceiveResponseReader < WinRM::WSMV::ReceiveResponseReader
