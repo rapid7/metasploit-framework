@@ -194,6 +194,7 @@ module Net
             end
           end
 
+          # Performs decryption of the stream coming from the HTTP client
           def ntlm_transform_response(ntlm_client, response)
             # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
             return unless response
@@ -213,6 +214,7 @@ module Net
             end
           end
 
+          # Performs encryption of the stream being sent to the HTTP client
           def ntlm_transform_request(ntlm_client, req)
             return req if !req.opts['data']
             req.opts['ctype'] = 'multipart/encrypted;protocol="application/HTTP-SPNEGO-session-encrypted";boundary="Encrypted Boundary"'

@@ -83,14 +83,14 @@ class MetasploitModule < Msf::Auxiliary
           ssl = schema == 'https' # Can't trust the datastore value, because the scanner does some *magic* to set it for us
           endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
           conn = Net::MsfWinRM::RexWinRMConnection.new(
-                      endpoint: endpoint,
-                      host: rhost,
-                      port: rport,
-                      uri: uri,
-                      ssl: ssl,
-                      user: result.credential.public,
-                      password: result.credential.private,
-                      transport: :rexhttp,
+                      :endpoint => endpoint,
+                      :host => rhost,
+                      :port => rport,
+                      :uri => uri,
+                      :ssl => ssl,
+                      :user => result.credential.public,
+                      :password => result.credential.private,
+                      :transport => :rexhttp,
                       :no_ssl_peer_verification => true,
                       :operation_timeout => 1, # For the WinRM server
                       :timeout => 20, # For the underlying HTTP client

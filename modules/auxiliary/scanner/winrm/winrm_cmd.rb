@@ -36,16 +36,16 @@ class MetasploitModule < Msf::Auxiliary
     schema = ssl ? 'https' : 'http'
     endpoint = "#{schema}://#{rhost}:#{rport}#{uri}"
     conn = Net::MsfWinRM::RexWinRMConnection.new(
-                endpoint: endpoint,
-                host: rhost,
-                port: rport,
-                uri: uri,
-                ssl: ssl,
-                user: datastore['USERNAME'],
-                password: datastore['PASSWORD'],
-                transport: :rexhttp,
+                :endpoint => endpoint,
+                :host => rhost,
+                :port => rport,
+                :uri => uri,
+                :ssl => ssl,
+                :user => datastore['USERNAME'],
+                :password => datastore['PASSWORD'],
+                :transport => :rexhttp,
                 :no_ssl_peer_verification => true,
-                :operation_timeout => 0.5,
+                :operation_timeout => 1,
                 :timeout => 20,
                 :retry_limit => 1,
                 :realm => datastore['DOMAIN']
@@ -53,20 +53,17 @@ class MetasploitModule < Msf::Auxiliary
 
     begin
       shell = conn.shell(:powershell)
-      path = store_loot("winrm.cmd_results", "text/plain", ip, nil, "winrm_cmd_results.txt", "WinRM CMD Results")
-      f = File.open(path,'wb')
+      lines = []
       output = shell.run(datastore['CMD']) do |stdout,stderr|
         stdout&.each_line do |line|
-          print_line(line.rstrip!)
-          f.puts(stdout)
+          print_line(line.rstrip)
+          lines << line
         end
         print_error(stderr) if stderr
       end
-      f.close
+      data = lines.join
+      path = store_loot("winrm.cmd_results", "text/plain", ip, data, "winrm_cmd_results.txt", "WinRM CMD Results")
       print_good "Results saved to #{path}"
-    rescue
-      File.delete(path)
-      raise
     ensure
       shell.close
     end
