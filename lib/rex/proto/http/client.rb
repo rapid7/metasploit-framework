@@ -513,6 +513,7 @@ class Client
 
       ntlm_message_3 = ntlm_client.init_context(ntlm_challenge, channel_binding)
 
+      self.ntlm_client = ntlm_client
       # Send the response
       opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
       r = request_cgi(opts)
@@ -521,7 +522,6 @@ class Client
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
       end
-      self.ntlm_client = ntlm_client
       return resp
 
     rescue ::Errno::EPIPE, ::Timeout::Error

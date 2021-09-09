@@ -207,9 +207,9 @@ module Net
 
           def ntlm_transform_response(ntlm_client, response)
             # OMI server doesn't always respond to encrypted messages with encrypted responses over SSL
-            return nil unless response
-            return response.body if response.headers['Content-Type'].first =~ %r{\Aapplication\/soap\+xml}i
-            return '' if response.body.empty?
+            return unless response
+            return if response.headers['Content-Type'] and response.headers['Content-Type'].first =~ %r{\Aapplication\/soap\+xml}i
+            return if response.body.empty?
 
             str = response.body.force_encoding('BINARY')
             str.sub!(%r{^.*Content-Type: application\/octet-stream\r\n(.*)--Encrypted.*$}m, '\1')
