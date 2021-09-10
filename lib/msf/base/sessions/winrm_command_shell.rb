@@ -11,12 +11,12 @@ module Msf::Sessions
 
     def commands
       {
-        'help'       => 'Help menu',
+        'help' => 'Help menu',
         'background' => 'Backgrounds the current shell session',
-        'sessions'   => 'Quickly switch to another session',
-        'resource'   => 'Run a meta commands script stored in a local file',
-        'irb'        => 'Open an interactive Ruby shell on the current session',
-        'pry'        => 'Open the Pry debugger on the current session',
+        'sessions' => 'Quickly switch to another session',
+        'resource' => 'Run a meta commands script stored in a local file',
+        'irb' => 'Open an interactive Ruby shell on the current session',
+        'pry' => 'Open the Pry debugger on the current session'
       }
     end
 
@@ -46,33 +46,31 @@ module Msf::Sessions
       end
     end
 
-  ##
-  # :category: Msf::Session::Provider::SingleCommandShell implementors
-  #
-  # Read from the command shell.
-  #
-  def shell_read(length=-1, timeout=1)
-    result = ""
-    @buffer_mutex.synchronize {
-      result = @buffer.join("")
-      @buffer = []
-      if length > -1 and result.length > length
-        # Return up to length, and keep the rest in the buffer
-        extra = result[length..-1]
-        result = result[0,length]
-        @buffer << extra
+    ##
+    # :category: Msf::Session::Provider::SingleCommandShell implementors
+    #
+    # Read from the command shell.
+    #
+    def shell_read(length = -1, _timeout = 1)
+      result = ''
+      @buffer_mutex.synchronize do
+        result = @buffer.join('')
+        @buffer = []
+        if (length > -1) && (result.length > length)
+          # Return up to length, and keep the rest in the buffer
+          extra = result[length..-1]
+          result = result[0, length]
+          @buffer << extra
+        end
       end
-    }
-    result
-  end
+      result
+    end
 
     def cleanup
-      begin
-        stop_keep_alive_loop
-        shell.cleanup_shell
-      rescue WinRM::WinRMWSManFault => err
-        print_error('Shell may not have terminated cleanly')
-      end
+      stop_keep_alive_loop
+      shell.cleanup_shell
+    rescue WinRM::WinRMWSManFault
+      print_error('Shell may not have terminated cleanly')
     end
 
     def abort_foreground
@@ -84,16 +82,16 @@ module Msf::Sessions
     #
     def _interact_stream
       fds = [user_input.fd]
-      while self.interacting
+      while interacting
         sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
         begin
           user_output.print(shell_read)
-          if sd 
-            run_single((user_input.gets || '').chomp("\n")+"\r")
-            @check_stdin_event.set()
+          if sd
+            run_single((user_input.gets || '').chomp("\n") + "\r")
+            @check_stdin_event.set
           end
-        rescue WinRM::WinRMWSManFault => err
-          print_error(err.fault_description)
+        rescue WinRM::WinRMWSManFault => e
+          print_error(e.fault_description)
           shell_close
         end
         Thread.pass
@@ -105,21 +103,21 @@ module Msf::Sessions
     end
 
     def start_keep_alive_loop
-      self.keep_alive_thread = framework.threads.spawn("WinRM-shell-keepalive", false, self.shell) do |thr_shell|
+      self.keep_alive_thread = framework.threads.spawn('WinRM-shell-keepalive', false, shell) do |_thr_shell|
         loop_delay = 0.5
         loop do
           tmp_buffer = []
           output_seen = false
           shell.read_stdout do |stdout, stderr|
-            if stdout or stderr
+            if stdout || stderr
               output_seen = true
             end
             tmp_buffer << stdout if stdout
             tmp_buffer << stderr if stderr
           end
-          @buffer_mutex.synchronize {
+          @buffer_mutex.synchronize do
             @buffer.concat(tmp_buffer)
-          }
+          end
 
           # If our last request received stdout, let's be ready for some more
           if output_seen
@@ -133,43 +131,46 @@ module Msf::Sessions
           # Wait loop_delay seconds, or until an interactive thread wakes us up
           begin
             @check_stdin_event.wait(loop_delay)
+            # rubocop:disable Lint/SuppressedException
           rescue TimeoutError
           end
+          # rubocop:enable Lint/SuppressedException
           Thread.pass
-        rescue WinRM::WinRMWSManFault => err
-          print_error(err.fault_description)
+        rescue WinRM::WinRMWSManFault => e
+          print_error(e.fault_description)
           detected_shell_ended
         rescue EOFError
           # Shell has been terminated
           detected_shell_ended
-        rescue Rex::HostUnreachable => err
-          detected_shell_ended(err.message)
-        rescue StandardError => err
-          detected_shell_ended(err.message)
+        rescue Rex::HostUnreachable => e
+          detected_shell_ended(e.message)
+        rescue StandardError => e
+          detected_shell_ended(e.message)
         end
       end
     end
 
-    def detected_shell_ended(reason="")
+    def detected_shell_ended(reason = '')
       self.interacting = false
-      framework.events.on_session_interact_completed()
+      framework.events.on_session_interact_completed
       framework.sessions.deregister(self, reason)
     end
 
     def stop_keep_alive_loop
-      self.keep_alive_thread.kill
+      keep_alive_thread.kill
     end
 
     def tunnel_peer
-      self.shell.transport.peerinfo
+      shell.transport.peerinfo
     end
 
     def tunnel_local
-      self.shell.transport.localinfo
+      shell.transport.localinfo
     end
 
-protected
-		attr_accessor :shell, :keep_alive_thread
+    protected
+
+    attr_accessor :shell, :keep_alive_thread
 
   end
 end
