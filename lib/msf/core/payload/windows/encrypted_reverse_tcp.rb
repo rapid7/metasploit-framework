@@ -20,6 +20,25 @@ module Payload::Windows::EncryptedReverseTcp
 
   def initialize(*args)
     super
+
+    # prevents checks running when module is initialized during msfconsole startup
+    if framework
+      unless framework.db.connection_established?
+        add_error("This module requires a database connection. Please run 'msfdb init' or 'msfdb start'.")
+      end
+
+      if self.arch.nil? || self.arch.empty?
+        add_warning('Payload architecture could not be determined.')
+        return
+      end
+
+      if self.arch.include?('x86') && !::Metasploit::Framework::Compiler::Mingw::X86.available?
+        add_error("x86 Mingw installation is not available.")
+      end
+      if self.arch.include?('x64') && !::Metasploit::Framework::Compiler::Mingw::X64.available?
+        add_error("x64 Mingw installation is not available.")
+      end
+    end
   end
 
   def generate(opts={})

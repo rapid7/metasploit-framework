@@ -125,6 +125,13 @@ Shell Banner:
       # Only populate +session.info+ with a captured banner if the shell is responsive and verified
       session.info = session_info
       session
+    else
+      # Encrypted shells need all information read before anything is written, so we read in the banner here. However we
+      # don't populate session.info with the captured value since without AutoVerify there's no way to be certain this
+      # actually is a banner and not junk/malicious input
+      if session.class == ::Msf::Sessions::EncryptedShell
+        shell_read(-1, 0.1)
+      end
     end
   end
 
