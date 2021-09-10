@@ -8,50 +8,34 @@ module Msf::Sessions
   # has authenticated to a remote WinRM instance.
   #
   class WinrmCommandShell < Msf::Sessions::CommandShell
-
-    def commands
-      {
-        'help' => 'Help menu',
-        'background' => 'Backgrounds the current shell session',
-        'sessions' => 'Quickly switch to another session',
-        'resource' => 'Run a meta commands script stored in a local file',
-        'irb' => 'Open an interactive Ruby shell on the current session',
-        'pry' => 'Open the Pry debugger on the current session'
-      }
-    end
-
-    #
-    # Create an MSF command shell from a WinRM shell object
-    #
-    # @param shell [WinRM::Shells::Base] A WinRM shell object
-    # @param opts [Hash] Optional parameters to pass to the session object.
-    def initialize(shell, opts = {})
-      self.shell = shell
-      # To buffer input received while a session is backgrounded, we stick responses in a list
-      @buffer_mutex = Mutex.new
-      @buffer = []
-      @check_stdin_event = Rex::Sync::Event.new(false, true)
-      super(nil, opts)
-    end
-
-    def shell_write(buf)
-      return unless buf
-
-      begin
-        framework.events.on_session_command(self, buf.strip)
-        shell.send_stdin(buf)
-      rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
-        shell_close
-        raise e
+    class WinRMStreamAdapter
+      def initialize(shell, on_shell_ended)
+        # To buffer input received while a session is backgrounded, we stick responses in a list
+        @buffer_mutex = Mutex.new
+        @buffer = []
+        @check_stdin_event = Rex::Sync::Event.new(false, true)
+        self.shell = shell
+        self.on_shell_ended = on_shell_ended
       end
+      def write(buf)
+        shell.send_stdin(buf)
+        @check_stdin_event.set
+      end
+
+    def peerinfo
+      shell.transport.peerinfo
     end
 
+    def localinfo
+      shell.transport.localinfo
+    end
+      
     ##
     # :category: Msf::Session::Provider::SingleCommandShell implementors
     #
     # Read from the command shell.
     #
-    def shell_read(length = -1, _timeout = 1)
+    def get_once(length = -1, _timeout = 1)
       result = ''
       @buffer_mutex.synchronize do
         result = @buffer.join('')
@@ -66,43 +50,7 @@ module Msf::Sessions
       result
     end
 
-    def cleanup
-      stop_keep_alive_loop
-      shell.cleanup_shell
-    rescue WinRM::WinRMWSManFault
-      print_error('Shell may not have terminated cleanly')
-    end
-
-    def abort_foreground
-      shell.send_ctrl_c
-    end
-
-    ##
-    # :category: Msf::Session::Interactive implementors
-    #
-    def _interact_stream
-      fds = [user_input.fd]
-      while interacting
-        sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
-        begin
-          user_output.print(shell_read)
-          if sd
-            run_single((user_input.gets || '').chomp("\n") + "\r")
-            @check_stdin_event.set
-          end
-        rescue WinRM::WinRMWSManFault => e
-          print_error(e.fault_description)
-          shell_close
-        end
-        Thread.pass
-      end
-    end
-
-    def on_registered
-      start_keep_alive_loop
-    end
-
-    def start_keep_alive_loop
+    def start_keep_alive_loop(framework)
       self.keep_alive_thread = framework.threads.spawn('WinRM-shell-keepalive', false, shell) do |_thr_shell|
         loop_delay = 0.5
         loop do
@@ -138,39 +86,93 @@ module Msf::Sessions
           Thread.pass
         rescue WinRM::WinRMWSManFault => e
           print_error(e.fault_description)
-          detected_shell_ended
+          on_shell_ended.call
         rescue EOFError
           # Shell has been terminated
-          detected_shell_ended
+          on_shell_ended.call
         rescue Rex::HostUnreachable => e
-          detected_shell_ended(e.message)
+          on_shell_ended.call(e.message)
         rescue StandardError => e
-          detected_shell_ended(e.message)
+          on_shell_ended.call(e.message)
         end
       end
     end
 
-    def detected_shell_ended(reason = '')
-      self.interacting = false
-      framework.events.on_session_interact_completed
-      framework.sessions.deregister(self, reason)
-    end
 
     def stop_keep_alive_loop
       keep_alive_thread.kill
     end
 
-    def tunnel_peer
-      shell.transport.peerinfo
+    def close
+      stop_keep_alive_loop
+      shell.cleanup_shell
+    rescue WinRM::WinRMWSManFault
+      print_error('Shell may not have terminated cleanly')
     end
 
-    def tunnel_local
-      shell.transport.localinfo
+    attr_accessor :shell, :keep_alive_thread, :on_shell_ended
+
+    end
+
+    def commands
+      {
+        'help' => 'Help menu',
+        'background' => 'Backgrounds the current shell session',
+        'sessions' => 'Quickly switch to another session',
+        'resource' => 'Run a meta commands script stored in a local file',
+        'irb' => 'Open an interactive Ruby shell on the current session',
+        'pry' => 'Open the Pry debugger on the current session'
+      }
+    end
+
+    #
+    # Create an MSF command shell from a WinRM shell object
+    #
+    # @param shell [WinRM::Shells::Base] A WinRM shell object
+    # @param opts [Hash] Optional parameters to pass to the session object.
+    def initialize(shell, opts = {})
+      self.shell = shell
+      self.adapter = WinRMStreamAdapter.new(self.shell, method(:shell_ended))
+      super(self.adapter, opts)
+    end
+
+    def abort_foreground
+      shell.send_ctrl_c
+    end
+
+    ##
+    # :category: Msf::Session::Interactive implementors
+    #
+    def _interact_stream
+      fds = [user_input.fd]
+      while interacting
+        sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
+        begin
+          user_output.print(shell_read)
+          if sd
+            run_single((user_input.gets || '').chomp("\n") + "\r")
+          end
+        rescue WinRM::WinRMWSManFault => e
+          print_error(e.fault_description)
+          shell_close
+        end
+        Thread.pass
+      end
+    end
+
+    def on_registered
+      adapter.start_keep_alive_loop(framework)
+    end
+
+    def shell_ended(reason = '')
+      self.interacting = false
+      framework.events.on_session_interact_completed
+      framework.sessions.deregister(self, reason)
     end
 
     protected
 
-    attr_accessor :shell, :keep_alive_thread
+    attr_accessor :shell, :adapter
 
   end
 end

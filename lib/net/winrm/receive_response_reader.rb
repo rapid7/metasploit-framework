@@ -16,13 +16,17 @@ module Net
       # rubocop:disable Style/OptionalBooleanParameter - want to keep same signature as base class
       def read_response(wsmv_message, wait_for_done_state = false)
         # rubocop:enable Style/OptionalBooleanParameter
-        response = nil
-
-        super(wsmv_message, wait_for_done_state) do |stream, resp_doc|
-          response = resp_doc
-          yield stream, resp_doc
+        resp_doc = nil
+        until command_done?(resp_doc, wait_for_done_state)
+          logger.debug('[WinRM] Waiting for output...')
+          resp_doc = send_get_output_message(wsmv_message.build)
+          logger.debug('[WinRM] Processing output')
+          read_streams(resp_doc) do |stream|
+            yield stream, resp_doc
+          end
         end
-        if command_done?(response, true)
+
+        if command_done?(resp_doc, true)
           raise EOFError, 'Program terminated'
         end
       end
