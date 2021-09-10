@@ -4,73 +4,82 @@ require 'diff-lcs'
 require 'json'
 require 'base64'
 require 'open3'
+require 'optparse'
 
-YSOSERIAL_RANDOMIZED_HEADER = 'ysoserial/Pwner'
+YSOSERIAL_RANDOMIZED_HEADER = 'ysoserial/Pwner'.freeze
 PAYLOAD_TEST_MIN_LENGTH = 0x0101
 PAYLOAD_TEST_MAX_LENGTH = 0x0102
-YSOSERIAL_MODIFIED_TYPES = %w{ bash cmd powershell }
-YSOSERIAL_UNMODIFIED_TYPE = 'none'
-YSOSERIAL_ALL_TYPES = [YSOSERIAL_UNMODIFIED_TYPE] + YSOSERIAL_MODIFIED_TYPES
+YSOSERIAL_MODIFIED_TYPES = %w[bash cmd powershell].freeze
+YSOSERIAL_UNMODIFIED_TYPE = 'none'.freeze
+YSOSERIAL_ALL_TYPES = ([YSOSERIAL_UNMODIFIED_TYPE] + YSOSERIAL_MODIFIED_TYPES).freeze
 
-# ARGV parsing
-if ARGV.include?("-h")
-  puts 'ysoserial object template generator'
-  puts
-  puts 'Usage:'
-  puts '  -h             Help'
-  puts '  -d             Debug mode (output offset information only)'
-  puts "  -m [type]      Use 'ysoserial-modified' with the specified payload type"
-  puts '  -p [payloads]  Specified ysoserial payload (payloads1,payloads2,...)'
-  puts '  -a             Generate all types of payloads'
-  puts
-  abort
-end
+@debug = false
+@generate_all = false
+@payload_type = nil
+@ysoserial_modified = false
+@ysoserial_payloads = []
+@json_document = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage #{File.basename($PROGRAM_NAME)} [options]"
 
-@generate_all = ARGV.include?('-a')
-@debug = ARGV.include?('-d')
-@ysoserial_modified = ARGV.include?('-m')
-if @ysoserial_modified
-  @payload_type = ARGV[ARGV.find_index('-m')+1]
-  unless YSOSERIAL_MODIFIED_TYPES.include?(@payload_type)
-    STDERR.puts 'ERROR: Invalid payload type specified'
+  opts.on('-a', '--all', 'Generate all types of payloads') do
+    @generate_all = true
+  end
+
+  opts.on('-d', '--debug', 'Debug mode (output offset information only)') do
+    @debug = true
+  end
+
+  opts.on('-h', '--help', 'Help') do
+    puts opts
     abort
   end
-end
-if (index = ARGV.index('-p'))
-  @ysoserial_payloads = ARGV[index+1].split(',')
-end
+
+  opts.on('-m', '--modified [TYPE]', String, 'Use \'ysoserial-modified\' with the specified payload type') do |modified_type|
+    @ysoserial_modified = true
+    @payload_type = modified_type
+  end
+
+  opts.on('-p', '--payload [PAYLOAD]', String, 'Specified ysoserial payload') do |payload|
+    @ysoserial_payloads << payload
+  end
+
+  opts.on('-j', '--json [PATH]', String, 'Update an existing JSON document') do |json_path|
+    @json_document = JSON.parse(File.read(json_path))
+  end
+end.parse!
 
 def generate_payload(payload_name, search_string_length)
   # Generate a string of specified length and embed it into an ASCII-encoded ysoserial payload
-  searchString = 'A' * search_string_length
+  search_string = 'A' * search_string_length
 
   # Build the command line with ysoserial parameters
   if @ysoserial_modified
-    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-modified.jar', payload_name, @payload_type, searchString)
+    stdout, stderr, _status = Open3.capture3('java', '-jar', 'ysoserial-modified.jar', payload_name, @payload_type, search_string)
   else
-    stdout, stderr, status = Open3.capture3('java','-jar','ysoserial-original.jar', payload_name, searchString)
+    stdout, stderr, _status = Open3.capture3('java', '-jar', 'ysoserial-original.jar', payload_name, search_string)
   end
 
   payload = stdout
   payload.force_encoding('binary')
 
-  if @debug && payload.length == 0 && stderr.length > 0
+  if @debug && payload.empty? && !stderr.empty?
     # Pipe errors out to the console
-    STDERR.puts stderr.split("\n").each {|i| i.prepend("    ")}
+    warn(stderr.split("\n").each { |i| i.prepend('    ') })
   elsif stderr.include? 'java.lang.IllegalArgumentException'
-    #STDERR.puts "  WARNING: '#{payload_name}' requires complex args and may not be supported"
+    # STDERR.puts "  WARNING: '#{payload_name}' requires complex args and may not be supported"
     return nil
   elsif stderr.include? 'Error while generating or serializing payload'
-    #STDERR.puts "  WARNING: '#{payload_name}' errored and may not be supported"
+    # STDERR.puts "  WARNING: '#{payload_name}' errored and may not be supported"
     return nil
   elsif stdout == "\xac\xed\x00\x05\x70"
-    #STDERR.puts "  WARNING: '#{payload_name}' returned null and may not be supported"
+    # STDERR.puts "  WARNING: '#{payload_name}' returned null and may not be supported"
     return nil
   else
-    #STDERR.puts "  Successfully generated #{payload_name} using #{YSOSERIAL_BINARY}"
+    # STDERR.puts "  Successfully generated #{payload_name} using #{YSOSERIAL_BINARY}"
 
     # Strip out the semi-randomized ysoserial string and trailing newline
-    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]{14}/, 'ysoserial/Pwner00000000000000')
+    payload.gsub!(/#{YSOSERIAL_RANDOMIZED_HEADER}[[:digit:]]{13,14}/, 'ysoserial/Pwner00000000000000')
     return payload
   end
 end
@@ -81,6 +90,7 @@ def generate_payload_array(payload_name)
   (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
     payload = generate_payload(payload_name, i)
     return nil if payload.nil?
+
     payload_array[i] = payload
   end
 
@@ -89,10 +99,8 @@ end
 
 def length_offset?(current_byte, next_byte)
   # If this byte has been changed, and is different by one, then it must be a length value
-  if next_byte && current_byte.position == next_byte.position && current_byte.action == "-"
-    if next_byte.element.ord - current_byte.element.ord == 1
-      return true
-    end
+  if next_byte && current_byte.position == next_byte.position && current_byte.action == '-' && (next_byte.element.ord - current_byte.element.ord == 1)
+    return true
   end
 
   false
@@ -107,9 +115,10 @@ def buffer_offset?(current_byte, next_byte)
   false
 end
 
-def diff(a, b)
-  return nil if a.nil? or b.nil?
-  diffs = Diff::LCS.diff(a, b)
+def diff(blob_a, blob_b)
+  return nil if blob_a.nil? || blob_b.nil?
+
+  diffs = Diff::LCS.diff(blob_a, blob_b)
   diffs.flatten(1)
 end
 
@@ -127,24 +136,25 @@ def get_payload_list
   payload_list = []
   payloads.each do |line|
     # Skip the header rows
-    next unless line.start_with? "     "
+    next unless line.start_with? '     '
+
     payload_list.push(line.match(/^ +([^ ]+)/)[1])
   end
 
   payload_list - ['JRMPClient', 'JRMPListener']
 end
 
-#YSOSERIAL_MODIFIED_TYPES.unshift(YSOSERIAL_ORIGINAL_TYPE)
+# YSOSERIAL_MODIFIED_TYPES.unshift(YSOSERIAL_ORIGINAL_TYPE)
 def generated_ysoserial_payloads
   results = {}
   @payload_list.each do |payload|
-    STDERR.puts "Generating payloads for #{payload}..."
+    warn "Generating payloads for #{payload}..."
 
     empty_payload = generate_payload(payload, 0)
 
     if empty_payload.nil?
-      STDERR.puts "  ERROR: Errored while generating '#{payload}' and it will not be supported"
-      results[payload]={"status": "unsupported"}
+      warn "  ERROR: Errored while generating '#{payload}' and it will not be supported"
+      results[payload] = { status: 'unsupported' }
       next
     end
 
@@ -156,19 +166,19 @@ def generated_ysoserial_payloads
     # Comparing diffs of various payload lengths to find length and buffer offsets
     (PAYLOAD_TEST_MIN_LENGTH..PAYLOAD_TEST_MAX_LENGTH).each do |i|
       # Compare this binary with the next one
-      diffs = diff(payload_array[i], payload_array[i+1])
+      diffs = diff(payload_array[i], payload_array[i + 1])
 
       break if diffs.nil?
 
       # Iterate through each diff, searching for offsets of the length and the payload
       diffs.length.times do |j|
         current_byte = diffs[j]
-        next_byte = diffs[j+1]
-        prev_byte = diffs[j-1]
+        next_byte = diffs[j + 1]
+        prev_byte = diffs[j - 1]
 
-        if j > 0
+        if j > 0 && (prev_byte.position == current_byte.position)
           # Skip this if we compared these two bytes on the previous iteration
-          next if prev_byte.position == current_byte.position
+          next
         end
 
         # Compare this byte and the following byte to identify length and buffer offsets
@@ -179,28 +189,28 @@ def generated_ysoserial_payloads
 
     if @debug
       for length_offset in length_offsets
-        STDERR.puts "  LENGTH OFFSET #{length_offset} = 0x#{empty_payload[length_offset-1].ord.to_s(16)} #{empty_payload[length_offset].ord.to_s(16)}"
+        warn "  LENGTH OFFSET #{length_offset} = 0x#{empty_payload[length_offset - 1].ord.to_s(16)} #{empty_payload[length_offset].ord.to_s(16)}"
       end
 
       for buffer_offset in buffer_offsets
-        STDERR.puts "  BUFFER OFFSET #{buffer_offset}"
+        warn "  BUFFER OFFSET #{buffer_offset}"
       end
-      STDERR.puts "  PAYLOAD LENGTH: #{empty_payload.length}"
+      warn "  PAYLOAD LENGTH: #{empty_payload.length}"
     end
 
     payload_bytes = Base64.strict_encode64(empty_payload)
-    if buffer_offsets.length > 0
+    if buffer_offsets.empty?
+      # TODO: Turns out ysoserial doesn't have any static payloads.  Consider removing this.
       results[payload] = {
-        'status': 'dynamic',
-        'lengthOffset': length_offsets.uniq,
-        'bufferOffset': buffer_offsets.uniq,
-        'bytes': payload_bytes
+        status: 'static',
+        bytes: payload_bytes
       }
     else
-      #TODO: Turns out ysoserial doesn't have any static payloads.  Consider removing this.
       results[payload] = {
-        'status': 'static',
-        'bytes': payload_bytes
+        status: 'dynamic',
+        lengthOffset: length_offsets.uniq,
+        bufferOffset: buffer_offsets.uniq,
+        bytes: payload_bytes
       }
     end
   end
@@ -208,36 +218,37 @@ def generated_ysoserial_payloads
 end
 
 @payload_list = get_payload_list
-if @ysoserial_payloads
+unless @ysoserial_payloads.empty?
   unknown_list = @ysoserial_payloads - @payload_list
   if unknown_list.empty?
     @payload_list = @ysoserial_payloads
   else
-    STDERR.puts "ERROR: Invalid payloads specified: #{unknown_list.join(', ')}"
+    warn "ERROR: Invalid payloads specified: #{unknown_list.join(', ')}"
     abort
   end
 end
 
-results = {}
 if @generate_all
   YSOSERIAL_ALL_TYPES.each do |type|
-    STDERR.puts "Generating payload type for #{type}..."
+    warn "Generating payload type for #{type}..."
     @ysoserial_modified = (type != YSOSERIAL_UNMODIFIED_TYPE)
     @payload_type = type
-    results[type] = generated_ysoserial_payloads
-    STDERR.puts
+    @json_document[type] ||= {}
+    @json_document[type].merge!(generated_ysoserial_payloads)
+    $stderr.puts
   end
 else
   @payload_type ||= YSOSERIAL_UNMODIFIED_TYPE
-  results[@payload_type] = generated_ysoserial_payloads
+  @json_document[@payload_type] ||= {}
+  @json_document[@payload_type].merge!(generated_ysoserial_payloads)
 end
 
 payload_count = {}
 payload_count['skipped'] = 0
-payload_count['static']  = 0
+payload_count['static'] = 0
 payload_count['dynamic'] = 0
 
-results.each_value do |vs|
+@json_document.each_value do |vs|
   vs.each_value do |v|
     case v[:status]
     when 'unsupported'
@@ -251,7 +262,7 @@ results.each_value do |vs|
 end
 
 unless @debug
-  puts JSON.pretty_generate(results)
+  puts JSON.pretty_generate(@json_document)
 end
 
-STDERR.puts "DONE!  Successfully generated #{payload_count['static']} static payloads and #{payload_count['dynamic']} dynamic payloads.  Skipped #{payload_count['skipped']} unsupported payloads."
+warn "DONE!  Successfully generated #{payload_count['static']} static payloads and #{payload_count['dynamic']} dynamic payloads.  Skipped #{payload_count['skipped']} unsupported payloads."
