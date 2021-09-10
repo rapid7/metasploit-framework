@@ -79,6 +79,10 @@ class CommandShell
     self.class.type
   end
 
+  def abort_foreground_supported
+    self.platform != 'windows'
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #

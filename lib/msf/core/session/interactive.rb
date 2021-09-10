@@ -117,7 +117,7 @@ protected
       if !intent
         # TODO: Check the shell is interactive or not
         # If the current shell is not interactive, the ASCII Control Character will not work
-        if !(self.platform=="windows" && self.type =="shell")
+        if abort_foreground_supported
           print_status("Aborting foreground process in the shell session")
           abort_foreground
         end
@@ -126,6 +126,10 @@ protected
     rescue Interrupt
       # The user hit ctrl-c while we were handling a ctrl-c. Ignore
     end
+    true
+  end
+
+  def abort_foreground_supported
     true
   end
 
