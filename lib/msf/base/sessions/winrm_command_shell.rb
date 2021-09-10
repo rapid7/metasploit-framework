@@ -18,17 +18,9 @@ module Msf::Sessions
         @buffer_mutex = Mutex.new
         @buffer = []
         @check_stdin_event = Rex::Sync::Event.new(false, true)
+        @received_stdout_event = Rex::Sync::Event.new(false, true)
         self.shell = shell
         self.on_shell_ended = on_shell_ended
-      end
-
-      def write(buf)
-        shell.send_stdin(buf)
-        refresh_stdout
-      end
-
-      def refresh_stdout
-        @check_stdin_event.set
       end
 
       def peerinfo
@@ -39,12 +31,41 @@ module Msf::Sessions
         shell.transport.localinfo
       end
 
+      def refresh_stdout
+        @check_stdin_event.set
+      end
+
+      def write(buf)
+        shell.send_stdin(buf)
+        refresh_stdout
+      end
+
       ##
       # :category: Msf::Session::Provider::SingleCommandShell implementors
       #
       # Read from the command shell.
       #
       def get_once(length = -1, _timeout = 1)
+        start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+        result = ""
+        loop do
+          result = _get_once(length)
+          time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+          elapsed = time - start_time
+          time_remaining = _timeout - elapsed
+          break if (result != '' || time_remaining <= 0)
+          begin
+            @received_stdout_event.wait(time_remaining)
+          rescue TimeoutError
+
+          end
+          # If we didn't get anything, let's hurry the background thread along
+          refresh_stdout unless result
+        end
+        result
+      end
+
+      def _get_once(length)
         result = ''
         @buffer_mutex.synchronize do
           result = @buffer.join('')
@@ -78,6 +99,7 @@ module Msf::Sessions
 
             # If our last request received stdout, let's be ready for some more
             if output_seen
+              @received_stdout_event.set
               loop_delay = 0.5
             else
               # Gradual backoff
@@ -115,7 +137,6 @@ module Msf::Sessions
         stop_keep_alive_loop
         shell.cleanup_shell
       rescue WinRM::WinRMWSManFault
-        print_error('Shell may not have terminated cleanly')
       end
 
       attr_accessor :shell, :keep_alive_thread, :on_shell_ended
@@ -153,6 +174,10 @@ module Msf::Sessions
       adapter.refresh_stdout
     end
 
+    def command_termination
+      "\r\n"
+    end
+
     ##
     # :category: Msf::Session::Interactive implementors
     #
@@ -161,9 +186,9 @@ module Msf::Sessions
       while interacting
         sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
         begin
-          user_output.print(shell_read)
+          user_output.print(shell_read(-1, 0))
           if sd
-            run_single((user_input.gets || '').chomp("\n") + "\r")
+            run_single((user_input.gets || '').chomp("\n"))
           end
         rescue WinRM::WinRMWSManFault => e
           print_error(e.fault_description)

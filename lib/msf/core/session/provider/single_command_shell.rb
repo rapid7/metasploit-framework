@@ -39,6 +39,10 @@ module SingleCommandShell
     raise NotImplementedError
   end
 
+  def command_termination
+    "\n"
+  end
+
   #
   # Read data until we find the token
   #
@@ -66,7 +70,7 @@ module SingleCommandShell
               parts = buf.split("#{token}\r\n", -1)
               if parts.length == parts_needed
                 # cause another prompt to appear (just in case)
-                shell_write("\n")
+                shell_write(command_termination)
                 return parts[wanted_idx]
               end
             end
@@ -131,7 +135,7 @@ module SingleCommandShell
 
     # Send the command to the session's stdin.
     # NOTE: if the session echoes input we don't need to echo the token twice.
-    shell_write(cmd + "&echo #{token}\n")
+    shell_write(cmd + "&echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 1, timeout)
     res
   end
