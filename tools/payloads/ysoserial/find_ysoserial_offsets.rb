@@ -54,7 +54,7 @@ def generate_payload(payload_name, search_string_length)
   payload = stdout
   payload.force_encoding('binary')
 
-  if payload.length == 0 && stderr.length > 0
+  if @debug && payload.length == 0 && stderr.length > 0
     # Pipe errors out to the console
     STDERR.puts stderr.split("\n").each {|i| i.prepend("    ")}
   elsif stderr.include? 'java.lang.IllegalArgumentException'
@@ -110,7 +110,7 @@ end
 def diff(a, b)
   return nil if a.nil? or b.nil?
   diffs = Diff::LCS.diff(a, b)
-  diffs.flatten
+  diffs.flatten(1)
 end
 
 def get_payload_list
