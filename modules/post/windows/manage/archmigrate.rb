@@ -10,18 +10,21 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})
-    super(update_info(
-      info,
-      'Name' => 'Architecture Migrate',
-      'Description' => %q(This module checks if the meterpreter architecture is the same as the OS architecture and if it's incompatible it spawns a
-                          new process with the correct architecture and migrates into that process.),
-      'License' => MSF_LICENSE,
-      'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
-      'References' => [''],
-      'Platform' => [ 'win' ],
-      'Arch' => [ 'x86', 'x64' ],
-      'SessionTypes' => [ 'meterpreter' ]
-    )
+    super(
+      update_info(
+        info,
+        'Name' => 'Architecture Migrate',
+        'Description' => %q{
+          This module checks if the meterpreter architecture is the same as the OS architecture and if it's incompatible it spawns a
+          new process with the correct architecture and migrates into that process.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Koen Riepe (koen.riepe@fox-it.com)'],
+        'References' => [''],
+        'Platform' => [ 'win' ],
+        'Arch' => [ 'x86', 'x64' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
     )
 
     register_options(

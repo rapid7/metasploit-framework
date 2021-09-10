@@ -21,10 +21,9 @@ class MetasploitModule < Msf::Post
           remote login via SSH at any time.
         },
         'License' => MSF_LICENSE,
-        'Author' =>
-          [
-            'Dean Welch <dean_welch[at]rapid7.com>'
-          ],
+        'Author' => [
+          'Dean Welch <dean_welch[at]rapid7.com>'
+        ],
         'Platform' => [ 'windows' ],
         'SessionTypes' => [ 'meterpreter', 'shell' ]
       )
@@ -44,7 +43,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     sep = separator
 
     sshd_config = read_file(datastore['SSHD_CONFIG'])

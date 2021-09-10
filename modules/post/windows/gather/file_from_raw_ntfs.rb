@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Error
@@ -11,26 +10,30 @@ class MetasploitModule < Msf::Post
   ERROR = Msf::Post::Windows::Error
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'         => 'Windows File Gather File from Raw NTFS',
-      'Description'  => %q{
-        This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
-        such as open file with write lock. Because it avoids the usual file locking issues, it can
-        be used to retrieve files such as NTDS.dit.
-      },
-      'License'      => 'MSF_LICENSE',
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
-      'Author'       => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
-      'References'   => [
-        [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
-      ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows File Gather File from Raw NTFS',
+        'Description' => %q{
+          This module gathers a file using the raw NTFS device, bypassing some Windows restrictions
+          such as open file with write lock. Because it avoids the usual file locking issues, it can
+          be used to retrieve files such as NTDS.dit.
+        },
+        'License' => 'MSF_LICENSE',
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Danil Bazin <danil.bazin[at]hsc.fr>'], # @danilbaz
+        'References' => [
+          [ 'URL', 'http://www.amazon.com/System-Forensic-Analysis-Brian-Carrier/dp/0321268172/' ]
+        ]
+      )
+    )
 
     register_options(
       [
         OptString.new('FILE_PATH', [true, 'The FILE_PATH to retreive from the Volume raw device', nil])
-      ])
+      ]
+    )
   end
 
   def run

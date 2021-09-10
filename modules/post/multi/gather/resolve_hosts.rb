@@ -5,41 +5,43 @@
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Multi Gather Resolve Hosts',
-      'Description'   => %q{
-        Resolves hostnames to either IPv4 or IPv6 addresses from the perspective of the remote host.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Ben Campbell' ],
-      'Platform'      => %w{ win python },
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Multi Gather Resolve Hosts',
+        'Description' => %q{
+          Resolves hostnames to either IPv4 or IPv6 addresses from the perspective of the remote host.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Ben Campbell' ],
+        'Platform' => %w{win python},
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
-      register_options([
-        OptString.new('HOSTNAMES', [false, 'Comma separated list of hostnames to resolve.']),
-        OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
-        OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ]),
-        OptBool.new('DATABASE', [false, 'Report found hosts to DB', true])
-      ])
+    register_options([
+      OptString.new('HOSTNAMES', [false, 'Comma separated list of hostnames to resolve.']),
+      OptPath.new('HOSTFILE', [false, 'Line separated file with hostnames to resolve.']),
+      OptEnum.new('AI_FAMILY', [true, 'Address Family', 'IPv4', ['IPv4', 'IPv6'] ]),
+      OptBool.new('DATABASE', [false, 'Report found hosts to DB', true])
+    ])
   end
 
   def run
-
     hosts = []
     if datastore['HOSTNAMES']
       hostnames = datastore['HOSTNAMES'].split(',')
       hostnames.each do |hostname|
         hostname.strip!
-          hosts << hostname unless hostname.empty?
+        hosts << hostname unless hostname.empty?
       end
     end
 
     if datastore['HOSTFILE']
       ::File.open(datastore['HOSTFILE'], "rb").each_line do |hostname|
-         hostname.strip!
-         hosts << hostname unless hostname.empty?
+        hostname.strip!
+        hosts << hostname unless hostname.empty?
       end
     end
 

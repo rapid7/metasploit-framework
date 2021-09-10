@@ -5,27 +5,29 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name' => 'Windows Gather Microsoft Outlook Saved Password Extraction',
-      'Description' => %q{
-        This module extracts and decrypts saved Microsoft
-        Outlook (versions 2002-2010) passwords from the Windows
-        Registry for POP3/IMAP/SMTP/HTTP accounts.
-        In order for decryption to be successful, this module must be
-        executed under the same privileges as the user which originally
-        encrypted the password.
-      },
-      'License' => MSF_LICENSE,
-      'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
-      'Platform' => [ 'win' ],
-      'SessionTypes' => [ 'meterpreter' ])
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Microsoft Outlook Saved Password Extraction',
+        'Description' => %q{
+          This module extracts and decrypts saved Microsoft
+          Outlook (versions 2002-2010) passwords from the Windows
+          Registry for POP3/IMAP/SMTP/HTTP accounts.
+          In order for decryption to be successful, this module must be
+          executed under the same privileges as the user which originally
+          encrypted the password.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Justin Cacak' ], # Updated to work with newer versions of Outlook (2013, 2016, Office 365)
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
     )
   end
 
@@ -369,7 +371,6 @@ class MetasploitModule < Msf::Post
     elsif saved_accounts == 0
       print_status("Microsoft Outlook installed however no accounts stored in Registry.")
     end
-
   end
 
   def outlook_version
@@ -381,7 +382,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     # Get Outlook version from registry
     outlook_ver = outlook_version
     fail_with(Failure::NotFound, "Microsoft Outlook version not found in registry.") if outlook_ver.nil?
