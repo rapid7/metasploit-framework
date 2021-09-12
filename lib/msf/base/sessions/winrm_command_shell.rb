@@ -31,6 +31,7 @@ module Msf::Sessions
         shell.transport.localinfo
       end
 
+      # Trigger the background thread to go get more stdout
       def refresh_stdout
         @check_stdin_event.set
       end
@@ -55,6 +56,7 @@ module Msf::Sessions
           time_remaining = _timeout - elapsed
           break if (result != '' || time_remaining <= 0)
           begin
+            # We didn't receive anything - let's wait for some more
             @received_stdout_event.wait(time_remaining)
           rescue TimeoutError
 
@@ -80,6 +82,7 @@ module Msf::Sessions
         result
       end
 
+      # Start a background thread for regularly checking for stdout
       def start_keep_alive_loop(framework)
         self.keep_alive_thread = framework.threads.spawn('WinRM-shell-keepalive', false, shell) do |_thr_shell|
           loop_delay = 0.5
@@ -129,10 +132,12 @@ module Msf::Sessions
         end
       end
 
+      # Stop the background thread
       def stop_keep_alive_loop
         keep_alive_thread.kill
       end
 
+      # Close the shell; cleanly terminating it on the server if possible
       def close
         stop_keep_alive_loop
         shell.cleanup_shell
@@ -174,6 +179,8 @@ module Msf::Sessions
       adapter.refresh_stdout
     end
 
+    # The characters used to terminate a command in this shell
+    # (Breaks in 2012 without this)
     def command_termination
       "\r\n"
     end
@@ -202,6 +209,7 @@ module Msf::Sessions
       adapter.start_keep_alive_loop(framework)
     end
 
+    # Callback used by the background thread to let us know the thread is done
     def shell_ended(reason = '')
       self.interacting = false
       framework.events.on_session_interact_completed

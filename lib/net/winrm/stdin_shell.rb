@@ -17,6 +17,8 @@ module Net
       def add_finalizer; end
 
       def create_proc
+        # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
+        # do not seem to pass us stdout/stderr.
         self.command_id = send_command('cmd.exe', [])
       end
 
