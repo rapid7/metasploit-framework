@@ -17,7 +17,7 @@ static unsigned char alphabet[64] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopq
 int base64decode(char *dest, const char *src, int l)
 {
   static char inalphabet[256], decoder[256];
-  static bool table_initialized = false;
+  static short table_initialized = 0;
   int i, bits, c, char_count;
   int rpos;
   int wpos = 0;
@@ -27,7 +27,7 @@ int base64decode(char *dest, const char *src, int l)
       inalphabet[alphabet[i]] = 1;
       decoder[alphabet[i]] = i;
     }
-    table_initialized = true;
+    table_initialized = 1;
   }
 
   char_count = 0;

