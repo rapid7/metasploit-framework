@@ -115,7 +115,7 @@ module SingleCommandShell
     token = ::Rex::Text.rand_text_alpha(32)
     numeric_token = rand(0xffffffff) + 1
     cmd = "echo #{numeric_token}"
-    shell_write(cmd + ";echo #{token}\n")
+    shell_write(cmd + ";echo #{token}#{command_termination}")
     res = shell_read_until_token(token, 0, timeout)
     if res.to_i == numeric_token
       @shell_token_index = 0
@@ -129,14 +129,16 @@ module SingleCommandShell
   # This version uses a marker to denote the end of data (instead of a timeout).
   #
   def shell_command_token_win32(cmd, timeout=10)
+
     # read any pending data
     buf = shell_read(-1, 0.01)
+    set_shell_token_index(timeout)
     token = ::Rex::Text.rand_text_alpha(32)
 
     # Send the command to the session's stdin.
     # NOTE: if the session echoes input we don't need to echo the token twice.
     shell_write(cmd + "&echo #{token}#{command_termination}")
-    res = shell_read_until_token(token, 1, timeout)
+    res = shell_read_until_token(token, @shell_token_index, timeout)
     res
   end
 
