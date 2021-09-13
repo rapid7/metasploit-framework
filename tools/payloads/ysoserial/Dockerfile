@@ -30,4 +30,4 @@ RUN gem install --silent diff-lcs:1.4.4 json pry
 
 COPY find_ysoserial_offsets.rb /
 
-CMD ruby /find_ysoserial_offsets.rb -a
+ENTRYPOINT ["ruby", "/find_ysoserial_offsets.rb"]

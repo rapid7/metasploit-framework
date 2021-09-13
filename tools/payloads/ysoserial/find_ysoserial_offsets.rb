@@ -15,8 +15,7 @@ YSOSERIAL_ALL_TYPES = ([YSOSERIAL_UNMODIFIED_TYPE] + YSOSERIAL_MODIFIED_TYPES).f
 
 @debug = false
 @generate_all = false
-@payload_type = nil
-@ysoserial_modified = false
+@payload_type = YSOSERIAL_UNMODIFIED_TYPE
 @ysoserial_payloads = []
 @json_document = {}
 OptionParser.new do |opts|
@@ -36,7 +35,6 @@ OptionParser.new do |opts|
   end
 
   opts.on('-m', '--modified [TYPE]', String, 'Use \'ysoserial-modified\' with the specified payload type') do |modified_type|
-    @ysoserial_modified = true
     @payload_type = modified_type
   end
 
@@ -54,10 +52,10 @@ def generate_payload(payload_name, search_string_length)
   search_string = 'A' * search_string_length
 
   # Build the command line with ysoserial parameters
-  if @ysoserial_modified
-    stdout, stderr, _status = Open3.capture3('java', '-jar', 'ysoserial-modified.jar', payload_name, @payload_type, search_string)
-  else
+  if @payload_type == YSOSERIAL_UNMODIFIED_TYPE
     stdout, stderr, _status = Open3.capture3('java', '-jar', 'ysoserial-original.jar', payload_name, search_string)
+  else
+    stdout, stderr, _status = Open3.capture3('java', '-jar', 'ysoserial-modified.jar', payload_name, @payload_type, search_string)
   end
 
   payload = stdout
@@ -231,14 +229,12 @@ end
 if @generate_all
   YSOSERIAL_ALL_TYPES.each do |type|
     warn "Generating payload type for #{type}..."
-    @ysoserial_modified = (type != YSOSERIAL_UNMODIFIED_TYPE)
     @payload_type = type
     @json_document[type] ||= {}
     @json_document[type].merge!(generated_ysoserial_payloads)
     $stderr.puts
   end
 else
-  @payload_type ||= YSOSERIAL_UNMODIFIED_TYPE
   @json_document[@payload_type] ||= {}
   @json_document[@payload_type].merge!(generated_ysoserial_payloads)
 end
