@@ -539,14 +539,11 @@ module Msf::Post::File
   #   delete
   # @return [void]
   def rm_rf(*remote_dirs)
-    print_line("In rm_rf")
     remote_dirs.each do |remote|
       if session.type == "meterpreter"
         session.fs.dir.rmdir(remote) if exist?(remote)
       elsif session.type == 'powershell'
-        print_line("Remove-Item -Path \"#{remote}\" -Force -Recurse")
         cmd_exec("Remove-Item -Path \"#{remote}\" -Force -Recurse")
-        cmd_exec("del \"#{remote}\"")
       else
         if session.platform == 'windows'
           cmd_exec("rd /s /q \"#{remote}\"")
