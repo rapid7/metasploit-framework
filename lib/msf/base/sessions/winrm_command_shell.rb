@@ -46,21 +46,23 @@ module Msf::Sessions
       #
       # Read from the command shell.
       #
-      def get_once(length = -1, _timeout = 1)
+      def get_once(length = -1, timeout = 1)
         start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
-        result = ""
+        result = ''
         loop do
           result = _get_once(length)
           time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
           elapsed = time - start_time
-          time_remaining = _timeout - elapsed
+          time_remaining = timeout - elapsed
           break if (result != '' || time_remaining <= 0)
+
+          # rubocop:disable Lint/SuppressedException
           begin
             # We didn't receive anything - let's wait for some more
             @received_stdout_event.wait(time_remaining)
           rescue TimeoutError
-
           end
+          # rubocop:enable Lint/SuppressedException
           # If we didn't get anything, let's hurry the background thread along
           refresh_stdout unless result
         end
@@ -138,11 +140,16 @@ module Msf::Sessions
       end
 
       # Close the shell; cleanly terminating it on the server if possible
+      #
+      # The shell may already be dead, or unreachable at this point, so do a best
+      # effort, and capture exceptions
+      # rubocop:disable Lint/SuppressedException
       def close
         stop_keep_alive_loop
         shell.cleanup_shell
       rescue WinRM::WinRMWSManFault
       end
+      # rubocop:enable Lint/SuppressedException
 
       attr_accessor :shell, :keep_alive_thread, :on_shell_ended
 

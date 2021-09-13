@@ -2,10 +2,13 @@
 require 'winrm/wsmv/base'
 module Net
   module MsfWinRM
+    # A WinRM Ctrl+C signal message
     class CtrlC < WinRM::WSMV::Base
       def initialize(session_opts, opts)
         raise 'opts[:shell_id] is required' unless opts[:shell_id]
         raise 'opts[:command_id] is required' unless opts[:command_id]
+
+        super()
 
         @session_opts = session_opts
         @shell_id = opts[:shell_id]

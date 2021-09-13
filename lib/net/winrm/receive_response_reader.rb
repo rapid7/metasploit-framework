@@ -2,6 +2,8 @@ require 'winrm'
 
 module Net
   module MsfWinRM
+    # For parsing of output streams (stdout, stderr); subclassed
+    # so MSF can manage retry loops itself
     class ReceiveResponseReader < WinRM::WSMV::ReceiveResponseReader
       def send_get_output_message(message)
         # Overridden without retry loop
