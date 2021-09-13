@@ -7,22 +7,25 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather SMB Share Enumeration via Registry',
-        'Description'   => %q{ This module will enumerate configured and recently used file shares},
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather SMB Share Enumeration via Registry',
+        'Description' => %q{ This module will enumerate configured and recently used file shares},
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
     register_options(
       [
-        OptBool.new("CURRENT" , [ true, "Enumerate currently configured shares"                  , true]),
-        OptBool.new("RECENT"  , [ true, "Enumerate Recently mapped shares"                       , true]),
-        OptBool.new("ENTERED" , [ true, "Enumerate Recently entered UNC Paths in the Run Dialog" , true])
-      ])
-
+        OptBool.new("CURRENT", [ true, "Enumerate currently configured shares", true]),
+        OptBool.new("RECENT", [ true, "Enumerate Recently mapped shares", true]),
+        OptBool.new("ENTERED", [ true, "Enumerate Recently entered UNC Paths in the Run Dialog", true])
+      ]
+    )
   end
 
   # Stolen from modules/auxiliary/scanner/smb/smb_enumshares.rb
@@ -54,7 +57,7 @@ class MetasploitModule < Msf::Post
       if vals_found
         registry_enumvals(full_path).each do |k|
           if not k =~ /MRUList/
-            recent_mounts << registry_getvaldata(full_path,k)
+            recent_mounts << registry_getvaldata(full_path, k)
           end
         end
       end
@@ -70,7 +73,7 @@ class MetasploitModule < Msf::Post
     if vals_found
       vals_found.each do |k|
         if k =~ /./
-          run_entrie = registry_getvaldata(full_path,k)
+          run_entrie = registry_getvaldata(full_path, k)
           unc_paths << run_entrie if run_entrie =~ /^\\\\/
         end
       end
@@ -92,13 +95,14 @@ class MetasploitModule < Msf::Post
       shares = []
       print_status("The following shares were found:")
       share_names.each do |sname|
-        info = registry_getvaldata(shares_key,sname)
+        info = registry_getvaldata(shares_key, sname)
         next if info.nil?
+
         share_info = info.split("\000")
         print_status("\tName: #{sname}")
         stype = remark = path = nil
         share_info.each do |e|
-          name,val = e.split("=")
+          name, val = e.split("=")
           case name
           when "Path"
             print_status "\tPath: #{val}"
@@ -170,6 +174,5 @@ class MetasploitModule < Msf::Post
       end
       print_status()
     end
-
   end
 end

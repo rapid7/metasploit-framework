@@ -7,25 +7,27 @@ class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'         => 'Windows Manage VMDK Mount Drive',
-      'Description'  => %q{
-        This module mounts a vmdk file (Virtual Machine Disk) on a drive provided by the user by taking advantage
-        of the vstor2 device driver (VMware). First, it executes the binary vixDiskMountServer.exe to access the
-        device and then it sends certain control code via DeviceIoControl to mount it. Use the write mode with
-        extreme care. You should only open a disk file in writable mode if you know for sure that no snapshots
-        or clones are linked from the file.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => 'Borja Merino <bmerinofe[at]gmail.com>',
-      'References'   =>
-        [
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage VMDK Mount Drive',
+        'Description' => %q{
+          This module mounts a vmdk file (Virtual Machine Disk) on a drive provided by the user by taking advantage
+          of the vstor2 device driver (VMware). First, it executes the binary vixDiskMountServer.exe to access the
+          device and then it sends certain control code via DeviceIoControl to mount it. Use the write mode with
+          extreme care. You should only open a disk file in writable mode if you know for sure that no snapshots
+          or clones are linked from the file.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'Borja Merino <bmerinofe[at]gmail.com>',
+        'References' => [
           ['URL', 'http://www.shelliscoming.com/2017/05/post-exploitation-mounting-vmdk-files.html']
         ],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter']
-    ))
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter']
+      )
+    )
 
     register_options(
       [
@@ -43,8 +45,8 @@ class MetasploitModule < Msf::Post
     drives = []
     letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     (0..25).each do |i|
-      test = letters[i,1]
-      rem = a % (2**(i+1))
+      test = letters[i, 1]
+      rem = a % (2**(i + 1))
       if rem > 0
         drives << test
         a = a - rem
@@ -76,7 +78,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    vmware_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\vmplayer.exe","path")
+    vmware_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\vmplayer.exe", "path")
 
     if vmware_path.nil?
       print_error("VMware installation path not found.")
@@ -126,8 +128,9 @@ class MetasploitModule < Msf::Post
     files.each do |f|
       f_path = lck_dir + "\\#{f}"
       next if !file?(f_path)
+
       fd = client.fs.file.open(f_path)
-      content =  fd.read.to_s
+      content = fd.read.to_s
       fd.close
       if content.include? "vixDiskMountServer"
         begin
@@ -150,7 +153,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    device_path = registry_getvaldata(reg_services << vstor2_key[0],"ImagePath")
+    device_path = registry_getvaldata(reg_services << vstor2_key[0], "ImagePath")
 
     if device_path.nil?
       print_error("No image path found for the vstor2 device")
@@ -169,7 +172,7 @@ class MetasploitModule < Msf::Post
     drive_dword = [(0x00000001 << i)].pack('V')
     vprint_status("DWORD value for drive #{vol}: = #{drive_dword.inspect}")
 
-    ret = session.railgun.kernel32.CreateFileW(vstore, "GENERIC_WRITE|GENERIC_READ", "FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING",0, nil)
+    ret = session.railgun.kernel32.CreateFileW(vstore, "GENERIC_WRITE|GENERIC_READ", "FILE_SHARE_READ|FILE_SHARE_WRITE", nil, "OPEN_EXISTING", 0, nil)
     if ret['GetLastError'] != 0
       print_error("Unable to open a handle to the #{vstore} device driver. GetLastError: #{ret['GetLastError']} ")
       return false
@@ -194,7 +197,7 @@ class MetasploitModule < Msf::Post
     error_code = ""
     tries = 0
     loop do
-      ioctl = client.railgun.kernel32.DeviceIoControl(ret['return'],0x2A002C,buffer,292,16348,16348,4,nil)
+      ioctl = client.railgun.kernel32.DeviceIoControl(ret['return'], 0x2A002C, buffer, 292, 16348, 16348, 4, nil)
       error_code = ioctl['GetLastError']
       vprint_status("GetlastError DeviceIoControl = #{error_code}")
       tries += 1
@@ -225,7 +228,7 @@ class MetasploitModule < Msf::Post
     # On the other hand, if vixDiskMountServer has been created by Meterpreter it would not be necessary to kill
     # the process to run the script again and mount another drive except if you change the mode (write or read only).
     # For this reason, to avoid this case, the process is relaunched automatically.
-    p = session.sys.process.each_process.find { |i| i["name"] == mount_bin}
+    p = session.sys.process.each_process.find { |i| i["name"] == mount_bin }
 
     if p
       if p["ppid"] != session.sys.process.getpid
@@ -244,7 +247,7 @@ class MetasploitModule < Msf::Post
     end
 
     begin
-      proc = session.sys.process.execute(path, nil, {'Hidden' => true})
+      proc = session.sys.process.execute(path, nil, { 'Hidden' => true })
       sleep(1)
       print_good("Process #{mount_bin} successfully spawned (Pid: #{proc.pid})")
     rescue ::Rex::Post::Meterpreter::RequestError => error

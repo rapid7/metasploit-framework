@@ -9,22 +9,25 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'          => 'Windows Gather Enumerate Domain Tokens',
-      'Description'   => %q(
-        This module will enumerate tokens present on a system that are part of the
-        domain the target host is part of, will also enumerate users in the local
-        Administrators, Users and Backup Operator groups to identify Domain members.
-        Processes will be also enumerated and checked if they are running under a
-        Domain account, on all checks the accounts, processes and tokens will be
-        checked if they are part of the Domain Admin group of the domain the machine
-        is a member of.
-      ),
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-      'Platform'      => [ 'win'],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enumerate Domain Tokens',
+        'Description' => %q{
+          This module will enumerate tokens present on a system that are part of the
+          domain the target host is part of, will also enumerate users in the local
+          Administrators, Users and Backup Operator groups to identify Domain members.
+          Processes will be also enumerated and checked if they are running under a
+          Domain account, on all checks the accounts, processes and tokens will be
+          checked if they are part of the Domain Admin group of the domain the machine
+          is a member of.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+        'Platform' => [ 'win'],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   # Run Method for when run command is issued
@@ -67,8 +70,8 @@ class MetasploitModule < Msf::Post
   # List Tokens precent on the domain
   def list_tokens(domain, dom_admins)
     tbl = Rex::Text::Table.new(
-      'Header'  => "Impersonation Tokens with Domain Context",
-      'Indent'  => 1,
+      'Header' => "Impersonation Tokens with Domain Context",
+      'Indent' => 1,
       'Columns' =>
       [
         "Token Type",
@@ -136,8 +139,8 @@ class MetasploitModule < Msf::Post
 
   def list_group_members(domain, dom_admins)
     tbl = Rex::Text::Table.new(
-      'Header'  => "Account in Local Groups with Domain Context",
-      'Indent'  => 1,
+      'Header' => "Account in Local Groups with Domain Context",
+      'Indent' => 1,
       'Columns' =>
       [
         "Group",
@@ -186,8 +189,8 @@ class MetasploitModule < Msf::Post
 
   def list_processes(domain, dom_admins)
     tbl = Rex::Text::Table.new(
-      'Header'  => "Processes under Domain Context",
-      'Indent'  => 1,
+      'Header' => "Processes under Domain Context",
+      'Indent' => 1,
       'Columns' =>
       [
         "Name",

@@ -8,24 +8,26 @@ require 'metasm'
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Escalate Get System via Administrator',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Escalate Get System via Administrator',
+        'Description' => %q{
           This module uses the builtin 'getsystem' command to escalate
-        the current session to the SYSTEM account from an administrator
-        user account.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => 'hdm',
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+          the current session to the SYSTEM account from an administrator
+          user account.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => 'hdm',
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options([
       OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
     ])
-
   end
 
   def unsupported
@@ -34,7 +36,6 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-
     technique = datastore['TECHNIQUE'].to_i
 
     unsupported if client.platform != 'windows' || (client.arch != ARCH_X64 && client.arch != ARCH_X86)

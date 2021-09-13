@@ -3,46 +3,47 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
   include Msf::Post::Windows::LDAP
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'	       => 'Windows Gather Active Directory Computers',
-        'Description'  => %Q{
-            This module will enumerate computers in the default AD directory.
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name'	=> 'Windows Gather Active Directory Computers',
+        'Description' => %q{
+          This module will enumerate computers in the default AD directory.
 
-            Optional Attributes to use in ATTRIBS:
-            objectClass, cn, description, distinguishedName, instanceType, whenCreated,
-            whenChanged, uSNCreated, uSNChanged, name, objectGUID,
-            userAccountControl, badPwdCount, codePage, countryCode,
-            badPasswordTime, lastLogoff, lastLogon, localPolicyFlags,
-            pwdLastSet, primaryGroupID, objectSid, accountExpires,
-            logonCount, sAMAccountName, sAMAccountType, operatingSystem,
-            operatingSystemVersion, operatingSystemServicePack, serverReferenceBL,
-            dNSHostName, rIDSetPreferences, servicePrincipalName, objectCategory,
-            netbootSCPBL, isCriticalSystemObject, frsComputerReferenceBL,
-            lastLogonTimestamp, msDS-SupportedEncryptionTypes
+          Optional Attributes to use in ATTRIBS:
+          objectClass, cn, description, distinguishedName, instanceType, whenCreated,
+          whenChanged, uSNCreated, uSNChanged, name, objectGUID,
+          userAccountControl, badPwdCount, codePage, countryCode,
+          badPasswordTime, lastLogoff, lastLogon, localPolicyFlags,
+          pwdLastSet, primaryGroupID, objectSid, accountExpires,
+          logonCount, sAMAccountName, sAMAccountType, operatingSystem,
+          operatingSystemVersion, operatingSystemServicePack, serverReferenceBL,
+          dNSHostName, rIDSetPreferences, servicePrincipalName, objectCategory,
+          netbootSCPBL, isCriticalSystemObject, frsComputerReferenceBL,
+          lastLogonTimestamp, msDS-SupportedEncryptionTypes
 
-            ActiveDirectory has a MAX_SEARCH limit of 1000 by default. Split search up
-            if you hit that limit.
+          ActiveDirectory has a MAX_SEARCH limit of 1000 by default. Split search up
+          if you hit that limit.
 
-            Possible filters:
-            (objectClass=computer) # All Computers
-            (primaryGroupID=516)  # All Domain Controllers
-            (&(objectCategory=computer)(operatingSystem=*server*)) # All Servers
+          Possible filters:
+          (objectClass=computer) # All Computers
+          (primaryGroupID=516)  # All Domain Controllers
+          (&(objectCategory=computer)(operatingSystem=*server*)) # All Servers
         },
-        'License'      => MSF_LICENSE,
-        'Author'       => [ 'Ben Campbell' ],
-        'Platform'     => [ 'win' ],
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Ben Campbell' ],
+        'Platform' => [ 'win' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'References'	=>
-        [
+        'References' => [
           ['URL', 'http://social.technet.microsoft.com/wiki/contents/articles/5392.active-directory-ldap-syntax-filters.aspx'],
         ]
-      ))
+      )
+    )
 
     register_options([
       OptBool.new('STORE_LOOT', [true, 'Store file in loot.', false]),
@@ -53,7 +54,7 @@ class MetasploitModule < Msf::Post
   end
 
   def run
-    fields = datastore['FIELDS'].gsub(/\s+/,"").split(',')
+    fields = datastore['FIELDS'].gsub(/\s+/, "").split(',')
     search_filter = datastore['FILTER']
     max_search = datastore['MAX_SEARCH']
 
@@ -68,10 +69,10 @@ class MetasploitModule < Msf::Post
 
     # Results table holds raw string data
     results_table = Rex::Text::Table.new(
-      'Header'     => "Domain Computers",
-      'Indent'     => 1,
-      'SortIndex'  => -1,
-      'Columns'    => fields
+      'Header' => "Domain Computers",
+      'Indent' => 1,
+      'SortIndex' => -1,
+      'Columns' => fields
     )
 
     # Hostnames holds DNS Names to Resolve
@@ -82,7 +83,7 @@ class MetasploitModule < Msf::Post
       row = []
 
       report = {}
-      0.upto(fields.length-1) do |i|
+      0.upto(fields.length - 1) do |i|
         field = result[i][:value] || ""
 
         # Only perform these actions if the database is connected and we want
@@ -94,12 +95,12 @@ class MetasploitModule < Msf::Post
             report[:name] = dns
             hostnames << dns
           when 'operatingSystem'
-            report[:os_name] = field.gsub("\xAE",'')
+            report[:os_name] = field.gsub("\xAE", '')
           when 'distinguishedName'
             if field =~ /Domain Controllers/i
               # TODO: Find another way to mark a host as being a domain controller
               #       The 'purpose' field should be server, client, device, printer, etc
-              #report[:purpose] = "DC"
+              # report[:purpose] = "DC"
               report[:purpose] = "server"
             end
           when 'operatingSystemServicePack'
@@ -147,4 +148,3 @@ class MetasploitModule < Msf::Post
     end
   end
 end
-

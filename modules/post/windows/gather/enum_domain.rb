@@ -7,17 +7,20 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'            => "Windows Gather Enumerate Domain",
-      'Description'     => %q(
-        This module identifies the primary domain via the registry. The registry value used is:
-        HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName.
-      ),
-      'License'         => MSF_LICENSE,
-      'Platform'        => ['win'],
-      'SessionTypes'    => ['meterpreter'],
-      'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
-    ))
+    super(
+      update_info(
+        info,
+        'Name' => "Windows Gather Enumerate Domain",
+        'Description' => %q{
+          This module identifies the primary domain via the registry. The registry value used is:
+          HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Group Policy\History\DCName.
+        },
+        'License' => MSF_LICENSE,
+        'Platform' => ['win'],
+        'SessionTypes' => ['meterpreter'],
+        'Author' => ['Joshua Abraham <jabra[at]rapid7.com>']
+      )
+    )
   end
 
   def gethost(hostorip)
@@ -47,10 +50,10 @@ class MetasploitModule < Msf::Post
       if !dc_ip.nil?
         print_good("FOUND Domain Controller: #{dom_info[0]} (IP: #{dc_ip})")
         report_host({
-                      host: dc_ip,
-            name: dom_info[0],
-            info: "Domain controller for #{dom_info[1]}"
-                    })
+          host: dc_ip,
+          name: dom_info[0],
+          info: "Domain controller for #{dom_info[1]}"
+        })
       else
         print_good("FOUND Domain Controller: #{dom_info[0]}")
       end

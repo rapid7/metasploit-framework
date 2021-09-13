@@ -10,24 +10,26 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'        =>'Windows Gather Enum User MUICache',
-      'Description' =>
-      %q{
-        This module gathers information about the files and file paths that logged on users have
-        executed on the system. It also will check if the file still exists on the system. This
-        information is gathered by using information stored under the MUICache registry key. If
-        the user is logged in when the module is executed it will collect the MUICache entries
-        by accessing the registry directly. If the user is not logged in the module will download
-        users registry hive NTUSER.DAT/UsrClass.dat from the system and the MUICache contents are
-        parsed from the downloaded hive.
-      },
-      'License'     =>  MSF_LICENSE,
-      'Author'      =>  ['TJ Glad <tjglad[at]cmail.nu>'],
-      'Platform'    =>  ['win'],
-      'SessionType' =>  ['meterpreter']
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather Enum User MUICache',
+        'Description' => %q{
+          This module gathers information about the files and file paths that logged on users have
+          executed on the system. It also will check if the file still exists on the system. This
+          information is gathered by using information stored under the MUICache registry key. If
+          the user is logged in when the module is executed it will collect the MUICache entries
+          by accessing the registry directly. If the user is not logged in the module will download
+          users registry hive NTUSER.DAT/UsrClass.dat from the system and the MUICache contents are
+          parsed from the downloaded hive.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['TJ Glad <tjglad[at]cmail.nu>'],
+        'Platform' => ['win'],
+        'SessionType' => ['meterpreter']
+      )
+    )
   end
 
   # Scrapes usernames, sids and homepaths from the registry so that we'll know
@@ -49,6 +51,7 @@ class MetasploitModule < Msf::Post
       unless user_sid.length > 10
         next
       end
+
       user_home_path = registry_getvaldata("#{username_reg_path}\\#{user_sid}", "ProfileImagePath")
       if user_home_path.blank?
         print_error("Unable to read ProfileImagePath from the registry. Unable to continue.")
@@ -86,7 +89,6 @@ class MetasploitModule < Msf::Post
     all_user_entries = sys_users.zip(muicache_reg_keys, sys_paths)
 
     all_user_entries.each do |user, reg_key, sys_path|
-
       subkeys = registry_enumvals(reg_key)
       if subkeys.blank?
         # If the registry_enumvals returns us nothing then we'll know
@@ -211,11 +213,11 @@ class MetasploitModule < Msf::Post
     print_status("Starting to enumerate MUICache registry keys...")
     sys_info = sysinfo['OS']
 
-    if sys_info =~/Windows XP/ && is_admin?
+    if sys_info =~ /Windows XP/ && is_admin?
       print_good("Remote system supported: #{sys_info}")
       muicache = "\\Software\\Microsoft\\Windows\\ShellNoRoam\\MUICache"
       hive_file = "\\NTUSER.DAT"
-    elsif sys_info =~/Windows 7/ && is_admin?
+    elsif sys_info =~ /Windows 7/ && is_admin?
       print_good("Remote system supported: #{sys_info}")
       muicache = "_Classes\\Local\ Settings\\Software\\Microsoft\\Windows\\Shell\\MUICache"
       hive_file = "\\AppData\\Local\\Microsoft\\Windows\\UsrClass.dat"
@@ -225,14 +227,15 @@ class MetasploitModule < Msf::Post
     end
 
     table = Rex::Text::Table.new(
-      'Header'  =>  'MUICache Information',
-      'Indent'  =>  1,
+      'Header' => 'MUICache Information',
+      'Indent' => 1,
       'Columns' =>
       [
         "Username",
         "File path",
         "File status",
-      ])
+      ]
+    )
 
     print_status("Phase 1: Searching user names...")
     sys_users, sys_paths, sys_sids = find_user_names

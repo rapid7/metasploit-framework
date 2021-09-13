@@ -3,7 +3,6 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
-
 class MetasploitModule < Msf::Post
   include Msf::Post::File
   include Msf::Post::Windows::Priv
@@ -11,24 +10,26 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Windows::ReflectiveDLLInjection
 
   def initialize(info = {})
-    super(update_info(info,
-      'Name'        => 'Windows Manage Reflective DLL Injection Module',
-      'Description' => %q{
-        This module will inject a specified reflective DLL into the memory of a
-        process, new or existing. If arguments are specified, they are passed to
-        the DllMain entry point as the lpvReserved (3rd) parameter. To read
-        output from the injected process, set PID to zero and WAIT to non-zero.
-        Make sure the architecture of the DLL matches the target process.
-      },
-      'License'      => MSF_LICENSE,
-      'Author'       => ['Ben Campbell', 'b4rtik'],
-      'Platform'     => 'win',
-      'SessionTypes' => ['meterpreter'],
-      'References'   =>
-        [
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Reflective DLL Injection Module',
+        'Description' => %q{
+          This module will inject a specified reflective DLL into the memory of a
+          process, new or existing. If arguments are specified, they are passed to
+          the DllMain entry point as the lpvReserved (3rd) parameter. To read
+          output from the injected process, set PID to zero and WAIT to non-zero.
+          Make sure the architecture of the DLL matches the target process.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => ['Ben Campbell', 'b4rtik'],
+        'Platform' => 'win',
+        'SessionTypes' => ['meterpreter'],
+        'References' => [
           [ 'URL', 'https://github.com/stephenfewer/ReflectiveDLLInjection' ]
         ]
-    ))
+      )
+    )
     register_options(
       [
         OptPath.new('PATH', [true, 'Reflective DLL to inject into memory of a process']),
@@ -69,7 +70,7 @@ class MetasploitModule < Msf::Post
       return false
     end
 
-    theprocess = host_processes.find {|x| x["pid"] == pid}
+    theprocess = host_processes.find { |x| x["pid"] == pid }
 
     !theprocess.nil?
   end

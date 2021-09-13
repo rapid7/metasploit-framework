@@ -7,30 +7,36 @@ class MetasploitModule < Msf::Post
   include Msf::Post::Common
   include Msf::Post::Windows::Process
 
-  def initialize(info={})
-    super( update_info( info,
-      'Name'          => 'Windows Manage Process Migration',
-      'Description'   => %q{ This module will migrate a Meterpreter session from one process
-        to another. A given process PID to migrate to or the module can spawn one and
-        migrate to that newly spawned process.},
-      'License'       => MSF_LICENSE,
-      'Author'        => [
-        'Carlos Perez <carlos_perez[at]darkoperator.com>',
-        'phra <https://iwantmore.pizza>'
-      ],
-      'Platform'      => [ 'win' ],
-      'SessionTypes'  => [ 'meterpreter' ]
-    ))
+  def initialize(info = {})
+    super(
+      update_info(
+        info,
+        'Name' => 'Windows Manage Process Migration',
+        'Description' => %q{
+          This module will migrate a Meterpreter session from one process
+          to another. A given process PID to migrate to or the module can spawn one and
+          migrate to that newly spawned process.
+        },
+        'License' => MSF_LICENSE,
+        'Author' => [
+          'Carlos Perez <carlos_perez[at]darkoperator.com>',
+          'phra <https://iwantmore.pizza>'
+        ],
+        'Platform' => [ 'win' ],
+        'SessionTypes' => [ 'meterpreter' ]
+      )
+    )
 
     register_options(
       [
-        OptBool.new(   'SPAWN',[false,'Spawn process to migrate to. If set, notepad.exe is used.', true]),
-        OptInt.new(    'PID',  [false, 'PID of process to migrate to.', 0]),
-        OptInt.new(    'PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing).', 0]),
-        OptString.new( 'PPID_NAME', [false, 'Name of process for PPID spoofing when creating a new process.']),
-        OptString.new( 'NAME', [false, 'Name of process to migrate to.']),
-        OptBool.new(   'KILL', [false, 'Kill original process for the session.', false])
-      ])
+        OptBool.new('SPAWN', [false, 'Spawn process to migrate to. If set, notepad.exe is used.', true]),
+        OptInt.new('PID', [false, 'PID of process to migrate to.', 0]),
+        OptInt.new('PPID', [false, 'Process Identifier for PPID spoofing when creating a new process. (0 = no PPID spoofing).', 0]),
+        OptString.new('PPID_NAME', [false, 'Name of process for PPID spoofing when creating a new process.']),
+        OptString.new('NAME', [false, 'Name of process to migrate to.']),
+        OptBool.new('KILL', [false, 'Kill original process for the session.', false])
+      ]
+    )
   end
 
   # Run Method for when run command is issued
