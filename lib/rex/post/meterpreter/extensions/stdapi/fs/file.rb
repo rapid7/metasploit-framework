@@ -323,6 +323,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
   # again when each download is complete.
   #
   def File.download(dest, src_files, opts = {}, &stat)
+    dest.force_encoding('UTF-8')
     timestamp = opts["timestamp"]
     [*src_files].each { |src|
       src.force_encoding('UTF-8')
