@@ -85,7 +85,7 @@ module Msf::Post::File
     end
 
     if session.type == 'powershell'
-      dir = session.shell_command_token("Get-ChildItem \"#{directory}\" | Format-Table Name").split(/[\r\n]+/)
+      dir = session.shell_command_token("Get-ChildItem -f \"#{directory}\" | Format-Table Name").split(/[\r\n]+/)
       dir.slice!(0..2) if dir.length > 2
       return dir
     end
@@ -183,7 +183,7 @@ module Msf::Post::File
       return false unless stat
       return stat.file?
     elsif session.type == 'powershell'
-      return cmd_exec("Test-Path \"#{path}\" -PathType leaf")&.include?("True")
+      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -286,7 +286,7 @@ module Msf::Post::File
       stat = session.fs.file.stat(path) rescue nil
       return !!(stat)
     elsif session.type == 'powershell'
-      return cmd_exec("Test-Path \"#{path}\"")&.include?("True")
+      return cmd_exec("[System.IO.File]::Exists( \"#{path}\")")&.include?("True")
     else
       if session.platform == 'windows'
         f = cmd_exec("cmd.exe /C IF exist \"#{path}\" ( echo true )")
@@ -444,6 +444,8 @@ module Msf::Post::File
       fd = session.fs.file.new(file_name, "ab")
       fd.write(data)
       fd.close
+    elsif session.type == 'powershell'
+      _append_file_powershell(file_name, data)
     elsif session.respond_to? :shell_command_token
       if session.platform == 'windows'
         if _can_echo?(data)
@@ -519,7 +521,7 @@ module Msf::Post::File
       if session.type == "meterpreter"
         session.fs.file.delete(remote) if file?(remote)
       elsif session.type == 'powershell'
-        cmd_exec("Remove-Item \"#{remote}\" -Force") if file?(remote)
+        cmd_exec("[System.IO.File]::Delete(\"#{remote}\")") if file?(remote)
       else
         if session.platform == 'windows'
           cmd_exec("del /q /f \"#{remote}\"")
@@ -537,11 +539,14 @@ module Msf::Post::File
   #   delete
   # @return [void]
   def rm_rf(*remote_dirs)
+    print_line("In rm_rf")
     remote_dirs.each do |remote|
       if session.type == "meterpreter"
         session.fs.dir.rmdir(remote) if exist?(remote)
       elsif session.type == 'powershell'
+        print_line("Remove-Item -Path \"#{remote}\" -Force -Recurse")
         cmd_exec("Remove-Item -Path \"#{remote}\" -Force -Recurse")
+        cmd_exec("del \"#{remote}\"")
       else
         if session.platform == 'windows'
           cmd_exec("rd /s /q \"#{remote}\"")
@@ -613,26 +618,34 @@ module Msf::Post::File
 
 protected
 
+  def _append_file_powershell(file_name, data)
+    _write_file_powershell(file_name, data, true)
+  end
 
-  def _write_file_powershell(file_name, data)
+  def _write_file_powershell(file_name, data, append = false)
     offset = 0
     chunk_size = 16256
     loop do
-      _write_file_powershell_fragment(file_name, data, offset, chunk_size)
+      _write_file_powershell_fragment(file_name, data, offset, chunk_size, append)
       offset += chunk_size + 1
       break if offset >= data.length
     end
   end
 
-  def _write_file_powershell_fragment(file_name, data, offset, chunk_size)
+  def _write_file_powershell_fragment(file_name, data, offset, chunk_size, append = false)
   	chunk = data[offset..offset+chunk_size]
   	length = chunk.length
   	compressed_chunk = Rex::Text.gzip(chunk)
   	encoded_chunk = Base64.strict_encode64(compressed_chunk)
+    if offset > 0 || append
+      file_mode = "Append"
+    else
+      file_mode = "Create"
+    end
     pwsh_code = %($encoded=\"#{encoded_chunk}\";
     $mstream = [System.IO.MemoryStream]::new([System.Convert]::FromBase64String($encoded));
     $reader = [System.IO.StreamReader]::new([System.IO.Compression.GZipStream]::new($mstream,[System.IO.Compression.CompressionMode]::Decompress));
-    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{offset == 0 ? "Create" : "Append"})
+    $filename = [System.IO.File]::Open('#{file_name}', [System.IO.FileMode]::#{file_mode})
     $file_bytes=[System.Byte[]]::CreateInstance([System.Byte],#{length});
     $reader.BaseStream.Read($file_bytes,0,$file_bytes.Length);
     $filename.Write($file_bytes, 0, $file_bytes.Length);

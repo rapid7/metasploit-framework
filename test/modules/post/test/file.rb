@@ -74,6 +74,7 @@ class MetasploitModule < Msf::Post
     end
 
     it "should create text files" do
+      rm_f(datastore["BaseFileName"])
       write_file(datastore["BaseFileName"], "foo")
 
       file?(datastore["BaseFileName"])
@@ -83,7 +84,7 @@ class MetasploitModule < Msf::Post
       f = read_file(datastore["BaseFileName"])
       ret = ("foo" == f)
       unless ret
-        print_error("Didn't read what we wrote, actual file on target: #{f}")
+        print_error("Didn't read what we wrote, actual file on target: |#{f}|")
       end
 
       ret
@@ -105,26 +106,27 @@ class MetasploitModule < Msf::Post
     end
 
     it "should delete text files" do
-      file_rm(datastore["BaseFileName"])
+      rm_f(datastore["BaseFileName"])
 
       not file_exist?(datastore["BaseFileName"])
     end
 
     it "should move files" do
         # Make sure we don't have leftovers from a previous run
-        file_rm("meterpreter-test") rescue nil
-        file_rm("meterpreter-test-moved") rescue nil
+        moved_file  = datastore["BaseFileName"] + "-moved"
+        rm _f(datastore["BaseFileName"]) rescue nil
+        rm_f(moved_file) rescue nil
 
         # touch a new file
-        write_file("meterpreter-test", "")
+        write_file(datastore["BaseFileName"], "")
 
-        rename_file("meterpreter-test", "meterpreter-test-moved")
-        res &&= exist?("meterpreter-test-moved")
-        res &&= !exist?("meterpreter-test")
+        rename_file(datastore["BaseFileName"], moved_file)
+        res &&= exist?(moved_file)
+        res &&= !exist?(datastore["BaseFileName"])
 
         # clean up
-        file_rm("meterpreter-test") rescue nil
-        file_rm("meterpreter-test-moved") rescue nil
+        rm_f(datastore["BaseFileName"]) rescue nil
+        rm_f(moved_file) rescue nil
     end
 
   end
@@ -151,7 +153,7 @@ class MetasploitModule < Msf::Post
     end
 
     it "should delete binary files" do
-      file_rm(datastore["BaseFileName"])
+      rm_f(datastore["BaseFileName"])
 
       not file_exist?(datastore["BaseFileName"])
     end
@@ -160,7 +162,7 @@ class MetasploitModule < Msf::Post
       write_file(datastore["BaseFileName"], "\xde\xad")
       append_file(datastore["BaseFileName"], "\xbe\xef")
       bin = read_file(datastore["BaseFileName"])
-      file_rm(datastore["BaseFileName"])
+      rm_f(datastore["BaseFileName"])
 
       bin == "\xde\xad\xbe\xef"
     end
