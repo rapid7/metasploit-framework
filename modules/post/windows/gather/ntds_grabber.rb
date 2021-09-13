@@ -27,7 +27,9 @@ class MetasploitModule < Msf::Post
           'Meterpreter' => {
             'Commands' => %w[
               core_migrate
-              stdapi_railgun*
+              stdapi_railgun_api
+              stdapi_sys_process_execute
+              stdapi_sys_process_getpid
             ]
           }
         }

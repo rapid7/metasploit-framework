@@ -10,7 +10,15 @@ module Msf::PostMixin
   include Msf::Post::Common
 
   def initialize(info={})
-    super
+    super(
+      'Compat' => {
+        'Meterpreter' => {
+          'Commands' => %w[
+            stdapi_sys_config_sysinfo
+          ]
+        }
+      }
+    )
 
     register_options( [
       Msf::OptInt.new('SESSION', [ true, "The session to run this module on." ])
