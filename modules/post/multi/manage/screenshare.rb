@@ -21,7 +21,17 @@ class MetasploitModule < Msf::Post
         'Author' => [ 'timwr'],
         'Platform' => [ 'linux', 'win', 'osx' ],
         'SessionTypes' => [ 'meterpreter' ],
-        'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' }
+        'DefaultOptions' => { 'SRVHOST' => '127.0.0.1' },
+        'Compat' => {
+          'Meterpreter' => {
+            'Commands' => %w[
+              espia_image_get_dev_screen
+              stdapi_ui_desktop_screenshot
+              stdapi_ui_send_keyevent
+              stdapi_ui_send_mouse
+            ]
+          }
+        }
       )
     )
   end
