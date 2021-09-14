@@ -443,7 +443,6 @@ RSpec.describe "Metasploit's json-rpc" do
       let(:vuln_refs) do
         %w[
           CVE-2017-0143
-          CVE-2016-3088
         ]
       end
 
@@ -466,10 +465,6 @@ RSpec.describe "Metasploit's json-rpc" do
                 {
                   address: host_ip,
                   modules: [
-                    {
-                      mname: 'exploit/multi/http/apache_activemq_upload_jsp',
-                      mtype: 'exploit'
-                    },
                     {
                       mtype: 'exploit',
                       mname: 'exploit/windows/smb/ms17_010_eternalblue'
@@ -516,10 +511,6 @@ RSpec.describe "Metasploit's json-rpc" do
                 {
                   address: host_ip,
                   modules: [
-                    {
-                      mname: 'exploit/multi/http/apache_activemq_upload_jsp',
-                      mtype: 'exploit'
-                    },
                     {
                       mtype: 'exploit',
                       mname: 'exploit/windows/smb/ms17_010_eternalblue'
