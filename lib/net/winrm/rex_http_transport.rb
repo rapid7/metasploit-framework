@@ -38,27 +38,28 @@ module Net
         str.sub!(%r{^.*Content-Type: application/octet-stream\r\n(.*)--Encrypted.*$}m, '\1')
 
         signature = str[4..19]
-        message = ntlm_client.session.unseal_message str[20..-1]
+        message = ntlm_client.session.unseal_message(str[20..-1])
         if ntlm_client.session.verify_signature(signature, message)
           response.body = message
           return
         else
-          raise WinRMHTTPTransportError, 'Could not decrypt NTLM message.'
+          raise WinRM::WinRMHTTPTransportError, 'Could not decrypt NTLM message.'
         end
       end
 
       # Performs encryption of the stream being sent to the HTTP client
       def ntlm_transform_request(ntlm_client, req)
         return req if !req.opts['data']
+        opts = req.opts.dup
 
-        req.opts['ctype'] = 'multipart/encrypted;protocol="application/HTTP-SPNEGO-session-encrypted";boundary="Encrypted Boundary"'
-        data = req.opts['data']
-        emessage = ntlm_client.session.seal_message data
-        signature = ntlm_client.session.sign_message data
+        opts['ctype'] = 'multipart/encrypted;protocol="application/HTTP-SPNEGO-session-encrypted";boundary="Encrypted Boundary"'
+        data = opts['data']
+        emessage = ntlm_client.session.seal_message(data)
+        signature = ntlm_client.session.sign_message(data)
         edata = "\x10\x00\x00\x00#{signature}#{emessage}"
 
-        req.opts['data'] = body(edata, data.bytesize)
-        return req
+        opts['data'] = body(edata, data.bytesize)
+        Rex::Proto::Http::ClientRequest.new(opts)
       end
 
       def _send_request(message)
@@ -67,7 +68,8 @@ module Net
             'uri' => uri,
             'method' => 'POST',
             'agent' => 'Microsoft WinRM Client',
-            'ctype' => 'application/soap+xml;charset=UTF-8'
+            'ctype' => 'application/soap+xml;charset=UTF-8',
+            'no_body_for_auth' => true
           }
           if message
             opts['data'] = message
@@ -85,21 +87,12 @@ module Net
       end
 
       def send_request(message)
-        unless first_request_sent
-          _send_request(nil)
-          self.first_request_sent = true
-        end
         _send_request(message)
       end
 
       protected
 
       attr_accessor :http_client, :uri, :timeout
-
-      # Need to send an empty first request to potentially set up an encryption
-      # channel - required if allowUnencrypted is set to false, which is the case
-      # by default
-      attr_accessor :first_request_sent
     end
   end
 end

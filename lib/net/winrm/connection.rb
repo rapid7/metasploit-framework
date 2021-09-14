@@ -18,7 +18,8 @@ module Net
           args = [
             @connection_opts,
             @transport,
-            @logger
+            @logger,
+            shell_opts
           ]
           return StdinShell.new(*args) if shell_type == :stdin
 

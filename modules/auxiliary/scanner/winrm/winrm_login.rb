@@ -97,7 +97,7 @@ class MetasploitModule < Msf::Auxiliary
               realm: result.credential.realm
             }
           )
-          shell = conn.shell(:stdin)
+          shell = conn.shell(:stdin, {})
           # Trigger the shell to open
           shell.send_stdin('')
           session_setup(shell, rhost, rport, endpoint)

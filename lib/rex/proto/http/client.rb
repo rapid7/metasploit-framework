@@ -496,10 +496,19 @@ class Client
     type1 = ntlm_client.init_context
 
     begin
-      # First request to get the challenge
-      opts['headers']['Authorization'] = provider + type1.encode64
+      # Separate options for the auth requests
+      auth_opts = opts.clone
+      auth_opts['headers'] = opts['headers'].clone
+      auth_opts['headers']['Authorization'] = provider + type1.encode64
 
-      r = request_cgi(opts)
+      if auth_opts['no_body_for_auth']
+        auth_opts.delete('data')
+        auth_opts.delete('ntlm_transform_request')
+        auth_opts.delete('ntlm_transform_response')
+      end
+
+      # First request to get the challenge
+      r = request_cgi(auth_opts)
       resp = _send_recv(r, to)
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
@@ -515,12 +524,17 @@ class Client
 
       self.ntlm_client = ntlm_client
       # Send the response
-      opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
-      r = request_cgi(opts)
+      auth_opts['headers']['Authorization'] = "#{provider}#{ntlm_message_3.encode64}"
+      r = request_cgi(auth_opts)
       resp = _send_recv(r, to, true)
 
       unless resp.kind_of? Rex::Proto::Http::Response
         return nil
+      end
+      if opts['no_body_for_auth']
+        # If the body wasn't sent in the authentication, now do the actual request
+        r = request_cgi(opts)
+        resp = _send_recv(r, to, true)
       end
       return resp
 
