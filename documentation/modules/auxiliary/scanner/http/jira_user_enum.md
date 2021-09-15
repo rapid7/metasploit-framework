@@ -6,6 +6,9 @@
 
    * Jira version 8.4.1 on Ubuntu Linux.
    * Jira version 8.4.1 on Kali Linux.
+   * Jira version 8.5.6 on Ubuntu Linux.
+   * Jira version 8.10.1 on Ubuntu Linux.
+   * Jira version 8.11.0 on Ubuntu Linux
 
   Installers:
 
@@ -15,7 +18,7 @@
 ### Description
 
   The module exploits an information disclosure vulnerability to allow an unauthenticated user to enumerate /ViewUserHover.jspa endpoint.
-  This only affects Jira versions < 7.13.16, 8.0.0 ≤ version < 8.5.7, 8.6.0 ≤ version < 8.12.0
+  This only affects Jira versions < 7.13.16, 8.0.0 ≤ version < 8.5.7, 8.6.0 ≤ version < 8.11.1
   Discovered by Mikhail Klyuchnikov @__mn1__
   https://twitter.com/ptswarm/status/1318914772918767619
 
@@ -36,7 +39,7 @@
 - BRUTEFORCE_SPEED - How fast to bruteforce, from 0 to 5
 - RHOSTS - The Target host(s)
 - RPORT - Remote port hosting the Jira Application
-- TAREGETURI - Path to Jira install on the webserver=
+- TAREGETURI - Path to Jira install on the webserver
 - USERNAME - single username to attempt to enumerate
 - USER_FILE - File of usernames to attempt to enumerate
 
