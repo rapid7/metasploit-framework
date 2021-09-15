@@ -50,8 +50,11 @@ module Msf::PostMixin
     check_for_session_readiness if session.type == "meterpreter"
 
     incompatibility_reasons = session_incompatibility_reasons(session)
-    unless incompatibility_reasons.empty?
-      print_warning("SESSION may not be compatible with this module (#{incompatibility_reasons.join('. ')})")
+    if incompatibility_reasons.any?
+      print_warning("SESSION may not be compatible with this module:")
+      incompatibility_reasons.each do |reason|
+        print_warning(" * #{reason}")
+      end
     end
 
     # Msf::Exploit#setup for exploits, NoMethodError for post modules
