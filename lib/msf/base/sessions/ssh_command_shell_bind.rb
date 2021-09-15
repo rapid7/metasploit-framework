@@ -145,6 +145,7 @@ module Msf::Sessions
         @host = host
         @port = port
         @channels = Queue.new
+        @closed = false
       end
 
       def accept(opts = {})
@@ -164,8 +165,14 @@ module Msf::Sessions
         result
       end
 
+      def closed?
+        @closed
+      end
+
       def close
-        @client.stop_server_channel(@host, @port)
+        if !closed?
+          @closed = @client.stop_server_channel(@host, @port)
+        end
       end
 
       def create(cid, ssh_channel)
@@ -232,11 +239,11 @@ module Msf::Sessions
       ssh_channel = msf_channel = nil
 
       if params.proto == 'tcp'
-          if params.server
-            sock = create_server_channel(params)
-          else
-            sock = create_client_channel(params)
-          end
+        if params.server
+          sock = create_server_channel(params)
+        else
+          sock = create_client_channel(params)
+        end
       elsif params.proto == 'udp'
         raise ::Rex::ConnectionError.new(params.peerhost, params.peerport, reason: 'UDP sockets are not supported by SSH sessions.')
       end
@@ -250,8 +257,8 @@ module Msf::Sessions
     end
 
     def create_server_channel(params)
-      keep_trying = true
       msf_channel = nil
+      completed_event = Rex::Sync::Event.new
       @ssh_connection.send_global_request('tcpip-forward', :string, params.localhost, :long, params.localport) do |success, response|
         if success
           remote_port = params.localport
@@ -263,35 +270,44 @@ module Msf::Sessions
         else
           print_error("Remote forwarding failed on #{params.localhost}:#{params.localport}")
         end
-        keep_trying = false
+        completed_event.set
       end
-      @ssh_connection.loop(params.timeout) {
-        keep_trying
-      }
+
+      begin
+        completed_event.wait(params.timeout)
+      rescue TimeoutError
+        # Did not receive a response
+      end
 
       # Return the server channel itself
       sock = msf_channel
     end
 
     def stop_server_channel(host, port)
-      keep_trying = true
+      completed_event = Rex::Sync::Event.new
+      dlog("Cancelling tcpip-forward to #{host}:#{port}")
       @ssh_connection.send_global_request("cancel-tcpip-forward", :string, host, :long, port) do |success, response|
         if success
           key = [host, port]
           @server_channels.delete(key)
-          keep_trying = false
+          print_status("Reverse listener deleted")
         else
-          keep_trying = false
-          raise Rex::ConnectionError, "Could not stop reverse listener on #{host}:#{port}"
+          print_error("Could not stop reverse listener on #{host}:#{port}")
         end
+        completed_event.set
       end
       timeout = 5 # seconds
-      @ssh_connection.loop(timeout) {
-        keep_trying
-      }
+      begin
+        completed_event.wait(timeout)
+        true
+      rescue TimeoutError
+        false
+      end
+
     end
 
     def create_client_channel(params)
+      msf_channel = nil
       mutex = Mutex.new
       condition = ConditionVariable.new
       opened = false
@@ -353,12 +369,12 @@ module Msf::Sessions
       #
       key = [connected_address, connected_port]
       server_channel = @server_channels[key]
-      server_channel.create(channel)
+      server_channel.create(@channel_ticker += 1, channel)
     end
 
     def cleanup
       channels.each_value(&:close)
-      server_channels.each_value(&:cleanup)
+      @server_channels.each_value(&:close)
 
       super
     end
