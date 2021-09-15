@@ -138,6 +138,9 @@ module Msf::Sessions
       attr_reader :cid, :client, :params
     end
 
+    # Represents an SSH reverse port forward.
+    # Will receive connection messages back from the SSH server,
+    # whereupon a TcpClientChannel will be opened
     class TcpServerChannel
       def initialize(params, client, host, port)
         @params = params
@@ -156,9 +159,9 @@ module Msf::Sessions
 
         result = nil
         begin
-          ::Timeout.timeout(timeout) {
+          ::Timeout.timeout(timeout) do
             result = _accept
-          }
+          end
         rescue Timeout::Error
         end
 
@@ -178,28 +181,27 @@ module Msf::Sessions
       def create(cid, ssh_channel, peer_host, peer_port)
         peer_info = {
           'PeerHost' => peer_host,
-          'PeerPort' => peer_port,
+          'PeerPort' => peer_port
         }
         params = @params.merge(peer_info)
         channel = TcpClientChannel.new(@client, cid, ssh_channel, params)
         @channels.enq(channel)
       end
 
-    protected
+      protected
 
       def _accept(nonblock = false)
         result = nil
         begin
-        channel = @channels.deq(nonblock)
-        if channel
-          result = channel.lsock
-        end
+          channel = @channels.deq(nonblock)
+          if channel
+            result = channel.lsock
+          end
         rescue ThreadError
           # This happens when there are no clients in the queue
         end
         result
       end
-
 
     end
 
@@ -240,8 +242,6 @@ module Msf::Sessions
     def create(params)
       # Notify handlers before we create the socket
       notify_before_socket_create(self, params)
-
-      ssh_channel = msf_channel = nil
 
       if params.proto == 'tcp'
         if params.server
@@ -285,13 +285,13 @@ module Msf::Sessions
       end
 
       # Return the server channel itself
-      sock = msf_channel
+      msf_channel
     end
 
     def stop_server_channel(host, port)
       completed_event = Rex::Sync::Event.new
       dlog("Cancelling tcpip-forward to #{host}:#{port}")
-      @ssh_connection.send_global_request("cancel-tcpip-forward", :string, host, :long, port) do |success, response|
+      @ssh_connection.send_global_request('cancel-tcpip-forward', :string, host, :long, port) do |success, _response|
         if success
           key = [host, port]
           @server_channels.delete(key)
@@ -308,7 +308,6 @@ module Msf::Sessions
       rescue TimeoutError
         false
       end
-
     end
 
     def create_client_channel(params)
@@ -364,7 +363,7 @@ module Msf::Sessions
 
     # The SSH server has told us that there's a port forwarding request.
     # Find the relevant server channel and inform it.
-    def on_got_remote_connection(session, channel, packet)
+    def on_got_remote_connection(_session, channel, packet)
       connected_address = packet.read_string
       connected_port = packet.read_long
       originator_address = packet.read_string
