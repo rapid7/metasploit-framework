@@ -22,17 +22,20 @@ class MetasploitModule < Msf::Auxiliary
           Discovered by Mikhail Klyuchnikov @__mn1__
           This module was only tested on 8.4.1
         },
-        'Author' =>
-        [
+        'Author' => [
           'Brian Halbach', # msf module author
           'Mikhail Klyuchnikov' # initial discovery and PoC
         ],
         'License' => MSF_LICENSE,
-        'References' =>
-          [
-            ['URL', 'https://jira.atlassian.com/browse/JRASERVER-71560'],
-            ['CVE', '2020-14181']
-          ],
+        'References' => [
+          ['URL', 'https://jira.atlassian.com/browse/JRASERVER-71560'],
+          ['CVE', '2020-14181']
+        ],
+        'Notes' => {
+          'Stability' => [ CRASH_SAFE ],
+          'SideEffects' => [ IOC_IN_LOGS ],
+          'Reliability' => []
+        },
         'DisclosureDate' => '2020-08-16'
       )
     )
@@ -84,6 +87,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status("Begin enumerating users at #{vhost}#{base_uri}")
     each_user_pass do |user, _pass|
       next if user.empty?
+
       do_user_enum(user)
     end
 
