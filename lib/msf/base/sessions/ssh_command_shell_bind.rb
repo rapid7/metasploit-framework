@@ -175,8 +175,13 @@ module Msf::Sessions
         end
       end
 
-      def create(cid, ssh_channel)
-        channel = TcpClientChannel.new(@client, cid, ssh_channel, @params)
+      def create(cid, ssh_channel, peer_host, peer_port)
+        peer_info = {
+          'PeerHost' => peer_host,
+          'PeerPort' => peer_port,
+        }
+        params = @params.merge(peer_info)
+        channel = TcpClientChannel.new(@client, cid, ssh_channel, params)
         @channels.enq(channel)
       end
 
@@ -290,7 +295,7 @@ module Msf::Sessions
         if success
           key = [host, port]
           @server_channels.delete(key)
-          print_status("Reverse listener deleted")
+          print_status("Reverse SSH listener on #{host}:#{port} stopped")
         else
           print_error("Could not stop reverse listener on #{host}:#{port}")
         end
@@ -369,7 +374,7 @@ module Msf::Sessions
       #
       key = [connected_address, connected_port]
       server_channel = @server_channels[key]
-      server_channel.create(@channel_ticker += 1, channel)
+      server_channel.create(@channel_ticker += 1, channel, originator_address, originator_port)
     end
 
     def cleanup
