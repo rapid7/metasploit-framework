@@ -124,14 +124,33 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good('Successfully logged into target router using the stolen credentials!')
     print_status('Storing credentials for future use...')
-    report_cred(
-      ip: datastore['RHOST'],
+
+    service_data = {
+      address: datastore['RHOST'],
       port: datastore['RPORT'],
       service_name: 'http',
-      user: username,
-      password: password,
-      proto: 'tcp',
-      type: 'password'
-    )
+      protocol: 'tcp',
+      workspace_id: myworkspace_id
+    }
+
+    credential_data = {
+      module_fullname: fullname,
+      origin_type: :service,
+      private_data: password,
+      private_type: :password,
+      username: username
+    }
+
+    credential_data.merge!(service_data)
+
+    credential_core = create_credential(credential_data)
+
+    login_data = {
+      core: credential_core,
+      last_attempted_at: DateTime.now,
+      status: Metasploit::Model::Login::Status::SUCCESSFUL
+    }.merge(service_data)
+
+    create_credential_login(login_data)
   end
 end
