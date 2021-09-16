@@ -147,25 +147,25 @@ module Msf::Sessions
         @client = client
         @host = host
         @port = port
-        @channels = Queue.new
+        @channels = []
         @closed = false
+        @mutex = Mutex.new
+        @condition = ConditionVariable.new
       end
 
       def accept(opts = {})
         timeout = opts['Timeout']
         if (timeout.nil? || timeout <= 0)
-          timeout = 0
+          timeout = nil
         end
 
-        result = nil
-        begin
-          ::Timeout.timeout(timeout) do
-            result = _accept
+        @mutex.synchronize {
+          if @channels.length > 0
+            return _accept
           end
-        rescue Timeout::Error
-        end
-
-        result
+          @condition.wait(@mutex, timeout)
+          return _accept
+        }
       end
 
       def closed?
@@ -179,26 +179,27 @@ module Msf::Sessions
       end
 
       def create(cid, ssh_channel, peer_host, peer_port)
-        peer_info = {
-          'PeerHost' => peer_host,
-          'PeerPort' => peer_port
+        @mutex.synchronize {
+          peer_info = {
+            'PeerHost' => peer_host,
+            'PeerPort' => peer_port
+          }
+          params = @params.merge(peer_info)
+          channel = TcpClientChannel.new(@client, cid, ssh_channel, params)
+          @channels.insert(0, channel)
+
+          # Let any waiting thread know we're ready
+          @condition.signal
         }
-        params = @params.merge(peer_info)
-        channel = TcpClientChannel.new(@client, cid, ssh_channel, params)
-        @channels.enq(channel)
       end
 
       protected
 
-      def _accept(nonblock = false)
+      def _accept
         result = nil
-        begin
-          channel = @channels.deq(nonblock)
-          if channel
-            result = channel.lsock
-          end
-        rescue ThreadError
-          # This happens when there are no clients in the queue
+        channel = @channels.pop
+        if channel
+          result = channel.lsock
         end
         result
       end
