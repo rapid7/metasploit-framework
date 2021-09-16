@@ -274,7 +274,7 @@ module Msf::Sessions
           msf_channel = TcpServerChannel.new(params, self, params.localhost, remote_port)
           @server_channels[key] = msf_channel
         else
-          print_error("Remote forwarding failed on #{params.localhost}:#{params.localport}")
+          elog("Remote forwarding failed on #{params.localhost}:#{params.localport}")
         end
         completed_event.set
       end
@@ -296,9 +296,9 @@ module Msf::Sessions
         if success
           key = [host, port]
           @server_channels.delete(key)
-          print_status("Reverse SSH listener on #{host}:#{port} stopped")
+          ilog("Reverse SSH listener on #{host}:#{port} stopped")
         else
-          print_error("Could not stop reverse listener on #{host}:#{port}")
+          elog("Could not stop reverse listener on #{host}:#{port}")
         end
         completed_event.set
       end
