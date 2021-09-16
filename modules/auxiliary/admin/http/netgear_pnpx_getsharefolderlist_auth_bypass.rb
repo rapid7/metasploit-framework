@@ -35,8 +35,9 @@ class MetasploitModule < Msf::Auxiliary
           [ 'URL', 'https://ssd-disclosure.com/ssd-advisory-netgear-d7000-authentication-bypass/' ]
         ],
         'Notes' => {
-          'SideEffects' => [ CONFIG_CHANGES ],
-          'Stability' => [ CRASH_SERVICE_DOWN ]
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [REPEATABLE_SESSION],
+          'SideEffects' => [CONFIG_CHANGES, IOC_IN_LOGS]
         },
         'RelatedModules' => [ 'exploit/linux/telnet/netgear_telnetenable' ], # This module relies on users also running exploit/linux/telnet/netgear_telnetenable to get the shell.
         'DisclosureDate' => '2021-09-06',
@@ -157,8 +158,8 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
 
-    print_status("Enabling telnet on the target router")
-    res = send_request_cgi(
+    print_status('Enabling telnet on the target router')
+    send_request_cgi(
       'uri' => '/setup.cgi',
       'method' => 'GET',
       'vars_get' => {
