@@ -75,7 +75,7 @@ module Console::InteractiveChannel
   #
   def _stream_read_local_write_remote(channel)
     if raw
-      data = user_input.getch
+      data = user_input.sysread(1024)
     else
       data = user_input.gets
     end
