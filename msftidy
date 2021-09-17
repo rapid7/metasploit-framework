@@ -1,0 +1,3 @@
+cd ~/git/metasploit-framework
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/pre-commit
+ln -sf ../../tools/dev/pre-commit-hook.rb .git/hooks/post-merge
