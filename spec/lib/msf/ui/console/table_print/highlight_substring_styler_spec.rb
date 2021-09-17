@@ -30,5 +30,12 @@ RSpec.describe Msf::Ui::Console::TablePrint::HighlightSubstringStyler do
 
       expect(styler.style(str)).to eql "%bgmagA%clr%bgmagB%clr%bgmagC%clr%bgmagA%clr%bgmagB%clr%bgmagC%clr"
     end
+
+    it 'should support regex highlight terms' do
+      str = 'username password compassionate PASSWORD foo bar'
+      styler = described_class.new([/user|pass/, 'foo'])
+
+      expect(styler.style(str)).to eql "%bgmaguser%clrname %bgmagpass%clrword com%bgmagpass%clrionate PASSWORD %bgmagfoo%clr bar"
+    end
   end
 end
