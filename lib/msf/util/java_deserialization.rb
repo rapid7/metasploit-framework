@@ -11,11 +11,11 @@ class JavaDeserialization
 
   def self.ysoserial_payload(payload_name, command=nil, modified_type: 'none')
     # Open the JSON file and parse it
+    path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
     begin
-      path = File.join(Msf::Config.data_directory, PAYLOAD_FILENAME)
       json = JSON.parse(File.read(path))
     rescue Errno::ENOENT, JSON::ParserError
-      raise RuntimeError, "Unable to load JSON data from 'data/#{PAYLOAD_FILENAME}'"
+      raise RuntimeError, "Unable to load JSON data from: #{path}"
     end
 
     # Extract the specified payload type (including cmd, bash, powershell, none)
