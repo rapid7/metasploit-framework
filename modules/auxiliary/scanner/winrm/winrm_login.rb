@@ -98,8 +98,6 @@ class MetasploitModule < Msf::Auxiliary
             }
           )
           shell = conn.shell(:stdin, {})
-          # Trigger the shell to open
-          shell.send_stdin('')
           session_setup(shell, rhost, rport, endpoint)
         end
       else
@@ -110,7 +108,10 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def session_setup(shell, _rhost, _rport, _endpoint)
-    sess = Msf::Sessions::WinrmCommandShell.new(shell)
+    # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
+    # do not seem to pass us stdout/stderr.
+    interactive_process_id = shell.send_command('cmd.exe')
+    sess = Msf::Sessions::WinrmCommandShell.new(shell, interactive_process_id)
     sess.platform = 'windows'
     username = datastore['USERNAME']
     password = datastore['PASSWORD']

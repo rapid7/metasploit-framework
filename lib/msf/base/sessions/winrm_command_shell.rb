@@ -1,6 +1,7 @@
 # -*- coding: binary -*-
 
 require 'winrm'
+require 'shellwords'
 
 module Msf::Sessions
   #
@@ -13,12 +14,13 @@ module Msf::Sessions
     class WinRMStreamAdapter
       # @param shell [Net::MsfWinRM::StdinShell] Shell for talking to the WinRM service
       # @param on_shell_ended [Method] Callback for when the background thread notices the shell has ended
-      def initialize(shell, on_shell_ended)
+      def initialize(shell, interactive_command_id, on_shell_ended)
         # To buffer input received while a session is backgrounded, we stick responses in a list
         @buffer_mutex = Mutex.new
         @buffer = []
         @check_stdin_event = Rex::Sync::Event.new(false, true)
         @received_stdout_event = Rex::Sync::Event.new(false, true)
+        self.interactive_command_id = interactive_command_id
         self.shell = shell
         self.on_shell_ended = on_shell_ended
       end
@@ -37,7 +39,7 @@ module Msf::Sessions
       end
 
       def write(buf)
-        shell.send_stdin(buf)
+        shell.send_stdin(buf, interactive_command_id)
         refresh_stdout
       end
 
@@ -91,7 +93,7 @@ module Msf::Sessions
           loop do
             tmp_buffer = []
             output_seen = false
-            shell.read_stdout do |stdout, stderr|
+            shell.read_stdout(interactive_command_id) do |stdout, stderr|
               if stdout || stderr
                 output_seen = true
               end
@@ -146,12 +148,12 @@ module Msf::Sessions
       # rubocop:disable Lint/SuppressedException
       def close
         stop_keep_alive_loop
-        shell.cleanup_shell
+        shell.cleanup_command(interactive_command_id)
       rescue WinRM::WinRMWSManFault
       end
       # rubocop:enable Lint/SuppressedException
 
-      attr_accessor :shell, :keep_alive_thread, :on_shell_ended
+      attr_accessor :shell, :keep_alive_thread, :on_shell_ended, :interactive_command_id
 
     end
 
@@ -171,9 +173,10 @@ module Msf::Sessions
     #
     # @param shell [WinRM::Shells::Base] A WinRM shell object
     # @param opts [Hash] Optional parameters to pass to the session object.
-    def initialize(shell, opts = {})
+    def initialize(shell, interactive_command_id, opts = {})
       self.shell = shell
-      self.adapter = WinRMStreamAdapter.new(self.shell, method(:shell_ended))
+      self.interactive_command_id = interactive_command_id
+      self.adapter = WinRMStreamAdapter.new(self.shell, interactive_command_id, method(:shell_ended))
       super(adapter, opts)
     end
 
@@ -182,8 +185,14 @@ module Msf::Sessions
     end
 
     def abort_foreground
-      shell.send_ctrl_c
+      shell.send_ctrl_c(interactive_command_id)
       adapter.refresh_stdout
+    end
+
+    def shell_command(cmd, timeout = 5)
+      args = Shellwords.shellwords(cmd)
+      command = args.shift
+      shell.shell_command_synchronous(command, args, timeout)
     end
 
     # The characters used to terminate a command in this shell
@@ -225,7 +234,7 @@ module Msf::Sessions
 
     protected
 
-    attr_accessor :shell, :adapter
+    attr_accessor :shell, :adapter, :interactive_command_id
 
   end
 end

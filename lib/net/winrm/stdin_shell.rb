@@ -16,25 +16,29 @@ module Net
 
       def add_finalizer; end
 
-      def create_proc
-        # We use cmd rather than powershell because powershell v3 on 2012 (and maybe earlier)
-        # do not seem to pass us stdout/stderr.
-        self.command_id = send_command('cmd.exe', [])
+      def send_command(command, arguments = [])
+        open unless shell_id
+        super(command, arguments)
       end
 
-      def with_command_shell(input, _arguments = [])
-        tries ||= 2
-        send_stdin(input)
-        yield shell_id, command_id
-      rescue WinRM::WinRMWSManFault => e
-        raise unless FAULTS_FOR_RESET.include?(e.fault_code) && (tries -= 1) > 0
-
-        reset_on_error(e)
-        retry
-      end
-
-      def cleanup_shell
-        cleanup_command(command_id)
+      # Runs a shell command synchronously, and returns the output
+      def shell_command_synchronous(command, args, timeout)
+        start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond)
+        command_id = send_command(command, args)
+        buffer = []
+        begin
+          while (Process.clock_gettime(Process::CLOCK_MONOTONIC, :millisecond) - start_time) < (timeout * 1000)
+            read_stdout(command_id) do |stdout, stderr|
+              buffer << stdout if stdout
+              buffer << stderr if stderr
+            end
+          end
+        rescue EOFError
+          # Shell terminated of its own accord
+        ensure
+          cleanup_command(command_id)
+        end
+        buffer.join('')
       end
 
       # Runs the specified command with optional arguments
@@ -42,9 +46,8 @@ module Net
       # @yieldparam [string] standard out response text
       # @yieldparam [string] standard error response text
       # @yieldreturn [WinRM::Output] The command output
-      def read_stdout(&block)
+      def read_stdout(command_id, &block)
         open unless shell_id
-        create_proc unless command_id
         begin
           response_reader.read_output(command_output_message(shell_id, command_id), &block)
         rescue WinRM::WinRMWSManFault => e
@@ -61,10 +64,7 @@ module Net
         end
       end
 
-      def send_ctrl_c
-        open unless shell_id
-        create_proc unless command_id
-
+      def send_ctrl_c(command_id)
         ctrl_c_msg = CtrlC.new(
           connection_opts,
           shell_uri: shell_uri,
@@ -74,9 +74,8 @@ module Net
         transport.send_request(ctrl_c_msg.build)
       end
 
-      def send_stdin(input)
+      def send_stdin(input, command_id)
         open unless shell_id
-        create_proc unless command_id
 
         stdin_msg = WinRM::WSMV::WriteStdin.new(
           connection_opts,
@@ -101,15 +100,13 @@ module Net
       def open_shell
         msg = WinRM::WSMV::CreateShell.new(connection_opts, shell_opts)
         resp_doc = transport.send_request(msg.build)
-        self.owner = REXML::XPath.first(resp_doc, '//rsp:Owner').text
+        match = REXML::XPath.first(resp_doc, '//rsp:Owner')
+        self.owner = match.text if match
         REXML::XPath.first(resp_doc, "//*[@Name='ShellId']").text
       end
 
       attr_accessor :owner
 
-      protected
-
-      attr_accessor :command_id
     end
   end
 end
