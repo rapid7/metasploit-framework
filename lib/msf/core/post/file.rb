@@ -181,6 +181,8 @@ module Msf::Post::File
   #
   # @param path [String] Remote filename to check
   def file?(path)
+    return false if path.nil?
+
     if session.type == 'meterpreter'
       stat = begin
         session.fs.file.stat(path)
