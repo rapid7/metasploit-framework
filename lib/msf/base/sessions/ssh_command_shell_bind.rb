@@ -264,26 +264,36 @@ module Msf::Sessions
 
     def create_server_channel(params)
       msf_channel = nil
-      completed_event = Rex::Sync::Event.new
+      mutex = Mutex.new
+      condition = ConditionVariable.new
+      timed_out = false
       @ssh_connection.send_global_request('tcpip-forward', :string, params.localhost, :long, params.localport) do |success, response|
-        if success
+        mutex.synchronize {
           remote_port = params.localport
           remote_port = response.read_long if remote_port == 0
-          dlog("Remote forwarding from #{params.localhost} established on port #{remote_port}")
-          key = [params.localhost, remote_port]
-          msf_channel = TcpServerChannel.new(params, self, params.localhost, remote_port)
-          @server_channels[key] = msf_channel
-        else
-          elog("Remote forwarding failed on #{params.localhost}:#{params.localport}")
-        end
-        completed_event.set
+          if success
+            if timed_out
+              # We're not using the port; clean it up
+              elog("Remote forwarding on #{params.localhost}:#{params.localport} succeeded after timeout. Stopping channel to clean up dangling port")
+              stop_server_channel(params.localhost, remote_port)
+            else
+              dlog("Remote forwarding from #{params.localhost} established on port #{remote_port}")
+              key = [params.localhost, remote_port]
+              msf_channel = TcpServerChannel.new(params, self, params.localhost, remote_port)
+              @server_channels[key] = msf_channel
+            end
+          else
+              elog("Remote forwarding failed on #{params.localhost}:#{params.localport}")
+          end
+        }
       end
 
-      begin
-        completed_event.wait(params.timeout)
-      rescue TimeoutError
-        # Did not receive a response
-      end
+      mutex.synchronize {
+        condition.wait(mutex, params.timeout)
+        unless msf_channel
+          timed_out = true
+        end
+      }
 
       # Return the server channel itself
       msf_channel
