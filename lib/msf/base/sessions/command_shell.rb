@@ -79,6 +79,10 @@ class CommandShell
     self.class.type
   end
 
+  def abort_foreground_supported
+    self.platform != 'windows'
+  end
+
   ##
   # :category: Msf::Session::Provider::SingleCommandShell implementors
   #
@@ -621,7 +625,7 @@ class CommandShell
     end
 
     # User input is not a built-in command, write to socket directly
-    shell_write(cmd + "\n")
+    shell_write(cmd + command_termination)
   end
 
   #
@@ -639,7 +643,7 @@ class CommandShell
   #
   def shell_command(cmd, timeout=5)
     # Send the command to the session's stdin.
-    shell_write(cmd + "\n")
+    shell_write(cmd + command_termination)
 
     etime = ::Time.now.to_f + timeout
     buff = ""

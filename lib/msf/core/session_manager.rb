@@ -221,6 +221,9 @@ class SessionManager < Hash
         session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
         session.console.on_print_proc = Proc.new { |output| framework.events.on_session_output(session, output) }
       end
+      if session.respond_to?("on_registered")
+        session.on_registered
+      end
     end
 
     return next_sid
