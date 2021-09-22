@@ -51,7 +51,12 @@ class MetasploitModule < Msf::Auxiliary
     service_info = nil
     if is_rdp
       product_version = (version_info && version_info[:product_version]) ? version_info[:product_version] : 'N/A'
-      info = "Detected RDP on #{peer} (Windows version: #{product_version})"
+      info = "Detected RDP on #{peer} "
+      info << "(name:#{version_info[:nb_name]}) " if version_info[:nb_name]
+      info << "(domain:#{version_info[:nb_domain]}) " if version_info[:nb_domain]
+      info << "(domain_fqdn:#{version_info[:dns_domain]}) " if version_info[:dns_domain]
+      info << "(server_fqdn:#{version_info[:dns_server]}) " if version_info[:dns_server]
+      info << "(os_version:#{product_version})"
 
       if datastore['DETECT_NLA']
         service_info = "Requires NLA: #{(!version_info[:product_version].nil? && requires_nla?) ? 'Yes' : 'No'}"
