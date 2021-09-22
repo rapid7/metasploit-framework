@@ -107,37 +107,17 @@ class MetasploitModule < Msf::Auxiliary
     if res && res.code == 401 && res['WWW-Authenticate'] && res['WWW-Authenticate'].match(/^NTLM/i)
       hash = res['WWW-Authenticate'].split('NTLM ')[1]
       # Parse out the NTLM and just get the Target Information Data
-      challenge = Rex::Proto::NTLM::Message.decode64(hash)
-      os_version_struct = challenge[:padding].value()[0..4]
-      os_version = os_version_struct.unpack('\C\C\v').join(".")
+      message = Net::NTLM::Message.parse(Base64.decode64(hash))
+      version = message.os_version.bytes
+      ti = Net::NTLM::TargetInfo.new(message.target_info)
+      info = {}
+      info[:nb_name] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_NB_COMPUTER_NAME]
+      info[:nb_domain] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_NB_DOMAIN_NAME ]
+      info[:dns_server] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_DNS_COMPUTER_NAME]
+      info[:dns_domain] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_DNS_DOMAIN_NAME]
+      info[:os_version] = "#{version[0]}.#{version[1]}.#{version[2] | (version[3] << 8)}"
 
-      target = challenge[:target_info].value()
-      # Retrieve Domain name subblock info
-      nb_domain = parse_ntlm_info(target, "\x02\x00", 0)
-      # Retrieve Server name subblock info
-      nb_name = parse_ntlm_info(target, "\x01\x00", nb_domain[:new_offset])
-      # Retrieve DNS domain name subblock info
-      dns_domain = parse_ntlm_info(target, "\x04\x00", nb_name[:new_offset])
-      # Retrieve DNS server name subblock info
-      dns_server = parse_ntlm_info(target, "\x03\x00", dns_domain[:new_offset])
-
-      return {
-        :nb_name    => nb_name[:message],
-        :nb_domain  => nb_domain[:message],
-        :dns_domain => dns_domain[:message],
-        :dns_server => dns_server[:message],
-        :os_version => os_version
-      }
+      info
     end
-  end
-
-  def parse_ntlm_info(message,pattern,offset)
-    name_index = message.index(pattern,offset)
-    offset = name_index.to_i
-    size = message[offset+2].unpack('C').first
-    return {
-      :message=>message[offset+3,size].gsub(/\0/,''),
-      :new_offset => offset + size
-    }
   end
 end
