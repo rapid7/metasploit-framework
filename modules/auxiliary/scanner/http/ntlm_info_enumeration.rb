@@ -10,7 +10,7 @@ class MetasploitModule < Msf::Auxiliary
 
   def initialize
     super(
-      'Name'        => 'Host Information Enumeration via NTLM Authentication',
+      'Name' => 'Host Information Enumeration via NTLM Authentication',
       'Description' => %q{
           This module makes requests to resources on the target server in
         an attempt to find resources which permit NTLM authentication. For
@@ -20,24 +20,27 @@ class MetasploitModule < Msf::Auxiliary
         domain and NetBIOS name.  A single URI can be specified with TARGET_URI
         and/or a file of URIs can be specified with TARGET_URIS_FILE (default).
       },
-      'Author'      => 'Brandon Knight',
-      'License'     => MSF_LICENSE
+      'Author' => 'Brandon Knight',
+      'License' => MSF_LICENSE
     )
     register_options(
       [
-        OptString.new('TARGET_URI', [ false, "Single target URI", nil]),
-        OptPath.new('TARGET_URIS_FILE', [ false, "Path to list of URIs to request",
-          File.join(Msf::Config.data_directory, "wordlists", "http_owa_common.txt")]),
-      ])
+        OptString.new('TARGET_URI', [ false, 'Single target URI', nil]),
+        OptPath.new('TARGET_URIS_FILE', [
+          false, 'Path to list of URIs to request',
+          File.join(Msf::Config.data_directory, 'wordlists', 'http_owa_common.txt')
+        ]),
+      ]
+    )
   end
 
-  def run_host(ip)
+  def run_host(_ip)
     test_uris = []
     turi = datastore['TARGET_URI']
     turis_file = datastore['TARGET_URIS_FILE']
     if (!turi && !turis_file)
       # can't simply return here as we'll print an error for each host
-      fail_with "Either TARGET_URI or TARGET_URIS_FILE must be specified"
+      fail_with 'Either TARGET_URI or TARGET_URIS_FILE must be specified'
     end
     if (turi && !turi.blank?)
       test_uris << normalize_uri(turi)
@@ -64,40 +67,39 @@ class MetasploitModule < Msf::Auxiliary
     message << "(os_version:#{result[:os_version]})"
     print_good(message)
     report_note(
-      :host  => rhost,
-      :port  => rport,
-      :proto => 'tcp',
-      :sname => (ssl ? 'https' : 'http'),
-      :ntype => 'ntlm.enumeration.info',
-      :data  => {
-        :uri        => path,
-        :SMBName    => result[:nb_name],
-        :SMBDomain  => result[:nb_domain],
-        :FQDNDomain => result[:dns_domain],
-        :FQDNName   => result[:dns_server]
+      host: rhost,
+      port: rport,
+      proto: 'tcp',
+      sname: (ssl ? 'https' : 'http'),
+      ntype: 'ntlm.enumeration.info',
+      data: {
+        uri: path,
+        SMBName: result[:nb_name],
+        SMBDomain: result[:nb_domain],
+        FQDNDomain: result[:dns_domain],
+        FQDNName: result[:dns_server]
       },
-      :update => :unique_data
+      update: :unique_data
     )
   end
 
   def check_url(test_uri)
     begin
-
       vprint_status("Checking #{peer} URL #{test_uri}")
       res = send_request_cgi({
-        'encode'   => true,
-        'uri'      => "#{test_uri}",
-        'method'   => 'GET',
-        'headers'  =>  { "Authorization" => "NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw=="}
+        'encode' => true,
+        'uri' => test_uri.to_s,
+        'method' => 'GET',
+        'headers' => { 'Authorization' => 'NTLM TlRMTVNTUAABAAAAB4IIogAAAAAAAAAAAAAAAAAAAAAGAbEdAAAADw==' }
       })
     rescue OpenSSL::SSL::SSLError
-      vprint_error("SSL error")
+      vprint_error('SSL error')
       return
     rescue Errno::ENOPROTOOPT, Errno::ECONNRESET, ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::ArgumentError
-      vprint_error("Unable to Connect")
+      vprint_error('Unable to Connect')
       return
     rescue ::Timeout::Error, ::Errno::EPIPE
-      vprint_error("Timeout error")
+      vprint_error('Timeout error')
       return
     end
 
@@ -112,7 +114,7 @@ class MetasploitModule < Msf::Auxiliary
       ti = Net::NTLM::TargetInfo.new(message.target_info)
       info = {}
       info[:nb_name] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_NB_COMPUTER_NAME]
-      info[:nb_domain] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_NB_DOMAIN_NAME ]
+      info[:nb_domain] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_NB_DOMAIN_NAME]
       info[:dns_server] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_DNS_COMPUTER_NAME]
       info[:dns_domain] = ti.av_pairs[Net::NTLM::TargetInfo::MSV_AV_DNS_DOMAIN_NAME]
       info[:os_version] = "#{version[0]}.#{version[1]}.#{version[2] | (version[3] << 8)}"
