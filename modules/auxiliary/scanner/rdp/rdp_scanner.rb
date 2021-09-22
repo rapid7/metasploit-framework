@@ -12,21 +12,25 @@ class MetasploitModule < Msf::Auxiliary
     super(
       update_info(
         info,
-        'Name'           => 'Identify endpoints speaking the Remote Desktop Protocol (RDP)',
-        'Description'    => %q(
+        'Name' => 'Identify endpoints speaking the Remote Desktop Protocol (RDP)',
+        'Description' => %q{
           This module attempts to connect to the specified Remote Desktop Protocol port
           and determines if it speaks RDP.
 
           When available, the Credential Security Support Provider (CredSSP) protocol will be used to identify the
           version of Windows on which the server is running. Enabling the DETECT_NLA option will cause a second
           connection to be made to the server to identify if Network Level Authentication (NLA) is required.
-        ),
-        'Author'         => 'Jon Hart <jon_hart[at]rapid7.com>',
-        'References'     =>
-          [
-            ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
-          ],
-        'License'        => MSF_LICENSE
+        },
+        'Author' => 'Jon Hart <jon_hart[at]rapid7.com>',
+        'References' => [
+          ['URL', 'https://msdn.microsoft.com/en-us/library/cc240445.aspx']
+        ],
+        'License' => MSF_LICENSE,
+        'Notes' => {
+          'Stability' => [],
+          'Reliability' => [],
+          'SideEffects' => [IOC_IN_LOGS]
+        }
       )
     )
 
@@ -80,6 +84,7 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     return false unless is_rdp
+
     return [RDPConstants::PROTOCOL_HYBRID, RDPConstants::PROTOCOL_HYBRID_EX].include? server_selected_proto
   end
 
