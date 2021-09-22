@@ -184,7 +184,7 @@ class MetasploitModule < Msf::Evasion
   end
 
   def headers
-    @headers = "#include <Windows.h>\n"
+    @headers = "#include <windows.h>\n"
     @headers << "#include \"#{BASE64}\"\n"
     @headers << "#include \"#{RC4}\"\n" if datastore['CIPHER'] == 'rc4'
     @headers << "#include \"chacha.h\"\n" if datastore['CIPHER'] == 'chacha'
