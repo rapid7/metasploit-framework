@@ -97,17 +97,17 @@ class CommandShell
       # Read the initial output and mash it into a single line
       # Timeout set to 1 to read in banner of all payload responses (may capture prompt as well)
       # Encoding is not forced to support non ASCII shells
-      if session.info.nil? or session.info.empty?
+      if session.info.nil? || session.info.empty?
         banner = shell_read(-1, 1)
         if banner && !banner.empty?
-          banner.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n, "_")
+          banner.gsub!(/[^[:print:][:space:]]+/n, "_")
           banner.strip!
 
-          banner = """
+          banner = %Q{
 Shell Banner:
 #{banner}
 -----
-          """
+          }
 
           session_info = banner
         end
@@ -802,7 +802,7 @@ protected
     # +info+ is set to the shell banner and initial prompt in the +bootstrap+ method
     user_output.print("#{self.info}\n") if (self.info && !self.info.empty?) && self.interacting
 
-    run_single(('').chomp("\n"))
+    run_single('')
 
     while self.interacting
       sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
