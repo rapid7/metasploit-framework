@@ -4,9 +4,10 @@
 This module targets an authentication bypass vulnerability in the `mini_http` binary of several Netgear Routers
 running firmware versions prior to `1.2.0.88`, `1.0.1.80`, `1.1.0.110`, and `1.1.0.84`.
 
-Specifically, a call to `strstr()` is used to check if requests are authenticated, which searches any requests
-that come in to an authenticated page to see if it contains the string `todo=PNPX_GetShareFolderList` anywhere
-within the request. By including the string `todo=PNPX_GetShareFolderList` in the request,
+Specifically, a call to `strstr()` is used to check if any incoming requests to authenticated pages contain
+the string `todo=PNPX_GetShareFolderList` anywhere within the request. If this string is found anywhere within
+the request, the request will be marked as an authenticated request, and will be treated as though it came from
+a logged in administrative user.
 
 By using this vulnerability to send a request to `/setup.cgi` with the `next_file` GET parameter set to `BRS_swisscom_success.html`
 and a `x` GET parameter set to `todo=PNPX_GetShareFolderList`, an unauthenticated attacker can leak the plaintext versions of
@@ -83,7 +84,7 @@ This vulnerability was discovered and exploited by an independent security resea
     [*] Sending one request to grab authorization cookie from headers...
     [*] Got the authentication cookie, associating it with a logged in session...
     [+] Successfully logged into target router using the stolen credentials!
-    [*] Attempting to store credentials for future use...
+    [*] Attempting to store stolen admin and WiFi credentials for future use...
     [*] Enabling telnet on the target router...
     [+] Telnet enabled on target router!
     [*] Attempting to log in with admin:theRiverOfNope123!. You should get a new telnet session as the root user

