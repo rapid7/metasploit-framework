@@ -74,6 +74,7 @@ module Payload::Windows::EncryptedReverseTcp
       opt_lvl:       datastore['OptLevel'],
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
+      show_compile_cmd: datastore['ShowCompileCMD'],
       f_name:        Tempfile.new(staged? ? 'reverse_pic_stager' : 'reverse_pic_stageless').path,
       arch:          self.arch_to_s
     }
@@ -145,6 +146,7 @@ module Payload::Windows::EncryptedReverseTcp
       linker_script: link_script,
       keep_src:      datastore['KeepSrc'],
       keep_exe:      datastore['KeepExe'],
+      show_compile_cmd: datastore['ShowCompileCMD'],
       f_name:        Tempfile.new('reverse_pic_stage').path,
       arch:          self.arch_to_s
     }

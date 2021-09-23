@@ -19,6 +19,7 @@ module Msf
       register_advanced_options(
       [
         OptBool.new('StripSymbols', [ false, 'Payload will be compiled without symbols', true ]),
+        OptBool.new('ShowCompileCMD', [ false, 'Display the command used to compile payload', false ]),
         OptEnum.new('OptLevel', [ false, 'The optimization level to compile with', 'O2', [ 'Og', 'Os', 'O0', 'O1', 'O2', 'O3' ] ]),
         OptBool.new('KeepSrc', [ false, 'Keep source code after compiling it', false ]),
         OptBool.new('KeepExe', [ false, 'Keep executable after compiling the payload', false ]),
