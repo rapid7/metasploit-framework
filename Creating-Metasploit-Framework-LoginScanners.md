@@ -47,21 +47,16 @@ These are the objects yielded by the `scan!` method on each `LoginScanner`.  The
 `Metasploit::Framework::CredentialCollection
 (lib/metasploit/framework/credential_collection.rb)`
 
-This class is used to take datastore options from a module and yield Credential objects from an each method. It takes wordlist files, as well as direct username and password options. It also takes options for username as pass and blank password. It can be passed in as the `cred_details` on the `LoginScanner`, and responds to #each and yields crafted Credentials.
+This class is created by the `build_credential_collection` method provided by the `Msf::Auxiliary::AuthBrute` mixin. It takes a bunch of options, that when specified will take priority over the corresponding datastore options. Typical uses only need to specify the `username:` and `password:` options. It can be passed in as the `cred_details` on the `LoginScanner`, and responds to #each and yields crafted Credentials.
 
 **Example (from modules/auxiliary/scanner/ftp/ftp_login.rb)**:
 
 ```ruby
-cred_collection = Metasploit::Framework::CredentialCollection.new(
-  blank_passwords: datastore['BLANK_PASSWORDS'],
-  pass_file: datastore['PASS_FILE'],
-  password: datastore['PASSWORD'],
-  user_file: datastore['USER_FILE'],
-  userpass_file: datastore['USERPASS_FILE'],
-  username: datastore['USERNAME'],
-  user_as_pass: datastore['USER_AS_PASS'],
-  prepended_creds: anonymous_creds
-)
+    cred_collection = build_credential_collection(
+        username: datastore['USERNAME'],
+        password: datastore['PASSWORD'],
+        prepended_creds: anonymous_creds
+    )
 ```
 
 
