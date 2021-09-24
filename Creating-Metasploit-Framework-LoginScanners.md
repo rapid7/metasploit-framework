@@ -47,7 +47,9 @@ These are the objects yielded by the `scan!` method on each `LoginScanner`.  The
 `Metasploit::Framework::CredentialCollection
 (lib/metasploit/framework/credential_collection.rb)`
 
-This class is created by the `build_credential_collection` method provided by the `Msf::Auxiliary::AuthBrute` mixin. It takes a bunch of options, that when specified will take priority over the corresponding datastore options. Typical uses only need to specify the `username:` and `password:` options. It can be passed in as the `cred_details` on the `LoginScanner`, and responds to #each and yields crafted Credentials.
+This class is created by the `build_credential_collection` method provided by the `Msf::Auxiliary::AuthBrute` mixin. It takes a bunch of options that when specified, will take priority over the corresponding datastore options. Typical uses only need to specify the `username:` and `password:` options since those can be different from one module to another (e.g. 'USERNAME', 'SMBUser', 'HttpUsername', etc.). It can be passed in as the `cred_details` on the `LoginScanner`, and responds to #each and yields crafted Credentials.
+
+The `build_credential_collection` method will handle prepending usernames and passwords as well as skipping entries as configured by the `DB_SKIP_EXISTING` option.
 
 **Example (from modules/auxiliary/scanner/ftp/ftp_login.rb)**:
 
