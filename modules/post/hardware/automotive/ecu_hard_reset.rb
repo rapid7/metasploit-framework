@@ -4,18 +4,20 @@
 ##
 
 class MetasploitModule < Msf::Post
-  def initialize(info = {})
-    super(update_info(info,
-                      'Name' => 'ECU Hard Reset',
-                      'Description' => 'This module performs hard reset in the ECU Reset Service Identifier (0x11) to re-initialize the core hardware components of the system.',
-                      'License' => MSF_LICENSE,
-                      'Author' => ['Jay Turla'],
-                      'Platform' => ['hardware'],
-                      'SessionTypes' => ['hwbridge']))
+
+  def initialize(info={})
+    super( update_info( info,
+      'Name'          => 'ECU Hard Reset',
+      'Description'   => %q{ This module performs hard reset in the ECU Reset Service Identifier (0x11) to re-initialize the core hardware components of the system.},
+      'License'       => MSF_LICENSE,
+      'Author'        => ['Jay Turla'],
+      'Platform'      => ['hardware'],
+      'SessionTypes'  => ['hwbridge']
+    ))
     register_options([
-                       OptString.new('ARBID', [false, 'CAN ID to perform ECU Hard Reset', '0x7DF']),
-                       OptString.new('CANBUS', [false, 'CAN Bus to perform scan on, defaults to connected bus', nil])
-                     ])
+      OptString.new('ARBID', [false, "CAN ID to perform ECU Hard Reset", "0x7DF"]),
+      OptString.new('CANBUS', [false, "CAN Bus to perform scan on, defaults to connected bus", nil])
+    ])
   end
 
   def run
