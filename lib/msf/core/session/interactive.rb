@@ -60,6 +60,13 @@ module Interactive
     end
   end
 
+  def comm_channel
+    return @comm_info if @comm_info
+    if rstream.respond_to?(:channel)
+      @comm_info = "via session #{rstream.channel.client.sid}" if rstream.channel.client.respond_to?(:sid)
+    end
+  end
+
   #
   # Run an arbitrary command as if it came from user input.
   #

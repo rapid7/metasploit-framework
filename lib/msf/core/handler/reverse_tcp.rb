@@ -89,7 +89,12 @@ module ReverseTcp
   def payload_uri
     addr = datastore['LHOST']
     uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
-    "tcp://#{uri_host}:#{datastore['LPORT']}"
+    if listener_sock.nil?
+      via = "(setting up)"
+    else
+      via = via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    end
+    "tcp://#{uri_host}:#{datastore['LPORT']} #{via}"
   end
 
   # A URI describing where we are listening
@@ -99,7 +104,8 @@ module ReverseTcp
   def listener_uri(addr = datastore['ReverseListenerBindAddress'])
     addr = datastore['LHOST'] if addr.nil? || addr.empty?
     uri_host = Rex::Socket.is_ipv6?(addr) ? "[#{addr}]" : addr
-    "tcp://#{uri_host}:#{bind_port}"
+    via = via_string(listener_sock.client) if listener_sock.respond_to?(:client)
+    "tcp://#{uri_host}:#{bind_port} #{via}"
   end
 
   #
