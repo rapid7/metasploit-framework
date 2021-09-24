@@ -820,6 +820,7 @@ ambling-bellows
 ambrosia
 amdhas
 ameen
+amela
 ameno
 american-bones-for-wordpress
 americana
@@ -867,6 +868,7 @@ amplify
 amplifyworldwide
 amplight
 amplitude
+amprogramacion
 ampwp
 amstel
 amv-pink
@@ -1487,6 +1489,7 @@ autumnnow
 avad
 avada
 avadanta
+avadanta-agency
 avadanta-business
 avadanta-consulting
 avadanta-corporate
@@ -2653,6 +2656,7 @@ blogstart-pro-amp
 blogster
 blogster-utility
 blogstrap
+blogstream
 blogstyle
 blogtay
 blogtime
@@ -3341,6 +3345,7 @@ bushra-anwar
 bushwick
 busiage
 busicare
+busicare-dark
 busicorp
 busify
 busihub
@@ -3785,6 +3790,7 @@ cassie
 cassions
 castell
 castlxing
+castpress
 casual
 casual-blog
 casual-theme
@@ -4339,6 +4345,7 @@ cloudmini
 cloudpress
 cloudpress-agency
 cloudpress-business
+cloudpress-dark
 clouds
 cloudy
 cloudy-blue-sky
@@ -4783,6 +4790,7 @@ corpocrat-theme
 corponess
 corponotch
 corponotch-consultant
+corponotch-law
 corpopress
 corporal
 corporata-lite
@@ -5676,10 +5684,12 @@ digestliving
 digg
 digg-like-theme
 digi-business-consulting
+digi-restaurant
 digi-store
 digiblog
 digicload
 digicrew
+digicrew-lite
 digihigh-lite
 digimag-lite
 digimode
@@ -5701,6 +5711,7 @@ digital-products
 digital-profile
 digital-profile-theme
 digital-services
+digital-shop
 digital-store
 digital-storefront
 digital-technology
@@ -5709,6 +5720,7 @@ digitalblue
 digitale-pracht
 digitalis
 digitallaw
+digitally
 digitalmarketinginn
 digitalsignagepress-lite
 digitrails
@@ -6543,6 +6555,7 @@ enlighten
 enlighten1
 enlightenment
 enlightentopessaywriting
+enlightme
 enliven
 ennova
 ennylex
@@ -7243,6 +7256,7 @@ fitness
 fitness-blogger
 fitness-business
 fitness-club-lite
+fitness-coaching
 fitness-essential
 fitness-freak
 fitness-gymhouse
@@ -7466,6 +7480,7 @@ folium
 follet
 follow-me-darling
 fondbox
+fondness
 fontella
 fonts
 foo-bar-symlink
@@ -8341,6 +8356,7 @@ green-day
 green-earth
 green-eco-planet
 green-eye
+green-farm
 green-flowers
 green-fun
 green-garden
@@ -8474,6 +8490,7 @@ griddle
 griddy
 gridflow
 gridform
+gridhot
 gridhub
 gridiculous
 gridio
@@ -9326,6 +9343,7 @@ ikaruswhite
 ikhwah-personal-theme
 ikj-boot
 iknow
+iknowledgebase
 ikonwp
 ilauncher
 ilbee
@@ -9739,6 +9757,7 @@ it-expert
 it-is-mighty-beautiful-down-there
 it-news-grid
 it-photographer
+it-services
 it-solutions
 it-technologies
 itahari-park
@@ -9904,6 +9923,7 @@ jetspot
 jetstorm
 jewel-blog
 jewellery-lite
+jewellery-shop
 jewelrify
 jewelry-store
 jfdvksmsss-uri-httpathemes-comthemetalon
@@ -10630,6 +10650,7 @@ lawyeria-lite
 lawyeriax-lite
 lawyerpress-lite
 lawyersabout
+laxity
 laxury-trip
 layered-bliss
 layers
@@ -11478,6 +11499,7 @@ mark_one
 markcss
 marked_aj
 market
+market-bizz
 market_version_test
 marketer
 marketing
@@ -11491,6 +11513,7 @@ markiter
 markoblog
 markosource
 markup
+markup-blog
 marla
 marla-theme
 marlexsystems
@@ -12897,6 +12920,7 @@ narcissus
 narga
 narmada
 narrative
+narrative-lite
 narrownplain
 narsisweb
 naruto-simple
@@ -13168,6 +13192,7 @@ news-vibrant-lite
 news-vibrant-mag
 news-vibrant-plus
 news-viral
+news-way
 news-x
 newsanchor
 newsbd24
@@ -13774,6 +13799,7 @@ omicron
 omigo-site
 ominis
 omise-for-creators
+omkara
 omni-theme-clone
 omniblock
 omnis
@@ -14144,6 +14170,7 @@ owesome
 owl
 own
 own-shop
+own-store
 owner
 owntheme
 ows-commerce
@@ -14347,6 +14374,7 @@ pathrzzz
 patio
 patra-mesigar
 patria
+patricia-lite
 patrika
 patriot
 patus
@@ -14832,6 +14860,7 @@ playlist
 playne
 playon
 plays-school
+playschool-lite
 plaza
 pleasant-lite
 pleased
@@ -16514,6 +16543,7 @@ sbw-wedding
 scaffold
 scanlines
 scapeshot
+scapeshot-music
 scaredy-cat
 scarlet
 scarlet-blue
@@ -16535,6 +16565,7 @@ schon-free
 school
 school-connect
 school-house-by-angelica
+school-of-education
 school-of-law
 school-one
 school-zone
@@ -16920,6 +16951,7 @@ shopay
 shopay-store
 shopbiz-lite
 shopee
+shopeo
 shoper
 shopera
 shophistic
@@ -17093,6 +17125,7 @@ simba
 simblog
 simclick
 simcolor
+simentor
 simfolio
 simger
 simgo
@@ -17384,6 +17417,7 @@ sinatra-remastered
 sincere
 sincerely-arimastheme-uri-httpwww-cssigniter-comignitethemesolsen-light
 sindhu
+sine
 sing-song
 singerbil
 singl
@@ -18337,6 +18371,7 @@ stupidgenius
 stupidzombie
 sturd
 sturdy
+stygian
 style-59
 style-blog
 style-blog-fame
@@ -18506,6 +18541,7 @@ supernatural
 supernews
 supernews-val
 supernova
+superpress
 superslick
 supersport
 superstore
@@ -18790,6 +18826,7 @@ technews
 technic
 technical-blue
 technical-speech
+technify
 techno
 techno-biz
 techno-blue-theme
@@ -19430,6 +19467,7 @@ toothpaste
 top-blog
 top-business
 top-classic-cars
+top-event
 top-jewelry
 top-language-jobs-2
 top-mag
@@ -20365,6 +20403,7 @@ vbasic
 vblog
 vbseo-style-20-wordpress-theme
 vcard
+vcard-cv-resume
 vcards
 vcloud
 vdequator
@@ -20838,6 +20877,7 @@ wcolor-responsive
 wd-comicmag
 wd-twenty-fourteen-child
 wdl-family-history
+we-are-the-youth
 we-are-writers
 we-build
 we-live
@@ -21483,6 +21523,7 @@ wp-times
 wp-tour-package
 wp-travel-magazine
 wp-trie
+wp-trucker
 wp-tube-premium
 wp-twitter-bootstrap
 wp-uikit
@@ -21725,6 +21766,7 @@ xevent-theme
 xfilter
 xflavour
 xfolio
+xhub-blog
 xi-portfolio
 xiando-one
 xianrensea
