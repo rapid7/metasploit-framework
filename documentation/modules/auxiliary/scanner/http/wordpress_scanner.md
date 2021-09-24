@@ -74,7 +74,7 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 ## Verification Steps
 
-1. Do: `use auxiliary/scanner/http/wordpress_sanner`
+1. Do: `use auxiliary/scanner/http/wordpress_scanner`
 2. Do: `set RHOSTS [IP]`
 3. Do: `set VHOST [HOSTNAME]`
 4. Do: `run`
@@ -83,7 +83,7 @@ Admin panel: http://msf-wp.docksal/wp-admin. User/password: admin/admin
 
 ### Exploitable
 
-Only sans for themes and plugins which Metasploit has a module for.  Defaults to `true`
+Only scans for themes and plugins which Metasploit has a module for.  Defaults to `true`
 
 ### Exploitable_themes
 
@@ -91,7 +91,7 @@ Which list of exploitable themes to use. Default is `data/wordlists/wp-exploitab
 
 ### Exploitable_plugins
 
-Which list of exploitable plugins use. Default is `data/wordlists/wp-exploitable-plugins.txt`
+Which list of exploitable plugins to use. Default is `data/wordlists/wp-exploitable-plugins.txt`
 
 ### PLUGINS
 
@@ -121,8 +121,8 @@ Follow the Instructions above to setup the Docksal Containers.
 
 ```
 msf5 > use auxiliary/scanner/http/wordpress_scanner
-msf5 auxiliary(scanner/http/wordpress_scanner) > set RHOST msf-wp.docksal
-RHOST => msf-wp.docksal
+msf5 auxiliary(scanner/http/wordpress_scanner) > set RHOSTS msf-wp.docksal
+RHOSTS => msf-wp.docksal
 msf5 auxiliary(scanner/http/wordpress_scanner) > set VHOST msf-wp.docksal
 VHOST => msf-wp.docksal
 msf5 auxiliary(scanner/http/wordpress_scanner) > run
