@@ -110,6 +110,12 @@ class MetasploitModule < Msf::Post
       end
       res
     end
+  end
+
+  def test_fs_search_date
+    vprint_status("Starting search date tests")
+
+    pwd = session.fs.dir.getwd
 
     yesterday = (Time.now - 1.week).to_i
     tomorrow = (Time.now + 1.week).to_i
@@ -132,7 +138,7 @@ class MetasploitModule < Msf::Post
 
     it "should search with dates ignores new files" do
       res = true
-      files = client.fs.file.search(pwd, "*", true, -1, tomorrow, 0)
+      files = client.fs.file.search(pwd, "*", true, -1, tomorrow, nil)
       files.each do |file|
         res = false if file['name'] == @file_name
       end
@@ -141,13 +147,35 @@ class MetasploitModule < Msf::Post
 
     it "should search with dates ignores old files" do
       res = true
-      files = client.fs.file.search(pwd, "*", true, -1, 0, yesterday)
+      files = client.fs.file.search(pwd, "*", true, -1, nil, yesterday)
       files.each do |file|
         res = false if file['name'] == @file_name
       end
       res
     end
 
+    genesis_date = "3 January 2009 18:15:13 +0000"
+    genesis = DateTime.parse(genesis_date).to_i
+
+    if not ['windows', 'win'].include? session.platform
+      cmd_exec("touch -d '#{genesis_date}' #{@file_name}")
+    elsif session.priv.present?
+      client.priv.fs.set_file_mace(@file_name, genesis)
+    else
+      vprint_status("Session does not support setting the modified date, skipping exact date tests")
+      return
+    end
+
+    it "should search with date inclusive of exact date" do
+      res = false
+      files = client.fs.file.search(pwd, "*", true, -1, genesis, genesis)
+      files.each do |file|
+        if file['name'] == @file_name
+          res = (file['mtime'] == genesis)
+        end
+      end
+      res
+    end
   end
 
   def cleanup
